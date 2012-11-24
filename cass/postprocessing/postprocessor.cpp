@@ -966,6 +966,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
         (new pp1600(*this,key));
     break;
+  case CoarseCsPadAligment:
+    processor = PostprocessorBackend::shared_pointer
+        (new pp1601(*this,key));
+    break;
 #ifdef CERNROOT
   case ROOTDump:
     processor = PostprocessorBackend::shared_pointer

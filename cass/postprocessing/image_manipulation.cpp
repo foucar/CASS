@@ -159,6 +159,69 @@ size_t FlipVertical(size_t destCol, size_t destRow, pair<size_t,size_t> size)
   return toLinearized(srcCol,srcRow,nSrcCols);
 }
 
+struct Rotor
+{
+  char incDestColPerSrcCol;
+  char incDestColPerSrcRow;
+  char incDestRowPerSrcCol;
+  char incDestRowPerSrcRow;
+};
+
+/** copy from a source matrix to a destination matrix in user wanted way
+ *
+ * details
+ *
+ * @param
+ *
+ * @author Lutz Foucar
+ */
+class MatrixCopier
+{
+public:
+
+  MatrixCopier(const HistogramFloatBase::storage_t& src, HistogramFloatBase::storage_t& dest,
+               const int srcCols, const int srcRows,
+               const int destCols)
+    : _src(src),
+      _dest(dest),
+      _srcCols(srcCols),
+      _srcRows(srcRows),
+      _destCols(destCols)
+  {}
+
+  void copyMatrixSegment(const int segment,
+                         const int destColStart, const int destRowStart,
+                         const Rotor &rot)
+  {
+    int destRow = destRowStart;
+    int destCol = destColStart;
+
+    const int srcRowStart(segment*_srcRows);
+    const int srcRowStop((segment+1)*_srcRows);
+    for (int srcRow = srcRowStart; srcRow < srcRowStop; ++srcRow)
+    {
+      destCol = (((destCol - destColStart)) % _srcCols) + destColStart;
+      destRow = (((destRow - destRowStart)) % _srcCols) + destRowStart;
+      for (int srcCol = 0; srcCol < _srcCols; ++srcCol)
+      {
+        _dest[destRow*_destCols + destCol] = _src[srcRow*_srcCols + srcCol];
+        destCol += rot.incDestColPerSrcCol;
+        destRow += rot.incDestRowPerSrcCol;
+      }
+      destCol += rot.incDestColPerSrcRow;
+      destRow += rot.incDestRowPerSrcRow;
+    }
+  }
+
+private:
+  const HistogramFloatBase::storage_t& _src;
+  HistogramFloatBase::storage_t& _dest;
+  const int _srcCols;
+  const int _srcRows;
+  const int _destCols;
+};
+
+
 }//end namespace cass
 
 
@@ -327,6 +390,133 @@ void pp1600::process(const CASSEvent &evt)
       dest[ii] = src[quadrant * pix_per_quad + k];
     }
   }
+  _result->lock.unlock();
+  hist.lock.unlock();
+}
+
+
+
+
+
+
+
+
+pp1601::pp1601(PostProcessors& pp, const PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key),
+    _nx(194),
+    _ny(185)
+{
+  loadSettings(0);
+}
+
+void pp1601::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _one = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
+
+  _result = new Histogram2DFloat(2*(2*_nx+2*_ny),2*(2*_nx+2*_ny));
+
+  createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert cspad image in " +
+           "PostProcessor '" +  _one->key() + " into a condensed real layout, " +
+           " looking from upstream."
+           ". Condition is '" + _condition->key() + "'");
+}
+
+void pp1601::process(const CASSEvent &evt)
+{
+  // Get the input histogram
+  const Histogram2DFloat &hist
+      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
+
+  hist.lock.lockForRead();
+  const HistogramFloatBase::storage_t& src(hist.memory()) ;
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase*>(_result)->memory());
+  _result->nbrOfFills()=1;
+
+  const size_t pix_per_seg(2*_nx*_ny);
+  const size_t pix_per_quad(8*pix_per_seg);
+
+  Rotor LRBT{ 1, 0, 0, 1};
+  Rotor LRTB{ 1, 0, 0,-1};
+  Rotor RLBT{-1, 0, 0, 1};
+  Rotor RLTB{-1, 0, 0,-1};
+
+  Rotor TBRL{ 0,-1,-1, 0};
+  Rotor TBLR{ 0, 1,-1, 0};
+  Rotor BTRL{ 0,-1, 1, 0};
+  Rotor BTLR{ 0, 1, 1, 0};
+
+  MatrixCopier mc(src,dest,hist.axis()[HistogramBackend::xAxis].nbrBins(),
+                  hist.axis()[HistogramBackend::yAxis].nbrBins(),
+                  _result->axis()[HistogramBackend::xAxis].nbrBins());
+  //q0//
+  mc.copyMatrixSegment( 0, 2*_nx+0*_ny    , 2*_nx+2*_ny    ,BTLR);
+  mc.copyMatrixSegment( 1, 2*_nx+1*_ny    , 2*_nx+2*_ny    ,BTLR);
+  mc.copyMatrixSegment( 2, 0*_nx+0*_ny    , 2*_nx+4*_ny -1 ,LRTB);
+  mc.copyMatrixSegment( 3, 0*_nx+0*_ny    , 2*_nx+3*_ny -1 ,LRTB);
+  mc.copyMatrixSegment( 4, 0*_nx+2*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
+  mc.copyMatrixSegment( 5, 0*_nx+1*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
+  mc.copyMatrixSegment( 6, 0*_nx+2*_ny    , 4*_nx+4*_ny -1 ,LRTB);
+  mc.copyMatrixSegment( 7, 0*_nx+2*_ny    , 4*_nx+3*_ny -1 ,LRTB);
+
+  //q1//
+  mc.copyMatrixSegment( 8, 2*_nx+2*_ny    , 2*_nx+4*_ny -1 ,LRTB);
+  mc.copyMatrixSegment( 9, 2*_nx+2*_ny    , 2*_nx+3*_ny -1 ,LRTB);
+  mc.copyMatrixSegment(10, 2*_nx+4*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
+  mc.copyMatrixSegment(11, 2*_nx+3*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
+  mc.copyMatrixSegment(12, 4*_nx+4*_ny -1 , 4*_nx+2*_ny    ,RLBT);
+  mc.copyMatrixSegment(13, 4*_nx+4*_ny -1 , 4*_nx+3*_ny    ,RLBT);
+  mc.copyMatrixSegment(14, 4*_nx+4*_ny -1 , 4*_nx+3*_ny -1 ,TBRL);
+  mc.copyMatrixSegment(15, 4*_nx+3*_ny -1 , 4*_nx+3*_ny -1 ,TBRL);
+
+  //q2//
+  mc.copyMatrixSegment(16, 2*_nx+4*_ny -1 , 2*_nx+2*_ny -1 ,TBRL);
+  mc.copyMatrixSegment(17, 2*_nx+3*_ny -1 , 2*_nx+2*_ny -1 ,TBRL);
+  mc.copyMatrixSegment(18, 4*_nx+4*_ny -1 , 2*_nx+0*_ny    ,RLBT);
+  mc.copyMatrixSegment(19, 4*_nx+4*_ny -1 , 2*_nx+1*_ny    ,RLBT);
+  mc.copyMatrixSegment(20, 4*_nx+2*_ny    , 0*_nx+0*_ny    ,BTLR);
+  mc.copyMatrixSegment(21, 4*_nx+3*_ny    , 0*_nx+0*_ny    ,BTLR);
+  mc.copyMatrixSegment(22, 4*_nx+2*_ny -1 , 0*_nx+0*_ny    ,RLBT);
+  mc.copyMatrixSegment(23, 4*_nx+2*_ny -1 , 0*_nx+1*_ny    ,RLBT);
+
+  //q3//
+  mc.copyMatrixSegment(24, 2*_nx+2*_ny -1 , 2*_nx+0*_ny    ,RLBT);
+  mc.copyMatrixSegment(25, 2*_nx+2*_ny -1 , 2*_nx+1*_ny    ,RLBT);
+  mc.copyMatrixSegment(26, 2*_nx+0*_ny    , 0*_nx+0*_ny    ,BTLR);
+  mc.copyMatrixSegment(27, 2*_nx+1*_ny    , 0*_nx+0*_ny    ,BTLR);
+  mc.copyMatrixSegment(28, 0*_nx+0*_ny    , 0*_nx+2*_ny -1 ,LRTB);
+  mc.copyMatrixSegment(29, 0*_nx+0*_ny    , 0*_nx+1*_ny -1 ,LRTB);
+  mc.copyMatrixSegment(30, 0*_nx+0*_ny    , 0*_nx+2*_ny    ,BTLR);
+  mc.copyMatrixSegment(31, 1*_nx+0*_ny    , 0*_nx+2*_ny    ,BTLR);
+
+  //q0e0//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 0*_ny, 2*_nx+0*_ny    , 2*_nx+2*_ny    ,0,1,1,0);
+//  //q0e1//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 1*_ny, 2*_nx+1*_ny    , 2*_nx+2*_ny    ,0,1,1,0);
+//  //q0e2//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 2*_ny, 0*_nx+0*_ny    , 2*_nx+4*_ny -1 ,1,0,0,-1);
+//  //q0e3//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 3*_ny, 0*_nx+0*_ny    , 2*_nx+3*_ny -1 ,1,0,0,-1);
+//  //q0e4//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 4*_ny, 0*_nx+2*_ny -1 , 4*_nx+4*_ny -1 ,0,-1,-1,0);
+//  //q0e5//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 5*_ny, 0*_nx+1*_ny -1 , 4*_nx+4*_ny -1 ,0,-1,-1,0);
+//  //q0e6//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 6*_ny, 0*_nx+2*_ny    , 4*_nx+4*_ny -1 ,1,0,0,-1);
+//  //q0e7//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 7*_ny, 0*_nx+2*_ny    , 4*_nx+3*_ny -1 ,1,0,0,-1);
+
+//  //q1e0//
+//  copyMatrix(src,dest,2*_nx,_ny,0, 8*_ny, 2*_nx+2*_ny    , 2*_nx+4*_ny    ,0,1,1,0);
+
   _result->lock.unlock();
   hist.lock.unlock();
 }

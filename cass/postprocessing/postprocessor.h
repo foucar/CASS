@@ -185,6 +185,7 @@ the Class description for information about what parameters are user settable.
 00241: fix distorted offset of pnCCD frames
 00242: same as 105, but one can put a user defined value at the masked pixels
 01600: convert cass cspad to cheetah cspad
+01601: rearrange cspad to coarsly right orientation (looking from upstream)
 
 00400: ToF to Energy conversion
 00401: Calculate variance
@@ -441,6 +442,7 @@ public:
     HDF52dConverter=1002,
     CBFOutput=1500,
     ChetahConv=1600,
+    CoarseCsPadAligment=1601,
     ROOTDump=2000,
     ROOTTreeDump=2001,
 
