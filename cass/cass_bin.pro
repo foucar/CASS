@@ -26,16 +26,16 @@ PRE_TARGETDEPS     += $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 
 lclsacq.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a
 lclsacq.commands    = @cd $$PWD/../LCLS && make x86_64-linux-static-opt
@@ -53,8 +53,11 @@ lclscam.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclsctrl.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a
 lclsctrl.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a
 
+lclscspad.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a
+lclscspad.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a
+
 lclsepic.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a
-lclsepic.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a
+lclsepic.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a
 
 lclsevr.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a
 lclsevr.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a
@@ -80,7 +83,7 @@ lclsxtc.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclslusi.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
 lclslusi.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 
-QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr lclsipm lclsopal lclspnccd lclscspad lclsprinc lclspul lclsxtc lclslusi
+QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclscspad lclsepic lclsevr lclsipm lclsopal lclspnccd lclscspad lclsprinc lclspul lclsxtc lclslusi
 
 
 # create SOAP sources and descriptions
@@ -306,7 +309,9 @@ lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
 lclsapps.path       = $$INSTALLBASE/bin
 lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
 bin_copy.path       = $$INSTALLBASE/bin
@@ -325,48 +330,21 @@ QMAKE_EXTRA_TARGETS+= versiontarget
 
 QMAKE_CLEAN        += $$SOAPFiles.files
 QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV3.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/PulseConfigV3.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/OutputMap.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/PulseConfig.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/EventCodeV3.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV2.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/DataV3.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsPvData.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsXtcSettings.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsDbrTools.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/xtcmonserver.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/XtcMonitorClient.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/opal1k/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/FrameV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/DataV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/DataDescV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/PVControl.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/PVMonitor.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/FrameFexConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/TwoDGaussianV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/FrameV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/XtcIterator.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TransitionId.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/BldInfo.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/DetInfo.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/XtcFileIterator.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Src.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Level.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TypeId.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/ClockTime.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TimeStamp.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/ProcInfo.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Sequence.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/bld/src/bldData.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/ConfigV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/FrameV1.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/TM6740ConfigV1.o
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/bld/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/cspad/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/lusi/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/opal1k/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/*.o \
+                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/*.o
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
