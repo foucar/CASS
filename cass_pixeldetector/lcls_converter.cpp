@@ -193,17 +193,17 @@ Converter::Converter()
              DetInfo::TM6740, 1);
 
   Key CXIFrontCsPadConfig(TypeId::Id_CspadConfig,
-                          DetInfo::CxiDsd, 0,
+                          DetInfo::CxiDs1, 0,
                           DetInfo::Cspad, 0);
   Key CXIFrontCsPad(TypeId::Id_CspadElement,
-                    DetInfo::CxiDsd, 0,
+                    DetInfo::CxiDs1, 0,
                     DetInfo::Cspad, 0);
   Key CXIBackCsPadConfig(TypeId::Id_CspadConfig,
-                         DetInfo::Camp, 0,
-                         DetInfo::pnCCD, 0);
+                         DetInfo::CxiDsd, 0,
+                         DetInfo::Cspad, 0);
   Key CXIBackCsPad(TypeId::Id_CspadElement,
-                   DetInfo::Camp, 0,
-                   DetInfo::pnCCD, 0);
+                   DetInfo::CxiDsd, 0,
+                   DetInfo::Cspad, 0);
 
 
 
