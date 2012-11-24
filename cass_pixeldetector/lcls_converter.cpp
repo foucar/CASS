@@ -419,21 +419,15 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     /** 4 quadrants */
     const int FrameSize(4*pixelsPerQuadrant);
     det.frame().resize(FrameSize);
-    pixel_t* rawframe = &det.frame().front();
-    // loop  over quadrants
+    // loop  over quadrants (elements)
     while( (element=iter.next() ))
     {
-      /** @todo if element->quad() >= 4  Error? */
-
-      // nr of quadrant
-      int quadrantNr = element->quad();
-
-      // sections:
+      const size_t quad(element->quad());
+      pixel_t* rawframe((&det.frame().front()) + quad * pixelsPerQuadrant);
       const Pds::CsPad::Section* section;
       unsigned int section_id;
       while(( section=iter.next(section_id) ))
       {
-        //memcpy( rawframe+quadrantNr*pixelsPerQuadrant, section->pixel[0]);
         const uint16_t* pixels = section->pixel[0];
         for (int ii=0; ii<pixelsPerSegment; ++ii)
         {
@@ -444,8 +438,9 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       }
     }
 
-    det.rows() = 4*asic_nx;  // 4 quadrants
-    det.columns() = 8*2*asic_ny;  // 8 segments with 2 asics on each quadrant
+    /** all sections above each other */
+    det.columns() = 2*asic_nx;
+    det.rows() = 4*8*asic_ny;
 
   }
     break;
