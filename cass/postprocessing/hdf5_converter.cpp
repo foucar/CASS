@@ -903,6 +903,10 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
 }
 
 
+
+
+
+
 pp1002::pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
   : PostprocessorBackend(pp,key),
     _basefilename(outfilename)
@@ -917,12 +921,16 @@ void pp1002::loadSettings(size_t)
   settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
+  _pPhotonHist = setupDependency("PhotonEnergyHistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   const HistogramBackend &hist(_pHist->getHist(0));
   if (hist.dimension() != 2)
     throw invalid_argument("pp1002: The histogram that should be written to hdf5 is not a 2d histogram");
+  const HistogramBackend &photonhist(_pPhotonHist->getHist(0));
+  if (photonhist.dimension() != 0)
+    throw invalid_argument("pp1002: The histogram that should contain the photonenergy is not a 0d histogram");
   _compress = settings.value("Compress",true).toBool();
   if (_compress)
   {
@@ -948,6 +956,8 @@ void pp1002::process(const CASSEvent &evt)
   QMutexLocker locker(&_lock);
   const Histogram2DFloat& hist
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  const Histogram0DFloat& photonenergyHist
+      (dynamic_cast<const Histogram0DFloat&>((*_pPhotonHist)(evt)));
   /** create filename from base filename + event id */
   string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
   /** create the hdf5 file with the name and the handles to the specific data storage*/
@@ -984,8 +994,39 @@ void pp1002::process(const CASSEvent &evt)
   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &hist.memory().front());
   hist.lock.unlock();
-  /** close hdf5 handles and file */
+  /** close hdf5 handles */
   H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+  H5Gclose(gid);
+  /** open hdf file handles for beamline data */
+  gid = H5Gcreate1(fh, "LCLS" ,0);
+  dims[0] = 1;
+  dataspace_id = H5Screate_simple(1, dims, NULL);
+
+  /** write photon energy and the corresponding wavelength */
+  double resonantPhotonEnergy = photonenergyHist.getValue();
+  double wavelength_nm = qFuzzyCompare(resonantPhotonEnergy,0.) ? -1 : 1239.8/resonantPhotonEnergy;
+  double wavelength_A = qFuzzyCompare(resonantPhotonEnergy,0.) ? -1 : 10*wavelength_nm;
+
+  dataset_id = H5Dcreate1(fh, "/LCLS/photon_energy_eV",
+                          H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
+  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &resonantPhotonEnergy);
+  H5Dclose(dataset_id);
+
+  dataset_id = H5Dcreate1(fh, "/LCLS/photon_wavelength_nm",
+                          H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
+  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &wavelength_nm);
+  H5Dclose(dataset_id);
+
+  dataset_id = H5Dcreate1(fh, "/LCLS/photon_wavelength_A",
+                           H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
+  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &wavelength_A);
+  H5Dclose(dataset_id);
+
+  /** close file */
   H5Sclose(dataspace_id);
   H5Gclose(gid);
   H5Fflush(fh,H5F_SCOPE_LOCAL);

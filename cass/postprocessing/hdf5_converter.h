@@ -134,7 +134,11 @@ namespace cass
    * crew is using to be able to read and process the hdf5 with crystfel
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name containing the histogram that write to hdf5.
+   *           Postprocessor name containing the histogram that will be writen
+   *           to hdf5.
+   * @cassttng PostProcessor/\%name\%/{PhotonEnergyHistName} \n
+   *           Postprocessor name containing the histogram containts the
+   *           photonEnergy that will be writen to hdf5.
    *
    * @author Lutz Foucar
    */
@@ -161,6 +165,9 @@ namespace cass
 
     /** pp containing histogram to dump to hdf5 */
     PostprocessorBackend *_pHist;
+
+    /** pp containing histogram with photonenergy to dump to hdf5 */
+    PostprocessorBackend *_pPhotonHist;
 
   private:
     /** a lock to make the process reentrant */
