@@ -10,6 +10,7 @@
 #define _HDF5_CONVERTER_H_
 
 #include <string>
+#include <list>
 #include <hdf5.h>
 
 #include "postprocessing/backend.h"
@@ -163,11 +164,8 @@ namespace cass
     /** the filename that the data will be written to */
     std::string _basefilename;
 
-    /** pp containing histogram to dump to hdf5 */
-    PostprocessorBackend *_pHist;
-
-    /** pp containing histogram with photonenergy to dump to hdf5 */
-    PostprocessorBackend *_pPhotonHist;
+    /** container with all pps that contain the histograms to dump to hdf5 */
+    std::list<std::pair<std::string,PostprocessorBackend*> > _ppList;
 
   private:
     /** a lock to make the process reentrant */

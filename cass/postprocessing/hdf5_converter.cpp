@@ -699,6 +699,173 @@ void writeEvrCodes(const MachineData::MachineDataDevice::evrStatus_t &evr, hid_t
   }
 }
 
+/** check if a groups exists
+ *
+ * for now just checks if an absolute path exists in the file. Need to turn
+ * off error output, since the command will issue an error when the group does
+ * not exist.
+ *
+ * @todo iterate through everthing to get rid of the disabling of the error
+ *       messaging
+ *
+ * @return true when the group exists, false otherwise
+ * @param name the name of the group in absolute path
+ * @param filehandle the File Handle of the opened hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+bool checkGroup(const string& name, hid_t filehandle)
+{
+  H5Eset_auto(H5E_DEFAULT,0,0);
+  H5G_info_t dummy;
+  return (!(H5Gget_info_by_name(filehandle, name.c_str(),&dummy,H5P_DEFAULT) < 0));
+}
+
+/** create a group with aboslute path
+ *
+ * details
+ *
+ * @param name of group in absolute path
+ * @param filehandle the File Handle of the opened hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+void createGroupWithAbsolutePath(const string& name, hid_t filehandle)
+{
+  QString qname(QString::fromStdString(name));
+  if (!qname.startsWith('/'))
+    qname.prepend('/');
+  int occurences(qname.count('/'));
+  for (int i=0; i <= occurences ;++i)
+  {
+    QString groupname = qname.section('/',0,i);
+    if (!groupname.isEmpty() && !checkGroup(groupname.toStdString(),filehandle))
+    {
+      hid_t gh(H5Gcreate(filehandle, groupname.toStdString().c_str() ,H5P_DEFAULT,
+                         H5P_DEFAULT, H5P_DEFAULT));
+      H5Gclose(gh);
+    }
+  }
+}
+
+
+/** write a 0D value without additional info
+ *
+ * details
+ *
+ * @param datasetname Name of the data set including the full absolute group path
+ * @param data histogram containing the data to be written
+ * @param compress flag whether the data should be compressed
+ * @param filehandle the File Handle of the opened hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+void writeData(const string& datasetname, const Histogram0DFloat& data, hid_t filehandle)
+{
+  hsize_t dims[2];
+  dims[0] = 1;
+
+  hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
+  if (dataspace_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace");
+
+  hid_t dataset_id (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+                              dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
+  if (dataset_id == 0)
+    throw runtime_error("writeData(): Could not open the dataset");
+
+  data.lock.lockForRead();
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &data.memory().front());
+  data.lock.unlock();
+
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+}
+
+/** write a 1D value without additional info
+ *
+ * details
+ *
+ * @param datasetname Name of the data set including the full absolute group path
+ * @param data histogram containing the data to be written
+ * @param compress flag whether the data should be compressed
+ * @param filehandle the File Handle of the opened hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t filehandle)
+{
+  hsize_t dims[2];
+  dims[0] = data.axis()[HistogramBackend::xAxis].nbrBins();
+  dims[1] = 1;
+
+  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
+  if (dataspace_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the 2d histogram");
+
+  hid_t dataset_id (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+                              dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
+  if (dataset_id == 0)
+    throw runtime_error("writeData(): Could not open the dataset");
+
+  data.lock.lockForRead();
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &data.memory().front());
+  data.lock.unlock();
+
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+}
+
+/** write a 2D value without additional info
+ *
+ * details
+ *
+ * @param datasetname Name of the data set including the full absolute group path
+ * @param data histogram containing the data to be written
+ * @param compress flag whether the data should be compressed
+ * @param filehandle the File Handle of the opened hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+void writeData(const string& datasetname, const Histogram2DFloat& data, bool compress, hid_t filehandle)
+{
+  hsize_t dims[2];
+  dims[0] = data.axis()[HistogramBackend::yAxis].nbrBins();
+  dims[1] = data.axis()[HistogramBackend::xAxis].nbrBins();
+
+  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
+  if (dataspace_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the 2d histogram");
+
+  hid_t dataset_id;
+  if (compress)
+  {
+    // Create dataset creation property list, set the gzip compression filter
+    // and chunck size
+    hsize_t chunk[2] = {40,3};
+    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+    H5Pset_deflate (dcpl, 9);
+    H5Pset_chunk (dcpl, 2, chunk);
+    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+                             dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+  }
+  else
+    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+                            dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
+  if (dataset_id == 0 )
+    throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
+
+  data.lock.lockForRead();
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &data.memory().front());
+  data.lock.unlock();
+
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+}
+
 }//end namespace hdf5
 }//end namespace cass
 
@@ -917,22 +1084,32 @@ pp1002::pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const strin
 
 void pp1002::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  _pHist = setupDependency("HistName");
-  _pPhotonHist = setupDependency("PhotonEnergyHistName");
+  bool allDepsAreThere(true);
+  int size = s.beginReadArray("PostProcessor");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    if (!pp)
+      break;
+    _ppList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
+                                pp));
+  }
+  s.endArray();
+
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  if (!(ret && allDepsAreThere))
+  {
+    _ppList.clear();
     return;
-  const HistogramBackend &hist(_pHist->getHist(0));
-  if (hist.dimension() != 2)
-    throw invalid_argument("pp1002: The histogram that should be written to hdf5 is not a 2d histogram");
-  const HistogramBackend &photonhist(_pPhotonHist->getHist(0));
-  if (photonhist.dimension() != 0)
-    throw invalid_argument("pp1002: The histogram that should contain the photonenergy is not a 0d histogram");
-  _compress = settings.value("Compress",true).toBool();
+  }
+
+  _compress = s.value("Compress",true).toBool();
   if (_compress)
   {
     htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
@@ -947,18 +1124,21 @@ void pp1002::loadSettings(size_t)
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           + "' will write chosen histograms to hdf5 file with '" + _basefilename +
-           + "' as basename. Condition is '" + _condition->key() + "'");
+  string output("PostProcessor '" + _key + "' will write histogram ");
+  for (list<pair<string,PostprocessorBackend*> >::const_iterator it(_ppList.begin());
+       it != _ppList.end(); ++it)
+    output += ("'" + it->second->key() + "' to Group '" + it->first + "',");
+  output += (" of a hdf5 file with '" + _basefilename +
+             "' as basename. 2D File will " + (_compress ? "" : "NOT") +
+             " be compressed." + "Condition is '" + _condition->key() + "'");
+  Log::add(Log::INFO,output);
 }
+
 
 void pp1002::process(const CASSEvent &evt)
 {
   QMutexLocker locker(&_lock);
-  const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  const Histogram0DFloat& photonenergyHist
-      (dynamic_cast<const Histogram0DFloat&>((*_pPhotonHist)(evt)));
+
   /** create filename from base filename + event id */
   string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
   /** create the hdf5 file with the name and the handles to the specific data storage*/
@@ -966,70 +1146,34 @@ void pp1002::process(const CASSEvent &evt)
   if (fh == 0)
     throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
-  hid_t gid = H5Gcreate1(fh, "data", 0);
-  hsize_t dims[2];
-  dims[0] = hist.axis()[HistogramBackend::yAxis].nbrBins();
-  dims[1] = hist.axis()[HistogramBackend::xAxis].nbrBins();
-  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
-  if (dataspace_id == 0)
-    throw runtime_error("pp1002::process(): Could not open the dataspace for the 2d histogram");
-  hid_t dataset_id;
-  if (_compress)
+  /** iterate through the postprocessor list that should be dumped to h5 */
+ list<pair<string,PostprocessorBackend*> >::iterator it(_ppList.begin());
+  for (;it != _ppList.end(); ++it)
   {
-    // Create dataset creation property list, set the gzip compression filter
-    // and chunck size
-    hsize_t chunk[2] = {40,3};
-    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-    H5Pset_deflate (dcpl, 9);
-    H5Pset_chunk (dcpl, 2, chunk);
-    dataset_id = (H5Dcreate(gid, "data",
-                            H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+    /** create the requested group */
+    hdf5::createGroupWithAbsolutePath(it->first,fh);
+    /** retrieve data from pp and write it to the h5 file */
+    PostprocessorBackend &pp(*(it->second));
+    const HistogramBackend &data(pp(evt));
+    const string dataName(it->first + "/" + pp.key());
+    switch (data.dimension())
+    {
+    case 0:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+      break;
+    case 1:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+      break;
+    case 2:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+      break;
+    default:
+      throw runtime_error("pp1002::process: data dimension not known");
+      break;
+    }
   }
-  else
-    dataset_id = (H5Dcreate1(gid, "data",
-                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
-  if (dataset_id == 0 )
-    throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
-  /** write data */
-  hist.lock.lockForRead();
-  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &hist.memory().front());
-  hist.lock.unlock();
-  /** close hdf5 handles */
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
-  H5Gclose(gid);
-  /** open hdf file handles for beamline data */
-  gid = H5Gcreate1(fh, "LCLS" ,0);
-  dims[0] = 1;
-  dataspace_id = H5Screate_simple(1, dims, NULL);
-
-  /** write photon energy and the corresponding wavelength */
-  double resonantPhotonEnergy = photonenergyHist.getValue();
-  double wavelength_nm = qFuzzyCompare(resonantPhotonEnergy,0.) ? -1 : 1239.8/resonantPhotonEnergy;
-  double wavelength_A = qFuzzyCompare(resonantPhotonEnergy,0.) ? -1 : 10*wavelength_nm;
-
-  dataset_id = H5Dcreate1(fh, "/LCLS/photon_energy_eV",
-                          H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
-  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &resonantPhotonEnergy);
-  H5Dclose(dataset_id);
-
-  dataset_id = H5Dcreate1(fh, "/LCLS/photon_wavelength_nm",
-                          H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
-  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &wavelength_nm);
-  H5Dclose(dataset_id);
-
-  dataset_id = H5Dcreate1(fh, "/LCLS/photon_wavelength_A",
-                           H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
-  H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &wavelength_A);
-  H5Dclose(dataset_id);
 
   /** close file */
-  H5Sclose(dataspace_id);
-  H5Gclose(gid);
   H5Fflush(fh,H5F_SCOPE_LOCAL);
   H5Fclose(fh);
 }
