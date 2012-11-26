@@ -276,7 +276,7 @@ else
       # now find out into how many slices the run has been sliced.
       find_amount_of_slices_for_run $DATAFILESDIR/$FILEBASENAME$runnbr
       nbrSlices=$?
-      for ((slice=1; slice<=$nbrSlices; ++slice ))
+      for ((slice=0; slice<=$nbrSlices; ++slice ))
       do
 
         #check if slice exists, if not continue with the next slice
