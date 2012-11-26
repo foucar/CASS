@@ -147,7 +147,7 @@ protected:
 
 
 
-/** convert cspad 2d histogram into cheetah layout
+/** convert cspad 2d histogram into a quasi oriented layout
  *
  * @see PostprocessorBackend for a list of all commonly available cass.ini
  *      settings.

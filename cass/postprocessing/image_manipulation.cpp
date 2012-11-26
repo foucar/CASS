@@ -441,17 +441,17 @@ void pp1601::process(const CASSEvent &evt)
   HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase*>(_result)->memory());
   _result->nbrOfFills()=1;
 
-  const size_t pix_per_seg(2*_nx*_ny);
-  const size_t pix_per_quad(8*pix_per_seg);
+//  const size_t pix_per_seg(2*_nx*_ny);
+//  const size_t pix_per_quad(8*pix_per_seg);
 
-  Rotor LRBT={ 1, 0, 0, 1};
+//  Rotor LRBT={ 1, 0, 0, 1};
   Rotor LRTB={ 1, 0, 0,-1};
   Rotor RLBT={-1, 0, 0, 1};
-  Rotor RLTB={-1, 0, 0,-1};
+//  Rotor RLTB={-1, 0, 0,-1};
 
   Rotor TBRL={ 0,-1,-1, 0};
-  Rotor TBLR={ 0, 1,-1, 0};
-  Rotor BTRL={ 0,-1, 1, 0};
+//  Rotor TBLR={ 0, 1,-1, 0};
+//  Rotor BTRL={ 0,-1, 1, 0};
   Rotor BTLR={ 0, 1, 1, 0};
 
   MatrixCopier mc(src,dest, 2*_nx, _ny,
