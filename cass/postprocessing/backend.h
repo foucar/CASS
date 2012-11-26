@@ -252,10 +252,15 @@ namespace cass
      * return 0. When the depencendy key is not already in the list with all
      * dependcies, it will be added.
      *
+     * In case the second parameter is set, then it doesn't look up the key name
+     * in the cass.ini, but rather use the provided one.
+     *
      * @return pointer to the dependency postprocessor
      * @param[in] depVarName the name of the setting that hold the dependcy key
+     * @param[in] keyname optional name of the key, without getting it from the
+     *                    settings file.
      */
-    PostprocessorBackend* setupDependency(const char * depVarName);
+    PostprocessorBackend* setupDependency(const char * depVarName, const PostProcessors::key_t& keyname="");
 
   protected:
     /** the postprocessors key */

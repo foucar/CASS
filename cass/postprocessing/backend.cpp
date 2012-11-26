@@ -223,14 +223,17 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
   return true;
 }
 
-PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName)
+PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName, const PostProcessors::key_t& depkey)
 {
   using namespace std;
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  PostProcessors::key_t dependkey
-      (settings.value(depVarName,"").toString().toStdString());
+  PostProcessors::key_t dependkey(depkey);
+  if (dependkey.empty())
+  {
+    CASSSettings s;
+    s.beginGroup("PostProcessor");
+    s.beginGroup(QString::fromStdString(_key));
+    dependkey = s.value(depVarName,"").toString().toStdString();
+  }
   if (dependkey == _key)
   {
     stringstream ss;
