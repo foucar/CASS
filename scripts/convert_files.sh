@@ -34,9 +34,6 @@ JOBDIR=$BASEDIR/jobs
 # sting the precedes the runnumber
 FILEBASENAME=e220-r0
 
-# the directory where all the output files should be written to
-ANALYSISOUTPUTDIR=$BASEDIR/hdf5
-
 # the ini file that works as template for the runs
 INIRUNTEMPLATE=$INIDIR/Run.ini
 
