@@ -579,6 +579,7 @@ void write2DMatrix(const Histogram2DFloat& hist, hid_t groupid, bool compress)
   writeHistProperties(hist,groupid);
 
   // Create the data space for the dataset.
+  /** @todo x and y could be wrong and needs to be interchanged -> check */
   hsize_t dims[2];
   dims[0] = nxbins;
   dims[1] = nybins;
