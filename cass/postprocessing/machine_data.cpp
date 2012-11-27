@@ -163,7 +163,7 @@ void cass::pp130::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve datafield ' " +
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve datafield' " +
            _varname +"' from epics data. Condition is" + _condition->key() + "'");
 }
 
