@@ -59,7 +59,10 @@ struct Frame
  *           - 2: 1st commercial CCD in AMO
  *           - 3: 2nd commercial CCD in AMO
  *           - 4: 3rd commercial CCD in AMO
+ *           - 6: 4th commercial CCD in AMO
  *           - 5: 1st commercial CCD in XPP
+ *           - 7: Front CsPad in CXI
+ *           - 8: Rear CsPad in CXI
  * @cassttng PixelDetectors/\%name\%/{FrameProcessorType}\n
  *           Functor for processing the frame. Default is "none". Options are:
  *           - "none": No processing is done to the frame, just the raw frame
