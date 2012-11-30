@@ -157,6 +157,9 @@ namespace cass
     /** process the event */
     virtual void process(const CASSEvent&);
 
+    /** dump all pp histograms to summary group just before quitting */
+    virtual void aboutToQuit();
+
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
@@ -166,6 +169,10 @@ namespace cass
 
     /** container with all pps that contain the histograms to dump to hdf5 */
     std::list<std::pair<std::string,PostprocessorBackend*> > _ppList;
+
+    /** container for all pps that should be written when program quits */
+    std::list<std::pair<std::string,PostprocessorBackend*> > _ppSummaryList;
+
 
   private:
     /** a lock to make the process reentrant */

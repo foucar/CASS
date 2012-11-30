@@ -1102,10 +1102,24 @@ void pp1002::loadSettings(size_t)
   }
   s.endArray();
 
+  size = s.beginReadArray("PostProcessorSummary");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    if (!pp)
+      break;
+    _ppSummaryList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
+                                       pp));
+  }
+  s.endArray();
+
   bool ret (setupCondition());
   if (!(ret && allDepsAreThere))
   {
     _ppList.clear();
+    _ppSummaryList.clear();
     return;
   }
 
@@ -1134,6 +1148,48 @@ void pp1002::loadSettings(size_t)
   Log::add(Log::INFO,output);
 }
 
+void pp1002::aboutToQuit()
+{
+  QMutexLocker locker(&_lock);
+
+  /** create filename from base filename + event id */
+  string filename(_basefilename + "_Summary.h5");
+  /** create the hdf5 file with the name and the handles to the specific data storage*/
+  hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  if (fh == 0)
+    throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+
+  /** iterate through the postprocessor list that should be dumped to h5 */
+ list<pair<string,PostprocessorBackend*> >::iterator it(_ppSummaryList.begin());
+  for (;it != _ppSummaryList.end(); ++it)
+  {
+    /** create the requested group */
+    hdf5::createGroupWithAbsolutePath(it->first,fh);
+    /** retrieve data from pp and write it to the h5 file */
+    PostprocessorBackend &pp(*(it->second));
+    const HistogramBackend &data(pp.getHist(0));
+    const string dataName(it->first + "/" + pp.key());
+    switch (data.dimension())
+    {
+    case 0:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+      break;
+    case 1:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+      break;
+    case 2:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+      break;
+    default:
+      throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
+      break;
+    }
+  }
+
+  /** close file */
+  H5Fflush(fh,H5F_SCOPE_LOCAL);
+  H5Fclose(fh);
+}
 
 void pp1002::process(const CASSEvent &evt)
 {
