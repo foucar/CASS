@@ -18,6 +18,47 @@
 
 namespace cass
 {
+//forward declarations
+class SegmentCopier;
+
+/** matrix rotation struct
+ *
+ * tell how much one has to advance in the destination matrix when one advances
+ * by one in the src matrix
+ *
+ * @author Lutz Foucar
+ */
+struct Rotor
+{
+  /** contructor
+   *
+   * intializes the struct in the proper way
+   *
+   * @param cc steps to increase in the dest columns when src column is increased by one
+   * @param cr steps to increase in the dest columns when src row is increased by one
+   * @param rc steps to increase in the dest row when src column is increased by one
+   * @param rr steps to increase in the dest row when src row is increased by one
+   */
+  Rotor(char cc, char cr, char rc, char rr)
+    : incDestColPerSrcCol(cc),
+      incDestColPerSrcRow(cr),
+      incDestRowPerSrcCol(rc),
+      incDestRowPerSrcRow(rr)
+  {}
+
+  /** steps to increase in the dest columns when src column is increased by one*/
+  char incDestColPerSrcCol;
+
+  /** steps to increase in the dest columns when src row is increased by one*/
+  char incDestColPerSrcRow;
+
+  /** steps to increase in the dest row when src column is increased by one*/
+  char incDestRowPerSrcCol;
+
+  /** steps to increase in the dest row when src row is increased by one*/
+  char incDestRowPerSrcRow;
+};
+
 /** rotate, transpose, invert axis on 2d histogram.
  *
  * @see PostprocessorBackend for a list of all commonly available cass.ini
@@ -149,6 +190,86 @@ protected:
 
 /** convert cspad 2d histogram into a quasi oriented layout
  *
+ * Converts the cass representation of the CsPad where all segments are in a
+ * linearized matrix on top of each other where the origin is in the lower left
+ * corner like follows (see also cass::pixeldetector::Converter)
+@verbatim
+  +-------------+
+  |     31      |
+  +-------------+
+  |     30      |
+  +-------------+
+  |     29      |
+  +-------------+
+        .
+        .
+        .
+  +-------------+
+  |     02      |
+  +-------------+
+^ |     01      |
+| +-------------+
+y |     00      |
+| +-------------+
++---x--->
+@endverbatim
+ * These segments have to be rearranged to get the quasi physical layout of the
+ * CsPad. Following the description given in ElementIterator.hh. One has to
+ * arrange the segments as follows. The arrows denote the origin of the segment
+ * in the source. The x axis of the source follows always the longer edge of the
+ * rectangular segment shape. The y axis of the source matrix the shorter edge.
+@verbatim
+    <---+    <---+ +--->                      <---+    <---+
+  +----+|  +----+| |+-------------+         +----+|  +----+|  +-------------+
+  |    |v  |    |v v|     06      |         |    |v  |    |V  |     13      |^
+  |    |   |    |   +-------------+         |    |   |    |   +-------------+|
+  |    |   |    |                           |    |   |    |              <---+
+  | 05 |   | 04 |                           | 11 |   | 10 |
+  |    |   |    |  +--->                    |    |   |    |
+  |    |   |    |  |+-------------+         |    |   |    |   +-------------+
+  |    |   |    |  V|     07      |         |    |   |    |   |     12      |^
+  +----+   +----+   +-------------+         +----+   +----+   +-------------+|
+                                                                         <---+
+            quadrant 0                                quadrant 1
+ +--->                                     +--->                <---+    <---+
+ |+------------ +   +----+   +----+        |+------------ +   +----+|  +----+|
+ v|     02      |   |    |   |    |        v|     08      |   |    |v  |    |v
+  +-------------+   |    |   |    |         +-------------+   |    |   |    |
+                    |    |   |    |                           |    |   |    |
+                    | 00 |   | 01 |                           | 15 |   | 14 |
+ +--->              |    |   |    |        +--->              |    |   |    |
+ |+-------------+   |    |   |    |        |+-------------+   |    |   |    |
+ v|     03      |  ^|    |  ^|    |        v|     09      |   |    |   |    |
+  +-------------+  |+----+  |+----+         +-------------+   +----+   +----+
+                   +--->    +--->
+
+
+
+
+                                              <---+    <---+
+  +----+   +----+   +-------------+         +----+|  +----+|  +-------------+
+  |    |   |    |   |     25      |^        |    |v  |    |v  |     19      |^
+  |    |   |    |   +-------------+|        |    |   |    |   +-------------+|
+  |    |   |    |              <---+        |    |   |    |              <---+
+  | 30 |   | 31 |                           | 17 |   | 16 |
+  |    |   |    |                           |    |   |    |
+  |    |   |    |   +-------------+         |    |   |    |   +-------------+
+ ^|    |  ^|    |   |     24      |^        |    |   |    |   |     18      |^
+ |+----+  |+----+   +-------------+|        +----+   +----+   +-------------+|
+ +--->    +--->                <---+                                     <---+
+            quadrant 3                                quadrant 2
+ +--->
+ |+------------ +   +----+   +----+         +------------ +   +----+   +----+
+ v|     28      |   |    |   |    |         |     23      |^  |    |   |    |
+  +-------------+   |    |   |    |         +-------------+|  |    |   |    |
+                    |    |   |    |                    <---+  |    |   |    |
+                    | 26 |   | 27 |                           | 20 |   | 21 |
+ +--->              |    |   |    |                           |    |   |    |
+ |+-------------+   |    |   |    |         +-------------+   |    |   |    |
+ v|     29      |  ^|    |  ^|    |         |     22      |^ ^|    |  ^|    |
+  +-------------+  |+----+  |+----+         +-------------+| |+----+  |+----+
+                   +--->    +--->                     <---+ +--->    +--->
+@endverbatim
  * @see PostprocessorBackend for a list of all commonly available cass.ini
  *      settings.
  *
@@ -183,6 +304,28 @@ public:
 protected:
   /** pp containing 2d histogram */
   PostprocessorBackend *_one;
+
+private:
+  std::tr1::shared_ptr<SegmentCopier> _copyMatrixSegment;
+  /** the rotation matrix if x of src goes from (L)eft to (R)ight in dest and
+   *  y of the src goes from (T)op to (B)ottom in destination
+   */
+  const Rotor _LRTB;
+
+  /** the rotation matrix if x of src goes from (R)ight to (L)eft in dest and
+   *  y of the src goes from (B)ottom to (T)op in destination
+   */
+  const Rotor _RLBT;
+
+  /** the rotation matrix if x of src goes from (T)op to (B)ottom in dest and
+   *  y of the src goes from (R)ight to (L)eft in destination
+   */
+  const Rotor _TBRL;
+
+  /** the rotation matrix if x of src goes from (B)ottom to (T)op in dest and
+   *  y of the src goes from (L)eft to (R)ight in destination
+   */
+  const Rotor _BTLR;
 
   /** nbr bins in x of asic */
   const size_t _nx;

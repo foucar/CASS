@@ -159,39 +159,47 @@ size_t FlipVertical(size_t destCol, size_t destRow, pair<size_t,size_t> size)
   return toLinearized(srcCol,srcRow,nSrcCols);
 }
 
-struct Rotor
-{
-  char incDestColPerSrcCol;
-  char incDestColPerSrcRow;
-  char incDestRowPerSrcCol;
-  char incDestRowPerSrcRow;
-};
 
 /** copy from a source matrix to a destination matrix in user wanted way
  *
- * details
- *
- * @param
+ * a functor that will copy segments of a source matrix into the dest matrix in
+ * defined a orientation.
  *
  * @author Lutz Foucar
  */
-class MatrixCopier
+class SegmentCopier
 {
 public:
-
-  MatrixCopier(const HistogramFloatBase::storage_t& src, HistogramFloatBase::storage_t& dest,
-               const int srcCols, const int srcRows,
-               const int destCols)
-    : _src(src),
-      _dest(dest),
-      _srcCols(srcCols),
+  /** contructor
+   *
+   * sets up the boundaries for the src and dest matrices
+   *
+   * @param srcCols the number of colums in the src matrix
+   * @param segRows the number of rows that one segement in the src matrix consists
+   *                of.
+   * @param destCols the number of columns in the dest matrix.
+   */
+  SegmentCopier(const int srcCols, const int srcRows, const int destCols)
+    : _srcCols(srcCols),
       _srcRows(srcRows),
       _destCols(destCols)
   {}
 
-  void copyMatrixSegment(const int segment,
-                         const int destColStart, const int destRowStart,
-                         const Rotor &rot)
+  /** copy the selected segment of the src matrix to the destination matrix
+   *
+   * @param src reference to the linearized source matrix
+   * @param dest reference to the linearized destination matrix
+   * @param segment the index of the segment to be copied
+   * @param destColStart dest column index where the src segment starts
+   * @param destRowStart dest row index where the src segment starts
+   * @param rot refernce to the rotor element that tells how the src segement is
+   *            oriented in the dest matrix.
+   */
+  void operator()(const HistogramFloatBase::storage_t& src,
+                  HistogramFloatBase::storage_t& dest,
+                  const int segment,
+                  const int destColStart, const int destRowStart,
+                  const Rotor &rot) const
   {
     int destRow = destRowStart;
     int destCol = destColStart;
@@ -204,7 +212,7 @@ public:
       destRow = (((destRow - destRowStart)) % _srcCols) + destRowStart;
       for (int srcCol = 0; srcCol < _srcCols; ++srcCol)
       {
-        _dest[destRow*_destCols + destCol] = _src[srcRow*_srcCols + srcCol];
+        dest[destRow*_destCols + destCol] = src[srcRow*_srcCols + srcCol];
         destCol += rot.incDestColPerSrcCol;
         destRow += rot.incDestRowPerSrcCol;
       }
@@ -214,10 +222,13 @@ public:
   }
 
 private:
-  const HistogramFloatBase::storage_t& _src;
-  HistogramFloatBase::storage_t& _dest;
+  /** the number of colums in the src matrix */
   const int _srcCols;
+
+  /** the number of rows that one segement in the src matrix consists of */
   const int _srcRows;
+
+  /** the number of columns in the dest matrix */
   const int _destCols;
 };
 
@@ -403,6 +414,10 @@ void pp1600::process(const CASSEvent &evt)
 
 pp1601::pp1601(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key),
+    _LRTB( 1, 0, 0,-1),
+    _RLBT(-1, 0, 0, 1),
+    _TBRL( 0,-1,-1, 0),
+    _BTLR( 0, 1, 1, 0),
     _nx(194),
     _ny(185)
 {
@@ -420,6 +435,9 @@ void pp1601::loadSettings(size_t)
   if (!(_one && ret)) return;
 
   _result = new Histogram2DFloat(2*(2*_nx+2*_ny),2*(2*_nx+2*_ny));
+
+  _copyMatrixSegment =
+      std::tr1::shared_ptr<SegmentCopier>(new SegmentCopier(2*_nx, _ny, 2*(2*_nx+2*_ny)));
 
   createHistList(2*NbrOfWorkers);
 
@@ -445,56 +463,57 @@ void pp1601::process(const CASSEvent &evt)
 //  const size_t pix_per_quad(8*pix_per_seg);
 
 //  Rotor LRBT={ 1, 0, 0, 1};
-  Rotor LRTB={ 1, 0, 0,-1};
-  Rotor RLBT={-1, 0, 0, 1};
+//  Rotor LRTB={ 1, 0, 0,-1};
+//  Rotor RLBT={-1, 0, 0, 1};
 //  Rotor RLTB={-1, 0, 0,-1};
 
-  Rotor TBRL={ 0,-1,-1, 0};
+//  Rotor TBRL={ 0,-1,-1, 0};
 //  Rotor TBLR={ 0, 1,-1, 0};
 //  Rotor BTRL={ 0,-1, 1, 0};
-  Rotor BTLR={ 0, 1, 1, 0};
+//  Rotor BTLR={ 0, 1, 1, 0};
 
-  MatrixCopier mc(src,dest, 2*_nx, _ny,
-                  _result->axis()[HistogramBackend::xAxis].nbrBins());
+  const SegmentCopier& copySegment(*_copyMatrixSegment);
+
   //q0//
-  mc.copyMatrixSegment( 0, 2*_nx+0*_ny    , 2*_nx+2*_ny    ,BTLR);
-  mc.copyMatrixSegment( 1, 2*_nx+1*_ny    , 2*_nx+2*_ny    ,BTLR);
-  mc.copyMatrixSegment( 2, 0*_nx+0*_ny    , 2*_nx+4*_ny -1 ,LRTB);
-  mc.copyMatrixSegment( 3, 0*_nx+0*_ny    , 2*_nx+3*_ny -1 ,LRTB);
-  mc.copyMatrixSegment( 4, 0*_nx+2*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
-  mc.copyMatrixSegment( 5, 0*_nx+1*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
-  mc.copyMatrixSegment( 6, 0*_nx+2*_ny    , 4*_nx+4*_ny -1 ,LRTB);
-  mc.copyMatrixSegment( 7, 0*_nx+2*_ny    , 4*_nx+3*_ny -1 ,LRTB);
+  copySegment(src,dest, 0, 2*_nx+0*_ny    , 2*_nx+2*_ny    ,_BTLR);
+  copySegment(src,dest, 0, 2*_nx+0*_ny    , 2*_nx+2*_ny    ,_BTLR);
+  copySegment(src,dest, 1, 2*_nx+1*_ny    , 2*_nx+2*_ny    ,_BTLR);
+  copySegment(src,dest, 2, 0*_nx+0*_ny    , 2*_nx+4*_ny -1 ,_LRTB);
+  copySegment(src,dest, 3, 0*_nx+0*_ny    , 2*_nx+3*_ny -1 ,_LRTB);
+  copySegment(src,dest, 4, 0*_nx+2*_ny -1 , 4*_nx+4*_ny -1 ,_TBRL);
+  copySegment(src,dest, 5, 0*_nx+1*_ny -1 , 4*_nx+4*_ny -1 ,_TBRL);
+  copySegment(src,dest, 6, 0*_nx+2*_ny    , 4*_nx+4*_ny -1 ,_LRTB);
+  copySegment(src,dest, 7, 0*_nx+2*_ny    , 4*_nx+3*_ny -1 ,_LRTB);
 
   //q1//
-  mc.copyMatrixSegment( 8, 2*_nx+2*_ny    , 2*_nx+4*_ny -1 ,LRTB);
-  mc.copyMatrixSegment( 9, 2*_nx+2*_ny    , 2*_nx+3*_ny -1 ,LRTB);
-  mc.copyMatrixSegment(10, 2*_nx+4*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
-  mc.copyMatrixSegment(11, 2*_nx+3*_ny -1 , 4*_nx+4*_ny -1 ,TBRL);
-  mc.copyMatrixSegment(12, 4*_nx+4*_ny -1 , 4*_nx+2*_ny    ,RLBT);
-  mc.copyMatrixSegment(13, 4*_nx+4*_ny -1 , 4*_nx+3*_ny    ,RLBT);
-  mc.copyMatrixSegment(14, 4*_nx+4*_ny -1 , 4*_nx+2*_ny -1 ,TBRL);
-  mc.copyMatrixSegment(15, 4*_nx+3*_ny -1 , 4*_nx+2*_ny -1 ,TBRL);
+  copySegment(src,dest, 8, 2*_nx+2*_ny    , 2*_nx+4*_ny -1 ,_LRTB);
+  copySegment(src,dest, 9, 2*_nx+2*_ny    , 2*_nx+3*_ny -1 ,_LRTB);
+  copySegment(src,dest,10, 2*_nx+4*_ny -1 , 4*_nx+4*_ny -1 ,_TBRL);
+  copySegment(src,dest,11, 2*_nx+3*_ny -1 , 4*_nx+4*_ny -1 ,_TBRL);
+  copySegment(src,dest,12, 4*_nx+4*_ny -1 , 4*_nx+2*_ny    ,_RLBT);
+  copySegment(src,dest,13, 4*_nx+4*_ny -1 , 4*_nx+3*_ny    ,_RLBT);
+  copySegment(src,dest,14, 4*_nx+4*_ny -1 , 4*_nx+2*_ny -1 ,_TBRL);
+  copySegment(src,dest,15, 4*_nx+3*_ny -1 , 4*_nx+2*_ny -1 ,_TBRL);
 
   //q2//
-  mc.copyMatrixSegment(16, 2*_nx+4*_ny -1 , 2*_nx+2*_ny -1 ,TBRL);
-  mc.copyMatrixSegment(17, 2*_nx+3*_ny -1 , 2*_nx+2*_ny -1 ,TBRL);
-  mc.copyMatrixSegment(18, 4*_nx+4*_ny -1 , 2*_nx+0*_ny    ,RLBT);
-  mc.copyMatrixSegment(19, 4*_nx+4*_ny -1 , 2*_nx+1*_ny    ,RLBT);
-  mc.copyMatrixSegment(20, 4*_nx+2*_ny    , 0*_nx+0*_ny    ,BTLR);
-  mc.copyMatrixSegment(21, 4*_nx+3*_ny    , 0*_nx+0*_ny    ,BTLR);
-  mc.copyMatrixSegment(22, 4*_nx+2*_ny -1 , 0*_nx+0*_ny    ,RLBT);
-  mc.copyMatrixSegment(23, 4*_nx+2*_ny -1 , 0*_nx+1*_ny    ,RLBT);
+  copySegment(src,dest,16, 2*_nx+4*_ny -1 , 2*_nx+2*_ny -1 ,_TBRL);
+  copySegment(src,dest,17, 2*_nx+3*_ny -1 , 2*_nx+2*_ny -1 ,_TBRL);
+  copySegment(src,dest,18, 4*_nx+4*_ny -1 , 2*_nx+0*_ny    ,_RLBT);
+  copySegment(src,dest,19, 4*_nx+4*_ny -1 , 2*_nx+1*_ny    ,_RLBT);
+  copySegment(src,dest,20, 4*_nx+2*_ny    , 0*_nx+0*_ny    ,_BTLR);
+  copySegment(src,dest,21, 4*_nx+3*_ny    , 0*_nx+0*_ny    ,_BTLR);
+  copySegment(src,dest,22, 4*_nx+2*_ny -1 , 0*_nx+0*_ny    ,_RLBT);
+  copySegment(src,dest,23, 4*_nx+2*_ny -1 , 0*_nx+1*_ny    ,_RLBT);
 
   //q3//
-  mc.copyMatrixSegment(24, 2*_nx+2*_ny -1 , 2*_nx+0*_ny    ,RLBT);
-  mc.copyMatrixSegment(25, 2*_nx+2*_ny -1 , 2*_nx+1*_ny    ,RLBT);
-  mc.copyMatrixSegment(26, 2*_nx+0*_ny    , 0*_nx+0*_ny    ,BTLR);
-  mc.copyMatrixSegment(27, 2*_nx+1*_ny    , 0*_nx+0*_ny    ,BTLR);
-  mc.copyMatrixSegment(28, 0*_nx+0*_ny    , 0*_nx+2*_ny -1 ,LRTB);
-  mc.copyMatrixSegment(29, 0*_nx+0*_ny    , 0*_nx+1*_ny -1 ,LRTB);
-  mc.copyMatrixSegment(30, 0*_nx+0*_ny    , 0*_nx+2*_ny    ,BTLR);
-  mc.copyMatrixSegment(31, 0*_nx+1*_ny    , 0*_nx+2*_ny    ,BTLR);
+  copySegment(src,dest,24, 2*_nx+2*_ny -1 , 2*_nx+0*_ny    ,_RLBT);
+  copySegment(src,dest,25, 2*_nx+2*_ny -1 , 2*_nx+1*_ny    ,_RLBT);
+  copySegment(src,dest,26, 2*_nx+0*_ny    , 0*_nx+0*_ny    ,_BTLR);
+  copySegment(src,dest,27, 2*_nx+1*_ny    , 0*_nx+0*_ny    ,_BTLR);
+  copySegment(src,dest,28, 0*_nx+0*_ny    , 0*_nx+2*_ny -1 ,_LRTB);
+  copySegment(src,dest,29, 0*_nx+0*_ny    , 0*_nx+1*_ny -1 ,_LRTB);
+  copySegment(src,dest,30, 0*_nx+0*_ny    , 0*_nx+2*_ny    ,_BTLR);
+  copySegment(src,dest,31, 0*_nx+1*_ny    , 0*_nx+2*_ny    ,_BTLR);
 
 
   _result->lock.unlock();
