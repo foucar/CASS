@@ -40,6 +40,12 @@ PROGRESSSUFFIX=inprogress
 # name of the file that contains the runnumbers that have been processed
 PROCESSEDRUNSFILE=$BASEDIR/processedRuns.txt
 
+#name of the file where the submit command will ba added to
+RUNSUBMITCOMMANDS=$BASEDIR/allruns.sh
+
+#name of the file where the submit command will ba added to
+DARKCALSUBMITCOMMANDS=$BASEDIR/alldarkcals.sh
+
 # the ini file that works as template for the runs
 INIRUNTEMPLATE=$INIDIR/Run.ini
 
@@ -63,7 +69,8 @@ QUERYCOMMAND="bjobs"
 # the extension that the output file should have
 OUTPUTEXT=h5
 
-
+#set this to one if you only want to create a file that contains all the submit command
+$CREATEONLYSUBMITCOMMANDS=1
 
 
 
@@ -135,18 +142,22 @@ monitor_file()
 {
   echo "Monitoring file $1 for changes. If changes occur calls \"sh $0 $1\""
   file="$1"
-  chsum1=`md5sum "$file" | awk '{print $1}'`
+  checksumcommand="md5sum "$file" | awk '{print $1}'"
+#  chsum1=`md5sum "$file" | awk '{print $1}'`
+  chsum1=`$checksumcommand`
   chsum2=$chsum1
   while [[ TRUE ]]
   do
-    chsum1=`md5sum "$file" | awk '{print $1}'`
+#    chsum1=`md5sum "$file" | awk '{print $1}'`
+    chsum1=`$checksumcommand`
     while [ "$chsum1" == "$chsum2" ]
     do
       sleep 10
-      chsum2=`md5sum "$file" | awk '{print $1}'`
+#      chsum2=`md5sum "$file" | awk '{print $1}'`
+      chsum2=`$checksumcommand`
       echo ""$chsum1" "$chsum2""
     done
-    echo "call \"sh $0 $1\""
+#    echo "call \"sh $0 $1\""
     sh ./$0 $1
   done
 }
@@ -384,6 +395,9 @@ test()
 if [ "$2" == "-m" ]
 then
   monitor_file "$1"
+else
+rm -f $RUNSUBMITCOMMANDS
+rm -f $DARKCALSUBMITCOMMANDS
 fi
 
 
@@ -466,11 +480,18 @@ else
 
         # now submit the job creating the darkcal to the queue and wait until
         # the darkcals are created
+        finalsubmitcommand="$SUBMITCOMMAND -o $joboutput -J $jobname $shFilename"
 #        echo $SUBMITCOMMAND $jobname $shFilename #!!!
-        $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename #!!!
-#        wait_until_darkcal_created $darkcal0Filename $darkcal1Filename
-        wait_until_file_exists $darkcal0Filename
-#        wait_until_file_exists $darkcal1Filename
+#        echo $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename >> $DARKCALSUBMITCOMMANDS
+        echo $finalsubmitcomand >> $DARKCALSUBMITCOMMANDS
+        if [ "$CREATEONLYSUBMITCOMMANDS" -ne 1 ]
+        then
+           $finalsubmitcommand
+#          $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename #!!!
+#          wait_until_darkcal_created $darkcal0Filename $darkcal1Filename
+          wait_until_file_exists $darkcal0Filename
+#          wait_until_file_exists $darkcal1Filename
+        fi
       fi
 
       # wait until all the data files exist if necessary
@@ -530,10 +551,16 @@ else
         # now submit job to the queue and wait until its submitted
 #        echo $SUBMITCOMMAND $jobname $shFilename
         echo "Submitting $jobname"
-        $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename
-        # what is the reason to wait until the job is submitted? Disabling this
-        # for now.
-#        wait_until_submitted $jobname
+        finalsubmitcommand= $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename
+        echo $finalsubmitcommand >> $RUNSUBMITCOMMANDS
+        if [ "$CREATEONLYSUBMITCOMMANDS" -ne 1 ]
+        then
+          $finalsubmitcommand
+#          $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename
+          # what is the reason to wait until the job is submitted? Disabling this
+          # for now.
+#          wait_until_submitted $jobname
+        fi
       done
     fi
   done
