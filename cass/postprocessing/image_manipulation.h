@@ -192,7 +192,8 @@ protected:
  *
  * Converts the cass representation of the CsPad where all segments are in a
  * linearized matrix on top of each other where the origin is in the lower left
- * corner like follows (see also cass::pixeldetector::Converter)
+ * corner like follows (see also cass::pixeldetector::Converter). There are
+ * 2*194 pixels along the x-axis and 185 pixels along y in one segment.
 @verbatim
   +-------------+
   |     31      |

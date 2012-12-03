@@ -51,7 +51,7 @@ namespace cass
    *           - pixeldetector: access to CCD and pnCCD data which will be put
    *                            into the newer container for accessing it
    *                            through the new analysis chain (omitting the
-   *                            preanalysis).
+   *                            preanalysis). see cass::pixeldetector::Converter
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar

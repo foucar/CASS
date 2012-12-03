@@ -127,6 +127,36 @@ v  | C  | A  | |
    * frame contain status information and are therefore set to the same value
    * that the ninth pixel has.
    *
+   * in case that xtc is a CsPad:\n
+   * the data is layed out in the xtc in quadrants. Each quadrant contains 8
+   * segments, which results in a total sum of 32 segments. The 8 segments of
+   * each quadrant are stored in a linearized array where the fast changing axis
+   * is along the x-axis. Each segment consits of 2*194 pixels along the x axis and
+   * 185 pixels along the y axis. The data is copied into a linearized array where
+   * the segments of each quadrant are aligned on top of each other like follows:
+@verbatim
+                 \
+  +-------------+ |
+  |     31      | |
+  +-------------+ |
+  |     30      | } quadrant 3
+  +-------------+ |
+  |     29      | |
+  +-------------+ |
+        .         .
+        .         .
+        .         .
+  +-------------+ |
+  |     02      | |
+  +-------------+ |
+^ |     01      | } quadrant 0
+| +-------------+ |
+y |     00      | |
+| +-------------+ |
++---x--->        /
+@endverbatim
+   *
+   *
    * @param xtc the part of the datagram that this converter is responsible for
    * @param evt The CASSEvent that should store the information from the xtc.
    */
