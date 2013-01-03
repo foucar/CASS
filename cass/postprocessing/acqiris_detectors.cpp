@@ -250,6 +250,54 @@ void cass::pp152::process(const cass::CASSEvent &evt)
 
 
 
+//----------------Deadtime between consecutive MCP signals----------------------
+pp153::pp153(PostProcessors &pp, const PostProcessors::key_t &key)
+  :PostprocessorBackend(pp,key)
+{
+  loadSettings(0);
+}
+
+void pp153::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key.c_str()));
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' creates a histogram of the deatime between two consecutive " +
+           "MCP Signals of detctor '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp153::process(const cass::CASSEvent &evt)
+{
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
+  const SignalProducer::signals_t& mcp(det.mcp().output());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (size_t i(1); i < mcp.size(); ++i)
+  {
+    const float diff(mcp[i-1]["time"] - mcp[i]["time"]);
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(diff);
+  }
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -631,6 +679,52 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 
 
 
+
+
+
+
+//----------------Deadtime between consecutive Anode signals----------------------
+pp167::pp167(PostProcessors &pp, const PostProcessors::key_t &key)
+  :PostprocessorBackend(pp,key)
+{
+  loadSettings(0);
+}
+
+void pp167::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key.c_str()));
+  _detector = loadDelayDet(s,167,_key);
+  _layer = loadLayer(s,_detector,"Layer",167,_key);
+  _signal = loadWireend(s,"Wireend",167,_key);
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' creates a histogram of the deatime between two consecutive " +
+           "Anode Signals of detctor '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp167::process(const cass::CASSEvent &evt)
+{
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
+  const SignalProducer::signals_t& anode(det.layers()[_layer].wireends()[_signal].output());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (size_t i(1); i < anode.size(); ++i)
+  {
+    const float diff(anode[i-1]["time"] - anode[i]["time"]);
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(diff);
+  }
+  _result->lock.unlock();
+}
 
 
 

@@ -809,6 +809,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp152(*this, key));
     break;
+  case TofDetDeadtime:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp153(*this, key));
+    break;
   case SumFoundPixels:
     processor = PostprocessorBackend::shared_pointer
           (new pp155(*this, key));
@@ -844,6 +848,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case DelaylineAllReconstuctedHits:
     processor = PostprocessorBackend::shared_pointer
           (new pp166(*this, key));
+    break;
+  case DelaylineAnodeSigDeadtime:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp167(*this, key));
     break;
   case HEXCalibrator:
     processor = PostprocessorBackend::shared_pointer

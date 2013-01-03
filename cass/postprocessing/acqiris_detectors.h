@@ -163,6 +163,56 @@ protected:
 
 
 
+/** Deadtime between two consecutive mcp signals
+ *
+ * This postprocessor will output a histogram of the deadtime between two
+ * consecutive mcp signals.
+ *
+ * To set up the channel assignment for the requested detector one needs to set
+ * up the detector parameters.
+ * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+ *      cass::ACQIRIS::SignalProducer
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Detector}\n
+ *           Name of the delayline detector that we work on. Default is "blubb"
+ *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+ *           more information on how to set up the different types of Acqiris
+ *           type detectors.
+ *
+ * @author Lutz Foucar
+ */
+class pp153 : public PostprocessorBackend
+{
+public:
+  /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
+  pp153(PostProcessors&, const PostProcessors::key_t&);
+
+  /** Retrieve the number of Signals and histogram it */
+  virtual void process(const CASSEvent&);
+
+  /** load the histogram settings from file*/
+  virtual void loadSettings(size_t);
+
+protected:
+  /** The detector we are there for*/
+  ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 /** Number of Signals in Anode Layers Waveform.
  *
  * This postprocessor will output how many Signals have been found in the
@@ -640,6 +690,83 @@ protected:
 
   /** The condition that we impose on the third component*/
   std::pair<float, float> _cond;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/** Deadtime between two consecutive anode signals
+ *
+ * This postprocessor will output a histogram of the deadtime between two
+ * consecutive anode signals.
+ *
+ * To set up the channel assignment for the requested detector one needs to set
+ * up the detector parameters.
+ * @seecass::ACQIRIS::DelaylineDetector and
+ *      cass::ACQIRIS::SignalProducer
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Detector}\n
+ *           Name of the delayline detector that we work on. Default is "blubb"
+ *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+ *           more information on how to set up the different types of Acqiris
+ *           type detectors.
+ * @cassttng PostProcessor/\%name\%/{Layer}\n
+ *           The anode layer. Default is U. Options are:
+ *           - for HexDetector
+ *             - U: U-Layer
+ *             - V: V-Layer
+ *             - W: W-Layer
+ *           - for Quad Detector
+ *             - X: X-Layer
+ *             - Y: Y-Layer
+ * @cassttng PostProcessor/\%name\%/{Wireend}\n
+ *           The anode layer Wireend. Default is 1. Options are:
+ *           - 1: first wireend
+ *           - 2: second wireend
+ *
+ * @author Lutz Foucar
+ */
+class pp167 : public PostprocessorBackend
+{
+public:
+  /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
+  pp167(PostProcessors&, const PostProcessors::key_t&);
+
+  /** Retrieve the number of Signals and histogram it */
+  virtual void process(const CASSEvent&);
+
+  /** load the histogram settings from file*/
+  virtual void loadSettings(size_t);
+
+protected:
+  /** The detector we are there for*/
+  ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+
+  /** The layer of the detector detector we are there for*/
+  ACQIRIS::DelaylineDetector::anodelayers_t::key_type  _layer;
+
+  /** The Signal of the layer detector we are there for*/
+  ACQIRIS::AnodeLayer::wireends_t::key_type _signal;
 };
 
 

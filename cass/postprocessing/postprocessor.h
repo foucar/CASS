@@ -155,6 +155,7 @@ the Class description for information about what parameters are user settable.
 00150: TofDetector number of signals in MCP waveform
 00151: TofDetector all signals
 00152: TofDetector signal height vs. fwhm
+00153: TofDetector Deadtime between two consecutive MCP signals
 
 00160: Delayline wireend number of signals
 00161: Delayline wireend signal height vs. fwhm
@@ -163,6 +164,7 @@ the Class description for information about what parameters are user settable.
 00164: Delayline image of first good hit
 00165: Delayline reconstructed Number of detectorhits
 00166: Delayline data of all reconstructed detectorhits
+00167: Delayline Deadtime between two consecutive anode signals
 
 00170: Hex Delayline Calibrator
 
@@ -388,6 +390,7 @@ public:
     TofDetNbrSignals=150,
     TofDetAllSignals=151,
     TofDetMcpHeightVsFwhm=152,
+    TofDetDeadtime=153,
 
     SumFoundPixels=155,
     SumPhotonHits=156,
@@ -399,6 +402,7 @@ public:
     DelaylineFirstGoodHit=164,
     DelaylineNbrReconstructedHits=165,
     DelaylineAllReconstuctedHits=166,
+    DelaylineAnodeSigDeadtime=167,
 
     HEXCalibrator = 170,
 
