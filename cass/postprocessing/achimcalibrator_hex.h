@@ -31,7 +31,8 @@ namespace cass
 /** Achims resort routine calibrator
  *
  * this class will use achims resort routine capabilties to calibrate
- * the timesum shift and the scalefactors
+ * the timesum shift and the scalefactors. The PostProcessor will return the
+ * current ratio of full bins.
  *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.

@@ -166,7 +166,7 @@ the Class description for information about what parameters are user settable.
 00166: Delayline data of all reconstructed detectorhits
 00167: Delayline Deadtime between two consecutive anode signals
 
-00170: Hex Delayline Calibrator
+00170: Hex Delayline Calibrator (see Hexcalibrator for parameters)
 
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
