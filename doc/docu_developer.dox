@@ -170,6 +170,66 @@ Once you have set up your converter, you need to modify
 cass::ConversionBackend::instance() and add an @c else-if-statment that returns
 converter. Please document in cass/format_converter.h which string will return
 your the singleton of your converter.
+
+@section feature How to add a feature to cass using git
+The master branch should be linear, to be able to create a changelog from the
+commit history at some point. Optimally all feature branches should be rebased
+to a few single commits that would explain in the changelog what was done. For
+now we just keep merging every commit to the master branch.
+
+On your local repository ensure that everything is up to date:
+@verbatim
+git pull origin
+@endverbatim
+Make sure that the feature branch and the master branch are up to date. One
+might have to checkout both branches and then redo the pull command.
+Make sure that branch can be fast forward merged into master by rebasing it to
+master.
+@verbatim
+git checkout %feature branch name%
+git rebase master (only if cannot be fast forwarded)
+@endverbatim
+Now merge the feature branch into master
+@verbatim
+git checkout master
+git merge %feature branch name%
+@endverbatim
+Give the new master branch head a new annotated tag following the Tagging rules
+@verbatim
+git tag -a major.minor.bugfix -m”version major.minor.bugfix”
+@endverbatim
+Push the tags to the repo server before pushing the changes in master. Otherwise
+the tag number will not appear in the automatically generated documentation.
+@verbatim
+git push origin --tags
+git push origin
+@endverbatim
+The last command might take a while, because when the master branch has changed
+a hook script will automatically create the new documentation and the new
+binaries.
+Then remove the feature branch from all the repositories (locals and remote)
+@verbatim
+git push origin --delete %feature branch name%
+git branch -D %feature branch name%
+@endverbatim
+Make sure that you update the other repositories that you might work on in
+different places by doing a
+@verbatim
+git pull (--rebase)
+git remote prune origin
+@endverbatim
+
+@subsection tagging Tagging
+The tags should follow the versioning scheme:
+@verbatim
+major.minor.bugfix
+@endverbatim
+Where major should only be changed when a complete new revision that is not
+backward compatible and where the whole underlying concept changed was touched.
+A increase of minor indicates a new feature or new functionality that was added
+to the program.
+
+Increase the bugfix if just a fix for a problem was added.
 */
 
 /**

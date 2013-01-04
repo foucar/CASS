@@ -57,3 +57,6 @@ Software repository
     mailinglist and into the INSTALL file.
 
 * Please provide details on your changes in the commit message.
+
+* For further information please read the "How to add a feature to cass using git"
+  paragraph of the online documentation
