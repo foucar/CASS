@@ -5,12 +5,20 @@ include( cass_config.pri )
 
 TEMPLATE       = subdirs
 CONFIG        += ordered
-SUBDIRS        = cass_acqiris \
+SUBDIRS        = LCLS \
+                 cass_acqiris \
                  cass_pixeldetector \
                  cass_ccd \
                  cass_pnccd \
                  cass_machinedata \
                  cass
+
+cass.depends = LCLS \
+               cass_acqiris \
+               cass_pixeldetector \
+               cass_ccd \
+               cass_pnccd \
+               cass_machinedata
 
 JoCASSView{
 SUBDIRS       += jocassview
@@ -20,9 +28,3 @@ LuCASSView{
 SUBDIRS       += lucassview
 }
 
-
-## Local Variables:
-## coding: utf-8
-## mode: makefile
-## fill-column: 100
-## End:

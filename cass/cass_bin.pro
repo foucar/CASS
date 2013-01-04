@@ -1,5 +1,5 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
-# Copyright (C) 2009, 2010,2011, 2012 Lutz Foucar
+# Copyright (C) 2009 - 2013 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
 CASS_ROOT            = ..
@@ -18,73 +18,6 @@ target.path          = $$INSTALLBASE/bin
 CONFIG              -= gui
 QT                  += network
 DEFINES             += CASS_LIBRARY
-
-
-# build the LCLS libraries and programs before compiling cass itself by adding it to the pre traget dependencies
-PRE_TARGETDEPS     += $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
-
-lclsacq.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a
-lclsacq.commands    = @cd $$PWD/../LCLS && make x86_64-linux-static-opt
-lclsacq.depends     = FORCE
-
-lclsapp.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a
-lclsapp.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a
-
-lclsbld.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a
-lclsbld.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a
-
-lclscam.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a
-lclscam.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a
-
-lclsctrl.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a
-lclsctrl.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a
-
-lclscspad.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a
-lclscspad.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a
-
-lclsepic.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a
-lclsepic.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a
-
-lclsevr.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a
-lclsevr.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a
-
-lclsipm.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a
-lclsipm.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a
-
-lclsopal.target     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a
-lclsopal.depends    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a
-
-lclspnccd.target    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a
-lclspnccd.depends   = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a
-
-lclsprinc.target    = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a
-lclsprinc.depends   = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a
-
-lclspul.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a
-lclspul.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a
-
-lclsxtc.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
-lclsxtc.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a
-
-lclslusi.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
-lclslusi.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
-
-QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclscspad lclsepic lclsevr lclsipm lclsopal lclspnccd lclscspad lclsprinc lclspul lclsxtc lclslusi
-
 
 # create SOAP sources and descriptions
 SOAPFiles.target    = soapCASSsoapService.cpp
@@ -241,10 +174,11 @@ INCLUDEPATH        += postprocessing \
 
 DEPENDPATH         += ./postprocessing
 
-LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata -lcass_pixeldetector\
-                      -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata -lbld -lcspaddata\
-                      -lgsoap++ -lgsoap
+DEPENDENCY_LIBRARIES  = cass_acqiris cass_pnccd cass_ccd cass_machinedata cass_pixeldetector
+DEPENDENCY_LIBRARIES += appdata acqdata camdata evrdata pnccddata pulnixdata controldata xtcdata ipimbdata lusidata bld cspaddata
+include( $${CASS_ROOT}/cass_dependencies.pri )
+
+LIBS               += -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
 
@@ -296,29 +230,11 @@ CONFIG(offline) {
     DEFINES        += OFFLINE RINGBUFFER_BLOCKING
 }
 
-lclslibs.path       = $$INSTALLBASE/lib
-lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
-lclsapps.path       = $$INSTALLBASE/bin
-lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
 bin_copy.path       = $$INSTALLBASE/bin
 bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 headers.files       = $$HEADERS
 
-INSTALLS           += target bin_copy lclslibs lclsapps
+INSTALLS           += target bin_copy
 
 
 versiontarget.target = $$PWD/../cass/update-version.sh
@@ -329,22 +245,6 @@ PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
 QMAKE_EXTRA_TARGETS+= versiontarget
 
 QMAKE_CLEAN        += $$SOAPFiles.files
-QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/bld/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/cspad/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/lusi/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/opal1k/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/*.o \
-                      $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/*.o
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
