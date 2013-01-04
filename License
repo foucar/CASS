@@ -4,7 +4,10 @@ details.
 
 If you use this software for publishable work, please cite and
 acknowledge the authors and the CASS collaboration in your
-publication. The suggested reference is:
-  CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009.
+publication. The paper describing CASS is published in 'Computer Physics Communication'.
+Please cite it as:
+Lutz Foucar; Barty, A.; Coppola, N.; Hartmann, R.; Holl, P.; Hoppe, U.; Kassemeyer, S.; Kimmel, N.; Küpper, J.; Scholz, M.; Techert, S.; White, T. A.; Strüder, L. & Ullrich, J
+CASS—CFEL-ASG software suite
+Computer Physics Communications, 2012, 183, 2207 - 2213
 
 See the file AUTHORS in the software distributions for a list of major contributors.

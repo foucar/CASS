@@ -230,9 +230,16 @@ A increase of minor indicates a new feature or new functionality that was added
 to the program.
 
 Increase the bugfix if just a fix for a problem was added.
+
+Further details can be found in the @ref taginfo file
 */
 
 /**
 \page develnotes Developer Notes
 @include "README.devel"
+*/
+
+/**
+\page taginfo VERSIONING
+@include "VERSION"
 */
