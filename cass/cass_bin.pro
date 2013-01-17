@@ -88,6 +88,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/coltrims_analysis.cpp \
                       ./postprocessing/achimcalibrator_hex.cpp \
                       ./postprocessing/image_manipulation.cpp \
+                      ./postprocessing/hitfinder.cpp \
                       ./postprocessing/partial_covariance.cpp \
                       ./postprocessing/cbf_output.cpp
 
@@ -157,6 +158,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/coltrims_analysis.h \
                       ./postprocessing/achimcalibrator_hex.h \
                       ./postprocessing/image_manipulation.h \
+                      ./postprocessing/hitfinder.h \
                       ./postprocessing/partial_covariance.h \
                       ./postprocessing/cbf_output.h
 

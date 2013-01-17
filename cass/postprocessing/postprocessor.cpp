@@ -32,6 +32,7 @@
 #include "partial_covariance.h"
 #include "cbf_output.h"
 #include "log.h"
+#include "hitfinder.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -868,6 +869,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case RealPolarTransformation:
     processor = PostprocessorBackend::shared_pointer
           (new pp202(*this,key));
+    break;
+  case MedianBoxBackground:
+    processor = PostprocessorBackend::shared_pointer(new pp203(*this,key));
     break;
   case AdvancedPhotonFinderDump:
     processor = PostprocessorBackend::shared_pointer
