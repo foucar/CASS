@@ -46,7 +46,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       conversion_backend.cpp \
                       daemon.cpp \
                       log.cpp \
-                      event_getter.cpp \
                       input_base.cpp \
                       file_input.cpp \
                       file_reader.cpp \
@@ -59,7 +58,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       pausablethread.cpp \
                       format_converter.cpp \
                       histogram.cpp \
-                      histogram_getter.cpp \
                       sharedmemory_input.cpp \
                       tcp_input.cpp \
                       tcp_streamer.cpp \
@@ -99,7 +97,6 @@ HEADERS            += analysis_backend.h \
                       conversion_backend.h \
                       daemon.h \
                       log.h \
-                      event_getter.h \
                       input_base.h \
                       file_input.h \
                       file_parser.h \
@@ -114,7 +111,6 @@ HEADERS            += analysis_backend.h \
                       pausablethread.h \
                       format_converter.h \
                       histogram.h \
-                      histogram_getter.h \
                       ratemeter.h \
                       ringbuffer.h \
                       rate_plotter.h \

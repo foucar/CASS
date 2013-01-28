@@ -1,5 +1,5 @@
 // Copyright (C) 2010 Jochen Küpper
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011 - 2013 Lutz Foucar
 
 /**
  * @file tcpserver.cpp the soap server implementation
@@ -41,13 +41,11 @@ SoapServer::shared_pointer SoapServer::_instance;
 QMutex SoapServer::_mutex;
 const size_t SoapServer::_backlog(100);
 
-SoapServer::shared_pointer SoapServer::instance(const EventGetter& event,
-                                                const HistogramGetter& hist,
-                                                size_t port)
+SoapServer::shared_pointer SoapServer::instance(size_t port)
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
-    _instance = shared_pointer(new SoapServer(event, hist, port));
+    _instance = shared_pointer(new SoapServer(port));
   return _instance;
 }
 //==========================================================
@@ -58,6 +56,14 @@ void SoapHandler::run()
 {
   _soap->serve();   // serve request
   _soap->destroy(); // dealloc C++ data, dealloc data and clean up (destroy + end)
+}
+
+SoapServer::SoapServer(size_t port, QObject *parent)
+  : QThread(parent),
+    _soap(new CASSsoapService),
+    _port(port)
+{
+  Log::add(Log::INFO,"SoapServer starting on port '" + toString(_port) +"'");
 }
 
 SoapServer::~SoapServer()

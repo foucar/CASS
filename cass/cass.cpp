@@ -28,6 +28,7 @@
 #include "sharedmemory_input.h"
 #include "tcp_input.h"
 #include "tcpserver.h"
+#include "postprocessor.h"
 #ifdef HTTPSERVER
 #include "httpserver.h"
 #endif
@@ -336,9 +337,7 @@ int main(int argc, char **argv)
     SoapServer::shared_pointer server;
     if(!noSoap)
     {
-      EventGetter get_event(ringbuffer);
-      HistogramGetter get_histogram;
-      server = SoapServer::instance(get_event, get_histogram, soap_port);
+      server = SoapServer::instance(soap_port);
     }
 
     /** set up the optional http server */
