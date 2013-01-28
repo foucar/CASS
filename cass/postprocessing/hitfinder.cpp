@@ -116,6 +116,7 @@ void pp203::process(const CASSEvent &evt)
       const size_t ysectionbegin(sy*ysectionsize);
       const size_t ysectionend(sy*ysectionsize + ysectionsize);
 
+//      cout << xsectionbegin << " "<<xsectionend << " "<<ysectionbegin << " "<<ysectionend<<endl;
       for (size_t y=ysectionbegin; y<ysectionend; ++y)
       {
         for (size_t x=xsectionbegin; x<xsectionend; ++x)
@@ -125,6 +126,7 @@ void pp203::process(const CASSEvent &evt)
           const size_t yboxbegin(max(static_cast<int>(ysectionbegin),static_cast<int>(y)-static_cast<int>(yboxsize)));
           const size_t yboxend(min(ysectionend,y+yboxsize));
 
+//          cout <<x << " " << xboxbegin << " "<<xboxend <<" : " <<y<< " "<<yboxbegin << " "<<yboxend<<endl;
           box.clear();
           for (size_t yb=yboxbegin; yb<yboxend;++yb)
           {
@@ -136,12 +138,22 @@ void pp203::process(const CASSEvent &evt)
             }
           }
 
-          nth_element(box.begin(), box.begin() + 0.5*box.size(), box.end());
-          const float median = box[0.5*box.size()];
           const size_t pixAddr(y*xsize+x);
-//          const float pixel(image_in[pixAddr]);
-//          const float backgroundsubstractedPixel(pixel-median);
-          image_out[pixAddr] = median;
+          if (box.empty())
+          {
+            const float pixel(image_in[pixAddr]);
+            image_out[pixAddr] = pixel;
+          }
+          else
+          {
+            const size_t mid(0.5*box.size());
+            nth_element(box.begin(), box.begin() + mid, box.end());
+            const float median = box[mid];
+            image_out[pixAddr] = median;
+//            const float pixel(image_in[pixAddr]);
+//            const float backgroundsubstractedPixel(pixel-median);
+//            image_out[pixAddr] = backgroundsubstractedPixel;
+          }
         }
       }
     }
