@@ -88,10 +88,10 @@ void SoapServer::run()
       if(_soap->errnum)
       {
         _soap->soap_stream_fault(cerr);
-        cerr << "*** No valid socket for SOAP connection ***" << endl;
+        Log::add(Log::ERROR,"SoapServer::run(): No valid socket for SOAP connection");
       }
       else
-        cerr << "*** Server timeout for SOAP connection ***" << endl;
+        Log::add(Log::ERROR,"SoapServer::run(): Server timeout for SOAP connection");
       break;
     }
     CASSsoapService *tsoap(_soap->copy()); // make a safe copy
@@ -105,7 +105,7 @@ void SoapServer::run()
 /** quits CASS by telling the input to end */
 int CASSsoapService::quit(bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::quit" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::quit");
   InputBase::reference().end();
   *success = true;;
   return SOAP_OK;
@@ -118,7 +118,7 @@ int CASSsoapService::quit(bool *success)
  */
 int CASSsoapService::readini(size_t what, bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::readini(what=" << what << ")" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::readini(what=" + toString(what) + ")");
   Log::loadSettings();
   QMutexLocker inputLock(&InputBase::reference().lock);
   QMutexLocker workerLock(&Workers::reference().lock);
@@ -164,7 +164,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
  */
 int CASSsoapService::writeini(size_t what, bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::readini(what=" << what << ")" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::readini(what=" + toString(what) + ")");
   QMutexLocker workerLock(&Workers::reference().lock);
   Workers::reference().pause();
   Analyzer::instance()->saveSettings();
@@ -183,7 +183,7 @@ int CASSsoapService::writeini(size_t what, bool *success)
  */
 int CASSsoapService::clearHistogram(PostProcessors::key_t type, bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::clearHistogram(type=" << type << ")" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::clearHistogram(type=" + type + ")");
   QWriteLocker pplock(&PostProcessors::instance()->lock);
   try
   {
@@ -224,7 +224,7 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
  */
 int CASSsoapService::receiveCommand(PostProcessors::key_t type, string command, bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::receiveCommand(type=" << type << ")" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::receiveCommand(type=" + type + ")");
   QWriteLocker pplock(&PostProcessors::instance()->lock);
   try
   {
@@ -239,7 +239,7 @@ int CASSsoapService::receiveCommand(PostProcessors::key_t type, string command, 
   }
 }
 
-int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
+int CASSsoapService::getEvent(size_t /*type*/, unsigned /*t1*/, unsigned /*t2*/, bool */*success*/)
 {
 //  /** @todo use shared pointer inside the queue */
 //  /** @todo get rid of the functor and do everything here */
@@ -268,7 +268,7 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
  */
 int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, bool *success)
 {
-  VERBOSEOUT(cerr << "CASSsoapService::getHistogram" << endl);
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::getHistogram");
   static QQueue<shared_ptr<pair<size_t, string> > > queue;
   QWriteLocker pplock(&PostProcessors::instance()->lock);
   try
@@ -319,19 +319,3 @@ int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, b
     return SOAP_FATAL_ERROR;
   }
 }
-
-
-
-
-
-
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
