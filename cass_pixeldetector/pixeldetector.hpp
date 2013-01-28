@@ -168,8 +168,7 @@ private:
 inline
 void cass::pixeldetector::Detector::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //serialize the columns rows and then the frame//
   out.addUint16(_columns);
   out.addUint16(_rows);
@@ -180,15 +179,7 @@ void cass::pixeldetector::Detector::serialize(cass::SerializerBackend &out)const
 inline
 bool cass::pixeldetector::Detector::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    Log::add(Log::ERROR,std::string("pixeldetector::Detector::deserialize(): ") +
-                               " version conflict in pixel detector: " +
-                               toString(ver) + " "+ toString(_version));
-    return false;
-  }
+  checkVersion(in);
   //get the number of columns and rows. This defines the size of//
   _columns = in.retrieveUint16();
   _rows    = in.retrieveUint16();

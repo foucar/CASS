@@ -39,9 +39,7 @@ cass::CASSEvent::~CASSEvent()
 
 void cass::CASSEvent::serialize(cass::SerializerBackend& out)const
 {
-  //the version//
-  out.addUint16(_version);
-
+  writeVersion(out);
   //the id//
   out.addUint64(_id);
 
@@ -52,13 +50,7 @@ void cass::CASSEvent::serialize(cass::SerializerBackend& out)const
 
 bool cass::CASSEvent::deserialize(cass::SerializerBackend& in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in cass-event: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //get id//
   _id = in.retrieveUint64();
   //all devices//

@@ -48,8 +48,7 @@ namespace cass
 
 inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //serialize the amount of detectors present//
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
@@ -60,13 +59,7 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)con
 
 inline bool cass::pnCCD::pnCCDDevice::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in pnCCD: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //read how many detectors//
   size_t nDets = in.retrieveSizet ();
   //make the detector container big enough//

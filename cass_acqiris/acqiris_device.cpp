@@ -22,8 +22,7 @@ cass::ACQIRIS::Device::Device()
 
 void cass::ACQIRIS::Device::serialize(cass::SerializerBackend &out)const
 {
-  //the version
-  out.addUint16(_version);
+  writeVersion(out);
   //the instruments
   instruments_t::const_iterator it(_instruments.begin());
   for(; it != _instruments.end(); ++it)
@@ -32,13 +31,7 @@ void cass::ACQIRIS::Device::serialize(cass::SerializerBackend &out)const
 
 bool cass::ACQIRIS::Device::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in acqiris: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //the instruments//
   for(instruments_t::iterator it=_instruments.begin();
   it != _instruments.end();
@@ -54,8 +47,7 @@ bool cass::ACQIRIS::Device::deserialize(cass::SerializerBackend &in)
 
 void cass::ACQIRIS::Instrument::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //copy the size of the channels and then all channels//
   size_t nChannels = _channels.size();
   out.addSizet(nChannels);
@@ -65,13 +57,7 @@ void cass::ACQIRIS::Instrument::serialize(cass::SerializerBackend &out)const
 
 bool cass::ACQIRIS::Instrument::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in acqiris: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //read how many channels//
   size_t nChannels= in.retrieveSizet();
   //make the channels container big enough//

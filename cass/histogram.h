@@ -790,9 +790,7 @@ public:
 
 inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addUint16(_version);
-
+  writeVersion(out);
   //number of bins, lower & upper limit
   out.addSizet(_size);
   out.addFloat(_low);
@@ -804,13 +802,7 @@ inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
 
 inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in Axisproperty of Histogram: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //number of bins, lower & upper limit
   _size     = in.retrieveSizet();
   _low      = in.retrieveFloat();
@@ -854,8 +846,7 @@ inline size_t AxisProperty::bin(float pos) const
 inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
   QReadLocker rlock(&lock);
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //the number of fills//
   out.addSizet(_nbrOfFills);
   //the dimension//
@@ -876,13 +867,7 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)con
 
 inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   QWriteLocker wlock(&lock);
   //the number of fills//
   _nbrOfFills = in.retrieveSizet();

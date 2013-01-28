@@ -68,9 +68,13 @@ namespace cass
      */
     virtual void checkVersion(SerializerBackend& in)const
     {
-      uint16_t version;
-      version = in.retrieveUint16();
-      assert(version == _version);
+      uint16_t version(in.retrieveUint16());
+      if(version != _version)
+      {
+        throw std::runtime_error(std::string("Version mismatch in '") + typeid(*this).name() +
+                                 "': '" + toString(version) + "' != '" +
+                                 toString(_version) + "'");
+      }
     }
 
 protected:

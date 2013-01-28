@@ -204,7 +204,7 @@ namespace cass
    * @author Lutz Foucar
    * @author Nicola Coppola
    */
-  class CASSSHARED_EXPORT PixelDetector  : public cass::Serializable// : public cass::DeviceBackend
+  class CASSSHARED_EXPORT PixelDetector  : public cass::Serializable
   {
   public:
     PixelDetector():
@@ -319,8 +319,7 @@ namespace cass
 
 inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //serialize the columns rows and then the frame//
   out.addUint16(_columns);
   out.addUint16(_rows);
@@ -330,13 +329,7 @@ inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)const
 
 inline bool cass::PixelDetector::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in ccd-detector: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //get the number of columns and rows. This defines the size of//
   _columns = in.retrieveUint16();
   _rows    = in.retrieveUint16();

@@ -94,8 +94,7 @@ namespace cass
 
 inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)const
 {
-  //the version//
-  out.addSizet(_version);
+  writeVersion(out);
   //output all variables obtained from the acqiris, then the waveform//
   out.addDouble(_horpos);
   out.addDouble(_offset);
@@ -111,13 +110,7 @@ inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)const
 
 inline bool cass::ACQIRIS::Channel::deserialize(cass::SerializerBackend &in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveSizet();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in acqiris channel: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //read all variables and then the waveform from the input stream
   _horpos = in.retrieveDouble();
   _offset = in.retrieveDouble();

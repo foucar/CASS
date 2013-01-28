@@ -102,7 +102,7 @@ namespace cass
 inline void cass::MachineData::MachineDataDevice::serialize(cass::SerializerBackend &out)const
 {
   //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //the beamlinedata//
   out.addSizet(_blddata.size());
   //for each entry in the map copy the length of the name, the name, then the value//
@@ -124,12 +124,7 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::SerializerBack
 inline bool cass::MachineData::MachineDataDevice::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in MachineData: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
 
   //beamlinedata//
   //clear the map//

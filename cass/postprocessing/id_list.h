@@ -3,6 +3,8 @@
 #ifndef __IDLIST_H__
 #define __IDLIST_H__
 
+#include "serializable.h"
+
 #include "postprocessor.h"
 
 namespace cass

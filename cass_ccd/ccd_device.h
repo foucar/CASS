@@ -28,10 +28,6 @@ namespace cass
          typedef std::vector<PixelDetector> detectors_t;
 
     public:
-      /*
-      const cass::PixelDetector &detector()const  {return _detector;}
-      cass::PixelDetector &detector()             {return _detector;}
-      */
       void serialize(cass::SerializerBackend&)const;
       bool deserialize(cass::SerializerBackend&);
 
@@ -49,8 +45,7 @@ namespace cass
 
 inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)const
 {
-  //the version//
-  out.addUint16(_version);
+  writeVersion(out);
   //serialize the amount of detectors present//
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
@@ -62,13 +57,7 @@ inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)const
 
 inline bool cass::CCD::CCDDevice::deserialize(cass::SerializerBackend& in)
 {
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    std::cerr<<"version conflict in pnCCD: "<<ver<<" "<<_version<<std::endl;
-    return false;
-  }
+  checkVersion(in);
   //read how many detectors//
   size_t nDets = in.retrieveSizet ();
   //make the detector container big enough//
