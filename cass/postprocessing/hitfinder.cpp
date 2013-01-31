@@ -134,7 +134,8 @@ void pp203::process(const CASSEvent &evt)
             {
               const size_t pixAddrBox(yb*xsize+xb);
               const float pixel_box(image_in[pixAddrBox]);
-              box.push_back(pixel_box);
+              if ( ! qFuzzyCompare(pixel_box,0.f) )
+                box.push_back(pixel_box);
             }
           }
 
