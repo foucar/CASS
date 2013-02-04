@@ -235,6 +235,58 @@ namespace cass
 
 
 
+
+
+
+
+
+  /** Threshold histogram.
+   *
+   * does the same as PostProcessor 40, but does it with another image. Checks
+   * wether the pixel value of the threshold image is bigger than the pxiel
+   * value of the image, if so the result will be the the image pixel value and
+   * 0 otherwise.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name with histogram that should be thresholded. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ThresholdHist} \n
+   *           Image with which the hist will be thresholded.  Default is 0.
+   *
+   * @author Thomas White
+   * @author Lutz Foucar
+   */
+  class pp41 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp41(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
+    /** change own histograms when one of the ones we depend on has changed histograms */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
+
+    /** pp containing threshold histogram */
+    PostprocessorBackend *_threshold;
+  };
+
+
+
+
+
+
+
   /** Projection of 2d Histogram.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini

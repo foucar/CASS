@@ -294,6 +294,89 @@ void pp40::process(const CASSEvent &evt)
 
 
 
+// ****************** Postprocessor 40: Threshold histogram ********************
+
+pp41::pp41(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp41::loadSettings(size_t)
+{
+  CASSSettings s;
+
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  setupGeneral();
+
+  // Get input
+  _one = setupDependency("HistName");
+  _threshold = setupDependency("Threshold");
+  bool ret (setupCondition());
+  if (!(_one && _threshold && ret)) return;
+
+  _result = _one->getHist(0).clone();
+  createHistList(2*cass::NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' will threshold Histogram in PostProcessor '" + _one->key() +
+           "' above pixels in image '" + _threshold->key() +
+           "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp41::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
+  _result = in->clone();
+  createHistList(2*cass::NbrOfWorkers);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+             "': histograms changed => delete existing histo" +
+             " and create new one from input");
+}
+
+void pp41::process(const CASSEvent &evt)
+{
+  // Get the input
+  const HistogramFloatBase &image
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  const HistogramFloatBase &threshimage
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  HistogramFloatBase &result
+      (*dynamic_cast<HistogramFloatBase*>(_result));
+
+  // Subtract using transform (under locks)
+  image.lock.lockForRead();
+  threshimage.lock.lockForRead();
+  _result->lock.lockForWrite();
+  transform(image.memory().begin(), image.memory().end(),
+            threshimage.memory().begin(),
+            result.memory().begin(),
+            threshold());
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  threshimage.lock.unlock();
+  image.lock.unlock();
+}
+
+
+
+
+
 
 
 

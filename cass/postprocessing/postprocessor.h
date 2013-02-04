@@ -73,6 +73,7 @@ the Class description for information about what parameters are user settable.
 00033: Divide histogram by constant, Constant is taken from 0D histogram  (pp30)
 
 00040: Threshold histogram
+00041: Threshold histogram with another histogram
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
@@ -319,6 +320,7 @@ public:
     Divide0DConstant=33,
 
     Threshold=40,
+    ThresholdImage=41,
 
     TwoDProjection=50,
     OneDIntergral=51,
