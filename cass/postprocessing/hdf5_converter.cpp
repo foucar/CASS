@@ -581,8 +581,8 @@ void write2DMatrix(const Histogram2DFloat& hist, hid_t groupid, bool compress)
   // Create the data space for the dataset.
   /** @todo x and y could be wrong and needs to be interchanged -> check */
   hsize_t dims[2];
-  dims[0] = nxbins;
-  dims[1] = nybins;
+  dims[0] = nybins;
+  dims[1] = nxbins;
   hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
   if (dataspace_id == 0)
     throw runtime_error("pp1001::write2dMatrix(): Could not open the dataspace for the 2d matrix");
