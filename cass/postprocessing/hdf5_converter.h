@@ -134,12 +134,22 @@ namespace cass
    * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
    * crew is using to be able to read and process the hdf5 with crystfel
    *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name containing the histogram that will be writen
-   *           to hdf5.
-   * @cassttng PostProcessor/\%name\%/{PhotonEnergyHistName} \n
-   *           Postprocessor name containing the histogram containts the
-   *           photonEnergy that will be writen to hdf5.
+   * @cassttng PostProcessor/\%name\%/PostProcessor/size \n
+   *           How many PostProcessors should be written to the h5 file.
+   * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
+   *           Name of the PostProcessor that should be written into the h5 file.
+   *           Default is "unknown"
+   * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{GroupName} \n
+   *           Name of the group in the h5 file into which the PostProcessor
+   *           should be written into. Default is "/"
+   * @cassttng PostProcessor/\%name\%/PostProcessorSummary/size \n
+   *           How many PostProcessors should be written to the h5 file.
+   * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
+   *           Name of the PostProcessor that should be written into the h5 file.
+   *           Default is "unknown"
+   * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{GroupName} \n
+   *           Name of the group in the h5 file into which the PostProcessor
+   *           should be written into. Default is "/"
    *
    * @author Lutz Foucar
    */
