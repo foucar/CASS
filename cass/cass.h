@@ -277,7 +277,7 @@ const size_t RingBufferSize=32;
 /** global variable to set the number of worker threads */
 const size_t NbrOfWorkers=16;
 /** the maximum size of one datagram should be 16 MB */
-const size_t DatagramBufferSize=0x1000000;
+const size_t DatagramBufferSize=2*0x1000000;
 /** the type of a pixel of a ccd image*/
 typedef float pixel_t;
 //forward decalration//

@@ -55,6 +55,12 @@ bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
   Pds::Dgram& dg
       (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
   file.read(event.datagrambuffer(),sizeof(dg));
+  if (dg.xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
+  {
+    throw runtime_error(string("XtcReader::operator (): Datagram size is '" + toString(dg.xtc.sizeofPayload()/1024/1024) +"MB', therefore it is bigger ") +
+                        "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
+                        " MB. Something is wrong. Skipping the datagram");
+  }
   file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
   return (_convert(&event));
 }
