@@ -1152,84 +1152,92 @@ void pp1002::aboutToQuit()
 {
   QMutexLocker locker(&_lock);
 
-  /** create filename from base filename + event id */
-  string filename(_basefilename + "_Summary.h5");
-  /** create the hdf5 file with the name and the handles to the specific data storage*/
-  hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  if (fh == 0)
-    throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
-
-  /** iterate through the postprocessor list that should be dumped to h5 */
- list<pair<string,PostprocessorBackend*> >::iterator it(_ppSummaryList.begin());
-  for (;it != _ppSummaryList.end(); ++it)
+  /** check if something to be written */
+  if (!_ppSummaryList.empty())
   {
-    /** create the requested group */
-    hdf5::createGroupWithAbsolutePath(it->first,fh);
-    /** retrieve data from pp and write it to the h5 file */
-    PostprocessorBackend &pp(*(it->second));
-    const HistogramBackend &data(pp.getHist(0));
-    const string dataName(it->first + "/" + pp.key());
-    switch (data.dimension())
-    {
-    case 0:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-      break;
-    case 1:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-      break;
-    case 2:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-      break;
-    default:
-      throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
-      break;
-    }
-  }
+    /** create filename from base filename + event id */
+    string filename(_basefilename + "_Summary.h5");
+    /** create the hdf5 file with the name and the handles to the specific data storage*/
+    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (fh == 0)
+      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
-  /** close file */
-  H5Fflush(fh,H5F_SCOPE_LOCAL);
-  H5Fclose(fh);
+    /** iterate through the postprocessor list that should be dumped to h5 */
+    list<pair<string,PostprocessorBackend*> >::iterator it(_ppSummaryList.begin());
+    for (;it != _ppSummaryList.end(); ++it)
+    {
+      /** create the requested group */
+      hdf5::createGroupWithAbsolutePath(it->first,fh);
+      /** retrieve data from pp and write it to the h5 file */
+      PostprocessorBackend &pp(*(it->second));
+      const HistogramBackend &data(pp.getHist(0));
+      const string dataName(it->first + "/" + pp.key());
+      switch (data.dimension())
+      {
+      case 0:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+        break;
+      case 1:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+        break;
+      case 2:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+        break;
+      default:
+        throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
+        break;
+      }
+    }
+
+    /** close file */
+    H5Fflush(fh,H5F_SCOPE_LOCAL);
+    H5Fclose(fh);
+  }
 }
 
 void pp1002::process(const CASSEvent &evt)
 {
   QMutexLocker locker(&_lock);
 
-  /** create filename from base filename + event id */
-  string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
-  /** create the hdf5 file with the name and the handles to the specific data storage*/
-  hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  if (fh == 0)
-    throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
-
-  /** iterate through the postprocessor list that should be dumped to h5 */
- list<pair<string,PostprocessorBackend*> >::iterator it(_ppList.begin());
-  for (;it != _ppList.end(); ++it)
+  /** check if there is something to be written */
+  if (!_ppList.empty())
   {
-    /** create the requested group */
-    hdf5::createGroupWithAbsolutePath(it->first,fh);
-    /** retrieve data from pp and write it to the h5 file */
-    PostprocessorBackend &pp(*(it->second));
-    const HistogramBackend &data(pp(evt));
-    const string dataName(it->first + "/" + pp.key());
-    switch (data.dimension())
-    {
-    case 0:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-      break;
-    case 1:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-      break;
-    case 2:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-      break;
-    default:
-      throw runtime_error("pp1002::process: data dimension not known");
-      break;
-    }
-  }
+    /** create filename from base filename + event id */
+    string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
+    /** create the hdf5 file with the name and the handles to the specific data storage*/
+    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (fh == 0)
+      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
-  /** close file */
-  H5Fflush(fh,H5F_SCOPE_LOCAL);
-  H5Fclose(fh);
+    /** iterate through the postprocessor list that should be dumped to h5 */
+    list<pair<string,PostprocessorBackend*> >::iterator it(_ppList.begin());
+    for (;it != _ppList.end(); ++it)
+    {
+      /** create the requested group */
+      hdf5::createGroupWithAbsolutePath(it->first,fh);
+      /** retrieve data from pp and write it to the h5 file */
+      PostprocessorBackend &pp(*(it->second));
+      const HistogramBackend &data(pp(evt));
+      const string dataName(it->first + "/" + pp.key());
+      switch (data.dimension())
+      {
+      case 0:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+        break;
+      case 1:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+        break;
+      case 2:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+        break;
+      default:
+        throw runtime_error("pp1002::process: data dimension not known");
+        break;
+      }
+    }
+
+    /** close file */
+    H5Fflush(fh,H5F_SCOPE_LOCAL);
+    H5Fclose(fh);
+  }
 }
