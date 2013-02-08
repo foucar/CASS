@@ -121,6 +121,15 @@ void pp203::process(const CASSEvent &evt)
       {
         for (size_t x=xsectionbegin; x<xsectionend; ++x)
         {
+          const size_t pixAddr(y*xsize+x);
+          const float pixel(image_in[pixAddr]);
+
+          if ( qFuzzyCompare(pixel,0.f) )
+          {
+            image_out[pixAddr] = pixel;
+            continue;
+          }
+
           const size_t xboxbegin(max(static_cast<int>(xsectionbegin),static_cast<int>(x)-static_cast<int>(xboxsize)));
           const size_t xboxend(min(xsectionend,x+xboxsize));
           const size_t yboxbegin(max(static_cast<int>(ysectionbegin),static_cast<int>(y)-static_cast<int>(yboxsize)));
@@ -139,10 +148,8 @@ void pp203::process(const CASSEvent &evt)
             }
           }
 
-          const size_t pixAddr(y*xsize+x);
           if (box.empty())
           {
-            const float pixel(image_in[pixAddr]);
             image_out[pixAddr] = pixel;
           }
           else
@@ -151,7 +158,6 @@ void pp203::process(const CASSEvent &evt)
             nth_element(box.begin(), box.begin() + mid, box.end());
             const float median = box[mid];
             image_out[pixAddr] = median;
-//            const float pixel(image_in[pixAddr]);
 //            const float backgroundsubstractedPixel(pixel-median);
 //            image_out[pixAddr] = backgroundsubstractedPixel;
           }
