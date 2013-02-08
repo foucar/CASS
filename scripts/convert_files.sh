@@ -8,7 +8,7 @@
 # config
 
 # the diretory where the analysis is taken place
-BASEDIR=/reg/d/psdm/cxi/cxii0512/scratch/cass
+BASEDIR=/reg/d/psdm/cxi/cxic0113/scratch/cass
 
 # the dir where all the .ini for the runs will be placed
 INIDIR=$BASEDIR/ini
@@ -23,16 +23,16 @@ SHDIR=$BASEDIR/sh
 DARKCALDIR=$BASEDIR/darkcal
 
 # the dir where all the data file are residing
-DATAFILESDIR=/reg/d/psdm/cxi/cxii0512/xtc
+DATAFILESDIR=/reg/d/psdm/cxi/cxic0113/xtc
 
 # the dir where the ouput files will be written to
-OUTPUTDIR=$BASEDIR/hdf5
+OUTPUTDIR=$BASEDIR/hdf5_new
 
 # the dir where the jobs output will be written to
 JOBDIR=$BASEDIR/jobs
 
 # string the precedes the runnumber
-FILEBASENAME=e220-r0
+FILEBASENAME=e290-r0
 
 # string that indicates that the data file cannot be read yet
 PROGRESSSUFFIX=inprogress
@@ -70,7 +70,12 @@ QUERYCOMMAND="bjobs"
 OUTPUTEXT=h5
 
 #set this to one if you only want to create a file that contains all the submit command
-$CREATEONLYSUBMITCOMMANDS=1
+CREATEONLYSUBMITCOMMANDS=0
+
+#set this to 1 if you want to put the output files into separate run folders
+CREATEOUTPUTSUBDIRS=1
+#the number of slices recorded
+NBRSLICES=6
 
 
 
@@ -142,19 +147,19 @@ monitor_file()
 {
   echo "Monitoring file $1 for changes. If changes occur calls \"sh $0 $1\""
   file="$1"
-  checksumcommand="md5sum "$file" | awk '{print $1}'"
-#  chsum1=`md5sum "$file" | awk '{print $1}'`
-  chsum1=`$checksumcommand`
+#  checksumcommand="md5sum "$file" | awk '{print $1}'"
+  chsum1=`md5sum "$file" | awk '{print $1}'`
+#  chsum1=`"$checksumcommand"`
   chsum2=$chsum1
   while [[ TRUE ]]
   do
-#    chsum1=`md5sum "$file" | awk '{print $1}'`
-    chsum1=`$checksumcommand`
+    chsum1=`md5sum "$file" | awk '{print $1}'`
+#    chsum1=`"$checksumcommand"`
     while [ "$chsum1" == "$chsum2" ]
     do
       sleep 10
-#      chsum2=`md5sum "$file" | awk '{print $1}'`
-      chsum2=`$checksumcommand`
+      chsum2=`md5sum "$file" | awk '{print $1}'`
+#      chsum2=`"$checksumcommand"`
       echo ""$chsum1" "$chsum2""
     done
 #    echo "call \"sh $0 $1\""
@@ -206,16 +211,18 @@ find_amount_of_slices_for_run()
 check_files_not_exists()
 {
   filebasename=$1
-  sumall=`ls $filebasenme* 2> /dev/null | wc -l`
-  sumprogress=`ls $filebasenme* 2> /dev/null | grep "$PROGRESSSUFFIX" | wc -l`
-  if [ "$sumall" -eq  0 ]
+  sumall=`ls $filebasename* 2> /dev/null | wc -l`
+  sumprogress=`ls $filebasename* 2> /dev/null | grep "$PROGRESSSUFFIX" | wc -l`
+#  echo "name: $filebasename* ; alle: $sumall ; progress: $sumprogress  ; modulo: $(($sumall % $NBRSLICES))"
+#  if [ "$sumall" -eq 0 ]
+  if [ "$sumall" -eq 0 ] || [ $(($sumall % $NBRSLICES)) -ne 0 ]
   then
-    echo "files with basename $filebasename do not exist.";
+    echo "Not all files with basename $filebasename exist.";
     return 1;
   fi
   if [ $sumprogress -ne 0 ]
   then
-    echo "files with basename $filebasename exist, but some contain the $PROGRESSUFFIX extension"
+    echo "files with basename $filebasename exist, but some contain the $PROGRESSSUFFIX extension"
     return 1;
   fi
   return 0;
@@ -233,13 +240,15 @@ wait_until_files_exist()
   while [ "$fileDoesNotExist" -eq 1 ]
   do
     echo "Files with basename $1 do not exist. Wait a little and check again"
-    check_file_not_exists $1
-    fileDoesNotExist=$?
     sleep 5
+    check_files_not_exists $1
+    fileDoesNotExist=$?
   done
   if [ "$fileDoesNotExistInBeginning" -eq 1 ]
   then
     echo "Files with basename $1 exist now"
+  else
+    echo "Files with basename $1 exist. None of them has the $PROGRESSSUFFIX extension"
   fi
 }
 
@@ -337,6 +346,8 @@ check_file_not_exists()
   then
     echo "$filename does not exist.";
     return 1;
+  else
+    echo "$filename does exist";
   fi
   return 0;
 }
@@ -349,7 +360,7 @@ wait_until_file_exists()
 {
   check_file_not_exists $1
   fileDoesNotExist=$?
-  fileDidNotExistInBeginning=$fileDidNotExistInBeginning
+  fileDidNotExistInBeginning=$fileDoesNotExist
   while [ "$fileDoesNotExist" -eq 1 ]
   do
     echo "File $1 does not exist yet. Wait and check again"
@@ -360,6 +371,8 @@ wait_until_file_exists()
   if [ "$fileDidNotExistInBeginning" -eq 1 ]
   then
     echo "File $1 exists now"
+  else
+    echo "File $1 does exist"
   fi
 }
 
@@ -400,6 +413,38 @@ rm -f $RUNSUBMITCOMMANDS
 rm -f $DARKCALSUBMITCOMMANDS
 fi
 
+
+# create the directories if they don't exist yet
+if [ ! -d "$INIDIR" ]
+then
+  echo "$INIDIR doesn't exist, creating it"
+  mkdir -p $INIDIR
+fi
+if [ ! -d "$TXTDIR" ]
+then
+  echo "$TXTDIR doesn't exist, creating it"
+  mkdir -p $TXTDIR
+fi
+if [ ! -d "$SHDIR" ]
+then
+  echo "$SHDIR doesn't exist, creating it"
+  mkdir -p $SHDIR
+fi
+if [ ! -d "$DARKCALDIR" ]
+then
+  echo "$DARKCALDIR doesn't exist, creating it"
+  mkdir -p $DARKCALDIR
+fi
+if [ ! -d "$OUTPUTDIR" ]
+then
+  echo "$OUTPUTDIR doesn't exist, creating it"
+  mkdir -p $OUTPUTDIR
+fi
+if [ ! -d "$JOBDIR" ]
+then
+  echo "$JOBDIR doesn't exist, creating it"
+  mkdir -p $JOBDIR
+fi
 
 # parameter 1 should contain the file that links run numbers to the corresponding
 # darkcal run
@@ -446,6 +491,7 @@ else
 #      return_val= $? + "$return_val"
       if [ "$return_val" -ne 0 ]
       then
+echo "create darkcal"
         # wait until all the data files exist if necessary
         darkcalDataFilesBaseName=$DATAFILESDIR/$FILEBASENAME$darkcalrunnbr
         wait_until_files_exist $darkcalDataFilesBaseName
@@ -524,7 +570,12 @@ else
         iniFilename=$INIDIR/run_"$runnbr"_slice_0$slice.ini
         shFilename=$SHDIR/run_"$runnbr"_slice_0$slice.sh
 #        outputFilename=$OUTPUTDIR/run_"$runnbr"_slice_0$slice.$OUTPUTEXT
-        outputFilename=$OUTPUTDIR/run_"$runnbr"_slice_0"$slice"_
+        outputsubdir=$OUTPUTDIR
+        if [ "$CREATEOUTPUTSUBDIRS" -eq 1 ]
+        then
+          outputsubdir=$OUTPUTDIR/run_"$runnbr"
+        fi
+        outputFilename=$outputsubdir/run_"$runnbr"_slice_0"$slice"_
         logFilename=run_"$runnbr"_slice_0$slice.log
         joboutput=$JOBDIR/run_"$runnbr"_slice_0$slice.out
         jobname=run_"$runnbr"_$slice
@@ -532,6 +583,12 @@ else
 
         ls $DATAFILESDIR/$FILEBASENAME$runnbr-s0$slice* > $txtFilename
 
+        if [ "$CREATEOUTPUTSUBDIRS" -eq 1 ] && [ ! -d "$outputsubdir" ]
+        then
+          echo "Creating subdir '$outputsubdir' for the output of run $runnbr"
+          mkdir -p $outputsubdir
+        fi
+        
         if [ ! -f "$INIRUNTEMPLATE" ]
         then
           echo "The ini template for runs $INIRUNTEMPLATE does not exist. Please provide it";
@@ -550,11 +607,12 @@ else
 
         # now submit job to the queue and wait until its submitted
 #        echo $SUBMITCOMMAND $jobname $shFilename
-        echo "Submitting $jobname"
-        finalsubmitcommand= $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename
+        echo "Create jobcommand for $jobname"
+        finalsubmitcommand="$SUBMITCOMMAND -o $joboutput -J $jobname $shFilename"
         echo $finalsubmitcommand >> $RUNSUBMITCOMMANDS
         if [ "$CREATEONLYSUBMITCOMMANDS" -ne 1 ]
         then
+          echo "Submit $jobname"
           $finalsubmitcommand
 #          $SUBMITCOMMAND -o $joboutput -J $jobname $shFilename
           # what is the reason to wait until the job is submitted? Disabling this
