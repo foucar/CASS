@@ -63,7 +63,8 @@ AdvancedAboveNoiseFinder::pixels_t& AdvancedAboveNoiseFinder::operator ()(const 
   const uint16_t nrows(frame.rows);
   for (; pixel != frame.data.end(); ++pixel, ++noise, ++idx)
   {
-    if(*noise * _multiplier < *pixel)
+    //    if(*noise * _multiplier < *pixel)
+    if (_threshold < *pixel)
     {
       const uint16_t x(idx % ncols);
       const uint16_t y(idx / nrows);
