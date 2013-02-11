@@ -24,6 +24,8 @@ PixelFinderBase::shared_pointer PixelFinderBase::instance(const string &type)
   shared_pointer ptr;
   if (type == "aboveNoise")
     ptr = shared_pointer(new AboveNoiseFinder());
+  else if (type == "aboveNoiseAdvanced")
+    ptr = shared_pointer(new AdvancedAboveNoiseFinder());
   else if (type == "simple")
     ptr = shared_pointer(new PixelFinderSimple());
   else if (type == "range")
