@@ -67,7 +67,7 @@ AdvancedAboveNoiseFinder::pixels_t& AdvancedAboveNoiseFinder::operator ()(const 
     if (_threshold < *pixel)
     {
       const uint16_t x(idx % ncols);
-      const uint16_t y(idx / nrows);
+      const uint16_t y(idx / ncols);
 
       const uint16_t xboxbegin(max(static_cast<int>(0),static_cast<int>(x)-static_cast<int>(_boxSize.first)));
       const uint16_t xboxend(min(ncols,static_cast<uint16_t>(x+_boxSize.first)));
