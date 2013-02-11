@@ -21,5 +21,6 @@
 @example darkfilecreation_offline.ini
 @example singleParticleWithMemory.ini
 @example CsPadCrystal.ini
+@example darkfilecreation_cspad.ini
 @example hexanode_resortroutine.ini
 */
