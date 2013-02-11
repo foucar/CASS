@@ -601,6 +601,7 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case Threshold:
     processor = PostprocessorBackend::shared_pointer
           (new pp40(*this, key));
+    break;
   case ThresholdImage:
     processor = PostprocessorBackend::shared_pointer(new pp41(*this, key));
     break;
