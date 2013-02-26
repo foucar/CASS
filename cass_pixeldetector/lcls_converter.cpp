@@ -137,6 +137,184 @@ Detector& retrieveDet(CASSEvent& evt, const Device::detectors_t::key_type& key)
   return (dev.dets()[key]);
 }
 
+/** copy payload of xtc into a bytearray
+ *
+ * create a byte array of the right size and copy the payload of the xtc to it.
+ *
+ * @return vector containing the payload of the xtc
+ * @param the xtc whos payload should be copied.
+ *
+ * @author Lutz Foucar
+ */
+vector<uint8_t> extractPayload(const Pds::Xtc* xtc)
+{
+  vector<uint8_t> payload(xtc->sizeofPayload());
+  copy(xtc->payload(),xtc->payload()+xtc->sizeofPayload(),payload.begin());
+
+  return payload;
+}
+
+/** copy additional info about the pnCCD
+ *
+ * No info is available, just set default values.
+ *
+ * @param cfg reference to the configuration
+ * @param det reference to the detector that the info will be copied to
+ * @param rowsOfSegment the number of rows in each segment
+ * @param columnsOfSegment the number of columns in each segment
+ *
+ * @author Lutz Foucar
+ */
+void copyAdditionalPnccdInfo(const Pds::PNCCD::ConfigV1& /*cfg*/, Detector &det,
+                             size_t & rowsOfSegment, size_t &columnsOfSegment)
+{
+  det.rows() = det.columns() = 1024;
+  rowsOfSegment = 512;
+  columnsOfSegment = 512;
+}
+
+/** copy additional info about the pnCCD
+ *
+ * Copy all info that one can get from version 2.
+ *
+ * @param cfg reference to the configuration
+ * @param det reference to the detector that the info will be copied to
+ * @param rowsOfSegment the number of rows in each segment
+ * @param columnsOfSegment the number of columns in each segment
+ *
+ * @author Lutz Foucar
+ */
+void copyAdditionalPnccdInfo(const Pds::PNCCD::ConfigV2& cfg, Detector &det,
+                             size_t & rowsOfSegment, size_t &columnsOfSegment)
+{
+  det.rows() = cfg.numRows();
+  det.columns() = cfg.numChannels();
+  det.info().assign(cfg.info());
+  det.timingFilename().assign(cfg.timingFName());
+  det.camaxMagic() = cfg.camexMagic();
+  rowsOfSegment = cfg.numSubmoduleRows();
+  columnsOfSegment = cfg.numSubmoduleChannels();
+  if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
+  {
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: rows:" + toString(det.rows()));
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: cols:" + toString(det.columns()));
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: info:" + det.info());
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: tfileName:" + det.timingFilename());
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: camaxMagic:" + toString(det.camaxMagic()));
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegRows:" + toString(rowsOfSegment));
+    Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegCols:" + toString(columnsOfSegment));
+  }
+}
+
+/** copy the pnCCD frame into the detector
+ *
+ * @tparam ConfigType the type of configuration
+ * @param xtc the raw data of the detector
+ * @param cfg the configuration that tells what is where in the configuration
+ * @param det the place where the frame data should be copied to
+ *
+ * @author Lutz Foucar
+ */
+template <typename ConfigType>
+void copyPnCCDFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
+{
+  const PNCCD::FrameV1* frameSegment
+      (reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload()));
+
+  size_t rowsOfSegment(0);
+  size_t columnsOfSegment(0);
+
+  copyAdditionalPnccdInfo(cfg,det,rowsOfSegment,columnsOfSegment);
+
+  const size_t sizeOfOneSegment = frameSegment->sizeofData(cfg);
+  if (sizeOfOneSegment != rowsOfSegment*columnsOfSegment)
+  {
+    throw runtime_error("copyPnCCDFrame: size of one segment '" +
+                        toString(sizeOfOneSegment) +
+                        "' is inconsistent with number of rows '" +
+                        toString(rowsOfSegment) + "' colums '" +
+                        toString(columnsOfSegment) + "' of the segments");
+  }
+  const size_t NbrOfSegments = cfg.numLinks();
+  const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
+  det.frame().resize(FrameSize);
+
+  vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
+  for (size_t i=0; i<NbrOfSegments ;++i)
+  {
+    //pointer to first data element of segment//
+    xtcSegmentPointers[i] = frameSegment->data();
+    frameSegment = frameSegment->next(cfg);
+  }
+  const uint16_t * tileA = xtcSegmentPointers[0];
+  const uint16_t * tileB = xtcSegmentPointers[3];
+  const uint16_t * tileC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
+  const uint16_t * tileD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
+
+  frame_t::iterator pixel = det.frame().begin();
+
+  for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+  {
+    for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+      *pixel++ =  *tileA++ & 0x3fff;
+    for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+      *pixel++ =  *tileB++ & 0x3fff;
+  }
+  for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+  {
+    for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+      *pixel++ = *tileC-- & 0x3fff;
+    for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+      *pixel++ = *tileD--  & 0x3fff;
+  }
+}
+
+/** copy the cspad frame to the detector
+ *
+ * @tparam ConfigType the type of configuration
+ * @param xtc the raw data of the detector
+ * @param cfg the configuration that tells what is where in the configuration
+ * @param det the place where the frame data should be copied to
+ *
+ * @author Lutz Foucar
+ */
+template <typename ConfigType>
+void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
+{
+  //Get the frame from the xtc
+  const int asic_nx(Pds::CsPad::MaxRowsPerASIC);
+  const int asic_ny(Pds::CsPad::ColumnsPerASIC);
+  Pds::CsPad::ElementIterator iter(cfg, *xtc);
+  const Pds::CsPad::ElementHeader* element;
+  /**  2 asics per segment. 8 segments per quadrant. */
+  const int pixelsPerQuadrant(2*asic_nx*8*asic_ny);
+  const int pixelsPerSegment(2*asic_nx*asic_ny);
+  /** 4 quadrants */
+  const int FrameSize(4*pixelsPerQuadrant);
+  det.frame().resize(FrameSize);
+  // loop  over quadrants (elements)
+  while( (element=iter.next() ))
+  {
+    const size_t quad(element->quad());
+    pixel_t* rawframe((&det.frame().front()) + quad * pixelsPerQuadrant);
+    const Pds::CsPad::Section* section;
+    unsigned int section_id;
+    while(( section=iter.next(section_id) ))
+    {
+      const uint16_t* pixels = section->pixel[0];
+      for (int ii=0; ii<pixelsPerSegment; ++ii)
+      {
+        *rawframe = *pixels;
+        ++rawframe;
+        ++pixels;
+      }
+    }
+  }
+  /** all sections above each other */
+  det.columns() = 2*asic_nx;
+  det.rows() = 4*8*asic_ny;
+}
+
 }//end namepsace pixeldetector
 }//end namespace cass
 
@@ -255,110 +433,98 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
   switch( xtc->contains.id() )
   {
 
+  case (Pds::TypeId::Id_CspadConfig) :
   case (Pds::TypeId::Id_pnCCDconfig) :
   {
-    uint32_t version = xtc->contains.version();
-    if (2 < version)
-    {
+    if (xtc->contains.id() == Pds::TypeId::Id_pnCCDconfig && 2 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: pnCCD Config version" +
-                          toString(version) + "is not supported");
-    }
-    pnCCDconfig_t config
-        (make_pair(version,shared_ptr<PNCCD::ConfigV2>(new PNCCD::ConfigV2())));
-    *(config.second) = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
-    _pnccdConfigStore[casskey] = config;
+                          toString(xtc->contains.version()) + "is not supported");
+    if (xtc->contains.id() == Pds::TypeId::Id_CspadConfig && 4 < xtc->contains.version())
+      throw runtime_error("pixeldetector::Converter::operator: csPad Config version" +
+                          toString(xtc->contains.version()) + "is not supported");
+    _configStore[casskey] = make_pair(xtc->contains.version(),extractPayload(xtc));
   }
     break;
 
 
   case (Pds::TypeId::Id_pnCCDframe) :
   {
-    map<int32_t,pnCCDconfig_t>::const_iterator storeIt(_pnccdConfigStore.find(casskey));
-    if(storeIt == _pnccdConfigStore.end())
+    configStore_t::const_iterator storeIt(_configStore.find(casskey));
+    if(storeIt == _configStore.end())
       break;
-    const pnCCDconfig_t config(storeIt->second);
-
+    const config_t config(storeIt->second);
     Detector &det(retrieveDet(*evt,casskey));
-    const PNCCD::FrameV1* frameSegment
-        (reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload()));
-
-    size_t rowsOfSegment(0);
-    size_t columnsOfSegment(0);
-    switch(config.first)
+    switch (config.first)
     {
     case 1:
-      det.rows() = det.columns() = 1024;
-      rowsOfSegment = 512;
-      columnsOfSegment = 512;
+    {
+      const Pds::PNCCD::ConfigV1 &cfg
+          (reinterpret_cast<const Pds::PNCCD::ConfigV1&>(config.second.front()));
+      copyPnCCDFrame(xtc,cfg,det);
+    }
       break;
+
     case 2:
-      det.rows() = config.second->numRows();
-      det.columns() = config.second->numChannels();
-      det.info().assign(config.second->info());
-      det.timingFilename().assign(config.second->timingFName());
-      det.camaxMagic() = config.second->camexMagic();
-      rowsOfSegment = config.second->numSubmoduleRows();
-      columnsOfSegment = config.second->numSubmoduleChannels();
-      if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
-      {
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: rows:" + toString(det.rows()));
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: cols:" + toString(det.columns()));
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: info:" + det.info());
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: tfileName:" + det.timingFilename());
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: camaxMagic:" + toString(det.camaxMagic()));
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegRows:" + toString(rowsOfSegment));
-        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegCols:" + toString(columnsOfSegment));
-        //in this case I am overwriting the values
-        rowsOfSegment=512;
-        columnsOfSegment=512;
-        det.rows() = 1024;
-        det.columns() = 1024;
-      }
+    {
+      const Pds::PNCCD::ConfigV2 &cfg
+          (reinterpret_cast<const Pds::PNCCD::ConfigV2&>(config.second.front()));
+      copyPnCCDFrame(xtc,cfg,det);
+    }
       break;
+
     default:
+      throw runtime_error("LCLSConverter:pnCCDFrame: this should not be happening");
+    }
+  }
+    break;
+
+  case (Pds::TypeId::Id_CspadElement) :
+  {
+    /** get the configuration for this element and return when there is no config */
+    configStore_t::const_iterator storeIt(_configStore.find(casskey));
+    if(storeIt == _configStore.end())
       break;
-    }
-    const size_t sizeOfOneSegment = frameSegment->sizeofData(*(config.second));
-    if (sizeOfOneSegment != rowsOfSegment*columnsOfSegment)
+    const config_t config(storeIt->second);
+    Detector &det(retrieveDet(*evt,casskey));
+    switch (config.first)
     {
-      throw runtime_error("pixeldetector::Converter::operator: size of one segment '" +
-                          toString(sizeOfOneSegment) +
-                          "' is inconsistent with number of rows '" +
-                          toString(rowsOfSegment) + "' colums '" +
-                          toString(columnsOfSegment) + "' of the segments");
+    case 1:
+    {
+      const Pds::CsPad::ConfigV1 &cfg
+          (reinterpret_cast<const Pds::CsPad::ConfigV1&>(config.second.front()));
+      copyCsPadFrame(xtc,cfg,det);
     }
-    const size_t NbrOfSegments = config.second->numLinks();
-    const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
-    det.frame().resize(FrameSize);
+      break;
 
-    vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
-    for (size_t i=0; i<NbrOfSegments ;++i)
+    case 2:
     {
-      //pointer to first data element of segment//
-      xtcSegmentPointers[i] = frameSegment->data();
-      frameSegment = frameSegment->next(*config.second);
+      const Pds::CsPad::ConfigV2 &cfg
+          (reinterpret_cast<const Pds::CsPad::ConfigV2&>(config.second.front()));
+      copyCsPadFrame(xtc,cfg,det);
     }
-    const uint16_t * tileA = xtcSegmentPointers[0];
-    const uint16_t * tileB = xtcSegmentPointers[3];
-    const uint16_t * tileC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
-    const uint16_t * tileD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
+      break;
 
-    frame_t::iterator pixel = det.frame().begin();
+    case 3:
+    {
+      const Pds::CsPad::ConfigV3 &cfg
+          (reinterpret_cast<const Pds::CsPad::ConfigV3&>(config.second.front()));
+      copyCsPadFrame(xtc,cfg,det);
+    }
+      break;
 
-    for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+    case 4:
     {
-      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ =  *tileA++ & 0x3fff;
-      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ =  *tileB++ & 0x3fff;
+      const Pds::CsPad::ConfigV4 &cfg
+          (reinterpret_cast<const Pds::CsPad::ConfigV4&>(config.second.front()));
+      copyCsPadFrame(xtc,cfg,det);
     }
-    for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
-    {
-      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ = *tileC-- & 0x3fff;
-      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ = *tileD--  & 0x3fff;
+      break;
+
+    default:
+      throw runtime_error("LCLSConverter:csPad: this should not be happening");
     }
+
+
   }
     break;
 
@@ -376,72 +542,6 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
               det.frame().begin(),
               bind2nd(minus<float>(),static_cast<float>(frame.offset())));
     fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
-  }
-    break;
-
-
-  case (Pds::TypeId::Id_CspadConfig) :
-  {
-    uint32_t version = xtc->contains.version();
-    if (4 < version)
-    {
-      throw runtime_error("pixeldetector::Converter::operator: csPad Config version" +
-                          toString(version) + "is not supported");
-    }
-    CsPadconfig_t config
-        (make_pair(version,shared_ptr<CsPad::ConfigV4>(new CsPad::ConfigV4())));
-    *(config.second) = *(reinterpret_cast<const Pds::CsPad::ConfigV4*>(xtc->payload()));
-    _CsPadConfigStore[casskey] = config;
-  }
-    break;
-
-
-
-  case (Pds::TypeId::Id_CspadElement) :
-  {
-    /** get the configuration for this element and return when there is no config */
-    map<int32_t,CsPadconfig_t>::const_iterator storeIt(_CsPadConfigStore.find(casskey));
-    if(storeIt == _CsPadConfigStore.end())
-      break;
-    const CsPadconfig_t config(storeIt->second);
-
-    //get a reference to the detector we are working on right now//
-    Detector &det(retrieveDet(*evt,casskey));
-
-    //Get the frame from the xtc
-    const int asic_nx(194);
-    const int asic_ny(185);
-    Pds::CsPad::ElementIterator iter(*config.second, *xtc);
-    const Pds::CsPad::ElementHeader* element;
-    /**  2 asics per segment. 8 segments per quadrant. */
-    const int pixelsPerQuadrant(2*asic_nx*8*asic_ny);
-    const int pixelsPerSegment(2*asic_nx*asic_ny);
-    /** 4 quadrants */
-    const int FrameSize(4*pixelsPerQuadrant);
-    det.frame().resize(FrameSize);
-    // loop  over quadrants (elements)
-    while( (element=iter.next() ))
-    {
-      const size_t quad(element->quad());
-      pixel_t* rawframe((&det.frame().front()) + quad * pixelsPerQuadrant);
-      const Pds::CsPad::Section* section;
-      unsigned int section_id;
-      while(( section=iter.next(section_id) ))
-      {
-        const uint16_t* pixels = section->pixel[0];
-        for (int ii=0; ii<pixelsPerSegment; ++ii)
-        {
-          *rawframe = *pixels;
-          ++rawframe;
-          ++pixels;
-        }
-      }
-    }
-
-    /** all sections above each other */
-    det.columns() = 2*asic_nx;
-    det.rows() = 4*8*asic_ny;
-
   }
     break;
 

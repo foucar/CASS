@@ -11,6 +11,7 @@
 #define _LCLSCONVERTER_H_
 
 #include <map>
+#include <vector>
 #include <tr1/memory>
 #include <utility>
 
@@ -166,11 +167,11 @@ private:
   /** map that will map the LCLS key to the CASS key */
   typedef std::map<lclsid::Key, int32_t>  idmap_t;
 
-  /** pair the version of the pnccd config with a shared pointer of the config */
-  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::PNCCD::ConfigV2> > pnCCDconfig_t;
+  /** pair the version of the config with a shared pointer of the config */
+  typedef std::pair<uint32_t, std::vector<uint8_t> > config_t;
 
-  /** pair the version of the cspad config with a shared pointer of the config */
-  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::CsPad::ConfigV4> > CsPadconfig_t;
+  /** map containing the detector id together with its configuration */
+  typedef std::map<int32_t, config_t> configStore_t;
 
   /** constructor
    *
@@ -194,17 +195,12 @@ private:
   /** map lcls id to cass id */
   idmap_t _LCLSToCASSId;
 
-  /** store for the pnccd configuration.
+  /** store for the configurations.
    *
    * Will store the version and the configuration itself in a pair
+   * and has the casskey as key.
    */
-  std::map<int32_t, pnCCDconfig_t > _pnccdConfigStore;
-
-  /** store for the cspad configuration.
-   *
-   * Will store the version and the configuration itself in a pair
-   */
-  std::map<int32_t, CsPadconfig_t > _CsPadConfigStore;
+  configStore_t _configStore;
 };
 }//end namespace vmi
 }//end namespace cass
