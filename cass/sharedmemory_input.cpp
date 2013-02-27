@@ -96,16 +96,17 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   _ringbuffer.nextToFill(cassevent);
 
   //read the datagram to the ringbuffer//
-  Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
-  memcpy(&dg,datagram,sizeof(Pds::Dgram));
+  CASSEvent::buffer_t& buf(cassevent->datagrambuffer());
+  buf.assign(reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram),
+             reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram)+(sizeof(Pds::Dgram)+datagram->xtc.sizeofPayload()));
   if (datagram->xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
   {
-    throw runtime_error(string("SharedMemoryInput::processDgram(): Datagram size is bigger ") +
-                        "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
-                        " MB. Something is wrong. Skipping the datagram");
+    Log::add(Log::WARNING,string("SharedMemoryInput::processDgram(): Datagram size is bigger ") +
+             "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
+             " MB. Something is wrong. Skipping the datagram");
     return  _control == _quit;
   }
-  memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
+//  memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
   //now convert the datagram to a cassevent//
   const bool isGood = _convert(cassevent);

@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010,2013 Lutz Foucar
 
 /**
  * @file cass_event.h file contains declaration of the CASSEvent
@@ -10,6 +10,7 @@
 #define CASSEVENT_H
 
 #include <map>
+#include <vector>
 #include <stdint.h>
 #include "cass.h"
 #include "serializable.h"
@@ -44,6 +45,9 @@ namespace cass
     /** @todo use shared pointer here */
     typedef std::map<Device, DeviceBackend*> devices_t;
 
+    /** a buffer type */
+    typedef std::vector<char> buffer_t;
+
   public:
     /** serialize a event to the Serializer*/
     void serialize(SerializerBackend&)const;
@@ -55,16 +59,16 @@ namespace cass
     //@{
     /** setters */
     uint64_t        &id()             {return _id;}
-    char            *datagrambuffer() {return _datagrambuffer;}
+    buffer_t        &datagrambuffer() {return _datagrambuffer;}
     devices_t       &devices()        {return _devices;}
     void             setFilename(const char * f) {_filename = f;}
     //@}
     //@{
     /** getters */
-    uint64_t         id()const        {return _id;}
-    const char      *datagrambuffer()const {return _datagrambuffer;}
-    const devices_t &devices()const   {return _devices;}
-    const char      *filename()const  {return _filename;}
+    uint64_t          id()const        {return _id;}
+    const buffer_t   &datagrambuffer()const {return _datagrambuffer;}
+    const devices_t  &devices()const   {return _devices;}
+    const char       *filename()const  {return _filename;}
     //@}
 
   public:
@@ -78,7 +82,7 @@ namespace cass
     devices_t _devices;
 
     /** buffer for the datagram that contains all LCLS information */
-    char _datagrambuffer[cass::DatagramBufferSize];
+    buffer_t _datagrambuffer;
 
     /** filename of XTC file which this event came from (if offline) */
     const char * _filename;

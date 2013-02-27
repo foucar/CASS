@@ -340,7 +340,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
     xtcfile = QFileInfo(cassevent.filename()).baseName();
   }
   const Pds::Dgram *datagram = reinterpret_cast<const Pds::Dgram*>
-                                                   (cassevent.datagrambuffer());
+                                                   (&cassevent.datagrambuffer().front());
 
   // Get time and fiducial ...
   time_t eventTime = datagram->seq.clock().seconds();

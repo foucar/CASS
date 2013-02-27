@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include "pdsdata/xtc/Dgram.hh"
+
 #include <tr1/memory>
 
 #include "xtc_reader.h"
@@ -13,11 +15,25 @@
 #include "cass_event.h"
 #include "format_converter.h"
 #include "cass_settings.h"
-#include "pdsdata/xtc/Dgram.hh"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
 using std::tr1::shared_ptr;
+
+void readDgramHeaderToBuf(ifstream &file, CASSEvent::buffer_t &buf)
+{
+  buf.resize(sizeof(Pds::Dgram));
+  file.read(&buf.front(),sizeof(Pds::Dgram));
+}
+
+void readDgramPayloadToBuf(ifstream &file, CASSEvent::buffer_t &buf)
+{
+  Pds::Dgram& dg(reinterpret_cast<Pds::Dgram&>(buf.front()));
+  const int payloadSize(dg.xtc.sizeofPayload());
+  buf.resize(sizeof(Pds::Dgram) +  payloadSize);
+  file.read(&buf[sizeof(Pds::Dgram)], payloadSize);
+}
 
 XtcReader::XtcReader()
   :_convert(*FormatConverter::instance())
@@ -31,15 +47,15 @@ void XtcReader::loadSettings()
 void XtcReader::readHeaderInfo(std::ifstream &file)
 {
   shared_ptr<CASSEvent> event(new CASSEvent);
+  CASSEvent::buffer_t& buf(event->datagrambuffer());
   while(1)
   {
     const streampos eventstartpos(file.tellg());
-    Pds::Dgram& dg
-        (*reinterpret_cast<Pds::Dgram*>(event->datagrambuffer()));
-    file.read(event->datagrambuffer(),sizeof(Pds::Dgram));
+    readDgramHeaderToBuf(file,buf);
+    Pds::Dgram& dg(reinterpret_cast<Pds::Dgram&>(buf.front()));
     if (dg.seq.service() != Pds::TransitionId::L1Accept)
     {
-      file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+      readDgramPayloadToBuf(file,buf);
       _convert(event.get());
     }
     else
@@ -52,15 +68,16 @@ void XtcReader::readHeaderInfo(std::ifstream &file)
 
 bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  Pds::Dgram& dg
-      (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
-  file.read(event.datagrambuffer(),sizeof(dg));
+  CASSEvent::buffer_t& buf(event.datagrambuffer());
+  readDgramHeaderToBuf(file,buf);
+  Pds::Dgram& dg(reinterpret_cast<Pds::Dgram&>(buf.front()));
   if (dg.xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
   {
-    throw runtime_error(string("XtcReader::operator (): Datagram size is '" + toString(dg.xtc.sizeofPayload()/1024/1024) +"MB', therefore it is bigger ") +
-                        "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
-                        " MB. Something is wrong. Skipping the datagram");
+    Log::add(Log::WARNING,"XtcReader::operator (): Datagram size is '" +
+             toString(dg.xtc.sizeofPayload()/1024/1024) +"MB', therefore it is bigger " +
+             "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
+             " MB. Something is wrong. Skipping the datagram");
   }
-  file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+  readDgramPayloadToBuf(file,buf);
   return (_convert(&event));
 }

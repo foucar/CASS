@@ -128,7 +128,7 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
    */
   bool retval(NoGoodData);
   /** get the datagram from the cassevent */
-  Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
+  Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(&cassevent->datagrambuffer().front());
 
 
   Log::add(Log::DEBUG4,"transition '"+ string(Pds::TransitionId::name(datagram->seq.service()))+ "'");
