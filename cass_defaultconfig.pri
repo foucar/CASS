@@ -51,6 +51,10 @@ CONFIG       += JoCASSView
 # if they are not found directly under /usr/include.
 #QWTINCDIR=/usr/include/qwt
 
+# Uncomment the following to enable profiling with gprof
+#QMAKE_CXXFLAGS  += -pg
+#QMAKE_CFLAGS    += -pg
+#QMAKE_LFLAGS    += -pg
 
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
