@@ -226,17 +226,23 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   {
     for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
     {
+      if (bRow == 0 && bCol == 0)
+        continue;
+
       const int bLocIdx(bRow*ncols+bCol);
       const float bPixel(pixel[bLocIdx]);
 
-      if ( !(bRow == 0 && bCol == 0) && *pixel <= bPixel )
+      if (qFuzzyIsNull(bPixel))
+        continue;
+
+      if(*pixel <= bPixel )
         return skip;
 
       const int radiussq(bRow*bRow + bCol*bCol);
-      if (_peakRadiusSq < radiussq && !qFuzzyIsNull(bPixel))
+      if (_peakRadiusSq < radiussq)
       {
         ++count;
-        const float old_mean(mean);
+        const float old_mean(tmp_mean);
         tmp_mean += ((bPixel - old_mean) / static_cast<float>(count));
         tmp_stdv += ((bPixel - old_mean)*(bPixel - tmp_mean));
       }
@@ -290,10 +296,9 @@ void pp204::process(const CASSEvent &evt)
      */
     if (col < _box.first  || ncols - _box.first  < col || //within box in x
         row < _box.second || nrows - _box.second < row || //within box in y
-        (col - _box.first)  % _section.first  != (col + _box.first)  % _section.first || //x within same section
-        (row - _box.second) % _section.second != (row + _box.second) % _section.second)   //y within same section
+        (col - _box.first)  / _section.first  != (col + _box.first)  / _section.first || //x within same section
+        (row - _box.second) / _section.second != (row + _box.second) / _section.second)   //y within same section
       continue;
-
     /** check wether current pixel value is highest and generate background values */
     float mean,stdv;
     int count;
@@ -306,7 +311,7 @@ void pp204::process(const CASSEvent &evt)
 
     /** check if signal to noise ration is good for the current pixel */
     const float snr((*pixel - mean) / stdv);
-    if (_minSnr < snr)
+    if (abs(snr) < _minSnr)
       continue;
 
     /** find all pixels in the box whose signal to noise ratio is big enough and
@@ -344,8 +349,6 @@ void pp204::process(const CASSEvent &evt)
 
     result.addRow(peak);
   }
-
-
 
   hist.lock.unlock();
   result.lock.unlock();

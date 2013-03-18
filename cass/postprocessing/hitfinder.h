@@ -134,7 +134,7 @@ protected:
   std::pair<int,int> _box;
 
   /** size of a image section */
-  std::pair<size_t,size_t> _section;
+  std::pair<int,int> _section;
 
   /** pixel threshold to be exceeded */
   float _threshold;
