@@ -93,6 +93,12 @@ public:
     /** @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
 
+    /** set the size of the axis
+     *
+     * @param size the new size
+     */
+    void setSize(size_t size) {_size=size;}
+
     /** @return title of the axis */
     const std::string& title()const {return _title;}
 
@@ -637,6 +643,23 @@ public:
         _mime = "image/";     // for time beeing, export 2d histograms as image.
     }
 
+    /** create a histogram that stores a list of lists
+     *
+     * this constructs a 2d histogram that can contain a table, where
+     * in x it will store a single list and with increasing y the lists will
+     * increase.
+     *
+     * @param listSize the size of the list in x
+     */
+    Histogram2DFloat(size_t listSize)
+      : HistogramFloatBase(2,0)
+    {
+      // set up the two axis of the 2d hist
+      _axis.push_back(AxisProperty(listSize, 0., float(listSize-1.)));
+      _axis.push_back(AxisProperty(0, 0., 0));
+      _mime = "table/";     // for time beeing, export 2d histograms as image.
+    }
+
     /** read histogram from serializer.
      * This constructor will create a histogram that has been serialized to the
      * serializer. Serialization is done in the baseclass.
@@ -762,6 +785,15 @@ public:
     Histogram2DFloat convert2RPhi(const std::pair<size_t,size_t> &center,
                                   const size_t maxRadius,
                                   const size_t nbrAngleBins) const;
+
+    /** add a row to the histogram that is beeing used as a table
+     *
+     * @param row the row to be added
+     */
+    void addRow(const HistogramFloatBase::storage_t &row);
+
+    /** clear the table */
+    void clearTable();
 
     /** Create a QImage of this histogram.
      *

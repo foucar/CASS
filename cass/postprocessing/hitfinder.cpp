@@ -170,3 +170,179 @@ void pp203::process(const CASSEvent &evt)
   _result->lock.unlock();
 }
 
+
+
+// ********** Postprocessor 204: find bragg peaks ************
+
+pp204::pp204(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp204::loadSettings(size_t)
+{
+  CASSSettings s;
+
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  // size of box for median
+  _box = make_pair(s.value("BoxSizeX", 10).toUInt(),
+                   s.value("BoxSizeY",10).toUInt());
+  _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
+                       s.value("SectionSizeY",512).toUInt());
+
+  setupGeneral();
+
+  // Get the input
+  _hist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_hist && ret)) return;
+
+  // Create the output
+  _result = new Histogram2DFloat(nbrOf);
+  createHistList(2*cass::NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' finds bragg peaks in" + _hist->key() + "'. Condition is '" +
+           _condition->key() + "'");
+}
+
+int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+                            int ncols,
+                            float &mean, float &stdv, int &count)
+{
+  enum{good,skip};
+  float tmp_mean(0);
+  float tmp_stdv(0);
+  count = 0;
+  for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
+  {
+    for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
+    {
+      const int bLocIdx(bRow*ncols+bCol);
+      const float bPixel(pixel[bLocIdx]);
+
+      if ( !(bRow == 0 && bCol == 0) && *pixel <= bPixel )
+        return skip;
+
+      const int radiussq(bRow*bRow + bCol*bCol);
+      if (_peakRadiusSq < radiussq && !qFuzzyIsNull(bPixel))
+      {
+        ++count;
+        const float old_mean(mean);
+        tmp_mean += ((bPixel - old_mean) / static_cast<float>(count));
+        tmp_stdv += ((bPixel - old_mean)*(bPixel - tmp_mean));
+      }
+    }
+  }
+  mean = tmp_mean;
+  stdv = sqrt(tmp_stdv/ (count-1));
+  return good;
+}
+
+void pp204::process(const CASSEvent &evt)
+{
+  // Get the input
+  const HistogramFloatBase &hist
+      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+  const HistogramFloatBase::storage_t &image(hist.memory());
+  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+
+  result.lock.lockForWrite();
+  hist.lock.lockForRead();
+
+  result.clearTable();
+  result.nbrOfFills() = 1;
+
+
+  const size_t ncols(hist.axis()[HistogramBackend::xAxis].size());
+  const size_t nrows(hist.axis()[HistogramBackend::yAxis].size());
+
+  BraggPeak peak(nbrOf);
+//  vector<bool> checkedPixels(image.size(),false);
+
+//  vector<bool>::iterator checkedPixel(checkedPixels.begin());
+  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
+  int idx(0);
+  for (;pixel != image.end(); ++pixel,++idx/*, ++checkedPixel*/)
+  {
+//    /** check if pixel has been touched before */
+//    if (*checkedPixel)
+//      continue;
+
+    /** check above a set threshold */
+    if (*pixel < _threshold)
+      continue;
+
+    /** get coordinates of pixel and tell that it is touched */
+    const uint16_t col(idx % ncols);
+    const uint16_t row(idx / ncols);
+
+    /** make sure that pixel is located such that the box will not conflict with
+     *  the image and section boundaries
+     */
+    if (col < _box.first  || ncols - _box.first  < col || //within box in x
+        row < _box.second || nrows - _box.second < row || //within box in y
+        (col - _box.first)  % _section.first  != (col + _box.first)  % _section.first || //x within same section
+        (row - _box.second) % _section.second != (row + _box.second) % _section.second)   //y within same section
+      continue;
+
+    /** check wether current pixel value is highest and generate background values */
+    float mean,stdv;
+    int count;
+    if (getBoxStatistics(pixel,ncols,mean,stdv,count))
+      continue;
+
+    /** check that we took more than the minimum pixels for the background */
+    if (count < _minBckgndPixels)
+      continue;
+
+    /** check if signal to noise ration is good for the current pixel */
+    const float snr((*pixel - mean) / stdv);
+    if (_minSnr < snr)
+      continue;
+
+    /** find all pixels in the box whose signal to noise ratio is big enough and
+     *  centriod them
+     */
+    float integral = 0;
+    float weightCol = 0;
+    float weightRow = 0;
+    int nPix = 0;
+    for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
+    {
+      for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
+      {
+        const int bLocIdx(bRow*ncols+bCol);
+        const float bPixel(pixel[bLocIdx]);
+        const float bPixelWOBckgnd(bPixel - mean);
+        const float bSnr(bPixelWOBckgnd / stdv);
+        if (_minSnr < bSnr)
+        {
+          integral += bPixelWOBckgnd;
+          weightCol += (bPixelWOBckgnd * bCol);
+          weightRow += (bPixelWOBckgnd * bRow);
+          ++nPix;
+        }
+      }
+    }
+    peak[centroidColumn] = weightCol / integral;
+    peak[centroidRow] = weightRow / integral;
+    peak[Intensity] = integral;
+    peak[nbrOfPixels] = nPix;
+    peak[SignalToNoise] = snr;
+    peak[Index] = idx;
+    peak[Column] = col;
+    peak[Row] = row;
+
+    result.addRow(peak);
+  }
+
+
+
+  hist.lock.unlock();
+  result.lock.unlock();
+}
+

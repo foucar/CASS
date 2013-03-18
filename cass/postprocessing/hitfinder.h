@@ -70,6 +70,98 @@ private:
   void setup(const HistogramBackend &hist);
 };
 
+
+/** find bragg peaks and store them in a list
+ *
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contain the 2d histogram. Default
+ *           is "blubb".
+ * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ *           Size of the subsection of the image. Default is 1024|512.
+ * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ *           size in x and y of the box that is used for determining the median
+ *           background. Default is 10|10.
+ *
+ * @author Lutz Foucar
+ * @author Wolfgang Kabsch
+ */
+class pp204 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp204(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** check highest pixel and generate the mean and standart deviation
+   *
+   * Check if the center pixel is heigher than all other pixels in the box. If
+   * this is the case return 0. If there is at least one pixel whos value is
+   * higher than the center pixel return 1.
+   *
+   * Generate the mean and standart deviation within the box around the center
+   * pixel. Only take pixels into account that are outside of the peak radius.
+   *
+   * @return 0 if all pixels in the box are lower than the center pixel, 1 otherwise
+   * @param centerPixel iterator to the center pixel
+   * @param nColumns the number of columns in the image
+   * @param[out] mean contains the mean value
+   * @param[out] stdv contains the standart deviation
+   * @param[out] count contains the number of pixels that were used to calculate
+   *                   mean and stdv
+   */
+  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator centerPixel,
+                       const int nColumns,
+                       float &mean, float &stdv, int &count);
+
+  /** pp containing 2d histogram */
+  PostprocessorBackend *_hist;
+
+  /** the size of the box within which the peak should lie */
+  std::pair<int,int> _box;
+
+  /** size of a image section */
+  std::pair<size_t,size_t> _section;
+
+  /** pixel threshold to be exceeded */
+  float _threshold;
+
+  /** the square size of bragg peak radius */
+  int _peakRadiusSq;
+
+  /** the min signal to noise ratio that needs to be exceeded */
+  float _minSnr;
+
+  /** min amount of pixels for the background calc */
+  int _minBckgndPixels;
+
+  /** enum describing the contents of a bragg peak */
+  enum PeakParams
+  {
+    Intensity,
+    centroidColumn,
+    centroidRow,
+    nbrOfPixels,
+    SignalToNoise,
+    Index,
+    Column,
+    Row,
+    nbrOf
+  };
+
+  /** definition of a bragg peak */
+  typedef HistogramFloatBase::storage_t BraggPeak;
+};
+
 }//end namespace cass
 
 #endif

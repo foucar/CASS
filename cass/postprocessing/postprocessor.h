@@ -171,13 +171,15 @@ the Class description for information about what parameters are user settable.
 00200: Scalar value of <cos^2\theta> from 2D Histogram
 00201: Angular distribution from a 2D Histogram (interpolating)
 00202: transform 2D Histogram kartesian coordinates to polar coordinates (interpolating)
-00203: Local image background using median box
 00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
 00250: Property of particle
 00251: 2d hist with two properties of particle
 00252: Number of found particle hits per shot
+
+00203: Local image background using median box
+00204: Find Bragg peaks in image using signal to noise ratio
 
 00300: single particle detection
 00301: median over last values
@@ -410,7 +412,9 @@ public:
     Cos2Theta=200,
     RealAngularDistribution=201,
     RealPolarTransformation=202,
+
     MedianBoxBackground=203,
+    BraggPeakSNR=204,
 
     AdvancedPhotonFinderDump=212,
 

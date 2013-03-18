@@ -876,6 +876,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case MedianBoxBackground:
     processor = PostprocessorBackend::shared_pointer(new pp203(*this,key));
     break;
+  case BraggPeakSNR:
+    processor = PostprocessorBackend::shared_pointer(new pp204(*this,key));
+    break;
   case AdvancedPhotonFinderDump:
     processor = PostprocessorBackend::shared_pointer
           (new pp212(*this,key));
