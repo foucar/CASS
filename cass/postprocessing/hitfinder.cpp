@@ -192,6 +192,11 @@ void pp204::loadSettings(size_t)
                    s.value("BoxSizeY",10).toUInt());
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
+  _threshold = s.value("Threshold",300).toFloat();
+  _minSnr = s.value("SignalToNoiseRatio",20).toFloat();
+  _minBckgndPixels = s.value("MinNbrBackgrndPixels",10).toInt();
+  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
+  _peakRadiusSq = peakRadius*peakRadius;
 
   setupGeneral();
 
