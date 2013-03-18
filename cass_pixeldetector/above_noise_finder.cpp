@@ -101,8 +101,7 @@ AdvancedAboveNoiseFinder::pixels_t& AdvancedAboveNoiseFinder::operator ()(const 
         if (_threshold < clrdpixel)
           pixels.push_back(Pixel(x,y,clrdpixel));
       }
-NEXTPIXEL:
-      ;
+NEXTPIXEL:;
     }
   }
   return pixels;
