@@ -193,7 +193,7 @@ void pp204::loadSettings(size_t)
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
   _threshold = s.value("Threshold",300).toFloat();
-  _minSnr = s.value("SignalToNoiseRatio",20).toFloat();
+  _minSnr = s.value("MinSignalToNoiseRatio",20).toFloat();
   _minBckgndPixels = s.value("MinNbrBackgrndPixels",10).toInt();
   const int peakRadius(s.value("BraggPeakRadius",2).toInt());
   _peakRadiusSq = peakRadius*peakRadius;
@@ -210,8 +210,14 @@ void pp204::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' finds bragg peaks in" + _hist->key() + "'. Condition is '" +
-           _condition->key() + "'");
+           "' finds bragg peaks in" + _hist->key() +
+           "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
+           "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
+           "'. Threshold '" + toString(_threshold) +
+           "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
+           "'. MinNbrBackgrndPixels '" + toString(_minBckgndPixels) +
+           "'. Square BraggPeakRadius '" + toString(_peakRadiusSq) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,

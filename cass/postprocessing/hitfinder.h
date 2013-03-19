@@ -86,7 +86,7 @@ private:
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
  * @cassttng PostProcessor/\%name\%/{Threshold} \n
- * @cassttng PostProcessor/\%name\%/{SignalToNoiseRatio} \n
+ * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
  * @cassttng PostProcessor/\%name\%/{MinNbrBackgrndPixels} \n
  * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
  *
