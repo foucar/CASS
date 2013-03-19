@@ -1157,10 +1157,10 @@ void pp64::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(_key.c_str());
 
-  _one = setupDependency("HistName");
+  _hist = setupDependency("HistName");
 
   bool ret (setupCondition());
-  if ( !(_one && ret) ) return;
+  if ( !(_hist && ret) ) return;
 
   setupGeneral();
   _size = s.value("Size", 10000).toUInt();
@@ -1169,23 +1169,31 @@ void pp64::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers,true);
 
   Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' will make a history of 0d histogram in pp '" + _one->key() +
-      ", size of history '" + toString(_size) + "' Condition on postprocessor '" +
-      _condition->key() + "'");
+           "' will make a history of values of histogram in pp '" +
+           _hist->key() + ", size of history '" + toString(_size) +
+           "' Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp64::process(const cass::CASSEvent &evt)
 {
-  const Histogram0DFloat &one
-      (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));
-  one.lock.lockForRead();
+  const HistogramFloatBase &hist
+      (dynamic_cast<const HistogramFloatBase &>((*_hist)(evt)));
+  const HistogramFloatBase::storage_t &values(hist.memory());
+  HistogramFloatBase::storage_t::const_iterator value(values.begin());
+  HistogramFloatBase::storage_t::const_iterator valueEnd(values.end());
+
+  HistogramFloatBase::storage_t &mem
+      ((dynamic_cast<Histogram1DFloat *>(_result))->memory());
+
+  hist.lock.lockForRead();
   _result->lock.lockForWrite();
-  ++_result->nbrOfFills();
-  HistogramFloatBase::storage_t &mem((dynamic_cast<Histogram1DFloat *>(_result))->memory());
-  std::rotate(mem.begin(), mem.begin()+1, mem.end());
-  mem[_size-1] = one.getValue();
+  for(; value != valueEnd ;++value)
+  {
+    rotate(mem.begin(), mem.begin()+1, mem.end());
+    mem[_size-1] = *value;
+  }
   _result->lock.unlock();
-  one.lock.unlock();
+  hist.lock.unlock();
 }
 
 

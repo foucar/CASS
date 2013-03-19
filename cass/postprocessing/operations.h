@@ -814,10 +814,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing input histogram */
-    PostprocessorBackend *_two;
+    PostprocessorBackend *_hist;
 
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _size;
