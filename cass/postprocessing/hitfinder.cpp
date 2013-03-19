@@ -278,16 +278,16 @@ void pp204::process(const CASSEvent &evt)
   const size_t nrows(hist.axis()[HistogramBackend::yAxis].size());
 
   BraggPeak peak(nbrOf);
-//  vector<bool> checkedPixels(image.size(),false);
+  vector<bool> checkedPixels(image.size(),false);
 
-//  vector<bool>::iterator checkedPixel(checkedPixels.begin());
+  vector<bool>::iterator checkedPixel(checkedPixels.begin());
   HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
   int idx(0);
-  for (;pixel != image.end(); ++pixel,++idx/*, ++checkedPixel*/)
+  for (;pixel != image.end(); ++pixel,++idx, ++checkedPixel)
   {
-//    /** check if pixel has been touched before */
-//    if (*checkedPixel)
-//      continue;
+    /** check if pixel has been touched before */
+    if (*checkedPixel)
+      continue;
 
     /** check above a set threshold */
     if (*pixel < _threshold)
@@ -321,7 +321,8 @@ void pp204::process(const CASSEvent &evt)
       continue;
 
     /** find all pixels in the box whose signal to noise ratio is big enough and
-     *  centriod them
+     *  centriod them. Mark the pixels as touched, so that they don't have to
+     *  be checked again.
      */
     float integral = 0;
     float weightCol = 0;
@@ -342,6 +343,7 @@ void pp204::process(const CASSEvent &evt)
           weightRow += (bPixelWOBckgnd * bRow);
           ++nPix;
         }
+        checkedPixel[bLocIdx] = true;
       }
     }
     peak[centroidColumn] = weightCol / integral;
