@@ -25,6 +25,17 @@ std::vector<size_t> AxisProperty::rebinfactors()const
   return factors;
 }
 
+void AxisProperty::setSize(size_t size, bool fix)
+{
+  _size=size;
+  if (fix)
+  {
+    _low=0;
+    _up=size-1;
+  }
+}
+
+
 void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
 {
   _axis = rhs._axis;
@@ -41,6 +52,21 @@ void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
   _axis.clear();
   _memory.resize(nbrXBins+2,0);
   _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xaxisTitle));
+}
+
+void Histogram1DFloat::append(const storage_t::value_type &value)
+{
+  QWriteLocker wlock(&lock);
+  _memory.push_back(value);
+  _axis[xAxis].setSize(_memory.size(),true);
+
+}
+
+void Histogram1DFloat::clearline()
+{
+  QWriteLocker wlock(&lock);
+  _memory.clear();
+  _axis[xAxis].setSize(0,true);
 }
 
 void Histogram2DFloat::resize(size_t nbrXBins, float xLow, float xUp,
@@ -249,13 +275,13 @@ void Histogram2DFloat::addRow(const HistogramFloatBase::storage_t &row)
                         toString(row.size()) + "' that should be added to the " +
                         "table is inconsistent with the rowsize of the table '" +
                         toString(_axis[xAxis].size()));
-  _axis[yAxis].setSize(_axis[yAxis].size() + 1);
+  _axis[yAxis].setSize(_axis[yAxis].size() + 1,true);
   _memory.insert(_memory.end(),row.begin(),row.end());
 }
 
 void Histogram2DFloat::clearTable()
 {
-  _axis[yAxis].setSize(0);
+  _axis[yAxis].setSize(0,true);
   _memory.clear();
 }
 

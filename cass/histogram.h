@@ -96,8 +96,9 @@ public:
     /** set the size of the axis
      *
      * @param size the new size
+     * @param fix if true this will change the lower and upper limit to fit the size
      */
-    void setSize(size_t size) {_size=size;}
+    void setSize(size_t size, bool fix=false);
 
     /** @return title of the axis */
     const std::string& title()const {return _title;}
@@ -493,6 +494,33 @@ public:
         : HistogramFloatBase(in)
     {}
 
+    /** constructor.
+     *
+     * Create a row of a table
+     *
+     * @param rowSize the number of columns that the row has
+     * @param rowTitle The title of the row
+     */
+    Histogram1DFloat(size_t rowSize, std::string rowTitle="RowName")
+        : HistogramFloatBase(1,rowSize)
+    {
+      //set up the axis
+      _axis.push_back(AxisProperty(rowSize,0,rowSize-1,rowTitle));
+      _mime = "application/cass1Dhistogram";
+    }
+
+    /** constructor.
+     *
+     * Create an appendable vector
+     */
+    Histogram1DFloat()
+        : HistogramFloatBase(1,0)
+    {
+      //set up the axis
+      _axis.push_back(AxisProperty(0,0,0));
+      _mime = "application/cass1Dhistogram";
+    }
+
     /** clone the histogram.
      * This function will create a new copy of this on the heap. It will not copy
      * the data in memory but rather set it to 0.
@@ -587,6 +615,23 @@ public:
                              _memory.begin()+_axis[0].bin(std::max(area.first,area.second)),
                              0.f);
     }
+
+    /** append a value to the vector
+     *
+     * appends the value to the end of the storage and sets the size of the
+     * axisproperty accordingly.
+     *
+     * @param value the value that should be appended to the histograms storage
+     */
+    void append(const storage_t::value_type &value);
+
+    /** clear the vector
+     *
+     * clears the storage of this histogram and sets the axisproperties
+     * accordingly.
+     */
+    void clearline();
+
 #ifdef JPEG_CONVERSION
     /** render 1d histogram into jpeg image
      *  @author Stephan kassemeyer
