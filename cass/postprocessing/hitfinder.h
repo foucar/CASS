@@ -166,6 +166,63 @@ protected:
   typedef HistogramFloatBase::storage_t BraggPeak;
 };
 
+
+
+
+
+/** visualize the peaks that were found in the image itself
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contain the 2d histogram. Default
+ *           is "blubb".
+ * @cassttng PostProcessor/\%name\%/{TableName} \n
+ *           name of postprocessor that contains the table like histogram that
+ *           the pixels of interest are taken from
+ * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ *           size in x and y of the box that should be drawn around the found
+ *           peak
+ * @cassttng PostProcessor/\%name\%/{DrawPixelValue} \n
+ * @cassttng PostProcessor/\%name\%/{Radius} \n
+ * @cassttng PostProcessor/\%name\%/{IndexColumn} \n
+ *
+ *
+ * @author Lutz Foucar
+ * @author Wolfgang Kabsch
+ */
+class pp205 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp205(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** change own histograms when one of the ones we depend on has changed histograms */
+  virtual void histogramsChanged(const HistogramBackend*);
+
+  /** pp containing 2d histogram */
+  PostprocessorBackend *_hist;
+
+  /** pp containing the results */
+  PostprocessorBackend *_table;
+
+  /** draw flags as bitmask */
+  HistogramFloatBase::storage_t::value_type _drawVal;
+  float _radius;
+  std::pair<int,int> _boxsize;
+
+  /** the number of the column where the global index of the pixel is */
+  size_t _idxCol;
+};
+
 }//end namespace cass
 
 #endif

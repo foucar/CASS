@@ -882,6 +882,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case BraggPeakSNR:
     processor = PostprocessorBackend::shared_pointer(new pp204(*this,key));
     break;
+  case DrawPeaks:
+    processor = PostprocessorBackend::shared_pointer(new pp205(*this,key));
+    break;
   case AdvancedPhotonFinderDump:
     processor = PostprocessorBackend::shared_pointer
           (new pp212(*this,key));

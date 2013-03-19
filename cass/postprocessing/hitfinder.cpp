@@ -21,7 +21,7 @@ using namespace std;
 using namespace cass;
 
 
-// ********** Postprocessor 203: substract local background ************
+// ********** Postprocessor 203: subtract local background ************
 
 pp203::pp203(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
@@ -360,5 +360,154 @@ void pp204::process(const CASSEvent &evt)
 
   hist.lock.unlock();
   result.lock.unlock();
+}
+
+
+
+
+// ********** Postprocessor 205: display peaks ************
+
+pp205::pp205(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp205::loadSettings(size_t)
+{
+  CASSSettings s;
+
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  setupGeneral();
+
+  // Get the input
+  _hist = setupDependency("HistName");
+  _table = setupDependency("TableName");
+  bool ret (setupCondition());
+  if (!(_hist && ret && _table))
+    return;
+
+  _boxsize = make_pair(s.value("BoxSizeX", 10).toUInt(),
+                       s.value("BoxSizeY",10).toUInt());
+  _drawVal = s.value("DrawPixelValue",16000.f).toFloat();
+  _radius = s.value("Radius",2.f).toFloat();
+  _idxCol = s.value("IndexColumn").toUInt();
+
+  size_t maxIdx(_table->getHist(0).axis()[HistogramBackend::xAxis].size());
+  if (_idxCol >= maxIdx)
+    throw runtime_error("pp205::loadSettings(): '" + _key + "' The requested " +
+                        "column '" + toString(_idxCol) + " 'exeeds the " +
+                        "maximum possible value of '" + toString(maxIdx) + "'");
+
+  // Create the output
+  _result = _hist->getHist(0).clone();
+  createHistList(2*cass::NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' displays the peaks that are listed in '" + _table->key() +
+           "' and that were found in '" + _hist->key() + "'. Condition is '" +
+           _condition->key() + "'");
+}
+
+void pp205::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  _result = in->clone();
+  createHistList(2*cass::NbrOfWorkers);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+             "': histograms changed => delete existing histo" +
+             " and created new one from input");
+}
+
+void pp205::process(const CASSEvent &evt)
+{
+  // Get the input
+  const HistogramFloatBase &hist
+      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+  const HistogramFloatBase::storage_t &image_in(hist.memory());
+  const HistogramFloatBase &table
+      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+  const HistogramFloatBase::storage_t &tableContents(table.memory());
+  HistogramFloatBase::storage_t &image_out
+      (dynamic_cast<HistogramFloatBase*>(_result)->memory());
+
+  _result->lock.lockForWrite();
+  hist.lock.lockForRead();
+  table.lock.lockForRead();
+
+  /** copy the input image to the resulting image */
+  copy(image_in.begin(),image_in.end(),image_out.begin());
+
+  /** extract the nbr of rows and columns of this table */
+  size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+
+  /** go through all rows in table */
+  for (size_t row=0; row < nRows; ++row)
+  {
+    /** extract the column with the global index of the peak center */
+    size_t idx(tableContents[row*nCols + _idxCol]);
+    HistogramFloatBase::storage_t::iterator centerpixel(image_out.begin()+idx);
+
+    /** draw user requested info (extract other stuff from table) */
+    //box
+    //lower row
+    for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+    {
+      const int bRow = -_boxsize.second;
+      const int bLocIdx(bRow*nCols+bCol);
+      centerpixel[bLocIdx] = _drawVal;
+    }
+    //upper row
+    for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+    {
+      const int bRow = _boxsize.second;
+      const int bLocIdx(bRow*nCols+bCol);
+      centerpixel[bLocIdx] = _drawVal;
+    }
+    //left col
+    for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+    {
+      const int bCol = -_boxsize.first;
+      const int bLocIdx(bRow*nCols+bCol);
+      centerpixel[bLocIdx] = _drawVal;
+    }
+    //right col
+    for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+    {
+      int bCol = _boxsize.first;
+      const int bLocIdx(bRow*nCols+bCol);
+      centerpixel[bLocIdx] = _drawVal;
+    }
+
+    //circle
+    for(size_t angle_deg = 0; angle_deg <360; ++angle_deg)
+    {
+      const float angle_rad(3.14 * static_cast<float>(angle_deg)/180.);
+      const int cCol (static_cast<size_t>(round(_radius*sin(angle_rad))));
+      const int cRow (static_cast<size_t>(round(_radius*cos(angle_rad))));
+      const int cLocIdx(cRow*nCols+cCol);
+      centerpixel[cLocIdx] = _drawVal;
+    }
+
+  }
+
+  _result->nbrOfFills() = 1;
+  table.lock.unlock();
+  hist.lock.unlock();
+  _result->lock.unlock();
 }
 

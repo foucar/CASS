@@ -181,6 +181,7 @@ the Class description for information about what parameters are user settable.
 
 00203: Local image background using median box
 00204: Find Bragg peaks in image using signal to noise ratio
+00205: Display Peaks found in an image
 
 00300: single particle detection
 00301: median over last values
@@ -417,6 +418,7 @@ public:
 
     MedianBoxBackground=203,
     BraggPeakSNR=204,
+    DrawPeaks=205,
 
     AdvancedPhotonFinderDump=212,
 
