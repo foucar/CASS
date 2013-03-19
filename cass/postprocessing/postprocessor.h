@@ -97,6 +97,7 @@ the Class description for information about what parameters are user settable.
 00069: Use two 0D values for a scatter plot
 
 00070: Subset a Histogram
+00072: Returns a user choosable column from a table like 2d histogram
 
 00075: Clear a Histogram
 
@@ -347,6 +348,7 @@ public:
     SubsetHistogram=70,
 
     RetrieveValue=71,
+    RetrieveColFromTable=72,
 
     ClearHistogram=75,
     QuitCASS=76,
