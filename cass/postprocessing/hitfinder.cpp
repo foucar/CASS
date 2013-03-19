@@ -451,15 +451,16 @@ void pp205::process(const CASSEvent &evt)
   /** copy the input image to the resulting image */
   copy(image_in.begin(),image_in.end(),image_out.begin());
 
-  /** extract the nbr of rows and columns of this table */
-  size_t nCols(table.axis()[HistogramBackend::xAxis].size());
-  size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  /** extract the nbr of rows and columns of this table and the image */
+  const size_t nTableCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nTableRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nImageCols(hist.axis()[HistogramBackend::xAxis].size());
 
   /** go through all rows in table */
-  for (size_t row=0; row < nRows; ++row)
+  for (size_t row=0; row < nTableRows; ++row)
   {
     /** extract the column with the global index of the peak center */
-    size_t idx(tableContents[row*nCols + _idxCol]);
+    size_t idx(tableContents[row*nTableCols + _idxCol]);
     HistogramFloatBase::storage_t::iterator centerpixel(image_out.begin()+idx);
 
     /** draw user requested info (extract other stuff from table) */
@@ -468,28 +469,28 @@ void pp205::process(const CASSEvent &evt)
     for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
     {
       const int bRow = -_boxsize.second;
-      const int bLocIdx(bRow*nCols+bCol);
+      const int bLocIdx(bRow*nImageCols+bCol);
       centerpixel[bLocIdx] = _drawVal;
     }
     //upper row
     for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
     {
       const int bRow = _boxsize.second;
-      const int bLocIdx(bRow*nCols+bCol);
+      const int bLocIdx(bRow*nImageCols+bCol);
       centerpixel[bLocIdx] = _drawVal;
     }
     //left col
     for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
     {
       const int bCol = -_boxsize.first;
-      const int bLocIdx(bRow*nCols+bCol);
+      const int bLocIdx(bRow*nImageCols+bCol);
       centerpixel[bLocIdx] = _drawVal;
     }
     //right col
     for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
     {
       int bCol = _boxsize.first;
-      const int bLocIdx(bRow*nCols+bCol);
+      const int bLocIdx(bRow*nImageCols+bCol);
       centerpixel[bLocIdx] = _drawVal;
     }
 
@@ -499,12 +500,11 @@ void pp205::process(const CASSEvent &evt)
       const float angle_rad(3.14 * static_cast<float>(angle_deg)/180.);
       const int cCol (static_cast<size_t>(round(_radius*sin(angle_rad))));
       const int cRow (static_cast<size_t>(round(_radius*cos(angle_rad))));
-      const int cLocIdx(cRow*nCols+cCol);
+      const int cLocIdx(cRow*nImageCols+cCol);
       centerpixel[cLocIdx] = _drawVal;
     }
 
   }
-
   _result->nbrOfFills() = 1;
   table.lock.unlock();
   hist.lock.unlock();
