@@ -69,15 +69,29 @@ namespace Pds {
       Id_EpicsConfig,
       Id_FliConfig,
       Id_FliFrame,
+      Id_QuartzConfig,
+      Reserved1,        // previously Id_CompressedFrame        : no corresponding class
+      Reserved2,        // previously Id_CompressedTimePixFrame : no corresponding class
+      Id_AndorConfig,
+      Id_AndorFrame,
+      Id_UsdUsbData,
+      Id_UsdUsbConfig,
+      Id_GMD,
+      Id_SharedAcqADC,
+      Id_OrcaConfig,
       NumberOf};
+    enum { VCompressed = 0x8000 };
 
     TypeId() {}
     TypeId(const TypeId& v);
-    TypeId(Type type, uint32_t version);
+    TypeId(Type type, uint32_t version, bool compressed=false);
 
     Type     id()      const;
     uint32_t version() const;
     uint32_t value()   const;
+
+    bool     compressed() const;
+    unsigned compressed_version() const;
 
     static const char* name(Type type);
     

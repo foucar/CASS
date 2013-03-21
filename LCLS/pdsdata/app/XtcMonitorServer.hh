@@ -8,6 +8,7 @@
 #include <mqueue.h>
 #include <queue>
 #include <stack>
+#include <vector>
 #include <poll.h>
 #include <time.h>
 
@@ -18,18 +19,21 @@ namespace Pds {
 
   class XtcMonitorServer {
   public:
-    enum { numberofTrBuffers=8 };
+    enum { numberofTrBuffers=16 };
   public:
     XtcMonitorServer(const char* tag,
 		     unsigned sizeofBuffers, 
 		     unsigned numberofEvBuffers, 
-		     unsigned numberofClients,
+		     unsigned numberofEvQueues, 
 		     unsigned sequenceLength=1);
     virtual ~XtcMonitorServer();
   public:
     enum Result { Handled, Deferred };
     Result events   (Dgram* dg);
     void routine    ();
+    void unlink     ();
+  public:
+    void distribute (bool);
   private:
     int  _init             ();
     void _initialize_client();
@@ -38,6 +42,9 @@ namespace Pds {
     void _flushQueue       (mqd_t q, char* m, unsigned sz);
     void _moveQueue        (mqd_t iq, mqd_t oq);
     void _push_transition  (int ibuffer);
+    bool _send_sequence    ();
+    void _claim            (unsigned);
+    bool _claimOutputQueues(unsigned);
   protected:
     void _pop_transition   ();
   private:
@@ -47,24 +54,29 @@ namespace Pds {
     const char*     _tag;
     unsigned        _sizeOfBuffers;
     unsigned        _numberOfEvBuffers;
-    unsigned        _numberOfClients;
+    unsigned        _numberOfEvQueues;
     unsigned        _sizeOfShm;
     char*           _bufferP;   //  pointer to the shared memory area being used
     char*           _myShm;     // the pointer to start of shared memory
     unsigned        _pageSize;
     XtcMonitorMsg   _myMsg;
+    mqd_t           _discoveryQueue;
     mqd_t           _myInputEvQueue;
     mqd_t*          _myOutputEvQueue; // nclients
-    mqd_t*          _myOutputTrQueue; // nclients
-    mqd_t           _discoveryQueue;
+    std::vector<mqd_t> _myOutputTrQueue; // nclients
     std::stack<int> _cachedTr;
     std::queue<int> _freeTr;
-    pollfd          _pfd[2];
+    pollfd          _pfd[1];
     sem_t           _sem;
     mqd_t           _shuffleQueue;
     timespec        _tmo;
-    pthread_t       _threadID;
+    pthread_t       _taskThread;
     EventSequence*  _sequence;
+    unsigned        _ievt;
+    timespec*       _postmarks;
+    unsigned        _freelist;
+    unsigned        _nfree;
+    unsigned        _lastSent;
   };
 };
 

@@ -59,7 +59,8 @@ namespace Pds {
       MecFdi        = 42,
       MecTimeTool   = 43,
       MecTargetChamber = 44,
-      NumDetector   = 45
+      FeeHxSpectrometer = 45,
+      NumDetector   = 46
     };
 
     enum Device {
@@ -87,11 +88,16 @@ namespace Pds {
       Opal1600  = 21,
       Opal8000  = 22,
       Fli       = 23,
-      NumDevice = 24
+      Quartz4A150 = 24,
+      Andor     = 25,
+      USDUSB    = 26,
+      OrcaFl40  = 27,
+      NumDevice = 28
     };
 
     DetInfo() {}
     DetInfo(uint32_t processId, Detector det, uint32_t detId, Device dev, uint32_t devId);
+    DetInfo(const char*);
 
     bool operator==(const DetInfo &) const;
 

@@ -59,7 +59,7 @@ void SharedMemoryInput::run()
   _status = lmf::PausableThread::running;
   Log::add(Log::DEBUG0,"SharedMemoryInput::run(): starting shared memory in put with partition Tag: '" +
       _partitionTag + "' and Client Index " + toString(_index));
-  Pds::XtcMonitorClient::run(_partitionTag.c_str(),_index,_index,2);
+  Pds::XtcMonitorClient::run(_partitionTag.c_str(),_index,_index);
   Log::add(Log::DEBUG0,"SharedMemoryInput::run(): shared memory input is closing down");
 }
 

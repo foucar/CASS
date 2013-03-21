@@ -29,3 +29,8 @@ void XtcMonitorMsg::discoveryQueue (const char* tag, char* buffer)
   sprintf(buffer,"/PdsFromMonitorDiscovery_%s",tag);
 }
 
+void XtcMonitorMsg::registerQueue  (const char* tag, char* buffer, int id)
+{
+  sprintf(buffer,"/PdsToMonitorDiscovery_%s_%d",tag,id);
+}
+
