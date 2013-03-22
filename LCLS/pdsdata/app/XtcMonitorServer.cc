@@ -15,6 +15,9 @@
 #include <sys/mman.h>
 #include <sys/prctl.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
