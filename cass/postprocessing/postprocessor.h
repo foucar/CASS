@@ -85,7 +85,7 @@ the Class description for information about what parameters are user settable.
 
 00056: Contains the Histogram of the previous event
 
-00060: Histogram 0D values to a 1D histogram
+00060: Histogram 0D, 1D or 2D values to a 1D histogram
 00061: Average of a histogram
 00062: Summing up of histogram
 00063: Time Average of a histogram over given time-intervals

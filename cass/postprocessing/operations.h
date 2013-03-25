@@ -614,17 +614,20 @@ namespace cass
 
 
 
-  /** 0D to 1D histogramming.
+  /** 0D,1D or 2D to 1D histogramming.
    *
-   * histogram 0d values into a 1D Histogram
+   * histograms all values of 0D, 1D or 2D into a 1D Histogram. The number of
+   * fills of the resulting histogram will only increased by one for each time
+   * this PostProcessor is called. Thus this number represent the number of
+   * events that have been accumulated in the resulting histogram.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
+   *           properties of the resulting 1D histogram
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name containing the 0D value to histogram
+   *           Postprocessor name containing the values to histogram
    *
    * @author Lutz Foucar
    */

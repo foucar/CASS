@@ -848,14 +848,26 @@ void pp60::loadSettings(size_t)
 
 void pp60::process(const CASSEvent& evt)
 {
-  const Histogram0DFloat &one
-      (dynamic_cast<const Histogram0DFloat&>((*_pHist)(evt)));
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
-  ++_result->nbrOfFills();
-  _result->lock.unlock();
-  one.lock.unlock();
+  const HistogramFloatBase &hist
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  const HistogramFloatBase::storage_t &histmem(hist.memory());
+  HistogramFloatBase::storage_t::const_iterator value(histmem.begin());
+  HistogramFloatBase::storage_t::const_iterator histEnd(histmem.end());
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(*_result));
+
+  hist.lock.lockForRead();
+  result.lock.lockForWrite();
+
+  const size_t nFill(result.nbrOfFills());
+
+  for (; value != histEnd; ++value)
+    result.fill(*value);
+
+  result.nbrOfFills() = (nFill + 1);
+
+  result.lock.unlock();
+  hist.lock.unlock();
 }
 
 
