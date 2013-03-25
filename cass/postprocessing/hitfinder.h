@@ -148,18 +148,24 @@ protected:
   /** min amount of pixels for the background calc */
   int _minBckgndPixels;
 
+  float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
+  int counter,counterall,counter_rad;
+
   /** enum describing the contents of a bragg peak */
   enum PeakParams
   {
-    Intensity,
-    centroidColumn,
-    centroidRow,
-    nbrOfPixels,
-    SignalToNoise,
-    Index,
-    Column,
-    Row,
-    nbrOf
+    Intensity                 =  0,
+    centroidColumn            =  1,
+    centroidRow               =  2,
+    nbrOfPixels               =  3,
+    SignalToNoise             =  4,
+    Index                     =  5,
+    Column                    =  6,
+    Row                       =  7,
+    LocalBackground           =  8,
+    LocalBackgroundDeviation  =  9,
+    nbrOfBackgroundPixels     = 10,
+    nbrOf                     = 11
   };
 
   /** definition of a bragg peak */
@@ -218,6 +224,7 @@ protected:
   HistogramFloatBase::storage_t::value_type _drawVal;
   float _radius;
   std::pair<int,int> _boxsize;
+  bool _drawCircle,_drawBox;
 
   /** the number of the column where the global index of the pixel is */
   size_t _idxCol;

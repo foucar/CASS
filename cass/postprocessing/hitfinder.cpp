@@ -197,6 +197,15 @@ void pp204::loadSettings(size_t)
   _minBckgndPixels = s.value("MinNbrBackgrndPixels",10).toInt();
   const int peakRadius(s.value("BraggPeakRadius",2).toInt());
   _peakRadiusSq = peakRadius*peakRadius;
+  snrall_mean = 0;
+  snrall_stdv = 0;
+  counterall = 0;
+  snr_mean = 0;
+  snr_stdv = 0;
+  counter = 0;
+  radius_mean = 0;
+  radius_stdv = 0;
+  counter_rad = 0;
 
   setupGeneral();
 
@@ -241,7 +250,7 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
       if (qFuzzyIsNull(bPixel))
         continue;
 
-      if(*pixel <= bPixel )
+      if(*pixel < bPixel )
         return skip;
 
       const int radiussq(bRow*bRow + bCol*bCol);
@@ -303,8 +312,9 @@ void pp204::process(const CASSEvent &evt)
     if (col < _box.first  || ncols - _box.first  < col || //within box in x
         row < _box.second || nrows - _box.second < row || //within box in y
         (col - _box.first)  / _section.first  != (col + _box.first)  / _section.first || //x within same section
-        (row - _box.second) / _section.second != (row + _box.second) / _section.second)   //y within same section
+        (row - _box.second) / _section.second != (row + _box.second) / _section.second)  //y within same section
       continue;
+
     /** check wether current pixel value is highest and generate background values */
     float mean,stdv;
     int count;
@@ -317,8 +327,27 @@ void pp204::process(const CASSEvent &evt)
 
     /** check if signal to noise ration is good for the current pixel */
     const float snr((*pixel - mean) / stdv);
-    if (abs(snr) < _minSnr)
+
+    ++counterall;
+    const float oldsnrall_mean(snrall_mean);
+    snrall_mean += ((snr - oldsnrall_mean)/static_cast<float>(counterall));
+    snrall_stdv += ((snr - oldsnrall_mean)*(snr - snrall_mean));
+
+
+//    const bool NoOutlier = counter < 2000 ? (snr < _minSnr) : (snr - snr_mean < 10 * sqrt(snr_stdv/(counter -1)));
+    const bool NoOutlier = (snr - snrall_mean < _minSnr * sqrt(snrall_stdv/(counterall -1)));
+
+
+//    if (snr < _minSnr)
+    if (NoOutlier)
+    {
+      char tmp[256];
+      snprintf(tmp, 255, "\r%6.5f %6.5f  |  %6.5f %6.5f   |  %6.5f",
+               snr_mean, sqrt(snr_stdv/(counter -1)),snrall_mean,sqrt(snrall_stdv/(counterall -1)),snr );
+      cout << tmp << flush;
+
       continue;
+    }
 
     /** find all pixels in the box whose signal to noise ratio is big enough and
      *  centriod them. Mark the pixels as touched, so that they don't have to
@@ -328,6 +357,8 @@ void pp204::process(const CASSEvent &evt)
     float weightCol = 0;
     float weightRow = 0;
     int nPix = 0;
+    int max_radiussq=0;
+    int min_radiussq=max(_box.first,_box.second);
     for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
     {
       for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
@@ -336,8 +367,15 @@ void pp204::process(const CASSEvent &evt)
         const float bPixel(pixel[bLocIdx]);
         const float bPixelWOBckgnd(bPixel - mean);
         const float bSnr(bPixelWOBckgnd / stdv);
-        if (_minSnr < bSnr)
+//        if (_minSnr < bSnr)
+        if (_minSnr * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
+//        if (2 * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
         {
+          const int radiussq(bRow*bRow + bCol*bCol);
+          if (radiussq > max_radiussq)
+            max_radiussq = radiussq;
+          if (radiussq < min_radiussq)
+            min_radiussq = radiussq;
           integral += bPixelWOBckgnd;
           weightCol += (bPixelWOBckgnd * bCol);
           weightRow += (bPixelWOBckgnd * bRow);
@@ -346,6 +384,15 @@ void pp204::process(const CASSEvent &evt)
         checkedPixel[bLocIdx] = true;
       }
     }
+    ++counter;
+    const float oldsnr_mean(snr_mean);
+    snr_mean += ((nPix - oldsnr_mean)/static_cast<float>(counter));
+    snr_stdv += ((nPix - oldsnr_mean)*(nPix - snr_mean));
+
+//    if (nPix - snr_mean < 2 * sqrt(snr_stdv/(counter -1)))
+    if (nPix - snr_mean < 0)
+      continue;
+
     peak[centroidColumn] = weightCol / integral;
     peak[centroidRow] = weightRow / integral;
     peak[Intensity] = integral;
@@ -354,8 +401,21 @@ void pp204::process(const CASSEvent &evt)
     peak[Index] = idx;
     peak[Column] = col;
     peak[Row] = row;
+    peak[LocalBackground] = mean;
+    peak[LocalBackgroundDeviation] = stdv;
+    peak[nbrOfBackgroundPixels] = count;
 
     result.addRow(peak);
+
+//    ++counter_rad;
+//    const float oldradius_mean(radius_mean);
+//    radius_mean += ((max_radiussq - oldradius_mean)/static_cast<float>(counter_rad));
+//    radius_stdv += ((max_radiussq - oldradius_mean)*(max_radiussq - radius_mean));
+//    char tmp[256];
+//    snprintf(tmp, 255, "\r%6.5f %6.5f %5i",
+//             radius_mean,sqrt(radius_stdv/(counter_rad -1)), max_radiussq );
+//    cout << tmp << flush;
+
   }
 
   hist.lock.unlock();
@@ -394,6 +454,8 @@ void pp205::loadSettings(size_t)
   _drawVal = s.value("DrawPixelValue",16000.f).toFloat();
   _radius = s.value("Radius",2.f).toFloat();
   _idxCol = s.value("IndexColumn").toUInt();
+  _drawCircle = s.value("DrawCircle",true).toBool();
+  _drawBox = s.value("DrawBox",true).toBool();
 
   size_t maxIdx(_table->getHist(0).axis()[HistogramBackend::xAxis].size());
   if (_idxCol >= maxIdx)
@@ -465,43 +527,49 @@ void pp205::process(const CASSEvent &evt)
 
     /** draw user requested info (extract other stuff from table) */
     //box
-    //lower row
-    for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+    if (_drawBox)
     {
-      const int bRow = -_boxsize.second;
-      const int bLocIdx(bRow*nImageCols+bCol);
-      centerpixel[bLocIdx] = _drawVal;
-    }
-    //upper row
-    for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
-    {
-      const int bRow = _boxsize.second;
-      const int bLocIdx(bRow*nImageCols+bCol);
-      centerpixel[bLocIdx] = _drawVal;
-    }
-    //left col
-    for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
-    {
-      const int bCol = -_boxsize.first;
-      const int bLocIdx(bRow*nImageCols+bCol);
-      centerpixel[bLocIdx] = _drawVal;
-    }
-    //right col
-    for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
-    {
-      int bCol = _boxsize.first;
-      const int bLocIdx(bRow*nImageCols+bCol);
-      centerpixel[bLocIdx] = _drawVal;
+      //lower row
+      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+      {
+        const int bRow = -_boxsize.second;
+        const int bLocIdx(bRow*nImageCols+bCol);
+        centerpixel[bLocIdx] = _drawVal;
+      }
+      //upper row
+      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+      {
+        const int bRow = _boxsize.second;
+        const int bLocIdx(bRow*nImageCols+bCol);
+        centerpixel[bLocIdx] = _drawVal;
+      }
+      //left col
+      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+      {
+        const int bCol = -_boxsize.first;
+        const int bLocIdx(bRow*nImageCols+bCol);
+        centerpixel[bLocIdx] = _drawVal;
+      }
+      //right col
+      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+      {
+        int bCol = _boxsize.first;
+        const int bLocIdx(bRow*nImageCols+bCol);
+        centerpixel[bLocIdx] = _drawVal;
+      }
     }
 
     //circle
-    for(size_t angle_deg = 0; angle_deg <360; ++angle_deg)
+    if (_drawCircle)
     {
-      const float angle_rad(3.14 * static_cast<float>(angle_deg)/180.);
-      const int cCol (static_cast<size_t>(round(_radius*sin(angle_rad))));
-      const int cRow (static_cast<size_t>(round(_radius*cos(angle_rad))));
-      const int cLocIdx(cRow*nImageCols+cCol);
-      centerpixel[cLocIdx] = _drawVal;
+      for(size_t angle_deg = 0; angle_deg <360; ++angle_deg)
+      {
+        const float angle_rad(3.14 * static_cast<float>(angle_deg)/180.);
+        const int cCol (static_cast<size_t>(round(_radius*sin(angle_rad))));
+        const int cRow (static_cast<size_t>(round(_radius*cos(angle_rad))));
+        const int cLocIdx(cRow*nImageCols+cCol);
+        centerpixel[cLocIdx] = _drawVal;
+      }
     }
 
   }
