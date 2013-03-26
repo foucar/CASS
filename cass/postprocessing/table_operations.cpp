@@ -63,8 +63,8 @@ void pp72::process(const cass::CASSEvent& evt)
 
   col.clearline();
 
-  size_t nCols(table.axis()[HistogramBackend::xAxis].size());
-  size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
 
   for (size_t row=0; row < nRows; ++row)
     col.append(tableContents[row*nCols + _colIdx]);
