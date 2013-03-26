@@ -68,6 +68,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
                       tcpserver.cpp \
+                      statistics_calculator.cpp \
                       ./postprocessing/convenience_functions.cpp \
                       ./postprocessing/backend.cpp \
                       ./postprocessing/waveform.cpp \
@@ -129,6 +130,7 @@ HEADERS            += analysis_backend.h \
                       cass_exceptions.h \
                       cass_settings.h \
                       calibcycle.h \
+                      statistics_calculator.h \
                       ./postprocessing/convenience_functions.h \
                       ./postprocessing/postprocessor.h \
                       ./postprocessing/id_list.h \
