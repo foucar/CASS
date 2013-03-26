@@ -720,6 +720,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case centerofmass:
       processor = PostprocessorBackend::shared_pointer(new pp87(*this, key));
       break;
+  case axisparameter:
+      processor = PostprocessorBackend::shared_pointer(new pp88(*this, key));
+      break;
   case SingleCcdImage:
     processor = PostprocessorBackend::shared_pointer
           (new pp100(*this, key));

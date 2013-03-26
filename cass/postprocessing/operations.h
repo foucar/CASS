@@ -1621,6 +1621,50 @@ namespace cass
 
 
 
+  /** return axis parameter of an histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{AxisParameter} \n
+   *           The parameter of the axis one is interested in.
+   *           Default is "XNbrBins". Possible values are:
+   *           - "XNbrBins": The number of Bins in X
+   *           - "XLow": The lower bound of the x-axis
+   *           - "XUp": The upper bound of the x-axis
+   *           - "YNbrBins": The number of Bins in Y
+   *           - "YLow": The lower bound of the y-axis
+   *           - "YUp": The upper bound of the y-axis
+   *
+   * @author Lutz Foucar
+   */
+  class pp88 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp88(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** the id of the axis */
+    int _axisId;
+
+    /** function to retrieve the parameter from the axis */
+    std::tr1::function<float(const AxisProperty&)> _func;
+  };
+
+
+
 }
 
 #endif

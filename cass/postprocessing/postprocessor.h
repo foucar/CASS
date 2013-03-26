@@ -117,6 +117,8 @@ the Class description for information about what parameters are user settable.
 00086: find step in a given range of 1d histo
 00087: find center of mass in given range of 1d histo
 
+00088: retrieve an axis parameter of the histogram
+
 ---Data retrieval (Histogram contain only last shot)--
 ##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
 00100: CCD image
@@ -366,6 +368,7 @@ public:
     fwhmPeak=85,
     step=86,
     centerofmass=87,
+    axisparameter=88,
 
     SingleCcdImage=100,
     SingleCcdImageIntegral=101,

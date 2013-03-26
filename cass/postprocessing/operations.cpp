@@ -2527,3 +2527,102 @@ void pp87::process(const cass::CASSEvent& evt)
   _result->lock.unlock();
   hist.lock.unlock();
 }
+
+
+
+
+
+
+
+// ***  pp 88 returns an axis parameter ***
+
+pp88::pp88(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp88::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+
+  QString axisparam(s.value("AxisParameter","XNbrBins").toString());
+  if (axisparam == "XNbrBins")
+  {
+    _axisId = HistogramBackend::xAxis;
+    _func = &AxisProperty::size;
+  }
+  else if (axisparam == "XLow")
+  {
+    _axisId = HistogramBackend::xAxis;
+    _func = &AxisProperty::lowerLimit;
+  }
+  else if (axisparam == "XUp")
+  {
+    _axisId = HistogramBackend::xAxis;
+    _func = &AxisProperty::upperLimit;
+  }
+  else if (axisparam == "YNbrBins")
+  {
+    _axisId = HistogramBackend::yAxis;
+    _func = &AxisProperty::size;
+  }
+  else if (axisparam == "YLow")
+  {
+    _axisId = HistogramBackend::yAxis;
+    _func = &AxisProperty::lowerLimit;
+  }
+  else if (axisparam == "YUp")
+  {
+    _axisId = HistogramBackend::yAxis;
+    _func = &AxisProperty::upperLimit;
+  }
+  else
+    throw invalid_argument("pp88 '" + _key + "' AxisParameter '" +
+                           axisparam.toStdString() + "' is unknown.");
+
+  if (_pHist->getHist(0).dimension() == 0)
+    throw invalid_argument("pp88 '" + _key + "' histogram '" + _pHist->key() +
+                           "' has dimension 0, which has no axis properties.");
+
+  if ((axisparam == "YNbrBins" || axisparam == "YLow" || axisparam == "YUp")
+      && _pHist->getHist(0).dimension() == 1)
+    throw invalid_argument("pp88 '" + _key + "' histogram '" + _pHist->key() +
+                           "' has dimension 1, which is incompatible with property '" +
+                           axisparam.toStdString() + "'");
+
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' returns axis parameter'"+ axisparam.toStdString() +
+           "' of histogram in pp '" + _pHist->key() +
+           "'. Condition on PostProcessor '" + _condition->key() + "'");
+}
+
+void pp88::process(const cass::CASSEvent& evt)
+{
+  const HistogramFloatBase& hist
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(*_result));
+
+  hist.lock.lockForRead();
+  result.lock.lockForWrite();
+
+  result = _func(hist.axis()[_axisId]);
+  result.nbrOfFills()=1;
+
+  result.lock.unlock();
+  hist.lock.unlock();
+}
+
+
+
+
