@@ -98,6 +98,7 @@ the Class description for information about what parameters are user settable.
 
 00070: Subset a Histogram
 00072: Returns a user choosable column from a table like 2d histogram
+00073: Returns a subset of a table based on a condition on a chossable column
 
 00075: Clear a Histogram
 
@@ -350,6 +351,7 @@ public:
 
     RetrieveValue=71,
     RetrieveColFromTable=72,
+    SubsetTable=73,
 
     ClearHistogram=75,
     QuitCASS=76,

@@ -681,6 +681,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case RetrieveColFromTable:
     processor = PostprocessorBackend::shared_pointer(new pp72(*this, key));
     break;
+  case SubsetTable:
+    processor = PostprocessorBackend::shared_pointer(new pp73(*this, key));
+    break;
   case ClearHistogram:
     processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
     break;
