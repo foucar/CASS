@@ -33,6 +33,7 @@
 #include "cbf_output.h"
 #include "log.h"
 #include "hitfinder.h"
+#include "table_operations.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"

@@ -89,7 +89,9 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/image_manipulation.cpp \
                       ./postprocessing/hitfinder.cpp \
                       ./postprocessing/partial_covariance.cpp \
-                      ./postprocessing/cbf_output.cpp
+                      ./postprocessing/cbf_output.cpp \
+                      ./postprocessing/table_operations.cpp
+
 
 HEADERS            += analysis_backend.h \
                       analyzer.h \
@@ -158,7 +160,8 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/image_manipulation.h \
                       ./postprocessing/hitfinder.h \
                       ./postprocessing/partial_covariance.h \
-                      ./postprocessing/cbf_output.h
+                      ./postprocessing/cbf_output.h \
+                      ./postprocessing/table_operations.h
 
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \
