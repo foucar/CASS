@@ -52,7 +52,7 @@ protected:
   /** pp containing input table */
   PostprocessorBackend *_table;
 
-  /** offset of first bin in input in Histogram coordinates */
+  /** index of the column that needs to be extracted */
   size_t _colIdx;
 };
 
