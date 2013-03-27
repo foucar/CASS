@@ -270,10 +270,10 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
 
 void pp204::process(const CASSEvent &evt)
 {
-  // Get the input
   const HistogramFloatBase &hist
       (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
   const HistogramFloatBase::storage_t &image(hist.memory());
+
   Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
 
   result.lock.lockForWrite();
@@ -351,7 +351,7 @@ void pp204::process(const CASSEvent &evt)
 
     /** find all pixels in the box whose signal to noise ratio is big enough and
      *  centriod them. Mark the pixels as touched, so that they don't have to
-     *  be checked again.
+     *  be checked again. Find out the maximum and minimum radius
      */
     float integral = 0;
     float weightCol = 0;
