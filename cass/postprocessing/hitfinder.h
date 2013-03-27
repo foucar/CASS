@@ -165,7 +165,10 @@ protected:
     LocalBackground           =  8,
     LocalBackgroundDeviation  =  9,
     nbrOfBackgroundPixels     = 10,
-    nbrOf                     = 11
+    MaxRadius                 = 11,
+    MinRadius                 = 12,
+    MaxADU                    = 13,
+    nbrOf
   };
 
   /** definition of a bragg peak */

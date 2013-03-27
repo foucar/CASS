@@ -358,7 +358,7 @@ void pp204::process(const CASSEvent &evt)
     float weightRow = 0;
     int nPix = 0;
     int max_radiussq=0;
-    int min_radiussq=max(_box.first,_box.second);
+    int min_radiussq=max(_box.first,_box.second)*max(_box.first,_box.second);
     for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
     {
       for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
@@ -397,9 +397,12 @@ void pp204::process(const CASSEvent &evt)
     peak[Intensity] = integral;
     peak[nbrOfPixels] = nPix;
     peak[SignalToNoise] = snr;
+    peak[MaxRadius] = sqrt(max_radiussq);
+    peak[MinRadius] = sqrt(min_radiussq);
     peak[Index] = idx;
     peak[Column] = col;
     peak[Row] = row;
+    peak[MaxADU] = *pixel;
     peak[LocalBackground] = mean;
     peak[LocalBackgroundDeviation] = stdv;
     peak[nbrOfBackgroundPixels] = count;
