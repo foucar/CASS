@@ -247,15 +247,15 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
       const int bLocIdx(bRow*ncols+bCol);
       const float bPixel(pixel[bLocIdx]);
 
-      if (qFuzzyIsNull(bPixel))
-        continue;
-
       if(*pixel < bPixel )
         return skip;
 
       const int radiussq(bRow*bRow + bCol*bCol);
       if (_peakRadiusSq < radiussq)
       {
+        if (qFuzzyIsNull(bPixel))
+          return skip;
+
         ++count;
         const float old_mean(tmp_mean);
         tmp_mean += ((bPixel - old_mean) / static_cast<float>(count));
