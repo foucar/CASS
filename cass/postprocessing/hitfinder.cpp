@@ -328,23 +328,23 @@ void pp204::process(const CASSEvent &evt)
     /** check if signal to noise ration is good for the current pixel */
     const float snr((*pixel - mean) / stdv);
 
-    ++counterall;
-    const float oldsnrall_mean(snrall_mean);
-    snrall_mean += ((snr - oldsnrall_mean)/static_cast<float>(counterall));
-    snrall_stdv += ((snr - oldsnrall_mean)*(snr - snrall_mean));
+//    ++counterall;
+//    const float oldsnrall_mean(snrall_mean);
+//    snrall_mean += ((snr - oldsnrall_mean)/static_cast<float>(counterall));
+//    snrall_stdv += ((snr - oldsnrall_mean)*(snr - snrall_mean));
 
 
 //    const bool NoOutlier = counter < 2000 ? (snr < _minSnr) : (snr - snr_mean < 10 * sqrt(snr_stdv/(counter -1)));
-    const bool NoOutlier = (snr - snrall_mean < _minSnr * sqrt(snrall_stdv/(counterall -1)));
+//    const bool NoOutlier = (snr - snrall_mean < _minSnr * sqrt(snrall_stdv/(counterall -1)));
 
 
-//    if (snr < _minSnr)
-    if (NoOutlier)
+    if (snr < _minSnr)
+//    if (NoOutlier)
     {
-      char tmp[256];
-      snprintf(tmp, 255, "\r%6.5f %6.5f  |  %6.5f %6.5f   |  %6.5f",
-               snr_mean, sqrt(snr_stdv/(counter -1)),snrall_mean,sqrt(snrall_stdv/(counterall -1)),snr );
-      cout << tmp << flush;
+//      char tmp[256];
+//      snprintf(tmp, 255, "\r%6.5f %6.5f  |  %6.5f %6.5f   |  %6.5f",
+//               snr_mean, sqrt(snr_stdv/(counter -1)),snrall_mean,sqrt(snrall_stdv/(counterall -1)),snr );
+//      cout << tmp << flush;
 
       continue;
     }
@@ -367,9 +367,8 @@ void pp204::process(const CASSEvent &evt)
         const float bPixel(pixel[bLocIdx]);
         const float bPixelWOBckgnd(bPixel - mean);
         const float bSnr(bPixelWOBckgnd / stdv);
-//        if (_minSnr < bSnr)
-        if (_minSnr * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
-//        if (2 * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
+        if (_minSnr < bSnr)
+//        if (_minSnr * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
         {
           const int radiussq(bRow*bRow + bCol*bCol);
           if (radiussq > max_radiussq)
@@ -384,14 +383,14 @@ void pp204::process(const CASSEvent &evt)
         checkedPixel[bLocIdx] = true;
       }
     }
-    ++counter;
-    const float oldsnr_mean(snr_mean);
-    snr_mean += ((nPix - oldsnr_mean)/static_cast<float>(counter));
-    snr_stdv += ((nPix - oldsnr_mean)*(nPix - snr_mean));
+//    ++counter;
+//    const float oldsnr_mean(snr_mean);
+//    snr_mean += ((nPix - oldsnr_mean)/static_cast<float>(counter));
+//    snr_stdv += ((nPix - oldsnr_mean)*(nPix - snr_mean));
 
 //    if (nPix - snr_mean < 2 * sqrt(snr_stdv/(counter -1)))
-    if (nPix - snr_mean < 0)
-      continue;
+//    if (nPix - snr_mean < 0)
+//      continue;
 
     peak[centroidColumn] = weightCol / integral;
     peak[centroidRow] = weightRow / integral;
