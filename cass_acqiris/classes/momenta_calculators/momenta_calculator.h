@@ -62,8 +62,8 @@ namespace cass
        * rotate the corrected scaled positition around the given angle.
        * Then substract _t0 form the time of the detectorhit
        *
+       * @return the correct position
        * @param[in] dethit the detector hit to correct
-       * @param[out] particlehit this is where the correct position goes
        */
       particleHit_t operator()(const detectorHit_t &dethit)const;
 
@@ -99,11 +99,11 @@ namespace cass
        * calculates the momenta of the particle form a given detectorhit. First
        * correct the position of the detectorhit and the time of flight.
        *
-       * @param[in] dethit the detectorhit to calculate the momenta from
+       * @return the particle hit that contains all momenta
+       * @param[in] particlehit the detectorhit to calculate the momenta from
        * @param[in] particle the particle object that contains the properties of
        *                     the particle that the momentum needs to be
        *                     calculated from
-       * @param[out] particlehit the particle hit that contains all momenta
        */
       virtual particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const=0;
 

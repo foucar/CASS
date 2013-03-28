@@ -73,7 +73,7 @@ protected:
    * This function makes the histgram in energy scale.
    * Offset value is calculated by average in range of no signal.
    *
-   * @param TofHist  input ToF histgram
+   * @param TofHisto  input ToF histgram
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
@@ -549,7 +549,7 @@ protected:
    * This function makes the histgram in energy scale. Offset value is
    * calculated by average in range of no signal.
    *
-   * @param TofHist input ToF histgram
+   * @param TofHisto input ToF histgram
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
@@ -643,7 +643,7 @@ protected:
    * This function makes the histgram in energy scale. Offset value is
    * calculated by average in range of no signal.
    *
-   * @param TofHist input ToF histgram
+   * @param TofHisto input ToF histgram
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
@@ -776,7 +776,7 @@ protected:
    * This function makes the histgram in energy scale. Offset value is
    * calculated by average in range of no signal.
    *
-   * @param TofHist input ToF histgram
+   * @param TofHisto input ToF histgram
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */

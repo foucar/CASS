@@ -29,7 +29,7 @@ namespace AchimHex
  * extract the time values from the signal producer and puts it into
  * the corrosponding tdc like array
  *
- * @param _signal container for tdc like array mapped to the corrosponding
+ * @param thePair container for tdc like array mapped to the corrosponding
  *                signalproducer.
  *
  * @author Lutz Foucar

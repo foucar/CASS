@@ -32,7 +32,6 @@ public:
    *
    * @param averagetime time in seconds over which you want to average the
    *        rate. Default is 1 s.
-   * @param parent the qt parent of this object
    */
   Ratemeter(const double averagetime=1);
 

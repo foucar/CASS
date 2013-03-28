@@ -1,7 +1,8 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file id_list.h file contains the classes that can serialize the key list
+ * @file lucassview/id_list.h file contains the classes that can serialize the
+ *                    key list
  *
  * @author Lutz Foucar
  */

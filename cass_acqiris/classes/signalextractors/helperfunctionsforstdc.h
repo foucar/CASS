@@ -298,7 +298,7 @@ namespace cass
     /** extract full width at half maximum (fwhm)
      *
      * @param[in] c the channel that the peak is found in
-     * @param[in,out] p the peak that we found
+     * @param[in,out] s the peak that we found
      * @param thresh unused
      *
      * @author Lutz Foucar
@@ -399,7 +399,7 @@ namespace cass
      * peak.
      *
      * @param[in] c the channel the peak was found in
-     * @param[in,out] p the peak
+     * @param[in,out] s the peak
      * @param[in] thresh the threshold that we used to identify the signal in V
      *
      * @author Lutz Foucar
@@ -477,7 +477,7 @@ namespace cass
      * this function will find the maximum of the peak and its position
      *
      * @param[in] c the channel the peak was found in
-     * @param[in,out] p the peak
+     * @param[in,out] s the peak
      * @param thresh unused
      *
      * @author Lutz Foucar

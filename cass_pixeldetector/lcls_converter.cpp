@@ -142,7 +142,7 @@ Detector& retrieveDet(CASSEvent& evt, const Device::detectors_t::key_type& key)
  * create a byte array of the right size and copy the payload of the xtc to it.
  *
  * @return vector containing the payload of the xtc
- * @param the xtc whos payload should be copied.
+ * @param xtc the xtc whos payload should be copied.
  *
  * @author Lutz Foucar
  */

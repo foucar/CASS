@@ -1,5 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file cass/postprocessing/id_list.cpp file contains the classes that can
+ *              serialize the key list
+ *
+ * @author Stephan Kassemeyer
+ */
+
+
 #include "id_list.h"
 
 

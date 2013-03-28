@@ -131,7 +131,7 @@ index_t::first_type dot(const index_t& lhs, const index_t& rhs)
 /** convert matrix index to linearised index
  *
  * @return index in the linearised array
- * @param index in the matrix
+ * @param matrixIndex in the matrix
  * @param width the width of the matrix
  *
  * @author Lutz Foucar
@@ -144,7 +144,7 @@ size_t TwoD2OneD(const index_t& matrixIndex, const size_t width)
 /** convert linearised index to  matrixindex
  *
  * @return index in the matrix
- * @param index in the matrix
+ * @param linearisedIndex the linearized index in the matrix
  * @param width the width of the matrix
  *
  * @author Lutz Foucar

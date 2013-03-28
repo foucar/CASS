@@ -1,7 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file serializable.h file contains base class all serializable classes
+ * @file cass/serializable.h file contains base class all serializable classes
  *
  * @author Lutz Foucar
  */

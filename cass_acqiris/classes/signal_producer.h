@@ -116,7 +116,7 @@ namespace cass
        * in the requested timerange the value is set to 0. It will use the range
        * that is set inside.
        *
-       * @param range the timerange to search for the signal
+       * @return the time of the first good peak
        */
       double firstGood();
 

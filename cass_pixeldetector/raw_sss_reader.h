@@ -1,8 +1,8 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file raw_sss_reader.h contains class to read commercial ccd files created
- *                        with Per Johnsonn's program
+ * @file cass_pixeldetector/raw_sss_reader.h contains class to read commercial
+ *                               ccd files created with Per Johnsonn's program
  *
  * @author Lutz Foucar
  */

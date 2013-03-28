@@ -33,7 +33,10 @@ SOURCES       += \
                  lcls_converter.cpp \
                  shm_deserializer.cpp \
                  frms6_reader.cpp \
-                 raw_sss_reader.cpp
+                 raw_sss_reader.cpp \
+                 raw_sss_parser.cpp \
+                 frms6_parser.cpp
+
 
 HEADERS       += \
                  ../cass/cass_settings.h \
@@ -62,7 +65,9 @@ HEADERS       += \
                  lcls_converter.h \
                  shm_deserializer.h \
                  frms6_reader.h \
-                 raw_sss_reader.h
+                 raw_sss_reader.h \
+                 raw_sss_parser.h \
+                 frms6_parser.h
 
 
 headers.files  = $$HEADERS

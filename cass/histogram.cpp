@@ -1,8 +1,8 @@
 // Copyright (C) 2010 Jochen Küpper
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010-2013 Lutz Foucar
 
 /**
- * @file histogram.h file contains histogram classes definitions
+ * @file cass/histogram.cpp file contains histogram classes definitions
  *
  * @author Lutz Foucar
  */

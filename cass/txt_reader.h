@@ -27,7 +27,7 @@ class CASSEvent;
  * line by line.
  *
  * @cassttng TxtReader/\%filename\%/{Deliminator}\n
- *           The deliminator that is used to separate the values. Default is '\t',
+ *           The deliminator that is used to separate the values. Default is '\\t',
  *           which is a tab.
  * @cassttng TxtReader/\%filename\%/{EventIdHeader}\n
  *           The name of the Header under which the Event Id is stored. Default
@@ -41,10 +41,7 @@ class CASSEvent;
 class TxtReader : public FileReader
 {
 public:
-  /** constructor
-   *
-   * @param filename the name of the file that we read from
-   */
+  /** constructor */
   TxtReader();
 
   /** read the frms6 file contents put them into cassevent

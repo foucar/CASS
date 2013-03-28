@@ -1,8 +1,8 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file raw_sss_parser.h contains class to parse a file containing the commercial
- *                        ccd images created by Per Johnsonns program.
+ * @file cass_pixeldetector/raw_sss_parser.h contains class to parse a file
+ *        containing the commercial ccd images created by Per Johnsonns program.
  *
  * @author Lutz Foucar
  */

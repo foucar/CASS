@@ -86,7 +86,7 @@ string reopenFile(int & filehandle, size_t maxsize, const string& currentfilenam
  *
  * @return id pointing to the groupname created
  * @param eventid the event id
- * @param calibcylce
+ * @param calibcycle the current calibcycle string
  *
  * @author Lutz Foucar
  */
@@ -150,7 +150,7 @@ void writeFloatValue(const float value, const string& valname, hid_t groupid)
  * @param axis the axis that contains the info to be written
  * @param groupid the id of the group that the information should be written to
  *
- * @param Lutz Foucar
+ * @author Lutz Foucar
  */
 void writeAxisProperty(const AxisProperty& axis, hid_t groupid)
 {
@@ -277,6 +277,7 @@ void write0DHist(const Histogram0DFloat& hist, hid_t groupid)
  *
  * @param hist the 1d histogram to be written
  * @param groupid the id of the group where the contents should be added to
+ * @param compress flag whether data should be compressed
  *
  * @author Lutz Foucar
  */
@@ -366,6 +367,7 @@ void write1DHist(const Histogram1DFloat& hist, hid_t groupid, bool compress)
  *
  * @param hist the 2d histogram to be written
  * @param groupid the id of the group where the contents should be added to
+ * @param compress flag whether data should be compressed
  *
  * @author Lutz Foucar
  */
@@ -533,6 +535,7 @@ void write2DHist(const Histogram2DFloat& hist, hid_t groupid, bool compress)
  *
  * @param hist the 2d histogram to be written
  * @param groupid the id of the group where the contents should be added to
+ * @param compress flag whether data should be compressed
  *
  * @author Lutz Foucar
  */
@@ -667,7 +670,7 @@ void writeEpicsData(const MachineData::MachineDataDevice::epicsDataMap_t &epics,
  * as an array to the group. When the list of evr codes is empty, don't write
  * anything.
  *
- * @param bld the device from the CASSEvent that contains the machine data
+ * @param evr the device from the CASSEvent that contains the machine data
  * @param groupid the id of the group that the data shoudl be added to
  *
  * @author Lutz Foucar
@@ -755,7 +758,6 @@ void createGroupWithAbsolutePath(const string& name, hid_t filehandle)
  *
  * @param datasetname Name of the data set including the full absolute group path
  * @param data histogram containing the data to be written
- * @param compress flag whether the data should be compressed
  * @param filehandle the File Handle of the opened hdf5 file
  *
  * @author Lutz Foucar
@@ -789,7 +791,6 @@ void writeData(const string& datasetname, const Histogram0DFloat& data, hid_t fi
  *
  * @param datasetname Name of the data set including the full absolute group path
  * @param data histogram containing the data to be written
- * @param compress flag whether the data should be compressed
  * @param filehandle the File Handle of the opened hdf5 file
  *
  * @author Lutz Foucar

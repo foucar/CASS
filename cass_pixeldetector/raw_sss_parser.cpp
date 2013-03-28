@@ -1,9 +1,8 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file raw_sss_parser.cpp contains class to parse a file containing the
- *                          commercial ccd images created by Per Johnsonns
- *                          program.
+ * @file cass_pixeldetector/raw_sss_parser.cpp contains class to parse a file
+ *       containing the commercial ccd images created by Per Johnsonns program.
  *
  * @author Lutz Foucar
  */
@@ -16,10 +15,13 @@
 #include "raw_sss_parser.h"
 
 #include "raw_sss_file_header.h"
+#include "file_reader.h"
 
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
+using Streaming::operator >>;
+
 
 void RAWSSSParser::run()
 {
@@ -39,7 +41,7 @@ void RAWSSSParser::run()
   for (uint32_t iImage(0); iImage < header.nFrames; ++iImage)
   {
     const streampos eventStartPos(file.tellg());
-    uint32_t eventId(FileStreaming::retrieve<uint32_t>(file));
+    uint32_t eventId(Streaming::retrieve<uint32_t>(file));
     savePos(eventStartPos,eventId);
     file.seekg(imagesize,ios_base::cur);
   }

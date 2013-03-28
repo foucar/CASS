@@ -186,7 +186,7 @@ namespace lucassview
      *
      * set the file
      *
-     * @param file the file to write the histograms to
+     * @param filename filename of the file to write the histograms to
      */
     writeObject(const std::string & filename)
       :_file(TFile::Open(filename.c_str(),"RECREATE"))

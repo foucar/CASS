@@ -59,7 +59,7 @@ public:
    * @param s reference to the CASSSettings object
    * @param d the detector object that we the analyzer belongs to
    */
-  virtual void loadSettings(CASSSettings&, DelaylineDetector&)=0;
+  virtual void loadSettings(CASSSettings& /*s*/, DelaylineDetector& /*d*/)=0;
 
   /** create an instance of the right analyzer type
    *

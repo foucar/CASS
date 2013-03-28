@@ -238,10 +238,10 @@ private:
   CommonData(const instancesmap_t::key_type& detname);
 
   /** prevent copy-construction*/
-  CommonData(const CommonData&);
+  CommonData(const CommonData&) {}
 
   /** prevent assingment */
-  CommonData& operator=(const CommonData&);
+  CommonData& operator=(const CommonData&) {return *this;}
 
   /** the helperclass instances.
    *

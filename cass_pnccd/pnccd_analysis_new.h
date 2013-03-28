@@ -34,7 +34,7 @@ public:
 
   /** save the settings of the analyzer
    *
-   * @depreciated
+   * @deprecated
    */
   void saveSettings();
 

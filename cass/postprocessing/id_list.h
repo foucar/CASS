@@ -1,5 +1,12 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file cass/postprocessing/id_list.h file contains the classes that can
+ *               serialize the key list
+ *
+ * @author Stephan Kassemeyer
+ */
+
 #ifndef __IDLIST_H__
 #define __IDLIST_H__
 

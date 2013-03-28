@@ -63,7 +63,7 @@ public:
 
   /** start accumulating the maps
    *
-   * @param command the comamnd that the gui issued to this creator
+   * @param unused not used
    */
   void controlCalibration(const std::string& unused);
 
@@ -79,7 +79,6 @@ private:
 
   /** a function that just returns and does nothing
    *
-   * @param unused not used
    * @param unused not used
    */
   void doNothing(const Frame& /*unused*/) {}
@@ -168,7 +167,7 @@ public:
 
   /** start accumulating the maps
    *
-   * @param command the comamnd that the gui issued to this creator
+   * @param unused not used
    */
   void controlCalibration(const std::string& unused);
 

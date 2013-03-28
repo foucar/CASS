@@ -1,7 +1,8 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file frms6_reader.cpp contains class to read frms6 files created by Xonline
+ * @file cass_pnccd/frms6_reader.cpp contains class to read frms6 files created
+ *                 by Xonline
  *
  * @author Lutz Foucar
  */

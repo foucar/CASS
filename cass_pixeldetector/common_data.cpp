@@ -225,12 +225,13 @@ void saveCASSOffsetFile(const string &filename, CommonData& data)
  * just return from the function without doing anything.
  *
  * the first four lines look like the following
- *
- * HE File containing gain and CTE values
- * VERSION 3
- * HE       #Column   Gain    CTE0
- * GC          0          1   0.999977
- * [...]
+@verbatim
+HE File containing gain and CTE values
+VERSION 3
+HE       #Column   Gain    CTE0
+GC          0          1   0.999977
+[...]
+@endverbatim
  *
  * the third line and following lines have different spacing, depending on
  * how xonline is writing these files.

@@ -229,9 +229,9 @@ found in the description of cass::pnCCD::DetectorParameter and cass::pnCCD::Para
 for the pnCCD pre analysis. For the commercial ccd pre analysis the paramters
 can be found in the description of cass::CCD::Parameter.\n
 
-The PostProcessor part is the most advanced part. #ref pplist gives an overview
+The PostProcessor part is the most advanced part. @ref pplist gives an overview
 of all available postprocessors. The parenthesis refers to the
-postprocessor to look up in the parameter list @ref CASSParameters to find out which
+postprocessor to look up in the parameter list @ref casssetting to find out which
 parameters it takes. In this reference you will also find all available
 parameters that one can give in the .ini file. There are some examples given in
 @ref examples as a starting point for your .ini file.

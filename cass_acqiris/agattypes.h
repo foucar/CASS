@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file lma_file_header.h contains the layout of the lma file headers.
+ * @file agattypes.h contains the layout of the lma file headers.
  *
  * @author Lutz Foucar
  */
@@ -95,7 +95,7 @@ struct Channel
    *
    * the zero substaction will check whether a value of the recorded waveform
    * is outside the noiselevel. Mathematically:
-   * \f \left| value_Du - baseline \right| > noiselevel \f
+   * \f$ \left| value_Du - baseline \right| > noiselevel \f$
    */
   int16_t noiseLevel;
 
@@ -203,7 +203,7 @@ struct Channel
    *
    * the zero substaction will check whether a value of the recorded waveform
    * is outside the noiselevel. Mathematically:
-   * \f \left| value_Du - baseline \right| > noiselevel \f
+   * \f$ \left| value_Du - baseline \right| > noiselevel \f$
    */
   int16_t noiseLevel;
 

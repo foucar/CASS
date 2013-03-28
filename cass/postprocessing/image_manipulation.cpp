@@ -175,8 +175,7 @@ public:
    * sets up the boundaries for the src and dest matrices
    *
    * @param srcCols the number of colums in the src matrix
-   * @param segRows the number of rows that one segement in the src matrix consists
-   *                of.
+   * @param srcRows the number of rows in the src matrix
    * @param destCols the number of columns in the dest matrix.
    */
   SegmentCopier(const int srcCols, const int srcRows, const int destCols)

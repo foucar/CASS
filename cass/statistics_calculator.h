@@ -28,7 +28,7 @@ public:
    *
    * @param datum The datum to be added
    */
-  virtual void addDatum(const float /*datum*/);
+  virtual void addDatum(const float datum);
 
   /** retrieve the mean of the distribution
    *

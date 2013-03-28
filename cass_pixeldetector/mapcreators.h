@@ -165,7 +165,7 @@ public:
 
   /** start the training
    *
-   * @param command the comamnd that the gui issued to this creator
+   * @param unused  (not used)
    */
   void controlCalibration(const std::string& unused);
 

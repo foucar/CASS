@@ -46,7 +46,7 @@ namespace cass
        *
        * @param mcp the time of the mcp signal
        * @param timesum the timesum of the anode layer
-       * @param runtime the time it takes a signal to run across the whole anode
+       * @param maxruntime the time it takes a signal to run across the whole anode
        */
       isInRange(double mcp, double timesum, double maxruntime)
         :_mcp(mcp),_timesum(timesum),_maxruntime(maxruntime)

@@ -86,9 +86,9 @@ struct isNeighbour
  * @param frame Reference to the frame containing the frame data an info about
  *              the coulumns and rows of the frame.
  * @param pixels the list of pixels that should be coalesced
- * @param splitpixellist Reference to the list of pixels that have neighbours
- *                       The event (hit) that all these pixels belong to has been
- *                       split among the pixels in this list.
+ * @param splitpixelslist Reference to the list of pixels that have neighbours
+ *                        The event (hit) that all these pixels belong to has
+ *                        been split among the pixels in this list.
  *
  * @author Lutz Foucar
  */
@@ -207,8 +207,7 @@ Hit coalesce(const CoalescingBase::pixels_t &splitpixelslist)
  *                        detector.
  * @param mipThreshold The threshold above which a pixel is identified as MIP
  *                     signature
- * @param det The detector container that contains the information about this
- *            detector.
+ * @param frame The frame of this detector
  *
  * @author Lutz Foucar
  */

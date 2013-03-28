@@ -1182,7 +1182,7 @@ namespace cass
    *
    * Will quit the program, when called. Make sure that it is only called when
    * you want it to be called by setting the "ConditionName" to something
-   * meaningful. Defaultly "ConditionName is set to "DefaultTrueHist" which
+   * meaningful. Defaultly "ConditionName" is set to "DefaultTrueHist" which
    * will let the program quit immediately
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
@@ -1335,7 +1335,7 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           histogram name for which the mean is calulated.
+   *           histogram name for which the mean is calculated.
    *           Default is blubb
    *
    * @author Lutz Foucar
@@ -1581,7 +1581,7 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Histogram name of the 1d Histogram that we look for the step in.
-   *          Default is 0.
+   *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
    *           Lower and upper limit of the range that we look for the step.
    *           Default is 0|1.

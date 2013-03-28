@@ -2,8 +2,8 @@
 // Copyright (C) 2010 Jochen Küpper
 
 /**
- * @file histogram.h file contains histogram classes declarations and some
- *                   definitions
+ * @file lucassview/histogram.h contains histogram classes declarations and
+ *                              some definitions
  *
  * @author Lutz Foucar
  */
@@ -46,6 +46,7 @@ namespace cass
      * @param nbrBins The Number of Bins the axis contains
      * @param lowerLimit The lower end of the axis
      * @param upperLimit The upper end of the axis
+     * @param title The title of the axis
      */
     AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit, std::string title="")
       : Serializable(2),

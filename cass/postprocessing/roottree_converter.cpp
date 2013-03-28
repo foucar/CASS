@@ -146,6 +146,7 @@ particleskey_t qstring2particle(const QString & qstr)
  *
  * @param first iterator to the first element to copy
  * @param last const iterator to one past the last element to copy
+ * @param dest the destination where the elements will be copied to
  *
  * @author Lutz Foucar
  */

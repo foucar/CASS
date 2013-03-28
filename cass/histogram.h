@@ -3,7 +3,7 @@
 // Copyright (C) 2011 Stephan kassemeyer
 
 /**
- * @file histogram.h file contains histogram classes declarations and some
+ * @file cass/histogram.h file contains histogram classes declarations and some
  *                   definitions
  *
  * @author Lutz Foucar
@@ -53,11 +53,14 @@ class CASSSHARED_EXPORT AxisProperty : public Serializable
 public:
 
     /** Constructor.
+     *
      * will set the properties in the initializtion list. Will also set the version
      * for the de / serialization.
+     *
      * @param nbrBins The Number of Bins the axis contains
      * @param lowerLimit The lower end of the axis
      * @param upperLimit The upper end of the axis
+     * @param title The title of the axis
      */
   AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit, std::string title="")
         : Serializable(2),

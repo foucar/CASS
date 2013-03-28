@@ -41,7 +41,6 @@ namespace cass
   {
     /** constructor
      *
-     * @param availConv reference to the available converters container
      * @param usedConv reference to the used converters container
      */
     activate(FormatConverter::usedConverters_t &usedConv)
@@ -53,7 +52,7 @@ namespace cass
      * retrieves the list of pds ids that the converter type is responsible for
      * then adds the converter to used converters container for all retrieved ids
      *
-     * @param qtype the type of converter that should be activated
+     * @param type the type of converter that should be activated
      */
     void operator()(const QString& type)
     {
