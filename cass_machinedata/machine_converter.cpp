@@ -37,18 +37,34 @@ cass::ConversionBackend::shared_pointer Converter::instance()
 // ========================================================
 
 
-/** Use the code copied from matt weaver to extract the value from the epicsheader */
-#define CASETOVAL(timetype,valtype) case timetype: {			\
-  const Pds::EpicsPvTime<valtype>& p = static_cast<const Pds::EpicsPvTime<valtype>&>(epicsData); \
-  const Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value = &p.value;	\
-  for(int i=0; i<epicsData.iNumElements; i++) \
-  it++->second = *value++;\
-  break; }
-
 namespace cass
 {
 namespace MachineData
 {
+/** convert epics variable to double
+ *
+ * convert the value contained in the Epics variable to a double and fill it
+ * into the map. One has to define beforehand where to add it and pass the right
+ * iterator to the function
+ *
+ * @tparam valtype the value type of the epics variable
+ * @param epicsData the object that contains the epics data
+ * @param first iterator to the first entry in the map that needs to be filled
+ *
+ * @author Lutz Foucar
+ */
+template <int valtype>
+void convertEpicsToDouble(const Pds::EpicsPvHeader& epicsData,
+                          MachineDataDevice::epicsDataMap_t::iterator first)
+{
+  const Pds::EpicsPvTime<valtype> &p
+      (reinterpret_cast<const Pds::EpicsPvTime<valtype>&>(epicsData));
+  const typename Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value(&p.value);
+  for(int i=0; i<epicsData.iNumElements; ++i)
+    first++->second = *value++;
+}
+
+
 /** Key for the epics lookup map
  *
  * Key for mapping Epics index and list to a specific name
@@ -273,12 +289,23 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       {
         switch(epicsData.iDbrType)
         {
-        CASETOVAL(DBR_TIME_SHORT ,DBR_SHORT)
-            CASETOVAL(DBR_TIME_FLOAT ,DBR_FLOAT)
-            CASETOVAL(DBR_TIME_ENUM  ,DBR_ENUM)
-            CASETOVAL(DBR_TIME_LONG  ,DBR_LONG)
-            CASETOVAL(DBR_TIME_DOUBLE,DBR_DOUBLE)
-            default: break;
+        case DBR_TIME_SHORT:
+          convertEpicsToDouble<DBR_SHORT>(epicsData,it);
+          break;
+        case DBR_TIME_FLOAT:
+          convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
+          break;
+        case DBR_TIME_ENUM:
+          convertEpicsToDouble<DBR_ENUM>(epicsData,it);
+          break;
+        case DBR_TIME_LONG:
+          convertEpicsToDouble<DBR_LONG>(epicsData,it);
+          break;
+        case DBR_TIME_DOUBLE:
+          convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
+          break;
+        default:
+          break;
         }
       }
     }
