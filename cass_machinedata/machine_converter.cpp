@@ -72,88 +72,94 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   switch (xtc->contains.id())
   {
   case(Pds::TypeId::Id_FEEGasDetEnergy):
-    {
-      const Pds::BldDataFEEGasDetEnergy &gasdet = 
+  {
+    const Pds::BldDataFEEGasDetEnergy &gasdet =
         *reinterpret_cast<const Pds::BldDataFEEGasDetEnergy*>(xtc->payload());
-      md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
-      md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
-      md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
-      md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
-      break;
-    }
+    md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
+    md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
+    md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
+    md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
+    break;
+  }
   case(Pds::TypeId::Id_EBeam):
-    {
-      uint32_t version (xtc->contains.version());
-      const Pds::BldDataEBeam &beam = 
+  {
+    uint32_t version (xtc->contains.version());
+    const Pds::BldDataEBeam &beam =
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
-      if (beam.uDamageMask)
+    if (beam.uDamageMask)
+    {
+      for(size_t i(0); i<Pds::BldDataEBeam::nbrOf; ++i)
       {
-        for(size_t i(0); i<Pds::BldDataEBeam::nbrOf; ++i)
-        {
-          if ((0x1 << i) & beam.uDamageMask)
-            Log::add(Log::WARNING,"'" +
-                     string(Pds::BldDataEBeam::name(static_cast<Pds::BldDataEBeam::varname>(i))) +
-                     "' is damaged");
-        }
+        if ((0x1 << i) & beam.uDamageMask)
+          Log::add(Log::WARNING,"'" +
+                   string(Pds::BldDataEBeam::name(static_cast<Pds::BldDataEBeam::varname>(i))) +
+                   "' is damaged");
       }
-      switch (version)
-      {
-      case (3):
-        {
-          if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC1) & beam.uDamageMask))
-            md->BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC1) & beam.uDamageMask))
-            md->BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
-        }
-      case (2):
-        {
-          if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC2) & beam.uDamageMask))
-            md->BeamlineData()["fEbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
-        }
-      case (1):
-        {
-          if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC2) & beam.uDamageMask))
-            md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
-        }
-      case (0):
-        {
-          if(!((0x1 << Pds::BldDataEBeam::EbeamCharge) & beam.uDamageMask))
-            md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamL3Energy) & beam.uDamageMask))
-            md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngX) & beam.uDamageMask))
-            md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngY) & beam.uDamageMask))
-            md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosX) & beam.uDamageMask))
-            md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
-          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosY) & beam.uDamageMask))
-            md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
-        }
-      default:
-        break;
-      }
+    }
+    switch (version)
+    {
+    case (3):
+    {
+      if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC1) & beam.uDamageMask))
+        md->BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC1) & beam.uDamageMask))
+        md->BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
+    }
+    case (2):
+    {
+      if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC2) & beam.uDamageMask))
+        md->BeamlineData()["fEbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
+    }
+    case (1):
+    {
+      if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC2) & beam.uDamageMask))
+        md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
+    }
+    case (0):
+    {
+      if(!((0x1 << Pds::BldDataEBeam::EbeamCharge) & beam.uDamageMask))
+        md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamL3Energy) & beam.uDamageMask))
+        md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngX) & beam.uDamageMask))
+        md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngY) & beam.uDamageMask))
+        md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosX) & beam.uDamageMask))
+        md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
+      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosY) & beam.uDamageMask))
+        md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
+    }
+    default:
       break;
     }
+    break;
+  }
   case(Pds::TypeId::Id_PhaseCavity):
-    {
-      const Pds::BldDataPhaseCavity &cavity = 
+  {
+    const Pds::BldDataPhaseCavity &cavity =
         *reinterpret_cast<const Pds::BldDataPhaseCavity*>(xtc->payload());
-      md->BeamlineData()["Charge1"]  = cavity.fCharge1;
-      md->BeamlineData()["Charge2"]  = cavity.fCharge2;
-      md->BeamlineData()["FitTime1"] = cavity.fFitTime1;
-      md->BeamlineData()["FitTime2"] = cavity.fFitTime2;
-      break;
-    }
+    md->BeamlineData()["Charge1"]  = cavity.fCharge1;
+    md->BeamlineData()["Charge2"]  = cavity.fCharge2;
+    md->BeamlineData()["FitTime1"] = cavity.fFitTime1;
+    md->BeamlineData()["FitTime2"] = cavity.fFitTime2;
+    break;
+  }
   case(Pds::TypeId::Id_Epics):
+  {
+    const Pds::DetInfo& info((Pds::DetInfo&)(xtc->src));
+    if (info.detector() == Pds::DetInfo::AmoEndstation &&
+        info.detId() == 1 &&
+        info.device() == Pds::DetInfo::Opal1000 &&
+        info.devId() == 0)
     {
-      const Pds::EpicsPvHeader& epicsData = 
-        *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
+      const Pds::EpicsPvHeader& epicsData =
+          *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
       /** cntrl is a configuration type and will only be send with a configure transition */
       if ( dbr_type_is_CTRL(epicsData.iDbrType) )
       {
-        const Pds::EpicsPvCtrlHeader& ctrl = 
-          static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
+        const Pds::EpicsPvCtrlHeader& ctrl =
+            static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
         /** record what name the pvId has, this help later to find the name, which is the index of map in machineevent */
         _index2name[ctrl.iPvId] = ctrl.sPvName;
         /** now we need to create the map which we will fill later with real values
@@ -198,8 +204,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
          *  this returns an iterator to the first entry we found
          *  if it was an array we can then use the iterator to the next values
          */
-        MachineDataDevice::epicsDataMap_t::iterator it = 
-          _store.EpicsData().find(name);
+        MachineDataDevice::epicsDataMap_t::iterator it =
+            _store.EpicsData().find(name);
         /** if the name is not in the map, ouput error message */
         if (it == _store.EpicsData().end())
           Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
@@ -209,80 +215,81 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         {
           switch(epicsData.iDbrType)
           {
-            CASETOVAL(DBR_TIME_SHORT ,DBR_SHORT)
+          CASETOVAL(DBR_TIME_SHORT ,DBR_SHORT)
               CASETOVAL(DBR_TIME_FLOAT ,DBR_FLOAT)
               CASETOVAL(DBR_TIME_ENUM  ,DBR_ENUM)
               CASETOVAL(DBR_TIME_LONG  ,DBR_LONG)
               CASETOVAL(DBR_TIME_DOUBLE,DBR_DOUBLE)
-          default: break;
+              default: break;
           }
         }
       }
-      break;
     }
+    break;
+  }
   case(Pds::TypeId::Id_EvrData):
+  {
+    /** clear the status bytes of the event code */
+    std::fill(md->EvrData().begin(),md->EvrData().end(),false);
+    /** get the evr data */
+    const Pds::EvrData::DataV3 &evrData =
+        *reinterpret_cast<const Pds::EvrData::DataV3*>(xtc->payload());
+    /** how many events have happened between the last event and now */
+    const uint32_t nbrFifoEvents = evrData.numFifoEvents();
+    /** go through all events and extract the eventcode from them */
+    for (size_t i=0;i<nbrFifoEvents;++i)
     {
-      /** clear the status bytes of the event code */
-      std::fill(md->EvrData().begin(),md->EvrData().end(),false);
-      /** get the evr data */
-      const Pds::EvrData::DataV3 &evrData =
-          *reinterpret_cast<const Pds::EvrData::DataV3*>(xtc->payload());
-      /** how many events have happened between the last event and now */
-      const uint32_t nbrFifoEvents = evrData.numFifoEvents();
-      /** go through all events and extract the eventcode from them */
-      for (size_t i=0;i<nbrFifoEvents;++i)
-      {
-        const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
-        uint32_t eventcode = fifoEvent.EventCode;
-        /** check if the array is big enough to hold the recorded eventcode */
-        if (md->EvrData().size() < eventcode )
-          md->EvrData().resize(eventcode+1,false);
-        md->EvrData()[eventcode]=true;
-      }
+      const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
+      uint32_t eventcode = fifoEvent.EventCode;
+      /** check if the array is big enough to hold the recorded eventcode */
+      if (md->EvrData().size() < eventcode )
+        md->EvrData().resize(eventcode+1,false);
+      md->EvrData()[eventcode]=true;
     }
-  break;
+  }
+    break;
   case(Pds::TypeId::Id_IpimbData):
-    {
-      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      string detector(Pds::DetInfo::name(info.detector()));
-      const Pds::Ipimb::DataV2& ipimbData =
-          *reinterpret_cast<const Pds::Ipimb::DataV2*>(xtc->payload());
-      md->BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
-      md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
-      md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
-      md->BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
-    }
-  break;
+  {
+    const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+    string detector(Pds::DetInfo::name(info.detector()));
+    const Pds::Ipimb::DataV2& ipimbData =
+        *reinterpret_cast<const Pds::Ipimb::DataV2*>(xtc->payload());
+    md->BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
+    md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
+    md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
+    md->BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
+  }
+    break;
 
 
   case(Pds::TypeId::Id_IpmFex):
+  {
+    const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+    string detector(Pds::DetInfo::name(info.detector()));
+    const Pds::Lusi::IpmFexV1& ipmfex =
+        *reinterpret_cast<const Pds::Lusi::IpmFexV1*>(xtc->payload());
+    for(size_t i=0; i<Pds::Lusi::IpmFexConfigV2::NCHANNELS; i++)
     {
-      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      string detector(Pds::DetInfo::name(info.detector()));
-      const Pds::Lusi::IpmFexV1& ipmfex =
-          *reinterpret_cast<const Pds::Lusi::IpmFexV1*>(xtc->payload());
-      for(size_t i=0; i<Pds::Lusi::IpmFexConfigV2::NCHANNELS; i++)
-      {
-        stringstream ss;
-        ss << detector << "_CorrectChannel" << i;
-        md->BeamlineData()[ss.str()] = ipmfex.channel[i];
-      }
-      md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
-      md->BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
-      md->BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
+      stringstream ss;
+      ss << detector << "_CorrectChannel" << i;
+      md->BeamlineData()[ss.str()] = ipmfex.channel[i];
     }
-  break;
+    md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
+    md->BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
+    md->BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
+  }
+    break;
 
   case(Pds::TypeId::Id_ControlConfig):
   {
-      const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload()); 
-      for (unsigned int i = 0; i < config.npvControls(); i++) 
-      {
-        const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
-        _pvStore[pvControlCur.name()] = pvControlCur.value();
-      }
+    const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
+    for (unsigned int i = 0; i < config.npvControls(); i++)
+    {
+      const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
+      _pvStore[pvControlCur.name()] = pvControlCur.value();
+    }
   }
-  break;
+    break;
 
   default: break;
   }
