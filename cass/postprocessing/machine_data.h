@@ -169,8 +169,11 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
-   *           Default is "". Please aks your PI which EPICS variables have been
-   *           put into the datastream for archiving.
+   *           Default is "".  If the EPICS variable is not part of the standart
+   *           list, but contained in an additional list, you have to prepend
+   *           the additional lists name to the epics variable. For a complete
+   *           list of available variables, please look into the casslog, when
+   *           the logging level is set to INFO
    *
    * @author Lutz Foucar
    */

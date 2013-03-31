@@ -45,6 +45,56 @@ cass::ConversionBackend::shared_pointer Converter::instance()
   it++->second = *value++;\
   break; }
 
+namespace cass
+{
+namespace MachineData
+{
+/** Key for the epics lookup map
+ *
+ * Key for mapping Epics index and list to a specific name
+ *
+ * @author Lutz Foucar
+ */
+class EpicsKey
+{
+public:
+  /** constructor
+   *
+   * @param src the info about the source of the epics list
+   * @param epicsIdx the index of the epics variable in the list
+   */
+  EpicsKey(const Pds::Src &src, int epicsIdx)
+    : _phy(src.phy()),
+      _idx(epicsIdx)
+  {}
+
+  /** check whether this is less than other
+   *
+   * will compare for less first _log. If this is the same it will
+   * compare for less the _phys value and last the _index value. This makes sure
+   * that the Id is unique.
+   *
+   * @return true when this is smaller than other
+   * @param other the other key that one compares this key to
+   */
+  bool operator <(const EpicsKey& other) const
+  {
+    if (_phy != other._phy)
+      return _phy < other._phy;
+    return _idx < other._idx;
+  }
+
+private:
+  /** the phy of the src */
+  uint32_t _phy;
+
+  /** the index of the epics variable */
+  int16_t _idx;
+
+};
+}//end namespace MachineData
+}//end namespace cass
+
 Converter::Converter()
 {
   _pdsTypeList.push_back(Pds::TypeId::Id_Epics);
@@ -147,81 +197,88 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }
   case(Pds::TypeId::Id_Epics):
   {
-    const Pds::DetInfo& info((Pds::DetInfo&)(xtc->src));
-    if (info.detector() == Pds::DetInfo::AmoEndstation &&
-        info.detId() == 1 &&
-        info.device() == Pds::DetInfo::Opal1000 &&
-        info.devId() == 0)
+    const Pds::EpicsPvHeader& epicsData =
+        *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
+    /** cntrl is a configuration type and will only be send with a configure transition */
+    if ( dbr_type_is_CTRL(epicsData.iDbrType) )
     {
-      const Pds::EpicsPvHeader& epicsData =
-          *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
-      /** cntrl is a configuration type and will only be send with a configure transition */
-      if ( dbr_type_is_CTRL(epicsData.iDbrType) )
+      const Pds::EpicsPvCtrlHeader& ctrl =
+          static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
+      /** create a key for the epics list and index. If this is an additional
+       *  list, prepend the detInfo to the epics variable name
+       */
+      const Pds::DetInfo& info((Pds::DetInfo&)(xtc->src));
+      EpicsKey key(xtc->src,ctrl.iPvId);
+      string epicsVariableName(ctrl.sPvName);
+      if (!(info.detector() == Pds::DetInfo::EpicsArch &&
+          info.detId() == 0 &&
+          info.device() == Pds::DetInfo::NoDevice &&
+          info.devId() == 0))
       {
-        const Pds::EpicsPvCtrlHeader& ctrl =
-            static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
-        /** record what name the pvId has, this help later to find the name, which is the index of map in machineevent */
-        _index2name[ctrl.iPvId] = ctrl.sPvName;
-        /** now we need to create the map which we will fill later with real values
-         *  if this epics variable is an array we want an entry in the map for each entry in the array
+        string detinfostring(Pds::DetInfo::name(info));
+        epicsVariableName = detinfostring + "_" + epicsVariableName;
+      }
+      _index2name[key] = epicsVariableName;
+      /** now we need to create the map which we will fill later with real values
+       *  if this epics variable is an array we want an entry in the map for each entry in the array
+       */
+      if (ctrl.iNumElements > 1)
+      {
+        /** go through all entries of the array
+         *  create an entry in the map with the the index in brackets
+         *  and initialize it with 0
          */
-        if (ctrl.iNumElements > 1)
+        for (int i=0;i<ctrl.iNumElements;++i)
         {
-          /** go through all entries of the array
-           *  create an entry in the map with the the index in brackets
-           *  and initialize it with 0
-           */
-          for (int i=0;i<ctrl.iNumElements;++i)
-          {
-            std::stringstream entryname;
-            entryname << ctrl.sPvName << "[" << i << "]";
-            _store.EpicsData()[entryname.str()] = 0.;
-            Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
-                     "' is available in Epics Data");;
-          }
-        }
-        /** otherwise we just add the name to the map and initialze it with 0 */
-        else
-        {
-          _store.EpicsData()[ctrl.sPvName] = 0.;
-          Log::add(Log::INFO,"MachineData::Converter: '" + toString(ctrl.sPvName) +
-                   "' is available in Epics Data");
+          std::stringstream entryname;
+          entryname << epicsVariableName << "[" << i << "]";
+          _store.EpicsData()[entryname.str()] = 0.;
+          Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
+                   "' is available in Epics Data");;
         }
       }
-      /** time is the actual data, that will be send down the xtc with 1 Hz */
-      else if(dbr_type_is_TIME(epicsData.iDbrType))
+      /** otherwise we just add the name to the map and initialze it with 0 */
+      else
       {
-        /** now we need to find the variable name in the map
-         *  therefore we look up the name in the indexmap
-         */
-        std::string name = _index2name[epicsData.iPvId];
-        /** if it is an array we added the braces with the array index before,
-         *  so we need to add it also now before trying to find the name in the map
-         */
-        if (epicsData.iNumElements > 1)
-          name.append("[0]");
-        /** try to find the the name in the map
-         *  this returns an iterator to the first entry we found
-         *  if it was an array we can then use the iterator to the next values
-         */
-        MachineDataDevice::epicsDataMap_t::iterator it =
-            _store.EpicsData().find(name);
-        /** if the name is not in the map, ouput error message */
-        if (it == _store.EpicsData().end())
-          Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
-                   toString(epicsData.iPvId) + "' was not defined");
-        /** otherwise extract the epicsData and write it into the map */
-        else
+        _store.EpicsData()[epicsVariableName] = 0.;
+        Log::add(Log::INFO,"MachineData::Converter: '" + epicsVariableName +
+                 "' is available in Epics Data");
+      }
+    }
+    /** time is the actual data, that will be send down the xtc with 1 Hz */
+    else if(dbr_type_is_TIME(epicsData.iDbrType))
+    {
+      /** now we need to find the variable name in the map, therefore we look up
+       *  the name in the indexmap
+       */
+      EpicsKey key(xtc->src,epicsData.iPvId);
+      string name(_index2name[key]);
+      /** if it is an array we added the braces with the array index before,
+       *  so we need to add it also now before trying to find the name in the map
+       */
+      if (epicsData.iNumElements > 1)
+        name.append("[0]");
+      /** try to find the the name in the map
+       *  this returns an iterator to the first entry we found
+       *  if it was an array we can then use the iterator to the next values
+       */
+      MachineDataDevice::epicsDataMap_t::iterator it =
+          _store.EpicsData().find(name);
+      /** if the name is not in the map, ouput error message */
+      if (it == _store.EpicsData().end())
+        Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
+                 toString(epicsData.iPvId) + "' was not defined");
+      /** otherwise extract the epicsData and write it into the map */
+      else
+      {
+        switch(epicsData.iDbrType)
         {
-          switch(epicsData.iDbrType)
-          {
-          CASETOVAL(DBR_TIME_SHORT ,DBR_SHORT)
-              CASETOVAL(DBR_TIME_FLOAT ,DBR_FLOAT)
-              CASETOVAL(DBR_TIME_ENUM  ,DBR_ENUM)
-              CASETOVAL(DBR_TIME_LONG  ,DBR_LONG)
-              CASETOVAL(DBR_TIME_DOUBLE,DBR_DOUBLE)
-              default: break;
-          }
+        CASETOVAL(DBR_TIME_SHORT ,DBR_SHORT)
+            CASETOVAL(DBR_TIME_FLOAT ,DBR_FLOAT)
+            CASETOVAL(DBR_TIME_ENUM  ,DBR_ENUM)
+            CASETOVAL(DBR_TIME_LONG  ,DBR_LONG)
+            CASETOVAL(DBR_TIME_DOUBLE,DBR_DOUBLE)
+            default: break;
         }
       }
     }
