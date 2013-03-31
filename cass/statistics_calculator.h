@@ -22,7 +22,7 @@ public:
   StatisticsCalculator() {}
 
   /** virtual default destructor */
-  ~StatisticsCalculator() {}
+  virtual ~StatisticsCalculator() {}
 
   /** add a datum to the distribution
    *
