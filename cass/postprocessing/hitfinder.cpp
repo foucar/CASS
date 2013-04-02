@@ -241,26 +241,35 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   {
     for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
     {
+      /** only consider pixels that are not in the origin of the box */
       if (bRow == 0 && bCol == 0)
         continue;
 
+      /** check if the current box pixel value is bigger than the center pixel
+       *  value. If so skip this pixel
+       */
       const int bLocIdx(bRow*ncols+bCol);
       const float bPixel(pixel[bLocIdx]);
-
       if(*pixel < bPixel )
         return skip;
 
+      /** if box pixel is outside the radius and not bad, calculate the mean and
+       *  standart deviation from these pixels
+       */
+      const bool pixIsBad(qFuzzyIsNull(bPixel));
       const int radiussq(bRow*bRow + bCol*bCol);
-      if (_peakRadiusSq < radiussq)
+      if (_peakRadiusSq < radiussq && !pixIsBad)
       {
-        if (qFuzzyIsNull(bPixel))
-          return skip;
-
         ++count;
         const float old_mean(tmp_mean);
         tmp_mean += ((bPixel - old_mean) / static_cast<float>(count));
         tmp_stdv += ((bPixel - old_mean)*(bPixel - tmp_mean));
       }
+      /** if the current pixel is within the radius check if it is a bad pixel
+       *  if so, then skip this pixel
+       */
+      else if (pixIsBad)
+        return skip;
     }
   }
   mean = tmp_mean;
