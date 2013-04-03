@@ -616,10 +616,9 @@ namespace cass
 
   /** 0D,1D or 2D to 1D histogramming.
    *
-   * histograms all values of 0D, 1D or 2D into a 1D Histogram. The number of
-   * fills of the resulting histogram will only increased by one for each time
-   * this PostProcessor is called. Thus this number represent the number of
-   * events that have been accumulated in the resulting histogram.
+   * histograms all values of 0D, 1D or 2D into a 1D Histogram. This histogram
+   * holds only the histogrammed values of one event. Use PostProcessors 61 or
+   * 62 to average or sum up this histogram, respectively.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.

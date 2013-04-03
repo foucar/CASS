@@ -840,7 +840,7 @@ void pp60::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers,true);
+  createHistList(2*cass::NbrOfWorkers);
   Log::add(Log::INFO,"Postprocessor '" + _key +
       "' histograms values from PostProcessor '" +  _pHist->key() +
       "'. Condition on PostProcessor '" + _condition->key() + "'");
@@ -859,12 +859,11 @@ void pp60::process(const CASSEvent& evt)
   hist.lock.lockForRead();
   result.lock.lockForWrite();
 
-  const size_t nFill(result.nbrOfFills());
-
+  result.clear();
   for (; value != histEnd; ++value)
     result.fill(*value);
 
-  result.nbrOfFills() = (nFill + 1);
+  result.nbrOfFills() = 1;
 
   result.lock.unlock();
   hist.lock.unlock();
