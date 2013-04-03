@@ -119,7 +119,7 @@ void pp73::process(const cass::CASSEvent& evt)
   const Histogram2DFloat& table
       (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
   const HistogramFloatBase::storage_t &tableContents(table.memory());
-  HistogramFloatBase::storage_t::const_iterator tableBegin(tableContents.begin());
+  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
 
   table.lock.lockForRead();
@@ -130,13 +130,14 @@ void pp73::process(const cass::CASSEvent& evt)
   const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
   const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
 
-  HistogramFloatBase::storage_t row;
+  HistogramFloatBase::storage_t rows;
   for (size_t rowIdx=0; rowIdx < nRows; ++rowIdx)
   {
-    row.assign(tableBegin + rowIdx*nCols, tableBegin + rowIdx*nCols + nCols);
-    if(_bounds.first <= row[_colIdx] && row[_colIdx] < _bounds.second)
-      result.appendRows(row);
+    if(_bounds.first <= tableIt[_colIdx] && tableIt[_colIdx] < _bounds.second)
+      rows.insert(rows.end(),tableIt,tableIt+nCols);
+    tableIt += nCols;
   }
+  result.appendRows(rows);
 
   result.nbrOfFills()=1;
   result.lock.unlock();
