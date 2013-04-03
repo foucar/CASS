@@ -1233,7 +1233,7 @@ void pp65::loadSettings(size_t)
       _two->getHist(0).dimension() != 0)
     throw std::runtime_error("PP type 65: Either HistOne or HistTwo is not a 0D Hist");
   set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers,true);
+  createHistList(2*cass::NbrOfWorkers);
   Log::add(Log::INFO,"Postprocessor '" + _key +
       "': histograms values from PostProcessor '" +  _one->key() +"' and '" +
       _two->key() + ". condition on PostProcessor '" + _condition->key() + "'");
@@ -1249,7 +1249,7 @@ void pp65::process(const CASSEvent& evt)
   two.lock.lockForRead();
   _result->lock.lockForWrite();
   dynamic_cast<Histogram2DFloat*>(_result)->fill(one.getValue(),two.getValue());
-  ++_result->nbrOfFills();
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   two.lock.unlock();
   one.lock.unlock();

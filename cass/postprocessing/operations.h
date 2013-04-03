@@ -829,7 +829,9 @@ namespace cass
 
   /** 0D to 2D histogramming.
    *
-   * histograms two 0d values into one 2D Histogram
+   * histograms two 0d values into one 2D Histogram. The resulting histogram
+   * contains only the information from the current event. To get an average or
+   * sum use PostProcessor 61 or 62.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
