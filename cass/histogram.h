@@ -834,11 +834,14 @@ public:
                                   const size_t maxRadius,
                                   const size_t nbrAngleBins) const;
 
-    /** add a row to the histogram that is beeing used as a table
+    /** append row(s) to the histogram that is beeing used as a table
      *
-     * @param row the row to be added
+     * append a number of rows to then end of the table. Checks if the size of
+     * the appended vector is modulo the x-size of the table.
+     *
+     * @param rows the row(s) to be added
      */
-    void addRow(const HistogramFloatBase::storage_t &row);
+    void appendRows(const HistogramFloatBase::storage_t &rows);
 
     /** clear the table */
     void clearTable();

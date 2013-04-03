@@ -135,7 +135,7 @@ void pp73::process(const cass::CASSEvent& evt)
   {
     row.assign(tableBegin + rowIdx*nCols, tableBegin + rowIdx*nCols + nCols);
     if(_bounds.first <= row[_colIdx] && row[_colIdx] < _bounds.second)
-      result.addRow(row);
+      result.appendRows(row);
   }
 
   result.nbrOfFills()=1;

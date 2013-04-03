@@ -267,16 +267,16 @@ Histogram2DFloat Histogram2DFloat::convert2RPhi(const std::pair<size_t,size_t> &
   return hist;
 }
 
-void Histogram2DFloat::addRow(const HistogramFloatBase::storage_t &row)
+void Histogram2DFloat::appendRows(const HistogramFloatBase::storage_t &rows)
 {
   using namespace std;
-  if (row.size() != _axis[xAxis].size())
+  if (rows.size() % _axis[xAxis].size())
     throw runtime_error("Histogram2DFloat::addRow: The rowsize '"+
-                        toString(row.size()) + "' that should be added to the " +
-                        "table is inconsistent with the rowsize of the table '" +
+                        toString(rows.size()) + "' that should be added to the " +
+                        "table is not a modulo of the rowsize of the table '" +
                         toString(_axis[xAxis].size()));
-  _axis[yAxis].setSize(_axis[yAxis].size() + 1,true);
-  _memory.insert(_memory.end(),row.begin(),row.end());
+  _axis[yAxis].setSize(_axis[yAxis].size() + (rows.size()/_axis[xAxis].size()),true);
+  _memory.insert(_memory.end(),rows.begin(),rows.end());
 }
 
 void Histogram2DFloat::clearTable()

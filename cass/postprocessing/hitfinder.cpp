@@ -416,7 +416,7 @@ void pp204::process(const CASSEvent &evt)
     peak[LocalBackgroundDeviation] = stdv;
     peak[nbrOfBackgroundPixels] = count;
 
-    result.addRow(peak);
+    result.appendRows(peak);
 
 //    ++counter_rad;
 //    const float oldradius_mean(radius_mean);
