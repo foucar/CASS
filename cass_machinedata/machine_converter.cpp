@@ -213,9 +213,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }
   case(Pds::TypeId::Id_Epics):
   {
+    /** get the epics header and the epics id for this epics variable */
     const Pds::EpicsPvHeader& epicsData =
         *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
-    /** cntrl is a configuration type and will only be send with a configure transition */
+    EpicsKey key(xtc->src,epicsData.iPvId);
+
+    /** cntrl is a configuration type and will only be send with a configure
+     *  transition
+     */
     if ( dbr_type_is_CTRL(epicsData.iDbrType) )
     {
       const Pds::EpicsPvCtrlHeader& ctrl =
@@ -223,17 +228,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       /** create a key for the epics list and index. If this is an additional
        *  list, prepend the detInfo to the epics variable name
        */
-      const Pds::DetInfo& info((Pds::DetInfo&)(xtc->src));
-      EpicsKey key(xtc->src,ctrl.iPvId);
       string epicsVariableName(ctrl.sPvName);
-      if (!(info.detector() == Pds::DetInfo::EpicsArch &&
-          info.detId() == 0 &&
-          info.device() == Pds::DetInfo::NoDevice &&
-          info.devId() == 0))
-      {
-        string detinfostring(Pds::DetInfo::name(info));
-        epicsVariableName = detinfostring + "_" + epicsVariableName;
-      }
       _index2name[key] = epicsVariableName;
       /** now we need to create the map which we will fill later with real values
        *  if this epics variable is an array we want an entry in the map for each entry in the array
@@ -267,19 +262,18 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       /** now we need to find the variable name in the map, therefore we look up
        *  the name in the indexmap
        */
-      EpicsKey key(xtc->src,epicsData.iPvId);
-      string name(_index2name[key]);
+      string epicsVariableName(_index2name[key]);
       /** if it is an array we added the braces with the array index before,
        *  so we need to add it also now before trying to find the name in the map
        */
       if (epicsData.iNumElements > 1)
-        name.append("[0]");
+        epicsVariableName.append("[0]");
       /** try to find the the name in the map
        *  this returns an iterator to the first entry we found
        *  if it was an array we can then use the iterator to the next values
        */
       MachineDataDevice::epicsDataMap_t::iterator it =
-          _store.EpicsData().find(name);
+          _store.EpicsData().find(epicsVariableName);
       /** if the name is not in the map, ouput error message */
       if (it == _store.EpicsData().end())
         Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
