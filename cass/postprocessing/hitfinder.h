@@ -8,6 +8,8 @@
 #ifndef _HITFINDER_H_
 #define _HITFINDER_H_
 
+#include <tr1/functional>
+
 #include "backend.h"
 #include "cass_event.h"
 #include "histogram.h"
@@ -86,12 +88,14 @@ private:
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
  * @cassttng PostProcessor/\%name\%/{Threshold} \n
+ * @cassttng PostProcessor/\%name\%/{FunctionType} \n
  * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
  * @cassttng PostProcessor/\%name\%/{MinNbrBackgrndPixels} \n
  * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
+ * @cassttng PostProcessor/\%name\%/Input/{size} \n
+ * @cassttng PostProcessor/\%name\%/Input/\%id\%/{Name} \n
  *
  * @author Lutz Foucar
- * @author Wolfgang Kabsch
  */
 class pp204 : public PostprocessorBackend
 {
@@ -106,7 +110,45 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** typedefinintio for container for all pp  */
+  typedef std::vector<std::pair<PostprocessorBackend*, const HistogramFloatBase*> > resources_t;
+
+  /** container for all pp that are needed for processing */
+  resources_t _resources;
+
+  /** definition of the table */
+  typedef HistogramFloatBase::storage_t table_t;
+
+  /** enum describing the contents of the resulting table */
+  enum ColumnNames
+  {
+    Intensity                 =  0,
+    centroidColumn            =  1,
+    centroidRow               =  2,
+    nbrOfPixels               =  3,
+    SignalToNoise             =  4,
+    Index                     =  5,
+    Column                    =  6,
+    Row                       =  7,
+    LocalBackground           =  8,
+    LocalBackgroundDeviation  =  9,
+    nbrOfBackgroundPixels     = 10,
+    MaxRadius                 = 11,
+    MinRadius                 = 12,
+    MaxADU                    = 13,
+    nbrOf
+  };
+
+  /** the function object that will be called to process the event */
+  std::tr1::function<void(void)> _process;
+
+protected:
+  /** find bragg peaks in image using signal to noise ratio */
+  void SNR();
+
   /** check highest pixel and generate the mean and standart deviation
+   *
+   * function is used in SNR peak finder
    *
    * Check if the center pixel is heigher than all other pixels in the box. If
    * this is the case return 0. If there is at least one pixel whos value is
@@ -126,9 +168,6 @@ protected:
   int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator centerPixel,
                        const int nColumns,
                        float &mean, float &stdv, int &count);
-
-  /** pp containing 2d histogram */
-  PostprocessorBackend *_hist;
 
   /** the size of the box within which the peak should lie */
   std::pair<int,int> _box;
@@ -151,28 +190,6 @@ protected:
   float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
   int counter,counterall,counter_rad;
 
-  /** enum describing the contents of a bragg peak */
-  enum PeakParams
-  {
-    Intensity                 =  0,
-    centroidColumn            =  1,
-    centroidRow               =  2,
-    nbrOfPixels               =  3,
-    SignalToNoise             =  4,
-    Index                     =  5,
-    Column                    =  6,
-    Row                       =  7,
-    LocalBackground           =  8,
-    LocalBackgroundDeviation  =  9,
-    nbrOfBackgroundPixels     = 10,
-    MaxRadius                 = 11,
-    MinRadius                 = 12,
-    MaxADU                    = 13,
-    nbrOf
-  };
-
-  /** definition of a bragg peak */
-  typedef HistogramFloatBase::storage_t BraggPeak;
 };
 
 
@@ -196,6 +213,8 @@ protected:
  * @cassttng PostProcessor/\%name\%/{DrawPixelValue} \n
  * @cassttng PostProcessor/\%name\%/{Radius} \n
  * @cassttng PostProcessor/\%name\%/{IndexColumn} \n
+ * @cassttng PostProcessor/\%name\%/{DrawCircle} \n
+ * @cassttng PostProcessor/\%name\%/{DrawBox} \n
  *
  *
  * @author Lutz Foucar

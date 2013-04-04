@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace cass;
+using tr1::bind;
 
 
 // ********** Postprocessor 203: subtract local background ************
@@ -209,24 +210,87 @@ void pp204::loadSettings(size_t)
 
   setupGeneral();
 
-  // Get the input
-  _hist = setupDependency("HistName");
+  /** set up the user defined resources and condition, skip if they have not
+   *  been setup yet
+   */
+  bool allDepsAreThere(true);
+  int size = s.beginReadArray("Input");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    if (!pp)
+      break;
+    const HistogramFloatBase * hist(dynamic_cast<const HistogramFloatBase*>(&(pp->getHist(0))));
+    _resources.push_back(make_pair(pp,hist));
+  }
   bool ret (setupCondition());
-  if (!(_hist && ret)) return;
+  if (!(allDepsAreThere && ret))
+  {
+    _resources.clear();
+    return;
+  }
 
-  // Create the output
+  /** set up the function that will be used for processing */
+  string functype(s.value("FunctionType","SNR").toString().toStdString());
+  if (functype == "SNR")
+    _process = bind(&pp204::SNR,this);
+  else
+    throw invalid_argument("pp204::loadsettings: '" + _key +": FunctionType '" +
+                           functype + "' is unknown.");
+
+  /** Create the result output */
   _result = new Histogram2DFloat(nbrOf);
   createHistList(2*cass::NbrOfWorkers);
 
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' finds bragg peaks in" + _hist->key() +
-           "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
-           "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
-           "'. Threshold '" + toString(_threshold) +
-           "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
-           "'. MinNbrBackgrndPixels '" + toString(_minBckgndPixels) +
-           "'. Square BraggPeakRadius '" + toString(_peakRadiusSq) +
-           "'. Condition is '" + _condition->key() + "'");
+  /** log what the user was requesting */
+  string output("PostProcessor '" + _key + "' finds bragg peaks." +
+                "Funktion type '" + functype +
+                "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
+                "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
+                "'. Threshold '" + toString(_threshold) +
+                "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
+                "'. MinNbrBackgrndPixels '" + toString(_minBckgndPixels) +
+                "'. Square BraggPeakRadius '" + toString(_peakRadiusSq) +
+                "'. Using input histograms :");
+  resources_t::iterator it(_resources.begin());
+  resources_t::const_iterator end(_resources.end());
+  for (; it != end; ++it)
+    output += ("'" + it->first->key());
+  output += ("'. Condition is '" + _condition->key() + "'");
+  Log::add(Log::INFO,output);
+}
+
+void pp204::process(const CASSEvent & evt)
+{
+  /** retrieve the histograms to process for this event and lock them */
+  resources_t::iterator it(_resources.begin());
+  resources_t::const_iterator end(_resources.end());
+  for (; it != end; ++it)
+  {
+    const HistogramFloatBase *hist
+        (dynamic_cast<const HistogramFloatBase*>(&((*(it->first))(evt))));
+    hist->lock.lockForRead();
+    it->second = hist;
+  }
+
+  /** get the table contents, reset and lock them */
+  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+  result.lock.lockForWrite();
+  result.clearTable();
+
+  /** process the event */
+  _process();
+
+  /** set the #events processed to 1 and unlock the table */
+  result.nbrOfFills() = 1;
+  result.lock.unlock();
+
+  /** unlock the resources */
+  it = _resources.begin();
+  for (; it != end; ++it)
+    it->second->lock.unlock();
 }
 
 int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
@@ -277,25 +341,17 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   return good;
 }
 
-void pp204::process(const CASSEvent &evt)
+void pp204::SNR()
 {
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+  const HistogramFloatBase &hist(*_resources[0].second);
   const HistogramFloatBase::storage_t &image(hist.memory());
 
   Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
 
-  result.lock.lockForWrite();
-  hist.lock.lockForRead();
-
-  result.clearTable();
-  result.nbrOfFills() = 1;
-
-
   const size_t ncols(hist.axis()[HistogramBackend::xAxis].size());
   const size_t nrows(hist.axis()[HistogramBackend::yAxis].size());
 
-  BraggPeak peak(nbrOf);
+  table_t peak(nbrOf);
   vector<bool> checkedPixels(image.size(),false);
 
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
@@ -428,10 +484,10 @@ void pp204::process(const CASSEvent &evt)
 //    cout << tmp << flush;
 
   }
-
-  hist.lock.unlock();
-  result.lock.unlock();
 }
+
+
+
 
 
 
