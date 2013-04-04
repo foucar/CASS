@@ -236,6 +236,8 @@ void pp204::loadSettings(size_t)
   string functype(s.value("FunctionType","SNR").toString().toStdString());
   if (functype == "SNR")
     _process = bind(&pp204::SNR,this);
+  else if (functype == "Threshold")
+    _process = bind(&pp204::Threshold,this);
   else
     throw invalid_argument("pp204::loadsettings: '" + _key +": FunctionType '" +
                            functype + "' is unknown.");
@@ -351,7 +353,7 @@ void pp204::SNR()
   const size_t ncols(hist.axis()[HistogramBackend::xAxis].size());
   const size_t nrows(hist.axis()[HistogramBackend::yAxis].size());
 
-  table_t peak(nbrOf);
+  table_t peak(nbrOf,0);
   vector<bool> checkedPixels(image.size(),false);
 
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
@@ -486,6 +488,76 @@ void pp204::SNR()
   }
 }
 
+void pp204::Threshold()
+{
+  const HistogramFloatBase &hist(*_resources[0].second);
+  const HistogramFloatBase::storage_t &image(hist.memory());
+  const HistogramFloatBase::storage_t &noisemap(_resources[1].second->memory());
+
+  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+
+  table_t peak(nbrOf,0);
+
+  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
+  HistogramFloatBase::storage_t::const_iterator imageEnd(image.end());
+  HistogramFloatBase::storage_t::const_iterator noise(noisemap.begin());
+  size_t idx(0);
+  vector<float> box;
+  const uint16_t ncols(hist.axis()[HistogramBackend::xAxis].size());
+  const uint16_t nrows(hist.axis()[HistogramBackend::yAxis].size());
+  for (; pixel != imageEnd; ++pixel, ++noise, ++idx)
+  {
+    //    if(*noise * _multiplier < *pixel)
+    if (_threshold < *pixel)
+    {
+      const uint16_t x(idx % ncols);
+      const uint16_t y(idx / ncols);
+
+      const uint16_t xboxbegin(max(static_cast<int>(0),static_cast<int>(x)-static_cast<int>(_box.first)));
+      const uint16_t xboxend(min(ncols,static_cast<uint16_t>(x+_box.first)));
+      const uint16_t yboxbegin(max(static_cast<int>(0),static_cast<int>(y)-static_cast<int>(_box.second)));
+      const uint16_t yboxend(min(nrows,static_cast<uint16_t>(y+_box.second)));
+
+      box.clear();
+      for (size_t yb=yboxbegin; yb<yboxend;++yb)
+      {
+        for (size_t xb=xboxbegin; xb<xboxend;++xb)
+        {
+          const size_t pixAddrBox(yb*ncols+xb);
+          const float pixel_box(image[pixAddrBox]);
+          /** check if current sourrounding pixel is a bad pixel (0.),
+           *  if so we should disregard the pixel as a candiate and check the
+           *  next pixel.
+           */
+          if (qFuzzyCompare(pixel_box,0.f) )
+            goto NEXTPIXEL;
+          else
+            box.push_back(pixel_box);
+        }
+      }
+
+      if (box.size() > 1)
+      {
+        const size_t mid(0.5*box.size());
+        nth_element(box.begin(), box.begin() + mid, box.end());
+        const float bckgnd = box[mid];
+        const float clrdpixel(*pixel - bckgnd);
+        if (_threshold < clrdpixel)
+        {
+//          pixels.push_back(Pixel(x,y,clrdpixel));
+          peak[Column] = x;
+          peak[Row] = y;
+          peak[MaxADU] = *pixel;
+          peak[Intensity] = clrdpixel;
+
+          result.appendRows(peak);
+        }
+      }
+NEXTPIXEL:;
+    }
+  }
+
+}
 
 
 

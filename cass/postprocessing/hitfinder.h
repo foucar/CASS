@@ -190,6 +190,14 @@ protected:
   float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
   int counter,counterall,counter_rad;
 
+protected:
+  /** find pixels that are above a threshold
+   *
+   * @author Wolfgang Kabsch
+   * @author Lutz Foucar
+   */
+  void Threshold();
+
 };
 
 
