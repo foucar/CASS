@@ -19,6 +19,7 @@
 #include "cass_settings.h"
 
 using namespace cass;
+using namespace std;
 using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
@@ -54,7 +55,6 @@ PostprocessorBackend::~PostprocessorBackend()
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
-  using namespace std;
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
   histogramList_t::iterator it(
@@ -72,11 +72,8 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
      * might have changed, so create the pair with the pointer and the id only
      * after the call and modify the list
      */
-//    if(_condition)
-//      cout <<evt.id()<<" '"<<_key << "' calling condition '"<<_condition->key()<<"'"<<endl;
     if (_condition && !(*_condition)(evt).isTrue())
     {
-//      cout <<evt.id()<<" '"<<_key << "' condition '"<<_condition->key()<<"' was false "<<endl;
       _histList.pop_back();
       histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       it = _histList.begin();
@@ -85,27 +82,18 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     }
     else
     {
-//      if(_condition)
-//        cout <<evt.id()<<" '"<<_key << "' condition '"<<_condition->key()<<"' was true "<<endl;
-//      else
-//         cout <<evt.id()<<" '"<<_key << "' has no condition"<<endl;
       process(evt);
-//      cout <<evt.id()<<" '"<< _key<< "' return from process"<<endl;
       _histList.pop_back();
       histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       _histList.push_front(newPair);
       it = _histList.begin();
     }
   }
-//  else
-//    cout << "evt seems to have been on the event list"<<endl;
-//  cout <<evt.id()<<" '"<< _key<< "' return from operator"<<endl;
   return *(it->second);
 }
 
 const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 {
-  using namespace std;
   QWriteLocker lock(&_histLock);
   //if eventId is 0 then just return the latest event//
   if (0 == eventid)
@@ -115,7 +103,6 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
     histogramList_t::const_iterator it
         (find_if(_histList.begin(),
                  _histList.end(),
-//                 IsKey(eventid)));
                  bind<bool>(equal_to<histogramList_t::value_type::first_type>(),eventid,
                       bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
     if (_histList.end() == it)
@@ -156,7 +143,6 @@ void PostprocessorBackend::clearHistograms()
 
 void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
 {
-  using namespace std;
   QWriteLocker lock(&_histLock);
   if (!_result)
   {
@@ -225,7 +211,6 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
 
 PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName, const PostProcessors::key_t& depkey)
 {
-  using namespace std;
   PostProcessors::key_t dependkey(depkey);
   if (dependkey.empty())
   {

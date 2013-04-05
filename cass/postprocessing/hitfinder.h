@@ -88,12 +88,9 @@ private:
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
  * @cassttng PostProcessor/\%name\%/{Threshold} \n
- * @cassttng PostProcessor/\%name\%/{FunctionType} \n
  * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
  * @cassttng PostProcessor/\%name\%/{MinNbrBackgrndPixels} \n
  * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
- * @cassttng PostProcessor/\%name\%/Input/{size} \n
- * @cassttng PostProcessor/\%name\%/Input/\%id\%/{Name} \n
  *
  * @author Lutz Foucar
  */
@@ -110,11 +107,8 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** typedefinintio for container for all pp  */
-  typedef std::vector<std::pair<PostprocessorBackend*, const HistogramFloatBase*> > resources_t;
-
-  /** container for all pp that are needed for processing */
-  resources_t _resources;
+  /** postprocessor containing the image to find the bragg peaks in */
+  PostprocessorBackend *_hist;
 
   /** definition of the table */
   typedef HistogramFloatBase::storage_t table_t;
@@ -139,13 +133,7 @@ protected:
     nbrOf
   };
 
-  /** the function object that will be called to process the event */
-  std::tr1::function<void(void)> _process;
-
 protected:
-  /** find bragg peaks in image using signal to noise ratio */
-  void SNR();
-
   /** check highest pixel and generate the mean and standart deviation
    *
    * function is used in SNR peak finder
@@ -189,14 +177,6 @@ protected:
 
   float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
   int counter,counterall,counter_rad;
-
-protected:
-  /** find pixels that are above a threshold
-   *
-   * @author Wolfgang Kabsch
-   * @author Lutz Foucar
-   */
-  void Threshold();
 
 };
 
@@ -259,6 +239,102 @@ protected:
   /** the number of the column where the global index of the pixel is */
   size_t _idxCol;
 };
+
+
+
+
+
+/** find pixels of bragg peaks and store them in a list
+ *
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contain the 2d histogram. Default
+ *           is "blubb".
+ * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ *           Size of the subsection of the image. Default is 1024|512.
+ * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ *           size in x and y of the box that is used for determining the median
+ *           background. Default is 10|10.
+ * @cassttng PostProcessor/\%name\%/{Threshold} \n
+ * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
+ * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
+ * @cassttng PostProcessor/\%name\%/Input/{size} \n
+ * @cassttng PostProcessor/\%name\%/Input/\%id\%/{Name} \n
+ *
+ * @author Lutz Foucar
+ */
+class pp206 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp206(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** postprocessor containing the image to find the bragg peaks in */
+  PostprocessorBackend *_imagePP;
+
+  /** postprocessor containing the noise image for thresholding */
+  PostprocessorBackend *_noisePP;
+
+  /** definition of the table */
+  typedef HistogramFloatBase::storage_t table_t;
+
+  /** enum describing the contents of the resulting table */
+  enum ColumnNames
+  {
+    Intensity                 =  0,
+    centroidColumn            =  1,
+    centroidRow               =  2,
+    nbrOfPixels               =  3,
+    SignalToNoise             =  4,
+    Index                     =  5,
+    Column                    =  6,
+    Row                       =  7,
+    LocalBackground           =  8,
+    LocalBackgroundDeviation  =  9,
+    nbrOfBackgroundPixels     = 10,
+    MaxRadius                 = 11,
+    MinRadius                 = 12,
+    MaxADU                    = 13,
+    nbrOf
+  };
+
+  /** the function object that will be called to process the event */
+  std::tr1::function<void(void)> _process;
+
+protected:
+  /** the size of the box within which the peak should lie */
+  std::pair<int,int> _box;
+
+  /** size of a image section */
+  std::pair<int,int> _section;
+
+  /** pixel threshold to be exceeded */
+  float _threshold;
+
+  /** the square size of bragg peak radius */
+  int _peakRadiusSq;
+
+  /** the min signal to noise ratio that needs to be exceeded */
+  float _minSnr;
+
+  /** min amount of pixels for the background calc */
+  int _minBckgndPixels;
+
+  float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
+  int counter,counterall,counter_rad;
+};
+
+
 
 }//end namespace cass
 

@@ -76,7 +76,7 @@ namespace cass
      * @return const reference to the resulting histogram
      * @param evt the cassevent to work on
      */
-    const HistogramBackend& operator()(const CASSEvent& evt);
+    virtual const HistogramBackend& operator()(const CASSEvent& evt);
 
     /** retrieve a histogram for a given id.
      *
