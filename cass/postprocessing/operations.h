@@ -116,6 +116,7 @@ namespace cass
       _hide =true;
       _write =false;
       _write_summary=false;
+      createHistList(1);
     }
 
     /** overwrite default behaviour and just return the constant */

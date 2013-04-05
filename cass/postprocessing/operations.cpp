@@ -150,6 +150,7 @@ void pp12::loadSettings(size_t)
   *dynamic_cast<Histogram0DFloat*>(_result) = s.value("Value",0).toFloat();
   _hide =true;
   _write =false;
+  createHistList(1);
 
   Log::add(Log::INFO,"PostProcessor '" +  _key + "' has constant value of '" +
            toString(dynamic_cast<Histogram0DFloat*>(_result)->getValue()) + "'");
