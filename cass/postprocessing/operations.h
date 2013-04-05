@@ -113,11 +113,17 @@ namespace cass
       :PostprocessorBackend(pp,key)
     {
       _result = (new Histogram0DFloat(boolean));
-      createHistList(1);
       _hide =true;
       _write =false;
       _write_summary=false;
     }
+
+    /** overwrite default behaviour and just return the constant */
+    const HistogramBackend& operator()(const CASSEvent&)
+    {
+      return *_result;
+    }
+
 
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
@@ -144,6 +150,12 @@ namespace cass
   public:
     /** constructor */
     pp12(PostProcessors& pp, const PostProcessors::key_t &key);
+
+    /** overwrite default behaviour and just return the constant */
+    const HistogramBackend& operator()(const CASSEvent&)
+    {
+      return *_result;
+    }
 
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}

@@ -148,7 +148,6 @@ void pp12::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(_key));
   _result = new Histogram0DFloat();
   *dynamic_cast<Histogram0DFloat*>(_result) = s.value("Value",0).toFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
   _hide =true;
   _write =false;
 
