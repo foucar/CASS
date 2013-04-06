@@ -31,13 +31,15 @@ DataGenerator::~DataGenerator()
 DataGenerator::shared_pointer
 DataGenerator::instance(const DataGenerator::instanciatorMap_t::key_type &type)
 {
-  const instanciatorMap_t& iMap(*getInstanciatorMap());
+  instanciatorMap_t& iMap(*getInstanciatorMap());
   instanciatorMap_t::const_iterator it(iMap.find(type));
   instanciatorMap_t::const_iterator iMapEnd(iMap.end());
   if(it == iMapEnd)
     throw invalid_argument("DataGenerator::instance(): Data generator type '" +
                            type + "' hasn't been registered to the factory.");
-  return it->second();
+  const instanciator_t &createDataGenerator(it->second);
+  shared_pointer DataGenerator(createDataGenerator());
+  return DataGenerator;
 }
 
 void DataGenerator::fill(CASSEvent &)
