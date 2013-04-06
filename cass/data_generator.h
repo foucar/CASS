@@ -29,37 +29,33 @@ class CASSEvent;
 class DataGenerator
 {
 public:
-
   /** typedef the shared pointer of this */
   typedef std::tr1::shared_ptr<DataGenerator> shared_pointer;
 
   /** instanciator that creates the PostProcessor instance */
   typedef std::tr1::function<shared_pointer()> instanciator_t;
 
-  /** map to map the strint to the right instanciator */
+  /** map to map the string to the right instanciator */
   typedef std::map<std::string, instanciator_t> instanciatorMap_t;
-
-  /** pointer to the map */
-  typedef instanciatorMap_t* instanciatorMap_p;
 
   /** create and return an instance of the requested type
    *
    * @return a shared pointer of the requested class
-   * @param type the requested type
+   * @param type the requested type of class
    */
-  static shared_pointer instance(const std::string &type);
+  static shared_pointer instance(const instanciatorMap_t::key_type &type);
 
   /** virtual destructor */
-  virtual ~DataGenerator() {}
+  virtual ~DataGenerator();
 
   /** fill data into the cassevent
    *
    * @param evt the cassevent that should be filled.
    */
-  virtual void fill(CASSEvent& /*evt*/) {}
+  virtual void fill(CASSEvent& evt);
 
   /** load the settings of this from the ini file */
-  virtual void load() {}
+  virtual void load();
 
 protected:
   /** retrieve the map of instanciators
@@ -70,14 +66,11 @@ protected:
    *
    * @return pointer to the instanciator map
    */
-  static instanciatorMap_p getInstanciatorMap();
+  static instanciatorMap_t *getInstanciatorMap();
 
 private:
   /** map the types to their instanciators */
-  static instanciatorMap_p _instanciatorMap;
-
-  /** a lock for locking access to the _instanciatorMap */
-  static QMutex _instanciatorMapLock;
+  static instanciatorMap_t *_instanciatorMap;
 };
 
 

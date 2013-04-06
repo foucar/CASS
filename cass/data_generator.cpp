@@ -14,22 +14,38 @@
 using namespace cass;
 using namespace std;
 
-DataGenerator::instanciatorMap_p DataGenerator::_instanciatorMap(0);
-QMutex DataGenerator::_instanciatorMapLock;
+DataGenerator::instanciatorMap_t *DataGenerator::_instanciatorMap(0);
 
-DataGenerator::instanciatorMap_p DataGenerator::getInstanciatorMap()
+DataGenerator::instanciatorMap_t* DataGenerator::getInstanciatorMap()
 {
-//  QMutexLocker locker(&_instanciatorMapLock);
   if(!_instanciatorMap)
-    _instanciatorMap = instanciatorMap_p(new instanciatorMap_t);
+    _instanciatorMap = new instanciatorMap_t;
   return _instanciatorMap;
 }
 
-DataGenerator::shared_pointer DataGenerator::instance(const string &type)
+DataGenerator::~DataGenerator()
 {
-  instanciatorMap_t::iterator it(getInstanciatorMap()->find(type));
-  if(it == getInstanciatorMap()->end())
-    throw invalid_argument("DataGenerator::instance(): Data generator type '" + type +
-                           "' hasn't been registered to the factory.");
+
+}
+
+DataGenerator::shared_pointer
+DataGenerator::instance(const DataGenerator::instanciatorMap_t::key_type &type)
+{
+  const instanciatorMap_t& iMap(*getInstanciatorMap());
+  instanciatorMap_t::const_iterator it(iMap.find(type));
+  instanciatorMap_t::const_iterator iMapEnd(iMap.end());
+  if(it == iMapEnd)
+    throw invalid_argument("DataGenerator::instance(): Data generator type '" +
+                           type + "' hasn't been registered to the factory.");
   return it->second();
+}
+
+void DataGenerator::fill(CASSEvent &)
+{
+
+}
+
+void DataGenerator::load()
+{
+
 }
