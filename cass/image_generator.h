@@ -10,6 +10,7 @@
 #define _IMAGEGENERATOR_H
 
 #include "data_generator.h"
+#include "generic_factory.hpp"
 
 namespace cass
 {
@@ -40,8 +41,9 @@ public:
   void fill(CASSEvent& evt);
 
 private:
-  /** object to register this PostProcessor type to the factory */
-  static DataGeneratorRegister<ImageGenerator> reg;
+  /** object to register this data generator to the factory */
+  static Registrar<DataGenerator,ImageGenerator> reg;
+
 };
 }//end namespace cass
 

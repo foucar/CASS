@@ -17,7 +17,7 @@ using namespace std;
 using namespace cass;
 
 
-DataGeneratorRegister<ImageGenerator> ImageGenerator::reg("Image");
+Registrar<DataGenerator,ImageGenerator> ImageGenerator::reg("Image");
 
 ImageGenerator::ImageGenerator()
 {
@@ -29,6 +29,7 @@ void ImageGenerator::load()
   s.beginGroup("ImageGenerator");
 }
 
-void ImageGenerator::fill(CASSEvent& evt)
+void ImageGenerator::fill(CASSEvent& /*evt*/)
 {
+
 }

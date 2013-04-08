@@ -20,7 +20,7 @@ using namespace cass;
 using namespace ACQIRIS;
 
 
-DataGeneratorRegister<WaveformGenerator> WaveformGenerator::reg("Waveform");
+Registrar<DataGenerator,WaveformGenerator> WaveformGenerator::reg("Waveform");
 
 WaveformGenerator::WaveformGenerator()
 {

@@ -14,32 +14,9 @@
 using namespace cass;
 using namespace std;
 
-DataGenerator::instanciatorMap_t *DataGenerator::_instanciatorMap(0);
-
-DataGenerator::instanciatorMap_t* DataGenerator::getInstanciatorMap()
-{
-  if(!_instanciatorMap)
-    _instanciatorMap = new instanciatorMap_t;
-  return _instanciatorMap;
-}
-
 DataGenerator::~DataGenerator()
 {
 
-}
-
-DataGenerator::shared_pointer
-DataGenerator::instance(const DataGenerator::instanciatorMap_t::key_type &type)
-{
-  instanciatorMap_t& iMap(*getInstanciatorMap());
-  instanciatorMap_t::const_iterator it(iMap.find(type));
-  instanciatorMap_t::const_iterator iMapEnd(iMap.end());
-  if(it == iMapEnd)
-    throw invalid_argument("DataGenerator::instance(): Data generator type '" +
-                           type + "' hasn't been registered to the factory.");
-  const instanciator_t &createDataGenerator(it->second);
-  shared_pointer DataGenerator(createDataGenerator());
-  return DataGenerator;
 }
 
 void DataGenerator::fill(CASSEvent &)

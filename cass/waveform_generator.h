@@ -11,6 +11,7 @@
 
 #include "data_generator.h"
 #include "acqiris_device.h"
+#include "generic_factory.hpp"
 
 namespace cass
 {
@@ -53,7 +54,7 @@ private:
   int _instrID;
 
   /** object to register this data generator to the factory */
-  static DataGeneratorRegister<WaveformGenerator> reg;
+  static Registrar<DataGenerator,WaveformGenerator> reg;
 };
 }//end namespace cass
 

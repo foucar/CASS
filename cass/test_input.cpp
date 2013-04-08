@@ -21,6 +21,7 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "data_generator.h"
+#include "generic_factory.hpp"
 #include "log.h"
 #include "cass_exceptions.h"
 
@@ -55,8 +56,11 @@ void TestInput::load()
 
   for (QStringList::const_iterator it(usedFillers.begin()); it != usedFillers.end(); ++it)
   {
-    _generators.push_back(DataGenerator::instance(it->toStdString()));
-    _generators.back()->load();
+    Factory<DataGenerator> &generatorFactory(Factory<DataGenerator>::instance());
+    Factory<DataGenerator>::instanciatorMap_t::key_type type(it->toStdString());
+    DataGenerator::shared_pointer generator(generatorFactory.create(type));
+    generator->load();
+    _generators.push_back(generator);
   }
 }
 
