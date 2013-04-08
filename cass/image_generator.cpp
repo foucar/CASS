@@ -26,7 +26,7 @@ ImageGenerator::ImageGenerator()
 void ImageGenerator::load()
 {
   CASSSettings s;
-  s.beginGroup("WaveformGenerator");
+  s.beginGroup("ImageGenerator");
 }
 
 void ImageGenerator::fill(CASSEvent& evt)
