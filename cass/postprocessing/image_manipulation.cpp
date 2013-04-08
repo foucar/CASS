@@ -8,6 +8,8 @@
  */
 
 #include <QtCore/QString>
+#include <algorithm>
+#include <cctype>
 
 #include "image_manipulation.h"
 
@@ -346,7 +348,7 @@ void pp55::process(const CASSEvent &evt)
 
 
 
-
+// --------------convert cspad 2 cheetah--------------------
 
 pp1600::pp1600(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key),
@@ -409,6 +411,7 @@ void pp1600::process(const CASSEvent &evt)
 
 
 
+// --------------convert cspad 2 quasi laboratory --------------------
 
 
 pp1601::pp1601(PostProcessors& pp, const PostProcessors::key_t &key)
@@ -517,5 +520,166 @@ void pp1601::process(const CASSEvent &evt)
 
   _result->lock.unlock();
   hist.lock.unlock();
+}
+
+
+
+// --------------convert cspad 2 laboratory --------------------
+
+pp1602::pp1602(PostProcessors& pp, const PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp1602::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _imagePP = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_imagePP && ret)) return;
+
+//  _result = new Histogram2DFloat(_na*_nx,_na*_ny);
+
+  createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
+           "PostProcessor '" +  _imagePP->key() + " into lab frame" +
+           ". Condition is '" + _condition->key() + "'");
+}
+
+namespace cass
+{
+namespace geomparsing
+{
+struct asciiInfo_t
+{
+  long int min_fs;
+  long int min_ss;
+  long int max_fs;
+  long int max_ss;
+  string badrow_direction;
+  double res;
+  string clen;
+  double corner_x;
+  double corner_y;
+  long int no_index;
+  double x_fs;
+  double x_ss;
+  double y_fs;
+  double y_ss;
+};
+}
+}
+void pp1602::generateLookupTable(const string &filename)
+{
+  map<string,geomparsing::asciiInfo_t> geomInfos;
+
+  ifstream geomFile (filename.c_str());
+  if (!geomFile.is_open())
+    throw invalid_argument("blah: could not open file");
+
+  string line;
+  while(!geomFile.eof())
+  {
+    getline(geomFile, line);
+
+    /** get asic string, value name and value (as string) from line */
+    const string asic(line.substr(0,line.find('/')));
+    const string valueNameAndValue(line.substr(line.find('/')));
+    const string valueName(valueNameAndValue.substr(0,valueNameAndValue.find('=')));
+    string valueString(valueNameAndValue.substr(valueNameAndValue.find('=')));
+
+    /** depending on the value name retrieve the value as right type */
+    char * pEnd;
+    if (valueName == "min_fs")
+      geomInfos[asic].min_fs = std::strtol(valueString.c_str(),&pEnd,10);
+    else if (valueName == "min_ss")
+      geomInfos[asic].min_ss = std::strtol(valueString.c_str(),&pEnd,10);
+    else if (valueName == "max_fs")
+      geomInfos[asic].max_fs = std::strtol(valueString.c_str(),&pEnd,10);
+    else if (valueName == "max_ss")
+      geomInfos[asic].max_ss = std::strtol(valueString.c_str(),&pEnd,10);
+    else if (valueName == "badrow_direction")
+    {
+      valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
+      geomInfos[asic].badrow_direction = valueString;
+    }
+    else if (valueName == "res")
+      geomInfos[asic].res = std::strtod(valueString.c_str(),&pEnd);
+    else if (valueName == "clen")
+    {
+      valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
+      geomInfos[asic].clen = valueString;
+    }
+    else if (valueName == "corner_x")
+      geomInfos[asic].corner_x = std::strtod(valueString.c_str(),&pEnd);
+    else if (valueName == "corner_y")
+      geomInfos[asic].corner_y = std::strtod(valueString.c_str(),&pEnd);
+    else if (valueName == "no_index")
+      geomInfos[asic].no_index = std::strtol(valueString.c_str(),&pEnd,10);
+    else if (valueName == "fs")
+    {
+      double x(0),y(0);
+      const string first(valueString.substr(0,valueString.find(' ')));
+      if (first.find('x') != string::npos)
+        x = std::strtod(first.c_str(),&pEnd);
+      else if (first.find('y') != string::npos)
+        y = std::strtod(first.c_str(),&pEnd);
+      else
+        throw runtime_error("pp1602: bad parsing");
+      const string second(valueString.substr(valueString.find(' ')));
+      if (second.find('x') != string::npos)
+        x = std::strtod(second.c_str(),&pEnd);
+      else if (second.find('y') != string::npos)
+        y = std::strtod(second.c_str(),&pEnd);
+      else
+        throw runtime_error("pp1602: bad parsing");
+      geomInfos[asic].x_fs = x;
+      geomInfos[asic].y_fs = y;
+    }
+    else if (valueName == "ss")
+    {
+      geomInfos[asic].x_fs = std::strtol(valueString.c_str(),&pEnd,10);
+      geomInfos[asic].y_fs = std::strtol(valueString.c_str(),&pEnd,10);
+    }
+    else
+      throw runtime_error("pp1602::generateLookupTable: param does not exist");
+  }
+}
+
+void pp1602::process(const CASSEvent &evt)
+{
+  /** Get the input histogram and its memory */
+  const Histogram2DFloat &imageHist
+      (dynamic_cast<const Histogram2DFloat&>((*_imagePP)(evt)));
+  const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
+
+  /** get result image and its memory */
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(*_result));
+  HistogramFloatBase::storage_t& destImage(result.memory());
+
+  /** lock resources */
+  imageHist.lock.lockForRead();
+  result.lock.lockForWrite();
+
+  /** iterate through the src image and put its pixels at the location in the
+   *  destination that is directed in the lookup table
+   */
+  HistogramFloatBase::storage_t::const_iterator pixel(srcImage.begin());
+  HistogramFloatBase::storage_t::const_iterator imageEnd(srcImage.end());
+
+  lookupTable_t::const_iterator convert(_lookupTable.begin());
+
+  for (; pixel != imageEnd; ++pixel, ++convert)
+    destImage[*convert] = *pixel;
+
+  /** relfect that only 1 event was processed and release resources */
+  result.nbrOfFills()=1;
+  result.lock.unlock();
+  imageHist.lock.unlock();
 }
 

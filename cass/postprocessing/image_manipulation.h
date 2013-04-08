@@ -335,5 +335,65 @@ private:
   const size_t _ny;
 };
 
+
+
+
+
+
+
+
+
+
+/** convert cspad data into laboratory frame using crystfel geometry files
+ *
+ * generates a lookup table of where in the result image will go which pixel
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contains the histogram containing the
+ *           cspad image in cass layout. Default is "".
+ *
+ * @author Lutz Foucar
+ */
+class pp1602 : public PostprocessorBackend
+{
+public:
+  /** constructor
+   *
+   * @param pp the postprocessor manager that manages this pp
+   * @param key the name of this postprocessor in the ini file
+   */
+  pp1602(PostProcessors& pp, const PostProcessors::key_t& key);
+
+  /** process event
+   *
+   * @param evt the event to process
+   */
+  virtual void process(const CASSEvent& evt);
+
+  /** load the settings of this pp
+   *
+   * @param unused this parameter is not used
+   */
+  virtual void loadSettings(size_t /*unused*/);
+
+protected:
+  /** generate the lookup table by parsing the geom file */
+  void generateLookupTable(const std::string &filename);
+
+  /** pp containing 2d histogram */
+  PostprocessorBackend *_imagePP;
+
+  /** define the lookuptable */
+  typedef std::vector<size_t> lookupTable_t;
+
+  /** the lookup table */
+  lookupTable_t _lookupTable;
+};
+
+
+
 }//end namspace cass
 #endif
