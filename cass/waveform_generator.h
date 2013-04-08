@@ -16,6 +16,8 @@ namespace cass
 {
 /** generate a waveform of a chosen type
  *
+ * @GenList "Waveform": Generates a user defined waveform.
+ *
  * @cassttng WaveformGenerator/{InstrumentId} \n
  * @cassttng WaveformGenerator/{NbrOfSamples} \n
  * @cassttng WaveformGenerator/{SampleInterval} \n
@@ -50,7 +52,7 @@ private:
   /** the id of the instrument */
   int _instrID;
 
-  /** object to register this PostProcessor type to the factory */
+  /** object to register this data generator to the factory */
   static DataGeneratorRegister<WaveformGenerator> reg;
 };
 }//end namespace cass

@@ -15,7 +15,9 @@ namespace cass
 {
 /** generate a waveform of a chosen type
  *
- * @cassttng TestInput/ImagemGenerator/{InstrumentId} \n
+ * @GenList "Image": Generates a user defined image
+
+ * @cassttng TestInput/ImageGenerator/{InstrumentId} \n
  *
  * @author Lutz Foucar
  */

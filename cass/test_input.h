@@ -30,6 +30,7 @@ class DataGenerator;
  * PostProcessors can be tested. It uses the data generators to fill the cassevents.
  *
  * @cassttng TestInput/{key}\n
+ *           See @ref DataGenerators for a list of all possible values.
  *
  * @author Lutz Foucar
  */
