@@ -574,6 +574,7 @@ struct asciiInfo_t
 };
 }
 }
+
 void pp1602::generateLookupTable(const string &filename)
 {
   map<string,geomparsing::asciiInfo_t> geomInfos;
