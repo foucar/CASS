@@ -56,18 +56,12 @@ CONFIG       += JoCASSView
 #QMAKE_CFLAGS    += -pg
 #QMAKE_LFLAGS    += -pg
 
+# Uncomment the following if you want openmp enabled
+#QMAKE_CXXFLAGS += -fopenmp
+#QMAKE_LFLAGS   += -fopenmp
+#DEFINES        += _GLIBCXX_PARALLEL   #enables openmp support for gcc stdlibc++
+
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
 QMAKE_LFLAGS +=
 QMAKE_STRIP  =
-
-
-
-
-
-
-## Local Variables:
-## coding: utf-8
-## mode: makefile
-## fill-column: 100
-## End:

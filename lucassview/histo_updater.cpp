@@ -86,7 +86,7 @@ namespace lucassview
      *
      * @param obj The object that potentially will be deleted
      */
-    void operator()(TObject *obj)
+    void operator()(TObject *obj) const
     {
       if (obj->InheritsFrom("TH1"))
       {
@@ -331,7 +331,8 @@ namespace lucassview
             for (size_t iY(0); iY<yaxis.nbrBins();++iY)
               for (size_t iX(0); iX<xaxis.nbrBins();++iX)
               {
-                const float value = (isnan(casshist->memory()[iX + iY*xaxis.nbrBins()])) ?
+                const double histvalue(casshist->memory()[iX + iY*xaxis.nbrBins()]);
+                const float value = (isnan(histvalue)) ?
                               0. : casshist->memory()[iX + iY*xaxis.nbrBins()];
                 roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),value);
               }
@@ -369,7 +370,8 @@ namespace lucassview
             /** copy histogram contents */
             for (size_t iX(0); iX<xaxis.nbrBins();++iX)
             {
-              const float value = (isnan(casshist->memory()[iX])) ? 0. : casshist->memory()[iX];
+              const double histvalue(casshist->memory()[iX]);
+              const float value = (isnan(histvalue)) ? 0. : casshist->memory()[iX];
               roothist->SetBinContent(roothist->GetBin(iX+1),value);
             }
             /** copy over / underflow */
@@ -388,7 +390,8 @@ namespace lucassview
               cout << "updateHist(): '"<<key<<"' create roothist with for 0D histogram"<<endl;
               roothist = new TH1F(key.c_str(),key.c_str(),1,0,1);
             }
-            const float value = (isnan(casshist->memory()[0])) ? 0. : casshist->memory()[0];
+            const double histvalue(casshist->memory()[0]);
+            const float value = (isnan(histvalue)) ? 0. : casshist->memory()[0];
             roothist->SetBinContent(1,value);
             roothist->SetEntries(casshist->nbrOfFills());
           }
@@ -435,8 +438,13 @@ void HistogramUpdater::syncHistograms()
     list<string> allkeylist(client());
     list<string> updatableHistsList(checkList(allkeylist));
     for_each(updatableHistsList.begin(),updatableHistsList.end(), updateHist(client));
-    TIter it(gDirectory->GetList());
-    for_each(it.Begin(),TIter::End(),deleteObsoleteHistogram(allkeylist));
+//    TIter it(gDirectory->GetList());
+//    for_each(it.Begin(),TIter::End(),deleteObsoleteHistogram(allkeylist));
+    TIter next(gDirectory->GetList());
+    const deleteObsoleteHistogram removeUnusedHist(allkeylist);
+    TObject *obj(0);
+    while ((obj = next()))
+      removeUnusedHist(obj);
     if (_updateCanv)
       updateCanvases(gROOT->GetListOfCanvases());
   }
@@ -471,8 +479,13 @@ void HistogramUpdater::writeRootFile(const std::string& name)
     TCPClient client (serveradress.str());
     list<string> allkeylist(client());
     for_each(allkeylist.begin(),allkeylist.end(), updateHist(client));
-    TIter it(gDirectory->GetList());
-    for_each(it.Begin(),TIter::End(),writeObject(name));
+//    TIter it(gDirectory->GetList());
+//    for_each(it.Begin(),TIter::End(),writeObject(name));
+    TIter next(gDirectory->GetList());
+    writeObject writeObj(name);
+    TObject *obj(0);
+    while ((obj = next()))
+      writeObj(obj);
     gROOT->cd();
   }
   catch (const runtime_error &error)
