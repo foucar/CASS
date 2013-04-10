@@ -260,9 +260,3 @@ QMAKE_CLEAN        += $$SOAPFiles.files
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
-
-## Local Variables:
-## coding: utf-8
-## mode: makefile
-## fill-column: 100
-## End:
