@@ -509,14 +509,14 @@ void HistogramUpdater::reloadIni()
   }
 }
 
-void HistogramUpdater::controlDarkcal(const std::string& command)
+void HistogramUpdater::controlCalibration(const std::string& command)
 {
   try
   {
     stringstream serveradress;
     serveradress << _server << ":" << _port;
-    TCPClient client (serveradress.str());
-    client.controlDarkcal(command);
+    TCPClient client(serveradress.str());
+    client.controlCalibration(command);
   }
   catch (const runtime_error &error)
   {

@@ -33,7 +33,7 @@ void TCPClient::reloadIni() const
     throw runtime_error("TCPClient::reloadIni(): Could not communicate writeini command");
 }
 
-void TCPClient::controlDarkcal(const std::string &command) const
+void TCPClient::controlCalibration(const std::string &command) const
 {
   using namespace std;
   bool ret(false);
@@ -41,7 +41,7 @@ void TCPClient::controlDarkcal(const std::string &command) const
   client.soap_endpoint = _server.c_str();
   client.controlDarkcal(command, &ret);
   if(!ret)
-    throw runtime_error("TCPClient::controlDarkcal(): Could not communicate darkcal command");
+    throw runtime_error("TCPClient::controlCalibration(): Could not communicate command '"+ command +"'");
 }
 
 std::list<std::string> TCPClient::operator() ()const

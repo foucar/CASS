@@ -84,7 +84,7 @@ public:
   void reloadIni();
 
   /** control the dark calibration */
-  void controlDarkcal(const std::string& command="start");
+  void controlCalibration(const std::string& command="startDarkcal");
 
 private:
   /** the server */
