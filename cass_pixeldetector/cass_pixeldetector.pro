@@ -35,7 +35,8 @@ SOURCES       += \
                  frms6_reader.cpp \
                  raw_sss_reader.cpp \
                  raw_sss_parser.cpp \
-                 frms6_parser.cpp
+                 frms6_parser.cpp \
+                 gaincalibration.cpp
 
 
 HEADERS       += \
@@ -67,7 +68,8 @@ HEADERS       += \
                  frms6_reader.h \
                  raw_sss_reader.h \
                  raw_sss_parser.h \
-                 frms6_parser.h
+                 frms6_parser.h \
+                 gaincalibration.h
 
 
 headers.files  = $$HEADERS

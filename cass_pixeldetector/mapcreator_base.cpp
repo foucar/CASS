@@ -13,6 +13,7 @@
 
 #include "mapcreators.h"
 #include "mapcreators_online.h"
+#include "gaincalibration.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -32,6 +33,8 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
     ptr = shared_pointer(new OnlineFixedCreator());
   else if (type == "onlinecommonmode")
     ptr = shared_pointer(new OnlineFixedCreatorCommonMode());
+  else if (type == "fixedADU")
+    ptr = shared_pointer(new GainCalibration());
   else
     throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +
                            "' is unknown.");
