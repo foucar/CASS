@@ -46,7 +46,7 @@ class MapCreatorBase;
  *           the frames from individual frames. Default is "none". Options are:
  *           - "none": All maps will be initialized such that the frame will
  *                     not be altered when applying them. See
- *                     cass::pixeldetector::NonAlteringMaps for details.
+ *                     cass::pixeldetector::MapCreatorBase for details.
  *           - "fixed": The maps will be created from a fixed number of frames.
  *                      See cass::pixeldetector::FixedMaps for details.
  *           - "moving": The maps will be created from the last few frames. See
@@ -72,22 +72,48 @@ class MapCreatorBase;
  *           - "hll": the filetype used by the semi conductor lab.
  *           - "cass": the filetype formerly used in CASS.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputOffsetNoiseFilename}\n
- *           The filename to store the noise, offset and mask in. This is only
- *           the prefix the current time and detector id will be appended to the
- *           name. See cass::pixeldetector::CommonData::saveMaps for more
- *           details Default is "darkcal".
+ *           The filename where the offset and noise values will be written to.
+ *           If the name is "darkcal", the name will be build by the detector id
+ *           and the current date and time when it was written. Also when writing
+ *           a link to the written file will be created like this:
+ *           "darkcal_%detectorID%.lnk". When the name differs from "darkcal",
+ *           the values will be written only to the given filename. See
+ *           cass::pixeldetector::CommonData::saveOffsetNoiseMaps for more details.
+ *           Default is "darkcal".
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputOffsetNoiseFiletype}\n
- *           The filetype that the values are stored to. Default is "hll".
+ *           The filetype that the noise and offset values are stored to.
+ *           Default is "hll".
  *           Options are:
  *           - "hll": the filetype used by the semi conductor lab.
  *           - "cass": the filetype formerly used in CASS.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputCTEGainFilename}\n
- *           The filename containing the saved cte and gain values. Default
- *           is "".
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputCTEGainFiletype}\n
- *           The filetype that the values are stored in. Default is "hll".
- *           Options are:
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{GainMapCreatorType}\n
+ *           The type of functor that will create the gain used for correcting
+ *           the frames from individual frames. Default is "none". Options are:
+ *           - "none": All maps will be initialized such that the frame will
+ *                     not be altered when applying them. See
+ *                     cass::pixeldetector::MapCreatorBase for details.
+ *           - "fixedADU": normalize all pixels to the average within a given range
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputGainFilename}\n
+ *           The filename containing the gain (/cte) values. Default
+ *           is "gain_\%detectorId\%.lnk".
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputGainFiletype}\n
+ *           The filetype that the gain (/cte) values are stored in. Default is
+ *            "hll". Options are:
  *           - "hll": the filetype used by the semi conductor lab.
+ *           - "cass": the filetype used by CASS.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputGainFilename}\n
+ *           The filename where the gain (/cte) values will be written to. If
+ *           the name is "gain", the name will be build by the detector id and
+ *           the current date and time when it was written. Also when writing
+ *           a link to the written file will be created like this:
+ *           "gain_\%detectorID\%.lnk". When the name differs from "gain", the
+ *           values will be written only to the given filename. See
+ *           cass::pixeldetector::CommonData::saveGainMap for more details.
+ *           Default is "gain".
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputGainFiletype}\n
+ *           The filetype that the gain (/cte) values are stored in. Default is
+ *            "cass". Options are:
+ *           - "cass": the filetype used by CASS.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold}\n
  *           The threshold to identify noisy pixels. Will be used when creating
  *           the mask. When the noise of the pixel is higher than this value
@@ -139,40 +165,64 @@ public:
    */
   void loadSettings(CASSSettings &s);
 
-  /** create the maps from the frame data with help of the functor
+  /** generate the maps from the frame data with help of the functors
    *
    * There are several ways of creating the maps available. For a detailed list
    * see this classes help.
    *
    * @param frame The frame data to create the maps from
    */
-  void createMaps(const Frame& frame);
+  void generateMaps(const Frame& frame);
+
 
   /** create the correction map
    * 
    * will create the correction map from the mask, noise and cte/gain values
    * with the help of the cass::pixeldetector::createCorrectionMap function
    *
+   * the correction value for a pixel is calculated using the following formular:
+   *
+   * \f[
+   *  corval = ctegain \times corval \times maskval \times (
+   *     0, & \text{if} noise < noisethreshold ;
+   *     1, & \text{otherwise})
+   * \f]
+   *
    * @note we do not need to lock this function since, it will be called by 
-   *       the map creators only. And theier operators are still locked by
+   *       the map creators only. And their operators are still locked by
    *       this classes createMaps function that will envoke the functors.
    * @todo make this a friend and protected so only functions that we allow 
    *       can call it.
    */
   void createCorMap();
 
-  /** save maps
+  /** save offset and noise maps
    *
-   * save the maps to file in the user chosen fileformat.See
+   * save the offset and noise calibratioin to file in the user chosen
+   * fileformat. See
    * cass::pixeldetector::saveCASSOffsetFile or
    * cass::pixeldetector::saveHLLOffsetFile for details.
    *
-   * first append the detector id and the current time to the user selected out
-   * filename. Then save the file and create a link to it. The name of the link
-   * will be called like "darkcal_\%detectorID\%.lnk". In case the link exists
-   * try to remove it first.
+   * If the filename is "darkcal" for the darkcalibration file, the detector id
+   * and the current time will be appended the filename. A link to the created
+   * files will be generated. The name of the link will be called
+   * "darkcal_\%detectorID\%.lnk". In case the link exists, try to remove it
+   * first.
    */
-  void saveMaps();
+  void saveOffsetNoiseMaps();
+
+  /** save gain map
+   *
+   * save the gain calibration to file in the user chosen fileformat. See
+   * cass::pixeldetector::saveCASSGaiFile for details.
+   *
+   * If the filename is "gain" for the gain calibration file, the detector id
+   * and the current time will be appended to the filename. A link
+   * to the created files will be generated. The name of the link will be
+   * called "gain_\%detectorID\%.lnk". In case the links exist, try to
+   * remove it first.
+   */
+  void saveGainMap();
 
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
@@ -255,12 +305,12 @@ private:
 
 private:
   /** functor to create the Maps */
-  std::tr1::shared_ptr<MapCreatorBase> _mapcreator;
+  std::tr1::shared_ptr<MapCreatorBase> _offsetnoiseMapcreator;
 
   /** function to write the offset maps */
-  std::tr1::function<void(const std::string&,CommonData&)> _saveTo;
+  std::tr1::function<void(const std::string&,CommonData&)> _saveNoiseOffsetTo;
 
-  /** output filename for the maps */
+  /** output filename for the offset and noise maps */
   std::string _outputOffsetFilename;
 
   /** input filename of the offset and noise map */
@@ -269,11 +319,21 @@ private:
   /** switch to tell that load settins for this common data was already running */
   bool _settingsLoaded;
 
-  /** the cte / gain correction filename */
-  std::string _ctegainFilename;
+  /** functor to create the Maps */
+  std::tr1::shared_ptr<MapCreatorBase> _gainCreator;
+
+  /** function to write the gain map */
+  std::tr1::function<void(const std::string&,CommonData&)> _saveGainTo;
+
+  /** the gain correction input filename */
+  std::string _inputGainFilename;
+
+  /** the gain correction output filename */
+  std::string _outputGainFilename;
+
 
   /** function to read the gain / cte corrections */
-  std::tr1::function<void(const std::string&,CommonData&)> _readGain;
+//  std::tr1::function<void(const std::string&,CommonData&)> _readGain;
 };
 
 } //end namespace pixeldetector

@@ -305,7 +305,6 @@ void readHLLGainFile(const string &filename, CommonData& data)
     in>>skipws>>col;
     in>>skipws>>gain;
     in>>skipws>>cte;
-//    cout << g << " " << c <<" "<<col<<" "<<gain<<" "<<cte<<endl;
     if ((g != 'G') || (c != 'C'))
       break;
     gains.push_back(gain);
@@ -316,7 +315,6 @@ void readHLLGainFile(const string &filename, CommonData& data)
   frame_t hllgaincteMap;
   const size_t rows(512);
   const size_t columns(gains.size());
-//  cout << rows << " " << columns<<endl;
   for (size_t row(0); row < rows; ++row)
   {
     for (size_t column(0); column < columns; ++column)
@@ -330,30 +328,28 @@ void readHLLGainFile(const string &filename, CommonData& data)
   hllDataTypes::HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
 }
 
-/** will create the final correction map from the info stored in the other maps
+/** read the CASS generated gain file
  *
- * the correction value for a pixel is calculated using the following formular:
- *
- * \f[
- *  corval = ctegain \times corval \times maskval \times (
- *     0, & \text{if} noise < noisethreshold ;
- *     1, & \text{otherwise})
- * \f]
- *
- * @note one should lock this from the caller of this function
- *
- * @param data the data storage that is used to create the maps from
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
  *
  * @author Lutz Foucar
  */
-void createCorrectionMap(CommonData& data)
+void readCASSGainFile(const string &filename, CommonData& data)
 {
-  frame_t::iterator corval(data.correctionMap.begin());
-  frame_t::const_iterator noise(data.noiseMap.begin());
-  frame_t::const_iterator gain(data.gain_cteMap.begin());
-  CommonData::mask_t::const_iterator mask(data.mask.begin());
-  for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask, ++gain)
-    *corval = *gain * *corval * *mask * (*noise < data.noiseThreshold) * (!qFuzzyCompare(*noise,0.f));
+
+}
+
+/** read the CASS generated gain file
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be taken from.
+ *
+ * @author Lutz Foucar
+ */
+void saveCASSGainFile(const string &filename, const CommonData& data)
+{
+
 }
 
 /** check whether the frame has the same size as the maps.
@@ -383,8 +379,6 @@ void isSameSize(const Frame& frame, CommonData& data)
              toString(frame.columns * frame.rows) +
              "'. Resizing the offsetMap");
     data.offsetMap.resize(frame.columns*frame.rows, 0);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
     changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
@@ -392,11 +386,8 @@ void isSameSize(const Frame& frame, CommonData& data)
     Log::add(Log::WARNING,"isSameSize():The noiseMap does not have the right size '" +
              toString(data.noiseMap.size()) +
              "' to accommodate the frames with size '" +
-             toString(frame.columns * frame.rows) +
-             "'. Resizing the noiseMap");
+             toString(frame.columns * frame.rows) + "'. Resizing the noiseMap");
     data.noiseMap.resize(frame.columns*frame.rows, 4000);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
     changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
@@ -404,11 +395,8 @@ void isSameSize(const Frame& frame, CommonData& data)
     Log::add(Log::WARNING,"isSameSize():The mask does not have the right size '" +
              toString(data.mask.size()) +
              "' to accommodate the frames with size '" +
-             toString(frame.columns * frame.rows) +
-             "'. Resizing the mask");
+             toString(frame.columns * frame.rows) + "'. Resizing the mask");
     data.mask.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
     changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
@@ -419,8 +407,6 @@ void isSameSize(const Frame& frame, CommonData& data)
              toString(frame.columns * frame.rows) +
              "'. Resizing the gain_cteMap");
     data.gain_cteMap.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
     changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
@@ -431,12 +417,14 @@ void isSameSize(const Frame& frame, CommonData& data)
              toString(frame.columns * frame.rows) +
              "'. Resizing the correctionMap");
     data.correctionMap.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
     changed=true;
   }
   if(changed)
+  {
+    data.columns = frame.columns;
+    data.rows = frame.rows;
     data.createCorMap();
+  }
 }
 
 
@@ -468,7 +456,7 @@ void CommonData::controlCalibration(const string& command)
   {
     Log::add(Log::DEBUG1,"CommonData::controlCalibration: Starting calibration of '" +
              instance->first +"'");
-    instance->second->_mapcreator->controlCalibration(command);
+    instance->second->_offsetnoiseMapcreator->controlCalibration(command);
   }
 }
 
@@ -486,13 +474,19 @@ void CommonData::loadSettings(CASSSettings &s)
   {
     string detectorname(s.group().split("/").back().toStdString());
     s.beginGroup("CorrectionMaps");
+
+    noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+
+    /** setup how the offset/noise maps will be created */
     string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
-    _mapcreator = MapCreatorBase::instance(mapcreatortype);
-    _mapcreator->loadSettings(s);
+    _offsetnoiseMapcreator = MapCreatorBase::instance(mapcreatortype);
+    _offsetnoiseMapcreator->loadSettings(s);
+
+    /** setup how and where the offset/noise maps will be read from.
+     *  If offset filename is a link, try to deduce the real filename
+     */
     string offsetfilename(s.value("InputOffsetNoiseFilename",
                                   QString::fromStdString("darkcal_"+toString(detectorId)+".lnk")).toString().toStdString());
-    string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
-    /** if filename is a link, try to deduce the real filename */
     QFileInfo offsetfilenameInfo(QString::fromStdString(offsetfilename));
     if (offsetfilenameInfo.isSymLink())
     {
@@ -508,85 +502,152 @@ void CommonData::loadSettings(CASSSettings &s)
                string(" for detector with name '") + detectorname + "' which has id '" +
                toString(detectorId) + "' from file '" + offsetfilename +"'");
       _inputOffsetFilename = offsetfilename;
+      string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
       if (offsetfiletype == "hll")
         readHLLOffsetFile(offsetfilename, *this);
       else if(offsetfiletype == "cass")
         readCASSOffsetFile(offsetfilename, *this);
       else
-      {
         throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
                                offsetfiletype + "' does not exist");
-      }
     }
-    string ctegainFiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
-    if (ctegainFiletype == "hll")
-      _readGain = &readHLLGainFile;
-    else
-    {
-      throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
-                             offsetfiletype + "' does not exist");
-    }
-    _ctegainFilename = s.value("CTEGainFilename","").toString().toStdString();
+
+    /** setup how and where the offset/noise maps will be written to */
     _outputOffsetFilename = (s.value("OutputOffsetNoiseFilename","darkcal").toString().toStdString());
     string outputoffsetfiletype(s.value("OutputOffsetNoiseFiletype","hll").toString().toStdString());
     if (outputoffsetfiletype == "hll")
-      _saveTo = &saveHLLOffsetFile;
+      _saveNoiseOffsetTo = &saveHLLOffsetFile;
     else if(outputoffsetfiletype == "cass")
-      _saveTo = &saveCASSOffsetFile;
+      _saveNoiseOffsetTo = &saveCASSOffsetFile;
     else
-    {
       throw invalid_argument("CommonData::loadSettings: OutputOffsetNoiseFiletype '" +
                              outputoffsetfiletype + "' does not exist");
+
+    /** setup how the offset/noise maps will be created */
+    string gainmapcreatortype(s.value("GainMapCreatorType","none").toString().toStdString());
+    _gainCreator = MapCreatorBase::instance(gainmapcreatortype);
+    _gainCreator->loadSettings(s);
+
+    /** setup how and from where the gain file will be read and read it */
+    string gainfilename(s.value("InputGainFilename",
+                                  QString::fromStdString("gain_"+toString(detectorId)+".lnk")).toString().toStdString());
+    QFileInfo gainfilenameInfo(QString::fromStdString(gainfilename));
+    if (gainfilenameInfo.isSymLink())
+    {
+      if (gainfilenameInfo.exists())
+        gainfilename = gainfilenameInfo.symLinkTarget().toStdString();
+      else
+        Log::add(Log::WARNING,"CommonData::loadSettings: The given gain filename '" +
+                 gainfilename + "' is a link that referes to a non existing file!");
     }
-    /** read the mask values */
+    if (gainfilename != _inputGainFilename)
+    {
+      Log::add(Log::VERBOSEINFO, "CommonData::loadSettings(): Load gain data " +
+               string(" for detector with name '") + detectorname + "' which has id '" +
+               toString(detectorId) + "' from file '" + gainfilename +"'");
+      _inputGainFilename = gainfilename;
+      string gainFiletype(s.value("InputGainFiletype","hll").toString().toStdString());
+      if (gainFiletype == "hll")
+  //      _readGain = &readHLLGainFile;
+        readHLLGainFile(_inputGainFilename,*this);
+      else if (gainFiletype == "cass")
+        readCASSGainFile(_inputGainFilename,*this);
+      else
+        throw invalid_argument("CommonData::loadSettings: GainFiletype '" +
+                               gainFiletype + "' does not exist");
+    }
+
+    /** setup how and where the gain map will be written to */
+    _outputGainFilename = (s.value("OutputGainFilename","gain").toString().toStdString());
+    string outputgainfiletype(s.value("OutputGainFiletype","cass").toString().toStdString());
+    if (outputgainfiletype == "hll")
+      _saveGainTo = &saveCASSGainFile;
+    else
+      throw invalid_argument("CommonData::loadSettings: OutputGainFiletype '" +
+                             outputgainfiletype + "' does not exist");
+
+    /** read the mask values and generate the mask */
     createCASSMask(*this,s);
-    noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+
+    /** from the retrieved infos (noise/mask/gain) create the correction map */
     createCorMap();
     s.endGroup();
   }
   _settingsLoaded = true;
 }
 
-void CommonData::createMaps(const Frame &frame)
+void CommonData::generateMaps(const Frame &frame)
 {
   if (_settingsLoaded)
   {
     _settingsLoaded = false;
     isSameSize(frame,*this);
   }
-  MapCreatorBase& createOffsetNoiseMaps(*_mapcreator);
-  createOffsetNoiseMaps(frame);
+  MapCreatorBase& generateOffsetNoiseMaps(*_offsetnoiseMapcreator);
+  generateOffsetNoiseMaps(frame);
+  MapCreatorBase& generateGainMap(*_gainCreator);
+  generateGainMap(frame);
 }
 
-void CommonData::saveMaps()
+void CommonData::saveOffsetNoiseMaps()
 {
   string outname;
   if (_outputOffsetFilename == "darkcal")
-  {
-    outname = _outputOffsetFilename + "_"+toString(detectorId) + "_" +
+    outname = "darkcal_"+toString(detectorId) + "_" +
               QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
               ".cal";
-  }
   else
     outname = _outputOffsetFilename;
-  _saveTo(outname,*this);
+  _saveNoiseOffsetTo(outname,*this);
   if (_outputOffsetFilename == "darkcal")
   {
     string linkname("darkcal_" + toString(detectorId) +".lnk");
     if (QFile::exists(QString::fromStdString(linkname)))
       if(!QFile::remove(QString::fromStdString(linkname)))
-        throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
+        throw runtime_error("CommonData::saveOffsetNoiseMaps: could not remove already existing link '" +
                             linkname +"'");
     if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
-      throw runtime_error("CommonData::saveMaps: could not create a link named '"+
+      throw runtime_error("CommonData::saveOffsetNoiseMaps: could not create a link named '"+
+                          linkname + "' that points to the outputfile '" + outname +"'");
+  }
+}
+
+void CommonData::saveGainMap()
+{
+  string outname;
+  if (_outputGainFilename == "gain")
+    outname = "gain_"+toString(detectorId) + "_" +
+              QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
+              ".cal";
+  else
+    outname = _outputOffsetFilename;
+  _saveNoiseOffsetTo(outname,*this);
+  if (_outputGainFilename == "gain")
+  {
+    string linkname("gain_" + toString(detectorId) +".lnk");
+    if (QFile::exists(QString::fromStdString(linkname)))
+      if(!QFile::remove(QString::fromStdString(linkname)))
+        throw runtime_error("CommonData::saveGainMap: could not remove already existing link '" +
+                            linkname +"'");
+    if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
+      throw runtime_error("CommonData::saveGainMap: could not create a link named '"+
                           linkname + "' that points to the outputfile '" + outname +"'");
   }
 }
 
 void CommonData::createCorMap()
 {
-  /** reset the correction map before reading the correction values */
+//  _readGain(_ctegainFilename,*this);
+  frame_t::iterator corval(correctionMap.begin());
+  frame_t::const_iterator corvalMapEnd(correctionMap.end());
+  frame_t::const_iterator noise(noiseMap.begin());
+  frame_t::const_iterator gain(gain_cteMap.begin());
+  mask_t::const_iterator Mask(mask.begin());
+  /** reset the correction map before generating the correction values */
   fill(correctionMap.begin(),correctionMap.end(),1.);
-  _readGain(_ctegainFilename,*this);
-  createCorrectionMap(*this);
+  while (corval != corvalMapEnd)
+  {
+    *corval = *gain++ * *corval * *Mask++ * (*noise++ < noiseThreshold) * (!qFuzzyIsNull(*noise++));
+    ++corval;
+  }
 }

@@ -83,7 +83,7 @@ void AdvancedDetector::associate(const CASSEvent &evt)
   _frame.columns = det.columns();
   _frame.rows = det.rows();
   _frame.data = det.frame();
-  _common->createMaps(_frame);
+  _common->generateMaps(_frame);
   _frameExtracted = false;
   _pixels.clear();
   _pixellistCreated = false;

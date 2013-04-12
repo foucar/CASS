@@ -165,7 +165,7 @@ void FixedMaps::operator ()(const Frame &frame)
       }
       _createMaps = false;
       _storage.clear();
-      _commondata->saveMaps();
+      _commondata->saveOffsetNoiseMaps();
       _commondata->createCorMap();
     }
   }
@@ -248,7 +248,7 @@ void MovingMaps::train(const Frame &frame)
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues - 1));
     }
-    _commondata->saveMaps();
+    _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
     _createMap = bind(&MovingMaps::updateMaps,this,_1);
     Log::add(Log::INFO,"MovingMaps::train(): Done training.");
@@ -276,7 +276,7 @@ void MovingMaps::updateMaps(const Frame &frame)
   ++_framecounter;
   if ((_framecounter % _frameSave) == 0)
   {
-    _commondata->saveMaps();
+    _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
   }
 }

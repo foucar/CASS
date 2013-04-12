@@ -121,7 +121,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
      *  then reset everything.
      */
     if(_writeMaps)
-      _commondata->saveMaps();
+      _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
     _specialstorage.clear();
@@ -267,7 +267,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
      *  then reset everything.
      */
     if(_writeMaps)
-      _commondata->saveMaps();
+      _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
     _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
     _storage.clear();
