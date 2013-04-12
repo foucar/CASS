@@ -202,6 +202,9 @@ private slots:
     /** tells the server to start the dark calibration */
     void on_actionControl_Darkcal_triggered();
 
+    /** tells the server to start the gain calibration */
+    void on_actionStart_Gaincalibration_triggered();
+
 private:
 
     QDockWidget* _dock;

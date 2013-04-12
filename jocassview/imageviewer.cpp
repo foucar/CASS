@@ -1062,7 +1062,16 @@ getDataThread::getDataThread()
 void jocassview::ImageViewer::on_actionControl_Darkcal_triggered()
 {
   bool ret;
-  _cass->controlDarkcal("start",&ret);
+  _cass->controlDarkcal("startDarkcal",&ret);
+  if (!ret)
+    QMessageBox::information(this, tr("jocassviewer"),
+                             tr("Error: Cannot communicate control darkcal command."));
+}
+
+void jocassview::ImageViewer::on_actionStart_Gaincalibration_triggered()
+{
+  bool ret;
+  _cass->controlDarkcal("startGain",&ret);
   if (!ret)
     QMessageBox::information(this, tr("jocassviewer"),
                              tr("Error: Cannot communicate control darkcal command."));

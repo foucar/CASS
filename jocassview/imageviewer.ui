@@ -63,6 +63,7 @@
     <addaction name="readIni"/>
     <addaction name="writeIni"/>
     <addaction name="actionControl_Darkcal"/>
+    <addaction name="actionStart_Gaincalibration"/>
     <addaction name="separator"/>
     <addaction name="quitServer"/>
    </widget>
@@ -286,6 +287,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionStart_Gaincalibration">
+   <property name="text">
+    <string>Start &amp;Gain Calibration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>
