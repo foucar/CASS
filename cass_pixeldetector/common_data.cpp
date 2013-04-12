@@ -330,26 +330,48 @@ void readHLLGainFile(const string &filename, CommonData& data)
 
 /** read the CASS generated gain file
  *
- * @param filename the filename of file containing the offset and noise maps.
+ * @param filename the filename of file containing the gain maps.
  * @param data the data storage where the info should be written to.
  *
  * @author Lutz Foucar
  */
 void readCASSGainFile(const string &filename, CommonData& data)
 {
-
+  ifstream in(filename.c_str(), ios::binary);
+  if (!in.is_open())
+  {
+    Log::add(Log::WARNING,"readCASSGainFile: Could not open '" + filename +
+             "'. Skipping reading the noise and offset maps.");
+    return;
+  }
+  in.seekg(0,std::ios::end);
+  const size_t size = in.tellg() / sizeof(frame_t::value_type);
+  in.seekg(0,std::ios::beg);
+  vector<double> gains(size);
+  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(frame_t::value_type));
+  QWriteLocker lock(&data.lock);
+  data.gain_cteMap.resize(size);
+  copy(gains.begin(),gains.end(),data.gain_cteMap.begin());
 }
 
-/** read the CASS generated gain file
+/** save the gain map to CASS style file
  *
- * @param filename the filename of file containing the offset and noise maps.
+ * @param filename the filename of file were the gains will be written to
  * @param data the data storage where the info should be taken from.
  *
  * @author Lutz Foucar
  */
 void saveCASSGainFile(const string &filename, const CommonData& data)
 {
-
+  ofstream out(filename.c_str(), ios::binary);
+  if (!out.is_open())
+  {
+    throw invalid_argument("saveCASSGainFile(): Error opening file '" +
+                           filename + "'");
+  }
+  vector<double> gains(data.gain_cteMap.size());
+  copy(data.gain_cteMap.begin(),data.gain_cteMap.end(),gains.begin());
+  out.write(reinterpret_cast<char*>(&gains.front()), gains.size()*sizeof(frame_t::value_type));
 }
 
 /** check whether the frame has the same size as the maps.
@@ -456,7 +478,10 @@ void CommonData::controlCalibration(const string& command)
   {
     Log::add(Log::DEBUG1,"CommonData::controlCalibration: Starting calibration of '" +
              instance->first +"'");
-    instance->second->_offsetnoiseMapcreator->controlCalibration(command);
+    if(command == "startDarkcal")
+      instance->second->_offsetnoiseMapcreator->controlCalibration(command);
+    else if (command == "startGain")
+      instance->second->_gainCreator->controlCalibration(command);
   }
 }
 

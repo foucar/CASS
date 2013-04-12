@@ -33,7 +33,7 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
     ptr = shared_pointer(new OnlineFixedCreator());
   else if (type == "onlinecommonmode")
     ptr = shared_pointer(new OnlineFixedCreatorCommonMode());
-  else if (type == "fixedADU")
+  else if (type == "GainFixedADURange")
     ptr = shared_pointer(new GainCalibration());
   else
     throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +

@@ -92,7 +92,8 @@ class MapCreatorBase;
  *           - "none": All maps will be initialized such that the frame will
  *                     not be altered when applying them. See
  *                     cass::pixeldetector::MapCreatorBase for details.
- *           - "fixedADU": normalize all pixels to the average within a given range
+ *           - "GainFixedADURange": gain value from the average pixelvalue within
+ *                                  a given ADU range
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputGainFilename}\n
  *           The filename containing the gain (/cte) values. Default
  *           is "gain_\%detectorId\%.lnk".

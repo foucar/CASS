@@ -25,54 +25,37 @@ namespace pixeldetector
 struct Frame;
 class CommonData;
 
-
 /** Creates a gain calibration
  *
- * Creates the maps after collecting a user given number of frames. The maps will
- * be created using standart statistics. The user has the choice of whehter the
- * mean or the median should be used for the offset value.
+ * Generates the gain map.
  *
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{NbrFrames}\n
- *           The number of frames that should be collected for calculating the
- *           maps. Default is 200.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{StartInstantly}\n
- *           Flag to tell whether the calculator should start instantly with
- *           collecting the frames and calculating the maps. If false it will
- *           wait until told by the program through the available GUI's. Default
- *           is false.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{DisregardedHighValues}\n
- *           Number of highest values that should be disregarded when calculating
- *           the offset value. Default is 5
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{DisregardedLowValues}\n
- *           Number of lowest values that should be disregarded when calculating
- *           the offset value. Default is 0
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{UseMedian}\n
- *           Tell the creator to use a median to calculate the offset value.
- *           If this is false the offset is calculated via the mean value.
- *           Default is false
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{WriteMaps}\n
- *           Tell the creator to write the calulated maps once they have been
- *           calculated. For further infomration on how the files are written,
- *           see cass::pixeldetector::CommonData. Default is true.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{StartInstantly}\n
+ *           Flag to tell whether the calculator should start instantly after
+ *           loading the seetings. If false it will wait until told by the
+ *           program through the available GUI's. Default is false.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{MinimumPhotonCount}\n
+ *           How many times the adu value of the pixel was in the user defined
+ *           ADURange, before the gain for this pixel will be calculated. Default
+ *           is 50
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{MinimumMedianCounts}\n
+ *           The gain values are only calculates when median counts per pixel
+ *           exeed this value. Default is 50.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{MinADURange|MaxADURange}\n
+ *           The range in ADU in which the pixelvalue has to lie before it is
+ *           taken into the statistics. Default is 0|1000.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{SaveCalibration}\n
+ *           If true writes the gain calibration to file. For further
+ *           information on how the files are written, see
+ *           cass::pixeldetector::CommonData. Default is true.
  *
  * @author Lutz Foucar
  */
 class GainCalibration : public MapCreatorBase
 {
 public:
-  /** build map from frame
+  /** generate gain map from frame
    *
-   * take the input frame and use its data to build up the correction maps. But
-   * only when the _createMaps flag is set to true.
-   *
-   * Once the _storage container is full calculate the maps. First retrieve for
-   * each pixel a list of all pixels within the storage that don't contain an
-   * event (e.g. photonhit).
-   *
-   * The map resources are locked since the function calling this operator will
-   * lock the resources.
-   *
-   * After calculation reset the _createMaps flag and clear the storage.
+   * use the _createMap functor that either does nothing or generates the gain
    *
    * @param frame the frame containing the data to build the maps from
    */
@@ -111,26 +94,26 @@ private:
    */
   void generateCalibration(const Frame& frame);
 
-//  /** the function that will calculate the offset */
-//  std::tr1::function<frame_t::value_type(frame_t&, size_t, size_t)> _calcOffset;
+  /** the value that will be set when not enough statistics is present */
+  frame_t::value_type _constGain;
 
-//  /** the storage with all the frames from which the maps are calculated */
-//  storage_t _storage;
+  /** define a conatiner for a statistics of a pixel */
+  typedef std::pair<int,double> statistics_t;
 
-//  /** flag to tell whether the maps should be created */
-//  bool _createMaps;
+  /** container for the statistics for each pixel */
+  std::vector<statistics_t> _statistics;
 
-//  /** how many frames should be included to create the statistics */
-//  size_t _nbrFrames;
+  /** range of ADU values that are of interest */
+  std::pair<frame_t::value_type,frame_t::value_type> _range;
 
-//  /** how many highest values should be disregarded */
-//  size_t _maxDisregarded;
+  /** the minimum nbr of photons that the median needs before the gain will calculated */
+  statistics_t::first_type _minMedianCounts;
 
-//  /** how many lowest values should be disregarded */
-//  size_t _minDisregarded;
+  /** minimum nbr of photon seen by a pixel before the average will used */
+  statistics_t::first_type _minPhotonCount;
 
-//  /** write maps flag */
-//  bool _writeMaps;
+  /** flag whether to write the gain calibration to file */
+  bool _writeFile;
 };
 
 
