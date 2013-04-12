@@ -377,11 +377,20 @@ public:
    *
    * @param unused this parameter is not used
    */
-  virtual void loadSettings(size_t /*unused*/);
+  virtual void loadSettings(size_t unused);
 
 protected:
+  /** notification that depandant histogram has changed
+   *
+   * change own histograms when one of the ones we depend on has changed
+   * histograms
+   *
+   * @param hist the changed histogram that we take the size from
+   */
+  virtual void histogramsChanged(const HistogramBackend* hist);
+
   /** generate the lookup table by parsing the geom file */
-  void generateLookupTable(const std::string &filename);
+  void setup(const Histogram2DFloat &srcImageHist);
 
   /** pp containing 2d histogram */
   PostprocessorBackend *_imagePP;
@@ -391,6 +400,12 @@ protected:
 
   /** the lookup table */
   lookupTable_t _lookupTable;
+
+  /** flag whether to convert the positions in the src from cheetah to cass layout */
+  bool _convertCheetahToCASSLayout;
+
+  /** filename of the geometry file */
+  std::string _filename;
 };
 
 
