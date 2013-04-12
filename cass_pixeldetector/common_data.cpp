@@ -341,17 +341,16 @@ void readCASSGainFile(const string &filename, CommonData& data)
   if (!in.is_open())
   {
     Log::add(Log::WARNING,"readCASSGainFile: Could not open '" + filename +
-             "'. Skipping reading the noise and offset maps.");
+             "'. Skipping reading the gain map.");
     return;
   }
   in.seekg(0,std::ios::end);
   const size_t size = in.tellg() / sizeof(frame_t::value_type);
   in.seekg(0,std::ios::beg);
-  vector<double> gains(size);
-  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(frame_t::value_type));
   QWriteLocker lock(&data.lock);
-  data.gain_cteMap.resize(size);
-  copy(gains.begin(),gains.end(),data.gain_cteMap.begin());
+  frame_t &gains(data.gain_cteMap);
+  gains.resize(size);
+  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(frame_t::value_type));
 }
 
 /** save the gain map to CASS style file
@@ -369,9 +368,8 @@ void saveCASSGainFile(const string &filename, const CommonData& data)
     throw invalid_argument("saveCASSGainFile(): Error opening file '" +
                            filename + "'");
   }
-  vector<double> gains(data.gain_cteMap.size());
-  copy(data.gain_cteMap.begin(),data.gain_cteMap.end(),gains.begin());
-  out.write(reinterpret_cast<char*>(&gains.front()), gains.size()*sizeof(frame_t::value_type));
+  const frame_t &gains(data.gain_cteMap);
+  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(frame_t::value_type));
 }
 
 /** check whether the frame has the same size as the maps.
