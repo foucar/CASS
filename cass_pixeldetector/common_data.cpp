@@ -583,7 +583,7 @@ void CommonData::loadSettings(CASSSettings &s)
     /** setup how and where the gain map will be written to */
     _outputGainFilename = (s.value("OutputGainFilename","gain").toString().toStdString());
     string outputgainfiletype(s.value("OutputGainFiletype","cass").toString().toStdString());
-    if (outputgainfiletype == "hll")
+    if (outputgainfiletype == "cass")
       _saveGainTo = &saveCASSGainFile;
     else
       throw invalid_argument("CommonData::loadSettings: OutputGainFiletype '" +
