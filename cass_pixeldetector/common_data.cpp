@@ -670,7 +670,8 @@ void CommonData::createCorMap()
   fill(correctionMap.begin(),correctionMap.end(),1.);
   while (corval != corvalMapEnd)
   {
-    *corval = *gain++ * *corval * *Mask++ * (*noise++ < noiseThreshold) * (!qFuzzyIsNull(*noise++));
+    *corval = *gain++ * *corval * *Mask++ * (*noise < noiseThreshold) * (!qFuzzyIsNull(*noise));
     ++corval;
+    ++noise;
   }
 }
