@@ -16,6 +16,7 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "statistics_calculator.hpp"
 
 using namespace std;
 using namespace cass;
@@ -232,12 +233,10 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
                             float &mean, float &stdv, int &count)
 {
   enum{good,skip};
-  float tmp_mean(0);
-  float tmp_stdv(0);
-  count = 0;
-  for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
+  CummulativeStatisticsCalculator<pixelval_t> stat;
+  for (imagepos_t bRow=-_box.second; bRow <= _box.second; ++bRow)
   {
-    for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
+    for (imagepos_t bCol=-_box.first; bCol <= _box.first; ++bCol)
     {
       /** only consider pixels that are not in the origin of the box */
       if (bRow == 0 && bCol == 0)
@@ -246,32 +245,26 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
       /** check if the current box pixel value is bigger than the center pixel
        *  value. If so skip this pixel
        */
-      const int bLocIdx(bRow*ncols+bCol);
-      const float bPixel(pixel[bLocIdx]);
+      const imagepos_t bLocIdx(bRow*ncols+bCol);
+      const pixelval_t bPixel(pixel[bLocIdx]);
       if(*pixel < bPixel )
         return skip;
 
-      /** if box pixel is outside the radius and not bad, calculate the mean and
-       *  standart deviation from these pixels
+      /** if box pixel is outside the radius, add it to the statistics, if it
+       *  is inside the radius bad then skip, as no pixel that could potentially
+       *  be part of the peak should be a bad pixel.
        */
       const bool pixIsBad(qFuzzyIsNull(bPixel));
       const int radiussq(bRow*bRow + bCol*bCol);
-      if (_peakRadiusSq < radiussq && !pixIsBad)
-      {
-        ++count;
-        const float old_mean(tmp_mean);
-        tmp_mean += ((bPixel - old_mean) / static_cast<float>(count));
-        tmp_stdv += ((bPixel - old_mean)*(bPixel - tmp_mean));
-      }
-      /** if the current pixel is within the radius check if it is a bad pixel
-       *  if so, then skip this pixel
-       */
+      if (_peakRadiusSq < radiussq)
+        stat.addDatum(bPixel);
       else if (pixIsBad)
         return skip;
     }
   }
-  mean = tmp_mean;
-  stdv = sqrt(tmp_stdv/ (count-1));
+  count = stat.count();
+  mean = stat.mean();
+  stdv = stat.stdv();
   return good;
 }
 
@@ -434,15 +427,6 @@ void pp204::process(const CASSEvent & evt)
     peak[nbrOfBackgroundPixels] = count;
 
     result.appendRows(peak);
-
-//    ++counter_rad;
-//    const float oldradius_mean(radius_mean);
-//    radius_mean += ((max_radiussq - oldradius_mean)/static_cast<float>(counter_rad));
-//    radius_stdv += ((max_radiussq - oldradius_mean)*(max_radiussq - radius_mean));
-//    char tmp[256];
-//    snprintf(tmp, 255, "\r%6.5f %6.5f %5i",
-//             radius_mean,sqrt(radius_stdv/(counter_rad -1)), max_radiussq );
-//    cout << tmp << flush;
 
   }
 

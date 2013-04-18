@@ -164,10 +164,10 @@ protected:
                        float &mean, float &stdv, int &count);
 
   /** the size of the box within which the peak should lie */
-  std::pair<int,int> _box;
+  std::pair<imagepos_t,imagepos_t> _box;
 
   /** size of a image section */
-  std::pair<int,int> _section;
+  std::pair<imagepos_t,imagepos_t> _section;
 
   /** pixel threshold to be exceeded */
   float _threshold;
