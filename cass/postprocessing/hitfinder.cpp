@@ -229,8 +229,8 @@ void pp204::loadSettings(size_t)
 
 
 int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                            int ncols,
-                            float &mean, float &stdv, int &count)
+                            const imagepos_t ncols,
+                            pixelval_t &mean, pixelval_t &stdv, int &count)
 {
   enum{good,skip};
   CummulativeStatisticsCalculator<pixelval_t> stat;
@@ -283,20 +283,19 @@ void pp204::process(const CASSEvent & evt)
   const imagepos_t ncols(hist.axis()[HistogramBackend::xAxis].size());
   const imagepos_t nrows(hist.axis()[HistogramBackend::yAxis].size());
 
-  int ncolls(ncols);
-  int neigbourpositionsarray[] =
+  imagepos_t neigbourOffsetArray[] =
   {
-    ncolls-1,
-    ncolls,
-    ncolls+1,
+    ncols-1,
+    ncols,
+    ncols+1,
     -1,
     1,
-    -ncolls-1,
-    -ncolls,
-    -ncolls+1,
+    -ncols-1,
+    -ncols,
+    -ncols+1,
   };
-  vector<int> neighbourpositions(neigbourpositionsarray,
-                                    neigbourpositionsarray + sizeof(neigbourpositionsarray)/sizeof(int));
+  vector<imagepos_t> neighboursOffsets(neigbourOffsetArray,
+                                neigbourOffsetArray + sizeof(neigbourOffsetArray)/sizeof(int));
   table_t peak(nbrOf,0);
   vector<bool> checkedPixels(image.size(),false);
 
@@ -327,7 +326,7 @@ void pp204::process(const CASSEvent & evt)
       continue;
 
     /** check wether current pixel value is highest and generate background values */
-    float mean,stdv;
+    pixelval_t mean,stdv;
     int count;
     if (getBoxStatistics(pixel,ncols,mean,stdv,count))
       continue;
@@ -337,7 +336,7 @@ void pp204::process(const CASSEvent & evt)
       continue;
 
     /** check if signal to noise ration is good for the current pixel */
-    const float snr((*pixel - mean) / stdv);
+    const pixelval_t snr((*pixel - mean) / stdv);
 
     if (snr < _minSnr)
       continue;
@@ -356,25 +355,24 @@ void pp204::process(const CASSEvent & evt)
     for (size_t pix=0; pix < peakIdxs.size(); ++pix)
     {
       const imagepos_t pixpos(peakIdxs[pix]);
-      vector<int>::const_iterator neighboursPos(neighbourpositions.begin());
-      vector<int>::const_iterator neighboursEnd(neighbourpositions.end());
-      while(neighboursPos != neighboursEnd)
+      vector<imagepos_t>::const_iterator nOffset(neighboursOffsets.begin());
+      vector<imagepos_t>::const_iterator neighboursEnd(neighboursOffsets.end());
+      while(nOffset != neighboursEnd)
       {
-        const size_t neighbourPos(pixpos + *neighboursPos++);
-        if (checkedPixels[neighbourPos])
+        const size_t nIdx(pixpos + *nOffset++);
+        const imagepos_t nCol(nIdx % ncols);
+        const imagepos_t nRow(nIdx / ncols);
+        if (checkedPixels[nIdx] ||
+            _box.first < abs(col - nCol) ||
+            _box.second < abs(row - nRow))
           continue;
-        const int neighbourCol(neighbourPos % ncols);
-        const int neighbourRow(neighbourPos / ncols);
-        if (abs(col - neighbourCol) > _box.first ||
-            abs(row - neighbourRow) > _box.second)
-          continue;
-        const pixelval_t neighbour(image[neighbourPos]);
-        const pixelval_t neighburWOBckgnd(neighbour - mean);
-        const pixelval_t neighbourSNR(neighburWOBckgnd / stdv);
-        if (_minNeighbourSNR < neighbourSNR)
+        const pixelval_t nPixel(image[nIdx]);
+        const pixelval_t nPixelWOBckgnd(nPixel - mean);
+        const pixelval_t nSNR(nPixelWOBckgnd / stdv);
+        if (_minNeighbourSNR < nSNR)
         {
-          peakIdxs.push_back(neighbourPos);
-          checkedPixels[neighbourPos] = true;
+          peakIdxs.push_back(nIdx);
+          checkedPixels[nIdx] = true;
         }
       }
     }
@@ -383,22 +381,22 @@ void pp204::process(const CASSEvent & evt)
      *  peak and centroid them. Mask all pixels in the box as checked so one
      *  does not check them again
      */
-    float integral = 0;
-    float weightCol = 0;
-    float weightRow = 0;
-    int nPix = 0;
-    int max_radiussq=0;
-    int min_radiussq=max(_box.first,_box.second)*max(_box.first,_box.second);
+    pixelval_t integral = 0;
+    pixelval_t weightCol = 0;
+    pixelval_t weightRow = 0;
+    imagepos_t nPix = 0;
+    imagepos_t max_radiussq=0;
+    imagepos_t min_radiussq=max(_box.first,_box.second)*max(_box.first,_box.second);
     for (int bRow=-_box.second; bRow <= _box.second; ++bRow)
     {
       for (int bCol=-_box.first; bCol <= _box.first; ++bCol)
       {
-        const int bLocIdx(bRow*ncols+bCol);
-        const float bPixel(pixel[bLocIdx]);
-        const float bPixelWOBckgnd(bPixel - mean);
+        const imagepos_t bLocIdx(bRow*ncols+bCol);
+        const pixelval_t bPixel(pixel[bLocIdx]);
+        const pixelval_t bPixelWOBckgnd(bPixel - mean);
         if (checkedPixel[bLocIdx])
         {
-          const int radiussq(bRow*bRow + bCol*bCol);
+          const imagepos_t radiussq(bRow*bRow + bCol*bCol);
           if (radiussq > max_radiussq)
             max_radiussq = radiussq;
           if (radiussq < min_radiussq)

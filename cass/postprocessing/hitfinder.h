@@ -160,8 +160,8 @@ protected:
    *                   mean and stdv
    */
   int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator centerPixel,
-                       const int nColumns,
-                       float &mean, float &stdv, int &count);
+                       const imagepos_t nColumns,
+                       pixelval_t &mean, pixelval_t &stdv, int &count);
 
   /** the size of the box within which the peak should lie */
   std::pair<imagepos_t,imagepos_t> _box;
