@@ -35,6 +35,9 @@ public:
   /** define the value type */
   typedef Type value_type;
 
+  /** define the type of the counter */
+  typedef size_t counter_type;
+
   /** default constructor
    *
    * resets the values.
@@ -87,7 +90,7 @@ public:
    *
    * @return counts
    */
-  unsigned long long count()
+  counter_type count()
   {
     return _N;
   }
@@ -106,7 +109,7 @@ private:
   value_type _tmp;
 
   /** counter to see how many values have been added to the statistics */
-  unsigned long long _N;
+  counter_type _N;
 };
 
 

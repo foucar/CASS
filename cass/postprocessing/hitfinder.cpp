@@ -337,7 +337,6 @@ void pp204::process(const CASSEvent & evt)
 
     /** check if signal to noise ration is good for the current pixel */
     const pixelval_t snr((*pixel - mean) / stdv);
-
     if (snr < _minSnr)
       continue;
 
