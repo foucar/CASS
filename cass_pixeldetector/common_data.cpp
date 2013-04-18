@@ -28,11 +28,13 @@
 #include "pixeldetector_mask.h"
 #include "hlltypes.h"
 #include "log.h"
+#include "statistics_calculator.hpp"
 
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
-//using Streaming::operator >>;
+using tr1::bind;
+using tr1::placeholders::_1;
 
 namespace cass
 {
@@ -345,12 +347,12 @@ void readCASSGainFile(const string &filename, CommonData& data)
     return;
   }
   in.seekg(0,std::ios::end);
-  const size_t size = in.tellg() / sizeof(frame_t::value_type);
+  const size_t size = in.tellg() / sizeof(pixel_t);
   in.seekg(0,std::ios::beg);
   QWriteLocker lock(&data.lock);
   frame_t &gains(data.gain_cteMap);
   gains.resize(size);
-  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(frame_t::value_type));
+  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(pixel_t));
 }
 
 /** save the gain map to CASS style file
@@ -369,7 +371,7 @@ void saveCASSGainFile(const string &filename, const CommonData& data)
                            filename + "'");
   }
   const frame_t &gains(data.gain_cteMap);
-  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(frame_t::value_type));
+  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(pixel_t));
 }
 
 /** check whether the frame has the same size as the maps.
@@ -499,6 +501,8 @@ void CommonData::loadSettings(CASSSettings &s)
     s.beginGroup("CorrectionMaps");
 
     noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+    _autoNoiseThreshold = qFuzzyCompare(noiseThreshold,-1.f);
+    _autoMultiplier = s.value("AutoMultiplier",4.f).toFloat();
 
     /** setup how the offset/noise maps will be created */
     string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
@@ -571,7 +575,6 @@ void CommonData::loadSettings(CASSSettings &s)
       _inputGainFilename = gainfilename;
       string gainFiletype(s.value("InputGainFiletype","hll").toString().toStdString());
       if (gainFiletype == "hll")
-  //      _readGain = &readHLLGainFile;
         readHLLGainFile(_inputGainFilename,*this);
       else if (gainFiletype == "cass")
         readCASSGainFile(_inputGainFilename,*this);
@@ -660,7 +663,15 @@ void CommonData::saveGainMap()
 
 void CommonData::createCorMap()
 {
-//  _readGain(_ctegainFilename,*this);
+  if (_autoNoiseThreshold && !noiseMap.empty())
+  {
+    typedef CummulativeStatisticsCalculator<pixel_t> calc_t;
+    calc_t stat;
+    for_each(noiseMap.begin(),noiseMap.end(),bind(&calc_t::addDatum,&stat,_1));
+    noiseThreshold = stat.mean() + _autoMultiplier * stat.stdv();
+    Log::add(Log::INFO, "CommonData::createCorMap(): best noisethreshold for detector with id '" +
+             toString(detectorId) + "' is '" + toString(noiseThreshold) +"'");
+  }
   frame_t::iterator corval(correctionMap.begin());
   frame_t::const_iterator corvalMapEnd(correctionMap.end());
   frame_t::const_iterator noise(noiseMap.begin());

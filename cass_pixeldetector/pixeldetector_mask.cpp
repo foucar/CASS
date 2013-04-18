@@ -22,6 +22,7 @@
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
+using tr1::function;
 
 namespace cass
 {
@@ -497,7 +498,7 @@ void addTriangle(CommonData &data, CASSSettings &s)
 
 void createCASSMask(CommonData &data, CASSSettings &s)
 {
-  map<string,tr1::function<void(CommonData&, CASSSettings&)> > functions;
+  map<string,function<void(CommonData&, CASSSettings&)> > functions;
   functions["circle"] = &addCircle;
   functions["circ"] = &addCircle;
   functions["square"] = &addSquare;

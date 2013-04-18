@@ -118,7 +118,13 @@ class MapCreatorBase;
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold}\n
  *           The threshold to identify noisy pixels. Will be used when creating
  *           the mask. When the noise of the pixel is higher than this value
- *           the pixel will be masked. Default is 40000.
+ *           the pixel will be masked. If the value is -1, a good value will
+ *           be determined from the noise map. Default is 40000.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{AutoMultiplier}\n
+ *           When automatically determining the noise threshold, this is the
+ *           multiplier by which the autovalue is determined.
+ *           \f$ noiseThreshold = mean_noise + AutoMultiplier + stdv_noise \f$.
+ *           Default is 4.
  *
  * @author Lutz Foucar
  */
@@ -332,6 +338,11 @@ private:
   /** the gain correction output filename */
   std::string _outputGainFilename;
 
+  /** flag whether the noise threshold should be automatically determined */
+  bool _autoNoiseThreshold;
+
+  /** the multiplier about which the automatically determined threshold will be defined */
+  pixel_t _autoMultiplier;
 
   /** function to read the gain / cte corrections */
 //  std::tr1::function<void(const std::string&,CommonData&)> _readGain;
