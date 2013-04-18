@@ -134,6 +134,12 @@ protected:
   };
 
 protected:
+  /** define the values of the pixels */
+  typedef  HistogramFloatBase::storage_t::value_type pixelval_t;
+
+  /** define the positions in the image */
+  typedef HistogramFloatBase::storage_t::difference_type imagepos_t;
+
   /** check highest pixel and generate the mean and standart deviation
    *
    * function is used in SNR peak finder
@@ -172,12 +178,11 @@ protected:
   /** the min signal to noise ratio that needs to be exceeded */
   float _minSnr;
 
+  /** the min signal to noise ratio that needs to be exceeded */
+  float _minNeighbourSNR;
+
   /** min amount of pixels for the background calc */
   int _minBckgndPixels;
-
-  float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
-  int counter,counterall,counter_rad;
-
 };
 
 

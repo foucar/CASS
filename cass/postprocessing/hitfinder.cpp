@@ -189,24 +189,17 @@ void pp204::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(_key));
 
   // size of box for median
-  _box = make_pair(s.value("BoxSizeX", 10).toUInt(),
-                   s.value("BoxSizeY",10).toUInt());
+  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
+  _peakRadiusSq = peakRadius*peakRadius;
+  const int goodBoxSize(sqrt(3.1415) * peakRadius);
+  _box = make_pair(s.value("BoxSizeX", goodBoxSize).toUInt(),
+                   s.value("BoxSizeY",goodBoxSize).toUInt());
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
   _threshold = s.value("Threshold",300).toFloat();
   _minSnr = s.value("MinSignalToNoiseRatio",20).toFloat();
+  _minNeighbourSNR = s.value("MinNeighbourSNR",3).toFloat();
   _minBckgndPixels = s.value("MinNbrBackgrndPixels",10).toInt();
-  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
-  _peakRadiusSq = peakRadius*peakRadius;
-  snrall_mean = 0;
-  snrall_stdv = 0;
-  counterall = 0;
-  snr_mean = 0;
-  snr_stdv = 0;
-  counter = 0;
-  radius_mean = 0;
-  radius_stdv = 0;
-  counter_rad = 0;
 
   setupGeneral();
 
@@ -294,15 +287,29 @@ void pp204::process(const CASSEvent & evt)
   result.lock.lockForWrite();
   result.clearTable();
 
-  const size_t ncols(hist.axis()[HistogramBackend::xAxis].size());
-  const size_t nrows(hist.axis()[HistogramBackend::yAxis].size());
+  const imagepos_t ncols(hist.axis()[HistogramBackend::xAxis].size());
+  const imagepos_t nrows(hist.axis()[HistogramBackend::yAxis].size());
 
+  int ncolls(ncols);
+  int neigbourpositionsarray[] =
+  {
+    ncolls-1,
+    ncolls,
+    ncolls+1,
+    -1,
+    1,
+    -ncolls-1,
+    -ncolls,
+    -ncolls+1,
+  };
+  vector<int> neighbourpositions(neigbourpositionsarray,
+                                    neigbourpositionsarray + sizeof(neigbourpositionsarray)/sizeof(int));
   table_t peak(nbrOf,0);
   vector<bool> checkedPixels(image.size(),false);
 
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
   HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
-  int idx(0);
+  imagepos_t idx(0);
   for (;pixel != image.end(); ++pixel,++idx, ++checkedPixel)
   {
     /** check if pixel has been touched before */
@@ -339,30 +346,49 @@ void pp204::process(const CASSEvent & evt)
     /** check if signal to noise ration is good for the current pixel */
     const float snr((*pixel - mean) / stdv);
 
-//    ++counterall;
-//    const float oldsnrall_mean(snrall_mean);
-//    snrall_mean += ((snr - oldsnrall_mean)/static_cast<float>(counterall));
-//    snrall_stdv += ((snr - oldsnrall_mean)*(snr - snrall_mean));
-
-
-//    const bool NoOutlier = counter < 2000 ? (snr < _minSnr) : (snr - snr_mean < 10 * sqrt(snr_stdv/(counter -1)));
-//    const bool NoOutlier = (snr - snrall_mean < _minSnr * sqrt(snrall_stdv/(counterall -1)));
-
-
     if (snr < _minSnr)
-//    if (NoOutlier)
-    {
-//      char tmp[256];
-//      snprintf(tmp, 255, "\r%6.5f %6.5f  |  %6.5f %6.5f   |  %6.5f",
-//               snr_mean, sqrt(snr_stdv/(counter -1)),snrall_mean,sqrt(snrall_stdv/(counterall -1)),snr );
-//      cout << tmp << flush;
-
       continue;
+
+    /** from the central pixel look around and see which pixels are direct
+     *  part of the peak. If a neighbour is found, mask it such that one does
+     *  not use it twice.
+     *
+     *  Create a list that should contain the indizes of the pixels that are
+     *  part of the peak. Go through that list and check for each found
+     *  neighbour whether it also has a neighbour. If so add it to the list, but
+     *  only if it is part of the box.
+     */
+    vector<imagepos_t> peakIdxs;
+    peakIdxs.push_back(idx);
+    for (size_t pix=0; pix < peakIdxs.size(); ++pix)
+    {
+      const imagepos_t pixpos(peakIdxs[pix]);
+      vector<int>::const_iterator neighboursPos(neighbourpositions.begin());
+      vector<int>::const_iterator neighboursEnd(neighbourpositions.end());
+      while(neighboursPos != neighboursEnd)
+      {
+        const size_t neighbourPos(pixpos + *neighboursPos++);
+        if (checkedPixels[neighbourPos])
+          continue;
+        const int neighbourCol(neighbourPos % ncols);
+        const int neighbourRow(neighbourPos / ncols);
+        if (abs(col - neighbourCol) > _box.first ||
+            abs(row - neighbourRow) > _box.second)
+          continue;
+        const pixelval_t neighbour(image[neighbourPos]);
+        const pixelval_t neighburWOBckgnd(neighbour - mean);
+        const pixelval_t neighbourSNR(neighburWOBckgnd / stdv);
+        if (_minNeighbourSNR < neighbourSNR)
+        {
+          peakIdxs.push_back(neighbourPos);
+          checkedPixels[neighbourPos] = true;
+        }
+      }
     }
 
-    /** find all pixels in the box whose signal to noise ratio is big enough and
-     *  centriod them. Mark the pixels as touched, so that they don't have to
-     *  be checked again. Find out the maximum and minimum radius
+    /** go through all pixels in the box, find out which pixels are part of the
+     *  peak and centroid them. Mask all pixels in the box as checked so one
+     *  does not check them again
      */
     float integral = 0;
     float weightCol = 0;
@@ -377,9 +403,7 @@ void pp204::process(const CASSEvent & evt)
         const int bLocIdx(bRow*ncols+bCol);
         const float bPixel(pixel[bLocIdx]);
         const float bPixelWOBckgnd(bPixel - mean);
-        const float bSnr(bPixelWOBckgnd / stdv);
-        if (_minSnr < bSnr)
-//        if (_minSnr * sqrt(snrall_stdv/(counterall -1)) < bSnr - snrall_mean)
+        if (checkedPixel[bLocIdx])
         {
           const int radiussq(bRow*bRow + bCol*bCol);
           if (radiussq > max_radiussq)
@@ -394,15 +418,6 @@ void pp204::process(const CASSEvent & evt)
         checkedPixel[bLocIdx] = true;
       }
     }
-//    ++counter;
-//    const float oldsnr_mean(snr_mean);
-//    snr_mean += ((nPix - oldsnr_mean)/static_cast<float>(counter));
-//    snr_stdv += ((nPix - oldsnr_mean)*(nPix - snr_mean));
-
-//    if (nPix - snr_mean < 2 * sqrt(snr_stdv/(counter -1)))
-//    if (nPix - snr_mean < 0)
-//      continue;
-
     peak[centroidColumn] = weightCol / integral;
     peak[centroidRow] = weightRow / integral;
     peak[Intensity] = integral;
