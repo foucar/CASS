@@ -83,6 +83,15 @@ public:
     return sqrt(variance());
   }
 
+  /** retrieve the number of datum that have been added
+   *
+   * @return counts
+   */
+  unsigned long long count()
+  {
+    return _N;
+  }
+
   /** reset the statistics */
   void reset()
   {
@@ -282,7 +291,7 @@ public:
    * @param container the container from whos values the median should be
    *                  calculated
    */
-  static value_type median(const container_type &container)const
+  static value_type median(const container_type &container)
   {
     container_type cc(container);
     const size_t medianpos(0.5*cc.size());
