@@ -282,6 +282,9 @@ public:
   /** the id of the detector that contains the frames whos maps we have here */
   int32_t detectorId;
 
+  /** the name of the detector whos maps are contained in this class instance */
+  std::string detectorname;
+
 private:
   /** prevent people from constructing other than using instance().*/
   CommonData() {}

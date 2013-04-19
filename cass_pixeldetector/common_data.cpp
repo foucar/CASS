@@ -417,8 +417,15 @@ void isSameSize(const Frame& frame, CommonData& data)
     Log::add(Log::WARNING,"isSameSize():The mask does not have the right size '" +
              toString(data.mask.size()) +
              "' to accommodate the frames with size '" +
-             toString(frame.columns * frame.rows) + "'. Resizing the mask");
+             toString(frame.columns * frame.rows) + "'. Resizing and reloading the mask");
     data.mask.resize(frame.columns*frame.rows, 1);
+    CASSSettings s;
+    s.beginGroup("PixelDetectors");
+    s.beginGroup(QString::fromStdString(data.detectorname));
+    s.beginGroup("CorrectionMaps");
+    data.columns = frame.columns;
+    data.rows = frame.rows;
+    createCASSMask(data,s);
     changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
@@ -497,7 +504,7 @@ void CommonData::loadSettings(CASSSettings &s)
 {
   if (!_settingsLoaded)
   {
-    string detectorname(s.group().split("/").back().toStdString());
+    detectorname = s.group().split("/").back().toStdString();
     s.beginGroup("CorrectionMaps");
 
     noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
@@ -592,11 +599,6 @@ void CommonData::loadSettings(CASSSettings &s)
       throw invalid_argument("CommonData::loadSettings: OutputGainFiletype '" +
                              outputgainfiletype + "' does not exist");
 
-    /** read the mask values and generate the mask */
-    createCASSMask(*this,s);
-
-    /** from the retrieved infos (noise/mask/gain) create the correction map */
-    createCorMap();
     s.endGroup();
   }
   _settingsLoaded = true;
