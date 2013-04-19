@@ -138,7 +138,7 @@ protected:
   typedef  HistogramFloatBase::storage_t::value_type pixelval_t;
 
   /** define the positions in the image */
-  typedef HistogramFloatBase::storage_t::difference_type imagepos_t;
+  typedef int imagepos_t;
 
   /** check highest pixel and generate the mean and standart deviation
    *
