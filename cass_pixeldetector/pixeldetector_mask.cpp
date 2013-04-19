@@ -184,8 +184,8 @@ void addCircle(CommonData &data, CASSSettings &s)
       (static_cast<int>(data.columns) <= (center.first + radius)) ||
       (static_cast<int>(data.rows) <= (center.second + radius)))
   {
-    throw invalid_argument("addCircle(): The radius '" + toString(radius) +
-                           "' is choosen to big and does not fit with center ("
+    throw out_of_range("addCircle(): The radius '" + toString(radius) +
+                           "' is choosen to big and does not fit the image. Center of cirlce ("
                            + toString(center.first) +","
                            + toString(center.second)+")");
   }
@@ -230,21 +230,22 @@ void addSquare(CommonData &data, CASSSettings &s)
   const index_t upperRight(make_pair(s.value("UpperRightX",1024).toUInt(),
                                      s.value("UpperRightY",1024).toUInt()));
   if ((static_cast<int>(data.columns) <= upperRight.first) ||
-      (static_cast<int>(data.rows) <= upperRight.second) ||
-      (upperRight.first < lowerLeft.first) ||
-      (upperRight.second < lowerLeft.second))
-  {
-    throw invalid_argument("addSquare(): Either the upper right coordinate ("
+      (static_cast<int>(data.rows) <= upperRight.second))
+    throw invalid_argument("addSquare(): The upper right coordinate ("
                            + toString(upperRight.first) +","
                            + toString(upperRight.second)+") "+
                            "is too big for the mask that has a size of ("
                            + toString(data.columns) +","
-                           + toString(data.rows)+") "+
-                           "or the lowerLeft corner ("
-                           + toString(lowerLeft.first) +","
-                           + toString(lowerLeft.second)+") "+
-                           "is not really at the lower left");
-  }
+                           + toString(data.rows)+") ");
+  if((upperRight.first < lowerLeft.first) ||
+     (upperRight.second < lowerLeft.second))
+    throw out_of_range("addSquare(): The lowerLeft corner ("
+                       + toString(lowerLeft.first) +","
+                       + toString(lowerLeft.second)+") "+
+                       "is not really to the lower left of ("
+                       + toString(upperRight.first) +","
+                       + toString(upperRight.second)+") ");
+
   const size_t width(data.columns);
   for (index_t::first_type row(lowerLeft.second); row <= upperRight.second; ++row)
   {
@@ -284,16 +285,19 @@ void addEllipse(CommonData &data, CASSSettings &s)
   const size_t width(data.columns);
 
   if ((center.first < a) ||
-      (center.second < b) ||
-      (static_cast<int>(data.columns) <= (center.first + a)) ||
-      (static_cast<int>(data.rows) <= (center.second + b)))
-  {
-    throw invalid_argument("addCircle(): The semi axis x '" + toString(a) +
+      (center.second < b))
+    throw invalid_argument("addCircle(): The semi axis a '" + toString(a) +
                            "' and b '" + toString(b) +
                            "' are choosen to big and do not fit with center ("
                            + toString(center.first) +","
                            + toString(center.second)+")");
-  }
+  if((static_cast<int>(data.columns) <= (center.first + a)) ||
+     (static_cast<int>(data.rows) <= (center.second + b)))
+    throw out_of_range("addCircle(): The semi axis boundaries a '" + toString(center.first + a) +
+                           "' and b '" + toString(center.second + b) +
+                           "' are choosen to big and do not fit with center ("
+                           + toString(data.columns) +","
+                           + toString(data.rows)+")");
 
   const index_t lowerLeft(make_pair(center.first-a, center.second-b));
   const index_t upperRight(make_pair(center.first+a, center.second+b));
@@ -308,9 +312,6 @@ void addEllipse(CommonData &data, CASSSettings &s)
       const index_t idx_sq((idx - center)*(idx - center));
       const indexf_t idx_tmp(idx_sq / axis_sq);
       data.mask[TwoD2OneD(idx,width)] *= !(idx_tmp < 1);
-//      const float first(static_cast<float>(idx_sq.first)/static_cast<float>(axis_sq.first));
-//      const float second(static_cast<float>(idx_sq.second)/static_cast<float>(axis_sq.second));
-//      data.mask[TwoD2OneD(idx,width)] *= (1 < (first+second));
     }
   }
 }
@@ -350,29 +351,37 @@ void addRing(CommonData &data, CASSSettings &s)
   const size_t width(data.columns);
 
   if ((outer_center.first < outer_a) ||
-      (outer_center.second < outer_b) ||
-      (static_cast<int>(data.columns) <= (outer_center.first + outer_a)) ||
-      (static_cast<int>(data.rows) <= (outer_center.second + outer_b)))
-  {
+      (outer_center.second < outer_b))
     throw invalid_argument("addCircle(): The outer semi axis x '" + toString(outer_a) +
                            "' and b '" + toString(outer_b) +
                            "' are choosen to big and do not fit with center ("
                            + toString(outer_center.first) +","
                            + toString(outer_center.second)+")");
-  }
+  if ((static_cast<int>(data.columns) <= (outer_center.first + outer_a)) ||
+      (static_cast<int>(data.rows) <= (outer_center.second + outer_b)))
+    throw out_of_range("addCircle(): The outer semi axis boundaries a '" + toString(outer_center.first + outer_a) +
+                           "' and b '" + toString(outer_center.second + outer_b) +
+                           "' are choosen to big and do not fit into image ("
+                           + toString(data.columns) +","
+                           + toString(data.rows)+")");
+
   if ((inner_center.first < inner_a) ||
-      (inner_center.second < inner_b) ||
-      (static_cast<int>(data.columns) <= (inner_center.first + inner_a)) ||
-      (static_cast<int>(data.rows) <= (inner_center.second + inner_b)))
-  {
+      (inner_center.second < inner_b))
     throw invalid_argument("addCircle(): The inner semi axis x '" + toString(inner_a) +
                            "' and b '" + toString(inner_b) +
                            "' are choosen to big and do not fit with center ("
                            + toString(inner_center.first) +","
                            + toString(inner_center.second)+")");
-  }
 
-  const size_t min_col(min(outer_center.first - outer_a,
+  if((static_cast<int>(data.columns) <= (inner_center.first + inner_a)) ||
+     (static_cast<int>(data.rows) <= (inner_center.second + inner_b)))
+    throw out_of_range("addCircle(): The inner semi axis boundaries a '" + toString(inner_center.first + inner_a) +
+                           "' and b '" + toString(inner_center.second + inner_b) +
+                           "' are choosen to big and do not fit into image ("
+                           + toString(data.columns) +","
+                           + toString(data.rows)+")");
+
+    const size_t min_col(min(outer_center.first - outer_a,
                            inner_center.first - inner_a));
   const size_t max_col(max(outer_center.first + outer_a,
                            inner_center.first + inner_a));
@@ -446,21 +455,25 @@ void addTriangle(CommonData &data, CASSSettings &s)
 
   if (A == B ||
       B == C ||
-      A == C ||
-      static_cast<int>(data.columns) <= A.first ||
+      A == C)
+    throw invalid_argument("addTriangle(): the 3 Points "
+                           "A("+toString(A.first)+","+toString(A.second)+"), "
+                           "B("+toString(B.first)+","+toString(B.second)+"), "
+                           "C("+toString(C.first)+","+toString(C.second)+"), "
+                           "are inconsistent.");
+
+  if (static_cast<int>(data.columns) <= A.first ||
       static_cast<int>(data.columns) <= B.first ||
       static_cast<int>(data.columns) <= C.first ||
       static_cast<int>(data.rows) <= A.second ||
       static_cast<int>(data.rows) <= B.second ||
       static_cast<int>(data.rows) <= C.second )
-  {
-    throw invalid_argument("addTriangle(): the 3 Points "
-                           "A("+toString(A.first)+","+toString(A.second)+"), "
-                           "B("+toString(B.first)+","+toString(B.second)+"), "
-                           "C("+toString(C.first)+","+toString(C.second)+"), "
-                           "are inconsistent. Or outside the the mask boundaries "+
-                           toString(data.columns) +","+ toString(data.rows));
-  }
+    throw out_of_range("addTriangle(): the 3 Points "
+                       "A("+toString(A.first)+","+toString(A.second)+"), "
+                       "B("+toString(B.first)+","+toString(B.second)+"), "
+                       "C("+toString(C.first)+","+toString(C.second)+"), "
+                       "are outside the the mask boundaries "+
+                       toString(data.columns) +","+ toString(data.rows));
 
   const size_t width(data.columns);
   const index_t::first_type minX(min(min(A.first,B.first),C.first));
@@ -507,7 +520,6 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   functions["ring"] = &addRing;
 
   /** reset the mask before creating it*/
-  data.mask.resize(data.columns*data.rows);
   fill(data.mask.begin(),data.mask.end(),1);
   int size = s.beginReadArray("Mask");
   for (int i = 0; i < size; ++i)
