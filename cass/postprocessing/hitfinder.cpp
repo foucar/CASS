@@ -742,3 +742,80 @@ NEXTPIXEL:;
   noiseHist.lock.unlock();
 
 }
+
+
+
+
+
+// *** will display the detected pixel in the table as 2d image ***
+
+pp207::pp207(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp207::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  _table = setupDependency("TableName");
+
+  setupGeneral();
+  bool ret (setupCondition());
+  if (!(ret && _table))
+    return;
+
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+
+  _pixColIdx = s.value("ColumnIndex",0).toUInt();
+  _pixRowIdx = s.value("ColumnIndex",0).toUInt();
+  _pixValIdx = s.value("ColumnIndex",0).toUInt();
+
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' displays the pixels in table '" + _table->key() +
+           "'' Index of Pixles column '" + toString(_pixColIdx) +
+           "'' Index of Pixles row '" + toString(_pixRowIdx) +
+           "'' Index of Pixles val '" + toString(_pixValIdx) +
+           "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp207::process(const CASSEvent& evt)
+{
+  const HistogramFloatBase &table
+      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+  const HistogramFloatBase::storage_t &tableContents(table.memory());
+  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
+
+  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+
+  result.lock.lockForWrite();
+  result.clear();
+
+  table.lock.lockForRead();
+
+  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+
+  /** go through all rows in table, extract the pixel column, row and value.
+   *  then advance the table iterator by one row
+   */
+  for (size_t row=0; row < nRows; ++row)
+  {
+    const int pixCol(tableIt[_pixColIdx]);
+    const int pixRow(tableIt[_pixRowIdx]);
+    const float pixVal(tableIt[_pixValIdx]);
+    result.fill(pixCol,pixRow,pixVal);
+    tableIt += nCols;
+  }
+
+  table.lock.unlock();
+  result.lock.unlock();
+}
+
+
+
+

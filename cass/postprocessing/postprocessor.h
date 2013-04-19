@@ -133,18 +133,18 @@ the Class description for information about what parameters are user settable.
 00105: Pixeldetector Image
 00106: Histogram of Pixeldetector pixel values
 00107: Display the Map used for correction and pixel detection
-00108: Calculates the sum of all pixels values
+00108: Calculates the sum of all pixels values, depreciated use pp84 instead
 
 00147: detected pixels spectrum (z-values)
 00148: 2d image from detected pixels
 00149: Number of detected pixels
-00155: Calculates the sum of the z value of the detected pixels
+00155: Calculates the sum of the z value of the detected pixels, depreciated use pp84 instead
 
 00143: coalesced detected pixels (hits) spectrum (z-values)
 00144: 2d image from coalesced detected pixels (hits)
 00145: Number of coalesced detected pixels (hits)
 00146: Split level of coalesced detected pixels (hits) (how many detected pixels within coalseced hit)
-00156: Calculates the sum of the z values of the coalesced pixels (hits)
+00156: Calculates the sum of the z values of the coalesced pixels (hits), depreciated use pp84 instead
 
 
 00120: Beamline data
@@ -185,6 +185,8 @@ the Class description for information about what parameters are user settable.
 00203: Local image background using median box
 00204: Find Bragg peaks in image using signal to noise ratio
 00205: Display Peaks found in an image
+00206: Find Pixels that might belong to a bragg peak by looking above threshold
+00207: create a new image from the pixel/peaks that are on the list
 
 00300: single particle detection
 00301: median over last values
@@ -424,6 +426,8 @@ public:
     MedianBoxBackground=203,
     BraggPeakSNR=204,
     DrawPeaks=205,
+    BraggPeakThreshold=206,
+    ImageFromTable=207,
 
     AdvancedPhotonFinderDump=212,
 

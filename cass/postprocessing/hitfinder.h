@@ -341,6 +341,59 @@ protected:
 
 
 
+
+
+
+
+
+
+/** image of pixels in the list
+ *
+ * This postprocessor will fill a 2D histogram with the detected pixels that are
+ * placed on a list
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ *           properties of the 2d histogram
+ * @cassttng PostProcessor/\%name\%/{Table}\n
+ * @cassttng PostProcessor/\%name\%/{PixelvalueAsWeight}\n
+ *           When filling the 2D histogram one can select whether for each hit
+ *           the z value should be added on the coordinate or a constant. If
+ *           true the z value will be used. If false the coordinate will be
+ *           increased by 1. Default is true.
+ *
+ * @author Lutz Foucar
+ */
+class pp207 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp207(PostProcessors&, const PostProcessors::key_t&);
+
+  /** copy pixels from CASS event to histogram storage */
+  virtual void process(const CASSEvent&);
+
+  /** set the histogram size */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing the results */
+  PostprocessorBackend *_table;
+
+  /** the index in the table that indicates the pixels row */
+  size_t _pixColIdx;
+
+  /** the index in the table that indicates the pixels row */
+  size_t _pixRowIdx;
+
+  /** the index in the table that indicates the pixels row */
+  size_t _pixValIdx;
+};
+
+
+
 }//end namespace cass
 
 #endif
