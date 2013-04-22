@@ -402,8 +402,8 @@ void pp204::process(const CASSEvent & evt)
           if (radiussq < min_radiussq)
             min_radiussq = radiussq;
           integral += bPixelWOBckgnd;
-          weightCol += (bPixelWOBckgnd * bCol);
-          weightRow += (bPixelWOBckgnd * bRow);
+          weightCol += (bPixelWOBckgnd * (bCol+col));
+          weightRow += (bPixelWOBckgnd * (bRow+row));
           ++nPix;
         }
         checkedPixel[bLocIdx] = true;
