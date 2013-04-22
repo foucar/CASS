@@ -157,7 +157,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       for(size_t i(0); i<Pds::BldDataEBeam::nbrOf; ++i)
       {
         if ((0x1 << i) & beam.uDamageMask)
-          Log::add(Log::WARNING,"'" +
+          Log::add(Log::VERBOSEINFO,"'" +
                    string(Pds::BldDataEBeam::name(static_cast<Pds::BldDataEBeam::varname>(i))) +
                    "' is damaged");
       }

@@ -418,7 +418,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
   if (lclsmapIt == _LCLSToCASSId.end())
   {
-    Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): There is no corresponding cass key for : '") +
+    Log::add(Log::DEBUG0, string("pixeldetector::Converter::operator(): There is no corresponding cass key for : '") +
              TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
              "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
              "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
