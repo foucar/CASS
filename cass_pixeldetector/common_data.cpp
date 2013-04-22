@@ -495,9 +495,9 @@ void CommonData::controlCalibration(const string& command)
 CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
   : columns(1024),
     rows(1024),
-    noiseThreshold(0),
     detectorId(-1),
-    _settingsLoaded(false)
+    _settingsLoaded(false),
+    _noiseRange(make_pair(0,0))
 {}
 
 void CommonData::loadSettings(CASSSettings &s)
@@ -507,8 +507,9 @@ void CommonData::loadSettings(CASSSettings &s)
     detectorname = s.group().split("/").back().toStdString();
     s.beginGroup("CorrectionMaps");
 
-    noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
-    _autoNoiseThreshold = qFuzzyCompare(noiseThreshold,-1.f);
+    _noiseRange.first = s.value("LowerNoisyPixelThreshold",0).toFloat();
+    _noiseRange.second = s.value("NoisyPixelThreshold",40000).toFloat();
+    _autoNoiseThreshold = qFuzzyCompare(_noiseRange.second,-1.f);
     _autoMultiplier = s.value("AutoMultiplier",4.f).toFloat();
 
     /** setup how the offset/noise maps will be created */
@@ -667,12 +668,15 @@ void CommonData::createCorMap()
 {
   if (_autoNoiseThreshold && !noiseMap.empty())
   {
-    typedef CummulativeStatisticsCalculator<pixel_t> calc_t;
-    calc_t stat;
-    for_each(noiseMap.begin(),noiseMap.end(),bind(&calc_t::addDatum,&stat,_1));
-    noiseThreshold = stat.mean() + _autoMultiplier * stat.stdv();
-    Log::add(Log::INFO, "CommonData::createCorMap(): best noisethreshold for detector with id '" +
-             toString(detectorId) + "' is '" + toString(noiseThreshold) +"'");
+    typedef CummulativeStatisticsNoOutlier<pixel_t> calc_t;
+    calc_t stat(4);
+    for (frame_t::const_iterator it(noiseMap.begin()); it != noiseMap.end(); ++it)
+      stat.addDatum(*it);
+    _noiseRange.first = stat.mean() - _autoMultiplier * stat.stdv();
+    _noiseRange.second = stat.mean() + _autoMultiplier * stat.stdv();
+    Log::add(Log::INFO, "CommonData::createCorMap(): only noisevalues between '"+
+             toString(_noiseRange.first) + "' and '" + toString(_noiseRange.second) +
+             "' are taken for detector with id '" + toString(detectorId) + "'");
   }
   frame_t::iterator corval(correctionMap.begin());
   frame_t::const_iterator corvalMapEnd(correctionMap.end());
@@ -683,7 +687,7 @@ void CommonData::createCorMap()
   fill(correctionMap.begin(),correctionMap.end(),1.);
   while (corval != corvalMapEnd)
   {
-    *corval = *gain++ * *corval * *Mask++ * (*noise < noiseThreshold) * (!qFuzzyIsNull(*noise));
+    *corval = *gain++ * *corval * *Mask++ * (_noiseRange.first < *noise) * (*noise < _noiseRange.second);
     ++corval;
     ++noise;
   }

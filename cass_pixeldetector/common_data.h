@@ -115,15 +115,17 @@ class MapCreatorBase;
  *           The filetype that the gain (/cte) values are stored in. Default is
  *            "cass". Options are:
  *           - "cass": the filetype used by CASS.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold}\n
- *           The threshold to identify noisy pixels. Will be used when creating
- *           the mask. When the noise of the pixel is higher than this value
- *           the pixel will be masked. If the value is -1, a good value will
- *           be determined from the noise map. Default is 40000.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold | LowerNoisyPixelThreshold}\n
+ *           The boundaries to identify noisy pixels. Will be used when creating
+ *           the correction map. When the noise of the pixel is outside these
+ *           exclusive bounds the pixel will be masked. If NoisyPixelThreshold
+ *           is -1, good values for the bound will be determined from the noise
+ *           map. Default is 40000 | 0
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{AutoMultiplier}\n
  *           When automatically determining the noise threshold, this is the
  *           multiplier by which the autovalue is determined.
- *           \f$ noiseThreshold = mean_noise + AutoMultiplier + stdv_noise \f$.
+ *           \f$ NoisyPixelThreshold = mean_noise + AutoMultiplier + stdv_noise \f$.
+ *           \f$ LowerNoisyPixelThreshold = mean_noise - AutoMultiplier + stdv_noise \f$.
  *           Default is 4.
  *
  * @author Lutz Foucar
@@ -276,9 +278,6 @@ public:
    */
   frame_t correctionMap;
 
-  /** the threshold in adu for masking noisy pixels */
-  pixel_t noiseThreshold;
-
   /** the id of the detector that contains the frames whos maps we have here */
   int32_t detectorId;
 
@@ -340,6 +339,9 @@ private:
 
   /** the gain correction output filename */
   std::string _outputGainFilename;
+
+  /** the range in adu for masking noisy pixels */
+  std::pair<pixel_t,pixel_t> _noiseRange;
 
   /** flag whether the noise threshold should be automatically determined */
   bool _autoNoiseThreshold;
