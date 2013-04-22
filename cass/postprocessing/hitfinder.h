@@ -264,10 +264,7 @@ protected:
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
  * @cassttng PostProcessor/\%name\%/{Threshold} \n
- * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
- * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
- * @cassttng PostProcessor/\%name\%/Input/{size} \n
- * @cassttng PostProcessor/\%name\%/Input/\%id\%/{Name} \n
+ * @cassttng PostProcessor/\%name\%/{Multiplier} \n
  *
  * @author Lutz Foucar
  */
@@ -293,29 +290,6 @@ protected:
   /** definition of the table */
   typedef HistogramFloatBase::storage_t table_t;
 
-  /** enum describing the contents of the resulting table */
-  enum ColumnNames
-  {
-    Intensity                 =  0,
-    centroidColumn            =  1,
-    centroidRow               =  2,
-    nbrOfPixels               =  3,
-    SignalToNoise             =  4,
-    Index                     =  5,
-    Column                    =  6,
-    Row                       =  7,
-    LocalBackground           =  8,
-    LocalBackgroundDeviation  =  9,
-    nbrOfBackgroundPixels     = 10,
-    MaxRadius                 = 11,
-    MinRadius                 = 12,
-    MaxADU                    = 13,
-    nbrOf
-  };
-
-  /** the function object that will be called to process the event */
-  std::tr1::function<void(void)> _process;
-
 protected:
   /** the size of the box within which the peak should lie */
   std::pair<int,int> _box;
@@ -326,17 +300,8 @@ protected:
   /** pixel threshold to be exceeded */
   float _threshold;
 
-  /** the square size of bragg peak radius */
-  int _peakRadiusSq;
-
-  /** the min signal to noise ratio that needs to be exceeded */
-  float _minSnr;
-
-  /** min amount of pixels for the background calc */
-  int _minBckgndPixels;
-
-  float snr_mean, snrall_mean,snr_stdv,snrall_stdv,radius_mean,radius_stdv;
-  int counter,counterall,counter_rad;
+  /** multiplier for the noise threshold */
+  float _multiplier;
 };
 
 

@@ -619,19 +619,7 @@ void pp206::loadSettings(size_t)
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
   _threshold = s.value("Threshold",300).toFloat();
-  _minSnr = s.value("MinSignalToNoiseRatio",20).toFloat();
-  _minBckgndPixels = s.value("MinNbrBackgrndPixels",10).toInt();
-  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
-  _peakRadiusSq = peakRadius*peakRadius;
-  snrall_mean = 0;
-  snrall_stdv = 0;
-  counterall = 0;
-  snr_mean = 0;
-  snr_stdv = 0;
-  counter = 0;
-  radius_mean = 0;
-  radius_stdv = 0;
-  counter_rad = 0;
+  _multiplier = s.value("Multiplier",4).toFloat();
 
   setupGeneral();
 
@@ -651,9 +639,6 @@ void pp206::loadSettings(size_t)
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
-                "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
-                "'. MinNbrBackgrndPixels '" + toString(_minBckgndPixels) +
-                "'. Square BraggPeakRadius '" + toString(_peakRadiusSq) +
                 "'. Image Histogram :" + _imagePP->key() +
                 "'. Noise Histogram :" + _noisePP->key() +
                 "'. Condition is '" + _condition->key() + "'");
@@ -688,7 +673,7 @@ void pp206::process(const CASSEvent & evt)
   const uint16_t nrows(imageHist.axis()[HistogramBackend::yAxis].size());
   for (; pixel != imageEnd; ++pixel, ++noise, ++idx)
   {
-    //    if(*noise * _multiplier < *pixel)
+//    if(*noise * _multiplier < *pixel)
     if (_threshold < *pixel)
     {
       const uint16_t x(idx % ncols);
@@ -723,6 +708,7 @@ void pp206::process(const CASSEvent & evt)
         nth_element(box.begin(), box.begin() + mid, box.end());
         const float bckgnd = box[mid];
         const float clrdpixel(*pixel - bckgnd);
+//        if(*noise * _multiplier < clrdpixel)
         if (_threshold < clrdpixel)
         {
 //          pixels.push_back(Pixel(x,y,clrdpixel));
