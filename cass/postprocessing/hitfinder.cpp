@@ -351,6 +351,7 @@ void pp204::process(const CASSEvent & evt)
      */
     vector<imagepos_t> peakIdxs;
     peakIdxs.push_back(idx);
+    *checkedPixel = true;
     for (size_t pix=0; pix < peakIdxs.size(); ++pix)
     {
       const imagepos_t pixpos(peakIdxs[pix]);
