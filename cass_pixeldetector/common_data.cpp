@@ -670,8 +670,10 @@ void CommonData::createCorMap()
   {
     typedef CummulativeStatisticsNoOutlier<pixel_t> calc_t;
     calc_t stat(4);
-    for (frame_t::const_iterator it(noiseMap.begin()); it != noiseMap.end(); ++it)
-      stat.addDatum(*it);
+    frame_t::const_iterator val(noiseMap.begin());
+    frame_t::const_iterator End(noiseMap.end());
+    while  (val != End)
+      stat.addDatum(*val++);
     _noiseRange.first = stat.mean() - _autoMultiplier * stat.stdv();
     _noiseRange.second = stat.mean() + _autoMultiplier * stat.stdv();
     Log::add(Log::INFO, "CommonData::createCorMap(): only noisevalues between '"+
