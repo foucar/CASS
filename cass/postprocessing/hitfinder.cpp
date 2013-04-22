@@ -631,7 +631,7 @@ void pp206::loadSettings(size_t)
     return;
 
   /** Create the result output */
-  _result = new Histogram2DFloat(nbrOf);
+  _result = new Histogram2DFloat(pp204::nbrOf);
   createHistList(2*cass::NbrOfWorkers);
 
   /** log what the user was requesting */
@@ -662,7 +662,7 @@ void pp206::process(const CASSEvent & evt)
   result.clearTable();
 
 
-  table_t peak(nbrOf,0);
+  table_t peak(pp204::nbrOf,0);
 
   HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
   HistogramFloatBase::storage_t::const_iterator imageEnd(image.end());
@@ -711,11 +711,10 @@ void pp206::process(const CASSEvent & evt)
 //        if(*noise * _multiplier < clrdpixel)
         if (_threshold < clrdpixel)
         {
-//          pixels.push_back(Pixel(x,y,clrdpixel));
-          peak[Column] = x;
-          peak[Row] = y;
-          peak[MaxADU] = *pixel;
-          peak[Intensity] = clrdpixel;
+          peak[pp204::Column] = x;
+          peak[pp204::Row] = y;
+          peak[pp204::MaxADU] = *pixel;
+          peak[pp204::Intensity] = clrdpixel;
 
           result.appendRows(peak);
         }

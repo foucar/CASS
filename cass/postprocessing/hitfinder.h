@@ -113,6 +113,7 @@ protected:
   /** definition of the table */
   typedef HistogramFloatBase::storage_t table_t;
 
+public:
   /** enum describing the contents of the resulting table */
   enum ColumnNames
   {
