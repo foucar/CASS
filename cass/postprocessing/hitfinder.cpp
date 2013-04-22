@@ -747,7 +747,7 @@ void pp207::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(_key));
 
-  _table = setupDependency("TableName");
+  _table = setupDependency("Table");
 
   setupGeneral();
   bool ret (setupCondition());
@@ -758,8 +758,8 @@ void pp207::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   _pixColIdx = s.value("ColumnIndex",0).toUInt();
-  _pixRowIdx = s.value("ColumnIndex",0).toUInt();
-  _pixValIdx = s.value("ColumnIndex",0).toUInt();
+  _pixRowIdx = s.value("RowIndex",0).toUInt();
+  _pixValIdx = s.value("ValIndex",0).toUInt();
 
   Log::add(Log::INFO,"Postprocessor '" + _key +
            "' displays the pixels in table '" + _table->key() +

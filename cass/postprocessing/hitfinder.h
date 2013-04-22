@@ -324,11 +324,9 @@ protected:
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
  * @cassttng PostProcessor/\%name\%/{Table}\n
- * @cassttng PostProcessor/\%name\%/{PixelvalueAsWeight}\n
- *           When filling the 2D histogram one can select whether for each hit
- *           the z value should be added on the coordinate or a constant. If
- *           true the z value will be used. If false the coordinate will be
- *           increased by 1. Default is true.
+ * @cassttng PostProcessor/\%name\%/{ColumnIndex}\n
+ * @cassttng PostProcessor/\%name\%/{RowIndex}\n
+ * @cassttng PostProcessor/\%name\%/{ValIndex}\n
  *
  * @author Lutz Foucar
  */
