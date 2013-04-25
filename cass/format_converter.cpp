@@ -97,20 +97,6 @@ void FormatConverter::loadSettings(size_t)
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
 
-  /** make it backward compatible (not all converters are available with this) */
-  if (s.value("useCommercialCCDConverter",false).toBool())
-    if (!usedConvertersList.contains("CCD"))
-      usedConvertersList << "CCD";
-  if (s.value("useAcqirisConverter",false).toBool())
-    if (!usedConvertersList.contains("Acqiris"))
-      usedConvertersList << "Acqiris";
-  if (s.value("usepnCCDConverter",false).toBool())
-    if (!usedConvertersList.contains("pnCCD"))
-      usedConvertersList << "pnCCD";
-  if (s.value("useMachineConverter",false).toBool())
-    if (!usedConvertersList.contains("Machine"))
-      usedConvertersList << "Machine";
-
   for_each(usedConvertersList.begin(), usedConvertersList.end(), activate(_usedConverters));
 }
 
