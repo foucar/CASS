@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <sstream>
-//#include <fstream>
+#include <tr1/functional>
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QString>
@@ -28,46 +28,34 @@
 
 using namespace std;
 using namespace cass;
+using tr1::bind;
+using tr1::placeholders::_1;
 
 namespace cass
 {
-  /** functor to activate a certain converter
+  /** active converters of a given type
    *
-   * puts the converter in the used converter list for the right pds ids.
+   * creates the requested converter, then
+   * retrieves the list of pds ids that the converter is responsible for
+   * then adds the converter to used converters container for all retrieved ids
+   *
+   * @param type the type of converter that should be activated
+   * @param usedConv reference to the used converters container
    *
    * @author Lutz Foucar
    */
-  struct activate
+  void activate(const QString& type,FormatConverter::usedConverters_t &usedConv)
   {
-    /** constructor
-     *
-     * @param usedConv reference to the used converters container
-     */
-    activate(FormatConverter::usedConverters_t &usedConv)
-      :_usedConverters(usedConv)
-    {}
-
-    /** the operator
-     *
-     * retrieves the list of pds ids that the converter type is responsible for
-     * then adds the converter to used converters container for all retrieved ids
-     *
-     * @param type the type of converter that should be activated
-     */
-    void operator()(const QString& type)
-    {
-      const string convertertype(type.toStdString());
-      const ConversionBackend::shared_pointer converter =
-          ConversionBackend::instance(convertertype);
-      const ConversionBackend::pdstypelist_t &pdsTypeList(converter->pdsTypeList());
-      ConversionBackend::pdstypelist_t::const_iterator idIt(pdsTypeList.begin());
-      for (;idIt != pdsTypeList.end();++idIt)
-        _usedConverters[(*idIt)] = converter;
-    }
-
-    /** reference to the container with the used converters */
-    FormatConverter::usedConverters_t &_usedConverters;
-  };
+    typedef ConversionBackend::shared_pointer csp_t;
+    typedef ConversionBackend::pdstypelist_t pdslist_t;
+    const string convertertype(type.toStdString());
+    const csp_t converter(ConversionBackend::instance(convertertype));
+    const pdslist_t &pdsTypeList(converter->pdsTypeList());
+    pdslist_t::const_iterator pdsType(pdsTypeList.begin());
+    pdslist_t::const_iterator End(pdsTypeList.end());
+    while (pdsType != End)
+      usedConv[(*pdsType++)] = converter;
+  }
 }
 
 
@@ -97,7 +85,8 @@ void FormatConverter::loadSettings(size_t)
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
 
-  for_each(usedConvertersList.begin(), usedConvertersList.end(), activate(_usedConverters));
+  for_each(usedConvertersList.begin(), usedConvertersList.end(),
+           bind(&activate,_1,_usedConverters));
 }
 
 enum {NoGoodData=0,GoodData};
