@@ -31,35 +31,6 @@ using namespace cass;
 using tr1::bind;
 using tr1::placeholders::_1;
 
-namespace cass
-{
-  /** active converters of a given type
-   *
-   * creates the requested converter, then
-   * retrieves the list of pds ids that the converter is responsible for
-   * then adds the converter to used converters container for all retrieved ids
-   *
-   * @param type the type of converter that should be activated
-   * @param usedConv reference to the used converters container
-   *
-   * @author Lutz Foucar
-   */
-  void activate(const QString& type,FormatConverter::usedConverters_t &usedConv)
-  {
-    typedef ConversionBackend::shared_pointer csp_t;
-    typedef ConversionBackend::pdstypelist_t pdslist_t;
-    const string convertertype(type.toStdString());
-    const csp_t converter(ConversionBackend::instance(convertertype));
-    const pdslist_t &pdsTypeList(converter->pdsTypeList());
-    pdslist_t::const_iterator pdsType(pdsTypeList.begin());
-    pdslist_t::const_iterator End(pdsTypeList.end());
-    while (pdsType != End)
-      usedConv[(*pdsType++)] = converter;
-  }
-}
-
-
-
 // ===============define static members====================
 FormatConverter::shared_pointer FormatConverter::_instance;
 QMutex FormatConverter::_mutex;
@@ -81,12 +52,24 @@ FormatConverter::FormatConverter()
 
 void FormatConverter::loadSettings(size_t)
 {
+  typedef ConversionBackend::shared_pointer csp_t;
+  typedef ConversionBackend::pdstypelist_t pdslist_t;
   CASSSettings s;
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
 
-  for_each(usedConvertersList.begin(), usedConvertersList.end(),
-           bind(&activate,_1,_usedConverters));
+  QStringList::const_iterator convType(usedConvertersList.begin());
+  QStringList::const_iterator convEnd(usedConvertersList.end());
+  while (convType != convEnd)
+  {
+    const string convertertype((*convType++).toStdString());
+    const csp_t converter(ConversionBackend::instance(convertertype));
+    const pdslist_t &pdsTypeList(converter->pdsTypeList());
+    pdslist_t::const_iterator pdsType(pdsTypeList.begin());
+    pdslist_t::const_iterator pdsEnd(pdsTypeList.end());
+    while (pdsType != pdsEnd)
+      _usedConverters[(*pdsType++)] = converter;
+  }
 }
 
 enum {NoGoodData=0,GoodData};

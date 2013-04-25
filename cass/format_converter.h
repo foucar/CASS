@@ -77,7 +77,13 @@ public:
    */
   bool operator()(CASSEvent*evt);
 
-  /** function to load  the settings for the format converter */
+  /** function to load  the settings for the format converter
+   *
+   * get the list of converters that should be used. Then create the requested
+   * converters and retrieve the list of pds ids that the individual converter
+   * is responsible for. Add the converter to used converters container for all
+   * retrieved ids
+   */
   void loadSettings(size_t what);
 
   /** function to  save the settings for the format converter */
