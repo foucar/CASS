@@ -191,6 +191,7 @@ the Class description for information about what parameters are user settable.
 00300: single particle detection
 00301: median over last values
 00302: binary file 2DHistogram
+00310: Autocorrelation of image in polar coordinates
 00240: Test Image
 
 00241: fix distorted offset of pnCCD frames
@@ -434,6 +435,10 @@ public:
     PIPICO=220,
 
     PhotonEnergy=230,
+    TestImage=240,
+
+    fixOffset=241,
+    MaskValue=242,
 
     ParticleValue = 250,
     ParticleValues = 251,
@@ -442,10 +447,7 @@ public:
     SingleParticleDetection=300,
     medianLastValues=301,
     binaryFile2D=302,
-    TestImage=240,
-
-    fixOffset=241,
-    MaskValue=242,
+    Autocorrelation=310,
 
     tof2energy=400,
     calcVariance=401,

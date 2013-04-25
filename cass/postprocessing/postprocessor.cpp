@@ -34,6 +34,7 @@
 #include "log.h"
 #include "hitfinder.h"
 #include "table_operations.h"
+#include "autocorrelation.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -944,6 +945,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   break;
   case binaryFile2D:
       processor = PostprocessorBackend::shared_pointer (new pp302(*this, key));
+      break;
+  case Autocorrelation:
+      processor = PostprocessorBackend::shared_pointer (new pp310(*this, key));
       break;
   case tof2energy:
       processor = PostprocessorBackend::shared_pointer(new pp400(*this,key));
