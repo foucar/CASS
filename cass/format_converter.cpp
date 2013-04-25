@@ -93,11 +93,6 @@ FormatConverter::FormatConverter()
 
 void FormatConverter::loadSettings(size_t)
 {
-  /** initialze all xtc ids with blank converters to be on the save side */
-  for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
-    _usedConverters[static_cast<Pds::TypeId::Type>(i)] =
-        ConversionBackend::instance("Blank");
-
   CASSSettings s;
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
