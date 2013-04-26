@@ -374,16 +374,22 @@ int main(int argc, char **argv)
   catch (const invalid_argument &error)
   {
     Log::add(Log::ERROR,string("User input is wrong: ") + error.what());
-    throw;
+//    throw;
   }
   catch (const runtime_error &error)
   {
     Log::add(Log::ERROR,string("Runtime error: ") + error.what());
-    throw;
+//    throw;
+  }
+  catch (const out_of_range &error)
+  {
+    Log::add(Log::ERROR,string("Out of range error: ") + error.what());
+//    throw;
   }
   catch (...)
   {
     Log::add(Log::ERROR,"main(): something bad happend, quitting the program.");
+//    throw;
   }
   Log::add(Log::INFO,"Quitting CASS");
   cout << endl;
