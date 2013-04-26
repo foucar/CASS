@@ -468,6 +468,7 @@ public:
     CBFOutput=1500,
     ChetahConv=1600,
     CoarseCsPadAligment=1601,
+    GeomFileCsPadAligment=1602,
     ROOTDump=2000,
     ROOTTreeDump=2001,
 

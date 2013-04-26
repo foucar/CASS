@@ -1011,6 +1011,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
         (new pp1601(*this,key));
     break;
+  case GeomFileCsPadAligment:
+    processor = PostprocessorBackend::shared_pointer(new pp1602(*this,key));
+    break;
 #ifdef CERNROOT
   case ROOTDump:
     processor = PostprocessorBackend::shared_pointer

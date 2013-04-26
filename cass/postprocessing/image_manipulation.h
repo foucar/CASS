@@ -354,6 +354,8 @@ private:
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           the postprocessor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
+ * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
+ * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
  *
  * @author Lutz Foucar
  */
