@@ -42,6 +42,8 @@ ConversionBackend::shared_pointer ConversionBackend::instance(const string &type
     converter = pixeldetector::Converter::instance();
   else if("Machine" == type)
     converter = MachineData::Converter::instance();
+  else if("Blank" == type)
+    converter = shared_pointer(new ConversionBackend);
   else
     throw invalid_argument("ConversionBackend::instance(): Requested converter type '" +
                            type + "' is unkown");

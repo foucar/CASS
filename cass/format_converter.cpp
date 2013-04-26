@@ -52,6 +52,10 @@ FormatConverter::FormatConverter()
 
 void FormatConverter::loadSettings(size_t)
 {
+  for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
+    _usedConverters[static_cast<Pds::TypeId::Type>(i)] =
+        ConversionBackend::instance("Blank");
+
   typedef ConversionBackend::shared_pointer csp_t;
   typedef ConversionBackend::pdstypelist_t pdslist_t;
   CASSSettings s;

@@ -79,7 +79,8 @@ public:
 
   /** function to load  the settings for the format converter
    *
-   * get the list of converters that should be used. Then create the requested
+   * initialze all xtc ids with blank converters.
+   * Get the list of converters that should be used. Then create the requested
    * converters and retrieve the list of pds ids that the individual converter
    * is responsible for. Add the converter to used converters container for all
    * retrieved ids
