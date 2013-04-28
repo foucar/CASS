@@ -45,6 +45,18 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** notification that depandant histogram has changed
+   *
+   * change own histograms when one of the ones we depend on has changed
+   * histograms
+   *
+   * @param hist the changed histogram that we take the size from
+   */
+  virtual void histogramsChanged(const HistogramBackend* hist);
+
+  /** generate the lookup table by parsing the geom file */
+  void setup(const Histogram2DFloat &srcImageHist);
+
   /** pp containing histogram to calculate the autocorrelation for */
   PostprocessorBackend *_hist;
 };

@@ -36,15 +36,42 @@ void pp310::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
-  const HistogramBackend &hist(_hist->getHist(0));
-  if (hist.dimension() != 2)
-    throw invalid_argument("pp1500: The histogram that should be written to hdf5 is not a 2d histogram");
+  setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
 
-  _result = hist.clone();
-  createHistList(2*cass::NbrOfWorkers,true);
   Log::add(Log::INFO,"PostProcessor '" + _key +
            "' will calculate the autocorrelation of '" + _hist->key() +
            "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp310::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  /** return when there is no incomming histogram */
+  if(!in)
+    return;
+  /** return when the incomming histogram is not a direct dependant */
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+
+  setup(dynamic_cast<const Histogram2DFloat&>(*in));
+
+  /** notify all pp that depend on us that our histograms have changed */
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+             "': histograms changed => delete existing histo" +
+             " and create new one from input");
+}
+
+void pp310::setup(const Histogram2DFloat &srcImageHist)
+{
+  if (srcImageHist.dimension() != 2)
+    throw invalid_argument("pp310:setup: '" + _key +
+                           "' The input histogram is not a 2d histogram");
+  _result = srcImageHist.clone();
+  createHistList(2*cass::NbrOfWorkers,true);
 }
 
 void pp310::process(const CASSEvent &evt)
@@ -79,8 +106,7 @@ void pp310::process(const CASSEvent &evt)
       transform(rowStart,rowEnd,row_buffer.begin(),row_buffer.begin(),multiplies<float>());
 
       /** sum up the contents of the buffer which gives the correlation value */
-      float autocorval(0);
-      accumulate(row_buffer.begin(),row_buffer.end(),autocorval);
+      const float autocorval(accumulate(row_buffer.begin(),row_buffer.end(),0));
 
       /** put value into correlatoin value at position radius, d_phi */
       resultdata[row*nCols + col] = autocorval;
