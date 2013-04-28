@@ -607,9 +607,9 @@ conversion_t generateConversionMap(const string &filename, const size_t sizeOfSr
 
     /** get asic string, value name and value (as string) from line */
     const string asic(line.substr(0,line.find('/')));
-    const string valueNameAndValue(line.substr(line.find('/')));
+    const string valueNameAndValue(line.substr(line.find('/')+1));
     string valueName(valueNameAndValue.substr(0,valueNameAndValue.find('=')));
-    string valueString(valueNameAndValue.substr(valueNameAndValue.find('=')));
+    string valueString(valueNameAndValue.substr(valueNameAndValue.find('=')+1));
 
     /** eliminate whitespace from value name */
     valueName.erase(remove(valueName.begin(), valueName.end(), ' '), valueName.end());
@@ -682,8 +682,8 @@ conversion_t generateConversionMap(const string &filename, const size_t sizeOfSr
     asicInfo_t& ai(it->second);
 
     /** if requested transform the start and end positions from the cheetah
-      *  layout to the raw cass layout
-      */
+     *  layout to the raw cass layout
+     */
     if (convertFromCheetahToCASS)
     {
       const int nx(Pds::CsPad::MaxRowsPerASIC);
@@ -699,6 +699,7 @@ conversion_t generateConversionMap(const string &filename, const size_t sizeOfSr
       ai.min_ss = ybegin*ny;
       ai.max_ss = ybegin*ny + ny-1;
     }
+
 
     /** go through all pixels of this asics module */
     const int rowAsicRange(ai.max_ss - ai.min_ss);
@@ -719,6 +720,12 @@ conversion_t generateConversionMap(const string &filename, const size_t sizeOfSr
 
         /** find position in the linearized array */
         int idxInSrc = rowInSrc * nSrcCols + colInSrc;
+
+        /** check if whats been given in the geomfile goes together with the src */
+        if  (idxInSrc >= static_cast<int>(sizeOfSrc))
+          throw out_of_range("generateConversionMap(): The generated index '" +
+                             toString(idxInSrc) + "' is too big for the src with size '"+
+                             toString(sizeOfSrc) +"'");
 
         /** remember what x,y position in the lab does this position in the
           *  asic correspond to
@@ -746,7 +753,7 @@ void pp1602::loadSettings(size_t)
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
 
-  setup(dynamic_cast<Histogram2DFloat&>(*_imagePP->getHist(0).clone()));
+  setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)));
 
   Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
            "PostProcessor '" +  _imagePP->key() + " into lab frame" +
@@ -779,58 +786,80 @@ void pp1602::histogramsChanged(const HistogramBackend* in)
 
 void pp1602::setup(const Histogram2DFloat &srcImageHist)
 {
-  using namespace geometryInfo;
-  conversion_t src2lab = generateConversionMap(_filename,
-                                               srcImageHist.memory().size(),
-                                               srcImageHist.axis()[HistogramBackend::xAxis].size(),
-                                               _convertCheetahToCASSLayout);
   _lookupTable.resize(srcImageHist.memory().size());
+  try
+  {
+    using namespace geometryInfo;
+    conversion_t src2lab = generateConversionMap(_filename,
+                                                 srcImageHist.memory().size(),
+                                                 srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                                 _convertCheetahToCASSLayout);
 
-  /** get the minimum position in lab x and y */
-  pos_t min;
-  min.x = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::x_t>(),
-                           bind<pos_t::x_t>(&pos_t::x,_1),
-                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-  min.y = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::y_t>(),
-                           bind<pos_t::y_t>(&pos_t::y,_1),
-                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+    /** get the minimum position in lab x and y */
+    pos_t min;
+    min.x = min_element(src2lab.begin(),src2lab.end(),
+                        bind(less<pos_t::x_t>(),
+                             bind<pos_t::x_t>(&pos_t::x,_1),
+                             bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+    min.y = min_element(src2lab.begin(),src2lab.end(),
+                        bind(less<pos_t::y_t>(),
+                             bind<pos_t::y_t>(&pos_t::y,_1),
+                             bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
-  /** move all values, such that they start at 0 and go to max
-   *  \f$ pos.x -= min_x\f$
-   *  \f$ pos.y -= min_y\f$
+    /** move all values, such that they start at 0 and go to max
+     *  \f$ pos.x -= min_x\f$
+     *  \f$ pos.y -= min_y\f$
+     */
+    transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(minus,_1,min));
+
+    /** get the new maximum value of the shifted lab, which corresponds to the
+     *  number of pixels that are required in the dest image, since all lab
+     *  values are in pixel coordinates.
+     */
+    const double max_x = max_element(src2lab.begin(),src2lab.end(),
+                                     bind(less<pos_t::x_t>(),
+                                          bind<pos_t::x_t>(&pos_t::x,_1),
+                                          bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+    const double max_y = max_element(src2lab.begin(),src2lab.end(),
+                                     bind(less<pos_t::y_t>(),
+                                          bind<pos_t::y_t>(&pos_t::y,_1),
+                                          bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+
+    /** determine the dimensions of the destination image */
+    const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
+    const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
+
+    /** convert the positions in the lab space (pixel units) to linearized indizes
+     *  in the destination image
+     *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
+     */
+    transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
+              bind(linearizeComponents,_1,nDestCols));
+
+    /** check if the boundaries are ok, @throw out of range if not. */
+    if(nDestCols*nDestRows <= *max_element(_lookupTable.begin(),_lookupTable.end()))
+      throw out_of_range("pp1602::setup: '" + _key + "' the maximum index in the lookup table '" +
+                         toString(*max_element(_lookupTable.begin(),_lookupTable.end())) +
+                         "' does not fit with the destination size of '" +
+                         toString(nDestCols*nDestRows) + "'");
+
+    /** create the destination image and setup the histlist */
+    _result = new Histogram2DFloat(nDestCols , nDestRows);
+    createHistList(2*NbrOfWorkers);
+  }
+  /** catch the out of range errors and intialize the lookup table and the
+   *  image with bogus. Hopefully once everything resizes to the correct image
+   *  size, no errors will be thrown anymore
    */
-  transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(minus,_1,min));
-
-  /** get the new maximum value of the shifted lab, which corresponds to the
-   *  number of pixels that are required in the dest image, since all lab
-   *  values are in pixel coordinates.
-   */
-  const double max_x = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::x_t>(),
-                                        bind<pos_t::x_t>(&pos_t::x,_1),
-                                        bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-  const double max_y = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::y_t>(),
-                                        bind<pos_t::y_t>(&pos_t::y,_1),
-                                        bind<pos_t::y_t>(&pos_t::y,_2)))->y;
-
-  /** determine the dimensions of the destination image (result and create it) */
-  const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
-  const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
-  _result = new Histogram2DFloat(nDestCols , nDestRows);
-  createHistList(2*NbrOfWorkers);
-
-  /** convert the positions in the lab space (pixel units) to linearized indizes
-   *  in the destination image
-   *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
-   */
-  transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
-            bind(linearizeComponents,_1,nDestCols));
-
-  /** in debug, check if the boundaries are ok */
-  assert(*max_element(_lookupTable.begin(),_lookupTable.end()) < _dest.size());
+  catch(const out_of_range &error)
+  {
+    Log::add(Log::DEBUG0,"Postprocessor '" + _key +
+             "': geomfile settings do not fit. Error is '" + error.what() +
+             "'. Initializing histogram with bogus info.");
+    fill(_lookupTable.begin(),_lookupTable.end(),0);
+    _result = new Histogram2DFloat(1,1);
+    createHistList(2*NbrOfWorkers);
+  }
 
 }
 

@@ -308,23 +308,40 @@ void pp202::histogramsChanged(const HistogramBackend *in)
 void pp202::setupParameters(const HistogramBackend &hist)
 {
   using namespace std;
-  if (hist.dimension() != 2)
-    throw invalid_argument("pp202::setupParameters()'" + _key + "': Error the histogram we depend on '" +
-                           hist.key() + "' is not a 2D Histogram.");
-  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
-  const AxisProperty &yaxis(hist.axis()[HistogramBackend::yAxis]);
-  _center = make_pair(xaxis.bin(_userCenter.first),
-                      yaxis.bin(_userCenter.second));
-  const size_t imagewidth (xaxis.nbrBins());
-  const size_t imageheight (yaxis.nbrBins());
-  const size_t dist_center_x_right(imagewidth - _center.first);
-  const size_t dist_center_y_top(imageheight - _center.second);
-  const size_t min_dist_x (min(dist_center_x_right, _center.first));
-  const size_t min_dist_y (min(dist_center_y_top, _center.second));
-  _maxRadius = min(min_dist_x, min_dist_y);
+  try
+  {
+    if (hist.dimension() != 2)
+      throw invalid_argument("pp202::setupParameters()'" + _key +
+                             "': Error the histogram we depend on '" +
+                             hist.key() + "' is not a 2D Histogram.");
+    const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+    const AxisProperty &yaxis(hist.axis()[HistogramBackend::yAxis]);
+    _center = make_pair(xaxis.bin(_userCenter.first),
+                        yaxis.bin(_userCenter.second));
+    const size_t imagewidth (xaxis.nbrBins());
+    const size_t imageheight (yaxis.nbrBins());
+    const size_t dist_center_x_right(imagewidth - _center.first);
+    const size_t dist_center_y_top(imageheight - _center.second);
+    const size_t min_dist_x (min(dist_center_x_right, _center.first));
+    const size_t min_dist_y (min(dist_center_y_top, _center.second));
+    _maxRadius = min(min_dist_x, min_dist_y);
+  }
+  /** catch the out of range errors and intialize center and max radius
+   *  with 0. Hopefully once everything resizes to the correct image
+   *  size, no errors will be thrown anymore
+   */
+  catch(const out_of_range &error)
+  {
+    Log::add(Log::DEBUG0,"Postprocessor 202 '" + _key +
+             "' setupParameters: Out of Range Error is '" + error.what() +
+             "'. Initializing center and radius with 0.");
+    _center = make_pair(0,0);
+    _maxRadius = 0;
+  }
   _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
                                  _nbrRadialPoints,0., _maxRadius,
                                  "#phi","r");
+
 }
 
 void pp202::process(const CASSEvent& evt)
