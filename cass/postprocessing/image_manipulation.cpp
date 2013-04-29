@@ -755,11 +755,6 @@ void pp1602::loadSettings(size_t)
 
   setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)));
 
-  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
-           "PostProcessor '" +  _imagePP->key() + " into lab frame" +
-           ". Geometry Filename '" + _filename + "'"
-           ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ". Condition is '" + _condition->key() + "'");
 }
 
 void pp1602::histogramsChanged(const HistogramBackend* in)
@@ -846,6 +841,13 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
     /** create the destination image and setup the histlist */
     _result = new Histogram2DFloat(nDestCols , nDestRows);
     createHistList(2*NbrOfWorkers);
+
+    Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
+             "PostProcessor '" +  _imagePP->key() + " into lab frame" +
+             ". Geometry Filename '" + _filename + "'"
+             ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
+             ". Beam center is '" + toString(-min.x) + " x " + toString(-min.y) + "' pixels"+
+             ". Condition is '" + _condition->key() + "'");
   }
   /** catch the out of range errors and intialize the lookup table and the
    *  image with bogus. Hopefully once everything resizes to the correct image
