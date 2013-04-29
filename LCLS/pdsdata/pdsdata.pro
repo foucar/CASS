@@ -7,6 +7,7 @@ SUBDIRS        = acqiris \
                  camera \
                  control \
                  cspad \
+                 cspad2x2 \
                  epics \
                  evr \
                  fccd \
