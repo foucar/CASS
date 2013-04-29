@@ -117,6 +117,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
   // Add running to toolbar.
   _running = new QCheckBox();
   connect(_running, SIGNAL(released()), this, SLOT(running()));
+  _running->setCheckState(static_cast<Qt::CheckState>(settings.value("RunningState",Qt::Unchecked).toInt()));
   _running->setToolTip("If checked, continuously retrieve and display images.");
   _ui.toolBar->addWidget(_running);
   // Add status LED to toolbar.
@@ -318,6 +319,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
   settings.setValue("attachId", _attachId->currentText());
   settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
   settings.setValue("scaleFactor", _scaleFactor);
+  settings.setValue("RunningState",_running->checkState());
   event->accept();
 }
 

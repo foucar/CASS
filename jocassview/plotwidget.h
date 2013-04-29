@@ -410,6 +410,7 @@ public:
 
   spectrogramWidget()
   {
+    QSettings settings;
     _cs_top = 0.8;
     _cs_bot = 0.1;
     _cb_scaleEngines = new QList< createScaleEngine* >();
@@ -429,14 +430,15 @@ public:
     _saveColorbar = new QPushButton(tr("save colorbar"));
 
     _bool_auto_scale = new QCheckBox(tr("man scale"));
-    _bool_auto_scale->setChecked( FALSE );
+    _bool_auto_scale->setChecked(settings.value("ManZscale",false).toBool());
 
     _sbz_validator = new QDoubleValidator(-2e12,2e12,3,this);
 
     QLabel* _lbl_scale_min = new QLabel(tr("Min"),this);
     _sbz_scale_min = new QLineEdit(this);
     _sbz_scale_min->setValidator(_sbz_validator);
-    _sbz_scale_min->setText("0.");
+    _sbz_scale_min->setText(settings.value("MinZvalue", "0.").toString());
+//    _sbz_scale_min->setText("0.");
     _sbz_scale_min->setMaximumWidth(120);
     //_sbz_scale_min = new QDoubleSpinBox(this);
     //_sbz_scale_min->setRange(-2e12,2e12);
@@ -450,7 +452,8 @@ public:
     //_sbz_scale_max->setDecimals(3);
     _sbz_scale_max = new QLineEdit(this);
     _sbz_scale_max->setValidator(_sbz_validator);
-    _sbz_scale_max->setText("1500.");
+//    _sbz_scale_max->setText("1500.");
+    _sbz_scale_max->setText(settings.value("MaxZvalue", "1500.").toString());
     _sbz_scale_max->setMaximumWidth(120);
 
     if(_sbz_scale_max->text().toDouble() < _sbz_scale_min->text().toDouble())
@@ -470,7 +473,6 @@ public:
     _color_scale->setValue(-1);
 
     // populate colorbar presets:
-    QSettings settings;
     settings.beginGroup("ColorBar");
     _colorbarPresets->addItems( settings.childGroups() );
     QString current = settings.value("current","default").toString();
@@ -658,7 +660,14 @@ public:
     _plot->replot();
   }
 
-  ~spectrogramWidget() {
+  ~spectrogramWidget()
+  {
+    QSettings settings;
+    settings.setValue("ManZscale",_bool_auto_scale->isChecked());
+    settings.setValue("MinZvalue", _sbz_scale_min->text());
+    settings.setValue("MaxZvalue", _sbz_scale_max->text());
+    settings.setValue("ColorBarNumber",_color_scale->value());
+
      delete _colorMap;
 
      delete _colorMapCol1;
@@ -815,6 +824,7 @@ protected slots:
     settings.setValue("transformCol", _transformCol);
     VERBOSEOUT(std::cout<<"spectrogramWidget::saveColorbar(): Col to save is "<<_selectColMap<<std::endl);
     settings.setValue("selectColMap", _selectColMap);
+    std::cout<<"saveColorbar"<<_selectColMap<<std::endl;
   }
 
   void Replot()
@@ -844,6 +854,7 @@ protected slots:
   {
     updateColorBar(_color_scale->value());
     _selectColMap=_color_scale->value();
+
     //I doubt that the next is necessary, in case the user may manually save the colour-map settings
     //saveColorbar();
   }
@@ -878,7 +889,10 @@ protected slots:
     case QwtLogColorMap::trans_sqrt: _rad_colormap_sqrt->setChecked(true);
       break;
     }
-    _selectColMap=settings.value("selectColMap",-1).toInt();
+    settings.endGroup();
+    settings.endGroup();
+    //    _selectColMap=settings.value("selectColMap",-1).toInt();
+    _selectColMap=settings.value("ColorBarNumber",-1).toInt();
     _color_scale->setValue(_selectColMap);
     //std::cout<<"Selected colour is  " << _selectColMap<<" scale is "<< _transformCol <<std::endl;
     updateColorBar(_selectColMap);
