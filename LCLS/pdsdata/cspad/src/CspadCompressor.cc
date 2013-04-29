@@ -380,7 +380,7 @@ CspadCompressor::compress (
         ptr +=  bitmapsize * sizeof(uint16_t);
 
         outData     =       (void*)m_outbuf;
-        outDataSize = ptr -        m_outbuf;
+        outDataSize = ptr - (uint8_t*)m_outbuf;
     }
         
     return Success;

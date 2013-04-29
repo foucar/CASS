@@ -1,12 +1,13 @@
-#include "pdsdata/cspad/ConfigV4.hh"
+#include "pdsdata/cspad/ConfigV5.hh"
 
 using namespace Pds::CsPad;
 
-ConfigV4::ConfigV4(
+ConfigV5::ConfigV5(
 		   uint32_t runDelay,
 		   uint32_t eventCode,
 		   uint32_t inactiveRunMode,
 		   uint32_t activeRunMode,
+		   uint32_t internalTriggerDelay,
 		   uint32_t testDataIndex,
 		   uint32_t payloadPerQuad,
 		   uint32_t badAsicMask0,
@@ -19,6 +20,7 @@ ConfigV4::ConfigV4(
   _eventCode(eventCode),
   _inactiveRunMode(inactiveRunMode),
   _activeRunMode(activeRunMode),
+  _internalTriggerDelay(internalTriggerDelay),
   _testDataIndex(testDataIndex),
   _payloadPerQuad(payloadPerQuad),
   _badAsicMask0(badAsicMask0),
@@ -29,17 +31,17 @@ ConfigV4::ConfigV4(
 {
 }
 
-unsigned ConfigV4::roiMask      (int iq) const
+unsigned ConfigV5::roiMask      (int iq) const
 {
   return (_roiMask>>(8*iq))&0xff; 
 }
 
-unsigned ConfigV4::numAsicsRead () const
+unsigned ConfigV5::numAsicsRead () const
 {
   return ((_AsicMask&0xf)==1) ? 4 : 16;
 }
 
-unsigned ConfigV4::numAsicsStored(int iq) const
+unsigned ConfigV5::numAsicsStored(int iq) const
 {
   unsigned m = roiMask(iq);
   unsigned c;

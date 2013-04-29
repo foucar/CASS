@@ -1,7 +1,8 @@
-#ifndef Cspad_ConfigV1QuadReg_hh
-#define Cspad_ConfigV1QuadReg_hh
+#ifndef Cspad_ConfigV3QuadReg_hh
+#define Cspad_ConfigV3QuadReg_hh
 
 #include "Detector.hh"
+#include "ConfigV1QuadReg.hh" // for the pots, gainmaps and readonly regs
 
 #include <stdint.h>
 
@@ -10,45 +11,12 @@
 namespace Pds {
   namespace CsPad {
 
-    class CsPadDigitalPotsCfg
+    class ConfigV3QuadReg
     {
-      public:
-        CsPadDigitalPotsCfg() {int i = 0; while (i<PotsPerQuad) pots[i++] = 0;}
-        uint8_t         value(unsigned i) const {return pots[i];}
-      public:
-        uint8_t         pots[PotsPerQuad];
-    };
-
-    class CsPadReadOnlyCfg
-    {
-      public:
-        CsPadReadOnlyCfg() : shiftTest(0), version(0) {};
 
       public:
-        uint32_t        shiftTest;
-        uint32_t        version;
-    };
-
-    class CsPadGainMapCfg
-    {
-      public:
-        CsPadGainMapCfg() {};
-        typedef uint16_t GainMap[ColumnsPerASIC][MaxRowsPerASIC];
-        GainMap*       map()       { return &_gainMap; }
-        const GainMap* map() const { return &_gainMap; }
-      public:
-        GainMap    _gainMap;
-    };
-
-    class ConfigV1QuadReg
-    {
-//        class CsPadReadOnlyCfg;
-//        class CsPadDigitalPotsCfg;
-//        class CsPadGainMapCfg;
-
-      public:
-        ConfigV1QuadReg() {};
-        ConfigV1QuadReg(
+        ConfigV3QuadReg() {};
+        ConfigV3QuadReg(
             uint32_t         shiftSelect[],
             uint32_t         edgeSelect[],
             uint32_t         readClkSet,
@@ -60,7 +28,12 @@ namespace Pds {
             uint32_t         digDelay,
             uint32_t         ampIdle,
             uint32_t         injTotal,
-            uint32_t         rowColShiftPer) :
+            uint32_t         rowColShiftPer,
+            uint32_t         ampReset,
+            uint32_t         digCount,
+            uint32_t         digPeriod,
+            uint32_t         biasTuning,
+            uint32_t         pdpmndnmBalance)  :
             _readClkSet(readClkSet),
             _readClkHold(readClkHold),
             _dataMode(dataMode),
@@ -70,7 +43,12 @@ namespace Pds {
             _digDelay(digDelay),
             _ampIdle(ampIdle),
             _injTotal(injTotal),
-            _rowColShiftPer(rowColShiftPer) {
+            _rowColShiftPer(rowColShiftPer),
+            _ampReset(ampReset),
+            _digCount(digCount),
+            _digPeriod(digPeriod),
+            _biasTuning(biasTuning),
+            _pdpmndnmBalance(pdpmndnmBalance) {
           _shiftSelect[0] = shiftSelect[0];
           _shiftSelect[1] = shiftSelect[1];
           _shiftSelect[2] = shiftSelect[2];
@@ -81,8 +59,8 @@ namespace Pds {
           _edgeSelect [3] = edgeSelect [3];
         };
 
-        const uint32_t*    shiftSelect()        const   { return _shiftSelect; }
-        const uint32_t*    edgeSelect()         const   { return _edgeSelect;  }
+        const uint32_t*    shiftSelect()        const   { return _shiftSelect;    }
+        const uint32_t*    edgeSelect()         const   { return _edgeSelect;     }
         uint32_t           readClkSet()         const   { return _readClkSet;     }
         uint32_t           readClkHold()        const   { return _readClkHold;    }
         uint32_t           dataMode()           const   { return _dataMode;       }
@@ -93,6 +71,12 @@ namespace Pds {
         uint32_t           ampIdle()            const   { return _ampIdle;        }
         uint32_t           injTotal()           const   { return _injTotal;       }
         uint32_t           rowColShiftPer()     const   { return _rowColShiftPer; }
+        uint32_t           ampReset()           const   { return _ampReset;       }
+        uint32_t           digCount()           const   { return _digCount;       }
+        uint32_t           digPeriod()          const   { return _digPeriod;      }
+        uint32_t           biasTuning()         const   { return _biasTuning;     }
+        void               biasTuning(uint32_t b)       { _biasTuning = b;        }
+        uint32_t           pdpmndnmBalance()    const   { return _pdpmndnmBalance; }
         Pds::CsPad::CsPadReadOnlyCfg&           ro      ()        { return _readOnly;       }
         const Pds::CsPad::CsPadReadOnlyCfg&     ro      ()  const { return _readOnly;       }
         Pds::CsPad::CsPadDigitalPotsCfg&        dp      ()        { return _digitalPots;    }
@@ -103,18 +87,29 @@ namespace Pds {
         const Pds::CsPad::CsPadReadOnlyCfg*     readOnly()  const { return &_readOnly;      }
 
       private:
-        uint32_t                     _shiftSelect[TwoByTwosPerQuad];
-        uint32_t                     _edgeSelect[TwoByTwosPerQuad];
-        uint32_t                     _readClkSet;
-        uint32_t                     _readClkHold;
-        uint32_t                     _dataMode;
-        uint32_t                     _prstSel;
-        uint32_t                     _acqDelay;
-        uint32_t                     _intTime;
-        uint32_t                     _digDelay;
-        uint32_t                     _ampIdle;
-        uint32_t                     _injTotal;
-        uint32_t                     _rowColShiftPer;
+        uint32_t                         _shiftSelect[TwoByTwosPerQuad];
+        uint32_t                         _edgeSelect[TwoByTwosPerQuad];
+        uint32_t                         _readClkSet;
+        uint32_t                         _readClkHold;
+        uint32_t                         _dataMode;
+        uint32_t                         _prstSel;
+        uint32_t                         _acqDelay;
+        uint32_t                         _intTime;
+        uint32_t                         _digDelay;
+        uint32_t                         _ampIdle;
+        uint32_t                         _injTotal;
+        uint32_t                         _rowColShiftPer;
+        uint32_t                         _ampReset;
+        uint32_t                         _digCount;
+        uint32_t                         _digPeriod;
+        // put unwritten registers after this
+        uint32_t                         _biasTuning;  // bias tuning is used, but not written
+                                                       // 2 bits per nibble, C2,C1,I5,I2
+                                                       // bit order rc00rc00rc00rc
+        uint32_t                         _pdpmndnmBalance;  // pMOS and nMOS Displacement and Main
+                                                      // used but not written and not in GUI yet
+                                                      // hard-wired to zero in GUI
+                                                      // 2 bits per nibble, bit order pd00pm00nd00nm
 
         Pds::CsPad::CsPadReadOnlyCfg     _readOnly;
         Pds::CsPad::CsPadDigitalPotsCfg  _digitalPots;
@@ -124,4 +119,4 @@ namespace Pds {
 };
 #pragma pack()
 
-#endif
+#endif // Cspad_ConfigV3QuadReg_hh
