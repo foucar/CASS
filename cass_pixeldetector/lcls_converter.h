@@ -32,6 +32,7 @@ class ConfigV1;
 class ConfigV2;
 class ConfigV3;
 class ConfigV4;
+class ConfigV5;
 }
 }
 

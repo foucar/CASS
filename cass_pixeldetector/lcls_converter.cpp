@@ -22,6 +22,7 @@
 #include "pdsdata/cspad/ConfigV2.hh"
 #include "pdsdata/cspad/ConfigV3.hh"
 #include "pdsdata/cspad/ConfigV4.hh"
+#include "pdsdata/cspad/ConfigV5.hh"
 #include "pdsdata/cspad/ElementHeader.hh"
 #include "pdsdata/cspad/ElementIterator.hh"
 
@@ -516,6 +517,14 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     {
       const Pds::CsPad::ConfigV4 &cfg
           (reinterpret_cast<const Pds::CsPad::ConfigV4&>(config.second.front()));
+      copyCsPadFrame(xtc,cfg,det);
+    }
+      break;
+
+    case 5:
+    {
+      const Pds::CsPad::ConfigV5 &cfg
+          (reinterpret_cast<const Pds::CsPad::ConfigV5&>(config.second.front()));
       copyCsPadFrame(xtc,cfg,det);
     }
       break;
