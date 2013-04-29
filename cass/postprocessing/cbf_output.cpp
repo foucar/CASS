@@ -22,47 +22,22 @@
 using namespace cass;
 using namespace std;
 
-
-pp1500::pp1500(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
-  : PostprocessorBackend(pp,key),
-    _basefilename(outfilename)
+namespace cass
 {
-  loadSettings(0);
-}
-
-void pp1500::loadSettings(size_t)
+namespace CBF
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
-  setupGeneral();
-  _pHist = setupDependency("HistName");
-  bool ret (setupCondition());
-  if (!(ret && _pHist))
-    return;
-  const HistogramBackend &hist(_pHist->getHist(0));
-  if (hist.dimension() != 2)
-    throw invalid_argument("pp1500: The histogram that should be written to hdf5 is not a 2d histogram");
-
-  _write = false;
-  _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' will write histograms '" + _pHist->key() +"' to cbf file with '" +
-           _basefilename + "' as basename. Condition is '" + _condition->key() + "'");
-}
-
-void pp1500::process(const CASSEvent &evt)
+/** write cbf file
+ *
+ * @param filename the filename to write the cbf to
+ * @param data the data that should be written
+ * @param nx number of columns of image
+ * @param ny number of rows of image
+ *
+ * @author Stephan Kassemeyer
+ */
+void write(const std::string &filename, const HistogramFloatBase::storage_t &data,
+           const int nx, const int ny)
 {
-  QMutexLocker locker(&_lock);
-  const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  /** create filename from base filename + event id */
-  string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
-
-  const Histogram2DFloat::storage_t& histdata( hist.memory() );
-
   /** cbf parameters: */
   int IOBUFSIZ = 4096;
   char MARKBYTE[4] = {0x0C,0x01A,0x004,0x0D5};
@@ -70,9 +45,6 @@ void pp1500::process(const CASSEvent &evt)
   /** create the cbf file */
   std::ofstream cbf_file;
   cbf_file.open(filename.c_str(), std::ios::out|std::ios::binary);
-  int nx = hist.shape().first;
-  int ny = hist.shape().second;
-
 
   /**  find out length of the compressed array: */
   int nbytes = 0;
@@ -81,8 +53,8 @@ void pp1500::process(const CASSEvent &evt)
   int absdiff;
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = ((int) histdata[iadr]) - pixvalue;
-    pixvalue = (int) histdata[iadr];
+    diff = ((int) data[iadr]) - pixvalue;
+    pixvalue = (int) data[iadr];
 
     absdiff = abs(diff);
     ++nbytes;
@@ -157,9 +129,9 @@ void pp1500::process(const CASSEvent &evt)
 
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = ((int) histdata[iadr]) - pixvalue;
+    diff = ((int) data[iadr]) - pixvalue;
     absdiff = abs(diff);
-    pixvalue = (int)histdata[iadr];
+    pixvalue = (int)data[iadr];
 
     onebyte[0] = -128;
     if (absdiff < 128)
@@ -203,12 +175,57 @@ void pp1500::process(const CASSEvent &evt)
   zerobyte = 0;
   for (int ii=0; ii<IOBUFSIZ; ++ii)
     cbf_file << zerobyte;
-  
+
   cbf_file.close();
+
+}
+}//end namespace cbf
+}//end namespace cass
+
+
+pp1500::pp1500(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
+  : PostprocessorBackend(pp,key),
+    _basefilename(outfilename)
+{
+  loadSettings(0);
+}
+
+void pp1500::loadSettings(size_t)
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  const HistogramBackend &hist(_pHist->getHist(0));
+  if (hist.dimension() != 2)
+    throw invalid_argument("pp1500: The histogram that should be written to hdf5 is not a 2d histogram");
+
+  _write = false;
+  _hide = true;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' will write histograms '" + _pHist->key() +"' to cbf file with '" +
+           _basefilename + "' as basename. Condition is '" + _condition->key() + "'");
+}
+
+void pp1500::process(const CASSEvent &evt)
+{
+  QMutexLocker locker(&_lock);
+  const Histogram2DFloat& hist
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  /** create filename from base filename + event id */
+  string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
+
+  const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
   hist.lock.lockForRead();
 
+  CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
 
-  /** close file */
   hist.lock.unlock();
 }
