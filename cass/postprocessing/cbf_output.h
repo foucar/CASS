@@ -19,6 +19,8 @@ namespace cass
  *
  * details
  *
+ * @cassttng PostProcessor/\%name\%/{DarkName} \n
+ *           Postprocessor name offsetmap to write to cbf when program quits.
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           Postprocessor name containing the histogram that write to cbf.
  *
@@ -39,6 +41,9 @@ public:
   /** process the event */
   virtual void process(const CASSEvent&);
 
+  /** dump dark to cbf just before quitting */
+  virtual void aboutToQuit();
+
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
@@ -46,8 +51,11 @@ protected:
   /** the filename that the data will be written to */
   std::string _basefilename;
 
-  /** pp containing histogram to dump to hdf5 */
+  /** pp containing histogram to dump to cbf */
   PostprocessorBackend *_pHist;
+
+  /** pp containing offset histogram to dump to cbf */
+  PostprocessorBackend *_darkHist;
 
 private:
   /** a lock to make the process reentrant */

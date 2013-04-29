@@ -197,12 +197,16 @@ void pp1500::loadSettings(size_t)
   settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
+  _darkHist = setupDependency("DarkName");
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  if (!(ret && _pHist && _darkHist))
     return;
   const HistogramBackend &hist(_pHist->getHist(0));
   if (hist.dimension() != 2)
-    throw invalid_argument("pp1500: The histogram that should be written to hdf5 is not a 2d histogram");
+    throw invalid_argument("pp1500: The histogram that should be written to cbf is not a 2d histogram");
+  const HistogramBackend &dark(_darkHist->getHist(0));
+  if (dark.dimension() != 2)
+    throw invalid_argument("pp1500: The histogram that contains the offset is not a 2d histogram");
 
   _write = false;
   _hide = true;
@@ -210,7 +214,9 @@ void pp1500::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers,true);
   Log::add(Log::INFO,"PostProcessor '" + _key +
            "' will write histograms '" + _pHist->key() +"' to cbf file with '" +
-           _basefilename + "' as basename. Condition is '" + _condition->key() + "'");
+           _basefilename + "' as basename" +
+           ". Darkname '" + _darkHist->key() + "'" +
+           ". Condition is '" + _condition->key() + "'");
 }
 
 void pp1500::process(const CASSEvent &evt)
@@ -218,14 +224,25 @@ void pp1500::process(const CASSEvent &evt)
   QMutexLocker locker(&_lock);
   const Histogram2DFloat& hist
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  const Histogram2DFloat::storage_t& histdata( hist.memory() );
+
   /** create filename from base filename + event id */
   string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
 
-  const Histogram2DFloat::storage_t& histdata( hist.memory() );
-
   hist.lock.lockForRead();
-
   CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
-
   hist.lock.unlock();
+}
+
+void pp1500::aboutToQuit()
+{
+  QMutexLocker locker(&_lock);
+  /** create filename from base filename */
+  string filename(_basefilename + "_Dark.cbf");
+  const Histogram2DFloat& dark
+      (dynamic_cast<const Histogram2DFloat&>(_darkHist->getHist(0)));
+  const Histogram2DFloat::storage_t& data( dark.memory() );
+  dark.lock.lockForRead();
+  CBF::write(filename,data,dark.shape().first,dark.shape().second);
+  dark.lock.unlock();
 }
