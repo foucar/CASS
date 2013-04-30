@@ -440,7 +440,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     if (xtc->contains.id() == Pds::TypeId::Id_pnCCDconfig && 2 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: pnCCD Config version" +
                           toString(xtc->contains.version()) + "is not supported");
-    if (xtc->contains.id() == Pds::TypeId::Id_CspadConfig && 4 < xtc->contains.version())
+    if (xtc->contains.id() == Pds::TypeId::Id_CspadConfig && 5 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: csPad Config version" +
                           toString(xtc->contains.version()) + "is not supported");
     _configStore[casskey] = make_pair(xtc->contains.version(),extractPayload(xtc));
