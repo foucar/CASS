@@ -19,17 +19,35 @@ namespace cass
 
 /** function to create an instance of a class
  *
- * creates an instance of Dervied using new and returns a shared_ptr object of
- * the base class
+ * creates an instance of Dervied using new and returns a shared_ptr object that
+ * is defined in the derived class.
  *
- * @tparam Base the Base class
  * @tparam Derived the derived class
  * @return shared pointer of Base class of Derived class
+ *
+ * @author Lutz Foucar
  */
-template <class Base, class Derived>
-std::tr1::shared_ptr<Base> instanciator()
+template <class Derived>
+typename Derived::shared_pointer instanciator()
 {
-  return std::tr1::shared_ptr<Base>(new Derived);
+  return typename Derived::shared_pointer(new Derived);
+}
+
+/** function to create a singleton of a class
+ *
+ * the singleton will be created by calling the static member instance of
+ * the class. The class needs to provide this member. Also it needs to provide
+ * how the shared pointer is called
+ *
+ * @tparam Derived the derived class
+ * @return a shared pointer of the derived class type
+ *
+ * @author Lutz Foucar
+ */
+template <class Derived>
+typename Derived::shared_pointer singletoninstanciator()
+{
+  return Derived::instance();
 }
 
 /** Factory for creating shared_pointers of classes derived from a base class
@@ -108,7 +126,19 @@ public:
   template <class Derived>
   char addType(const typename instanciatorMap_t::key_type &type)
   {
-    _iMap.insert(make_pair(type,&instanciator<Base,Derived>));
+    _iMap.insert(make_pair(type,&instanciator<Derived>));
+    return 0;
+  }
+
+  /** register a derived singleton type to the map
+   *
+   * @tparam Derived The type of the derived class
+   * @param type the Key that the type should have in the instanciator map
+   */
+  template <class Derived>
+  char addSingletonType(const typename instanciatorMap_t::key_type &type)
+  {
+    _iMap.insert(make_pair(type,&singletoninstanciator<Derived>));
     return 0;
   }
 
@@ -146,6 +176,18 @@ struct Registrar
   {
     factory_r factory(factory_t::instance());
     factory.template addType<Derived>(type);
+  }
+
+  /** constuctor
+   *
+   * register the derived singelton class in the factorys instanciator map.
+   *
+   * @param type the type as a human readable string
+   */
+  Registrar(const typename factory_t::instanciatorMap_t::key_type &type,bool)
+  {
+    factory_r factory(factory_t::instance());
+    factory.template addSingletonType<Derived>(type);
   }
 };
 
