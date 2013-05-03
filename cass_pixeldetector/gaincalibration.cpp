@@ -1,7 +1,7 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file mapcreators.h contains all correction map creators.
+ * @file gaincalibration.cpp contains a gain calibration functor
  *
  * @author Lutz Foucar
  */
@@ -26,16 +26,6 @@ using namespace std;
 using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
-
-
-namespace cass
-{
-namespace pixeldetector
-{
-}//end namespace pixeldetector
-}//end namespace cass
-
-
 
 
 void GainCalibration::generateCalibration(const Frame &frame)

@@ -30,6 +30,9 @@ class CommonData;
 
 /** Creates the maps fast and simple
  *
+ * @MapCreateList "online": Uses a fast way to collect the frames and a fast and
+ *                          simple way to calculate the maps
+ *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{Multiplier}\n
  *           How much bigger does the pixel value have to be than the noise before
  *           The pixel is not taken into account when calculating the offset and
@@ -119,6 +122,9 @@ private:
  * Uses collects the user chosen nbr of frames and uses them to calculate the
  * correction and noise maps. In addition it will correct the frames from the
  * common mode noise.
+ *
+ * @MapCreateList "onlinecommonmode": same as online, but corrects the common mode
+ *                                    from the frames when calculating the maps
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{Multiplier}\n
  *           How much bigger does the pixel value have to be than the noise before

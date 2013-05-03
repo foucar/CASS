@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011, 2013 Lutz Foucar
 
 /**
  * @file mapcreator_base.h contains base class for all correction map creators.
@@ -25,9 +25,10 @@ struct Frame;
 
 /** base class for all correction map creators
  *
- * a map creator will take the frame data that it gets to create correction maps.
+ * @MapCreateList "none": does nothing to the maps.
+ * @GainMapCreateList "none": does nothing to the maps.
  *
- * @todo add a simple fast creator for online purposes
+ * a map creator will take the frame data that it gets to create correction maps.
  *
  * @author Lutz Foucar
  */
@@ -41,7 +42,7 @@ public:
   typedef std::vector<frame_t> storage_t;
 
   /** virtual destructor */
-  virtual ~MapCreatorBase() {}
+  virtual ~MapCreatorBase();
 
   /** create an instance of the requested functor
    *
@@ -56,19 +57,19 @@ public:
    *
    * @param frame the frame containing the data to build the maps from
    */
-  virtual void operator() (const Frame &/*frame*/) {}
+  virtual void operator() (const Frame &frame);
 
   /** load the settings of this creator
    *
    * @param s the CASSSettings object to read the information from
    */
-  virtual void loadSettings(CASSSettings &/*s*/) {}
+  virtual void loadSettings(CASSSettings &s);
 
   /** control the calibration process
    *
    * used by the gui to tell the map creators to start the calibration
    */
-  virtual void controlCalibration(const std::string& /*command*/) {}
+  virtual void controlCalibration(const std::string& command);
 };
 
 } //end namespace pixeldetector

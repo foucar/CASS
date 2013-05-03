@@ -33,6 +33,8 @@ class CommonData;
  * be created using standart statistics. The user has the choice of whehter the
  * mean or the median should be used for the offset value.
  *
+ * @MapCreateList "fixed": The maps will be created from a fixed number of frames.
+ *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedCreator/{NbrFrames}\n
  *           The number of frames that should be collected for calculating the
  *           maps. Default is 200.
@@ -122,6 +124,8 @@ private:
  * The algorithm that calculates the running average (offset) and standard
  * deviation is taken from here (last checked 30.01.2012):
  * http://www-uxsup.csx.cam.ac.uk/~fanf2/hermes/doc/antiforgery/stats.pdf
+ *
+ * @MapCreateList "moving": The maps will be created from the last few frames.
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{NbrTrainingFrames}\n
  *           The number of frames that should be collected for calculating the

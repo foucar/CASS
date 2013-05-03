@@ -195,6 +195,8 @@ TAB_SIZE               = 2
 
 ALIASES                = "cassttng=\xrefitem casssetting \"User definable Parameters\" \".ini Parameter List\""
 ALIASES               += "GenList=\xrefitem DataGenerators \"User definable Data-Generators List\" \"Data-Generators List\""
+ALIASES               += "MapCreateList=\xrefitem MapCreators \"User definable Map Creator List\" \"Map-Creators List\""
+ALIASES               += "GainMapCreateList=\xrefitem GainMapCreators \"User definable Gain-map Creator List\" \"Gainmap-Creators List\""
 
 # This tag can be used to specify a number of word-keyword mappings (TCL only).
 # A mapping has the form "name=value". For example adding

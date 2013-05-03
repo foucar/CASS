@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011, 2013 Lutz Foucar
 
 /**
  * @file mapcreator_base.cpp contains base class for all correction map creators.
@@ -39,4 +39,24 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
     throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +
                            "' is unknown.");
   return ptr;
+}
+
+MapCreatorBase::~MapCreatorBase()
+{
+
+}
+
+void MapCreatorBase::operator ()(const Frame&)
+{
+
+}
+
+void MapCreatorBase::loadSettings(CASSSettings &)
+{
+
+}
+
+void MapCreatorBase::controlCalibration(const std::string &)
+{
+
 }

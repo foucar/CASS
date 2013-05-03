@@ -43,22 +43,8 @@ class MapCreatorBase;
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{MapCreatorType}\n
  *           The type of functor that will create the maps used for correcting
- *           the frames from individual frames. Default is "none". Options are:
- *           - "none": All maps will be initialized such that the frame will
- *                     not be altered when applying them. See
- *                     cass::pixeldetector::MapCreatorBase for details.
- *           - "fixed": The maps will be created from a fixed number of frames.
- *                      See cass::pixeldetector::FixedMaps for details.
- *           - "moving": The maps will be created from the last few frames. See
- *                       cass::pixeldetector::MovingMaps for details.
- *           - "online": Uses a fast way to collect the frames and a fast and
- *                       simple way to calculate the maps.See
- *                       cass::pixeldetector::OnlineFixedCreator
- *                       for details.
- *           - "onlinecommonmode": same as online, but corrects the common mode
- *                                 from the frames when calculating the maps.See
- *                                 cass::pixeldetector::OnlineFixedCreatorCommonMode
- *                                 for details.
+ *           the frames from individual frames. See @ref MapCreators for a list
+ *           of all possible values. Default is "none".
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
  *           is "darkcal_%detectorId%.lnk". Which is a link to the most recent
@@ -88,12 +74,8 @@ class MapCreatorBase;
  *           - "cass": the filetype formerly used in CASS.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{GainMapCreatorType}\n
  *           The type of functor that will create the gain used for correcting
- *           the frames from individual frames. Default is "none". Options are:
- *           - "none": All maps will be initialized such that the frame will
- *                     not be altered when applying them. See
- *                     cass::pixeldetector::MapCreatorBase for details.
- *           - "GainFixedADURange": gain value from the average pixelvalue within
- *                                  a given ADU range
+ *           the frames from individual frames. See @ref GainMapCreators for a
+ *           list of all possible values. Default is "none".
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputGainFilename}\n
  *           The filename containing the gain (/cte) values. Default
  *           is "gain_\%detectorId\%.lnk".
@@ -348,9 +330,6 @@ private:
 
   /** the multiplier about which the automatically determined threshold will be defined */
   pixel_t _autoMultiplier;
-
-  /** function to read the gain / cte corrections */
-//  std::tr1::function<void(const std::string&,CommonData&)> _readGain;
 };
 
 } //end namespace pixeldetector

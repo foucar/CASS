@@ -29,6 +29,10 @@ class CommonData;
  *
  * Generates the gain map.
  *
+ * @GainMapCreateList "GainFixedADURange": gain value from the average pixelvalue
+ *                                         within a given ADU range
+ *
+ *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{StartInstantly}\n
  *           Flag to tell whether the calculator should start instantly after
  *           loading the seetings. If false it will wait until told by the
