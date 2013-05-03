@@ -319,37 +319,6 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
   det.rows() = 4*8*asic_ny;
 }
 
-/** copy the cspad2x2 frame to the detector
- *
- * @tparam ConfigType the type of configuration
- * @param xtc the raw data of the detector
- * @param cfg the configuration that tells what is where in the configuration
- * @param det the place where the frame data should be copied to
- *
- * @author Lutz Foucar
- */
-template <typename ConfigType>
-void copyCsPad2x2Frame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
-{
-  const int asic_nx(Pds::CsPad::MaxRowsPerASIC);
-  const int asic_ny(Pds::CsPad::ColumnsPerASIC);
-  Pds::CsPad2x2::ElementHeader* head
-      (reinterpret_cast<Pds::CsPad2x2::ElementHeader*>(xtc->payload()));
-  const int pixelsPerSegment(2*asic_nx*asic_ny);
-  const int framesize(2*pixelsPerSegment);
-  det.frame().resize(framesize);
-  uint16_t* iter = reinterpret_cast<uint16_t*>(head+1);
-  uint16_t* End = iter + framesize;
-  frame_t::iterator firstPart(det.frame().begin());
-  frame_t::iterator secondPart(det.frame().begin() + pixelsPerSegment);
-  while (iter != End)
-  {
-    *firstPart++  = *iter++;
-    *secondPart++ = *iter++;
-  }
-  det.columns() = 2*asic_nx;
-  det.rows() = 2*asic_ny;
-}
 
 }//end namepsace pixeldetector
 }//end namespace cass
@@ -377,6 +346,7 @@ Converter::Converter()
   _pdsTypeList.push_back(TypeId::Id_Frame);
   _pdsTypeList.push_back(TypeId::Id_CspadConfig);
   _pdsTypeList.push_back(TypeId::Id_CspadElement);
+  _pdsTypeList.push_back(TypeId::Id_Cspad2x2Element);
 
   Key FrontPnCCD(TypeId::Id_pnCCDframe,
                  DetInfo::Camp, 0,
@@ -578,33 +548,25 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 
   case (Pds::TypeId::Id_Cspad2x2Element):
   {
-    /** get the configuration for this element and return when there is no config */
-    configStore_t::const_iterator storeIt(_configStore.find(casskey));
-    if(storeIt == _configStore.end())
-      break;
-    const config_t config(storeIt->second);
     Detector &det(retrieveDet(*evt,casskey));
-    switch (config.first)
+    const int asic_nx(Pds::CsPad::MaxRowsPerASIC);
+    const int asic_ny(Pds::CsPad::ColumnsPerASIC);
+    Pds::CsPad2x2::ElementHeader* head
+        (reinterpret_cast<Pds::CsPad2x2::ElementHeader*>(xtc->payload()));
+    const int pixelsPerSegment(2*asic_nx*asic_ny);
+    const int framesize(2*pixelsPerSegment);
+    det.frame().resize(framesize);
+    uint16_t* data = reinterpret_cast<uint16_t*>(head+1);
+    uint16_t* End = data + framesize;
+    frame_t::iterator firstSegment(det.frame().begin());
+    frame_t::iterator secondSegment(det.frame().begin() + pixelsPerSegment);
+    while (data != End)
     {
-    case 1:
-    {
-      const Pds::CsPad2x2::ConfigV1 &cfg
-          (reinterpret_cast<const Pds::CsPad2x2::ConfigV1&>(config.second.front()));
-      copyCsPad2x2Frame(xtc,cfg,det);
+      *firstSegment++  = *data++;
+      *secondSegment++ = *data++;
     }
-      break;
-
-    case 2:
-    {
-      const Pds::CsPad2x2::ConfigV2 &cfg
-          (reinterpret_cast<const Pds::CsPad2x2::ConfigV2&>(config.second.front()));
-      copyCsPad2x2Frame(xtc,cfg,det);
-    }
-      break;
-
-    default:
-      throw runtime_error("LCLSConverter:csPad2x2: this should not be happening");
-    }
+    det.columns() = 2*asic_nx;
+    det.rows() = 2*asic_ny;
   }
     break;
 
