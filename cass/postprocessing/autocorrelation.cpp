@@ -28,9 +28,6 @@ pp310::pp310(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void pp310::loadSettings(size_t)
 {
-//  CASSSettings s;
-//  s.beginGroup("PostProcessor");
-//  s.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _hist = setupDependency("HistName");
   bool ret (setupCondition());
