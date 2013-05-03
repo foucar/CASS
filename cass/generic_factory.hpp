@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file genertic_factory.hpp contains a factory that can be used for any class
+ * @file generic_factory.hpp contains a factory that can be used for any class
  *
  * @author Lutz Foucar
  */

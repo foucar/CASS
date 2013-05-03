@@ -1,7 +1,7 @@
 //Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file statistics_calculator.h contains declarations of statistic calculators
+ * @file statistics_calculator.hpp contains declarations of statistic calculators
  *
  * @author Lutz Foucar
  */
