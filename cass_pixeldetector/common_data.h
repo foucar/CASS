@@ -1,4 +1,4 @@
-//Copyright (C) 2011 Lutz Foucar
+//Copyright (C) 2011,2012,2013 Lutz Foucar
 
 /**
  * @file common_data.h contains the common data for one advanced pixeldetector
