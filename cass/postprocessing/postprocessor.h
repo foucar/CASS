@@ -192,6 +192,7 @@ the Class description for information about what parameters are user settable.
 00301: median over last values
 00302: binary file 2DHistogram
 00310: Autocorrelation of image in polar coordinates
+00311: Autocorrelation of image in kartesian coordinates
 00240: Test Image
 
 00241: fix distorted offset of pnCCD frames
@@ -448,6 +449,7 @@ public:
     medianLastValues=301,
     binaryFile2D=302,
     Autocorrelation=310,
+    Autocorrelation2=311,
 
     tof2energy=400,
     calcVariance=401,

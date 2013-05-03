@@ -949,6 +949,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case Autocorrelation:
       processor = PostprocessorBackend::shared_pointer (new pp310(*this, key));
       break;
+  case Autocorrelation2:
+      processor = PostprocessorBackend::shared_pointer (new pp311(*this, key));
+      break;
   case tof2energy:
       processor = PostprocessorBackend::shared_pointer(new pp400(*this,key));
       break;
