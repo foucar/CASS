@@ -142,6 +142,21 @@ y |     00      | |
 +---x--->        /
 @endverbatim
    *
+   * in case that xtc is a CsPad2x2:\n
+   * the data from a CsPad2x2 is almost the same as from a regular CsPad, but
+   * much easier. The data consists of one block with a Header (same as CsPad)
+   * followed by a sequence of pairs. The first of the pair belongs to the first
+   * segement and the second to the second segment. In CASS they will be aligned
+   * like to segements of the cspad on top of each other:
+   *
+@verbatim
+  +-------------+
+^ |   second    |
+| +-------------+
+y |    first    |
+| +-------------+
++---x--->
+@endverbatim
    *
    * @param xtc the part of the datagram that this converter is responsible for
    * @param evt The CASSEvent that should store the information from the xtc.
