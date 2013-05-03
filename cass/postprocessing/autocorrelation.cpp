@@ -133,9 +133,9 @@ void pp311::loadSettings(size_t)
   if (!(ret && _hist))
     return;
 
-  _center = make_pair(s.value("CenterX",0).toInt(),
+  _usercenter = make_pair(s.value("CenterX",0).toInt(),
                       s.value("CenterY",0).toInt());
-  _maxrad = s.value("MaximumRadius",0).toInt();
+  _maxradius = s.value("MaximumRadius",0).toInt();
 
   setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
 
@@ -168,10 +168,40 @@ void pp311::histogramsChanged(const HistogramBackend* in)
 
 void pp311::setup(const Histogram2DFloat &srcImageHist)
 {
-  if (srcImageHist.dimension() != 2)
-    throw invalid_argument("pp311:setup: '" + _key +
-                           "' The input histogram is not a 2d histogram");
-  _result = srcImageHist.clone();
+  try
+  {
+    if (srcImageHist.dimension() != 2)
+      throw invalid_argument("pp311:setup: '" + _key +
+                             "' The input histogram is not a 2d histogram");
+    if ((static_cast<int>(srcImageHist.shape().first) < _usercenter.first + _maxradius) ||
+        (0 < _usercenter.first - _maxradius))
+      throw out_of_range("pp311:setup: '" + _key + "'. Center in X '" +
+                         toString(_usercenter.first) + "' and maximum radius '" +
+                         toString(_maxradius) + "' do not fit in image with x '" +
+                         toString(srcImageHist.shape().first) + "'");
+    if ((static_cast<int>(srcImageHist.shape().second) < _usercenter.second + _maxradius) ||
+        (0 < _usercenter.second - _maxradius))
+      throw out_of_range("pp311:setup: '" + _key + "'. Center in X '" +
+                         toString(_usercenter.first) + "' and maximum radius '" +
+                         toString(_maxradius) + "' do not fit in image with x '" +
+                         toString(srcImageHist.shape().first) + "'");
+    _center = _usercenter;
+    _maxrad = _maxradius;
+    _result = srcImageHist.clone();
+  }
+  /** catch the out of range errors and intialize center, max radius and result
+   *  with 0. Hopefully once everything resizes to the correct image
+   *  size, no errors will be thrown anymore
+   */
+  catch(const out_of_range &error)
+  {
+    Log::add(Log::DEBUG0,"Postprocessor 311 '" + _key +
+             "' setup: Out of Range Error is '" + error.what() +
+             "'. Initializing center and max radius as well as the image with 0.");
+    _center = make_pair(0,0);
+    _maxrad = 0;
+    _result = new Histogram2DFloat(0,0);
+  }
   createHistList(2*cass::NbrOfWorkers,true);
 }
 

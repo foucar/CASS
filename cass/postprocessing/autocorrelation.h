@@ -138,9 +138,15 @@ private:
                 ring_t &ring);
 
   /** the user defined center of the image */
+  std::pair<int,int> _usercenter;
+
+  /** the used center of the image */
   std::pair<int,int> _center;
 
   /** the user defined maximum radius*/
+  int _maxradius;
+
+  /** the used maximum radius*/
   int _maxrad;
 
 };
