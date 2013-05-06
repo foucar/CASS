@@ -68,6 +68,7 @@ protected:
  * details
  *
  * @cassttng PostProcessor/\%name\%/{CenterX|CenterY} \n
+ * @cassttng PostProcessor/\%name\%/{MaximumRadius} \n
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           Postprocessor name containing the histogram whos autocorrelation
  *           should be calculated.
