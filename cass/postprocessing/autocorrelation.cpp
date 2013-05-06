@@ -173,24 +173,26 @@ void pp311::setup(const Histogram2DFloat &srcImageHist)
     if (srcImageHist.dimension() != 2)
       throw invalid_argument("pp311:setup: '" + _key +
                              "' The input histogram is not a 2d histogram");
-    if ((static_cast<int>(srcImageHist.shape().first) < _usercenter.first + _maxradius) ||
-        (0 < _usercenter.first - _maxradius))
-      throw out_of_range("pp311:setup: '" + _key + "'. Center in X '" +
-                         toString(_usercenter.first) + "' and maximum radius '" +
-                         toString(_maxradius) + "' do not fit in image with x '" +
-                         toString(srcImageHist.shape().first) + "'");
-    if ((static_cast<int>(srcImageHist.shape().second) < _usercenter.second + _maxradius) ||
-        (0 < _usercenter.second - _maxradius))
-      throw out_of_range("pp311:setup: '" + _key + "'. Center in X '" +
-                         toString(_usercenter.first) + "' and maximum radius '" +
-                         toString(_maxradius) + "' do not fit in image with x '" +
-                         toString(srcImageHist.shape().first) + "'");
-
     /** determine the center in histogram coordinates */
     const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
     const AxisProperty &yaxis(srcImageHist.axis()[HistogramBackend::yAxis]);
     _center = make_pair(xaxis.bin(_usercenter.first),
                         yaxis.bin(_usercenter.second));
+
+    /** check if coordinates are ok */
+    if ((static_cast<int>(srcImageHist.shape().first) < _center.first + _maxradius) ||
+        (_center.first - _maxradius < 0) )
+      throw out_of_range("pp311:setup: '" + _key + "'. Center in lab X '" +
+                         toString(_center.first) + "' and maximum radius '" +
+                         toString(_maxradius) + "' do not fit in image with width '" +
+                         toString(srcImageHist.shape().first) + "'");
+    if ((static_cast<int>(srcImageHist.shape().second) < _center.second + _maxradius) ||
+        (_center.second - _maxradius < 0))
+      throw out_of_range("pp311:setup: '" + _key + "'. Center in lab Y '" +
+                         toString(_center.second) + "' and maximum radius '" +
+                         toString(_maxradius) + "' do not fit in image with height '" +
+                         toString(srcImageHist.shape().second) + "'");
+
     _maxrad = _maxradius;
     _result = srcImageHist.clone();
   }
