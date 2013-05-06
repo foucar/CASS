@@ -1653,49 +1653,32 @@ void pp70::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
-  if (0 == one.dimension())
-    throw runtime_error("pp70::loadSettings(): Unknown dimension of incomming histogram");
   _userXRange = make_pair(s.value("XLow",0).toFloat(),
                           s.value("XUp",1).toFloat());
-  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
-  _inputOffset=(xaxis.bin(_userXRange.first));
-  const size_t binXUp (xaxis.bin(_userXRange.second));
-  const size_t nXBins (binXUp-_inputOffset);
-  const float xLow (xaxis.position(_inputOffset));
-  const float xUp (xaxis.position(binXUp));
+  _userYRange = make_pair(s.value("YLow",0).toFloat(),
+                          s.value("YUp",1).toFloat());
+  setup(dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
   string output("PostProcessor '" + _key +
                 "' returns a subset of histogram in pp '"  +  _pHist->key() +
-                "' which has dimension '" + toString(one.dimension()) +
-                "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
-                "), xUp:" + toString(xUp) + "(" + toString(binXUp) +
-                "), xNbrBins:" + toString(nXBins));
-  if (1 == one.dimension())
+                "' which has dimension '" + toString(_pHist->getHist(0).dimension()) +
+                "'. Subset is xLow:" +
+                toString(_result->axis()[HistogramBackend::xAxis].lowerLimit()) +
+                ", xUp:" +
+                toString(_result->axis()[HistogramBackend::xAxis].upperLimit()) +
+                ", xNbrBins:" +
+                toString(_result->axis()[HistogramBackend::xAxis].nbrBins()));
+  if (2 == _pHist->getHist(0).dimension())
   {
-    _result = new Histogram1DFloat(nXBins,xLow,xUp);
-  }
-  else if (2 == one.dimension())
-  {
-    _userYRange = make_pair(s.value("YLow",0).toFloat(),
-                            s.value("YUp",1).toFloat());
-    const AxisProperty &yaxis (one.axis()[HistogramBackend::yAxis]);
-    const size_t binYLow(yaxis.bin(_userYRange.first));
-    const size_t binYUp (yaxis.bin(_userYRange.second));
-    const size_t nYBins = (binYUp - binYLow);
-    const float yLow (yaxis.position(binYLow));
-    const float yUp (yaxis.position(binYUp));
-    _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow + 0.1);
-    _result = new Histogram2DFloat(nXBins,xLow,xUp,
-                                   nYBins,yLow,yUp);
-    output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
-              "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
-              "), yNbrBins:"+ toString(nXBins) + ", linearized offset is now:" +
-              toString(_inputOffset);
+    output += " yLow: " +
+        toString(_result->axis()[HistogramBackend::yAxis].lowerLimit()) +
+        ", yUp:" +
+        toString(_result->axis()[HistogramBackend::yAxis].upperLimit()) +
+        ", yNbrBins:" +
+        toString(_result->axis()[HistogramBackend::yAxis].nbrBins()) +
+        ", linearized offset is now:" + toString(_inputOffset);
   }
   output += ". Condition on postprocessor '" + _condition->key() + "'";
   Log::add(Log::INFO,output);
-  createHistList(2*cass::NbrOfWorkers);
 }
 
 void pp70::histogramsChanged(const HistogramBackend* in)
@@ -1707,40 +1690,7 @@ void pp70::histogramsChanged(const HistogramBackend* in)
   //return when the incomming histogram is not a direct dependant
   if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
     return;
-  const AxisProperty &xaxis(in->axis()[HistogramBackend::xAxis]);
-  _inputOffset=(xaxis.bin(_userXRange.first));
-  const size_t binXUp (xaxis.bin(_userXRange.second));
-  const size_t nXBins (binXUp-_inputOffset);
-  const float xLow (xaxis.position(_inputOffset));
-  const float xUp (xaxis.position(binXUp));
-  string output("PostProcessor '" + _key +
-                "' histogramsChanged: returns a subset of histogram in pp '"  +  _pHist->key() +
-                "' which has dimension '" + toString(in->dimension()) +
-                "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
-                "), xUp:" + toString(xUp) + "(" + toString(binXUp) +
-                "), xNbrBins:" + toString(nXBins));
-  if (1 == in->dimension())
-  {
-    _result = new Histogram1DFloat(nXBins,xLow,xUp);
-  }
-  else if (2 == in->dimension())
-  {
-    const AxisProperty &yaxis (in->axis()[HistogramBackend::yAxis]);
-    const size_t binYLow(yaxis.bin(_userYRange.first));
-    const size_t binYUp (yaxis.bin(_userYRange.second));
-    const size_t nYBins = (binYUp - binYLow);
-    _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow +0.1);
-    const float yLow (yaxis.position(binYLow));
-    const float yUp (yaxis.position(binYUp));
-    _result = new Histogram2DFloat(nXBins,xLow,xUp,
-                                   nYBins,yLow,yUp);
-    output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
-              "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
-              "), yNbrBins:"+ toString(nXBins) + ", linearized offset is now:" +
-              toString(_inputOffset);
-  }
-  Log::add(Log::VERBOSEINFO,output);
-  createHistList(2*cass::NbrOfWorkers);
+  setup(dynamic_cast<const HistogramFloatBase&>(*in));
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -1748,6 +1698,69 @@ void pp70::histogramsChanged(const HistogramBackend* in)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
 }
 
+void pp70::setup(const HistogramFloatBase &hist)
+{
+  try
+  {
+    if (0 == hist.dimension())
+      throw invalid_argument("pp70::loadSettings(): Dimension '"+
+                             toString(hist.dimension())+
+                             "' of incomming histogram not supported");
+    const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+    _inputOffset=(xaxis.bin(_userXRange.first));
+    const size_t binXUp (xaxis.bin(_userXRange.second));
+    const size_t nXBins (binXUp-_inputOffset);
+    const float xLow (xaxis.position(_inputOffset));
+    const float xUp (xaxis.position(binXUp));
+    string output("PostProcessor '" + _key +
+                  "' setup: returns a subset of histogram in pp '"  +  _pHist->key() +
+                  "' which has dimension '" + toString(hist.dimension()) +
+                  "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
+                  "), xUp:" + toString(xUp) + "(" + toString(binXUp) +
+                  "), xNbrBins:" + toString(nXBins));
+    if (1 == hist.dimension())
+    {
+      _result = new Histogram1DFloat(nXBins,xLow,xUp);
+    }
+    else if (2 == hist.dimension())
+    {
+      const AxisProperty &yaxis (hist.axis()[HistogramBackend::yAxis]);
+      const size_t binYLow(yaxis.bin(_userYRange.first));
+      const size_t binYUp (yaxis.bin(_userYRange.second));
+      const size_t nYBins = (binYUp - binYLow);
+      const float yLow (yaxis.position(binYLow));
+      const float yUp (yaxis.position(binYUp));
+      _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow +0.1);
+      _result = new Histogram2DFloat(nXBins,xLow,xUp,
+                                     nYBins,yLow,yUp);
+      output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
+          "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
+          "), yNbrBins:"+ toString(nXBins) + ", linearized offset is now:" +
+          toString(_inputOffset);
+    }
+    Log::add(Log::VERBOSEINFO,output);
+  }
+  /** catch the out of range errors and intialize histogram with 0.
+   *  Hopefully once everything resizes to the correct image
+   *  size, no errors will be thrown anymore
+   */
+  catch(const out_of_range &error)
+  {
+    Log::add(Log::DEBUG0,"Postprocessor 70 '" + _key +
+             "' setup: Out of Range Error is '" + error.what() + "'");
+    if (1 == hist.dimension())
+    {
+      _result = new Histogram1DFloat(0,0.,0.);
+    }
+    else if (2 == hist.dimension())
+    {
+      _result = new Histogram2DFloat(0,0.,0.,0,0.,0.);
+    }
+    _inputOffset = 0;
+  }
+
+  createHistList(2*cass::NbrOfWorkers);
+}
 
 void pp70::process(const cass::CASSEvent& evt)
 {

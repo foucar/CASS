@@ -1090,6 +1090,12 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
+    /** setup the resulting histogram
+     *
+     * @param hist The histogram used for setting up the resulting histogram
+     */
+    void setup(const HistogramFloatBase &hist);
+
     /** pp containing input histogram */
     PostprocessorBackend *_pHist;
 
