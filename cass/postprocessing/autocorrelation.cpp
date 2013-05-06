@@ -185,7 +185,12 @@ void pp311::setup(const Histogram2DFloat &srcImageHist)
                          toString(_usercenter.first) + "' and maximum radius '" +
                          toString(_maxradius) + "' do not fit in image with x '" +
                          toString(srcImageHist.shape().first) + "'");
-    _center = _usercenter;
+
+    /** determine the center in histogram coordinates */
+    const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
+    const AxisProperty &yaxis(srcImageHist.axis()[HistogramBackend::yAxis]);
+    _center = make_pair(xaxis.bin(_usercenter.first),
+                        yaxis.bin(_usercenter.second));
     _maxrad = _maxradius;
     _result = srcImageHist.clone();
   }
