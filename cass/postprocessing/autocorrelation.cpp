@@ -329,6 +329,7 @@ void pp311::process(const CASSEvent &evt)
     const int ringsize(getCircleLength(rad));
     ring.resize(ringsize);
     fillRing(histdata,rad,_center.first,_center.second,nxx,ring);
+#pragma omp parallel for
     for (int d_phi_pix=0; d_phi_pix < ringsize; ++d_phi_pix)
     {
       float result = 0.0;
