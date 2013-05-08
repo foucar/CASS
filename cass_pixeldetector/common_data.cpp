@@ -564,6 +564,50 @@ void CommonData::loadSettings(CASSSettings &s)
     detectorname = s.group().split("/").back().toStdString();
     s.beginGroup("CorrectionMaps");
 
+    /** try do deduce the frame size from the detectorname, if it can't be
+     *  deduced read it from the settings file and resize the maps accordingly.
+     */
+    if (detectorname.find("PnCCD") != string::npos)
+    {
+      columns = 1024;
+      rows = 1024;
+    }
+    else if (detectorname.find("CsPad") != string::npos)
+    {
+      columns = 2*194;
+      rows = 4*8*185;
+    }
+    else if (detectorname.find("CsPad2x2") != string::npos)
+    {
+      columns = 2*194;
+      rows = 2*185;
+    }
+    else if (detectorname.find("Opal1k") != string::npos)
+    {
+      columns = 1024;
+      rows = 1024;
+    }
+    else if (detectorname.find("Opal4k") != string::npos)
+    {
+      columns = 2048;
+      rows = 2048;
+    }
+    else
+    {
+      Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: Cannot deduce ") +
+               "the frame size from detectorname '" + detectorname +
+               "' read it from the settings file.");
+      columns = s.value("nColumns",1024).toUInt();
+      rows = s.value("nRows",1024).toUInt();
+    }
+    offsetMap.resize(columns*rows, 0);
+    noiseMap.resize(columns*rows, 4000);
+    mask.resize(columns*rows, 1);
+    hotpixels.resize(columns*rows, 0);
+    gain_cteMap.resize(columns*rows, 1);
+    correctionMap.resize(columns*rows, 1);
+
+    /** load info for getting the right cor value from the noise maps */
     _noiseRange.first = s.value("LowerNoisyPixelThreshold",0).toFloat();
     _noiseRange.second = s.value("NoisyPixelThreshold",40000).toFloat();
     _autoNoiseThreshold = qFuzzyCompare(_noiseRange.second,-1.f);

@@ -109,6 +109,9 @@ class MapCreatorBase;
  *           \f$ NoisyPixelThreshold = mean_noise + AutoMultiplier + stdv_noise \f$.
  *           \f$ LowerNoisyPixelThreshold = mean_noise - AutoMultiplier + stdv_noise \f$.
  *           Default is 4.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{nColumns}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{nRows}\n
+ *
  *
  * @author Lutz Foucar
  */
