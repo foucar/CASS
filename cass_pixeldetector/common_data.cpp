@@ -800,11 +800,14 @@ void CommonData::createCorMap()
   frame_t::const_iterator noise(noiseMap.begin());
   frame_t::const_iterator gain(gain_cteMap.begin());
   mask_t::const_iterator Mask(mask.begin());
+  mask_t::const_iterator hotpix(hotpixels.begin());
   /** reset the correction map before generating the correction values */
   fill(correctionMap.begin(),correctionMap.end(),1.);
   while (corval != corvalMapEnd)
   {
-    *corval = *gain++ * *corval * *Mask++ * (_noiseRange.first < *noise) * (*noise < _noiseRange.second);
+    *corval = *gain++ * *corval * *Mask++ *
+        (_noiseRange.first < *noise) * (*noise < _noiseRange.second) *
+        (-1 < *hotpix++);
     ++corval;
     ++noise;
   }
