@@ -572,15 +572,15 @@ void CommonData::loadSettings(CASSSettings &s)
       columns = PnCCDColumns;
       rows = PnCCDRows;
     }
-    else if (detectorname.find("CsPad") != string::npos)
-    {
-      columns = CsPadColumns;
-      rows = CsPadRows;
-    }
     else if (detectorname.find("CsPad2x2") != string::npos)
     {
       columns = CsPad2x2Columns;
       rows = CsPad2x2Rows;
+    }
+    else if (detectorname.find("CsPad") != string::npos)
+    {
+      columns = CsPadColumns;
+      rows = CsPadRows;
     }
     else if (detectorname.find("Opal1k") != string::npos)
     {
