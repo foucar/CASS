@@ -507,6 +507,7 @@ void isSameSize(const Frame& frame, CommonData& data)
   }
   if(changed)
   {
+    throw runtime_error("IsSameSize: Should not happen");
     data.columns = frame.columns;
     data.rows = frame.rows;
     data.createCorMap();
@@ -736,6 +737,10 @@ void CommonData::loadSettings(CASSSettings &s)
       throw invalid_argument("CommonData::loadSettings: OutputHotPixMaskFiletype '" +
                              outputhotpixfiletype + "' does not exist");
 
+    /** create the user mask and generate the correction map */
+    createCASSMask(*this,s);
+    createCorMap();
+
     s.endGroup();
   }
   _settingsLoaded = true;
@@ -743,11 +748,13 @@ void CommonData::loadSettings(CASSSettings &s)
 
 void CommonData::generateMaps(const Frame &frame)
 {
+//  _settingsLoaded = false;
   if (_settingsLoaded)
   {
     _settingsLoaded = false;
     isSameSize(frame,*this);
   }
+
   MapCreatorBase& generateOffsetNoiseMaps(*_offsetnoiseMapcreator);
   generateOffsetNoiseMaps(frame);
   MapCreatorBase& generateGainMap(*_gainCreator);
