@@ -25,6 +25,23 @@ typedef float pixel_t;
 /** a frame is a vector of pixels */
 typedef std::vector<pixel_t> frame_t;
 
+/** the default detector sizes */
+enum detectorsizes
+{
+  PnCCDColumns = 1024,
+  PnCCDRows = 1024,
+  Opal1KColumns = 1024,
+  Opal1KRows = 1024,
+  Opal4KColumns = 2048,
+  Opal4KRows = 2048,
+  CsPadAsicColumns = 194,
+  CsPadAsicRows = 185,
+  CsPadColumns = 2*CsPadAsicColumns,
+  CsPadRows = 4*8*CsPadAsicRows,
+  CsPad2x2Columns = 2*CsPadAsicColumns,
+  CsPad2x2Rows = 2*CsPadAsicRows
+};
+
 /** Pixel definition
  *
  * Defines a pixel within a pixel detector.
