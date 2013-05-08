@@ -217,6 +217,46 @@ private:
   float _multiplier;
 };
 
+
+/** hotpixels finder
+ *
+ * @MapCreateList "hotpix": Pixels that have a high value for a consecutive nbr
+ *                          of frames will be identified.
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/HotPixelFinder/{ADUThreshold}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/HotPixelFinder/{NbrConsecutiveFrames}\n
+ *
+ * @author Lutz Foucar
+ */
+class HotPixelsFinder : public MapCreatorBase
+{
+public:
+  /** build map from frame
+   *
+   * @param frame the frame containing the data to build the maps from
+   */
+  void operator() (const Frame &frame);
+
+  /** load the settings of this creator
+   *
+   * @param s the CASSSettings object to read the information from
+   */
+  void loadSettings(CASSSettings &s);
+
+private:
+  /** the container with all the maps */
+  std::tr1::shared_ptr<CommonData> _commondata;
+
+  /** after wich number of frames should the maps be written to file */
+  size_t _frameSave;
+
+  /** the adu threshold for identifying a potential hotpixel */
+  pixel_t _aduThreshold;
+
+  /** the nbr of consecutive frames that a hotpixel is high */
+  char _hotpixThreshold;
+};
+
 } //end namespace pixeldetector
 } //end namespace cass
 #endif

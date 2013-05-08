@@ -35,6 +35,8 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
     ptr = shared_pointer(new OnlineFixedCreatorCommonMode());
   else if (type == "GainFixedADURange")
     ptr = shared_pointer(new GainCalibration());
+  else if (type == "hotpix")
+    ptr = shared_pointer(new HotPixelsFinder());
   else
     throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +
                            "' is unknown.");

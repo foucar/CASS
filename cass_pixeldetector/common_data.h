@@ -245,6 +245,14 @@ public:
    */
   mask_t mask;
 
+  /** the hotpixel mask
+   *
+   * a negative value masks pixels permanently. Positive values indicate how
+   * many frames this pixel was high. If its not high anymore the mask value
+   * will be reset to 0.
+   */
+  mask_t hotpixels;
+
   /** the gain + cte map
    *
    * this is a matrix of values containing correction factors for each

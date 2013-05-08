@@ -302,3 +302,49 @@ void MovingMaps::loadSettings(CASSSettings &s)
   _multiplier = s.value("Multiplier",4).toFloat();
   s.endGroup();
 }
+
+
+void HotPixelsFinder::operator()(const Frame &frame)
+{
+  QWriteLocker (&_commondata->lock);
+  frame_t::const_iterator pixel(frame.data.begin());
+  frame_t::const_iterator pixelEnd(frame.data.end());
+  frame_t::iterator offset(_commondata->offsetMap.begin());
+  frame_t::iterator cor(_commondata->correctionMap.begin());
+  CommonData::mask_t::iterator hotpix(_commondata->hotpixels.begin());
+  while(pixel != pixelEnd)
+  {
+    const pixel_t pix(*pixel++ - *offset++);
+    if (*hotpix != -1)
+    {
+      *hotpix = (_aduThreshold < pix)? ++(*hotpix) : 0;
+      if(_hotpixThreshold < *hotpix)
+      {
+        *hotpix = -1;
+        *cor = 0;
+      }
+    }
+    ++cor;
+    ++hotpix;
+  }
+//  ++_framecounter;
+//  if ((_framecounter % _frameSave) == 0)
+//  {
+//    _commondata->saveOffsetNoiseMaps();
+//    _commondata->createCorMap();
+//  }
+}
+
+void HotPixelsFinder::loadSettings(CASSSettings &s)
+{
+  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  s.beginGroup("HotPixelFinder");
+  _commondata = CommonData::instance(detectorname);
+  _aduThreshold = s.value("ADUThreshold",3000).toFloat();
+  _hotpixThreshold = s.value("NbrConsecutiveFrames",5).toInt();
+  Log::add(Log::INFO,"HitPixelsFinder::loadSettings() '" + detectorname +
+           "': Find pixels with adu above '" + toString(_aduThreshold) +
+           "' When pixel values exeeds threshold for '" + toString(_hotpixThreshold) +
+           "' consecutive frames its marked as bad.");
+  s.endGroup();
+}
