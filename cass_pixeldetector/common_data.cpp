@@ -748,13 +748,14 @@ void CommonData::loadSettings(CASSSettings &s)
 
 void CommonData::generateMaps(const Frame &frame)
 {
-//  _settingsLoaded = false;
-  if (_settingsLoaded)
-  {
-    _settingsLoaded = false;
-    isSameSize(frame,*this);
-  }
-
+  _settingsLoaded = false;
+  const size_t allmapsize(offsetMap.size() + noiseMap.size() + mask.size() +
+                          hotpixels.size() + gain_cteMap.size() + correctionMap.size());
+  if (allmapsize != 6*frame.data.size())
+    throw runtime_error("CommonData::generateMaps: '" + detectorname +
+                        "', at least one of the maps is not resized to fit the " +
+                        "frames with '" + toString(frame.columns)+
+                        "x" + toString(frame.rows) + "'");
   MapCreatorBase& generateOffsetNoiseMaps(*_offsetnoiseMapcreator);
   generateOffsetNoiseMaps(frame);
   MapCreatorBase& generateGainMap(*_gainCreator);
