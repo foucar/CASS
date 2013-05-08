@@ -37,11 +37,12 @@ void GainCalibration::generateCalibration(const Frame &frame)
   vector<statistics_t>::const_iterator statEnd(_statistics.end());
 
   frame_t::const_iterator pixel(frame.data.begin());
+  frame_t::const_iterator offset(_commondata->offsetMap.begin());
 
   /** average pixelvalues per pixel that lie within the given adu range */
   while (stat != statEnd)
   {
-    const float pixval(*pixel);
+    const float pixval(*pixel - *offset++);
 
     if (pixval < _range.first  ||  _range.second < pixval)
       continue;
