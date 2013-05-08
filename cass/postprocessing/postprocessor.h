@@ -131,16 +131,16 @@ the Class description for information about what parameters are user settable.
 
 ##Data used with new pixeldetector device (select appropriate format convert to use these)
 00105: Pixeldetector Image
-00106: Histogram of Pixeldetector pixel values
+00106: Histogram of Pixeldetector pixel values, depreciated use pp60 instead
 00107: Display the Map used for correction and pixel detection
 00108: Calculates the sum of all pixels values, depreciated use pp84 instead
 
-00147: detected pixels spectrum (z-values)
+00147: detected pixels spectrum (z-values), depreciated use pp60 instead
 00148: 2d image from detected pixels
 00149: Number of detected pixels
 00155: Calculates the sum of the z value of the detected pixels, depreciated use pp84 instead
 
-00143: coalesced detected pixels (hits) spectrum (z-values)
+00143: coalesced detected pixels (hits) spectrum (z-values), depreciated use pp60 instead
 00144: 2d image from coalesced detected pixels (hits)
 00145: Number of coalesced detected pixels (hits)
 00146: Split level of coalesced detected pixels (hits) (how many detected pixels within coalseced hit)
