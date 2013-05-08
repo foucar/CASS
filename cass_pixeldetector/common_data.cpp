@@ -374,6 +374,53 @@ void saveCASSGainFile(const string &filename, const CommonData& data)
   out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(pixel_t));
 }
 
+
+/** read the CASS generated hotpixels file
+ *
+ * @param filename the filename of file containing the hot pixel mask.
+ * @param data the data storage where the info should be written to.
+ *
+ * @author Lutz Foucar
+ */
+void readCASSHotPixFile(const string &filename, CommonData& data)
+{
+  ifstream in(filename.c_str(), ios::binary);
+  if (!in.is_open())
+  {
+    Log::add(Log::WARNING,"readCASSHotPixFile: Could not open '" + filename +
+             "'. Skipping reading the hot pixels mask.");
+    return;
+  }
+  in.seekg(0,std::ios::end);
+  const int valuesize(sizeof(CommonData::mask_t::value_type));
+  const size_t size = in.tellg() / valuesize;
+  in.seekg(0,std::ios::beg);
+  QWriteLocker lock(&data.lock);
+  CommonData::mask_t &hotpix(data.hotpixels);
+  hotpix.resize(size);
+  in.read(reinterpret_cast<char*>(&hotpix.front()), size*valuesize);
+}
+
+/** save the hot pixels to CASS style file
+ *
+ * @param filename the filename of file were the hot pixel mask will be written to
+ * @param data the data storage where the info should be taken from.
+ *
+ * @author Lutz Foucar
+ */
+void saveCASSHotPixFile(const string &filename, const CommonData& data)
+{
+  ofstream out(filename.c_str(), ios::binary);
+  if (!out.is_open())
+  {
+    throw invalid_argument("saveCASSHotPixFile(): Error opening file '" +
+                           filename + "'");
+  }
+  const CommonData::mask_t &hotpix(data.hotpixels);
+  const int valuesize(sizeof(CommonData::mask_t::value_type));
+  out.write(&hotpix.front(), hotpix.size()*valuesize);
+}
+
 /** check whether the frame has the same size as the maps.
  *
  * if not resize the maps to the right size and initialize them with values, that
@@ -446,6 +493,16 @@ void isSameSize(const Frame& frame, CommonData& data)
              toString(frame.columns * frame.rows) +
              "'. Resizing the correctionMap");
     data.correctionMap.resize(frame.columns*frame.rows, 1);
+    changed=true;
+  }
+  if ((frame.columns * frame.rows) != static_cast<int>(data.hotpixels.size()))
+  {
+    Log::add(Log::WARNING,"isSameSize():The hotpixelMask does not have the right size '" +
+             toString(data.hotpixels.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the correctionMap");
+    data.hotpixels.resize(frame.columns*frame.rows, 0);
     changed=true;
   }
   if(changed)
@@ -600,6 +657,41 @@ void CommonData::loadSettings(CASSSettings &s)
       throw invalid_argument("CommonData::loadSettings: OutputGainFiletype '" +
                              outputgainfiletype + "' does not exist");
 
+    /** setup how and from where the hot pixels mask file will be read and read it */
+    string hotpixfilename(s.value("InputHotPixMaskFilename",
+                                  QString::fromStdString("hotpix_"+toString(detectorId)+".lnk")).toString().toStdString());
+    QFileInfo hotpixfilenameInfo(QString::fromStdString(hotpixfilename));
+    if (hotpixfilenameInfo.isSymLink())
+    {
+      if (hotpixfilenameInfo.exists())
+        hotpixfilename = hotpixfilenameInfo.symLinkTarget().toStdString();
+      else
+        Log::add(Log::WARNING,"CommonData::loadSettings: The given gain filename '" +
+                 hotpixfilename + "' is a link that referes to a non existing file!");
+    }
+    if (hotpixfilename != _inputHotPixFilename)
+    {
+      Log::add(Log::VERBOSEINFO, "CommonData::loadSettings(): Load gain data " +
+               string(" for detector with name '") + detectorname + "' which has id '" +
+               toString(detectorId) + "' from file '" + hotpixfilename +"'");
+      _inputHotPixFilename = hotpixfilename;
+      string hotpixFiletype(s.value("InputHotPixMaskFiletype","cass").toString().toStdString());
+      if (hotpixFiletype == "cass")
+        readCASSHotPixFile(_inputHotPixFilename,*this);
+      else
+        throw invalid_argument("CommonData::loadSettings: GainFiletype '" +
+                               hotpixFiletype + "' does not exist");
+    }
+
+    /** setup how and where the gain map will be written to */
+    _outputHotPixFilename = (s.value("OutputHotPixMaskFilename","hotpix").toString().toStdString());
+    string outputhotpixfiletype(s.value("OutputHotPixMaskFiletype","cass").toString().toStdString());
+    if (outputhotpixfiletype == "cass")
+      _saveHotPixTo = &saveCASSHotPixFile;
+    else
+      throw invalid_argument("CommonData::loadSettings: OutputHotPixMaskFiletype '" +
+                             outputhotpixfiletype + "' does not exist");
+
     s.endGroup();
   }
   _settingsLoaded = true;
@@ -650,7 +742,7 @@ void CommonData::saveGainMap()
               ".cal";
   else
     outname = _outputOffsetFilename;
-  _saveNoiseOffsetTo(outname,*this);
+  _saveGainTo(outname,*this);
   if (_outputGainFilename == "gain")
   {
     string linkname("gain_" + toString(detectorId) +".lnk");
@@ -660,6 +752,29 @@ void CommonData::saveGainMap()
                             linkname +"'");
     if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
       throw runtime_error("CommonData::saveGainMap: could not create a link named '"+
+                          linkname + "' that points to the outputfile '" + outname +"'");
+  }
+}
+
+void CommonData::saveHotPixMask()
+{
+  string outname;
+  if (_outputHotPixFilename == "hotpix")
+    outname = "hotpix_"+toString(detectorId) + "_" +
+              QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
+              ".mask";
+  else
+    outname = _outputHotPixFilename;
+  _saveHotPixTo(outname,*this);
+  if (_outputHotPixFilename == "hotpix")
+  {
+    string linkname("hotpix_" + toString(detectorId) +".lnk");
+    if (QFile::exists(QString::fromStdString(linkname)))
+      if(!QFile::remove(QString::fromStdString(linkname)))
+        throw runtime_error("CommonData::saveGainMap: could not remove already existing link '" +
+                            linkname +"'");
+    if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
+      throw runtime_error("CommonData::saveHotPixMask: could not create a link named '"+
                           linkname + "' that points to the outputfile '" + outname +"'");
   }
 }

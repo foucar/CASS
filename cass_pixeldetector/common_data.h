@@ -215,6 +215,18 @@ public:
    */
   void saveGainMap();
 
+  /** save hot pixel mask
+   *
+   * save the hot pixel mask to file in the user chosen fileformat.
+   *
+   * If the filename is "hotpix" for the gain calibration file, the detector id
+   * and the current time will be appended to the filename. A link
+   * to the created files will be generated. The name of the link will be
+   * called "hotpix_\%detectorID\%.lnk". In case the link exist, try to
+   * remove it first.
+   */
+  void saveHotPixMask();
+
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
 
@@ -329,6 +341,15 @@ private:
 
   /** the gain correction output filename */
   std::string _outputGainFilename;
+
+  /** function to write the hot pixel mask */
+  std::tr1::function<void(const std::string&,CommonData&)> _saveHotPixTo;
+
+  /** the hot pixel mask input filename */
+  std::string _inputHotPixFilename;
+
+  /** the hot pixel mask output filename */
+  std::string _outputHotPixFilename;
 
   /** the range in adu for masking noisy pixels */
   std::pair<pixel_t,pixel_t> _noiseRange;
