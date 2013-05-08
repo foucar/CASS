@@ -18,8 +18,9 @@
 
 
 cass::CASSEvent::CASSEvent()
-  :cass::Serializable(1),
-  _id(0)
+  : cass::Serializable(1),
+    _id(0),
+    _datagrambuffer(cass::DatagramBufferSize,0)
 {
   //add all devices that are available
   _devices[CCD]            = new cass::CCD::CCDDevice();
