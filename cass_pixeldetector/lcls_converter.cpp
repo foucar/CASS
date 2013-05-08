@@ -315,8 +315,8 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
     }
   }
   /** all sections above each other */
-  det.columns() = 2*asic_nx;
-  det.rows() = 4*8*asic_ny;
+  det.columns() = CsPadColumns;
+  det.rows() = CsPadRows;
 }
 
 
@@ -570,8 +570,8 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       *firstSegment++  = *data++;
       *secondSegment++ = *data++;
     }
-    det.columns() = 2*asic_nx;
-    det.rows() = 2*asic_ny;
+    det.columns() = CsPad2x2Columns;
+    det.rows() = CsPad2x2Rows;
   }
     break;
 

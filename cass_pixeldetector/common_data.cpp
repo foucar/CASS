@@ -569,28 +569,28 @@ void CommonData::loadSettings(CASSSettings &s)
      */
     if (detectorname.find("PnCCD") != string::npos)
     {
-      columns = 1024;
-      rows = 1024;
+      columns = PnCCDColumns;
+      rows = PnCCDRows;
     }
     else if (detectorname.find("CsPad") != string::npos)
     {
-      columns = 2*194;
-      rows = 4*8*185;
+      columns = CsPadColumns;
+      rows = CsPadRows;
     }
     else if (detectorname.find("CsPad2x2") != string::npos)
     {
-      columns = 2*194;
-      rows = 2*185;
+      columns = CsPad2x2Columns;
+      rows = CsPad2x2Rows;
     }
     else if (detectorname.find("Opal1k") != string::npos)
     {
-      columns = 1024;
-      rows = 1024;
+      columns = Opal1KColumns;
+      rows = Opal1KRows;
     }
     else if (detectorname.find("Opal4k") != string::npos)
     {
-      columns = 2048;
-      rows = 2048;
+      columns = Opal4KColumns;
+      rows = Opal4KRows;
     }
     else
     {
