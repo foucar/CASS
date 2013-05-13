@@ -72,6 +72,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
                       tcpserver.cpp \
+                      ./postprocessing/postprocessor.cpp \
                       ./postprocessing/convenience_functions.cpp \
                       ./postprocessing/backend.cpp \
                       ./postprocessing/waveform.cpp \
@@ -84,7 +85,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/alignment.cpp \
                       ./postprocessing/imaging.cpp \
                       ./postprocessing/operations.cpp \
-                      ./postprocessing/postprocessor.cpp \
                       ./postprocessing/id_list.cpp \
                       ./postprocessing/rankfilter.cpp \
                       ./postprocessing/coltrims_analysis.cpp \
