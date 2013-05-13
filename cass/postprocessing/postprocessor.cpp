@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include <functional>
+#include <tr1/functional>
 
 #include "acqiris_detectors.h"
 #include "achimcalibrator_hex.h"
@@ -159,7 +160,9 @@ void PostProcessors::loadSettings(size_t)
   }
   Log::add(Log::DEBUG1,output);
   PostprocessorBackend::names_t declaredPostProcessors(list.size());
-  transform(list.begin(), list.end(), declaredPostProcessors.begin(), QStringToStdString);
+  tr1::function<string(const QString&)> toStdString = &QString::toStdString;
+//  transform(list.begin(), list.end(), declaredPostProcessors.begin(), QStringToStdString);
+  transform(list.begin(), list.end(), declaredPostProcessors.begin(), toStdString);
   Log::add(Log::VERBOSEINFO, "PostProcessors::loadSettings(): Number of unique postprocessor activations: " +
            toString(declaredPostProcessors.size()));
 
