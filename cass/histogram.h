@@ -48,7 +48,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT AxisProperty : public Serializable
+class AxisProperty : public Serializable
 {
 public:
 
@@ -152,9 +152,13 @@ protected:
  * We are serializable.
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT HistogramBackend
+class HistogramBackend
     : public Serializable
 {
+public:
+  /** define a shared pointer of this */
+  typedef std::tr1::shared_ptr<HistogramBackend> shared_pointer;
+
 protected:
     /** constructor.
      * initializing the properties and sets the Serialization version
@@ -296,7 +300,7 @@ protected:
  * from this all float histograms should inherit
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT HistogramFloatBase
+class HistogramFloatBase
     : public HistogramBackend
 {
 public:
@@ -401,7 +405,7 @@ protected:
  *
  * @author Jochen Kuepper
  */
-class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
+class Histogram0DFloat : public HistogramFloatBase
 {
 public:
     /** Create a 0d histogram of a single float */
@@ -472,7 +476,7 @@ public:
  * @author Lutz Foucar
  * @author Jochen Küpper
  */
-class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
+class Histogram1DFloat : public HistogramFloatBase
 {
 public:
     /** constructor.
@@ -651,7 +655,7 @@ public:
  * @author Lutz Foucar
  * @author Jochen Küpper
  */
-class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
+class Histogram2DFloat : public HistogramFloatBase
 {
 public:
 
@@ -1081,12 +1085,3 @@ inline QImage Histogram2DFloat::qimage() {
 
 #endif // HISTOGRAM_H
 
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "gnu"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:
