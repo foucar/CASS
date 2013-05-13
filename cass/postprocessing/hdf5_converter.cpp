@@ -982,7 +982,7 @@ void cass::pp1001::aboutToQuit()
   H5Fclose(_filehandle);
 }
 
-hid_t cass::pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
+hid_t pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
 {
   if (evt.pvControl.empty())
   {
@@ -1011,7 +1011,7 @@ hid_t cass::pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
   }
 }
 
-void cass::pp1001::process(const cass::CASSEvent &evt)
+void pp1001::process(const CASSEvent &evt)
 {
   _outfilename = hdf5::reopenFile(_filehandle,_maxsize,_outfilename);
   hid_t calibcyclehandle (getGroupNameForCalibCycle(evt));
@@ -1097,8 +1097,6 @@ void pp1002::loadSettings(size_t)
     s.setArrayIndex(i);
     PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
-    if (!pp)
-      break;
     _ppList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
                                 pp));
   }
@@ -1110,8 +1108,6 @@ void pp1002::loadSettings(size_t)
     s.setArrayIndex(i);
     PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
-    if (!pp)
-      break;
     _ppSummaryList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
                                        pp));
   }
