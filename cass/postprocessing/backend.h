@@ -181,6 +181,30 @@ public:
 protected:
   /** process the event
    *
+   * @note this is the function that should only be called by the PostProcessor
+   *       Manager.
+   * @note the function relies on the condition dependency havin been processed
+   *       before.
+   *
+   * It will retrieve the pointer to the last result in the list and call
+   * the process function to process the event, if the condition is true.
+   *
+   * @param ev the event to be processed
+   */
+  void processEvent(const CASSEvent& ev);
+
+  /** process the event
+   *
+   * This will evaluate the event and fill the resulting histogram. It needs
+   * to be implemented in the postprocessors.
+   *
+   * @param event the cassevent to work on
+   * @param result this is where the result will be written to
+   */
+  virtual void process(const CASSEvent& ev, const HistogramBackend& result);
+
+  /** process the event
+   *
    * This will evaluate the event and fill the resulting histogram. It needs
    * to be implemented in the postprocessors.
    *

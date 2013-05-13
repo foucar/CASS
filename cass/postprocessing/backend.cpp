@@ -92,6 +92,33 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   return *(it->second);
 }
 
+void PostprocessorBackend::processEvent(const CASSEvent& evt)
+{
+  QWriteLocker lock(&_histLock);
+  assert(!_histList.empty());
+  assert(find_if(_histList.begin(), _histList.end(),
+                 bind(equal_to<uint64_t>(),evt.id(),
+                      bind<uint64_t>(&histogramList_t::value_type::first,_1))) == _histList.end());
+
+  histogramList_t::value_type newPair(make_pair(evt.id(),_histList.back().second));
+
+  if (_condition->getHist(evt.id()).isTrue())
+  {
+    _histList.pop_back();
+    _histList.push_front(newPair);
+    const HistogramBackend &result(*(_histList.front().second));
+    lock.unlock();
+    process(evt,result);
+  }
+  else
+  {
+    _histList.pop_back();
+    histogramList_t::iterator it(_histList.begin());
+    ++it;
+    it =_histList.insert(it,newPair);
+  }
+}
+
 const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 {
   QWriteLocker lock(&_histLock);
