@@ -49,8 +49,7 @@ public:
 
   /** copy image from CASS event to histogram storage
    *
-   * if the size has changed resize the histograms and notify all dependands of
-   * this.
+   * @throws invalid_argument if user provided size is incorrect
    */
   virtual void process(const CASSEvent&);
 
@@ -136,7 +135,10 @@ public:
   /** constructor */
   pp107(PostProcessors&, const PostProcessors::key_t&);
 
-  /** copy pixels from CASS event to histogram storage */
+  /** copy pixels from Map to histogram storage
+   *
+   * @throws invalid argument when the size of the maps have changed
+   */
   virtual void process(const CASSEvent&);
 
   /** set the histogram size */

@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file advanced_pixeldetector.h file more advanced pixeldetectors
+ * @file advanced_pixeldetector.cpp file more advanced pixeldetectors
  *
  * @author Lutz Foucar
  */

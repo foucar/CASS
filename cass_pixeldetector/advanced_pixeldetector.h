@@ -11,6 +11,7 @@
 
 #include <tr1/memory>
 #include <stdint.h>
+#include <string>
 
 #include "pixeldetector.hpp"
 #include "cass_pixeldetector.h"
@@ -28,6 +29,7 @@ class CommonData;
 class FrameProcessorBase;
 class PixelFinderBase;
 class CoalescingBase;
+
 
 /** A Frame of an advance Pixel Detector
  *

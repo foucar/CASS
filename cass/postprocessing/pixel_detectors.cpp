@@ -76,9 +76,10 @@ void pp105::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram2DFloat(1024,1024);
-  createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
+  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
+                                 CommonData::instance(_detector)->rows);
+  createHistList(2*cass::NbrOfWorkers);
   Log::add(Log::INFO,"Postprocessor '" + _key +
            "' will display frame of detector '" + _detector +
            "'. It will use condition '" + _condition->key() +"'");
@@ -89,26 +90,21 @@ void pp105::process(const cass::CASSEvent& evt)
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::frame_t& frame (det->frame().data);
-  _result->lock.lockForWrite();
-  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det->frame().columns ||
-      _result->axis()[HistogramBackend::yAxis].nbrBins() != det->frame().rows)
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+
+  result.lock.lockForWrite();
+  if (result.shape() != det->frame().shape())
   {
-    histogramList_t::iterator hist(_histList.begin());
-    for (; hist != _histList.end(); ++hist)
-    {
-      Histogram2DFloat *histo(dynamic_cast<Histogram2DFloat*>(hist->second));
-      histo->resize(det->frame().columns,0,det->frame().columns-1,
-                    det->frame().rows,   0,det->frame().rows   -1);
-    }
-    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-    PostProcessors::keyList_t::iterator dependand (dependands.begin());
-    for (; dependand != dependands.end(); ++dependand)
-      _pp.getPostProcessor(*dependand).histogramsChanged(_result);
+    throw invalid_argument("Postprocessor '" + _key +
+                           "' incomming frame '" + toString(det->frame().columns) +
+                           "x" + toString(det->frame().rows) + "'. Result '" +
+                           toString(result.shape().first) + "x" +
+                           toString(result.shape().second) + "'");
   }
-  copy(frame.begin(), frame.end(),
-       dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
+  copy(frame.begin(), frame.end(),result.memory().begin());
+  result.nbrOfFills() = 1;
+  result.lock.unlock();
 }
 
 
@@ -212,26 +208,23 @@ void pp107::loadSettings(size_t)
 void pp107::process(const cass::CASSEvent&/* evt*/)
 {
   QReadLocker locker(_mapLock);
-  _result->lock.lockForWrite();
-  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != CommonData::instance(_detector)->columns ||
-      _result->axis()[HistogramBackend::yAxis].nbrBins() != CommonData::instance(_detector)->rows)
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+
+  result.lock.lockForWrite();
+
+  if (result.shape().first != CommonData::instance(_detector)->columns ||
+      result.shape().second != CommonData::instance(_detector)->rows)
   {
-    histogramList_t::iterator hist(_histList.begin());
-    for (; hist != _histList.end(); ++hist)
-    {
-      Histogram2DFloat *histo(dynamic_cast<Histogram2DFloat*>(hist->second));
-      histo->resize(CommonData::instance(_detector)->columns,0,CommonData::instance(_detector)->columns-1,
-                    CommonData::instance(_detector)->rows,   0,CommonData::instance(_detector)->rows   -1);
-    }
-    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-    PostProcessors::keyList_t::iterator dependand (dependands.begin());
-    for (; dependand != dependands.end(); ++dependand)
-      _pp.getPostProcessor(*dependand).histogramsChanged(_result);
+    throw invalid_argument("Postprocessor '" + _key +
+                           "' The Map '" + toString(CommonData::instance(_detector)->columns) +
+                           "x" + toString(CommonData::instance(_detector)->rows) + "'. Result '" +
+                           toString(result.shape().first) + "x" +
+                           toString(result.shape().second) + "'");
   }
-  copy(_map->begin(), _map->end(),
-       dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
+  copy(_map->begin(), _map->end(),result.memory().begin());
+
+  result.nbrOfFills() = 1;
+  result.lock.unlock();
 }
 
 
@@ -976,34 +969,29 @@ void pp242::process(const cass::CASSEvent& evt)
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::frame_t& frame (det->frame().data);
-  _result->lock.lockForWrite();
-  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det->frame().columns ||
-      _result->axis()[HistogramBackend::yAxis].nbrBins() != det->frame().rows)
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+
+  result.lock.lockForWrite();
+  if (result.shape() != det->frame().shape())
   {
-    histogramList_t::iterator hist(_histList.begin());
-    for (; hist != _histList.end(); ++hist)
-    {
-      Histogram2DFloat *histo(dynamic_cast<Histogram2DFloat*>(hist->second));
-      histo->resize(det->frame().columns,0,det->frame().columns-1,
-                    det->frame().rows,   0,det->frame().rows   -1);
-    }
-    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-    PostProcessors::keyList_t::iterator dependand (dependands.begin());
-    for (; dependand != dependands.end(); ++dependand)
-      _pp.getPostProcessor(*dependand).histogramsChanged(_result);
+    throw invalid_argument("Postprocessor '" + _key +
+                           "' incomming frame '" + toString(det->frame().columns) +
+                           "x" + toString(det->frame().rows) + "'. Result '" +
+                           toString(result.shape().first) + "x" +
+                           toString(result.shape().second) + "'");
   }
-  HistogramFloatBase::storage_t &rframe(dynamic_cast<Histogram2DFloat*>(_result)->memory());
-  copy(frame.begin(), frame.end(), rframe.begin());
+  copy(frame.begin(), frame.end(), result.memory().begin());
   QReadLocker locker(_maskLock);
-  HistogramFloatBase::storage_t::iterator pixel(rframe.begin());
+  HistogramFloatBase::storage_t::iterator pixel(result.memory().begin());
   pixeldetector::frame_t::const_iterator mask(_mask->begin());
-  for (; pixel != rframe.end(); ++pixel, ++mask)
+  for (; pixel != result.memory().end(); ++pixel, ++mask)
   {
     if (qFuzzyCompare(*mask,0))
       *pixel = _value;
   }
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
+  result.nbrOfFills() = 1;
+  result.lock.unlock();
 }
 
 

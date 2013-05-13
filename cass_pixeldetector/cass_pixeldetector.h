@@ -25,6 +25,9 @@ typedef float pixel_t;
 /** a frame is a vector of pixels */
 typedef std::vector<pixel_t> frame_t;
 
+/** define a shape of an image columnsxrows */
+typedef std::pair<size_t,size_t> shape_t;
+
 /** the default detector sizes */
 enum detectorsizes
 {
