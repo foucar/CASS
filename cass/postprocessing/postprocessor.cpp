@@ -164,8 +164,8 @@ void PostProcessors::loadSettings(size_t)
            toString(declaredPostProcessors.size()));
 
   /** add a default true and false postprocessors */
-  declaredPostProcessors.push_back("DefaultTrueHist");
-  declaredPostProcessors.push_back("DefaultFalseHist");
+  declaredPostProcessors.push_front("DefaultTrueHist");
+  declaredPostProcessors.push_front("DefaultFalseHist");
 
   /** create all postprocessors */
   PostprocessorBackend::names_t::const_iterator iter(declaredPostProcessors.begin());
@@ -187,7 +187,6 @@ void PostProcessors::loadSettings(size_t)
   {
     (pp++)->get()->loadSettings(0);
   }
-
 
   /** log wich pp are generated */
   output = "PostProcessor::loadSettings(): Active postprocessor(s): ";
