@@ -705,12 +705,11 @@ void pp156::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will sum up the coalesced pixels of detector '"<<_detector
-      <<"' only when the the split level is between '"<<_splitLevelRange.first
-      <<"' and '"<<_splitLevelRange.second
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will sum up the coalesced pixels of detector '" + _detector +
+           "' only when the the split level is between '" +toString(_splitLevelRange.first) +
+           "' and '" + toString(_splitLevelRange.second) +
+           ". Condition on PostProcessor '" + _condition->key() + "'");
 }
 
 void pp156::process(const CASSEvent& evt)
