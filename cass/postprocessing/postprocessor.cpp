@@ -167,11 +167,11 @@ void PostProcessors::loadSettings(size_t)
   Log::add(Log::VERBOSEINFO, "PostProcessors::loadSettings(): Number of unique postprocessor activations: " +
            toString(declaredPostProcessors.size()));
 
-  /** add a default true and false postprocessors */
+  /** add a default true and false postprocessors to beginning of list*/
   declaredPostProcessors.push_front("DefaultTrueHist");
   declaredPostProcessors.push_front("DefaultFalseHist");
 
-  /** create all postprocessors */
+  /** create all postprocessors in the list*/
   PostprocessorBackend::names_t::const_iterator iter(declaredPostProcessors.begin());
   PostprocessorBackend::names_t::const_iterator end = declaredPostProcessors.end();
   while( iter != end )
