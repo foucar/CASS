@@ -10,18 +10,20 @@
 #include <tr1/functional>
 #include <tr1/memory>
 
-#include "cass_event.h"
-#include "histogram.h"
 #include "backend.h"
+
 #include "cass_exceptions.h"
 #include "convenience_functions.h"
 #include "operations.h"
 #include "cass_settings.h"
+#include "postprocessor.h"
+#include "cass_event.h"
+#include "histogram.h"
+
 #include "log.h"
 
 using namespace cass;
 using namespace std;
-using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
@@ -31,7 +33,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _hide(false),
    _write(true),
    _write_summary(true),
-   _result(0),
+//   _result(0),
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
@@ -51,6 +53,11 @@ PostprocessorBackend::~PostprocessorBackend()
         delete it->second;
     _histList.clear();
   }
+}
+
+bool PostprocessorBackend::operator <(const PostprocessorBackend &other)
+{
+  return (find(_dependencies.begin(),_dependencies.end(),other.name()) == _dependencies.end());
 }
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
@@ -97,8 +104,9 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
   assert(find_if(_histList.begin(), _histList.end(),
-                 bind(equal_to<uint64_t>(),evt.id(),
-                      bind<uint64_t>(&histogramList_t::value_type::first,_1))) == _histList.end());
+                 bind(equal_to<CASSEvent::id_t>(),evt.id(),
+                      bind<CASSEvent::id_t>(&histogramList_t::value_type::first,_1)))
+         == _histList.end());
 
   histogramList_t::value_type newPair(make_pair(evt.id(),_histList.back().second));
 
@@ -121,30 +129,29 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
 
 const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 {
+  typedef CASSEvent::id_t id_type;
   QWriteLocker lock(&_histLock);
-  //if eventId is 0 then just return the latest event//
   if (0 == eventid)
     return *(_histList.front().second);
   else
   {
     histogramList_t::const_iterator it
-        (find_if(_histList.begin(),
-                 _histList.end(),
-                 bind<bool>(equal_to<histogramList_t::value_type::first_type>(),eventid,
-                      bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
+        (find_if(_histList.begin(), _histList.end(),
+                 bind(equal_to<id_type>(),eventid,
+                      bind<id_type>(&histogramList_t::value_type::first,_1))));
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     return *(it->second);
   }
 }
 
-shared_ptr<HistogramBackend> PostprocessorBackend::getHistCopy(const uint64_t eventid)
+HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_t eventid)
 {
   QWriteLocker lock(&_histLock);
   if (0 == eventid)
   {
     QReadLocker(&_histList.front().second->lock);
-    return shared_ptr<HistogramBackend>(_histList.front().second->copyclone());
+    return HistogramBackend::shared_pointer(_histList.front().second->copyclone());
   }
   else
   {
@@ -155,7 +162,7 @@ shared_ptr<HistogramBackend> PostprocessorBackend::getHistCopy(const uint64_t ev
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     QReadLocker(&it->second->lock);
-    return shared_ptr<HistogramBackend>(it->second->copyclone());
+    return HistogramBackend::shared_pointer(it->second->copyclone());
   }
 }
 
@@ -173,10 +180,8 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   QWriteLocker lock(&_histLock);
   if (!_result)
   {
-    stringstream ss;
-    ss <<"HistogramBackend::createHistList: result histogram of postprocessor '"<<_key
-       <<"' is not initalized";
-    throw runtime_error(ss.str());
+    throw runtime_error(string("HistogramBackend::createHistList: result ") +
+                        "histogram of postprocessor '"+name()+"' is not initalized");
   }
   if (isaccumulate)
   {
@@ -200,14 +205,14 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   _histList.push_back(make_pair(0, _result));
   histogramList_t::iterator it(_histList.begin());
   for (;it != _histList.end();++it)
-    it->second->key() = _key;
+    it->second->key() = name();
 }
 
 void PostprocessorBackend::setupGeneral()
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(name()));
   _hide = settings.value("Hide",false).toBool();
   _write = settings.value("Write",true).toBool();
   _write_summary = settings.value("WriteSummary",true).toBool();
@@ -219,7 +224,7 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(name()));
   if (settings.contains("ConditionName"))
   {
     _condition = setupDependency("ConditionName");
@@ -238,12 +243,12 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
 
 PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName, const PostProcessors::key_t& depkey)
 {
-  PostProcessors::key_t dependkey(depkey);
+  name_t dependkey(depkey);
   if (dependkey.empty())
   {
     CASSSettings s;
     s.beginGroup("PostProcessor");
-    s.beginGroup(QString::fromStdString(_key));
+    s.beginGroup(QString::fromStdString(name()));
     dependkey = s.value(depVarName,"").toString().toStdString();
   }
   if (dependkey == _key)
@@ -327,37 +332,37 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
 
 void PostprocessorBackend::process(const CASSEvent& , const HistogramBackend& )
 {
-  Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + _key +
+  Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + name() +
            "' process has not been implemented");
 }
 
 void PostprocessorBackend::loadSettings(size_t)
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::loadSettings(): '" + _key +
+  Log::add(Log::DEBUG4,"PostprocessorBackend::loadSettings(): '" + name() +
            "' not implemented");
 }
 
 void PostprocessorBackend::saveSettings(size_t)
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::saveSettings(): '" + _key +
+  Log::add(Log::DEBUG4,"PostprocessorBackend::saveSettings(): '" + name() +
            "' not implemented");
 }
 
 void PostprocessorBackend::aboutToQuit()
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::aboutToQuit(): '" + _key +
+  Log::add(Log::DEBUG4,"PostprocessorBackend::aboutToQuit(): '" + name() +
            "' not implemented");
 }
 
 void PostprocessorBackend::histogramsChanged(const HistogramBackend*)
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::histogramsChanged(): '" + _key +
+  Log::add(Log::DEBUG4,"PostprocessorBackend::histogramsChanged(): '" + name() +
            "' not implemented");
 }
 
 void PostprocessorBackend::processCommand(std::string )
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::processCommand(): '" + _key +
+  Log::add(Log::DEBUG4,"PostprocessorBackend::processCommand(): '" + name() +
            "' not implemented");
 }
 

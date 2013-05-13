@@ -18,12 +18,13 @@
 #include <tr1/memory>
 
 #include "cass.h"
-#include "postprocessor.h"
+#include "histogram.h"
+#include "cass_event.h"
 
 namespace cass
 {
 //forward declaration
-class CASSEvent;
+class PostProcessors;
 
 /** base class for postprocessors.
  *
@@ -37,11 +38,24 @@ class CASSEvent;
  * @author Lutz Foucar
  * @author Jochen Kuepper
  */
-class CASSSHARED_EXPORT PostprocessorBackend
+class PostprocessorBackend
 {
 public:
   /** a shared pointer of this */
   typedef std::tr1::shared_ptr<PostprocessorBackend> shared_pointer;
+
+  /** define the name type */
+  typedef std::string name_t;
+
+  /** define the list of dependencies */
+  typedef std::list<name_t> dependencies_t;
+
+  /** define the list of cached results */
+  /** @todo make the histogram list a list of shared pointers to the hbacks
+   *        which means that one has to change all pps, since they new the
+   *        _result pointer
+   */
+  typedef std::list<std::pair<CASSEvent::id_t, HistogramBackend*> > histogramList_t;
 
   /** constructor
    *
@@ -53,9 +67,15 @@ public:
   /** virtual destructor */
   virtual ~PostprocessorBackend();
 
-  /** typedef describing how the list of histograms works */
-  /** @todo make the histogram list a list of shared pointers to the hbacks */
-  typedef std::list<std::pair<uint64_t, HistogramBackend*> > histogramList_t;
+  /** compare this PostProcessor to another
+   *
+   * this postprocessor is smaller than the other when the other PostProcessor
+   * is not on the dependecy list of this PostProcesor
+   *
+   * @return true when other name is not on dependency list
+   * @param other the PostProcessor to compare this one to
+   */
+  bool operator < (const PostprocessorBackend& other);
 
   /** main operator
    *
@@ -94,7 +114,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  const HistogramBackend& getHist(const uint64_t eventid);
+  const HistogramBackend& getHist(const CASSEvent::id_t eventid);
 
   /** retrieve histogram for id
    *
@@ -106,7 +126,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  std::tr1::shared_ptr<HistogramBackend> getHistCopy(const uint64_t eventid);
+  HistogramBackend::shared_pointer getHistCopy(const uint64_t eventid);
 
   /** Provide default implementation of loadSettings that does nothing
    *
@@ -131,7 +151,7 @@ public:
    * This function will be called by PostProcessors::setup() when it creates
    * the container with all activated postprocessors.
    */
-  const PostProcessors::keyList_t& dependencies()
+  const dependencies_t& dependencies()
   {
     return _dependencies;
   }
@@ -164,7 +184,10 @@ public:
   virtual void processCommand(std::string command);
 
   /** retrieve the key of this postprocessor */
-  const PostProcessors::key_t key() const {return _key;}
+  const name_t key() const {return _key;}
+
+  /** retrieve the name of this postprocessor */
+  const name_t name() const {return _key;}
 
   /** retrieve the hide flag of this postprocessor */
   bool hide()const {return _hide;}
@@ -188,6 +211,11 @@ protected:
    *
    * It will retrieve the pointer to the last result in the list and call
    * the process function to process the event, if the condition is true.
+   * The histlist is locked throughout the the operations on the list, but it
+   * will be unlocked before process is called.
+   *
+   * If the condition is not true, the pointer to the result will be put to the
+   * second to front position in the list.
    *
    * @param ev the event to be processed
    */
@@ -207,7 +235,7 @@ protected:
    *
    * This will evaluate the event and fill the resulting histogram. It needs
    * to be implemented in the postprocessors.
-   *
+   *HistogramBackend::shared_pointer(
    * @param event the cassevent to work on
    */
   virtual void process(const CASSEvent& event) = 0;
@@ -278,14 +306,14 @@ protected:
    *
    * @return pointer to the dependency postprocessor
    * @param[in] depVarName the name of the setting that hold the dependcy key
-   * @param[in] keyname optional name of the key, without getting it from the
-   *                    settings file.
+   * @param[in] name optional name of the key, without getting it from the
+   *                 settings file.
    */
-  PostprocessorBackend* setupDependency(const char * depVarName, const PostProcessors::key_t& keyname="");
+  PostprocessorBackend* setupDependency(const char * depVarName, const name_t& name="");
 
 protected:
-  /** the postprocessors key */
-  PostProcessors::key_t _key;
+  /** the postprocessors name */
+  name_t _key;
 
   /** flag to tell whether this pp should be hidden in the dropdown list */
   bool _hide;
@@ -305,10 +333,10 @@ protected:
   histogramList_t _histList;
 
   /** the list of dependencies */
-  PostProcessors::keyList_t _dependencies;
+  dependencies_t _dependencies;
 
   /** pointer to the most recent histogram */
-  HistogramBackend *_result;
+  HistogramBackend* _result;
 
   /** pointer to the postprocessor that will contain the condition */
   PostprocessorBackend* _condition;
