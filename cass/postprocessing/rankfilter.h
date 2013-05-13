@@ -41,7 +41,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp301(PostProcessors& hist, const PostProcessors::key_t&);
+    pp301(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -106,7 +106,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp302(PostProcessors& hist, const PostProcessors::key_t&);
+    pp302(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);

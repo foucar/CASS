@@ -55,8 +55,6 @@
 #include "roottree_converter.h"
 #endif
 
-//#define DEBUG_FIND_DEPENDANT
-
 using namespace cass;
 using namespace std;
 
@@ -129,8 +127,8 @@ void PostProcessors::operator()(const CASSEvent& event)
    */
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
-  for(;iter != end; ++iter)
-    (*(iter->second))(event);
+  while(iter != end)
+    (*(*iter++))(event);
 }
 
 void PostProcessors::aboutToQuit()
@@ -138,34 +136,51 @@ void PostProcessors::aboutToQuit()
   postprocessors_t::iterator iter = _postprocessors.begin();
   postprocessors_t::iterator end = _postprocessors.end();
   while( iter != end )
-    (*iter++).second->aboutToQuit();
+    (*iter++)->aboutToQuit();
 }
 
 void PostProcessors::loadSettings(size_t)
 {
+  /** remove all postprocessors */
+  _postprocessors.clear();
+
+  /** load all postprocessors declared in the ini file and convert them to list
+   *  of std strings
+   */
   Log::add(Log::DEBUG0,"Postprocessor::loadSettings");
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
   string output("PostProcessor::loadSettings(): ini file '" + settings.fileName().toStdString() +
                 "' contains in Group '" + settings.group().toStdString() + "': ");
-  foreach(QString str, list){
+  foreach(QString str, list)
+  {
     output += (str.toStdString() + ", ");
   }
   Log::add(Log::DEBUG1,output);
-  _active.clear();
-  _active.resize(list.size());
-  transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
+  PostprocessorBackend::names_t declaredPostProcessors(list.size());
+  transform(list.begin(), list.end(), declaredPostProcessors.begin(), QStringToStdString);
   Log::add(Log::VERBOSEINFO, "PostProcessors::loadSettings(): Number of unique postprocessor activations: " +
-           toString(_active.size()));
-  //add a default true and false pp to container//
-  _active.push_back("DefaultTrueHist");
-  _postprocessors["DefaultTrueHist"] =
-      PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
-  _active.push_back("DefaultFalseHist");
-  _postprocessors["DefaultFalseHist"] =
-      PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
-  setup(_active);
+           toString(declaredPostProcessors.size()));
+
+  /** add a default true and false postprocessors */
+  declaredPostProcessors.push_back("DefaultTrueHist");
+  declaredPostProcessors.push_back("DefaultFalseHist");
+
+  /** create all postprocessors */
+  PostprocessorBackend::names_t::const_iterator iter(declaredPostProcessors.begin());
+  PostprocessorBackend::names_t::const_iterator end = declaredPostProcessors.end();
+  while( iter != end )
+  {
+    _postprocessors.push_back(create(*iter++));
+  }
+
+  /** sort the postprocessors such that the ones with no dependencies are ealier
+   *  in the list
+   */
+  sort(_postprocessors.begin(),_postprocessors.end());
+
+  /** log wich pp are generated */
   output = "PostProcessor::loadSettings(): Active postprocessor(s): ";
   for (keyList_t::const_iterator it(_active.begin()); it != _active.end(); ++it)
     output += (*it + " ,");
@@ -176,16 +191,21 @@ void PostProcessors::saveSettings()
 {
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
-  while (iter != iter)
-    (*iter++).second->saveSettings(0);
+  while (iter != end)
+    (*iter++)->saveSettings(0);
 }
 
-PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
+PostprocessorBackend& PostProcessors::getPostProcessor(const PostprocessorBackend::name_t &name)
 {
-  postprocessors_t::iterator it (_postprocessors.find(key));
-  if (_postprocessors.end() == it)
-    throw InvalidPostProcessorError(key);
-  return *(it->second);
+  postprocessors_t::iterator iter(_postprocessors.begin());
+  postprocessors_t::iterator end(_postprocessors.end());
+  while (iter != end)
+  {
+    if ((*(*iter)).name() ==  name)
+      return *(*iter);
+    ++iter;
+  }
+  throw InvalidPostProcessorError(name);
 }
 
 tr1::shared_ptr<IdList> PostProcessors::keys()
@@ -195,300 +215,301 @@ tr1::shared_ptr<IdList> PostProcessors::keys()
   postprocessors_t::iterator end(_postprocessors.end());
   for(; iter != end; ++iter)
 #ifndef DEBUG
-    if (!iter->second->hide())
+    if (!(*iter)->hide())
 #endif
-      active.push_back(iter->first);
+      active.push_back((*iter)->name());
   _keys->setList(active);
   return _keys;
 }
 
-PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::key_t &key)
+PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::key_t &/*key*/)
 {
+  throw runtime_error("PostProcessors::find_dependant: Should not be used anymore");
   //go through all pp and retrieve their dependencies//
   //make a list of all key that have a dependency on the requested key//
   //iteratively go through and find all depends depandats
   keyList_t dependandList;
-  dependandList.push_front(key);
-  postprocessors_t::const_iterator iter = _postprocessors.begin();
-  postprocessors_t::const_iterator end = _postprocessors.end();
-  while(iter != end)
-  {
-    bool update(false);
-    keyList_t dependencyList(iter->second->dependencies());
-    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
-    {
-#ifdef DEBUG_FIND_DEPENDANT
-      cout<<"PostProcessors::find_dependant: check if '"<<*it
-          <<"' is on dependency list of '"<<iter->first<<"'"
-          <<endl;
-#endif
-      if (find(dependencyList.begin(),dependencyList.end(),*it) != dependencyList.end())
-      {
-#ifdef DEBUG_FIND_DEPENDANT
-      cout<<"PostProcessors::find_dependant: '"<<*it
-          <<"' is on dependency list of '"<<iter->first
-          <<"' Now check whether '"<<iter->first
-          <<"' is already on the dependand list."
-          <<endl;
-#endif
-        if(find(dependandList.begin(),dependandList.end(),iter->first) == dependandList.end())
-        {
-#ifdef DEBUG_FIND_DEPENDANT
-          cout<<"PostProcessors::find_dependant: '"<<iter->first
-              <<"' is not dependant list. Put it there and start over."
-              <<endl;
-#endif
-          dependandList.push_front(iter->first);
-          update=true;
-        }
-#ifdef DEBUG_FIND_DEPENDANT
-        else
-        {
-          cout<<"PostProcessors::find_dependant: '"<<iter->first
-              <<"' is on dependant list. Nothing to do."
-              <<endl;
-        }
-#endif
-      }
-#ifdef DEBUG_FIND_DEPENDANT
-      else
-      {
-        cout<<"PostProcessors::find_dependant: '"<<*it
-            <<"' is not on dependency list of '"<<iter->first<<"'"
-            <<endl;
-      }
-#endif
-    }
-    if (update)
-    {
-#ifdef DEBUG_FIND_DEPENDANT
-      cout<<"PostProcessors::find_dependant: The dependant list was modified, starting over"
-          <<endl;
-#endif
-      iter = _postprocessors.begin();
-      continue;
-    }
-    ++iter;
-  }
-#ifdef DEBUG_FIND_DEPENDANT
-    cout<<"PostProcessors::find_dependant: now the following keys are on the dependand list: ";
-    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
-      cout<<*it<<", ";
-    cout<<" of '"<<key
-        <<"'. Now remove the initial key '"<<key<<"'"<<endl;
-#endif
-  dependandList.remove(key);
-#ifdef DEBUG_FIND_DEPENDANT
-    cout<<"PostProcessors::find_dependant: Here is the final dependant list of '"<<key
-        <<"': ";
-    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
-      cout<<*it<<", ";
-    cout<<endl;
-#endif
+//  dependandList.push_front(key);
+//  postprocessors_t::const_iterator iter = _postprocessors.begin();
+//  postprocessors_t::const_iterator end = _postprocessors.end();
+//  while(iter != end)
+//  {
+//    bool update(false);
+//    keyList_t dependencyList(iter->second->dependencies());
+//    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+//    {
+//#ifdef DEBUG_FIND_DEPENDANT
+//      cout<<"PostProcessors::find_dependant: check if '"<<*it
+//          <<"' is on dependency list of '"<<iter->first<<"'"
+//          <<endl;
+//#endif
+//      if (find(dependencyList.begin(),dependencyList.end(),*it) != dependencyList.end())
+//      {
+//#ifdef DEBUG_FIND_DEPENDANT
+//      cout<<"PostProcessors::find_dependant: '"<<*it
+//          <<"' is on dependency list of '"<<iter->first
+//          <<"' Now check whether '"<<iter->first
+//          <<"' is already on the dependand list."
+//          <<endl;
+//#endif
+//        if(find(dependandList.begin(),dependandList.end(),iter->first) == dependandList.end())
+//        {
+//#ifdef DEBUG_FIND_DEPENDANT
+//          cout<<"PostProcessors::find_dependant: '"<<iter->first
+//              <<"' is not dependant list. Put it there and start over."
+//              <<endl;
+//#endif
+//          dependandList.push_front(iter->first);
+//          update=true;
+//        }
+//#ifdef DEBUG_FIND_DEPENDANT
+//        else
+//        {
+//          cout<<"PostProcessors::find_dependant: '"<<iter->first
+//              <<"' is on dependant list. Nothing to do."
+//              <<endl;
+//        }
+//#endif
+//      }
+//#ifdef DEBUG_FIND_DEPENDANT
+//      else
+//      {
+//        cout<<"PostProcessors::find_dependant: '"<<*it
+//            <<"' is not on dependency list of '"<<iter->first<<"'"
+//            <<endl;
+//      }
+//#endif
+//    }
+//    if (update)
+//    {
+//#ifdef DEBUG_FIND_DEPENDANT
+//      cout<<"PostProcessors::find_dependant: The dependant list was modified, starting over"
+//          <<endl;
+//#endif
+//      iter = _postprocessors.begin();
+//      continue;
+//    }
+//    ++iter;
+//  }
+//#ifdef DEBUG_FIND_DEPENDANT
+//    cout<<"PostProcessors::find_dependant: now the following keys are on the dependand list: ";
+//    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+//      cout<<*it<<", ";
+//    cout<<" of '"<<key
+//        <<"'. Now remove the initial key '"<<key<<"'"<<endl;
+//#endif
+//  dependandList.remove(key);
+//#ifdef DEBUG_FIND_DEPENDANT
+//    cout<<"PostProcessors::find_dependant: Here is the final dependant list of '"<<key
+//        <<"': ";
+//    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+//      cout<<*it<<", ";
+//    cout<<endl;
+//#endif
   return dependandList;
 }
 
-void PostProcessors::setup(keyList_t &active)
-{
-  using namespace std;
-  /**
-   * @todo when load settings throws exception then remove this pp and all pp
-   *        that depend on it (like in process)
-   */
-  //  There can be the following cases:
-  //  1) pp is not in container but key is on active list
-  //  2) pp is not in conatiner and key is not in active list, but it's a
-  //     dependency of another pp
-  //  3) pp is in container and key is on active list
-  //  5) pp is in container and key is not on active list
-  //  6) pp is in container and key is on active list and dependency is also on
-  //     active list but dependency is after pp on active list
-  //
+//void PostProcessors::setup(keyList_t &active)
+//{
+//  using namespace std;
+//  /**
+//   * @todo when load settings throws exception then remove this pp and all pp
+//   *        that depend on it (like in process)
+//   */
+//  //  There can be the following cases:
+//  //  1) pp is not in container but key is on active list
+//  //  2) pp is not in conatiner and key is not in active list, but it's a
+//  //     dependency of another pp
+//  //  3) pp is in container and key is on active list
+//  //  5) pp is in container and key is not on active list
+//  //  6) pp is in container and key is on active list and dependency is also on
+//  //     active list but dependency is after pp on active list
+//  //
 
-  VERBOSEOUT(cout << "Postprocessor::setup(): Clearing all postprocessor "
-                  << "dependencies, since they will now be setup again."
-                  << endl);
-  postprocessors_t::iterator it (_postprocessors.begin());
-  for(;it != _postprocessors.end();++it)
-  {
-    VERBOSEOUT(cout << "Postprocessor::setup(): "
-                    << "Clearing dependencies of '"<< it->second->key()<<"'"
-                    << endl);
-    it->second->clearDependencies();
-  }
+//  VERBOSEOUT(cout << "Postprocessor::setup(): Clearing all postprocessor "
+//                  << "dependencies, since they will now be setup again."
+//                  << endl);
+//  postprocessors_t::iterator it (_postprocessors.begin());
+//  for(;it != _postprocessors.end();++it)
+//  {
+//    VERBOSEOUT(cout << "Postprocessor::setup(): "
+//                    << "Clearing dependencies of '"<< it->second->key()<<"'"
+//                    << endl);
+//    it->second->clearDependencies();
+//  }
 
-  VERBOSEOUT(cout << "Postprocessor::setup(): Going through the active list, "
-                  << "and checking whether each PP is already in the container."
-                  << endl);
-  keyList_t::iterator iter(active.begin());
-  while(iter != active.end())
-  {
-#ifdef VERBOSE
-    cout <<"Postprocessor::setup(): Entries in the active list in the order we call them:"<<endl;
-    for (keyList_t::const_iterator actIt(active.begin()) ; actIt != active.end(); ++actIt)
-      cout<<*actIt<<endl;
-#endif
-    VERBOSEOUT(cout << "Postprocessor::setup(): Checking if '" << *iter
-                    << "' is in the PP container." << endl);
-    if(_postprocessors.end() == _postprocessors.find(*iter))
-    {
-      VERBOSEOUT(cout << "Postprocessor::setup(): Did not find '" << *iter
-                      << "' in the PP container, so I am creating it." << endl);
-      _postprocessors[*iter] = create(*iter);
-    }
-    else
-    {
-      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
-                      << "' is in the container. Now loading Settings for it."
-                      << endl);
-      _postprocessors[*iter]->loadSettings(0);
-    }
-    VERBOSEOUT(cout << "Postprocessor::setup(): Done creating/loading '"
-                    << *iter <<"'.  Now checking its dependencies..."
-                    << endl);
-    bool update(false);
-    keyList_t deps(_postprocessors[*iter]->dependencies());
-#ifdef VERBOSE
-    if (deps.empty())
-      cout << "Postprocessor::setup(): '" << *iter <<"' has no dependencies."
-           << endl;
-#endif
-    for(keyList_t::iterator d=deps.begin(); d!=deps.end(); ++d)
-    {
-      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
-                      << "' depends on '" << *d
-                      <<"'. Checking whether dependency is in the container..."
-                 <<endl);
-      if(_postprocessors.end() == _postprocessors.find(*d))
-      {
-        //solves cases 2
-        VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
-                        << "' of '"<<*iter
-                        << "' is not in the PP container. "
-                        << "This can have 2 reasons. First it is not at all on "
-                        << "the active list. Second it is on the active list, "
-                        << "but appears after '"<<*iter
-                        << "'. Check if it is on active list."
-                        << endl);
-        if(active.end() != find(active.begin(), active.end(), *d))
-        {
-          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
-                          << "' is on active list that means it appears after '"<<*iter
-                          << "'. Remove it from active list"
-                          << endl);
-          active.remove(*d);
-        }
-#ifdef VERBOSE
-        else
-        {
-          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
-                          << "' of '"<<*iter
-                          <<"' is not on active list."
-                          << endl);
-        }
-#endif
-        VERBOSEOUT(cout << "Postprocessor::setup(): Insert dependency '" << *d
-                        << "' of '"<<*iter
-                        << "' just before '"<<*iter
-                        << "' in the active list."
-                        << endl);
-        active.insert(iter,*d);
-        update = true;
-      }
-      else
-      {
-        VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
-                        << "' of '" << *iter
-                        << "' is in the container. Check if it is also on the "
-                        << "active list..."
-                        << endl);
-        if(active.end() == find(active.begin(), active.end(), *d))
-        {
-          //solves case 5
-          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
-                          << "' of '" << *iter
-                          << "' did not appear in the active list,"
-                          << " so insert it just before '"<<*iter
-                          << "' in the active list"
-                          << endl);
-          active.insert(iter,*d);
-          update = true;
-        }
-        else
-        {
-          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
-                          << "' is in active list. Now check whether "
-                          << "it appears before '"<<*iter<<"'"
-                          << endl);
-          if (active.end() == find(iter,active.end(),*d))
-          {
-            VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
-                            << "' appears before '"<<*iter
-                            << "' in active list so everything is fine."
-                            << endl);
-          }
-          else
-          {
-            VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
-                            << "' appears after '"<<*iter
-                            << "' in active list, so move it just before '"<<*iter
-                            << "' in the active list."
-                            << endl);
-            active.remove(*d);
-            active.insert(iter,*d);
-            update = true;
-          }
-        }
-      }
-    }
-    if(update)
-    {
-      VERBOSEOUT(cout<< "Postprocessor::setup(): The active list has been "
-                     << "modified. Move the iterator back the amount of "
-                     << "dependencies that were added in the previous step and "
-                     << "start again."
-                     << endl);
-      advance(iter,negate<int>()(deps.size()));
-      continue;
-    }
-    ++iter;
-  }
+//  VERBOSEOUT(cout << "Postprocessor::setup(): Going through the active list, "
+//                  << "and checking whether each PP is already in the container."
+//                  << endl);
+//  keyList_t::iterator iter(active.begin());
+//  while(iter != active.end())
+//  {
+//#ifdef VERBOSE
+//    cout <<"Postprocessor::setup(): Entries in the active list in the order we call them:"<<endl;
+//    for (keyList_t::const_iterator actIt(active.begin()) ; actIt != active.end(); ++actIt)
+//      cout<<*actIt<<endl;
+//#endif
+//    VERBOSEOUT(cout << "Postprocessor::setup(): Checking if '" << *iter
+//                    << "' is in the PP container." << endl);
+//    if(_postprocessors.end() == _postprocessors.find(*iter))
+//    {
+//      VERBOSEOUT(cout << "Postprocessor::setup(): Did not find '" << *iter
+//                      << "' in the PP container, so I am creating it." << endl);
+//      _postprocessors[*iter] = create(*iter);
+//    }
+//    else
+//    {
+//      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
+//                      << "' is in the container. Now loading Settings for it."
+//                      << endl);
+//      _postprocessors[*iter]->loadSettings(0);
+//    }
+//    VERBOSEOUT(cout << "Postprocessor::setup(): Done creating/loading '"
+//                    << *iter <<"'.  Now checking its dependencies..."
+//                    << endl);
+//    bool update(false);
+//    keyList_t deps(_postprocessors[*iter]->dependencies());
+//#ifdef VERBOSE
+//    if (deps.empty())
+//      cout << "Postprocessor::setup(): '" << *iter <<"' has no dependencies."
+//           << endl;
+//#endif
+//    for(keyList_t::iterator d=deps.begin(); d!=deps.end(); ++d)
+//    {
+//      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
+//                      << "' depends on '" << *d
+//                      <<"'. Checking whether dependency is in the container..."
+//                 <<endl);
+//      if(_postprocessors.end() == _postprocessors.find(*d))
+//      {
+//        //solves cases 2
+//        VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
+//                        << "' of '"<<*iter
+//                        << "' is not in the PP container. "
+//                        << "This can have 2 reasons. First it is not at all on "
+//                        << "the active list. Second it is on the active list, "
+//                        << "but appears after '"<<*iter
+//                        << "'. Check if it is on active list."
+//                        << endl);
+//        if(active.end() != find(active.begin(), active.end(), *d))
+//        {
+//          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
+//                          << "' is on active list that means it appears after '"<<*iter
+//                          << "'. Remove it from active list"
+//                          << endl);
+//          active.remove(*d);
+//        }
+//#ifdef VERBOSE
+//        else
+//        {
+//          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency '" << *d
+//                          << "' of '"<<*iter
+//                          <<"' is not on active list."
+//                          << endl);
+//        }
+//#endif
+//        VERBOSEOUT(cout << "Postprocessor::setup(): Insert dependency '" << *d
+//                        << "' of '"<<*iter
+//                        << "' just before '"<<*iter
+//                        << "' in the active list."
+//                        << endl);
+//        active.insert(iter,*d);
+//        update = true;
+//      }
+//      else
+//      {
+//        VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+//                        << "' of '" << *iter
+//                        << "' is in the container. Check if it is also on the "
+//                        << "active list..."
+//                        << endl);
+//        if(active.end() == find(active.begin(), active.end(), *d))
+//        {
+//          //solves case 5
+//          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+//                          << "' of '" << *iter
+//                          << "' did not appear in the active list,"
+//                          << " so insert it just before '"<<*iter
+//                          << "' in the active list"
+//                          << endl);
+//          active.insert(iter,*d);
+//          update = true;
+//        }
+//        else
+//        {
+//          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+//                          << "' is in active list. Now check whether "
+//                          << "it appears before '"<<*iter<<"'"
+//                          << endl);
+//          if (active.end() == find(iter,active.end(),*d))
+//          {
+//            VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+//                            << "' appears before '"<<*iter
+//                            << "' in active list so everything is fine."
+//                            << endl);
+//          }
+//          else
+//          {
+//            VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+//                            << "' appears after '"<<*iter
+//                            << "' in active list, so move it just before '"<<*iter
+//                            << "' in the active list."
+//                            << endl);
+//            active.remove(*d);
+//            active.insert(iter,*d);
+//            update = true;
+//          }
+//        }
+//      }
+//    }
+//    if(update)
+//    {
+//      VERBOSEOUT(cout<< "Postprocessor::setup(): The active list has been "
+//                     << "modified. Move the iterator back the amount of "
+//                     << "dependencies that were added in the previous step and "
+//                     << "start again."
+//                     << endl);
+//      advance(iter,negate<int>()(deps.size()));
+//      continue;
+//    }
+//    ++iter;
+//  }
 
-  // some of the postprocessors exist in the container but might not be on the
-  // active list anymore. This means that the user does not want them anymore.
-  // Check which they are, put them on a delete list and then delete them.
-  keyList_t eraseList;
-  it = _postprocessors.begin();
-  for(;it != _postprocessors.end(); ++it)
-  {
-    VERBOSEOUT(cout << "PostProcessor::setup(): Checking whether '" << it->first
-                    << "' is still on active list."
-                    << endl);
-    if(active.end() == find(active.begin(),active.end(),it->first))
-    {
-      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
-                      << "' is not on active list. Adding it to the erase list."
-                      << endl);
-      eraseList.push_back(it->first);
-    }
-#ifdef VERBOSE
-    else
-    {
-      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
-                      << "' is still on active list."
-                      << endl);
-    }
-#endif
-  }
-  iter = (eraseList.begin());
-  for(;iter != eraseList.end(); ++iter)
-  {
-    VERBOSEOUT(cout << "PostProcessor::setup(): Erasing '"<< *iter
-                    << "' from the postprocessor container."
-                    << endl);
-    _postprocessors.erase(*iter);
-  }
-}
+//  // some of the postprocessors exist in the container but might not be on the
+//  // active list anymore. This means that the user does not want them anymore.
+//  // Check which they are, put them on a delete list and then delete them.
+//  keyList_t eraseList;
+//  it = _postprocessors.begin();
+//  for(;it != _postprocessors.end(); ++it)
+//  {
+//    VERBOSEOUT(cout << "PostProcessor::setup(): Checking whether '" << it->first
+//                    << "' is still on active list."
+//                    << endl);
+//    if(active.end() == find(active.begin(),active.end(),it->first))
+//    {
+//      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
+//                      << "' is not on active list. Adding it to the erase list."
+//                      << endl);
+//      eraseList.push_back(it->first);
+//    }
+//#ifdef VERBOSE
+//    else
+//    {
+//      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
+//                      << "' is still on active list."
+//                      << endl);
+//    }
+//#endif
+//  }
+//  iter = (eraseList.begin());
+//  for(;iter != eraseList.end(); ++iter)
+//  {
+//    VERBOSEOUT(cout << "PostProcessor::setup(): Erasing '"<< *iter
+//                    << "' from the postprocessor container."
+//                    << endl);
+//    _postprocessors.erase(*iter);
+//  }
+//}
 
 PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
 {

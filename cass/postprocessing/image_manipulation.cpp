@@ -18,6 +18,7 @@
 #include "cass_settings.h"
 #include "histogram.h"
 #include "log.h"
+#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;
@@ -242,7 +243,7 @@ private:
 
 
 
-pp55::pp55(PostProcessors& pp, const PostProcessors::key_t &key)
+pp55::pp55(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key)
 {
   _functions["90DegCCW"] = make_pair(&cass::Rotate90DegCCW,true);
@@ -354,7 +355,7 @@ void pp55::process(const CASSEvent &evt)
 
 // --------------convert cspad 2 cheetah--------------------
 
-pp1600::pp1600(PostProcessors& pp, const PostProcessors::key_t &key)
+pp1600::pp1600(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key),
     _nx(194),
     _ny(185),
@@ -418,7 +419,7 @@ void pp1600::process(const CASSEvent &evt)
 // --------------convert cspad 2 quasi laboratory --------------------
 
 
-pp1601::pp1601(PostProcessors& pp, const PostProcessors::key_t &key)
+pp1601::pp1601(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key),
     _LRTB( 1, 0, 0,-1),
     _RLBT(-1, 0, 0, 1),
@@ -530,7 +531,7 @@ void pp1601::process(const CASSEvent &evt)
 
 // --------------convert cspad 2 laboratory --------------------
 
-pp1602::pp1602(PostProcessors& pp, const PostProcessors::key_t &key)
+pp1602::pp1602(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);

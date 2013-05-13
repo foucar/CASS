@@ -26,6 +26,7 @@
 #include "cass_event.h"
 #include "rootfile_helper.h"
 #include "log.h"
+#include "postprocessor.h"
 
 
 using namespace cass;
@@ -137,7 +138,7 @@ namespace cass
   }
 }
 
-pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
+pp2000::pp2000(PostProcessors& pp, const name_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
      _rootfile(ROOTFileHelper::create(filename))
 {
@@ -182,7 +183,7 @@ void pp2000::aboutToQuit()
   for (;it != container.end(); ++it)
   {
     /** check if histograms of postprocessor should be written */
-    PostprocessorBackend &pp(*(it->second));
+    PostprocessorBackend &pp(*(it->get()));
     if (pp.write())
     {
       /** if so write it to the root file */
@@ -210,7 +211,7 @@ void pp2000::process(const cass::CASSEvent &evt)
   PostProcessors::postprocessors_t::iterator it (ppc.begin());
   for (;it != ppc.end(); ++it)
   {
-    PostprocessorBackend &pp (*(it->second));
+    PostprocessorBackend &pp (*(it->get()));
     if (pp.write())
     {
       /** if so write it to the root file */

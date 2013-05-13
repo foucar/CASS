@@ -19,6 +19,7 @@
 #include "cass_settings.h"
 #include "machine_device.h"
 #include "log.h"
+#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;
@@ -938,7 +939,7 @@ void cass::pp1001::aboutToQuit()
     PostProcessors::postprocessors_t::iterator it (ppc.begin());
     for (;it != ppc.end(); ++it)
     {
-      PostprocessorBackend &pp (*(it->second));
+      PostprocessorBackend &pp (*(*it).get());
       if (pp.write_summary())
       {
         hid_t ppgrouphandle (H5Gcreate1(grouphandle, pp.key().c_str(),0));
@@ -1019,7 +1020,7 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
   PostProcessors::postprocessors_t::iterator it (ppc.begin());
   for (;it != ppc.end(); ++it)
   {
-    PostprocessorBackend &pp (*(it->second));
+    PostprocessorBackend &pp (*(it->get()));
     if (pp.write())
     {
       hid_t ppgrouphandle (H5Gcreate1(eventgrouphandle, pp.key().c_str(),0));

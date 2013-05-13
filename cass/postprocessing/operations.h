@@ -38,7 +38,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp4(PostProcessors& hist, const PostProcessors::key_t&);
+    pp4(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -75,7 +75,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp9(PostProcessors& hist, const PostProcessors::key_t&);
+    pp9(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -109,7 +109,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp10(PostProcessors& pp, const PostProcessors::key_t &key, bool boolean)
+    pp10(PostProcessors& pp, const name_t &key, bool boolean)
       :PostprocessorBackend(pp,key)
     {
       _result = new Histogram0DFloat(boolean);
@@ -150,7 +150,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp12(PostProcessors& pp, const PostProcessors::key_t &key);
+    pp12(PostProcessors& pp, const name_t &key);
 
     /** overwrite default behaviour and just return the constant */
     const HistogramBackend& operator()(const CASSEvent&)
@@ -185,7 +185,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp15(PostProcessors& hist, const PostProcessors::key_t&);
+    pp15(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -223,7 +223,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp40(PostProcessors& hist, const PostProcessors::key_t&);
+    pp40(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -275,7 +275,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp41(PostProcessors& hist, const PostProcessors::key_t&);
+    pp41(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -326,7 +326,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp50(PostProcessors& hist, const PostProcessors::key_t&);
+    pp50(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -391,7 +391,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp51(PostProcessors& hist, const PostProcessors::key_t&);
+    pp51(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -439,7 +439,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp52(PostProcessors& hist, const PostProcessors::key_t&);
+    pp52(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -495,7 +495,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp53(PostProcessors& hist, const PostProcessors::key_t&);
+    pp53(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -550,7 +550,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp54(PostProcessors& hist, const PostProcessors::key_t&);
+    pp54(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -594,7 +594,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp56(PostProcessors& hist, const PostProcessors::key_t&);
+    pp56(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -647,7 +647,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp60(PostProcessors& hist, const PostProcessors::key_t&);
+    pp60(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -684,7 +684,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp61(PostProcessors& hist, const PostProcessors::key_t&);
+    pp61(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -723,7 +723,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp62(PostProcessors& hist, const PostProcessors::key_t&);
+    pp62(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -767,7 +767,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp63(PostProcessors& hist, const PostProcessors::key_t&);
+    pp63(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -819,7 +819,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp64(PostProcessors& hist, const PostProcessors::key_t&);
+    pp64(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -860,7 +860,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp65(PostProcessors& hist, const PostProcessors::key_t&);
+    pp65(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -899,7 +899,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp66(PostProcessors& hist, const PostProcessors::key_t&);
+    pp66(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -943,7 +943,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp67(PostProcessors& hist, const PostProcessors::key_t&);
+    pp67(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -987,7 +987,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp68(PostProcessors& hist, const PostProcessors::key_t&);
+    pp68(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1033,7 +1033,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp69(PostProcessors& hist, const PostProcessors::key_t&);
+    pp69(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1078,7 +1078,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp70(PostProcessors& hist, const PostProcessors::key_t&);
+    pp70(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1133,7 +1133,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp71(PostProcessors& hist, const PostProcessors::key_t&);
+    pp71(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1176,7 +1176,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp75(PostProcessors& hist, const PostProcessors::key_t&);
+    pp75(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1214,7 +1214,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp76(PostProcessors& hist, const PostProcessors::key_t&);
+    pp76(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1247,7 +1247,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp77(PostProcessors& hist, const PostProcessors::key_t&);
+    pp77(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1282,7 +1282,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp80(PostProcessors& hist, const PostProcessors::key_t&);
+    pp80(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1321,7 +1321,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp81(PostProcessors& hist, const PostProcessors::key_t&);
+    pp81(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1364,7 +1364,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp82(PostProcessors& hist, const PostProcessors::key_t&);
+    pp82(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1407,7 +1407,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp83(PostProcessors& hist, const PostProcessors::key_t&);
+    pp83(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1447,7 +1447,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp84(PostProcessors& hist, const PostProcessors::key_t&);
+    pp84(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1489,7 +1489,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp85(PostProcessors& hist, const PostProcessors::key_t&);
+    pp85(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1553,7 +1553,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp86(PostProcessors& hist, const PostProcessors::key_t&);
+    pp86(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1612,7 +1612,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp87(PostProcessors& hist, const PostProcessors::key_t&);
+    pp87(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
@@ -1664,7 +1664,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp88(PostProcessors& hist, const PostProcessors::key_t&);
+    pp88(PostProcessors& hist, const name_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);

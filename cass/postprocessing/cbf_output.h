@@ -36,7 +36,7 @@ public:
    * @param key the name of this PostProce
    * @param filename initial string of the output filename
    */
-  pp1500(PostProcessors &pp, const PostProcessors::key_t &key, const std::string& filename);
+  pp1500(PostProcessors &pp, const name_t &key, const std::string& filename);
 
   /** process the event */
   virtual void process(const CASSEvent&);

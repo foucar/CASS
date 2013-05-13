@@ -18,6 +18,7 @@
 #include "cass_settings.h"
 #include "machine_device.h"
 #include "log.h"
+#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;

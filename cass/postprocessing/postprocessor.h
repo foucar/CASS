@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010,2013 Lutz Foucar
 // Copyright (C) 2010 Jochen Kuepper
 
 #ifndef __POSTPROCESSOR_H__
@@ -16,7 +16,7 @@
 #include <QtCore/QReadWriteLock>
 
 #include "cass.h"
-
+#include "backend.h"
 
 namespace cass
 {
@@ -484,13 +484,13 @@ public:
   typedef std::tr1::shared_ptr<PostProcessors> shared_pointer;
 
   /** type of postproccessor accessor key */
-  typedef std::string key_t;
+  typedef PostprocessorBackend::name_t key_t;
 
   /** Container of all currently active postprocessors */
-  typedef std::map<key_t, std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
+  typedef std::vector<std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
 
   /** List of all postprocessor keys */
-  typedef std::list<key_t> keyList_t;
+  typedef PostprocessorBackend::names_t keyList_t;
 
   /** create the instance if not it does not exist already.
    *
@@ -535,7 +535,7 @@ public:
   std::tr1::shared_ptr<IdList> keys();
 
   /** retreive pp with key */
-  PostprocessorBackend& getPostProcessor(const key_t &key);
+  PostprocessorBackend& getPostProcessor(const PostprocessorBackend::name_t &name);
 
   /** retrieve pp container */
   postprocessors_t& postprocessors() {return _postprocessors;}
@@ -580,18 +580,18 @@ protected:
    */
   std::tr1::shared_ptr<PostprocessorBackend> create(const key_t &key);
 
-  /** Set up _postprocessors using the user requested pp in active
-   *
-   * Make sure that all PostProcessors on active list are in the pp container.
-   * When the PostProcessor has a dependency resolve it, add it to the active
-   * list if it's not already on it.
-   *
-   * Delete all postprocessors that are not on the active list.
-   *
-   * @param active reference to list of all postprocessors that should be in
-   *               container.
-   */
-  void setup(keyList_t& active);
+//  /** Set up _postprocessors using the user requested pp in active
+//   *
+//   * Make sure that all PostProcessors on active list are in the pp container.
+//   * When the PostProcessor has a dependency resolve it, add it to the active
+//   * list if it's not already on it.
+//   *
+//   * Delete all postprocessors that are not on the active list.
+//   *
+//   * @param active reference to list of all postprocessors that should be in
+//   *               container.
+//   */
+//  void setup(keyList_t& active);
 
 protected:
   /** the list of keys.

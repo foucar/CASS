@@ -76,7 +76,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp1001(PostProcessors &, const PostProcessors::key_t &, const std::string& outfilename);
+    pp1001(PostProcessors &, const name_t &, const std::string& outfilename);
 
     /** process the event */
     virtual void process(const CASSEvent&);
@@ -162,7 +162,7 @@ namespace cass
      * @param key the name of this PostProce
      * @param filename initial string of the output filename
      */
-    pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const std::string& filename);
+    pp1002(PostProcessors &pp, const name_t &key, const std::string& filename);
 
     /** process the event */
     virtual void process(const CASSEvent&);

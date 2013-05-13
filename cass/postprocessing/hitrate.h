@@ -56,7 +56,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp300(PostProcessors&, const PostProcessors::key_t&);
+    pp300(PostProcessors&, const name_t&);
 
     /** virtual destructor */
     virtual ~pp300();

@@ -40,7 +40,7 @@ class pp72 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp72(PostProcessors& hist, const PostProcessors::key_t&);
+  pp72(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);
@@ -87,7 +87,7 @@ class pp73 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp73(PostProcessors& hist, const PostProcessors::key_t&);
+  pp73(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);

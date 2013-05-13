@@ -15,12 +15,13 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;
 
 
-pp310::pp310(PostProcessors &pp, const PostProcessors::key_t &key)
+pp310::pp310(PostProcessors &pp, const name_t &key)
   : PostprocessorBackend(pp,key)
 {
   loadSettings(0);
@@ -116,7 +117,7 @@ void pp310::process(const CASSEvent &evt)
 
 
 //*** autocorrelation from image in kartesian coordinates ***
-pp311::pp311(PostProcessors &pp, const PostProcessors::key_t &key)
+pp311::pp311(PostProcessors &pp, const name_t &key)
   : PostprocessorBackend(pp,key)
 {
   loadSettings(0);

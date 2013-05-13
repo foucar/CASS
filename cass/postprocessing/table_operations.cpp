@@ -19,7 +19,7 @@ using namespace std;
 
 // ***  pp 72 returns column of a table ***
 
-pp72::pp72(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+pp72::pp72(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
@@ -79,7 +79,7 @@ void pp72::process(const cass::CASSEvent& evt)
 
 // ***  pp 73 returns subset of table with condition on rows ***
 
-pp73::pp73(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+pp73::pp73(PostProcessors& pp, const name_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);

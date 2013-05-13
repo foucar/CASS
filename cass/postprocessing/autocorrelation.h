@@ -37,7 +37,7 @@ public:
    * @param pp reference to the postprocessor manager
    * @param key the name of this PostProce
    */
-  pp310(PostProcessors &pp, const PostProcessors::key_t &key);
+  pp310(PostProcessors &pp, const name_t &key);
 
   /** process the event */
   virtual void process(const CASSEvent&);
@@ -84,7 +84,7 @@ public:
    * @param pp reference to the postprocessor manager
    * @param key the name of this PostProce
    */
-  pp311(PostProcessors &pp, const PostProcessors::key_t &key);
+  pp311(PostProcessors &pp, const name_t &key);
 
   /** process the event */
   virtual void process(const CASSEvent&);

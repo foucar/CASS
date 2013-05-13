@@ -46,7 +46,7 @@ class pp203 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp203(PostProcessors& hist, const PostProcessors::key_t&);
+  pp203(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);
@@ -98,7 +98,7 @@ class pp204 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp204(PostProcessors& hist, const PostProcessors::key_t&);
+  pp204(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);
@@ -218,7 +218,7 @@ class pp205 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp205(PostProcessors& hist, const PostProcessors::key_t&);
+  pp205(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);
@@ -273,7 +273,7 @@ class pp206 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp206(PostProcessors& hist, const PostProcessors::key_t&);
+  pp206(PostProcessors& hist, const name_t&);
 
   /** process event */
   virtual void process(const CASSEvent&);
@@ -334,7 +334,7 @@ class pp207 : public PostprocessorBackend
 {
 public:
   /** constructor */
-  pp207(PostProcessors&, const PostProcessors::key_t&);
+  pp207(PostProcessors&, const name_t&);
 
   /** copy pixels from CASS event to histogram storage */
   virtual void process(const CASSEvent&);

@@ -162,7 +162,7 @@ void copyMapValues(map<string,double>::const_iterator first,
 }
 }//end namespace cass
 
-pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
+pp2001::pp2001(PostProcessors& pp, const name_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
      _rootfile(ROOTFileHelper::create(filename)),
      _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),

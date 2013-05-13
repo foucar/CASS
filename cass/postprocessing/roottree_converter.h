@@ -53,7 +53,7 @@ class pp2001 : public PostprocessorBackend
 {
 public:
   /** Construct postprocessor for converting histograms to root histograms */
-  pp2001(PostProcessors&, const PostProcessors::key_t&, std::string rootfilename);
+  pp2001(PostProcessors&, const name_t&, std::string rootfilename);
 
   /** only a stub does nothing, but needs to be there because its pure virtual in base class */
   virtual void process(const CASSEvent&);

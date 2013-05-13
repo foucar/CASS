@@ -89,7 +89,7 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp55(PostProcessors& pp, const PostProcessors::key_t& key);
+  pp55(PostProcessors& pp, const name_t& key);
 
   /** process event
    *
@@ -156,7 +156,7 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1600(PostProcessors& pp, const PostProcessors::key_t& key);
+  pp1600(PostProcessors& pp, const name_t& key);
 
   /** process event
    *
@@ -288,7 +288,7 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1601(PostProcessors& pp, const PostProcessors::key_t& key);
+  pp1601(PostProcessors& pp, const name_t& key);
 
   /** process event
    *
@@ -367,7 +367,7 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1602(PostProcessors& pp, const PostProcessors::key_t& key);
+  pp1602(PostProcessors& pp, const name_t& key);
 
   /** process event
    *
