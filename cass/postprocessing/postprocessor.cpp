@@ -160,9 +160,10 @@ void PostProcessors::loadSettings(size_t)
   }
   Log::add(Log::DEBUG1,output);
   PostprocessorBackend::names_t declaredPostProcessors(list.size());
-  tr1::function<string(const QString&)> toStdString = &QString::toStdString;
 //  transform(list.begin(), list.end(), declaredPostProcessors.begin(), QStringToStdString);
+  tr1::function<string(const QString&)> toStdString = &QString::toStdString;
   transform(list.begin(), list.end(), declaredPostProcessors.begin(), toStdString);
+  transform(list.begin(), list.end(), declaredPostProcessors.begin(), tr1::bind(&QString::toStdString,tr1::placeholders::_1));
   Log::add(Log::VERBOSEINFO, "PostProcessors::loadSettings(): Number of unique postprocessor activations: " +
            toString(declaredPostProcessors.size()));
 
