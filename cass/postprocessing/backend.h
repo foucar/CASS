@@ -47,8 +47,8 @@ public:
   /** define the name type */
   typedef std::string name_t;
 
-  /** define the list of dependencies */
-  typedef std::list<name_t> dependencies_t;
+  /** define the list of names */
+  typedef std::list<name_t> names_t;
 
   /** define the list of cached results */
   /** @todo make the histogram list a list of shared pointers to the hbacks
@@ -151,7 +151,7 @@ public:
    * This function will be called by PostProcessors::setup() when it creates
    * the container with all activated postprocessors.
    */
-  const dependencies_t& dependencies()
+  const names_t& dependencies()
   {
     return _dependencies;
   }
@@ -333,7 +333,7 @@ protected:
   histogramList_t _histList;
 
   /** the list of dependencies */
-  dependencies_t _dependencies;
+  names_t _dependencies;
 
   /** pointer to the most recent histogram */
   HistogramBackend* _result;
