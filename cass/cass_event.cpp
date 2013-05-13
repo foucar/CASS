@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010,2013 Lutz Foucar
 
 /**
  * @file cass_event.cpp file contains defintion of the CASSEvent
@@ -16,8 +16,9 @@
 #include "machine_device.h"
 #include "pixeldetector.hpp"
 
+using namespace cass;
 
-cass::CASSEvent::CASSEvent()
+CASSEvent::CASSEvent()
   : cass::Serializable(1),
     _id(0),
     _datagrambuffer(cass::DatagramBufferSize,0)
@@ -31,14 +32,14 @@ cass::CASSEvent::CASSEvent()
   _devices[PixelDetectors] = new cass::pixeldetector::Device();
 }
 
-cass::CASSEvent::~CASSEvent()
+CASSEvent::~CASSEvent()
 {
   //delete all devices
   for (devices_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
     delete (it->second);
 }
 
-void cass::CASSEvent::serialize(cass::SerializerBackend& out)const
+void CASSEvent::serialize(cass::SerializerBackend& out)const
 {
   writeVersion(out);
   //the id//
@@ -49,7 +50,7 @@ void cass::CASSEvent::serialize(cass::SerializerBackend& out)const
     it->second->serialize(out);
 }
 
-bool cass::CASSEvent::deserialize(cass::SerializerBackend& in)
+bool CASSEvent::deserialize(cass::SerializerBackend& in)
 {
   checkVersion(in);
   //get id//

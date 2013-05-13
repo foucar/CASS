@@ -18,75 +18,78 @@
 
 namespace cass
 {
-  class DeviceBackend;
-  class SerializerBackend;
+class DeviceBackend;
+class SerializerBackend;
 
-  /** Event to store all LCLS Data
-   *
-   * a cassevent that stores all information comming from
-   * the machine, and also some calculated information
-   *
-   * @author Lutz Foucar
-   */
-  class CASSSHARED_EXPORT CASSEvent : public Serializable
-  {
-  public:
-    /** constructor will create all devices*/
-    CASSEvent();
+/** Event to store all LCLS Data
+ *
+ * a cassevent that stores all information comming from
+ * the machine, and also some calculated information
+ *
+ * @author Lutz Foucar
+ */
+class CASSEvent : public Serializable
+{
+public:
+  /** constructor will create all devices*/
+  CASSEvent();
 
-    /** destroyes all devices */
-    ~CASSEvent();
+  /** destroyes all devices */
+  ~CASSEvent();
 
-  public:
-    /** known devices */
-    enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC,PixelDetectors};
+public:
+  /** known devices */
+  enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC,PixelDetectors};
 
-    /** mapping from device type to handler instance */
-    /** @todo use shared pointer here */
-    typedef std::map<Device, DeviceBackend*> devices_t;
+  /** mapping from device type to handler instance */
+  /** @todo use shared pointer here */
+  typedef std::map<Device, DeviceBackend*> devices_t;
 
-    /** a buffer type */
-    typedef std::vector<char> buffer_t;
+  /** a buffer type */
+  typedef std::vector<char> buffer_t;
 
-  public:
-    /** serialize a event to the Serializer*/
-    void serialize(SerializerBackend&)const;
+  /** define the id type */
+  typedef uint64_t id_t;
 
-    /** deserialize an event from the Serializer*/
-    bool deserialize(SerializerBackend&);
+public:
+  /** serialize a event to the Serializer*/
+  void serialize(SerializerBackend&)const;
 
-  public:
-    //@{
-    /** setters */
-    uint64_t        &id()             {return _id;}
-    buffer_t        &datagrambuffer() {return _datagrambuffer;}
-    devices_t       &devices()        {return _devices;}
-    void             setFilename(const char * f) {_filename = f;}
-    //@}
-    //@{
-    /** getters */
-    uint64_t          id()const        {return _id;}
-    const buffer_t   &datagrambuffer()const {return _datagrambuffer;}
-    const devices_t  &devices()const   {return _devices;}
-    const char       *filename()const  {return _filename;}
-    //@}
+  /** deserialize an event from the Serializer*/
+  bool deserialize(SerializerBackend&);
 
-  public:
-    std::string pvControl;
+public:
+  //@{
+  /** setters */
+  id_t         &id()             {return _id;}
+  buffer_t        &datagrambuffer() {return _datagrambuffer;}
+  devices_t       &devices()        {return _devices;}
+  void             setFilename(const char * f) {_filename = f;}
+  //@}
+  //@{
+  /** getters */
+  id_t           id()const        {return _id;}
+  const buffer_t   &datagrambuffer()const {return _datagrambuffer;}
+  const devices_t  &devices()const   {return _devices;}
+  const char       *filename()const  {return _filename;}
+  //@}
 
-  private:
-    /** id of the cassevent */
-    uint64_t _id;
+public:
+  std::string pvControl;
 
-    /** list of devices for this event */
-    devices_t _devices;
+private:
+  /** id of the cassevent */
+  id_t _id;
 
-    /** buffer for the datagram that contains all LCLS information */
-    buffer_t _datagrambuffer;
+  /** list of devices for this event */
+  devices_t _devices;
 
-    /** filename of XTC file which this event came from (if offline) */
-    const char * _filename;
-  };
+  /** buffer for the datagram that contains all LCLS information */
+  buffer_t _datagrambuffer;
+
+  /** filename of XTC file which this event came from (if offline) */
+  const char * _filename;
+};
 }//end namespace
 
 #endif // CASSEVENT_H
