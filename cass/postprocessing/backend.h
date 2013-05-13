@@ -60,9 +60,9 @@ public:
   /** constructor
    *
    * @param pp reference to the class that contains all postprocessors
-   * @param key the key in the container of this postprocessor
+   * @param name the name of the postprocessor
    */
-  PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key);
+  PostprocessorBackend(PostProcessors& pp, const name_t &name);
 
   /** virtual destructor */
   virtual ~PostprocessorBackend();
