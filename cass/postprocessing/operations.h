@@ -112,7 +112,7 @@ namespace cass
     pp10(PostProcessors& pp, const PostProcessors::key_t &key, bool boolean)
       :PostprocessorBackend(pp,key)
     {
-      _result = (new Histogram0DFloat(boolean));
+      _result = new Histogram0DFloat(boolean);
       _hide =true;
       _write =false;
       _write_summary=false;
