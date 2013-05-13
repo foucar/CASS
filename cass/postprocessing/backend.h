@@ -108,20 +108,20 @@ public:
    */
   std::tr1::shared_ptr<HistogramBackend> getHistCopy(const uint64_t eventid);
 
-  /** Provide default implementation of loadSettings that does nothing */
-  virtual void loadSettings(size_t)
-  {
-    VERBOSEOUT(std::cout << "PostprocessorBackend::loadSettings()"<<std::endl);
-  }
+  /** Provide default implementation of loadSettings that does nothing
+   *
+   * @param unused not used
+   */
+  virtual void loadSettings(size_t unused);
 
-  /** Provide default implementation of saveSettings that does nothing */
-  virtual void saveSettings(size_t)
-  {
-    VERBOSEOUT(std::cout << "PostprocessorBackend::saveSettings()"<<std::endl);
-  }
+  /** Provide default implementation of saveSettings that does nothing
+   *
+   * @param unused not used
+   */
+  virtual void saveSettings(size_t unused);
 
   /** function that will be called when the postprocessor is about to be deleted */
-  virtual void aboutToQuit() {}
+  virtual void aboutToQuit();
 
   /** Define all postprocessors keys a postprocessor depends on
    *
@@ -139,7 +139,8 @@ public:
   /** clear the dependenies */
   void clearDependencies() {_dependencies.clear();}
 
-  /** clear the histograms.
+  /** clear the histograms
+   *
    * this will lock for write access to the histograms before clearing them
    */
   void clearHistograms();
@@ -151,10 +152,7 @@ public:
    *
    * @param in pointer to the histogram that has changed
    */
-  virtual void histogramsChanged(const HistogramBackend* /*in*/)
-  {
-    VERBOSEOUT(std::cout<<"PostprocessorBackend("<<_key<<")::histogramsChanged()"<< std::endl);
-  }
+  virtual void histogramsChanged(const HistogramBackend* in);
 
   /** process command in pp
    *
@@ -163,7 +161,7 @@ public:
    *
    * @param command the command string transmitted
    */
-  virtual void processCommand(std::string /*command*/) {}
+  virtual void processCommand(std::string command);
 
   /** retrieve the key of this postprocessor */
   const PostProcessors::key_t key() const {return _key;}

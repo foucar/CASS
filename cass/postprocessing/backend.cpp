@@ -17,13 +17,13 @@
 #include "convenience_functions.h"
 #include "operations.h"
 #include "cass_settings.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
 using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
-using std::equal_to;
 
 PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
                                            const PostProcessors::key_t &key)
@@ -298,4 +298,39 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   return dependpp;
 }
 
+void PostprocessorBackend::process(const CASSEvent& , const HistogramBackend& )
+{
+  Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + _key +
+           "' process has not been implemented");
+}
+
+void PostprocessorBackend::loadSettings(size_t)
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::loadSettings(): '" + _key +
+           "' not implemented");
+}
+
+void PostprocessorBackend::saveSettings(size_t)
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::saveSettings(): '" + _key +
+           "' not implemented");
+}
+
+void PostprocessorBackend::aboutToQuit()
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::aboutToQuit(): '" + _key +
+           "' not implemented");
+}
+
+void PostprocessorBackend::histogramsChanged(const HistogramBackend*)
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::histogramsChanged(): '" + _key +
+           "' not implemented");
+}
+
+void PostprocessorBackend::processCommand(std::string )
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::processCommand(): '" + _key +
+           "' not implemented");
+}
 
