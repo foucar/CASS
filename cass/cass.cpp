@@ -17,7 +17,6 @@
 #include "cass.h"
 #include "log.h"
 #include "analyzer.h"
-//#include "daemon.h"
 #include "input_base.h"
 #include "file_input.h"
 #include "multifile_input.h"
