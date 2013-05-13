@@ -130,6 +130,9 @@ public:
 
   /** Provide default implementation of loadSettings that does nothing
    *
+   * @note the implementation of load settings should ensure that all
+   *       dependencies should be known at the first time it is run
+   *
    * @param unused not used
    */
   virtual void loadSettings(size_t unused);
