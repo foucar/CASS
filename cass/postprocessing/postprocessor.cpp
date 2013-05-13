@@ -180,6 +180,15 @@ void PostProcessors::loadSettings(size_t)
    */
   sort(_postprocessors.begin(),_postprocessors.end());
 
+  /** load the settings of the postprocessors */
+  postprocessors_t::iterator pp(_postprocessors.begin());
+  postprocessors_t::iterator pEnd(_postprocessors.end());
+  while (pp != pEnd)
+  {
+    (pp++)->get()->loadSettings(0);
+  }
+
+
   /** log wich pp are generated */
   output = "PostProcessor::loadSettings(): Active postprocessor(s): ";
   for (keyList_t::const_iterator it(_active.begin()); it != _active.end(); ++it)
