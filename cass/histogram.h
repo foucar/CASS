@@ -37,7 +37,6 @@
 
 #include "serializer.h"
 #include "serializable.h"
-#include "postprocessing/postprocessor.h"
 
 namespace cass
 {
@@ -251,7 +250,7 @@ public:
     /** setter */
     size_t      &nbrOfFills()         {return _nbrOfFills;}
     std::string &MimeType()           {return _mime;}
-    PostProcessors::key_t &key()      {return _key;}
+    std::string &key()      {return _key;}
     //@}
     //@{
     /** getter*/
@@ -259,7 +258,7 @@ public:
     size_t             dimension()const   {return _dimension;}
     const axis_t      &axis()const        {return _axis;}
     const std::string &mimeType()const    {return _mime;}
-    const PostProcessors::key_t &key()const{return _key;}
+    const std::string &key()const{return _key;}
     //@}
 
 public:
@@ -289,7 +288,7 @@ protected:
     /** mime type of the histogram */
     std::string _mime;
     /** the id of the histogram */
-    PostProcessors::key_t _key;
+    std::string _key;
 
 };
 
