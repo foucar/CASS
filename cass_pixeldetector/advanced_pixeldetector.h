@@ -47,6 +47,36 @@ struct Frame
 
   /** the frame data */
   frame_t data;
+
+  /** return the shape of the frame */
+  shape_t shape() const
+  {
+    return std::make_pair(columns,rows);
+  }
+
+  /** try to retrive the right shape of the detector from the name
+   *
+   * in case the shape cannot be deduced from the name, 0,0 will be returned
+   *
+   * @return the shape of the detector
+   * @param name the name of the detector
+   */
+  static shape_t shapeFromName(const std::string &name)
+  {
+    using namespace std;
+    shape_t shape(make_pair(0,0));
+    if (name.find("PnCCD") != string::npos)
+      shape = make_pair(PnCCDColumns,PnCCDRows);
+    else if (name.find("CsPad2x2") != string::npos)
+      shape = make_pair(CsPad2x2Columns,CsPad2x2Rows);
+    else if (name.find("CsPad") != string::npos)
+      shape = make_pair(CsPadColumns,CsPadRows);
+    else if (name.find("Opal1k") != string::npos)
+      shape = make_pair(Opal1KColumns,Opal1KRows);
+    else if (name.find("Opal4k") != string::npos)
+      shape = make_pair(Opal4KColumns,Opal4KRows);
+    return shape;
+  }
 };
 
 /** An Advanced Pixel Detector

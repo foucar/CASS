@@ -568,38 +568,19 @@ void CommonData::loadSettings(CASSSettings &s)
     /** try do deduce the frame size from the detectorname, if it can't be
      *  deduced read it from the settings file and resize the maps accordingly.
      */
-    if (detectorname.find("PnCCD") != string::npos)
-    {
-      columns = PnCCDColumns;
-      rows = PnCCDRows;
-    }
-    else if (detectorname.find("CsPad2x2") != string::npos)
-    {
-      columns = CsPad2x2Columns;
-      rows = CsPad2x2Rows;
-    }
-    else if (detectorname.find("CsPad") != string::npos)
-    {
-      columns = CsPadColumns;
-      rows = CsPadRows;
-    }
-    else if (detectorname.find("Opal1k") != string::npos)
-    {
-      columns = Opal1KColumns;
-      rows = Opal1KRows;
-    }
-    else if (detectorname.find("Opal4k") != string::npos)
-    {
-      columns = Opal4KColumns;
-      rows = Opal4KRows;
-    }
-    else
+    shape_t shape(Frame::shapeFromName(detectorname));
+    if (!shape.first || !shape.second)
     {
       Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: Cannot deduce ") +
                "the frame size from detectorname '" + detectorname +
                "' read it from the settings file.");
       columns = s.value("nColumns",1024).toUInt();
       rows = s.value("nRows",1024).toUInt();
+    }
+    else
+    {
+      columns = shape.first;
+      rows = shape.second;
     }
     offsetMap.resize(columns*rows, 0);
     noiseMap.resize(columns*rows, 4000);
