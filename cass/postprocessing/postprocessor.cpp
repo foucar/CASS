@@ -513,6 +513,11 @@ PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::k
 
 PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
 {
+  if (key == "DefaultTrueHist")
+    return PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
+  if (key == "DefaultFalseHist")
+    return PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
+
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
