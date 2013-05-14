@@ -185,11 +185,12 @@ void PostProcessors::loadSettings(size_t)
   sort(_postprocessors.begin(),_postprocessors.end());
 
   /** log which pp are generated and their order*/
-  Log::add(Log::INFO,output);
+  output = "PostProcessors::loadSettings(): PostProcessors in the order they are called:";
   postprocessors_t::iterator pp(_postprocessors.begin());
   postprocessors_t::iterator pEnd(_postprocessors.end());
   while (pp != pEnd)
     output += ((*pp++)->name() + " ,");
+  Log::add(Log::INFO,output);
 
   /** load the settings of the postprocessors */
   pp = _postprocessors.begin();
