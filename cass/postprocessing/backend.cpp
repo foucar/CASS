@@ -253,81 +253,26 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   }
   if (dependkey == _key)
   {
-    stringstream ss;
-    ss << "PostprocessorBackend::setupDependency(): Error: '"<<_key
-        <<"' looks for a dependency '"<<dependkey
-        <<"'. One cannot let a postprocessor depend on itself."
-        <<" Note that qsettings is not case sensitive, so on must provide"
-        <<" names that differ not only in upper / lower case.";
-    throw invalid_argument(ss.str());
-
+    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" + _key +
+                           "' looks for a dependency '" + dependkey +
+                           "'. One cannot let a postprocessor depend on itself." +
+                           " Note that qsettings is not case sensitive, so on must provide" +
+                           " names that differ not only in upper / lower case.");
   }
-  VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): '"<<_key
-             <<"' will search for key in '"<<depVarName
-             <<"' which is '"<<dependkey
-             <<"'. Check whether this key is already on the dependency list"
-             <<endl);
+
+  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + _key +
+           "' check if dependency key '" + depVarName + "' which is '" +
+           dependkey + "'. is already on the dependency list");
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-               <<"' is not on dependency list add it. This also means that we have been"
-               <<" called for the first time."
-               <<endl);
+    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): It's not. Add it and return 0");
     _dependencies.push_back(dependkey);
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): Check whether dependency key '"<<dependkey
-               <<"' does appear after our key '"<<_key
-               <<"' on the active list of postprocessors."
-               <<endl);
-    const PostProcessors::keyList_t &activeList(_pp.activeList());
-    PostProcessors::keyList_t::const_iterator myIt(find(activeList.begin(),activeList.end(),_key));
-    if(find(myIt,activeList.end(),dependkey) != activeList.end())
-    {
-      VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-                 <<"' does appear after '"<<_key
-                 <<"' in the active list. This means its loadSettings has not been called yet"
-                 <<" so we need to make sure that we exit our loadSettings before continueing"
-                 <<" to load parameters by returning 0 at this point."
-                 <<endl);
-      return 0;
-    }
-#ifdef VERBOSE
-    else
-    {
-      VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-                 <<"' does appear before '"<<_key
-                 <<"' in the active list. So its loadSettings has been called before ours."
-                 <<" This means that everything is fine."
-                 <<endl);
-    }
-#endif
-  }
-#ifdef VERBOSE
-  else
-  {
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-               <<"' is on dependency list!"
-               <<endl);
-  }
-#endif
-  PostprocessorBackend *dependpp(0);
-  try
-  {
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): try to find '"<<dependkey
-               <<"' in the list of postprocessors"
-               <<endl);
-    dependpp = &(_pp.getPostProcessor(dependkey));
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): found '"<<dependkey
-               <<"' in the list of postprocessors"
-               <<endl);
-  }
-  catch (InvalidPostProcessorError&)
-  {
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): did not find '"<<dependkey
-               <<"' in the list of postprocessors"
-               <<endl);
     return 0;
   }
-  return dependpp;
+
+  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): retrieve '" +
+           dependkey + "' from the mananger and return a pointer to it.");
+  return (&(_pp.getPostProcessor(dependkey)));
 }
 
 void PostprocessorBackend::load()
