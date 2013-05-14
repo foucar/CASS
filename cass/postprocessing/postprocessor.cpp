@@ -184,19 +184,17 @@ void PostProcessors::loadSettings(size_t)
    */
   sort(_postprocessors.begin(),_postprocessors.end());
 
-  /** load the settings of the postprocessors */
+  /** log which pp are generated and their order*/
+  Log::add(Log::INFO,output);
   postprocessors_t::iterator pp(_postprocessors.begin());
   postprocessors_t::iterator pEnd(_postprocessors.end());
   while (pp != pEnd)
-  {
-    (pp++)->get()->loadSettings(0);
-  }
+    output += ((*pp++)->name() + " ,");
 
-  /** log wich pp are generated */
-  output = "PostProcessor::loadSettings(): Active postprocessor(s): ";
-  for (keyList_t::const_iterator it(_active.begin()); it != _active.end(); ++it)
-    output += (*it + " ,");
-  Log::add(Log::INFO,output);
+  /** load the settings of the postprocessors */
+  pp = _postprocessors.begin();
+  while (pp != pEnd)
+    (pp++)->get()->loadSettings(0);
 }
 
 void PostProcessors::saveSettings()
