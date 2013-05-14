@@ -194,6 +194,7 @@ TAB_SIZE               = 2
 # You can put \n's in the value part of an alias to insert newlines.
 
 ALIASES                = "cassttng=\xrefitem casssetting \"User definable Parameters\" \".ini Parameter List\""
+ALIASES               += "PPList=\xrefitem PostProcessors \"Available PostProcessors\" \"List of available PostProcessors\""
 ALIASES               += "GenList=\xrefitem DataGenerators \"User definable Data-Generators List\" \"Data-Generators List\""
 ALIASES               += "MapCreateList=\xrefitem MapCreators \"User definable Map Creator List\" \"Map-Creators List\""
 ALIASES               += "GainMapCreateList=\xrefitem GainMapCreators \"User definable Gain-map Creator List\" \"Gainmap-Creators List\""

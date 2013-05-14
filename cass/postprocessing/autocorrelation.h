@@ -20,6 +20,8 @@ namespace cass
  *
  * details
  *
+ * @PPList "310": calculate the autocorrelation of an image in radial coordinates
+ *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           Postprocessor name containing the histogram whos autocorrelation
  *           should be calculated. The radius should be along the y-axis and the
@@ -66,6 +68,8 @@ protected:
 /** calculate the autocorrelation of an image
  *
  * details
+ *
+ * @PPList "311": calculate the autocorrelation of an image
  *
  * @cassttng PostProcessor/\%name\%/{CenterX|CenterY} \n
  * @cassttng PostProcessor/\%name\%/{MaximumRadius} \n
