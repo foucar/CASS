@@ -113,7 +113,7 @@ public:
    *
    * Locks the histogram for read access before creating the copy.
    *
-   * @return copy of the requested histogram
+   * @return shared pointer of a copy of the histogram
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
@@ -218,9 +218,9 @@ protected:
    * If the condition is not true, the pointer to the result will be put to the
    * second to front position in the list.
    *
-   * @param ev the event to be processed
+   * @param event the event to be processed
    */
-  void processEvent(const CASSEvent& ev);
+  void processEvent(const CASSEvent& event);
 
   /** process the event
    *
@@ -230,13 +230,13 @@ protected:
    * @param event the cassevent to work on
    * @param result this is where the result will be written to
    */
-  virtual void process(const CASSEvent& ev, const HistogramBackend& result);
+  virtual void process(const CASSEvent& event, const HistogramBackend& result);
 
   /** process the event
    *
    * This will evaluate the event and fill the resulting histogram. It needs
    * to be implemented in the postprocessors.
-   *HistogramBackend::shared_pointer(
+   *
    * @param event the cassevent to work on
    */
   virtual void process(const CASSEvent& event) = 0;
