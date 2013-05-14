@@ -67,16 +67,6 @@ public:
   /** virtual destructor */
   virtual ~PostprocessorBackend();
 
-  /** compare this PostProcessor to another
-   *
-   * this postprocessor is smaller than the other when the other PostProcessor
-   * is not on the dependecy list of this PostProcesor
-   *
-   * @return true when other name is not on dependency list
-   * @param other the PostProcessor to compare this one to
-   */
-  bool operator < (const PostprocessorBackend& other);
-
   /** main operator
    *
    * Will be called for each event by postprocessors container. Sometimes by

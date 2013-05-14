@@ -55,21 +55,6 @@ PostprocessorBackend::~PostprocessorBackend()
   }
 }
 
-bool PostprocessorBackend::operator <(const PostprocessorBackend &other)
-{
-  string output("PostprocessorBackend::operator <(): this name '" + name() +
-                "' others name '"+ other.name() + "'. This dependencies:");
-  names_t::const_iterator dep(_dependencies.begin());
-  names_t::const_iterator End(_dependencies.end());
-  while (dep != End)
-    output += *dep++ + ", ";
-  output += string("this is smaller : ") +
-      (find(_dependencies.begin(),_dependencies.end(),other.name()) ==
-       _dependencies.end() ? "true" : "false");
-  Log::add(Log::DEBUG0,output);
-  return (find(_dependencies.begin(),_dependencies.end(),other.name()) == _dependencies.end());
-}
-
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
   QWriteLocker lock(&_histLock);
