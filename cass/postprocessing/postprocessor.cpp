@@ -140,11 +140,6 @@ void PostProcessors::aboutToQuit()
     (*iter++)->aboutToQuit();
 }
 
-bool ppsort(PostprocessorBackend::shared_pointer first, PostprocessorBackend::shared_pointer second)
-{
-  return (*first) < (*second);
-}
-
 void PostProcessors::loadSettings(size_t)
 {
   /** remove all postprocessors */
@@ -184,19 +179,49 @@ void PostProcessors::loadSettings(size_t)
   /** sort the postprocessors such that the ones with no dependencies are ealier
    *  in the list
    */
-//  sort(_postprocessors.begin(),_postprocessors.end(),ppsort);
-  for (size_t i=0; i < _postprocessors.size(); ++i)
+  postprocessors_t::iterator pp(_postprocessors.begin());
+  postprocessors_t::iterator pEnd(_postprocessors.end());
+  while (pp != pEnd)
   {
-    for (size_t j=i+1; j < _postprocessors.size(); ++j)
+    /** retrive dependencies of postprocessor */
+    typedef PostprocessorBackend::names_t deps_t;
+    const deps_t &deps((*pp)->dependencies());
+
+    /** move all dependencies of this postprocessor that appear later in the list
+     *  to one before this postprocessor in the list and set the pointer to
+     *  the moved postprocessor
+     */
+    bool reordered(false);
+    deps_t::const_iterator dep(deps.begin());
+    deps_t::const_iterator depEnd(deps.end());
+    while (dep != depEnd)
     {
-      *_postprocessors[i]  < *_postprocessors[j];
+      postprocessors_t::iterator it(pp);
+      while (it != pEnd)
+      {
+        if (*dep == (*it)->name())
+        {
+          pp = _postprocessors.insert(pp,*it);  //pp points to the inserted element
+          _postprocessors.erase(it);            //it points to the element after the erased element
+          reordered = true;
+          break;
+        }
+        ++it;
+      }
+      ++dep;
     }
+
+    /** when the list has not been reordered we continue with the next element
+     *  in the next iteration, otherwise we should treat the current element in
+     *  the next iteration
+     */
+    if(!reordered)
+      ++pp;
   }
 
   /** log which pp are generated and their order*/
   output = "PostProcessors::loadSettings(): PostProcessors in the order they are called:";
-  postprocessors_t::iterator pp(_postprocessors.begin());
-  postprocessors_t::iterator pEnd(_postprocessors.end());
+  pp = _postprocessors.begin();
   while (pp != pEnd)
     output += ((*pp++)->name() + ", ");
   Log::add(Log::INFO,output);

@@ -487,7 +487,7 @@ public:
   typedef PostprocessorBackend::name_t key_t;
 
   /** Container of all currently active postprocessors */
-  typedef std::vector<std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
+  typedef std::list<std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
 
   /** List of all postprocessor keys */
   typedef PostprocessorBackend::names_t keyList_t;
