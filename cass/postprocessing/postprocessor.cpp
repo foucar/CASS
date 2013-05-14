@@ -204,7 +204,7 @@ void PostProcessors::loadSettings(size_t)
   /** load the settings of the postprocessors */
   pp = _postprocessors.begin();
   while (pp != pEnd)
-    (pp++)->get()->loadSettings(0);
+    (*pp++)->loadSettings(0);
 }
 
 void PostProcessors::saveSettings()
