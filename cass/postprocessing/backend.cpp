@@ -246,25 +246,27 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   }
   if (dependkey == _key)
   {
-    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" + _key +
+    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" + name() +
                            "' looks for a dependency '" + dependkey +
                            "'. One cannot let a postprocessor depend on itself." +
                            " Note that qsettings is not case sensitive, so on must provide" +
                            " names that differ not only in upper / lower case.");
   }
 
-  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + _key +
+  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
            "' check if dependency key '" + depVarName + "' which is '" +
-           dependkey + "'. is already on the dependency list");
+           dependkey + "' is already on the dependency list");
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
-    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): It's not. Add it and return 0");
+    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+             "' It's not. Add it and return 0");
     _dependencies.push_back(dependkey);
     return 0;
   }
 
-  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): retrieve '" +
-           dependkey + "' from the mananger and return a pointer to it.");
+  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+           "' retrieve '" + dependkey + "' from the mananger and return pointer ");
+
   return (&(_pp.getPostProcessor(dependkey)));
 }
 
