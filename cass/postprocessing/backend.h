@@ -50,8 +50,9 @@ public:
   /** define the list of names */
   typedef std::list<name_t> names_t;
 
-  /** define the list of cached results */
-  /** @todo make the histogram list a list of shared pointers to the hbacks
+  /** define the list of cached results
+   *
+   * @todo make the histogram list a list of shared pointers to the hbacks
    *        which means that one has to change all pps, since they new the
    *        _result pointer
    */
