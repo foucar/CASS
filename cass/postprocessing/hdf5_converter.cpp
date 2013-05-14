@@ -912,7 +912,7 @@ public:
   void operator()(const pp1002::entry_t& entry)
   {
     typedef pp1002::entry_t entry_t;
-    const tuple_element<pp1002::options, entry_t>::type option(get<pp1002::options>(entry));
+    const tuple_element<pp1002::options, entry_t>::type &options(get<pp1002::options>(entry));
     const tuple_element<pp1002::group, entry_t>::type &gname(get<pp1002::group>(entry));
     const tuple_element<pp1002::name, entry_t>::type &name(get<pp1002::name>(entry));
     PostprocessorBackend &pp(*(get<pp1002::pp>(entry)));
@@ -932,7 +932,7 @@ public:
       hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), _fh);
       break;
     case 2:
-      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), option, _fh);
+      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), options, _fh);
       break;
     default:
       throw runtime_error("WriteEntity::operator(): data dimension '" +
