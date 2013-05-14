@@ -189,7 +189,7 @@ void PostProcessors::loadSettings(size_t)
   postprocessors_t::iterator pp(_postprocessors.begin());
   postprocessors_t::iterator pEnd(_postprocessors.end());
   while (pp != pEnd)
-    output += ((*pp++)->name() + " ,");
+    output += ((*pp++)->name() + ", ");
   Log::add(Log::INFO,output);
 
   /** load the settings of the postprocessors */
