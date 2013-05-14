@@ -33,7 +33,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _hide(false),
    _write(true),
    _write_summary(true),
-//   _result(0),
+   _result(0),
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
@@ -328,6 +328,21 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
     return 0;
   }
   return dependpp;
+}
+
+void PostprocessorBackend::load()
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(name()));
+  _hide = settings.value("Hide",false).toBool();
+  _write = settings.value("Write",true).toBool();
+  _write_summary = settings.value("WriteSummary",true).toBool();
+  _comment = settings.value("Comment","").toString().toStdString();
+  if (settings.contains("ConditionName"))
+    _condition = setupDependency("ConditionName");
+  else
+    _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
 }
 
 void PostprocessorBackend::process(const CASSEvent& , const HistogramBackend& )

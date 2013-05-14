@@ -137,6 +137,13 @@ public:
    */
   virtual void loadSettings(size_t unused);
 
+  /** load the general settings
+   *
+   * loads the settings common to all postprocesors then calls loadSettings to
+   * get the specific settings of the postprocessor
+   */
+  virtual void load();
+
   /** Provide default implementation of saveSettings that does nothing
    *
    * @param unused not used
