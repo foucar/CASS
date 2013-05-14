@@ -223,17 +223,15 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
   if (settings.contains("ConditionName"))
   {
     _condition = setupDependency("ConditionName");
-    if (!_condition)
-      return false;
   }
   else
   {
     if (conditiontype)
-      _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
+      _condition = setupDependency("ConditionName","DefaultTrueHist");
     else
-      _condition = &(_pp.getPostProcessor("DefaultFalseHist"));
+      _condition = setupDependency("ConditionName","DefaultFalseHist");
   }
-  return true;
+  return _condition;
 }
 
 PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName, const PostProcessors::key_t& depkey)
