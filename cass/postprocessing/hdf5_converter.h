@@ -12,6 +12,7 @@
 #include <string>
 #include <list>
 #include <hdf5.h>
+#include <tr1/tuple>
 
 #include "postprocessing/backend.h"
 
@@ -128,7 +129,10 @@ namespace cass
     hid_t getGroupNameForCalibCycle(const cass::CASSEvent &);
   };
 
+
   /** saves a selected 2d histogram to hdf5
+   *
+   * @PPList "1002": saves a selected 2d histogram to hdf5
    *
    * it will just save one histogram in a file and then write the next into the
    * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
@@ -150,12 +154,21 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{GroupName} \n
    *           Name of the group in the h5 file into which the PostProcessor
    *           should be written into. Default is "/"
+   * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{ValName} \n
+   *           Name that the data should have in the h5 file. Default is the
+   *           name of the PostProcessor.
    *
    * @author Lutz Foucar
    */
   class pp1002 : public PostprocessorBackend
   {
   public:
+    /** define a name, groupname, postprocessor tuple */
+    typedef std::tr1::tuple<std::string,std::string,shared_pointer,uint32_t> entry_t;
+
+    /** enum to make tuple entries more readable */
+    enum entry_names {name=0,group,pp,options};
+
     /** constructor
      *
      * @param pp reference to the postprocessor manager
@@ -178,10 +191,10 @@ namespace cass
     std::string _basefilename;
 
     /** container with all pps that contain the histograms to dump to hdf5 */
-    std::list<std::pair<std::string,shared_pointer> > _ppList;
+    std::list<entry_t> _ppList;
 
     /** container for all pps that should be written when program quits */
-    std::list<std::pair<std::string,shared_pointer> > _ppSummaryList;
+    std::list<entry_t> _ppSummaryList;
 
 
   private:

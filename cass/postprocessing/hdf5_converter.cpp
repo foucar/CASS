@@ -23,6 +23,9 @@
 
 using namespace cass;
 using namespace std;
+using tr1::make_tuple;
+using tr1::get;
+using tr1::tuple_element;
 
 namespace cass
 {
@@ -868,6 +871,84 @@ void writeData(const string& datasetname, const Histogram2DFloat& data, bool com
   H5Sclose(dataspace_id);
 }
 
+
+/** write an entity to a h5 file
+ *
+ * @author Lutz Foucar
+ */
+class WriteEntry
+{
+public:
+  /** constructor
+   *
+   * create the hdf5 file with the name and the handles to the specific data
+   * storage
+   *
+   * @param filename the name of the h5 file
+   * @param id the id of the event to get the data for
+   */
+  WriteEntry(const string& filename, const CASSEvent::id_t id=0)
+    : _fh(H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
+      _id(id)
+  {
+    if (_fh == 0)
+      throw runtime_error("WriteEntity(): Could not open the hdf5 file '" + filename +"'");
+  }
+
+  /** destructor
+   *
+   * flush and close file
+   */
+  ~WriteEntry()
+  {
+    H5Fflush(_fh,H5F_SCOPE_LOCAL);
+    H5Fclose(_fh);
+  }
+
+  /** write an entry to h5 file using the functions defined above
+   *
+   * @param entry The entry to put into the h5 file
+   */
+  void operator()(const pp1002::entry_t& entry)
+  {
+    typedef pp1002::entry_t entry_t;
+    const tuple_element<pp1002::options, entry_t>::type option(get<pp1002::options>(entry));
+    const tuple_element<pp1002::group, entry_t>::type &gname(get<pp1002::group>(entry));
+    const tuple_element<pp1002::name, entry_t>::type &name(get<pp1002::name>(entry));
+    PostprocessorBackend &pp(*(get<pp1002::pp>(entry)));
+
+    /** create the requested group and data name*/
+    createGroupWithAbsolutePath(gname,_fh);
+    const string dataName(gname + "/" + name);
+
+    /** retrieve data from pp and write it to the h5 file */
+    const HistogramBackend &data(pp.getHist(_id));
+    switch (data.dimension())
+    {
+    case 0:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), _fh);
+      break;
+    case 1:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), _fh);
+      break;
+    case 2:
+      hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), option, _fh);
+      break;
+    default:
+      throw runtime_error("WriteEntity::operator(): data dimension '" +
+                          toString(data.dimension()) + "' not known");
+      break;
+    }
+  }
+
+private:
+  /** the file handle of the h5 file */
+  hid_t _fh;
+
+  /** the eventid to look for */
+  CASSEvent::id_t _id;
+};
+
 }//end namespace hdf5
 }//end namespace cass
 
@@ -1090,36 +1171,6 @@ void pp1002::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  bool allDepsAreThere(true);
-  int size = s.beginReadArray("PostProcessor");
-  for (int i = 0; i < size; ++i)
-  {
-    s.setArrayIndex(i);
-    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
-    allDepsAreThere = pp && allDepsAreThere;
-    _ppList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
-                                pp));
-  }
-  s.endArray();
-
-  size = s.beginReadArray("PostProcessorSummary");
-  for (int i = 0; i < size; ++i)
-  {
-    s.setArrayIndex(i);
-    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
-    allDepsAreThere = pp && allDepsAreThere;
-    _ppSummaryList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
-                                       pp));
-  }
-  s.endArray();
-
-  bool ret (setupCondition());
-  if (!(ret && allDepsAreThere))
-  {
-    _ppList.clear();
-    _ppSummaryList.clear();
-    return;
-  }
 
   _compress = s.value("Compress",true).toBool();
   if (_compress)
@@ -1132,14 +1183,49 @@ void pp1002::loadSettings(size_t)
         !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
       _compress = false;
   }
+
+  bool allDepsAreThere(true);
+  int size = s.beginReadArray("PostProcessor");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    string groupname(s.value("GroupName","/").toString().toStdString());
+    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
+    _ppList.push_back(make_tuple(name,groupname,pp,_compress));
+  }
+  s.endArray();
+
+  size = s.beginReadArray("PostProcessorSummary");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    string groupname(s.value("GroupName","/").toString().toStdString());
+    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
+    _ppSummaryList.push_back(make_tuple(name,groupname,pp,_compress));
+  }
+  s.endArray();
+
+  bool ret (setupCondition());
+  if (!(ret && allDepsAreThere))
+  {
+    _ppList.clear();
+    _ppSummaryList.clear();
+    return;
+  }
+
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
   string output("PostProcessor '" + _key + "' will write histogram ");
-  for (list<pair<string,shared_pointer> >::const_iterator it(_ppList.begin());
+  for (list<entry_t>::const_iterator it(_ppList.begin());
        it != _ppList.end(); ++it)
-    output += ("'" + it->second->key() + "' to Group '" + it->first + "',");
+    output += ("'" + get<pp>(*it)->name() + "' to Group '" + get<group>(*it) +
+               "' with dataname '" + get<name>(*it) +"',");
   output += (" of a hdf5 file with '" + _basefilename +
              "' as basename. 2D File will " + (_compress ? "" : "NOT") +
              " be compressed." + "Condition is '" + _condition->key() + "'");
@@ -1153,43 +1239,45 @@ void pp1002::aboutToQuit()
   /** check if something to be written */
   if (!_ppSummaryList.empty())
   {
-    /** create filename from base filename + event id */
+    /** create filename from base filename and write entries to file */
     string filename(_basefilename + "_Summary.h5");
-    /** create the hdf5 file with the name and the handles to the specific data storage*/
-    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    if (fh == 0)
-      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+    for_each(_ppSummaryList.begin(),_ppSummaryList.end(),hdf5::WriteEntry(filename));
 
-    /** iterate through the postprocessor list that should be dumped to h5 */
-    list<pair<string,shared_pointer> >::iterator it(_ppSummaryList.begin());
-    for (;it != _ppSummaryList.end(); ++it)
-    {
-      /** create the requested group */
-      hdf5::createGroupWithAbsolutePath(it->first,fh);
-      /** retrieve data from pp and write it to the h5 file */
-      PostprocessorBackend &pp(*(it->second));
-      const HistogramBackend &data(pp.getHist(0));
-      const string dataName(it->first + "/" + pp.key());
-      switch (data.dimension())
-      {
-      case 0:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-        break;
-      case 1:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-        break;
-      case 2:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-        break;
-      default:
-        throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
-        break;
-      }
-    }
+//    /** create the hdf5 file with the name and the handles to the specific data storage*/
+//    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+//    if (fh == 0)
+//      throw runtime_error("pp1002::aboutToQuit(): Could not open the hdf5 file '" + filename +"'");
 
-    /** close file */
-    H5Fflush(fh,H5F_SCOPE_LOCAL);
-    H5Fclose(fh);
+//    /** iterate through the postprocessor list that should be dumped to h5 */
+//    list<pair<string,shared_pointer> >::iterator it(_ppSummaryList.begin());
+//    for (;it != _ppSummaryList.end(); ++it)
+//    {
+//      /** create the requested group */
+//      hdf5::createGroupWithAbsolutePath(it->first,fh);
+//      /** retrieve data from pp and write it to the h5 file */
+//      PostprocessorBackend &pp(*(it->second));
+//      const HistogramBackend &data(pp.getHist(0));
+//      const string dataName(it->first + "/" + pp.key());
+//      switch (data.dimension())
+//      {
+//      case 0:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+//        break;
+//      case 1:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+//        break;
+//      case 2:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+//        break;
+//      default:
+//        throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
+//        break;
+//      }
+//    }
+
+//    /** close file */
+//    H5Fflush(fh,H5F_SCOPE_LOCAL);
+//    H5Fclose(fh);
   }
 }
 
@@ -1202,40 +1290,41 @@ void pp1002::process(const CASSEvent &evt)
   {
     /** create filename from base filename + event id */
     string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
-    /** create the hdf5 file with the name and the handles to the specific data storage*/
-    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    if (fh == 0)
-      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+    for_each(_ppList.begin(),_ppList.end(),hdf5::WriteEntry(filename,evt.id()));
+//    /** create the hdf5 file with the name and the handles to the specific data storage*/
+//    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+//    if (fh == 0)
+//      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
-    /** iterate through the postprocessor list that should be dumped to h5 */
-    list<pair<string,shared_pointer> >::iterator it(_ppList.begin());
-    for (;it != _ppList.end(); ++it)
-    {
-      /** create the requested group */
-      hdf5::createGroupWithAbsolutePath(it->first,fh);
-      /** retrieve data from pp and write it to the h5 file */
-      PostprocessorBackend &pp(*(it->second));
-      const HistogramBackend &data(pp(evt));
-      const string dataName(it->first + "/" + pp.key());
-      switch (data.dimension())
-      {
-      case 0:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-        break;
-      case 1:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-        break;
-      case 2:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-        break;
-      default:
-        throw runtime_error("pp1002::process: data dimension not known");
-        break;
-      }
-    }
+//    /** iterate through the postprocessor list that should be dumped to h5 */
+//    list<entry_t>::iterator it(_ppList.begin());
+//    for (;it != _ppList.end(); ++it)
+//    {
+//      /** create the requested group */
+//      hdf5::createGroupWithAbsolutePath(it->first,fh);
+//      /** retrieve data from pp and write it to the h5 file */
+//      PostprocessorBackend &pp(*(it->second));
+//      const HistogramBackend &data(pp(evt));
+//      const string dataName(it->first + "/" + pp.key());
+//      switch (data.dimension())
+//      {
+//      case 0:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+//        break;
+//      case 1:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+//        break;
+//      case 2:
+//        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
+//        break;
+//      default:
+//        throw runtime_error("pp1002::process: data dimension not known");
+//        break;
+//      }
+//    }
 
-    /** close file */
-    H5Fflush(fh,H5F_SCOPE_LOCAL);
-    H5Fclose(fh);
+//    /** close file */
+//    H5Fflush(fh,H5F_SCOPE_LOCAL);
+//    H5Fclose(fh);
   }
 }
