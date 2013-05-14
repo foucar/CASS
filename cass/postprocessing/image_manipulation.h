@@ -117,7 +117,7 @@ protected:
   typedef std::tr1::function<size_t(size_t, size_t, const std::pair<size_t,size_t>&)> func_t;
 
   /** pp containing 2d histogram */
-  PostprocessorBackend *_one;
+  shared_pointer _one;
 
   /** the size of the original histogram */
   std::pair<size_t,size_t> _size;
@@ -172,7 +172,7 @@ public:
 
 protected:
   /** pp containing 2d histogram */
-  PostprocessorBackend *_one;
+  shared_pointer _one;
 
   /** nbr bins in x of asic */
   const size_t _nx;
@@ -304,7 +304,7 @@ public:
 
 protected:
   /** pp containing 2d histogram */
-  PostprocessorBackend *_one;
+  shared_pointer _one;
 
 private:
   std::tr1::shared_ptr<SegmentCopier> _copyMatrixSegment;
@@ -395,7 +395,7 @@ protected:
   void setup(const Histogram2DFloat &srcImageHist);
 
   /** pp containing 2d histogram */
-  PostprocessorBackend *_imagePP;
+  shared_pointer _imagePP;
 
   /** define the lookuptable */
   typedef std::vector<size_t> lookupTable_t;

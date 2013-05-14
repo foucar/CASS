@@ -88,7 +88,7 @@ namespace cass
 
   protected:
     /** pp containing the histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** constant value to compare to */
     float _value;
@@ -172,10 +172,10 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second histogram */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
 
     /** the boolean operation done with the 0D data */
     BooleanOperator op;
@@ -264,10 +264,10 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second histogram */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
 
     /** the comparison operation done with the data */
     ComparisonOperator op;
@@ -387,10 +387,10 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second histogram */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
 
     /** the operation done with the data */
     Operator op;
@@ -488,7 +488,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** the factor we mulitply the histogram with */
     float _value;
@@ -617,10 +617,10 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second histogram */
-    PostprocessorBackend *_constHist;
+    shared_pointer _constHist;
 
     /** the operation done with the data */
     Operator op;

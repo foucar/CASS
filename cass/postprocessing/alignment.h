@@ -177,7 +177,7 @@ namespace cass
     size_t _nbrRadialPoints;
 
     /** pp containing image that we will calculate the \f$\cos^2\theta\f$ from */
-    PostprocessorBackend *_image;
+    shared_pointer _image;
   };
 
 
@@ -252,7 +252,7 @@ namespace cass
     size_t _nbrRadialPoints;
 
     /** pp containing image that we will the angular distribution from */
-    PostprocessorBackend* _image;
+    shared_pointer _image;
   };
 
 
@@ -328,7 +328,7 @@ namespace cass
     size_t _nbrRadialPoints;
 
     /** pp containing image that we will the angular distribution from */
-    PostprocessorBackend* _image;
+    shared_pointer _image;
   };
 
 }

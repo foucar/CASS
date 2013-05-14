@@ -48,7 +48,7 @@ namespace cass
 
   protected:
     /** pp containing histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
   };
 
 
@@ -85,7 +85,7 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** the requested range that the histogram should be in */
     std::pair<float,float> _range;
@@ -195,7 +195,7 @@ namespace cass
 
   protected:
     /** pp containing the value to check */
-    PostprocessorBackend *_hist;
+    shared_pointer _hist;
 
     /** the value of the previous event */
     float _previousVal;
@@ -236,7 +236,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** the threshold */
     float _threshold;
@@ -288,10 +288,10 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing threshold histogram */
-    PostprocessorBackend *_threshold;
+    shared_pointer _threshold;
   };
 
 
@@ -342,7 +342,7 @@ namespace cass
     void setupParameters(const HistogramBackend &hist);
 
     /** pp containing the 2d hist we want to project */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** range we want to project */
     std::pair<float,float> _userRange;
@@ -401,7 +401,7 @@ namespace cass
 
   protected:
     /** pp containing the 1d hist we want to integrate */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** range we want to have the integral over in histogram bins */
     std::pair<float,float> _area;
@@ -449,7 +449,7 @@ namespace cass
 
   protected:
     /** pp containing the 2d hist we want to project */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** center coordinates we use to calculate the radial average in histogram coordinates */
     std::pair<size_t,size_t> _center;
@@ -505,7 +505,7 @@ namespace cass
 
   protected:
     /** pp containing the 2d hist we want to project */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** range of radii that we use for the angular distribution */
     std::pair<size_t,size_t> _range;
@@ -560,7 +560,7 @@ namespace cass
 
   protected:
     /** pp containing the 2d hist we want to project */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** centre's coordinates we use to calculate the radar plot */
     std::pair<size_t,size_t> _center;
@@ -610,7 +610,7 @@ namespace cass
     HistogramFloatBase::storage_t _storage;
 
     /** pp containing histogram to work on */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -657,7 +657,7 @@ namespace cass
 
   protected:
     /** pp containing 0D histogram to work on */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -700,7 +700,7 @@ namespace cass
     float _alpha;
 
     /** pp containing histogram to work on */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -736,7 +736,7 @@ namespace cass
 
   protected:
     /** pp containing histogram to work on */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -777,7 +777,7 @@ namespace cass
 
   protected:
     /** pp containing histogram to work on */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** range of time that we use for the angular distribution */
     std::pair<size_t,size_t> _timerange;
@@ -829,7 +829,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_hist;
+    shared_pointer _hist;
 
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _size;
@@ -870,10 +870,10 @@ namespace cass
 
   protected:
     /** pp containing first 0D histogram to work on */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second 0D histogram to work on */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
   };
 
 
@@ -912,10 +912,10 @@ namespace cass
 
   protected:
     /** pp containing first 0D histogram to work on */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second 0D histogram to work on */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
   };
 
 
@@ -953,10 +953,10 @@ namespace cass
 
   protected:
     /** pp containing first 0D histogram to work on */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second 0D histogram to work on */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
   };
 
 
@@ -1003,10 +1003,10 @@ namespace cass
 
   protected:
     /** pp containing first 0D histogram to work on */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second 0D histogram to work on */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
   };
 
 
@@ -1043,10 +1043,10 @@ namespace cass
 
   protected:
     /** pp containing first 0D histogram to work on */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** pp containing second 0D histogram to work on */
-    PostprocessorBackend *_two;
+    shared_pointer _two;
   };
 
 
@@ -1097,7 +1097,7 @@ namespace cass
     void setup(const HistogramFloatBase &hist);
 
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** offset of first bin in input in Histogram coordinates */
     size_t _inputOffset;
@@ -1143,7 +1143,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** the type of function used to retrive the wanted element */
     std::tr1::function<HistogramFloatBase::storage_t::const_iterator(HistogramFloatBase::storage_t::const_iterator,HistogramFloatBase::storage_t::const_iterator)> _func;
@@ -1186,7 +1186,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_hist;
+    shared_pointer _hist;
   };
 
 
@@ -1292,7 +1292,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -1331,7 +1331,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -1374,7 +1374,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -1417,7 +1417,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -1457,7 +1457,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
   };
 
 
@@ -1505,7 +1505,7 @@ namespace cass
     void setupParameters(const HistogramBackend &hist);
 
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** the user requested x-axis limits */
     std::pair<float,float> _userXRange;
@@ -1569,7 +1569,7 @@ namespace cass
     void setupParameters(const HistogramBackend &hist);
 
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** the user requested x-axis limits for the step finding*/
     std::pair<float,float> _userXRangeStep;
@@ -1628,7 +1628,7 @@ namespace cass
     void setupParameters(const HistogramBackend &hist);
 
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** the user requested x-axis limits */
     std::pair<float,float> _userXRange;
@@ -1674,7 +1674,7 @@ namespace cass
 
   protected:
     /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
+    shared_pointer _pHist;
 
     /** the id of the axis */
     int _axisId;

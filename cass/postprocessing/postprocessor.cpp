@@ -240,17 +240,23 @@ void PostProcessors::saveSettings()
     (*iter++)->saveSettings(0);
 }
 
-PostprocessorBackend& PostProcessors::getPostProcessor(const PostprocessorBackend::name_t &name)
+PostprocessorBackend::shared_pointer
+PostProcessors::getPostProcessorSPointer(const PostprocessorBackend::name_t &name)
 {
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
   while (iter != end)
   {
-    if ((*(*iter)).name() ==  name)
-      return *(*iter);
+    if ((*iter)->name() ==  name)
+      return *iter;
     ++iter;
   }
   throw InvalidPostProcessorError(name);
+}
+
+PostprocessorBackend& PostProcessors::getPostProcessor(const PostprocessorBackend::name_t &name)
+{
+  return *getPostProcessorSPointer(name);
 }
 
 tr1::shared_ptr<IdList> PostProcessors::keys()

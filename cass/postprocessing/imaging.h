@@ -53,7 +53,7 @@ namespace cass
 
   protected:
     /** The PP providing the input */
-    PostprocessorBackend *_input;
+    shared_pointer _input;
 
     /** Threshold for peakfinding */
     std::pair<float,float> _gate;

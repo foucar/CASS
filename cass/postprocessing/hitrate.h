@@ -106,7 +106,7 @@ namespace cass
     int _yend;
 
     /** the histogram to work on */
-    PostprocessorBackend* _pHist;
+    shared_pointer _pHist;
 
     /** storage for integralimage (2d integral of entire image) */
     Histogram2DFloat* _integralimg;

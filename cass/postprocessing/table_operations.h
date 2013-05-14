@@ -50,7 +50,7 @@ public:
 
 protected:
   /** pp containing input table */
-  PostprocessorBackend *_table;
+  shared_pointer _table;
 
   /** index of the column that needs to be extracted */
   size_t _colIdx;
@@ -97,7 +97,7 @@ public:
 
 protected:
   /** pp containing input table */
-  PostprocessorBackend *_table;
+  shared_pointer _table;
 
   /** index of the column that will be checked for */
   size_t _colIdx;

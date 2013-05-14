@@ -51,7 +51,7 @@ namespace cass
 
   protected:
     /** pp containing first histogram */
-    PostprocessorBackend *_one;
+    shared_pointer _one;
 
     /** last N items to be used for median calculation */
     unsigned int _medianSize;

@@ -59,7 +59,7 @@ protected:
   virtual void histogramsChanged(const HistogramBackend*);
 
   /** pp containing 2d histogram */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 
   /** the size of the box used for the median filter */
   std::pair<size_t,size_t> _boxSize;
@@ -108,7 +108,7 @@ public:
 
 protected:
   /** postprocessor containing the image to find the bragg peaks in */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 
   /** definition of the table */
   typedef HistogramFloatBase::storage_t table_t;
@@ -231,10 +231,10 @@ protected:
   virtual void histogramsChanged(const HistogramBackend*);
 
   /** pp containing 2d histogram */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 
   /** pp containing the results */
-  PostprocessorBackend *_table;
+  shared_pointer _table;
 
   /** draw flags as bitmask */
   HistogramFloatBase::storage_t::value_type _drawVal;
@@ -283,10 +283,10 @@ public:
 
 protected:
   /** postprocessor containing the image to find the bragg peaks in */
-  PostprocessorBackend *_imagePP;
+  shared_pointer _imagePP;
 
   /** postprocessor containing the noise image for thresholding */
-  PostprocessorBackend *_noisePP;
+  shared_pointer _noisePP;
 
   /** definition of the table */
   typedef HistogramFloatBase::storage_t table_t;
@@ -344,7 +344,7 @@ public:
 
 protected:
   /** pp containing the results */
-  PostprocessorBackend *_table;
+  shared_pointer _table;
 
   /** the index in the table that indicates the pixels row */
   size_t _pixColIdx;

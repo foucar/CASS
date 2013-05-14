@@ -690,7 +690,7 @@ public:
 
 protected:
   /** pp containing 2d histogram to work on */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 
   /** threshold for quadrant A */
   float _thresholdA;

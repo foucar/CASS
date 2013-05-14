@@ -1095,7 +1095,7 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
     _ppList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
                                 pp));
@@ -1106,7 +1106,7 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    PostprocessorBackend *pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
     _ppSummaryList.push_back(make_pair(s.value("GroupName","/").toString().toStdString(),
                                        pp));
@@ -1137,7 +1137,7 @@ void pp1002::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
   string output("PostProcessor '" + _key + "' will write histogram ");
-  for (list<pair<string,PostprocessorBackend*> >::const_iterator it(_ppList.begin());
+  for (list<pair<string,shared_pointer> >::const_iterator it(_ppList.begin());
        it != _ppList.end(); ++it)
     output += ("'" + it->second->key() + "' to Group '" + it->first + "',");
   output += (" of a hdf5 file with '" + _basefilename +
@@ -1161,7 +1161,7 @@ void pp1002::aboutToQuit()
       throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
     /** iterate through the postprocessor list that should be dumped to h5 */
-    list<pair<string,PostprocessorBackend*> >::iterator it(_ppSummaryList.begin());
+    list<pair<string,shared_pointer> >::iterator it(_ppSummaryList.begin());
     for (;it != _ppSummaryList.end(); ++it)
     {
       /** create the requested group */
@@ -1208,7 +1208,7 @@ void pp1002::process(const CASSEvent &evt)
       throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
 
     /** iterate through the postprocessor list that should be dumped to h5 */
-    list<pair<string,PostprocessorBackend*> >::iterator it(_ppList.begin());
+    list<pair<string,shared_pointer> >::iterator it(_ppList.begin());
     for (;it != _ppList.end(); ++it)
     {
       /** create the requested group */

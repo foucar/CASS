@@ -52,10 +52,10 @@ protected:
   std::string _basefilename;
 
   /** pp containing histogram to dump to cbf */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** pp containing offset histogram to dump to cbf */
-  PostprocessorBackend *_darkHist;
+  shared_pointer _darkHist;
 
 private:
   /** a lock to make the process reentrant */

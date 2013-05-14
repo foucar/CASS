@@ -178,10 +178,10 @@ namespace cass
     std::string _basefilename;
 
     /** container with all pps that contain the histograms to dump to hdf5 */
-    std::list<std::pair<std::string,PostprocessorBackend*> > _ppList;
+    std::list<std::pair<std::string,shared_pointer> > _ppList;
 
     /** container for all pps that should be written when program quits */
-    std::list<std::pair<std::string,PostprocessorBackend*> > _ppSummaryList;
+    std::list<std::pair<std::string,shared_pointer> > _ppSummaryList;
 
 
   private:

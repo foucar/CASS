@@ -537,6 +537,12 @@ public:
   /** retreive pp with key */
   PostprocessorBackend& getPostProcessor(const PostprocessorBackend::name_t &name);
 
+  /** retreive pp with name
+   *
+   * @param name The name of the PostProcessor to retrive
+   */
+  PostprocessorBackend::shared_pointer getPostProcessorSPointer(const PostprocessorBackend::name_t &name);
+
   /** retrieve pp container */
   postprocessors_t& postprocessors() {return _postprocessors;}
 

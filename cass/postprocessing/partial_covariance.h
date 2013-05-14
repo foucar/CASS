@@ -82,7 +82,7 @@ protected:
                    double offset);
 
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** the user requested Tof-axis limits */
   std::pair<float,float> _userTofRange;
@@ -158,10 +158,10 @@ public:
 
 protected:
   /** pp containing histogram to work on */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** pp containing input histogram */
-  PostprocessorBackend *_ave;
+  shared_pointer _ave;
 
   /** function for variance.
    *
@@ -222,7 +222,7 @@ protected:
   float _alpha;
 
   /** pp containing histogram to work on */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 };
 
 
@@ -266,7 +266,7 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** offset of first bin in input in Histogram coordinates */
   size_t _inputOffset;
@@ -329,7 +329,7 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** the user requested Tof-axis limits */
   std::pair<float,float> _userTofRange;
@@ -488,10 +488,10 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** pp containing input OD histogram */
-  PostprocessorBackend *_constHist;
+  shared_pointer _constHist;
 
   /** the user requested Tof-axis limits */
   std::pair<float,float> _userTofRange;
@@ -611,7 +611,7 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** the user requested Tof-axis limits */
   std::pair<float,float> _userTofRange;
@@ -741,10 +741,10 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** pp containing input OD histogram */
-  PostprocessorBackend *_constHist;
+  shared_pointer _constHist;
 
   /** the user requested Tof-axis limits */
   std::pair<float,float> _userTofRange;
@@ -863,10 +863,10 @@ public:
 
 protected:
   /** pp containing histogram to work on */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** pp containing input histogram */
-  PostprocessorBackend *_ave;
+  shared_pointer _ave;
 
   /** calculate the covariance map
    *
@@ -924,16 +924,16 @@ public:
 protected:
 
   /** pp containing input histogram 1D*/
-  PostprocessorBackend *_hist1D;
+  shared_pointer _hist1D;
 
   /** pp containing input histogram 0D*/
-  PostprocessorBackend *_hist0D;
+  shared_pointer _hist0D;
 
   /** pp containing input histogram 1D it should be averaged _hist1D*/
-  PostprocessorBackend *_ave1D;
+  shared_pointer _ave1D;
 
   /** pp containing input histogram 0D it should be averaged _hist0D*/
-  PostprocessorBackend *_ave0D;
+  shared_pointer _ave0D;
 
   /** calculate covariance
    *
@@ -983,7 +983,7 @@ public:
 
 protected:
   /** pp containing input histogram */
-  PostprocessorBackend *_pHist;
+  shared_pointer _pHist;
 
   /** frequency */
   size_t freq;

@@ -59,7 +59,7 @@ protected:
   void setup(const Histogram2DFloat &srcImageHist);
 
   /** pp containing histogram to calculate the autocorrelation for */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 };
 
 
@@ -106,7 +106,7 @@ protected:
   void setup(const Histogram2DFloat &srcImageHist);
 
   /** pp containing histogram to calculate the autocorrelation for */
-  PostprocessorBackend *_hist;
+  shared_pointer _hist;
 
 private:
   /** define a ring that knows its position in the original image and the value

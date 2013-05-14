@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010, 2013 Lutz Foucar
 
 /** @file backend.cpp file contains postprocessors baseclass definition
  *
@@ -27,14 +27,12 @@ using namespace std;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
-PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
-                                           const PostProcessors::key_t &key)
+PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const name_t &key)
   :_key(key),
    _hide(false),
    _write(true),
    _write_summary(true),
    _result(0),
-   _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
 {}
@@ -234,9 +232,11 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
   return _condition;
 }
 
-PostprocessorBackend* PostprocessorBackend::setupDependency(const string &depVarName, const PostProcessors::key_t& depkey)
+PostprocessorBackend::shared_pointer
+PostprocessorBackend::setupDependency(const string &depVarName, const name_t& depkey)
 {
   name_t dependkey(depkey);
+  shared_pointer dependency;
   if (dependkey.empty())
   {
     CASSSettings s;
@@ -259,15 +259,16 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const string &depVar
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
     Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
-             "' It's not. Add it and return 0");
+             "': '" + dependkey +"' is not on depend list, add it ");
     _dependencies.push_back(dependkey);
-    return 0;
   }
-
-  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
-           "' retrieve '" + dependkey + "' from the mananger and return pointer ");
-
-  return (&(_pp.getPostProcessor(dependkey)));
+  else
+  {
+    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+             "' Dependency is on list. Retrieve '"+dependkey +"' from the mananger");
+    dependency = _pp.getPostProcessorSPointer(dependkey);
+  }
+  return dependency;
 }
 
 void PostprocessorBackend::load()
@@ -282,7 +283,7 @@ void PostprocessorBackend::load()
   if (settings.contains("ConditionName"))
     _condition = setupDependency("ConditionName");
   else
-    _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
+    _condition = setupDependency("ConditionName","DefaultTrueHist");
 }
 
 void PostprocessorBackend::process(const CASSEvent& , const HistogramBackend& )

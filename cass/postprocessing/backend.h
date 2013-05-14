@@ -309,7 +309,7 @@ protected:
    * @param[in] name optional name of the key, without getting it from the
    *                 settings file.
    */
-  PostprocessorBackend* setupDependency(const std::string& depVarName, const name_t& name="");
+  shared_pointer setupDependency(const std::string& depVarName, const name_t& name="");
 
 protected:
   /** the postprocessors name */
@@ -339,7 +339,7 @@ protected:
   HistogramBackend* _result;
 
   /** pointer to the postprocessor that will contain the condition */
-  PostprocessorBackend* _condition;
+  shared_pointer _condition;
 
   /** reference to the PostProcessors container */
   PostProcessors &_pp;
