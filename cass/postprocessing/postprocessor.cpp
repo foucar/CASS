@@ -187,7 +187,14 @@ void PostProcessors::loadSettings(size_t)
   /** sort the postprocessors such that the ones with no dependencies are ealier
    *  in the list
    */
-  sort(_postprocessors.begin(),_postprocessors.end(),ppsort);
+//  sort(_postprocessors.begin(),_postprocessors.end(),ppsort);
+  for (size_t i=0; i < _postprocessors.size(); ++i)
+  {
+    for (size_t j=i+1; j < _postprocessors.size(); ++j)
+    {
+      *_postprocessors[i]  < *_postprocessors[j];
+    }
+  }
 
   /** log which pp are generated and their order*/
   output = "PostProcessors::loadSettings(): PostProcessors in the order they are called:";
