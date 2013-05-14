@@ -234,7 +234,7 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
   return _condition;
 }
 
-PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName, const PostProcessors::key_t& depkey)
+PostprocessorBackend* PostprocessorBackend::setupDependency(const string &depVarName, const PostProcessors::key_t& depkey)
 {
   name_t dependkey(depkey);
   if (dependkey.empty())
@@ -242,7 +242,7 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
     CASSSettings s;
     s.beginGroup("PostProcessor");
     s.beginGroup(QString::fromStdString(name()));
-    dependkey = s.value(depVarName,"").toString().toStdString();
+    dependkey = s.value(QString::fromStdString(depVarName),"Unknown").toString().toStdString();
   }
   if (dependkey == _key)
   {
