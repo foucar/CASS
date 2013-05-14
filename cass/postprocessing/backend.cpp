@@ -42,7 +42,7 @@ PostprocessorBackend::~PostprocessorBackend()
   QWriteLocker lock(&_histLock);
   if (!_histList.empty())
   {
-    histogramList_t::iterator it (_histList.begin());
+    cachedResults_t::iterator it (_histList.begin());
     HistogramBackend * old = it->second;
     delete it->second;
     ++it;
@@ -55,12 +55,13 @@ PostprocessorBackend::~PostprocessorBackend()
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
+  typedef CASSEvent::id_t id_type;
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
-  histogramList_t::iterator it(
+  cachedResults_t::iterator it(
         find_if(_histList.begin(), _histList.end(),
-                bind<bool>(equal_to<uint64_t>(),evt.id(),
-                           bind<uint64_t>(&histogramList_t::value_type::first,_1))));
+                bind<bool>(equal_to<id_type>(),evt.id(),
+                           bind<id_type>(&cachedResult_t::first,_1))));
 
   if(_histList.end() == it)
   {
@@ -75,7 +76,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     if (_condition && !(*_condition)(evt).isTrue())
     {
       _histList.pop_back();
-      histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
+      cachedResult_t newPair(make_pair(evt.id(),_result));
       it = _histList.begin();
       ++it;
       it =_histList.insert(it,newPair);
@@ -84,7 +85,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     {
       process(evt);
       _histList.pop_back();
-      histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
+      cachedResult_t newPair(std::make_pair(evt.id(),_result));
       _histList.push_front(newPair);
       it = _histList.begin();
     }
@@ -94,14 +95,15 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 
 void PostprocessorBackend::processEvent(const CASSEvent& evt)
 {
+  typedef CASSEvent::id_t id_type;
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
   assert(find_if(_histList.begin(), _histList.end(),
-                 bind(equal_to<CASSEvent::id_t>(),evt.id(),
-                      bind<CASSEvent::id_t>(&histogramList_t::value_type::first,_1)))
+                 bind(equal_to<id_type>(),evt.id(),
+                      bind<id_type>(&cachedResult_t::first,_1)))
          == _histList.end());
 
-  histogramList_t::value_type newPair(make_pair(evt.id(),_histList.back().second));
+  cachedResult_t newPair(make_pair(evt.id(),_histList.back().second));
 
   if (_condition->getHist(evt.id()).isTrue())
   {
@@ -114,7 +116,7 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
   else
   {
     _histList.pop_back();
-    histogramList_t::iterator it(_histList.begin());
+    cachedResults_t::iterator it(_histList.begin());
     ++it;
     it =_histList.insert(it,newPair);
   }
@@ -128,10 +130,10 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
     return *(_histList.front().second);
   else
   {
-    histogramList_t::const_iterator it
+    cachedResults_t::const_iterator it
         (find_if(_histList.begin(), _histList.end(),
                  bind(equal_to<id_type>(),eventid,
-                      bind<id_type>(&histogramList_t::value_type::first,_1))));
+                      bind<id_type>(&cachedResult_t::first,_1))));
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     return *(it->second);
@@ -140,6 +142,8 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 
 HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_t eventid)
 {
+  typedef CASSEvent::id_t id_type;
+
   QWriteLocker lock(&_histLock);
   if (0 == eventid)
   {
@@ -148,10 +152,10 @@ HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_
   }
   else
   {
-    histogramList_t::const_iterator it
+    cachedResults_t::const_iterator it
         (find_if(_histList.begin(), _histList.end(),
-                 bind<bool>(equal_to<uint64_t>(),eventid,
-                            bind<uint64_t>(&histogramList_t::value_type::first,_1))));
+                 bind(equal_to<id_type>(),eventid,
+                      bind<id_type>(&cachedResult_t::first,_1))));
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     QReadLocker(&it->second->lock);
@@ -162,7 +166,7 @@ HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_
 void PostprocessorBackend::clearHistograms()
 {
   QWriteLocker lock(&_histLock);
-  histogramList_t::iterator it (_histList.begin());
+  cachedResults_t::iterator it (_histList.begin());
   for (;it != _histList.end();++it)
     it->second->clear();
   histogramsChanged(0); // notify derived classes.
@@ -183,7 +187,7 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   }
   else
   {
-    histogramList_t::iterator it(_histList.begin());
+    cachedResults_t::iterator it(_histList.begin());
     for (;it != _histList.end();++it)
       delete it->second;
   }
@@ -196,7 +200,7 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
       _histList.push_back(make_pair(0,_result->clone()));
   }
   _histList.push_back(make_pair(0, _result));
-  histogramList_t::iterator it(_histList.begin());
+  cachedResults_t::iterator it(_histList.begin());
   for (;it != _histList.end();++it)
     it->second->key() = name();
 }

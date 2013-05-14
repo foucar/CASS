@@ -76,7 +76,7 @@ void pp110::process(const CASSEvent &evt)
   _result->lock.lockForWrite();
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    for (histogramList_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
+    for (cachedResults_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
     {
       dynamic_cast<Histogram1DFloat*>(it->second)->resize(waveform.size(),
                                                           0,

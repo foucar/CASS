@@ -82,7 +82,7 @@ void cass::pp100::process(const cass::CASSEvent& evt)
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det.columns() ||
       _result->axis()[HistogramBackend::yAxis].nbrBins() != det.rows())
   {
-    for (histogramList_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
+    for (cachedResults_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
     {
       dynamic_cast<Histogram2DFloat*>(it->second)->resize(det.columns(),0,det.columns()-1,
                                                           det.rows(),0,det.rows()-1);

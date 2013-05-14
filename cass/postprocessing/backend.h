@@ -50,13 +50,16 @@ public:
   /** define the list of names */
   typedef std::list<name_t> names_t;
 
-  /** define the list of cached results
+  /** define a cached results
    *
    * @todo make the histogram list a list of shared pointers to the hbacks
    *        which means that one has to change all pps, since they new the
    *        _result pointer
    */
-  typedef std::list<std::pair<CASSEvent::id_t, HistogramBackend*> > histogramList_t;
+  typedef std::pair<CASSEvent::id_t, HistogramBackend*> cachedResult_t;
+
+  /** define the list of cached results */
+  typedef std::list<cachedResult_t> cachedResults_t;
 
   /** constructor
    *
@@ -331,7 +334,7 @@ protected:
   std::string _comment;
 
   /** the list of histograms - event ids */
-  histogramList_t _histList;
+  cachedResults_t _histList;
 
   /** the list of dependencies */
   names_t _dependencies;
