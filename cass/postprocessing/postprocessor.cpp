@@ -140,6 +140,11 @@ void PostProcessors::aboutToQuit()
     (*iter++)->aboutToQuit();
 }
 
+bool ppsort(PostprocessorBackend::shared_pointer first, PostprocessorBackend::shared_pointer second)
+{
+  return (*first) < (*second);
+}
+
 void PostProcessors::loadSettings(size_t)
 {
   /** remove all postprocessors */
@@ -182,7 +187,7 @@ void PostProcessors::loadSettings(size_t)
   /** sort the postprocessors such that the ones with no dependencies are ealier
    *  in the list
    */
-  sort(_postprocessors.begin(),_postprocessors.end());
+  sort(_postprocessors.begin(),_postprocessors.end(),ppsort);
 
   /** log which pp are generated and their order*/
   output = "PostProcessors::loadSettings(): PostProcessors in the order they are called:";
