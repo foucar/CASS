@@ -17,6 +17,16 @@
 namespace cass
 {
 
+/** @macro for easier adding of the registrar class */
+#define REGISTER(basename,derivedname) \
+  private: \
+    static const Registrar<basename,derivedname> reg;
+
+/** @macro for easier defining the registrar class */
+#define DEFINEREGISTER(basename,derivedname,key) \
+const Registrar<basename,derivedname> derivedname::reg("key");
+
+
 /** function to create an instance of a class
  *
  * creates an instance of Dervied using new and returns a shared_ptr object that
