@@ -125,6 +125,10 @@ void PostProcessors::operator()(const CASSEvent& event)
    *       - remove all pp that made it on the removelist
    *       - this needs to be done in a locked way since more than one thread
    *         do this
+   *
+   * @note one should not use for_each macro here, because the postprocressors
+   *       rely on beeing processed sequantially in the right order. Using
+   *       for_each could result in parallel execution via omp.
    */
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
