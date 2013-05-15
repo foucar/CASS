@@ -249,7 +249,7 @@ PostprocessorBackend::setupDependency(const string &depVarName, const name_t& de
     s.beginGroup(QString::fromStdString(name()));
     dependkey = s.value(QString::fromStdString(depVarName),"Unknown").toString().toStdString();
   }
-  if (dependkey == _key)
+  if (QString::fromStdString(dependkey).toUpper() == QString::fromStdString(_key).toUpper())
   {
     throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" + name() +
                            "' looks for a dependency '" + dependkey +
