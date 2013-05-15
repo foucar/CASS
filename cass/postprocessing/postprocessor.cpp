@@ -138,6 +138,10 @@ void PostProcessors::operator()(const CASSEvent& event)
 
 void PostProcessors::aboutToQuit()
 {
+ /** @note one should not use for_each macro here, because the postprocressors
+  *        rely on beeing processed sequantially in the right order. Using
+  *        for_each could result in parallel execution via omp.
+  */
   postprocessors_t::iterator iter = _postprocessors.begin();
   postprocessors_t::iterator end = _postprocessors.end();
   while( iter != end )
@@ -292,13 +296,12 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   if (key == "DefaultFalseHist")
     return PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
 
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(key));
-  id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
-  VERBOSEOUT(cout << "PostProcessor::create(): Creating PP '" << key
-                  << "' with ID=" << ppid
-                  << endl);
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(key));
+  id_t ppid (static_cast<PostProcessors::id_t>(s.value("ID",0).toUInt()));
+  Log::add(Log::DEBUG0,"PostProcessor::create(): Creating PP '" + key +
+           "' with ID=" + toString(ppid));
   PostprocessorBackend::shared_pointer processor;
   switch(ppid)
   {
@@ -842,13 +845,3 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   return processor;
 }
 
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
