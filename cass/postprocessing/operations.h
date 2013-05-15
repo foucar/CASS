@@ -125,6 +125,14 @@ namespace cass
       return *_result;
     }
 
+    /** overwrite default behaviour and just return the constant */
+    virtual const HistogramBackend& getHist(const CASSEvent::id_t)
+    {
+      return *_histList.front().second;
+    }
+
+    /** overwrite default behaviour */
+    void processEvent(const CASSEvent&){}
 
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
