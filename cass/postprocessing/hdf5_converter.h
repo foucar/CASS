@@ -12,7 +12,6 @@
 #include <string>
 #include <list>
 #include <hdf5.h>
-#include <tr1/tuple>
 
 #include "postprocessing/backend.h"
 
@@ -141,6 +140,10 @@ protected:
  * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
  * crew is using to be able to read and process the hdf5 with crystfel
  *
+ * @cassttng PostProcessor/\%name\%/compress \n
+ *           Default true
+ * @cassttng PostProcessor/\%name\%/FileBaseName \n
+ *           Default name given by program parameter
  * @cassttng PostProcessor/\%name\%/PostProcessor/size \n
  *           How many PostProcessors should be written to the h5 file.
  * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
@@ -166,11 +169,38 @@ protected:
 class pp1002 : public PostprocessorBackend
 {
 public:
-  /** define a name, groupname, postprocessor tuple */
-  typedef std::tr1::tuple<std::string,std::string,shared_pointer,uint32_t> entry_t;
+  /** struct bundleing info for writing an entry to file
+   *
+   * @author Lutz Foucar
+   */
+  struct entry_t
+  {
+    /** constructor
+     *
+     * @param _name the name of the value in the file
+     * @param _groupname the group where the data will be written to
+     * @param _options the options for writing
+     * @param _pp the postprocessor holding the data to be written
+     */
+    entry_t(const std::string &_name,
+            const std::string &_groupname,
+            const uint32_t _options,
+            shared_pointer _pp)
+      : name(_name), groupname(_groupname), options(_options),pp(_pp)
+    {}
 
-  /** enum to make tuple entries more readable */
-  enum entry_names {name=0,group,pp,options};
+    /** name of the value in the file */
+    std::string name;
+
+    /** group where the data will be written to */
+    std::string groupname;
+
+    /** options for writing */
+    uint32_t options;
+
+    /** postprocessor holding the data to be written */
+    shared_pointer pp;
+  };
 
   /** constructor
    *
@@ -199,13 +229,9 @@ protected:
   /** container for all pps that should be written when program quits */
   std::list<entry_t> _ppSummaryList;
 
-
 private:
   /** a lock to make the process reentrant */
   QMutex _lock;
-
-  /** compress flag */
-  bool _compress;
 };
 }//end namespace cass
 #endif

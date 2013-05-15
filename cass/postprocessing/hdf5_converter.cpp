@@ -23,9 +23,6 @@
 
 using namespace cass;
 using namespace std;
-using tr1::make_tuple;
-using tr1::get;
-using tr1::tuple_element;
 
 namespace cass
 {
@@ -912,10 +909,10 @@ public:
   void operator()(const pp1002::entry_t& entry)
   {
     typedef pp1002::entry_t entry_t;
-    const tuple_element<pp1002::options, entry_t>::type &options(get<pp1002::options>(entry));
-    const tuple_element<pp1002::group, entry_t>::type &gname(get<pp1002::group>(entry));
-    const tuple_element<pp1002::name, entry_t>::type &name(get<pp1002::name>(entry));
-    PostprocessorBackend &pp(*(get<pp1002::pp>(entry)));
+    const uint32_t &options(entry.options);
+    const string &gname(entry.groupname);
+    const string &name(entry.name);
+    PostprocessorBackend &pp(*entry.pp);
 
     /** create the requested group and data name*/
     createGroupWithAbsolutePath(gname,_fh);
@@ -1172,8 +1169,8 @@ void pp1002::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(_key));
   setupGeneral();
 
-  _compress = s.value("Compress",true).toBool();
-  if (_compress)
+  bool compress = s.value("Compress",true).toBool();
+  if (compress)
   {
     htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
     unsigned int filter_info;
@@ -1181,8 +1178,10 @@ void pp1002::loadSettings(size_t)
     if (!compavailable ||
         !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
         !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
-      _compress = false;
+      compress = false;
   }
+
+  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
 
   bool allDepsAreThere(true);
   int size = s.beginReadArray("PostProcessor");
@@ -1193,7 +1192,7 @@ void pp1002::loadSettings(size_t)
     allDepsAreThere = pp && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
     string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
-    _ppList.push_back(make_tuple(name,groupname,pp,_compress));
+    _ppList.push_back(entry_t(name,groupname,compress,pp));
   }
   s.endArray();
 
@@ -1205,7 +1204,7 @@ void pp1002::loadSettings(size_t)
     allDepsAreThere = pp && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
     string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
-    _ppSummaryList.push_back(make_tuple(name,groupname,pp,_compress));
+    _ppSummaryList.push_back(entry_t(name,groupname,compress,pp));
   }
   s.endArray();
 
@@ -1224,11 +1223,11 @@ void pp1002::loadSettings(size_t)
   string output("PostProcessor '" + _key + "' will write histogram ");
   for (list<entry_t>::const_iterator it(_ppList.begin());
        it != _ppList.end(); ++it)
-    output += ("'" + get<pp>(*it)->name() + "' to Group '" + get<group>(*it) +
-               "' with dataname '" + get<name>(*it) +"',");
+    output += ("'" + it->pp->name() + "' to Group '" + it->groupname +
+               "' with dataname '" + it->name +"',");
   output += (" of a hdf5 file with '" + _basefilename +
-             "' as basename. 2D File will " + (_compress ? "" : "NOT") +
-             " be compressed." + "Condition is '" + _condition->key() + "'");
+             "' as basename. 2D File will " + (compress ? "" : "NOT") +
+             " be compressed." + "Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
@@ -1240,44 +1239,18 @@ void pp1002::aboutToQuit()
   if (!_ppSummaryList.empty())
   {
     /** create filename from base filename and write entries to file */
-    string filename(_basefilename + "_Summary.h5");
-    for_each(_ppSummaryList.begin(),_ppSummaryList.end(),hdf5::WriteEntry(filename));
+    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_Summary.h5"));
 
-//    /** create the hdf5 file with the name and the handles to the specific data storage*/
-//    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-//    if (fh == 0)
-//      throw runtime_error("pp1002::aboutToQuit(): Could not open the hdf5 file '" + filename +"'");
-
-//    /** iterate through the postprocessor list that should be dumped to h5 */
-//    list<pair<string,shared_pointer> >::iterator it(_ppSummaryList.begin());
-//    for (;it != _ppSummaryList.end(); ++it)
-//    {
-//      /** create the requested group */
-//      hdf5::createGroupWithAbsolutePath(it->first,fh);
-//      /** retrieve data from pp and write it to the h5 file */
-//      PostprocessorBackend &pp(*(it->second));
-//      const HistogramBackend &data(pp.getHist(0));
-//      const string dataName(it->first + "/" + pp.key());
-//      switch (data.dimension())
-//      {
-//      case 0:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-//        break;
-//      case 1:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-//        break;
-//      case 2:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-//        break;
-//      default:
-//        throw runtime_error("pp1002::aboutToQuit(): data dimension not known");
-//        break;
-//      }
-//    }
-
-//    /** close file */
-//    H5Fflush(fh,H5F_SCOPE_LOCAL);
-//    H5Fclose(fh);
+    /** write all entries to file using the writer
+     *
+     * @note we can't use for_each here, since we need to ensure that the
+     *       entries are written sequentially and for_each can potentially use
+     *       omp to parallelize the execution.
+     */
+    list<entry_t>::const_iterator it(_ppSummaryList.begin());
+    list<entry_t>::const_iterator last(_ppSummaryList.begin());
+    while(it != last)
+      writeEntry(*it++);
   }
 }
 
@@ -1288,43 +1261,18 @@ void pp1002::process(const CASSEvent &evt)
   /** check if there is something to be written */
   if (!_ppList.empty())
   {
-    /** create filename from base filename + event id */
-    string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
-    for_each(_ppList.begin(),_ppList.end(),hdf5::WriteEntry(filename,evt.id()));
-//    /** create the hdf5 file with the name and the handles to the specific data storage*/
-//    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-//    if (fh == 0)
-//      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+    /** create entry writer with filename using basefilename and event id */
+    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
 
-//    /** iterate through the postprocessor list that should be dumped to h5 */
-//    list<entry_t>::iterator it(_ppList.begin());
-//    for (;it != _ppList.end(); ++it)
-//    {
-//      /** create the requested group */
-//      hdf5::createGroupWithAbsolutePath(it->first,fh);
-//      /** retrieve data from pp and write it to the h5 file */
-//      PostprocessorBackend &pp(*(it->second));
-//      const HistogramBackend &data(pp(evt));
-//      const string dataName(it->first + "/" + pp.key());
-//      switch (data.dimension())
-//      {
-//      case 0:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-//        break;
-//      case 1:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-//        break;
-//      case 2:
-//        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), _compress, fh);
-//        break;
-//      default:
-//        throw runtime_error("pp1002::process: data dimension not known");
-//        break;
-//      }
-//    }
-
-//    /** close file */
-//    H5Fflush(fh,H5F_SCOPE_LOCAL);
-//    H5Fclose(fh);
+    /** write all entries to file using the writer
+     *
+     * @note we can't use for_each here, since we need to ensure that the
+     *       entries are written sequentially and for_each can potentially use
+     *       omp to parallelize the execution.
+     */
+    list<entry_t>::const_iterator it(_ppList.begin());
+    list<entry_t>::const_iterator last(_ppList.begin());
+    while(it != last)
+      writeEntry(*it++);
   }
 }
