@@ -109,7 +109,7 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
   {
     _histList.pop_back();
     _histList.push_front(newPair);
-    const HistogramBackend &result(*(_histList.front().second));
+    HistogramBackend &result(*(_histList.front().second));
     QWriteLocker resultLock(&result.lock);
     listLock.unlock();
     process(evt,result);
@@ -291,10 +291,16 @@ void PostprocessorBackend::load()
     _condition = setupDependency("ConditionName","DefaultTrueHist");
 }
 
-void PostprocessorBackend::process(const CASSEvent& , const HistogramBackend& )
+void PostprocessorBackend::process(const CASSEvent& ev, HistogramBackend& result)
 {
   Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + name() +
-           "' process has not been implemented");
+           "' call the old process function.");
+  /** @note we don't need to unlock the result, as the histogram lock can
+   *        recursily be locked by the same thread
+   */
+  QWriteLocker lock(&_histLock);
+  _result = &result;
+  process(ev);
 }
 
 void PostprocessorBackend::loadSettings(size_t)

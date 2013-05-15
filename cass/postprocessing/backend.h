@@ -232,10 +232,15 @@ protected:
    * calling this function so users can rely on the fact that they can savely
    * use the result without locking it.
    *
+   * The default implementation mimiks the behaviour of the operator(). It
+   * assings the result to the _result member and locks the list to ensure that
+   * noone can process this at the same time and therefore change the pointer to
+   * the _result member.
+   *
    * @param event the cassevent to work on
    * @param result this is where the result will be written to
    */
-  virtual void process(const CASSEvent& event, const HistogramBackend& result);
+  virtual void process(const CASSEvent& event, HistogramBackend& result);
 
   /** process the event
    *
