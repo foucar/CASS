@@ -108,7 +108,7 @@ public:
    *
    * @param event the event to be processed
    */
-  void processEvent(const CASSEvent& event);
+  virtual void processEvent(const CASSEvent& event);
 
   /** retrieve a histogram for a given id.
    *
@@ -127,7 +127,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  const HistogramBackend& getHist(const CASSEvent::id_t eventid);
+  virtual const HistogramBackend& getHist(const CASSEvent::id_t eventid);
 
   /** retrieve histogram for id
    *
