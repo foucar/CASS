@@ -96,7 +96,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 void PostprocessorBackend::processEvent(const CASSEvent& evt)
 {
   typedef CASSEvent::id_t id_type;
-  QWriteLocker lock(&_histLock);
+  QWriteLocker listLock(&_histLock);
   assert(!_histList.empty());
   assert(find_if(_histList.begin(), _histList.end(),
                  bind(equal_to<id_type>(),evt.id(),
@@ -110,7 +110,8 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
     _histList.pop_back();
     _histList.push_front(newPair);
     const HistogramBackend &result(*(_histList.front().second));
-    lock.unlock();
+    QWriteLocker resultLock(&result.lock);
+    listLock.unlock();
     process(evt,result);
   }
   else

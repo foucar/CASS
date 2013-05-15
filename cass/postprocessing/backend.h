@@ -91,6 +91,25 @@ public:
    */
   virtual const HistogramBackend& operator()(const CASSEvent& evt);
 
+  /** process the event
+   *
+   * @note this is the function that should only be called by the PostProcessor
+   *       Manager.
+   * @note only use this function if all dependencies have been processed before.
+   *
+   * It will retrieve the pointer to the last result in the list and call
+   * the process function to process the event, if the condition is true.
+   * The histlist is locked throughout the the operations on the list, but it
+   * will be unlocked after the result has been write lockend and before process
+   * is called.
+   *
+   * If the condition is not true, the pointer to the result will be put to the
+   * second to front position in the list.
+   *
+   * @param event the event to be processed
+   */
+  void processEvent(const CASSEvent& event);
+
   /** retrieve a histogram for a given id.
    *
    * Lock this function with a readlock. When this function returns it will
@@ -208,27 +227,10 @@ public:
 protected:
   /** process the event
    *
-   * @note this is the function that should only be called by the PostProcessor
-   *       Manager.
-   * @note the function relies on the condition dependency havin been processed
-   *       before.
-   *
-   * It will retrieve the pointer to the last result in the list and call
-   * the process function to process the event, if the condition is true.
-   * The histlist is locked throughout the the operations on the list, but it
-   * will be unlocked before process is called.
-   *
-   * If the condition is not true, the pointer to the result will be put to the
-   * second to front position in the list.
-   *
-   * @param event the event to be processed
-   */
-  void processEvent(const CASSEvent& event);
-
-  /** process the event
-   *
    * This will evaluate the event and fill the resulting histogram. It needs
-   * to be implemented in the postprocessors.
+   * to be implemented in the postprocessors. The result should be locked when
+   * calling this function so users can rely on the fact that they can savely
+   * use the result without locking it.
    *
    * @param event the cassevent to work on
    * @param result this is where the result will be written to
