@@ -2696,8 +2696,8 @@ void pp89::loadSettings(size_t)
   _result = _pHist->getHist(0).clone();
   createHistList(2*cass::NbrOfWorkers);
   Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' returns axis parameter'"+ filtertype.toStdString() +
-           "' of histogram in pp '" + _pHist->name() +
+           "' does "+ filtertype.toStdString() +
+           "' operation on histogram in pp '" + _pHist->name() +
            "'. Condition on PostProcessor '" + _condition->name() + "'");
 }
 
