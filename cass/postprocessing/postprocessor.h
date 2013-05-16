@@ -116,6 +116,7 @@ the Class description for information about what parameters are user settable.
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
 00087: find center of mass in given range of 1d histo
+00089: high or low pass filter on 1d histo
 
 00088: retrieve an axis parameter of the histogram
 
@@ -373,6 +374,7 @@ public:
     step=86,
     centerofmass=87,
     axisparameter=88,
+    highlowpassfilter=89,
 
     SingleCcdImage=100,
     SingleCcdImageIntegral=101,

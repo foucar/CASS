@@ -23,6 +23,9 @@
 
 using namespace cass;
 using namespace std;
+using tr1::bind;
+using tr1::placeholders::_1;
+using tr1::placeholders::_2;
 
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
 
@@ -2629,6 +2632,131 @@ void pp88::process(const cass::CASSEvent& evt)
   result.lock.lockForWrite();
 
   result = _func(hist.axis()[_axisId]);
+  result.nbrOfFills()=1;
+
+  result.lock.unlock();
+  hist.lock.unlock();
+}
+
+
+
+
+
+
+
+
+// ***  pp 89 high/low pass filter ***
+
+pp89::pp89(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp89::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+
+  const float RC(1.f/(s.value("Cutoff",100.f).toFloat() * 2 * 3.1415));
+  const float dt(1.f/s.value("SampleRate",100.f).toFloat());
+
+  QString filtertype(s.value("FilterType","LowPass").toString());
+  if (filtertype == "LowPass")
+  {
+    //  float RC = 1.0/(CUTOFF*2*3.14);
+    //  float dt = 1.0/SAMPLE_RATE;
+    //  float alpha = dt/(RC+dt);
+    _alpha = dt/(RC+dt);
+    _func = bind(&pp89::lowPass,this,_1,_2);
+  }
+  else if (filtertype == "HighPass")
+  {
+    //  float RC = 1.0/(CUTOFF*2*3.14);
+    //  float dt = 1.0/SAMPLE_RATE;
+    //  float alpha = RC/(RC + dt);
+    _alpha = RC/(RC+dt);
+    _func = bind(&pp89::highPass,this,_1,_2);
+  }
+  else
+    throw invalid_argument("pp89 '" + name() + "' FilterType '" +
+                           filtertype.toStdString() + "' is unknown.");
+
+  if (_pHist->getHist(0).dimension() != 1)
+    throw invalid_argument("pp89 '" + name() + "' histogram '" + _pHist->key() +
+                           "' is not a 1D histograms");
+
+  _result = _pHist->getHist(0).clone();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' returns axis parameter'"+ filtertype.toStdString() +
+           "' of histogram in pp '" + _pHist->name() +
+           "'. Condition on PostProcessor '" + _condition->name() + "'");
+}
+
+void pp89::highPass(HistogramFloatBase::storage_t::const_iterator &orig,
+                    HistogramFloatBase::storage_t::iterator &filtered)
+{
+//  float RC = 1.0/(CUTOFF*2*3.14);
+//  float dt = 1.0/SAMPLE_RATE;
+//  float alpha = RC/(RC + dt);
+//  float filteredArray[numSamples];
+//  filteredArray[0] = data.recordedSamples[0];
+//  for (i = 1; i<numSamples; i++){
+//    filteredArray[i] = alpha * (filteredArray[i-1] + data.recordedSamples[i] - data.recordedSamples[i-1]);
+//  }
+//  data.recordedSamples = filteredArray;
+
+  *filtered = _alpha * (*(filtered-1) + *orig - *(orig-1));
+
+}
+
+void pp89::lowPass(HistogramFloatBase::storage_t::const_iterator &orig,
+                   HistogramFloatBase::storage_t::iterator &filtered)
+{
+//  float RC = 1.0/(CUTOFF*2*3.14);
+//  float dt = 1.0/SAMPLE_RATE;
+//  float alpha = dt/(RC+dt);
+//  float filteredArray[numSamples];
+//  filteredArray[0] = data.recordedSamples[0];
+//  for(i=1; i<numSamples; i++){
+//    filteredArray[i] = filteredArray[i-1] + (alpha*(data.recordedSamples[i] - filteredArray[i-1]));
+//  }
+//  data.recordedSamples = filteredArray;
+
+  *filtered = *(filtered-1) + (_alpha * (*orig - *(filtered-1)));
+}
+
+void pp89::process(const cass::CASSEvent& evt)
+{
+  const Histogram1DFloat& hist
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  const HistogramFloatBase::storage_t &in(hist.memory());
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(*_result));
+  HistogramFloatBase::storage_t &out(result.memory());
+
+  hist.lock.lockForRead();
+  result.lock.lockForWrite();
+
+  HistogramFloatBase::storage_t::const_iterator inIt(in.begin());
+  HistogramFloatBase::storage_t::const_iterator inEnd(in.end());
+  HistogramFloatBase::storage_t::iterator outIt(out.begin());
+
+  *outIt++ = *inIt++;
+  while (inIt != inEnd)
+  {
+    _func(inIt,outIt);
+    ++inIt;
+    ++outIt;
+  }
   result.nbrOfFills()=1;
 
   result.lock.unlock();

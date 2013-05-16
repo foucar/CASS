@@ -1693,16 +1693,65 @@ namespace cass
 
 
 
-}
+/** low / high pass filter of 1d histogram
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @PPList "88": low / high pass filter of 1d histogram
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           histogram name for which we count fills. Default is 0.
+ * @cassttng PostProcessor/\%name\%/{FilterType} \n
+ *           The filter type to use. LowPass or HighPass
+ * @cassttng PostProcessor/\%name\%/{Cutoff} \n
+ * @cassttng PostProcessor/\%name\%/{SampleRate} \n
+ *
+ * @author Lutz Foucar
+ */
+class pp89 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp89(PostProcessors& hist, const name_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** high pass filtering function
+   *
+   * @param orig iterator to the original value
+   * @param filtered iterator to the filtered value
+   */
+  void highPass(HistogramFloatBase::storage_t::const_iterator &orig,
+                HistogramFloatBase::storage_t::iterator &filtered);
+
+  /** low pass filtering function
+   *
+   * @param orig iterator to the original value
+   * @param filtered iterator to the filtered value
+   */
+  void lowPass(HistogramFloatBase::storage_t::const_iterator &orig,
+               HistogramFloatBase::storage_t::iterator &filtered);
+
+  /** pp containing input histogram */
+  shared_pointer _pHist;
+
+  /** factor used for filtering */
+  float _alpha;
+
+  /** function to retrieve the parameter from the axis */
+  std::tr1::function<void(HistogramFloatBase::storage_t::const_iterator &,
+                          HistogramFloatBase::storage_t::iterator &)> _func;
+};
+
+
+
+}//end namspace cass
 
 #endif
 
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "gnu"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:
