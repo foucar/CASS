@@ -393,6 +393,10 @@ Converter::Converter()
                    DetInfo::CxiSc2, 0,
                    DetInfo::Cspad2x2, 0);
 
+  Key CXISeedSpec(TypeId::Id_Frame,
+                   DetInfo::CxiEndstation, 0,
+                   DetInfo::Opal1000, 1);
+
 
 
 
@@ -412,6 +416,7 @@ Converter::Converter()
   _LCLSToCASSId[CXIBackCsPad] = 8;
 
   _LCLSToCASSId[CXI2x2] = 9;
+  _LCLSToCASSId[CXISeedSpec] = 10;
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
