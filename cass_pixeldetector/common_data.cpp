@@ -33,8 +33,6 @@
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
-using tr1::bind;
-using tr1::placeholders::_1;
 
 namespace cass
 {

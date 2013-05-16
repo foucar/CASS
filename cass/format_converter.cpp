@@ -28,8 +28,6 @@
 
 using namespace std;
 using namespace cass;
-using tr1::bind;
-using tr1::placeholders::_1;
 
 // ===============define static members====================
 FormatConverter::shared_pointer FormatConverter::_instance;
