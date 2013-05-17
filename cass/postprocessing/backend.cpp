@@ -110,7 +110,10 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
     _histList.pop_back();
     _histList.push_front(newPair);
     HistogramBackend &result(*(_histList.front().second));
-    QWriteLocker resultLock(&result.lock);
+    /** @note this command seems to deadlock the program at some undefined point.
+     *        for now, don't use it.
+     */
+//    QWriteLocker resultLock(&result.lock);
     listLock.unlock();
     process(evt,result);
   }
