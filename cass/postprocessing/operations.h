@@ -1490,6 +1490,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
    *           Lower and upper limit of the range that we look for the width at half maximum.
    *           Default is 0|1.
+   * @cassttng PostProcessor/\%name\%/{Fraction} \n
+   *           At which fraction of the height the width should be taken. Default
+   *           is 0.5
    *
    * @author Lutz Foucar
    */
@@ -1520,6 +1523,9 @@ namespace cass
 
     /** the requested x-axis limits in histogram coordinates */
     std::pair<size_t,size_t> _xRange;
+
+    /** the fraction of the range */
+    float _fraction;
   };
 
 

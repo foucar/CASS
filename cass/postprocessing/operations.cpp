@@ -2260,6 +2260,8 @@ void pp85::loadSettings(size_t)
     return;
   _userXRange = make_pair(s.value("XLow",0).toFloat(),
                           s.value("XUp",1).toFloat());
+  _fraction = s.value("Fraction",0.5).toFloat();
+
   setupParameters(_pHist->getHist(0));
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
@@ -2307,7 +2309,7 @@ void pp85::process(const cass::CASSEvent& evt)
       (max_element(xRangeBegin, xRangeEnd));
   HistogramFloatBase::storage_t::const_iterator minElementIt
       (min_element(xRangeBegin, xRangeEnd));
-  const float halfMax((*maxElementIt+*minElementIt) * 0.5 );
+  const float halfMax((*maxElementIt-*minElementIt) * _fraction + *minElementIt);
   HistogramFloatBase::storage_t::const_iterator leftSide;
   HistogramFloatBase::storage_t::const_iterator rightSide;
   for(HistogramFloatBase::storage_t::const_iterator iVal(maxElementIt);
