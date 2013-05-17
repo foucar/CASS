@@ -93,7 +93,8 @@ void pp105::process(const cass::CASSEvent& evt)
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
 
-  result.lock.lockForWrite();
+//  result.lock.lockForWrite();
+  QWriteLocker resultLock(&result.lock);
   if (result.shape() != det->frame().shape())
   {
     throw invalid_argument("Postprocessor '" + _key +
@@ -104,7 +105,7 @@ void pp105::process(const cass::CASSEvent& evt)
   }
   copy(frame.begin(), frame.end(),result.memory().begin());
   result.nbrOfFills() = 1;
-  result.lock.unlock();
+//  result.lock.unlock();
 }
 
 
