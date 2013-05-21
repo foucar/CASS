@@ -996,7 +996,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     const stat_t::value_type mean(stat.mean());
     const stat_t::value_type stdv(stat.stdv());
 
-    /** get coordinates of pixel from the linearized index */
+    /** get coordinates of pixel in image from the linearized index */
     const index_t col(idx % shape.first);
     const index_t row(idx / shape.first);
 
@@ -1011,14 +1011,14 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
      */
     const index_t neigboursOffsets[] =
     {
-      shape.first-1,
-      shape.first,
-      shape.first+1,
-      -1,
-      1,
-      -shape.first-1,
-      -shape.first,
-      -shape.first+1,
+      +shape.first-1,     //up left
+      +shape.first,       //up
+      +shape.first+1,     //up right
+      -1,                 //left
+       1,                 //right
+      -shape.first-1,     //low left
+      -shape.first,       //low
+      -shape.first+1,     //low right
     };
     vector<index_t> peakIdxs;
     peakIdxs.push_back(idx);
@@ -1046,6 +1046,10 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
         }
       }
     }
+
+    /** if the peak doesn't have enough pixels continue with next pixel */
+    if (peakIdxs.size() < _minNbrPixels)
+      continue;
 
     /** go through all pixels in the box, find out which pixels are part of the
      *  peak and centroid them. Mask all pixels in the box as checked so one
@@ -1079,10 +1083,6 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
         checkedPixel[bLocIdx] = true;
       }
     }
-
-    /** if the peak doesn't have enough pixels continue with next pixel */
-    if (nPix < _minNbrPixels)
-      continue;
 
     /** set the peak's properties and add peak to the list of found peaks */
     peak[centroidColumn] = weightCol / integral;
