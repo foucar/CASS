@@ -823,16 +823,36 @@ void pp208::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
 
-  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
-  const int goodBoxSize(sqrt(3.1415) * peakRadius);
-  _box = make_pair(s.value("BoxSizeX", goodBoxSize).toInt(),
-                   s.value("BoxSizeY",goodBoxSize).toInt());
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
   _threshold = s.value("Threshold",0).toFloat();
   _minSnr = s.value("MinSignalToNoiseRatio",4).toFloat();
   _minRatio = s.value("MinRatio",3).toFloat();
-  _minNbrPixels = s.value("MinNbrPixels",4*peakRadius*peakRadius).toInt();
+
+  const int peakDiameter(s.value("BraggPeakDiameter",2).toInt());
+  /** area of box should at least be ratio times area of peak.
+   * \f{eqnarray*}{
+   * ratio * size^2 &=& \pi r^2 \\
+   * size^2 &=& \frac{\pi r^2} {ratio} \\
+   * size &=& \sqrt{\frac{\pi r^2}{ratio}}
+   * \f}
+   *  If size goes from  -s ... s then size is 2*s+1
+   * \f{eqnarray*}{
+   * 2s + 1 &=& \sqrt({\frac{\pi r^2}{ratio} \\
+   *  s &=& 0.5\sqrt{\frac{\pi r^2}{ratio} - 0.5 \\
+   *    &=& 0.5\sqrt(\frac{\pi}{ratio})\sqrt((\frac{d}{2})^2) - 0.5 \\
+   *    &=& 0.5 \times 0.5 \times d \sqrt(\frac{\pi}{ratio}) - 0.5 \\
+   *    &=& 0.25d\sqrt(\frac{\pi}{ratio})
+   * \f}
+   */
+  const int bsize(0.25 * peakDiameter * sqrt(3.14159 / _minRatio));
+  _box = make_pair(s.value("BoxSizeX", bsize).toInt(),
+                   s.value("BoxSizeY",bsize).toInt());
+
+  /** min nbr of pixels should reflect the area under the bragg peak
+   *  \f$ nbrPeaks = 0.25 \times \pi d \f$
+   */
+  _minNbrPixels = s.value("MinNbrPixels",0.25*3.14159*square(peakDiameter)).toInt();
 
   setupGeneral();
 
@@ -1048,7 +1068,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     }
 
     /** if the peak doesn't have enough pixels continue with next pixel */
-    if (peakIdxs.size() < _minNbrPixels)
+    if (static_cast<int>(peakIdxs.size()) < _minNbrPixels)
       continue;
 
     /** go through all pixels in the box, find out which pixels are part of the

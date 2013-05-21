@@ -383,9 +383,9 @@ protected:
  *           is "blubb".
  * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
- * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
- *           Minimum Radius of a Bragg Peak. Used for determining the optimal
- *           box size and nbr of pixels in the Bragg Peak.
+ * @cassttng PostProcessor/\%name\%/{BraggPeakDiameter} \n
+ *           Minimum Diameter of a Bragg Peak. Used for determining the optimal
+ *           box size and nbr of pixels in the Bragg Peak. Default is 2.
  * @cassttng PostProcessor/\%name\%/{MinRatio} \n
  *           The minimum ratio of pixel that are outliers of the distribution
  *           in the box to the pixels that are part of the distribution in the
@@ -403,7 +403,8 @@ protected:
  *           \f$ nbr = (2 \times BraggPeakRadius)^2 \f$
  * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           col (x) and rows (y) of the box that is used for determining the
- *           background. Default is determined by the BraggPeakRadius.
+ *           background. The box is going from -BoxSizeX ... BoxSizeX in x and
+ *           same in y. Default is determined by the BraggPeakRadius.
  *           \f$ size = sqrt{\pi} \times BraggPeakRadius \f$
  *
  * @author Lutz Foucar
