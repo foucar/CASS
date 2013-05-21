@@ -306,6 +306,12 @@ void PostprocessorBackend::process(const CASSEvent& ev, HistogramBackend& result
   process(ev);
 }
 
+void PostprocessorBackend::process(const CASSEvent&)
+{
+  Log::add(Log::DEBUG4,"PostprocessorBackend::process(): '" + name() +
+           "' not implemented");
+}
+
 void PostprocessorBackend::loadSettings(size_t)
 {
   Log::add(Log::DEBUG4,"PostprocessorBackend::loadSettings(): '" + name() +

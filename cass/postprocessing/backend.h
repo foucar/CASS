@@ -249,7 +249,7 @@ protected:
    *
    * @param event the cassevent to work on
    */
-  virtual void process(const CASSEvent& event) = 0;
+  virtual void process(const CASSEvent& event);
 
   /** create histogram list.
    *
