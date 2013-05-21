@@ -832,20 +832,24 @@ void pp208::loadSettings(size_t)
   const int peakDiameter(s.value("BraggPeakDiameter",2).toInt());
   /** area of box should at least be ratio times area of peak.
    * \f{eqnarray*}{
-   * ratio * size^2 &=& \pi r^2 \\
-   * size^2 &=& \frac{\pi r^2} {ratio} \\
-   * size &=& \sqrt{\frac{\pi r^2}{ratio}}
+   * size^2 &=& ratio \times \pi r^2 \\
+   * size &=& \sqrt{\pi r^2 \times ratio}
    * \f}
    *  If size goes from  -s ... s then size is 2*s+1
    * \f{eqnarray*}{
-   * 2s + 1 &=& \sqrt({\frac{\pi r^2}{ratio} \\
-   *  s &=& 0.5\sqrt{\frac{\pi r^2}{ratio} - 0.5 \\
-   *    &=& 0.5\sqrt(\frac{\pi}{ratio})\sqrt((\frac{d}{2})^2) - 0.5 \\
-   *    &=& 0.5 \times 0.5 \times d \sqrt(\frac{\pi}{ratio}) - 0.5 \\
-   *    &=& 0.25d\sqrt(\frac{\pi}{ratio})
+   * 2s + 1 &=& \sqrt{\pi r^2 \times ratio} \\
+   *      s &=& 0.5\sqrt{\pi r^2 \times ratio} - 0.5 \\
+   *        &=& 0.5\sqrt(\pi \times ratio}\sqrt((\frac{d}{2})^2) - 0.5 \\
+   *        &=& 0.5 \times 0.5 \times d \sqrt(\pi \times ratio} - 0.5 \\
+   *        &=& 0.25d\sqrt{\pi \times ratio} - 0.5
+   * \f}
+   * convert to integer
+   * \f{eqnarray*}{
+   * (int)s &=& 0.25d\sqrt{\pi \times ratio} - 0.5 + 0.5 \\
+   *        &=& 0.25d\sqrt{\pi \times ratio}
    * \f}
    */
-  const int bsize(0.25 * peakDiameter * sqrt(3.14159 / _minRatio));
+  const int bsize(0.25 * peakDiameter * sqrt(3.14159 * _minRatio));
   _box = make_pair(s.value("BoxSizeX", bsize).toInt(),
                    s.value("BoxSizeY",bsize).toInt());
 
