@@ -16,7 +16,6 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
-#include "statistics_calculator.hpp"
 
 using namespace std;
 using namespace cass;
@@ -801,6 +800,312 @@ void pp207::process(const CASSEvent& evt)
   table.lock.unlock();
   result.lock.unlock();
 }
+
+
+
+
+
+
+
+// ********** Postprocessor 204: find bragg peaks ************
+
+pp208::pp208(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+
+}
+
+void pp208::loadSettings(size_t)
+{
+  CASSSettings s;
+
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+
+  const int peakRadius(s.value("BraggPeakRadius",2).toInt());
+  const int goodBoxSize(sqrt(3.1415) * peakRadius);
+  _box = make_pair(s.value("BoxSizeX", goodBoxSize).toInt(),
+                   s.value("BoxSizeY",goodBoxSize).toInt());
+  _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
+                       s.value("SectionSizeY",512).toUInt());
+  _threshold = s.value("Threshold",0).toFloat();
+  _minSnr = s.value("MinSignalToNoiseRatio",4).toFloat();
+  _minRatio = s.value("MinRatio",3).toFloat();
+  _minNbrPixels = s.value("MinNbrPixels",4*peakRadius*peakRadius).toInt();
+
+  setupGeneral();
+
+  _imagePP = setupDependency("HistName");
+
+  bool ret (setupCondition());
+  if (!(_imagePP && ret))
+    return;
+
+  /** Create the result output */
+  _result = new Histogram2DFloat(nbrOf);
+  createHistList(2*cass::NbrOfWorkers);
+
+  /** log what the user was requesting */
+  string output("PostProcessor '" + _key + "' finds bragg peaks." +
+                "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
+                "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
+                "'. Threshold '" + toString(_threshold) +
+                "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
+                "'. MinPixels '" + toString(_minNbrPixels) +
+                "'. MinFraction '" + toString(_minRatio) +
+                "'. Using input histogram :" + _imagePP->name() +
+                "'. Condition is '" + _condition->name() + "'");
+  Log::add(Log::INFO,output);
+}
+
+
+int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+                            const index_t ncols, const shape_t &box, stat_t stat)
+{
+  /** go through all pixels defined by the box form -rows ... rows, -cols ... cols */
+  enum{good,skip};
+  for (shape_t::second_type bRow = -box.second; bRow <= box.second; ++bRow)
+  {
+    for (shape_t::first_type bCol = -box.first; bCol <= box.first; ++bCol)
+    {
+      /** check if the current box pixel value is bigger than the center pixel
+       *  value. If so skip this pixel
+       */
+      const index_t bLocIdx(bRow*ncols+bCol);
+      const pixelval_t bPixel(pixel[bLocIdx]);
+      if(*pixel < bPixel )
+        return skip;
+
+      /** if its not a bad pixel add pixel to statistics */
+      if (!qFuzzyIsNull(bPixel))
+        stat.addDatum(bPixel);
+    }
+  }
+  return good;
+}
+
+int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
+                        const index_t linIdx, const shape_t &shape,
+                        shape_t box, stat_t &stat)
+{
+  enum{isHighest,skip};
+
+  /** get coordinates of pixel from the linearized index */
+  const index_t col(linIdx % shape.first);
+  const index_t row(linIdx / shape.first);
+
+  bool boxsizeincreased(false);
+  do
+  {
+    /** make sure that pixel is located such that the box will not conflict with
+     *  the image and section boundaries. If it does continue with next pixel
+     */
+    if (col < box.first  || shape.first - box.first  < col || //within box in x
+        row < box.second || shape.second - box.second < row || //within box in y
+        (col - box.first)  / _section.first  != (col + box.first)  / _section.first || //x within same section
+        (row - box.second) / _section.second != (row + box.second) / _section.second)  //y within same section
+      return skip;
+
+    /** check whether current pixel value is highest and generate background values */
+    stat.reset();
+    if (getBoxStatistics(pixel,shape.first,box,stat))
+      return skip;
+
+    /** skip this pixel if there are not enough pixels that could potentially be
+     *  part of the bragg peak.
+     */
+    if (stat.nbrUpperOutliers() < _minNbrPixels)
+      return skip;
+
+    /** increase the box size and start over if the fraction of outliers to
+     *  points used in the statistics is smaller than requested.
+     */
+    if (stat.nbrPointsUsed() < _minRatio * stat.nbrOutliers())
+    {
+      ++(box.first);
+      ++(box.second);
+      boxsizeincreased = true;
+    }
+  }
+  while(boxsizeincreased);
+
+  return isHighest;
+}
+
+
+void pp208::process(const CASSEvent & evt, HistogramBackend &r)
+{
+  /** retrive references to work with from incomming image and output table */
+  const Histogram2DFloat &hist
+      (dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(evt.id())));
+  const HistogramFloatBase::storage_t &image(hist.memory());
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
+
+  /** lock the resources */
+  QWriteLocker rLock(&result.lock);
+  QReadLocker hLock(&hist.lock);
+
+  /** clear the resulting table to fill it with the values of this image */
+  result.clearTable();
+
+  /** get nbr of cols and rows from incomming image */
+  const shape_t shape(hist.shape());
+
+  /** get a table row that we can later add to the table */
+  table_t peak(nbrOf,0);
+
+  /** set up a mask that we can see which pixels have been treated */
+  vector<bool> checkedPixels(image.size(),false);
+
+  /** get iterators for the mask and the image with which we can iterate through
+   *  the image, also rember which linearized index we are working on right
+   *  now, to be able to retrieve the column and row that the current pixel
+   *  corresponsed to.
+   */
+  vector<bool>::iterator checkedPixel(checkedPixels.begin());
+  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
+  HistogramFloatBase::storage_t::const_iterator ImageEnd(image.end());
+  index_t idx(0);
+  for (;pixel != ImageEnd; ++pixel,++idx, ++checkedPixel)
+  {
+    /** check if pixel should be treated, when it has been treated before
+     *  continue with the next pixel
+     */
+    if (*checkedPixel)
+      continue;
+
+    /** check if pixel is above the threshold, otherwise continue with the next
+     *  pixel
+     */
+    if (*pixel < _threshold)
+      continue;
+
+    /** check if pixel is highest within box. If so, check if there are enough
+     *  pixels that are not outliers. If there are not enough pixels in the box
+     *  increase the box size and do the checks all over again. If the pixel is
+     *  not highest within the bigger box continue with the next pixel.
+     */
+    pair<int,int> box(_box);
+    stat_t stat(_minSnr);
+    if (isNotHighest(pixel, idx, shape, box, stat))
+      continue;
+
+    /** retrive statistical values from the calculator */
+    const stat_t::value_type mean(stat.mean());
+    const stat_t::value_type stdv(stat.stdv());
+
+    /** get coordinates of pixel from the linearized index */
+    const index_t col(idx % shape.first);
+    const index_t row(idx / shape.first);
+
+    /** from the central pixel look around and see which pixels are direct
+     *  part of the peak. If a neighbour is found, mask it such that one does
+     *  not use it twice.
+     *
+     *  Create a list that should contain the indizes of the pixels that are
+     *  part of the peak. Go through that list and check for each found
+     *  neighbour whether it also has a neighbour. If so add it to the list, but
+     *  only if it is part of the box.
+     */
+    const index_t neigboursOffsets[] =
+    {
+      shape.first-1,
+      shape.first,
+      shape.first+1,
+      -1,
+      1,
+      -shape.first-1,
+      -shape.first,
+      -shape.first+1,
+    };
+    vector<index_t> peakIdxs;
+    peakIdxs.push_back(idx);
+    *checkedPixel = true;
+    for (size_t pix=0; pix < peakIdxs.size(); ++pix)
+    {
+      const index_t pixpos(peakIdxs[pix]);
+      const index_t * ngbrOffset(neigboursOffsets);
+      const index_t * neighboursEnd(neigboursOffsets + sizeof(neigboursOffsets)/sizeof(index_t));
+      while(ngbrOffset != neighboursEnd)
+      {
+        const size_t ngbrIdx(pixpos + *ngbrOffset++);
+        const index_t ngbrCol(ngbrIdx % shape.first);
+        const index_t ngbrRow(ngbrIdx / shape.first);
+        if (checkedPixels[ngbrIdx] ||
+            box.first < abs(col - ngbrCol) ||   //pixel not inside box col
+            box.second < abs(row - ngbrRow))    //pixel not inside box row
+          continue;
+        const pixelval_t ngbrPixel(image[ngbrIdx]);
+        const pixelval_t ngbrPixelWOBckgnd(ngbrPixel - mean);
+        if ((_minSnr * stdv) < ngbrPixelWOBckgnd)
+        {
+          peakIdxs.push_back(ngbrIdx);
+          checkedPixels[ngbrIdx] = true;
+        }
+      }
+    }
+
+    /** go through all pixels in the box, find out which pixels are part of the
+     *  peak and centroid them. Mask all pixels in the box as checked so one
+     *  does not check them again
+     */
+    pixelval_t integral = 0;
+    pixelval_t weightCol = 0;
+    pixelval_t weightRow = 0;
+    index_t nPix = 0;
+    index_t max_radiussq=0;
+    index_t min_radiussq=max(box.first,box.second)*max(box.first,box.second);
+    for (int bRow = -box.second; bRow <= box.second; ++bRow)
+    {
+      for (int bCol = -box.first; bCol <= box.first; ++bCol)
+      {
+        const index_t bLocIdx(bRow*shape.first+bCol);
+        const pixelval_t bPixel(pixel[bLocIdx]);
+        const pixelval_t bPixelWOBckgnd(bPixel - mean);
+        if (checkedPixel[bLocIdx])
+        {
+          const index_t radiussq(bRow*bRow + bCol*bCol);
+          if (radiussq > max_radiussq)
+            max_radiussq = radiussq;
+          if (radiussq < min_radiussq)
+            min_radiussq = radiussq;
+          integral += bPixelWOBckgnd;
+          weightCol += (bPixelWOBckgnd * (bCol+col));
+          weightRow += (bPixelWOBckgnd * (bRow+row));
+          ++nPix;
+        }
+        checkedPixel[bLocIdx] = true;
+      }
+    }
+
+    /** if the peak doesn't have enough pixels continue with next pixel */
+    if (nPix < _minNbrPixels)
+      continue;
+
+    /** set the peak's properties and add peak to the list of found peaks */
+    peak[centroidColumn] = weightCol / integral;
+    peak[centroidRow] = weightRow / integral;
+    peak[Intensity] = integral;
+    peak[nbrOfPixels] = nPix;
+    peak[SignalToNoise] = (*pixel-mean)/stdv;
+    peak[MaxRadius] = sqrt(max_radiussq);
+    peak[MinRadius] = sqrt(min_radiussq);
+    peak[Index] = idx;
+    peak[Column] = col;
+    peak[Row] = row;
+    peak[MaxADU] = *pixel;
+    peak[LocalBackground] = mean;
+    peak[LocalBackgroundDeviation] = stdv;
+
+    result.appendRows(peak);
+  }
+
+  /** tell that only the result of one event (image) is present in the table */
+  result.nbrOfFills() = 1;
+}
+
 
 
 

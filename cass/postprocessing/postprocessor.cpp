@@ -706,6 +706,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case ImageFromTable:
     processor = PostprocessorBackend::shared_pointer(new pp207(*this,key));
     break;
+  case BraggPeakSNRWOOutliers:
+    processor = PostprocessorBackend::shared_pointer(new pp208(*this,key));
+    break;
   case AdvancedPhotonFinderDump:
     processor = PostprocessorBackend::shared_pointer
           (new pp212(*this,key));
