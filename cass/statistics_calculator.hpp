@@ -10,6 +10,7 @@
 #define _STATISTICS_CALCULATOR_H_
 
 #include <vector>
+#include <iterator>
 #include <algorithm>
 
 namespace cass
@@ -58,6 +59,22 @@ public:
     _mean += (delta / static_cast<value_type>(_N));
     _tmp += (delta * (datum - _mean));
   }
+
+  /** add a number of dati to the distribution
+   *
+   * Adds all elements between first and last to the distribution, but not the
+   * last
+   *
+   * @param first The first in the range to be added
+   * @param last The element after last to be added
+   */
+  template <class InputIterator>
+  void addDistribtion(InputIterator first, InputIterator last)
+  {
+    while (first != last)
+      addDatum(*first++);;
+  }
+
 
   /** retrieve the mean of the distribution
    *
@@ -137,7 +154,10 @@ public:
   typedef std::vector<value_type> container_type;
 
   /** define a const iterator of the container  */
-  typedef typename container_type::const_iterator const_iterator_t;
+  typedef typename container_type::iterator iterator_t;
+
+  /** define number of elements */
+  typedef typename std::iterator_traits<iterator_t>::difference_type count_type;
 
   /** constructor sets the signal to noise ratio
    *
@@ -155,6 +175,16 @@ public:
   {
     _container.push_back(datum);
     _containerChanged=true;
+  }
+
+  /** substitute the internal container with an outside one
+   *
+   * @param distribution The external container
+   */
+  void setDistribution(const container_type & distribution)
+  {
+    _container = distribution;
+    _containerChanged = true;
   }
 
   /** retrieve the mean  of the distribution without outliers
@@ -175,6 +205,45 @@ public:
   {
     updateStat();
     return _stdv;
+  }
+
+  /** retrieve the number of points used in the statistics
+   *
+   * @return number of points used in the statistics
+   */
+  count_type nbrPointsUsed()
+  {
+    updateStat();
+    return _nPoints;
+  }
+
+  /** retrieve the number of outliers higher than the distribution used
+   *
+   * @return number of outliers higher than the distribution used
+   */
+  count_type nbrUpperOutliers()
+  {
+    updateStat();
+    return _nUpperOutliers;
+  }
+
+  /** retrieve the number of outliers lower than the distribution used
+   *
+   * @return number of outliers lower than the distribution used
+   */
+  count_type nbrLowerOutliers()
+  {
+    updateStat();
+    return _nLowerOutliers;
+  }
+
+  /** retrieve the total number of outliers
+   *
+   * @return total number of outliers
+   */
+  count_type nbrOutliers()
+  {
+    return nbrLowerOutliers() + nbrUpperOutliers();
   }
 
   /** reset the container */
@@ -203,32 +272,33 @@ private:
 
     container_type c(_container);
     sort(c.begin(),c.end());
-    const_iterator_t lowPos(c.begin());
-    const_iterator_t upPos(c.end());
+    iterator_t lowPos(c.begin());
+    iterator_t upPos(c.end());
 
-    bool outliersdetected(true);
-    while (outliersdetected)
+    bool outliersdetected(false);
+    do
     {
       _stat.reset();
-      const_iterator_t val(lowPos);
-      const_iterator_t End(upPos);
-      while (val != End)
-        _stat.addDatum(*val++);
+      _stat.addDistribtion(lowPos,upPos);
 
       const value_type lowBound(_stat.mean() - _snr * _stat.stdv());
       const value_type upBound(_stat.mean() + _snr * _stat.stdv());
-      const_iterator_t newLowPos(lower_bound(c.begin(), c.end(), lowBound));
-      const_iterator_t newUpPos(upper_bound (c.begin(), c.end(), upBound));
+      iterator_t newLowPos(lower_bound(c.begin(), c.end(), lowBound));
+      iterator_t newUpPos(upper_bound (c.begin(), c.end(), upBound));
 
-      if ( newLowPos == lowPos && newUpPos == upPos)
-        outliersdetected = false;
+      if ( newLowPos != lowPos || newUpPos != upPos)
+        outliersdetected = true;
 
       lowPos = newLowPos;
       upPos = newUpPos;
-
-      _mean = _stat.mean();
-      _stdv = _stat.stdv();
     }
+    while (outliersdetected);
+
+    _mean = _stat.mean();
+    _stdv = _stat.stdv();
+    _nPoints = distance(lowPos,upPos);
+    _nLowerOutliers = distance(_container.begin(),lowPos);
+    _nUpperOutliers = distance(upPos,_container.end());
 
     _containerChanged = false;
   }
@@ -244,6 +314,15 @@ private:
 
   /** the stdv without outliers */
   Type _stdv;
+
+  /** the number of points included in the statistics calculation */
+  count_type _nPoints;
+
+  /** the number of upper outliers */
+  count_type _nUpperOutliers;
+
+  /** the number of lower outliers */
+  count_type _nLowerOutliers;
 
   /** flag to show whether the statistic values have to be updated */
   bool _containerChanged;
