@@ -404,7 +404,7 @@ protected:
  * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           col (x) and rows (y) of the box that is used for determining the
  *           background. Default is determined by the BraggPeakRadius.
- *           \f$ size = sqrt{\pi} BraggPeakRadius \f$
+ *           \f$ size = sqrt{\pi} \times BraggPeakRadius \f$
  *
  * @author Lutz Foucar
  */
