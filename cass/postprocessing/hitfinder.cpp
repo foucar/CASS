@@ -1090,10 +1090,10 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
       for (int bCol = -box.first; bCol <= box.first; ++bCol)
       {
         const index_t bLocIdx(bRow*shape.first+bCol);
-        const pixelval_t bPixel(pixel[bLocIdx]);
-        const pixelval_t bPixelWOBckgnd(bPixel - mean);
         if (checkedPixel[bLocIdx])
         {
+          const pixelval_t bPixel(pixel[bLocIdx]);
+          const pixelval_t bPixelWOBckgnd(bPixel - mean);
           const index_t radiussq(bRow*bRow + bCol*bCol);
           if (radiussq > max_radiussq)
             max_radiussq = radiussq;
