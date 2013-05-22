@@ -1082,7 +1082,6 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     pixelval_t integral = 0;
     pixelval_t weightCol = 0;
     pixelval_t weightRow = 0;
-    index_t nPix = 0;
     index_t max_radiussq=0;
     index_t min_radiussq=max(box.first,box.second)*max(box.first,box.second);
     for (int bRow = -box.second; bRow <= box.second; ++bRow)
@@ -1102,7 +1101,6 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
           integral += bPixelWOBckgnd;
           weightCol += (bPixelWOBckgnd * (bCol+col));
           weightRow += (bPixelWOBckgnd * (bRow+row));
-          ++nPix;
         }
         checkedPixel[bLocIdx] = true;
       }
@@ -1112,7 +1110,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     peak[centroidColumn] = weightCol / integral;
     peak[centroidRow] = weightRow / integral;
     peak[Intensity] = integral;
-    peak[nbrOfPixels] = nPix;
+    peak[nbrOfPixels] = peakIdxs.size();
     peak[SignalToNoise] = (*pixel-mean)/stdv;
     peak[MaxRadius] = sqrt(max_radiussq);
     peak[MinRadius] = sqrt(min_radiussq);
