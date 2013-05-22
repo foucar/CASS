@@ -435,10 +435,13 @@ protected:
   typedef CummulativeStatisticsNoOutlier<pixelval_t> stat_t;
 
   /** define the index in the image */
-  typedef int index_t;
+  typedef int64_t index_t;
 
   /** define the shape of the image */
   typedef std::pair<index_t,index_t> shape_t;
+
+  /** define the list of neighbours */
+  typedef std::vector<index_t> neighbourList_t;
 
   /** enum describing the contents of the resulting table */
   enum ColumnNames
@@ -473,8 +476,7 @@ protected:
    * @param stat the statistics calculator used to determine mean and stdv of
    *             pixels in box
    */
-  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                       const index_t ncols, const shape_t &box, stat_t stat);
+  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel, const shape_t &box, stat_t stat);
 
   /** check if pixel is not highest within box
    *
@@ -489,7 +491,7 @@ protected:
    *             pixels in box
    */
   int isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
-                   const index_t linIdx, const shape_t &shape,
+                   const index_t linIdx,
                    shape_t box, stat_t &stat);
 protected:
   /** the size of the box within which the peak should lie */
@@ -497,6 +499,9 @@ protected:
 
   /** size of a image section */
   shape_t _section;
+
+  /** size of the incomming image */
+  shape_t _imageShape;
 
   /** pixel threshold to be exceeded */
   pixelval_t _threshold;
@@ -509,6 +514,9 @@ protected:
 
   /** the minimum nbr of pixels in the bragg peak*/
   stat_t::count_type _minNbrPixels;
+
+  /** the list of offsets to next neighbours */
+  neighbourList_t _neighbourOffsets;
 };
 
 

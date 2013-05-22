@@ -866,6 +866,18 @@ void pp208::loadSettings(size_t)
   if (!(_imagePP && ret))
     return;
 
+  /** set up the neighbouroffset list */
+  _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)).shape();
+  _neighbourOffsets.clear();
+  _neighbourOffsets.push_back(+_imageShape.first-1);     //up left
+  _neighbourOffsets.push_back(+_imageShape.first+0);     //up
+  _neighbourOffsets.push_back(+_imageShape.first+1);     //up right
+  _neighbourOffsets.push_back(-1);                       //left
+  _neighbourOffsets.push_back(+1);                       //right
+  _neighbourOffsets.push_back(-_imageShape.first-1);     //low left
+  _neighbourOffsets.push_back(-_imageShape.first+0);     //low
+  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
+
   /** Create the result output */
   _result = new Histogram2DFloat(nbrOf);
   createHistList(2*cass::NbrOfWorkers);
@@ -885,7 +897,7 @@ void pp208::loadSettings(size_t)
 
 
 int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                            const index_t ncols, const shape_t &box, stat_t stat)
+                            const shape_t &box, stat_t stat)
 {
   /** go through all pixels defined by the box form -rows ... rows, -cols ... cols */
   enum{good,skip};
@@ -896,7 +908,7 @@ int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
       /** check if the current box pixel value is bigger than the center pixel
        *  value. If so skip this pixel
        */
-      const index_t bLocIdx(bRow*ncols+bCol);
+      const index_t bLocIdx(bRow*_imageShape.first+bCol);
       const pixelval_t bPixel(pixel[bLocIdx]);
       if(*pixel < bPixel )
         return skip;
@@ -910,14 +922,13 @@ int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
 }
 
 int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
-                        const index_t linIdx, const shape_t &shape,
-                        shape_t box, stat_t &stat)
+                        const index_t linIdx, shape_t box, stat_t &stat)
 {
   enum{isHighest,skip};
 
   /** get coordinates of pixel from the linearized index */
-  const index_t col(linIdx % shape.first);
-  const index_t row(linIdx / shape.first);
+  const index_t col(linIdx % _imageShape.first);
+  const index_t row(linIdx / _imageShape.first);
 
   bool boxsizeincreased(false);
   do
@@ -925,15 +936,15 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
     /** make sure that pixel is located such that the box will not conflict with
      *  the image and section boundaries. If it does continue with next pixel
      */
-    if (col < box.first  || shape.first - box.first  < col || //within box in x
-        row < box.second || shape.second - box.second < row || //within box in y
+    if (col < box.first  || _imageShape.first - box.first  < col || //within box in x
+        row < box.second || _imageShape.second - box.second < row || //within box in y
         (col - box.first)  / _section.first  != (col + box.first)  / _section.first || //x within same section
         (row - box.second) / _section.second != (row + box.second) / _section.second)  //y within same section
       return skip;
 
     /** check whether current pixel value is highest and generate background values */
     stat.reset();
-    if (getBoxStatistics(pixel,shape.first,box,stat))
+    if (getBoxStatistics(pixel,box,stat))
       return skip;
 
     /** skip this pixel if there are not enough pixels that could potentially be
@@ -974,8 +985,9 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
   /** clear the resulting table to fill it with the values of this image */
   result.clearTable();
 
-  /** get nbr of cols and rows from incomming image */
-  const shape_t shape(hist.shape());
+  /** assert that incomming image has not changed the shape */
+  assert(static_cast<index_t>(hist.shape().first) == _imageShape.first &&
+         static_cast<index_t>(hist.shape().second) ==  _imageShape.second);
 
   /** get a table row that we can later add to the table */
   table_t peak(nbrOf,0);
@@ -1013,7 +1025,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
      */
     pair<int,int> box(_box);
     stat_t stat(_minSnr);
-    if (isNotHighest(pixel, idx, shape, box, stat))
+    if (isNotHighest(pixel, idx, box, stat))
       continue;
 
     /** retrive statistical values from the calculator */
@@ -1021,8 +1033,8 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     const stat_t::value_type stdv(stat.stdv());
 
     /** get coordinates of pixel in image from the linearized index */
-    const index_t col(idx % shape.first);
-    const index_t row(idx / shape.first);
+    const index_t col(idx % _imageShape.first);
+    const index_t row(idx / _imageShape.first);
 
     /** from the central pixel look around and see which pixels are direct
      *  part of the peak. If a neighbour is found, mask it such that one does
@@ -1033,30 +1045,19 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
      *  neighbour whether it also has a neighbour. If so add it to the list, but
      *  only if it is part of the box.
      */
-    const index_t neigboursOffsets[] =
-    {
-      +shape.first-1,     //up left
-      +shape.first,       //up
-      +shape.first+1,     //up right
-      -1,                 //left
-       1,                 //right
-      -shape.first-1,     //low left
-      -shape.first,       //low
-      -shape.first+1,     //low right
-    };
     vector<index_t> peakIdxs;
     peakIdxs.push_back(idx);
     *checkedPixel = true;
     for (size_t pix=0; pix < peakIdxs.size(); ++pix)
     {
       const index_t pixpos(peakIdxs[pix]);
-      const index_t * ngbrOffset(neigboursOffsets);
-      const index_t * neighboursEnd(neigboursOffsets + sizeof(neigboursOffsets)/sizeof(index_t));
+      neighbourList_t::const_iterator ngbrOffset(_neighbourOffsets.begin());
+      neighbourList_t::const_iterator neighboursEnd(_neighbourOffsets.end());
       while(ngbrOffset != neighboursEnd)
       {
-        const size_t ngbrIdx(pixpos + *ngbrOffset++);
-        const index_t ngbrCol(ngbrIdx % shape.first);
-        const index_t ngbrRow(ngbrIdx / shape.first);
+        const index_t ngbrIdx(pixpos + *ngbrOffset++);
+        const index_t ngbrCol(ngbrIdx % _imageShape.first);
+        const index_t ngbrRow(ngbrIdx / _imageShape.first);
         if (checkedPixels[ngbrIdx] ||
             box.first < abs(col - ngbrCol) ||   //pixel not inside box col
             box.second < abs(row - ngbrRow))    //pixel not inside box row
@@ -1088,7 +1089,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     {
       for (int bCol = -box.first; bCol <= box.first; ++bCol)
       {
-        const index_t bLocIdx(bRow*shape.first+bCol);
+        const index_t bLocIdx(bRow*_imageShape.first+bCol);
         if (checkedPixel[bLocIdx])
         {
           const pixelval_t bPixel(pixel[bLocIdx]);
