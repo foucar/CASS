@@ -286,8 +286,8 @@ private:
       iterator_t newLowPos(lower_bound(c.begin(), c.end(), lowBound));
       iterator_t newUpPos(upper_bound (c.begin(), c.end(), upBound));
 
-      if ( newLowPos != lowPos || newUpPos != upPos)
-        outliersdetected = true;
+      /** outliers have been detected when the low and up iterators have changed */
+      outliersdetected = ( newLowPos != lowPos || newUpPos != upPos);
 
       lowPos = newLowPos;
       upPos = newUpPos;
