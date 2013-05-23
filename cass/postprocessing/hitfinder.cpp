@@ -897,10 +897,24 @@ void pp208::loadSettings(size_t)
 
 
 int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                            const shape_t &box, stat_t stat)
+                            const index_t linIdx, const shape_t &box, stat_t stat)
 {
-  /** go through all pixels defined by the box form -rows ... rows, -cols ... cols */
-  enum{good,skip};
+  enum{use,skip};
+
+  /** get coordinates of pixel from the linearized index */
+  const index_t col(linIdx % _imageShape.first);
+  const index_t row(linIdx / _imageShape.first);
+
+  /** make sure that pixel is located such that the box will not conflict with
+   *  the image and section boundaries. If it does continue with next pixel
+   */
+  if (col < box.first  || _imageShape.first - box.first  < col || //within box in x
+      row < box.second || _imageShape.second - box.second < row || //within box in y
+      (col - box.first)  / _section.first  != (col + box.first)  / _section.first || //x within same section
+      (row - box.second) / _section.second != (row + box.second) / _section.second)  //y within same section
+    return skip;
+
+  /** go through all pixels defined by the box from -rows ... rows, -cols ... cols */
   for (shape_t::second_type bRow = -box.second; bRow <= box.second; ++bRow)
   {
     for (shape_t::first_type bCol = -box.first; bCol <= box.first; ++bCol)
@@ -918,33 +932,20 @@ int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
         stat.addDatum(bPixel);
     }
   }
-  return good;
+  return use;
 }
 
 int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
                         const index_t linIdx, shape_t box, stat_t &stat)
 {
-  enum{isHighest,skip};
-
-  /** get coordinates of pixel from the linearized index */
-  const index_t col(linIdx % _imageShape.first);
-  const index_t row(linIdx / _imageShape.first);
+  enum{use,skip};
 
   bool boxsizeincreased(false);
   do
   {
-    /** make sure that pixel is located such that the box will not conflict with
-     *  the image and section boundaries. If it does continue with next pixel
-     */
-    if (col < box.first  || _imageShape.first - box.first  < col || //within box in x
-        row < box.second || _imageShape.second - box.second < row || //within box in y
-        (col - box.first)  / _section.first  != (col + box.first)  / _section.first || //x within same section
-        (row - box.second) / _section.second != (row + box.second) / _section.second)  //y within same section
-      return skip;
-
     /** check whether current pixel value is highest and generate background values */
     stat.reset();
-    if (getBoxStatistics(pixel,box,stat))
+    if (getBoxStatistics(pixel,linIdx,box,stat))
       return skip;
 
     /** skip this pixel if there are not enough pixels that could potentially be
@@ -956,16 +957,20 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
     /** increase the box size and start over if the fraction of outliers to
      *  points used in the statistics is smaller than requested.
      */
-    if (stat.nbrPointsUsed() < _minRatio * stat.nbrOutliers())
+    if (stat.nbrPointsUsed() < _minRatio * stat.nbrUpperOutliers())
     {
       ++(box.first);
       ++(box.second);
       boxsizeincreased = true;
     }
+    else
+    {
+      boxsizeincreased = false;
+    }
   }
   while(boxsizeincreased);
 
-  return isHighest;
+  return use;
 }
 
 
@@ -1023,7 +1028,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
      *  increase the box size and do the checks all over again. If the pixel is
      *  not highest within the bigger box continue with the next pixel.
      */
-    pair<int,int> box(_box);
+    shape_t box(_box);
     stat_t stat(_minSnr);
     if (isNotHighest(pixel, idx, box, stat))
       continue;

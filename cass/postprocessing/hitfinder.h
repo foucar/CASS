@@ -470,13 +470,13 @@ protected:
    * @return 0 when all non bad pixels have been added to the statistics.
    *         1 if one of the pixels in the box was higher than the center pixel
    * @param pixel const iterator to the center pixel
-   * @param ncols the number of columns in the original image (used to determine
-   *              the linearized index of the individual box pixel)
+   * @param linIdx the linearized index of the pixel
    * @param box the shape of the box to check
    * @param stat the statistics calculator used to determine mean and stdv of
    *             pixels in box
    */
-  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel, const shape_t &box, stat_t stat);
+  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+                       const index_t linIdx, const shape_t &box, stat_t stat);
 
   /** check if pixel is not highest within box
    *
@@ -485,14 +485,12 @@ protected:
    * @return 0 if pixel is heighest, 1 otherwise
    * @param pixel const iterator to the pixel to be checked
    * @param linIdx the linearized index of the pixel
-   * @param shape the shape (cols x rows) of the image
    * @param box the shape of the box to be checked (cols x rows)
    * @param stat the statistics calculator used to determine mean and stdv of
    *             pixels in box
    */
   int isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
-                   const index_t linIdx,
-                   shape_t box, stat_t &stat);
+                   const index_t linIdx, shape_t box, stat_t &stat);
 protected:
   /** the size of the box within which the peak should lie */
   shape_t _box;
