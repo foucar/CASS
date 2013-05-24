@@ -850,7 +850,7 @@ void pp208::loadSettings(size_t)
    *        &=& 0.25d\sqrt{\pi \times ratio}
    * \f}
    */
-  const int bsize(0.25 * peakDiameter * sqrt(3.14159 * _minRatio));
+  const int bsize(2 * peakDiameter );
   _box = make_pair(s.value("BoxSizeX", bsize).toInt(),
                    s.value("BoxSizeY",bsize).toInt());
 
