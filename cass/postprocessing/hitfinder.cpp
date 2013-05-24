@@ -949,12 +949,6 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
     if (getBoxStatistics(pixel,linIdx,box,stat))
       return skip;
 
-    /** skip this pixel if there are not enough pixels that could potentially be
-     *  part of the bragg peak.
-     */
-    if (stat.nbrUpperOutliers() < _minNbrPixels)
-      return skip;
-
     /** increase the box size and start over if the fraction of outliers to
      *  points used in the statistics is smaller than requested.
      */
@@ -970,6 +964,12 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
     }
   }
   while(boxsizeincreased);
+
+  /** skip this pixel if there are not enough pixels that could potentially be
+   *  part of the bragg peak.
+   */
+  if (stat.nbrUpperOutliers() < _minNbrPixels)
+    return skip;
 
   return use;
 }
