@@ -780,7 +780,7 @@ void getDataThread::run()
   _cass->getHistogram(*_attachId, 0, &ret);
   if(! ret)
   {
-    std::cerr << "getDataThread::run(): Did not get soap data" << std::endl;
+//    std::cerr << "getDataThread::run(): Did not get soap data" << std::endl;
     emit newNone();
     return;
   }
