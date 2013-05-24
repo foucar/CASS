@@ -832,16 +832,17 @@ void pp208::loadSettings(size_t)
   const int peakDiameter(s.value("BraggPeakDiameter",2).toInt());
   /** area of box should at least be ratio times area of peak.
    * \f{eqnarray*}{
+   * A_{box}&=& ratio \times A_{circle} \\
    * size^2 &=& ratio \times \pi r^2 \\
-   * size   &=& \sqrt{\pi r^2 \times ratio}
+   * size   &=& \sqrt{\pi r^2 \times ratio} \\
+   *        &=& r \sqrt{\pi \times ratio} \\
+   *        &=& 0.5 d \sqrt{\pi \times ratio}
    * \f}
    *  If \f$ size \f$ goes from  \f$-s ... s\f$ then \f$ size = 2s+1 \f$
    * \f{eqnarray*}{
-   * 2s + 1 &=& \sqrt{\pi r^2 \times ratio} \\
-   *      s &=& 0.5\sqrt{\pi r^2 \times ratio} - 0.5 \\
-   *        &=& 0.5\sqrt{\pi \times ratio}\sqrt{(\frac{d}{2})^2} - 0.5 \\
-   *        &=& 0.5 \times 0.5 d \times \sqrt{\pi \times ratio} - 0.5 \\
-   *        &=& 0.25d\sqrt{\pi \times ratio} - 0.5
+   * 2s + 1 &=& 0.5 d \sqrt{\pi \times ratio} \\
+   *      s &=& 0.5 \times 0.5 d \sqrt{\pi \times ratio} - 0.5 \\
+   *        &=& 0.25 d \sqrt{\pi \times ratio} - 0.5
    * \f}
    * convert to integer
    * \f{eqnarray*}{
