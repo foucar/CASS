@@ -897,7 +897,7 @@ void pp208::loadSettings(size_t)
 
 
 int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                            const index_t linIdx, const shape_t &box, stat_t stat)
+                            const index_t linIdx, const shape_t &box, stat_t &stat)
 {
   enum{use,skip};
 

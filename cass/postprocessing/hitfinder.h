@@ -476,7 +476,7 @@ protected:
    *             pixels in box
    */
   int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
-                       const index_t linIdx, const shape_t &box, stat_t stat);
+                       const index_t linIdx, const shape_t &box, stat_t &stat);
 
   /** check if pixel is not highest within box
    *
