@@ -297,8 +297,8 @@ private:
     _mean = _stat.mean();
     _stdv = _stat.stdv();
     _nPoints = distance(lowPos,upPos);
-    _nLowerOutliers = distance(_container.begin(),lowPos);
-    _nUpperOutliers = distance(upPos,_container.end());
+    _nLowerOutliers = distance(c.begin(),lowPos);
+    _nUpperOutliers = distance(upPos,c.end());
 
     _containerChanged = false;
   }
