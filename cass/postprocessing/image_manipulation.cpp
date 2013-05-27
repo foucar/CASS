@@ -278,7 +278,6 @@ void pp55::loadSettings(size_t)
     _result = new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
                                    xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
                                    xaxis.title(),yaxis.title());
-
   }
   else
   {
@@ -293,60 +292,24 @@ void pp55::loadSettings(size_t)
            "'. Condition is '" + _condition->key() + "'");
 }
 
-void pp55::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  //return when there is no incomming histogram
-  if(!in)
-    return;
-  //return when the incomming histogram is not a direct dependant
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-  //the previous _result pointer is on the histlist and will be deleted
-  //with the call to createHistList
-  if (_functions[_operation].second)
-  {
-    const AxisProperty& xaxis(_one->getHist(0).axis()[HistogramBackend::xAxis]);
-    const AxisProperty& yaxis(_one->getHist(0).axis()[HistogramBackend::yAxis]);
-    _result = new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
-                                   xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
-                                   xaxis.title(),yaxis.title());
-
-  }
-  else
-  {
-    _result = _one->getHist(0).clone();
-  }
-  createHistList(2*NbrOfWorkers);
-  _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
-                    _result->axis()[HistogramBackend::yAxis].nbrBins());
-  //notify all pp that depend on us that our histograms have changed
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and create new one from input");
-}
-
-void pp55::process(const CASSEvent &evt)
+void pp55::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
 
-  hist.lock.lockForRead();
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
-  _result->lock.lockForWrite();
   HistogramFloatBase::storage_t::iterator dest(
-        dynamic_cast<HistogramFloatBase*>(_result)->memory().begin());
+        dynamic_cast<HistogramFloatBase&>(result).memory().begin());
+
+  QReadLocker(&hist.lock);
+  QWriteLocker(&result.lock);
+
   _result->nbrOfFills()=1;
+
   for (size_t row(0); row < _size.second; ++row)
     for (size_t col(0); col < _size.first; ++col)
       *dest++ = src[_pixIdx(col,row,_size)];
-  _result->lock.unlock();
-  hist.lock.unlock();
 }
 
 
@@ -383,17 +346,19 @@ void pp1600::loadSettings(size_t)
            ". Condition is '" + _condition->key() + "'");
 }
 
-void pp1600::process(const CASSEvent &evt)
+void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
 
-  hist.lock.lockForRead();
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
-  _result->lock.lockForWrite();
   HistogramFloatBase::storage_t& dest(
-        dynamic_cast<HistogramFloatBase*>(_result)->memory());
+        dynamic_cast<HistogramFloatBase&>(result).memory());
+
+  QReadLocker (&hist.lock);
+  QWriteLocker(&result.lock);
+
   _result->nbrOfFills()=1;
 
   const size_t pix_per_quad(8*_ny*2*_nx);
@@ -407,8 +372,6 @@ void pp1600::process(const CASSEvent &evt)
       dest[ii] = src[quadrant * pix_per_quad + k];
     }
   }
-  _result->lock.unlock();
-  hist.lock.unlock();
 }
 
 
@@ -454,16 +417,18 @@ void pp1601::loadSettings(size_t)
            ". Condition is '" + _condition->key() + "'");
 }
 
-void pp1601::process(const CASSEvent &evt)
+void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
-
-  hist.lock.lockForRead();
+      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
-  _result->lock.lockForWrite();
-  HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase*>(_result)->memory());
+
+  HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase&>(result).memory());
+
+  QReadLocker(&hist.lock);
+  QWriteLocker(&result.lock);
+
   _result->nbrOfFills()=1;
 
 //  const size_t pix_per_seg(2*_nx*_ny);
@@ -521,10 +486,6 @@ void pp1601::process(const CASSEvent &evt)
   copySegment(src,dest,29, 0*_nx+0*_ny    , 0*_nx+1*_ny -1 ,_LRTB);
   copySegment(src,dest,30, 0*_nx+0*_ny    , 0*_nx+2*_ny    ,_BTLR);
   copySegment(src,dest,31, 0*_nx+1*_ny    , 0*_nx+2*_ny    ,_BTLR);
-
-
-  _result->lock.unlock();
-  hist.lock.unlock();
 }
 
 
@@ -756,28 +717,6 @@ void pp1602::loadSettings(size_t)
 
   setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)));
 
-}
-
-void pp1602::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  /** return when there is no incomming histogram */
-  if(!in)
-    return;
-  /** return when the incomming histogram is not a direct dependant */
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-
-  setup(dynamic_cast<const Histogram2DFloat&>(*in));
-
-  /** notify all pp that depend on us that our histograms have changed */
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and create new one from input");
 }
 
 void pp1602::setup(const Histogram2DFloat &srcImageHist)

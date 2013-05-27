@@ -94,23 +94,15 @@ public:
   /** process event
    *
    * @param evt the event to process
+   * @param result the histogram where the result will be written to
    */
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt,HistogramBackend &result);
 
   /** load the settings of this pp
    *
    * @param unused this parameter is not used
    */
   virtual void loadSettings(size_t /*unused*/);
-
-  /** notification that depandant histogram has changed
-   *
-   * change own histograms when one of the ones we depend on has changed
-   * histograms
-   *
-   * @param hist the changed histogram that we take the size from
-   */
-  virtual void histogramsChanged(const HistogramBackend* hist);
 
 protected:
   /** functions to calc the index of source from the indizes of the destination */
@@ -162,7 +154,7 @@ public:
    *
    * @param evt the event to process
    */
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt, HistogramBackend &result);
 
   /** load the settings of this pp
    *
@@ -294,7 +286,7 @@ public:
    *
    * @param evt the event to process
    */
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt, HistogramBackend &result);
 
   /** load the settings of this pp
    *
@@ -382,15 +374,6 @@ public:
   virtual void loadSettings(size_t unused);
 
 protected:
-  /** notification that depandant histogram has changed
-   *
-   * change own histograms when one of the ones we depend on has changed
-   * histograms
-   *
-   * @param hist the changed histogram that we take the size from
-   */
-  virtual void histogramsChanged(const HistogramBackend* hist);
-
   /** generate the lookup table by parsing the geom file */
   void setup(const Histogram2DFloat &srcImageHist);
 
