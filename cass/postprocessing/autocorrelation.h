@@ -42,24 +42,12 @@ public:
   pp310(PostProcessors &pp, const name_t &key);
 
   /** process the event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &result);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
 protected:
-  /** notification that depandant histogram has changed
-   *
-   * change own histograms when one of the ones we depend on has changed
-   * histograms
-   *
-   * @param hist the changed histogram that we take the size from
-   */
-  virtual void histogramsChanged(const HistogramBackend* hist);
-
-  /** generate the lookup table by parsing the geom file */
-  void setup(const Histogram2DFloat &srcImageHist);
-
   /** pp containing histogram to calculate the autocorrelation for */
   shared_pointer _hist;
 };
@@ -91,24 +79,12 @@ public:
   pp311(PostProcessors &pp, const name_t &key);
 
   /** process the event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &result);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
 protected:
-  /** notification that depandant histogram has changed
-   *
-   * change own histograms when one of the ones we depend on has changed
-   * histograms
-   *
-   * @param hist the changed histogram that we take the size from
-   */
-  virtual void histogramsChanged(const HistogramBackend* hist);
-
-  /** generate the lookup table by parsing the geom file */
-  void setup(const Histogram2DFloat &srcImageHist);
-
   /** pp containing histogram to calculate the autocorrelation for */
   shared_pointer _hist;
 
@@ -142,14 +118,8 @@ private:
                 const int rad, const int x0, const int y0, const int nxx,
                 ring_t &ring);
 
-  /** the user defined center of the image */
-  std::pair<int,int> _usercenter;
-
   /** the used center of the image */
   std::pair<int,int> _center;
-
-  /** the user defined maximum radius*/
-  int _maxradius;
 
   /** the used maximum radius*/
   int _maxrad;

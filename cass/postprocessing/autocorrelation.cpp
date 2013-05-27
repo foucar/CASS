@@ -34,56 +34,29 @@ void pp310::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
-  setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
-
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' will calculate the autocorrelation of '" + _hist->key() +
-           "'. Condition is '" + _condition->key() + "'");
-}
-
-void pp310::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  /** return when there is no incomming histogram */
-  if(!in)
-    return;
-  /** return when the incomming histogram is not a direct dependant */
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-
-  setup(dynamic_cast<const Histogram2DFloat&>(*in));
-
-  /** notify all pp that depend on us that our histograms have changed */
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and create new one from input");
-}
-
-void pp310::setup(const Histogram2DFloat &srcImageHist)
-{
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
   if (srcImageHist.dimension() != 2)
-    throw invalid_argument("pp310:setup: '" + _key +
+    throw invalid_argument("pp310:setup: '" + name() +
                            "' The input histogram is not a 2d histogram");
-  _result = srcImageHist.clone();
-  createHistList(2*cass::NbrOfWorkers,true);
+  createHistList(srcImageHist.copy_sptr());
+
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' will calculate the autocorrelation of '" + _hist->name() +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp310::process(const CASSEvent &evt)
+void pp310::process(const CASSEvent &evt, HistogramBackend& res)
 {
   typedef HistogramFloatBase::storage_t::const_iterator const_iterator;
   const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_hist->getHist(evt.id())));
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
   Histogram2DFloat::storage_t& resultdata( result.memory() );
 
-  hist.lock.lockForRead();
-  result.lock.lockForWrite();
+  QWriteLocker(&result.lock);
+  QReadLocker(&hist.lock);
 
   size_t nCols(hist.axis()[HistogramBackend::xAxis].size());
   size_t nRows(hist.axis()[HistogramBackend::yAxis].size());
@@ -110,8 +83,6 @@ void pp310::process(const CASSEvent &evt)
       resultdata[row*nCols + col] = autocorval;
     }
   }
-  result.lock.unlock();
-  hist.lock.unlock();
 }
 
 
@@ -134,83 +105,40 @@ void pp311::loadSettings(size_t)
   if (!(ret && _hist))
     return;
 
-  _usercenter = make_pair(s.value("CenterX",0).toInt(),
-                      s.value("CenterY",0).toInt());
-  _maxradius = s.value("MaximumRadius",0).toInt();
+  std::pair<int,int> usercenter = make_pair(s.value("CenterX",0).toInt(),
+                                            s.value("CenterY",0).toInt());
+  const int maxradius(s.value("MaximumRadius",0).toInt());
 
-  setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+  if (srcImageHist.dimension() != 2)
+    throw invalid_argument("pp311:setup: '" + _key +
+                           "' The input histogram is not a 2d histogram");
+  /** determine the center in histogram coordinates */
+  const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
+  const AxisProperty &yaxis(srcImageHist.axis()[HistogramBackend::yAxis]);
+  _center = make_pair(xaxis.bin(usercenter.first),
+                      yaxis.bin(usercenter.second));
 
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' will calculate the autocorrelation of '" + _hist->key() +
-           "'. Condition is '" + _condition->key() + "'");
-}
+  /** check if coordinates are ok */
+  if ((static_cast<int>(srcImageHist.shape().first) < _center.first + maxradius) ||
+      (_center.first - maxradius < 0) )
+    throw out_of_range("pp311:loadSettings: '" + _key + "'. Center in lab X '" +
+                       toString(_center.first) + "' and maximum radius '" +
+                       toString(maxradius) + "' do not fit in image with width '" +
+                       toString(srcImageHist.shape().first) + "'");
+  if ((static_cast<int>(srcImageHist.shape().second) < _center.second + maxradius) ||
+      (_center.second - maxradius < 0))
+    throw out_of_range("pp311:loadSettings: '" + _key + "'. Center in lab Y '" +
+                       toString(_center.second) + "' and maximum radius '" +
+                       toString(maxradius) + "' do not fit in image with height '" +
+                       toString(srcImageHist.shape().second) + "'");
+  _maxrad = maxradius;
 
-void pp311::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  /** return when there is no incomming histogram */
-  if(!in)
-    return;
-  /** return when the incomming histogram is not a direct dependant */
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
+  createHistList(srcImageHist.copy_sptr());
 
-  setup(dynamic_cast<const Histogram2DFloat&>(*in));
-
-  /** notify all pp that depend on us that our histograms have changed */
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and create new one from input");
-}
-
-void pp311::setup(const Histogram2DFloat &srcImageHist)
-{
-  try
-  {
-    if (srcImageHist.dimension() != 2)
-      throw invalid_argument("pp311:setup: '" + _key +
-                             "' The input histogram is not a 2d histogram");
-    /** determine the center in histogram coordinates */
-    const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
-    const AxisProperty &yaxis(srcImageHist.axis()[HistogramBackend::yAxis]);
-    _center = make_pair(xaxis.bin(_usercenter.first),
-                        yaxis.bin(_usercenter.second));
-
-    /** check if coordinates are ok */
-    if ((static_cast<int>(srcImageHist.shape().first) < _center.first + _maxradius) ||
-        (_center.first - _maxradius < 0) )
-      throw out_of_range("pp311:setup: '" + _key + "'. Center in lab X '" +
-                         toString(_center.first) + "' and maximum radius '" +
-                         toString(_maxradius) + "' do not fit in image with width '" +
-                         toString(srcImageHist.shape().first) + "'");
-    if ((static_cast<int>(srcImageHist.shape().second) < _center.second + _maxradius) ||
-        (_center.second - _maxradius < 0))
-      throw out_of_range("pp311:setup: '" + _key + "'. Center in lab Y '" +
-                         toString(_center.second) + "' and maximum radius '" +
-                         toString(_maxradius) + "' do not fit in image with height '" +
-                         toString(srcImageHist.shape().second) + "'");
-
-    _maxrad = _maxradius;
-    _result = srcImageHist.clone();
-  }
-  /** catch the out of range errors and intialize center, max radius and result
-   *  with 0. Hopefully once everything resizes to the correct image
-   *  size, no errors will be thrown anymore
-   */
-  catch(const out_of_range &error)
-  {
-    Log::add(Log::DEBUG0,"Postprocessor 311 '" + _key +
-             "' setup: Out of Range Error is '" + error.what() +
-             "'. Initializing center and max radius as well as the image with 0.");
-    _center = make_pair(0,0);
-    _maxrad = 0;
-    _result = new Histogram2DFloat(0,0);
-  }
-  createHistList(2*cass::NbrOfWorkers,true);
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' will calculate the autocorrelation of '" + _hist->name() +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
 int pp311::getCircleLength(const int rad)
@@ -310,17 +238,17 @@ void pp311::fillRing(const HistogramFloatBase::storage_t &image,
   }
 }
 
-void pp311::process(const CASSEvent &evt)
+void pp311::process(const CASSEvent &evt,HistogramBackend &res)
 {
   const Histogram2DFloat& hist
       (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
   Histogram2DFloat::storage_t& resultdata( result.memory() );
 
-  hist.lock.lockForRead();
-  result.lock.lockForWrite();
+  QReadLocker (&hist.lock);
+  QWriteLocker(&result.lock);
 
   const int nxx(hist.shape().first);
 
@@ -340,7 +268,4 @@ void pp311::process(const CASSEvent &evt)
       resultdata[ring[d_phi_pix].first] = result;
     }
   }
-
-  result.lock.unlock();
-  hist.lock.unlock();
 }
