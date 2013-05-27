@@ -237,6 +237,12 @@ public:
      */
     virtual HistogramBackend* copyclone()const=0;
 
+    /** returns a shared pointer to a copy of this histogram
+     *
+     * @return shared pointer to this
+     */
+    virtual shared_pointer copy_sptr()const=0;
+
     /** clear the histogram*/
     virtual void clear()=0;
 
@@ -345,6 +351,19 @@ public:
       return copy;
     }
 
+    /** clone the histogram completly
+     *
+     * @return shared pointer to the copied histogram
+     */
+    virtual shared_pointer copy_sptr()const
+    {
+      std::tr1::shared_ptr<HistogramFloatBase> copy(new HistogramFloatBase(dimension(),memory().size()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
+      return copy;
+    }
+
     /** typedef describing the type of the values stored in memory*/
     typedef float value_t;
 
@@ -447,6 +466,19 @@ public:
       return copy;
     }
 
+    /** clone the histogram completly
+     *
+     * @return shared pointer to the cloned histogram
+     */
+    virtual shared_pointer copy_sptr()const
+    {
+      std::tr1::shared_ptr<Histogram0DFloat> copy(new Histogram0DFloat());
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
+      return copy;
+    }
+
     /** fill the 0d histogram with a value */
     void fill(value_t value=0.)
     {
@@ -538,7 +570,7 @@ public:
                                   _axis[xAxis].upperLimit(),
                                   _axis[xAxis].title());
     }
-    
+
     /** clone the histogram completly
      *
      * @return pointer to the copied histogram
@@ -549,6 +581,23 @@ public:
                                   _axis[xAxis].lowerLimit(),
                                   _axis[xAxis].upperLimit(),
                                   _axis[xAxis].title()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
+      return copy;
+    }
+
+    /** clone the histogram completly
+     *
+     * @return shared pointer to the copied histogram
+     */
+    virtual shared_pointer copy_sptr()const
+    {
+      std::tr1::shared_ptr<Histogram1DFloat> copy
+          (new Histogram1DFloat(_axis[xAxis].nbrBins(),
+                                _axis[xAxis].lowerLimit(),
+                                _axis[xAxis].upperLimit(),
+                                _axis[xAxis].title()));
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
       copy->key() = key();
@@ -750,6 +799,27 @@ public:
                                   _axis[yAxis].upperLimit(),
                                   _axis[xAxis].title(),
                                   _axis[yAxis].title()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
+      return copy;
+    }
+
+    /** clone the histogram completly
+     *
+     * @return shared pointer to the copied histogram
+     */
+    virtual shared_pointer copy_sptr()const
+    {
+      std::tr1::shared_ptr<Histogram2DFloat>
+          copy(new Histogram2DFloat(_axis[xAxis].nbrBins(),
+                                    _axis[xAxis].lowerLimit(),
+                                    _axis[xAxis].upperLimit(),
+                                    _axis[yAxis].nbrBins(),
+                                    _axis[yAxis].lowerLimit(),
+                                    _axis[yAxis].upperLimit(),
+                                    _axis[xAxis].title(),
+                                    _axis[yAxis].title()));
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
       copy->key() = key();
