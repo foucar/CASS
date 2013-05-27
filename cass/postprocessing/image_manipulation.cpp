@@ -791,7 +791,7 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
                                                  srcImageHist.axis()[HistogramBackend::xAxis].size(),
                                                  _convertCheetahToCASSLayout);
 
-    /** get the minimum position in lab x and y */
+    /** get the minimum and maximum position in lab x and y */
     pos_t min;
     min.x = min_element(src2lab.begin(),src2lab.end(),
                         bind(less<pos_t::x_t>(),
@@ -801,8 +801,17 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
                         bind(less<pos_t::y_t>(),
                              bind<pos_t::y_t>(&pos_t::y,_1),
                              bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+    pos_t max;
+    max.x = max_element(src2lab.begin(),src2lab.end(),
+                        bind(less<pos_t::x_t>(),
+                             bind<pos_t::x_t>(&pos_t::x,_1),
+                             bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+    max.y = max_element(src2lab.begin(),src2lab.end(),
+                        bind(less<pos_t::y_t>(),
+                             bind<pos_t::y_t>(&pos_t::y,_1),
+                             bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
-    /** move all values, such that they start at 0 and go to max
+    /** move all values, such that they start at 0
      *  \f$ pos.x -= min_x\f$
      *  \f$ pos.y -= min_y\f$
      */
@@ -840,7 +849,9 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
                          toString(nDestCols*nDestRows) + "'");
 
     /** create the destination image and setup the histlist */
-    _result = new Histogram2DFloat(nDestCols , nDestRows);
+//    _result = new Histogram2DFloat(nDestCols , nDestRows);
+    _result = new Histogram2DFloat(nDestCols,min.x,max.x, nDestRows,min.y,max.y,
+                                   "Rows","Cols");
     createHistList(2*NbrOfWorkers);
 
     Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
