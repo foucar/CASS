@@ -55,42 +55,43 @@ PostprocessorBackend::~PostprocessorBackend()
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
-  typedef CASSEvent::id_t id_type;
-  QWriteLocker lock(&_histLock);
-  assert(!_histList.empty());
-  cachedResults_t::iterator it(
-        find_if(_histList.begin(), _histList.end(),
-                bind<bool>(equal_to<id_type>(),evt.id(),
-                           bind<id_type>(&cachedResult_t::first,_1))));
+  return getHist(evt.id());
+//  typedef CASSEvent::id_t id_type;
+//  QWriteLocker lock(&_histLock);
+//  assert(!_histList.empty());
+//  cachedResults_t::iterator it(
+//        find_if(_histList.begin(), _histList.end(),
+//                bind<bool>(equal_to<id_type>(),evt.id(),
+//                           bind<id_type>(&cachedResult_t::first,_1))));
 
-  if(_histList.end() == it)
-  {
-    _result = _histList.back().second.get();
-    /**
-     * The calls that either process this event or request the condtion from
-     * another postprocessor might alter the hist list (ie. if the either one
-     * will resize and then call histogramsChanged). Also the _result pointer
-     * might have changed, so create the pair with the pointer and the id only
-     * after the call and modify the list
-     */
-    if (_condition && !(*_condition)(evt).isTrue())
-    {
-      _histList.pop_back();
-      cachedResult_t newPair(make_pair(evt.id(),_result));
-      it = _histList.begin();
-      ++it;
-      it =_histList.insert(it,newPair);
-    }
-    else
-    {
-      process(evt);
-      _histList.pop_back();
-      cachedResult_t newPair(std::make_pair(evt.id(),_result));
-      _histList.push_front(newPair);
-      it = _histList.begin();
-    }
-  }
-  return *(it->second);
+//  if(_histList.end() == it)
+//  {
+//    _result = _histList.back().second.get();
+//    /**
+//     * The calls that either process this event or request the condtion from
+//     * another postprocessor might alter the hist list (ie. if the either one
+//     * will resize and then call histogramsChanged). Also the _result pointer
+//     * might have changed, so create the pair with the pointer and the id only
+//     * after the call and modify the list
+//     */
+//    if (_condition && !(*_condition)(evt).isTrue())
+//    {
+//      _histList.pop_back();
+//      cachedResult_t newPair(make_pair(evt.id(),_result));
+//      it = _histList.begin();
+//      ++it;
+//      it =_histList.insert(it,newPair);
+//    }
+//    else
+//    {
+//      process(evt);
+//      _histList.pop_back();
+//      cachedResult_t newPair(std::make_pair(evt.id(),_result));
+//      _histList.push_front(newPair);
+//      it = _histList.begin();
+//    }
+//  }
+//  return *(it->second);
 }
 
 void PostprocessorBackend::processEvent(const CASSEvent& evt)
@@ -163,7 +164,7 @@ HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     QReadLocker(&it->second->lock);
-    return HistogramBackend::shared_pointer(it->second->copyclone());
+    return HistogramBackend::shared_pointer(it->second->copy_sptr());
   }
 }
 
@@ -190,8 +191,11 @@ void PostprocessorBackend::createHistList(HistogramBackend::shared_pointer resul
   }
   else
   {
-    HistogramBackend::shared_pointer res_cpy(result->copy_sptr());
-    _histList.push_back(make_pair(0,res_cpy));
+    for (size_t i=0; i<size; ++i)
+    {
+      HistogramBackend::shared_pointer res_cpy(result->copy_sptr());
+      _histList.push_back(make_pair(0,res_cpy));
+    }
   }
 }
 
