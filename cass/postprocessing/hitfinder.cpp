@@ -870,18 +870,17 @@ void pp208::loadSettings(size_t)
   /** set up the neighbouroffset list */
   _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)).shape();
   _neighbourOffsets.clear();
-  _neighbourOffsets.push_back(+_imageShape.first-1);     //up left
+//  _neighbourOffsets.push_back(+_imageShape.first-1);     //up left
   _neighbourOffsets.push_back(+_imageShape.first+0);     //up
-  _neighbourOffsets.push_back(+_imageShape.first+1);     //up right
+//  _neighbourOffsets.push_back(+_imageShape.first+1);     //up right
   _neighbourOffsets.push_back(-1);                       //left
   _neighbourOffsets.push_back(+1);                       //right
-  _neighbourOffsets.push_back(-_imageShape.first-1);     //low left
+//  _neighbourOffsets.push_back(-_imageShape.first-1);     //low left
   _neighbourOffsets.push_back(-_imageShape.first+0);     //low
-  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
+//  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
 
   /** Create the result output */
-  _result = new Histogram2DFloat(nbrOf);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(HistogramBackend::shared_pointer(new Histogram2DFloat(nbrOf)));
 
   /** log what the user was requesting */
   string output("PostProcessor '" + _key + "' finds bragg peaks." +
