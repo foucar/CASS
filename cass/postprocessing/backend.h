@@ -56,7 +56,7 @@ public:
    *        which means that one has to change all pps, since they new the
    *        _result pointer
    */
-  typedef std::pair<CASSEvent::id_t, HistogramBackend*> cachedResult_t;
+  typedef std::pair<CASSEvent::id_t, HistogramBackend::shared_pointer> cachedResult_t;
 
   /** define the list of cached results */
   typedef std::list<cachedResult_t> cachedResults_t;
@@ -253,15 +253,27 @@ protected:
 
   /** create histogram list.
    *
-   * Before creating the list the contents of the old list will be deleted.
+   * When this postprocessor is an accumulating postprocessor, it will put
+   * copies of the result pointer (that point to the same result in the hist
+   * list). If it is a regular PostProcessor it will clone the results and put
+   * pairs of these clones in the list.
    *
-   * This function relies on that the the histogrambackened pointer (_result)
-   * points to a valid histogram. It will take it to create all the other
-   * histograms that will be put on the histogram list.
+   * @todo make derived class that overwrites this and doesn't use a list of
+   *       pairs, but just returns the result.
    *
-   * When this postprocessor is an accumulating postprocessor, then it will
-   * not clone the histogram _result, but create the list with pointers to
-   * the same result. Default is false (non accumulating pp)
+   * @param result shared pointer of the result that will be used in the cached
+   *               result list
+   * @param[in] size The size of the list. Default is 2 times the number of
+   *                 workers
+   * @param[in] isaccumulate flag to tell this that it is a accumulating pp
+   */
+  virtual void createHistList(HistogramBackend::shared_pointer result,
+                              size_t size=2*cass::NbrOfWorkers,
+                              bool isaccumulate=false);
+
+  /** create histogram list.
+   *
+   * left for backward compatibility. Just calls createHistList above.
    *
    * @param[in] size The size of the list
    * @param[in] isaccumulate flag to tell this that it is a accumulating pp

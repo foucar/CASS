@@ -84,8 +84,8 @@ void cass::pp100::process(const cass::CASSEvent& evt)
   {
     for (cachedResults_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
     {
-      dynamic_cast<Histogram2DFloat*>(it->second)->resize(det.columns(),0,det.columns()-1,
-                                                          det.rows(),0,det.rows()-1);
+      dynamic_cast<Histogram2DFloat*>(it->second.get())->resize(det.columns(),0,det.columns()-1,
+                                                                det.rows(),0,det.rows()-1);
     }
     PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
     PostProcessors::keyList_t::iterator it (dependands.begin());
