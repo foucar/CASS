@@ -177,6 +177,8 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int ev_index) {
   int error = 0;
   char* qname             = new char[128];
 
+  umask(0);   // Need this to set group/other write permissions on mqueue
+
   XtcMonitorMsg myMsg;
   unsigned priority;
 
