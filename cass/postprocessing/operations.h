@@ -166,8 +166,20 @@ namespace cass
       return *_result;
     }
 
+    /** overwrite default behaviour and just return the constant */
+    virtual const HistogramBackend& getHist(const uint64_t)
+    {
+      return *_result;
+    }
+
+    /** overwrite default behaviour don't do anything */
+    virtual void processEvent(const CASSEvent&){}
+
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
+
+    /** don't do anything to the histogram */
+    virtual void process(const CASSEvent&,HistogramBackend&){}
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
