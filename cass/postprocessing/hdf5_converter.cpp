@@ -1188,7 +1188,10 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    string ppname(s.value("Name","Unknown").toString().toStdString());
+    if (ppname == "Unknown")
+      continue;
+    shared_pointer pp(setupDependency(ppname));
     allDepsAreThere = pp && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
     string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
