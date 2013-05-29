@@ -91,7 +91,6 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
   Log::add(Log::DEBUG4,"clock seconds '" + toString(datagram->seq.clock().seconds()) + "'");
   Log::add(Log::DEBUG4,"fiducials '" + toString(datagram->seq.stamp().fiducials()) + "'");
 
-
   /** if datagram is configuration or an event (L1Accept) then we will iterate through it
    *  otherwise we ignore the datagram
    */
