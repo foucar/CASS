@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file detector_analyzer_backend.h file contains base class implemetentation
+ * @file detector_analyzer_backend.cpp contains base class implementation
  *                                   for all detector analyzers.
  *
  * @author Lutz Foucar

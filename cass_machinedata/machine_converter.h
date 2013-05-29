@@ -1,4 +1,11 @@
-// Copyright (C) Lutz Foucar
+// Copyright (C) 2009 - 2013 Lutz Foucar
+
+/**
+ * @file machine_converter.h contains xtc converter for machine data
+ *
+ * @author Lutz Foucar
+ */
+
 
 #ifndef MACHINEDATACONVERTER_H
 #define MACHINEDATACONVERTER_H

@@ -1,7 +1,7 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file acqiris_device.h file contains the declaration of the acqiristdc part
+ * @file acqiristdc_device.h file contains the declaration of the acqiristdc part
  *                        of the CASSEvent
  *
  * @author Lutz Foucar

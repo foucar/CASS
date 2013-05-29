@@ -1,7 +1,8 @@
 //Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file cbf_output.cpp output of 2d histograms into the cbf.
+ * @file autocorrelation.cpp containing the class to calculate the
+ *                         autocorrelation of a 2d histogram
  *
  * @author Lutz Foucar
  */

@@ -1,7 +1,7 @@
-// Copyright (C) 2012 Lutz Foucar
+// Copyright (C) 2012, 2013 Lutz Foucar
 
 /**
- * @file image_manipulation.h file contains postprocessors that will manipulate
+ * @file image_manipulation.cpp file contains postprocessors that will manipulate
  *                            2d histograms
  *
  * @author Lutz Foucar

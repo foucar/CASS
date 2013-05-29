@@ -1,5 +1,12 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file device_backend.h contains base class for all devices that are part of
+ *                        the cassevent.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef CASS_DEVICEBACKEND_H
 #define CASS_DEVICEBACKEND_H
 

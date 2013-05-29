@@ -1,9 +1,8 @@
 //Copyright (C) 2010-2011 Lutz Foucar
 
 /**
- * @file delayline_detector_analyzer_simple.cpp file contains the definition of
- *                                              classes and functions that
- *                                              analyzses a delayline detector.
+ * @file poscalculator.hpp contains classes for calculating the position in a
+ *                         DLD
  *
  * @author Lutz Foucar
  */

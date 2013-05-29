@@ -1,6 +1,12 @@
 // Copyright (C) 2010,2013 Lutz Foucar
 // Copyright (C) 2010 Jochen Kuepper
 
+/**
+ * @file postprocessor.h contains the manager for the postprocessors
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __POSTPROCESSOR_H__
 #define __POSTPROCESSOR_H__
 
@@ -122,6 +128,7 @@ the Class description for information about what parameters are user settable.
 
 ---Data retrieval (Histogram contain only last shot)--
 ##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
+## all of the below are depreciated. Use the new pixeldetector device post processors instead##
 00100: CCD image
 00101: CCD image Integral
 00102: CCD image Integral using pixel(s) over user defined Threshold
@@ -203,21 +210,21 @@ the Class description for information about what parameters are user settable.
 01601: rearrange cspad to coarsly right orientation (looking from upstream)
 
 00400: ToF to Energy conversion
-00401: Calculate variance
+00401: Calculate variance; depreciated (use pp83 instead)
 00402: Square average
-00403: Binned 1D histogram
+00403: Binned 1D histogram; depreciated (use pp70 instead)
 00404: ToF to Mass to Charge ratio conversion
-00405: Pulse duration od shot
+00405: Pulse duration of shot
 00406: ToF to Energy conversion from 0D histogram
 00407: ToF to Energy conversion by linear interpolation
 00408: ToF to Energy conversion by linear interpolation and correction from 0D histogram
-00410: calclate covariance map
-00420: indicate number of event
+00410: calculate covariance map
+00420: indicate number of event; depreciated (use pp80 instead)
 
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
-01002: Put a selectable 2d histogram into HDF5-Files use Chapman convention
+01002: Put selectable histograms into HDF5-Files
 01500: Put a selectable 2d histogram into CBF Files
 02000: Dump all selected 0d, 1d and 2d cass histograms to root file
 02001: Write Hits of selected Delayline Detectors to ROOT Tree

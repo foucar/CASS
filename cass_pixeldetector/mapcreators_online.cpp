@@ -1,8 +1,8 @@
 // Copyright (C) 2012 Lutz Foucar
 
 /**
- * @file mapcreators_online.h contains correction map creators that work fast
- *                            easy for online purposes.
+ * @file mapcreators_online.cpp contains correction map creators that work fast
+ *                              easy for online purposes.
  *
  * @author Lutz Foucar
  */

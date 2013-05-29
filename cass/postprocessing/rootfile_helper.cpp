@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file rootfile_helper.h contains singleton definition for creating root files
+ * @file rootfile_helper.cpp contains singleton definition for creating root files
  *
  * @author Lutz Foucar
  */

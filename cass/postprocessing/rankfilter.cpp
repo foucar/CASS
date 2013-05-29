@@ -1,8 +1,9 @@
 // Copyright (C) 2010 Stephan Kassemeyer
 
-/** @file rankfilter.h file contains definition of postprocessors that will
+/** @file rankfilter.cpp contains definition of postprocessors that will
  *                     operate on histograms of other postprocessors,
  *                     calculating statistical rank filters like median filter.
+ *
  * @author Stephan Kassemeyer
  */
 

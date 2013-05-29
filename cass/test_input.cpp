@@ -1,7 +1,7 @@
 // Copyright (C) 2012 Lutz Foucar
 
 /**
- * @file test_input.h file contains declaration of a input for testing purposes
+ * @file test_input.cpp contains declaration of a input for testing purposes
  *
  * @author Lutz Foucar
  */

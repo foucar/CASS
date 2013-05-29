@@ -1,3 +1,12 @@
+// Copyright (C) 2009 - 2013 Lutz Foucar
+
+/**
+ * @file machine_converter.cpp contains xtc converter for machine data
+ *
+ * @author Lutz Foucar
+ */
+
+
 #include <sstream>
 #include <iostream>
 

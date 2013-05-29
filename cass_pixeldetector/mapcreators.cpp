@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file mapcreators.h contains all correction map creators.
+ * @file mapcreators.cpp contains all correction map creators.
  *
  * @author Lutz Foucar
  */

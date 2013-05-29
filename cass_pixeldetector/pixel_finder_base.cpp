@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file coalescing_base.cpp file contains base class for all coalescing functors.
+ * @file pixel_finder_base.cpp file contains base class for all coalescing functors.
  *
  * @author Lutz Foucar
  */

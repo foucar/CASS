@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file postprocessor.cpp contains the manager for the postprocessors
+ *
+ * @author Lutz Foucar
+ */
+
 #include <QtCore/QMutex>
 #include <QtCore/QStringList>
 
