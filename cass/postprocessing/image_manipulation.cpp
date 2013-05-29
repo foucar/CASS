@@ -292,21 +292,23 @@ void pp55::loadSettings(size_t)
            "'. Condition is '" + _condition->key() + "'");
 }
 
-//void pp55::process(const CASSEvent &evt,HistogramBackend &result)
-void pp55::process(const CASSEvent &evt)
+void pp55::process(const CASSEvent &evt,HistogramBackend &result)
+//void pp55::process(const CASSEvent &evt)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
 //      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
       (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
-  HistogramBackend &result(*_result);
+
+//  HistogramBackend &result(*_result);
 
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
-  HistogramFloatBase::storage_t::iterator dest(
-        dynamic_cast<HistogramFloatBase&>(result).memory().begin());
 
   QReadLocker(&hist.lock);
   QWriteLocker(&result.lock);
+
+  HistogramFloatBase::storage_t::iterator dest(
+        dynamic_cast<HistogramFloatBase&>(result).memory().begin());
 
   _result->nbrOfFills()=1;
 
@@ -349,15 +351,16 @@ void pp1600::loadSettings(size_t)
            ". Condition is '" + _condition->key() + "'");
 }
 
-//void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
-void pp1600::process(const CASSEvent &evt)
+void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
+//void pp1600::process(const CASSEvent &evt)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
 //      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
       (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
 
-  HistogramBackend &result(*_result);
+//  HistogramBackend &result(*_result);
+
   const HistogramFloatBase::storage_t& src(hist.memory());
   HistogramFloatBase::storage_t& dest(
         dynamic_cast<HistogramFloatBase&>(result).memory());
@@ -423,8 +426,8 @@ void pp1601::loadSettings(size_t)
            ". Condition is '" + _condition->key() + "'");
 }
 
-//void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
-void pp1601::process(const CASSEvent &evt)
+void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
+//void pp1601::process(const CASSEvent &evt)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
@@ -432,7 +435,7 @@ void pp1601::process(const CASSEvent &evt)
       (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
 
-  HistogramBackend &result(*_result);
+//  HistogramBackend &result(*_result);
   HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase&>(result).memory());
 
   QReadLocker(&hist.lock);
@@ -825,7 +828,8 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
 
 }
 
-void pp1602::process(const CASSEvent &evt)
+//void pp1602::process(const CASSEvent &evt)
+void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 {
   /** Get the input histogram and its memory */
   const Histogram2DFloat &imageHist
@@ -833,7 +837,8 @@ void pp1602::process(const CASSEvent &evt)
   const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
 
   /** get result image and its memory */
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(*_result));
+  //  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(*_result));
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
   HistogramFloatBase::storage_t& destImage(result.memory());
 
   /** lock resources */

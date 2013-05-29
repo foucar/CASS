@@ -96,8 +96,8 @@ public:
    * @param evt the event to process
    * @param result the histogram where the result will be written to
    */
-//  virtual void process(const CASSEvent& evt,HistogramBackend &result);
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt,HistogramBackend &result);
+//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -155,8 +155,8 @@ public:
    *
    * @param evt the event to process
    */
-//  virtual void process(const CASSEvent& evt, HistogramBackend &result);
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt, HistogramBackend &result);
+//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -288,8 +288,8 @@ public:
    *
    * @param evt the event to process
    */
-//  virtual void process(const CASSEvent& evt, HistogramBackend &result);
-  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt, HistogramBackend &result);
+//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -368,7 +368,8 @@ public:
    *
    * @param evt the event to process
    */
-  virtual void process(const CASSEvent& evt);
+//  virtual void process(const CASSEvent& evt);
+  virtual void process(const CASSEvent& evt,HistogramBackend &);
 
   /** load the settings of this pp
    *
