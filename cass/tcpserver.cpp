@@ -210,13 +210,13 @@ int CASSsoapService::clearHistogram(PostProcessors::key_t type, bool *success)
  */
 int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
 {
-  if (controlCommand == "start")
+  try
   {
     pixeldetector::CommonData::controlCalibration(controlCommand);
     *success = true;
     return SOAP_OK;
   }
-  else
+  catch(const invalid_argument &)
   {
     *success = false;
     return SOAP_FATAL_ERROR;

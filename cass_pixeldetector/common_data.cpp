@@ -545,6 +545,9 @@ void CommonData::controlCalibration(const string& command)
       instance->second->_offsetnoiseMapcreator->controlCalibration(command);
     else if (command == "startGain")
       instance->second->_gainCreator->controlCalibration(command);
+    else
+      throw invalid_argument("CommonData::controlCalibration: command '" +
+                             command + "' is unknown.");
   }
 }
 
