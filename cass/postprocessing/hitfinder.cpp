@@ -978,7 +978,8 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
 {
   /** retrive references to work with from incomming image and output table */
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(evt.id())));
+//      (dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(evt.id())));
+      (dynamic_cast<const Histogram2DFloat&>((*_imagePP)(evt)));
   const HistogramFloatBase::storage_t &image(hist.memory());
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));

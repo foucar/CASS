@@ -50,7 +50,8 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
 {
   typedef HistogramFloatBase::storage_t::const_iterator const_iterator;
   const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>(_hist->getHist(evt.id())));
+//      (dynamic_cast<const Histogram2DFloat&>(_hist->getHist(evt.id())));
+      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));

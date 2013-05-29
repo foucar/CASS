@@ -296,7 +296,8 @@ void pp55::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
 
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
   HistogramFloatBase::storage_t::iterator dest(
@@ -350,7 +351,8 @@ void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
 
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
   HistogramFloatBase::storage_t& dest(
@@ -421,7 +423,8 @@ void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
+      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
 
   HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase&>(result).memory());
