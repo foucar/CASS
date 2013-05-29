@@ -40,17 +40,17 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const name_t &key
 PostprocessorBackend::~PostprocessorBackend()
 {
   QWriteLocker lock(&_histLock);
-//  if (!_histList.empty())
-//  {
-//    cachedResults_t::iterator it (_histList.begin());
-//    HistogramBackend * old = it->second;
-//    delete it->second;
-//    ++it;
-//    for (;it != _histList.end(); ++it)
-//      if (old != it->second)
-//        delete it->second;
+  if (!_histList.empty())
+  {
+    cachedResults_t::iterator it (_histList.begin());
+    HistogramBackend * old = it->second;
+    delete it->second;
+    ++it;
+    for (;it != _histList.end(); ++it)
+      if (old != it->second)
+        delete it->second;
   _histList.clear();
-//  }
+  }
 }
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
@@ -66,7 +66,8 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 
   if(_histList.end() == it)
   {
-    _result = _histList.back().second.get();
+//    _result = _histList.back().second.get();
+     _result = _histList.back().second;
     /**
      * The calls that either process this event or request the condtion from
      * another postprocessor might alter the hist list (ie. if the either one
@@ -180,28 +181,59 @@ void PostprocessorBackend::clearHistograms()
 void PostprocessorBackend::createHistList(HistogramBackend::shared_pointer result,
                                           size_t size, bool isaccumulate)
 {
-  QWriteLocker lock(&_histLock);
-  _histList.clear();
+//  QWriteLocker lock(&_histLock);
+//  _histList.clear();
 
-  result->key() = name();
-  if (isaccumulate)
-  {
-    for (size_t i=0; i<size; ++i)
-      _histList.push_back(make_pair(0,result));
-  }
-  else
-  {
-    for (size_t i=0; i<size; ++i)
-    {
-      HistogramBackend::shared_pointer res_cpy(result->copy_sptr());
-      _histList.push_back(make_pair(0,res_cpy));
-    }
-  }
+//  result->key() = name();
+//  if (isaccumulate)
+//  {
+//    for (size_t i=0; i<size; ++i)
+//      _histList.push_back(make_pair(0,result));
+//  }
+//  else
+//  {
+//    for (size_t i=0; i<size; ++i)
+//    {
+//      HistogramBackend::shared_pointer res_cpy(result->copy_sptr());
+//      _histList.push_back(make_pair(0,res_cpy));
+//    }
+//  }
+//  _result = _histList.front().second.get();
+  throw logic_error("PostprocessorBackend::createHistList(HistogramBackend::shared_pointer: don't use this function");
 }
 
 void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
 {
-  createHistList(_result->copy_sptr(),size,isaccumulate);
+  QWriteLocker lock(&_histLock);
+  if (!_result)
+  {
+    throw runtime_error(string("HistogramBackend::createHistList: result ") +
+                        "histogram of postprocessor '"+name()+"' is not initalized");
+  }
+  if (isaccumulate)
+  {
+    if (!_histList.empty())
+      delete _histList.front().second;
+  }
+  else
+  {
+    cachedResults_t::iterator it(_histList.begin());
+    for (;it != _histList.end();++it)
+      delete it->second;
+  }
+  _histList.clear();
+  for (size_t i=1; i<size;++i)
+  {
+    if (isaccumulate)
+      _histList.push_back(make_pair(0,_result));
+    else
+      _histList.push_back(make_pair(0,_result->clone()));
+  }
+  _histList.push_back(make_pair(0, _result));
+  cachedResults_t::iterator it(_histList.begin());
+  for (;it != _histList.end();++it)
+    it->second->key() = name();
+//  createHistList(_result->copy_sptr(),size,isaccumulate);
 }
 
 void PostprocessorBackend::setupGeneral()

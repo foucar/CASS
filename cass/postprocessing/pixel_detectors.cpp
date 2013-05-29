@@ -85,16 +85,17 @@ void pp105::loadSettings(size_t)
            "'. It will use condition '" + _condition->key() +"'");
 }
 
-void pp105::process(const cass::CASSEvent& evt)
+void pp105::process(const CASSEvent& evt)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::frame_t& frame (det->frame().data);
 
+  QWriteLocker resultLock(&(_result->lock));
+
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
 
 //  result.lock.lockForWrite();
-  QWriteLocker resultLock(&result.lock);
   if (result.shape() != det->frame().shape())
   {
     throw invalid_argument("Postprocessor '" + _key +

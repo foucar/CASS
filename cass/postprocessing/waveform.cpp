@@ -78,7 +78,8 @@ void pp110::process(const CASSEvent &evt)
   {
     for (cachedResults_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
     {
-      dynamic_cast<Histogram1DFloat*>(it->second.get())->resize(waveform.size(),
+//      dynamic_cast<Histogram1DFloat*>(it->second.get())->resize(waveform.size(),
+      dynamic_cast<Histogram1DFloat*>(it->second)->resize(waveform.size(),
                                                                 0,
                                                                 waveform.size()*channel.sampleInterval());
     }

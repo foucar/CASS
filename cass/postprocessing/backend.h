@@ -56,7 +56,7 @@ public:
    *        which means that one has to change all pps, since they new the
    *        _result pointer
    */
-  typedef std::pair<CASSEvent::id_t, HistogramBackend::shared_pointer> cachedResult_t;
+  typedef std::pair<CASSEvent::id_t, HistogramBackend*> cachedResult_t;
 
   /** define the list of cached results */
   typedef std::list<cachedResult_t> cachedResults_t;

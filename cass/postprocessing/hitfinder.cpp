@@ -880,7 +880,9 @@ void pp208::loadSettings(size_t)
 //  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
 
   /** Create the result output */
-  createHistList(HistogramBackend::shared_pointer(new Histogram2DFloat(nbrOf)));
+//  createHistList(HistogramBackend::shared_pointer(new Histogram2DFloat(nbrOf)));
+  _result = new Histogram2DFloat(nbrOf);
+  createHistList(2*cass::NbrOfWorkers);
 
   /** log what the user was requesting */
   string output("PostProcessor '" + _key + "' finds bragg peaks." +
@@ -974,15 +976,16 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
 }
 
 
-void pp208::process(const CASSEvent & evt, HistogramBackend &r)
+//void pp208::process(const CASSEvent & evt, HistogramBackend &r)
+void pp208::process(const CASSEvent & evt)
 {
-  /** retrive references to work with from incomming image and output table */
   const Histogram2DFloat &hist
 //      (dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(evt.id())));
       (dynamic_cast<const Histogram2DFloat&>((*_imagePP)(evt)));
   const HistogramFloatBase::storage_t &image(hist.memory());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
+  //  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
+    Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
 
   /** lock the resources */
   QWriteLocker rLock(&result.lock);

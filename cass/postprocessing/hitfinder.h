@@ -416,7 +416,8 @@ public:
   pp208(PostProcessors& hist, const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+//  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);

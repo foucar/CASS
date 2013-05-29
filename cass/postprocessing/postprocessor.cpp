@@ -139,8 +139,8 @@ void PostProcessors::operator()(const CASSEvent& event)
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
   while(iter != end)
-//    (*(*iter++))(event);
-    (*iter++)->processEvent(event);
+    (*(*iter++))(event);
+//    (*iter++)->processEvent(event);
 }
 
 void PostProcessors::aboutToQuit()
