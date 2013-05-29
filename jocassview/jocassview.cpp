@@ -39,7 +39,9 @@ int main(int argc, char *argv[])
       << screen_width << " " <<  my_desktop->isVirtualDesktop()
       << " " <<  my_desktop->primaryScreen() <<std::endl;
 #endif
-  window.resize(min_size,min_size);
+  QSettings s;
+  QSize winsize(s.value("WindowSize",QSize(min_size,min_size)).toSize());
+  window.resize(winsize);
 
   window.show();
   return app.exec();

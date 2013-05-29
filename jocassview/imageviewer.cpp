@@ -311,6 +311,7 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
 void ImageViewer::closeEvent(QCloseEvent *event)
 {
   QSettings settings;
+  settings.setValue("WindowSize",this->size());
   settings.setValue("picturetypeindex", _picturetype->currentIndex());
   settings.setValue("servername", _servername->text());
   settings.setValue("serverport", _serverport->value());
