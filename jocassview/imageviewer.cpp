@@ -1076,7 +1076,7 @@ void jocassview::ImageViewer::on_actionStart_Gaincalibration_triggered()
   _cass->controlDarkcal("startGain",&ret);
   if (!ret)
     QMessageBox::information(this, tr("jocassviewer"),
-                             tr("Error: Cannot communicate control darkcal command."));
+                             tr("Error: Cannot communicate control gain command."));
 }
 
 
