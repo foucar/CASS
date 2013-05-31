@@ -1267,18 +1267,60 @@ void pp1002::process(const CASSEvent &evt)
   /** check if there is something to be written */
   if (!_ppList.empty())
   {
-    /** create entry writer with filename using basefilename and event id */
-    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
+//    /** create entry writer with filename using basefilename and event id */
+//    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
 
-    /** write all entries to file using the writer
-     *
-     * @note we can't use for_each here, since we need to ensure that the
-     *       entries are written sequentially and for_each can potentially use
-     *       omp to parallelize the execution.
-     */
-    list<entry_t>::const_iterator it(_ppList.begin());
-    list<entry_t>::const_iterator last(_ppList.end());
-    while(it != last)
-      writeEntry(*it++);
+//    /** write all entries to file using the writer
+//     *
+//     * @note we can't use for_each here, since we need to ensure that the
+//     *       entries are written sequentially and for_each can potentially use
+//     *       omp to parallelize the execution.
+//     */
+//    list<entry_t>::const_iterator it(_ppList.begin());
+//    list<entry_t>::const_iterator last(_ppList.end());
+//    while(it != last)
+//      writeEntry(*it++);
+    /** create filename from base filename + event id */
+    string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
+    /** create the hdf5 file with the name and the handles to the specific data storage*/
+    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (fh == 0)
+      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+
+    /** iterate through the postprocessor list that should be dumped to h5 */
+    list<entry_t>::iterator entry(_ppList.begin());
+    for (;entry != _ppList.end(); ++entry)
+    {
+      const uint32_t &options(entry->options);
+      const string &gname(entry->groupname);
+      const string &name(entry->name);
+      PostprocessorBackend &pp(*entry->pp);
+
+      /** create the requested group and data name*/
+      hdf5::createGroupWithAbsolutePath(gname,fh);
+      const string dataName(gname + "/" + name);
+
+      /** retrieve data from pp and write it to the h5 file */
+      const HistogramBackend &data(pp(evt));
+      switch (data.dimension())
+      {
+      case 0:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
+        break;
+      case 1:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
+        break;
+      case 2:
+        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), options, fh);
+        break;
+      default:
+        throw runtime_error("pp1002::process: data dimension not known");
+        break;
+      }
+    }
+
+    /** close file */
+    H5Fflush(fh,H5F_SCOPE_LOCAL);
+    H5Fclose(fh);
   }
 }
