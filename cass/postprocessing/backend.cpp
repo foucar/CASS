@@ -107,7 +107,8 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
 
   cachedResult_t newPair(make_pair(evt.id(),_histList.back().second));
 
-  if (_condition->getHist(evt.id()).isTrue())
+//  if (_condition->getHist(evt.id()).isTrue())
+  if ((*_condition)(evt).isTrue())
   {
     _histList.pop_back();
     _histList.push_front(newPair);
