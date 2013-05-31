@@ -1191,7 +1191,7 @@ void pp1002::loadSettings(size_t)
     string ppname(s.value("Name","Unknown").toString().toStdString());
     if (ppname == "Unknown")
       continue;
-    shared_pointer pp(setupDependency(ppname));
+    shared_pointer pp(setupDependency("",ppname));
     allDepsAreThere = pp && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
     string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
@@ -1203,7 +1203,10 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    shared_pointer pp(setupDependency("",s.value("Name","Unknown").toString().toStdString()));
+    string ppname(s.value("Name","Unknown").toString().toStdString());
+    if (ppname == "Unknown")
+      continue;
+    shared_pointer pp(setupDependency("",ppname));
     allDepsAreThere = pp && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
     string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
@@ -1251,7 +1254,7 @@ void pp1002::aboutToQuit()
      *       omp to parallelize the execution.
      */
     list<entry_t>::const_iterator it(_ppSummaryList.begin());
-    list<entry_t>::const_iterator last(_ppSummaryList.begin());
+    list<entry_t>::const_iterator last(_ppSummaryList.end());
     while(it != last)
       writeEntry(*it++);
   }
@@ -1274,7 +1277,7 @@ void pp1002::process(const CASSEvent &evt)
      *       omp to parallelize the execution.
      */
     list<entry_t>::const_iterator it(_ppList.begin());
-    list<entry_t>::const_iterator last(_ppList.begin());
+    list<entry_t>::const_iterator last(_ppList.end());
     while(it != last)
       writeEntry(*it++);
   }
