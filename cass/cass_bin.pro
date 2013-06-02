@@ -142,6 +142,7 @@ HEADERS            += analysis_backend.h \
                       calibcycle.h \
                       statistics_calculator.hpp \
                       generic_factory.hpp \
+                      cached_list.hpp \
                       ./postprocessing/convenience_functions.h \
                       ./postprocessing/postprocessor.h \
                       ./postprocessing/id_list.h \
