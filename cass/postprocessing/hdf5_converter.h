@@ -140,10 +140,14 @@ protected:
  * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
  * crew is using to be able to read and process the hdf5 with crystfel
  *
- * @cassttng PostProcessor/\%name\%/compress \n
+ * @cassttng PostProcessor/\%name\%/{compress} \n
  *           Default true
- * @cassttng PostProcessor/\%name\%/FileBaseName \n
+ * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
  *           Default name given by program parameter
+ * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
+ *           Distribute the files over subdirectories where each subdir contains
+ *           this amount of files. If -1 it will not distribute the files.
+ *           Default is -1.
  * @cassttng PostProcessor/\%name\%/PostProcessor/size \n
  *           How many PostProcessors should be written to the h5 file.
  * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
@@ -228,6 +232,12 @@ protected:
 
   /** container for all pps that should be written when program quits */
   std::list<entry_t> _ppSummaryList;
+
+  /** the number of files in each subdir */
+  int _maxFilePerSubDir;
+
+  /** counter to count how many files have been written */
+  int _filecounter;
 
 private:
   /** a lock to make the process reentrant */

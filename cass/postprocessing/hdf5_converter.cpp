@@ -7,6 +7,8 @@
  */
 
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <hdf5.h>
 #include <stdint.h>
@@ -1183,6 +1185,23 @@ void pp1002::loadSettings(size_t)
 
   _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
 
+  /** when requested add the first subdir to the filename and make sure that the
+   *  directory exists.
+   */
+  _maxFilePerSubDir = s.value("MaximumNbrFilesPerDir",-1).toInt();
+  _filecounter = 0;
+  if(_maxFilePerSubDir != -1)
+  {
+    QFileInfo fInfo(QString::fromStdString(_basefilename));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    path += "/aa/";
+    QDir dir(path);
+    if (!dir.exists())
+      dir.mkpath(".");
+    _basefilename = path.toStdString() + filename.toStdString();
+  }
+
   bool allDepsAreThere(true);
   int size = s.beginReadArray("PostProcessor");
   for (int i = 0; i < size; ++i)
@@ -1233,7 +1252,8 @@ void pp1002::loadSettings(size_t)
                "' with dataname '" + it->name +"',");
   output += (" of a hdf5 file with '" + _basefilename +
              "' as basename. 2D File will " + (compress ? "" : "NOT") +
-             " be compressed." + "Condition is '" + _condition->name() + "'");
+             " be compressed. Files will " + (_maxFilePerSubDir != -1 ? "" : "NOT") +
+             " be distributed. Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
@@ -1244,6 +1264,19 @@ void pp1002::aboutToQuit()
   /** check if something to be written */
   if (!_ppSummaryList.empty())
   {
+    /** remove subdir from filename when they should be distributed */
+    if (_maxFilePerSubDir != -1)
+    {
+      QFileInfo fInfo(QString::fromStdString(_basefilename));
+      QString path(fInfo.path());
+      QString filename(fInfo.fileName());
+      QStringList dirs = path.split("/");
+      dirs.removeLast();
+      QString newPath(dirs.join("/"));
+      newPath.append("/");
+      _basefilename = newPath.toStdString() + filename.toStdString();
+    }
+
     /** create filename from base filename and write entries to file */
     hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_Summary.h5"));
 
@@ -1267,6 +1300,36 @@ void pp1002::process(const CASSEvent &evt)
   /** check if there is something to be written */
   if (!_ppList.empty())
   {
+    /** increment subdir in filename when they should be distributed and the
+     *  counter exeeded the maximum amount of files per subdir
+     */
+    if (_maxFilePerSubDir == _filecounter)
+    {
+      _filecounter = 0;
+      QFileInfo fInfo(QString::fromStdString(_basefilename));
+      QString path(fInfo.path());
+      QString filename(fInfo.fileName());
+      QStringList dirs = path.split("/");
+      QString subdir = dirs.last();
+      QByteArray alphaCounter = subdir.toAscii();
+      if (alphaCounter[1] == 'z')
+      {
+        alphaCounter[0] = alphaCounter[0] + 1;
+        alphaCounter[1] = 'a';
+      }
+      else
+        alphaCounter[1] = alphaCounter[1] + 1;
+      QString newSubdir(QString::fromAscii(alphaCounter));
+      dirs.removeLast();
+      dirs.append(newSubdir);
+      QString newPath(dirs.join("/"));
+      newPath.append("/");
+      QDir dir(newPath);
+      if (!dir.exists())
+        dir.mkpath(".");
+      _basefilename = newPath.toStdString() + filename.toStdString();
+    }
+    ++_filecounter;
 //    /** create entry writer with filename using basefilename and event id */
 //    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
 
