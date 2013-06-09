@@ -1288,6 +1288,41 @@ namespace cass
 
 
 
+
+
+
+  /** Counter
+   *
+   * Increases the value by one everytime its process function is called
+   *
+   * @PPList "78": Counter
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @author Lutz Foucar
+   */
+  class pp78 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp78(PostProcessors& hist, const name_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&, HistogramBackend &result);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+  };
+
+
+
+
+
+
+
+
+
   /** return number of fills of a given histogram
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini

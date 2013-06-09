@@ -112,6 +112,8 @@ the Class description for information about what parameters are user settable.
 
 00077: Checks if eventid is on a user provided list
 
+00078: Count how many times it has been called
+
 00080: nbrOfFills of given histogram
 00081: maximum bin of 1D histogram
 00082: mean value of all bins of a histogram
@@ -371,6 +373,7 @@ public:
     ClearHistogram=75,
     QuitCASS=76,
     IdIsOnList=77,
+    Counter=78,
 
     nbrOfFills=80,
     maximumBin=81,

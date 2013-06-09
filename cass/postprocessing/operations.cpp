@@ -1977,6 +1977,42 @@ void cass::pp77::process(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 78 counter ***
+
+pp78::pp78(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp78::loadSettings(size_t)
+{
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' counts how many times its process is called. '"  +
+           "'. Condition is '"+ _condition->name() + "'");
+}
+
+void pp78::process(const CASSEvent&, HistogramBackend &res)
+{
+  Histogram0DFloat result(dynamic_cast<Histogram0DFloat&>(res));
+  QWriteLocker (&result.lock);
+  ++(result.memory()[0]);
+  result.nbrOfFills()=1;
+}
+
+
+
+
+
+
+
+
+
 
 
 // ***  pp 80 returns the number of fills of a given histogram ***

@@ -504,6 +504,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case IdIsOnList:
     processor = PostprocessorBackend::shared_pointer(new pp77(*this, key));
     break;
+  case Counter:
+    processor = PostprocessorBackend::shared_pointer(new pp78(*this, key));
+    break;
   case nbrOfFills:
     processor = PostprocessorBackend::shared_pointer
           (new pp80(*this, key));
