@@ -20,6 +20,7 @@
 #include "cass.h"
 #include "histogram.h"
 #include "cass_event.h"
+#include "cached_list.hpp"
 
 namespace cass
 {
@@ -128,6 +129,25 @@ public:
    *                Default is 0
    */
   virtual const HistogramBackend& getHist(const CASSEvent::id_t eventid);
+
+  /** retrieve a result for a given id.
+   *
+   * return a reference to the result for the given id or the most recent one
+   * in case of eventid beeing 0
+   *
+   * @return const reference to the requested histogram
+   * @param eventid the event id of the histogram that is requested.
+   *                Default is 0
+   */
+  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+
+  /** tell the list that the result for event can be overwritten
+   *
+   * details
+   *
+   * @param event The event that can be released
+   */
+  virtual void releaseEvent(const CASSEvent &event);
 
   /** retrieve histogram for id
    *
@@ -354,6 +374,9 @@ protected:
 
   /** the list of histograms - event ids */
   cachedResults_t _histList;
+
+  /** the list of results */
+  CachedList _resultList;
 
   /** the list of dependencies */
   names_t _dependencies;

@@ -141,6 +141,10 @@ void PostProcessors::operator()(const CASSEvent& event)
   while(iter != end)
 //    (*(*iter++))(event);
     (*iter++)->processEvent(event);
+  /** tell the pp that the event is completly processed */
+  iter=_postprocessors.begin();
+  while(iter != end)
+    (*(iter++))->releaseEvent(event);
 }
 
 void PostProcessors::aboutToQuit()
