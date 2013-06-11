@@ -51,46 +51,15 @@ public:
   /** define the list of names */
   typedef std::list<name_t> names_t;
 
-  /** define a cached results
-   *
-   * @todo make the histogram list a list of shared pointers to the hbacks
-   *        which means that one has to change all pps, since they new the
-   *        _result pointer
-   */
-  typedef std::pair<CASSEvent::id_t, HistogramBackend*> cachedResult_t;
-
-  /** define the list of cached results */
-  typedef std::list<cachedResult_t> cachedResults_t;
-
   /** constructor
    *
    * @param pp reference to the class that contains all postprocessors
    * @param name the name of the postprocessor
    */
-  PostprocessorBackend(PostProcessors& pp, const name_t &name);
+  PostprocessorBackend(const name_t &name);
 
   /** virtual destructor */
   virtual ~PostprocessorBackend();
-
-  /** main operator
-   *
-   * Will be called for each event by postprocessors container. Sometimes by
-   * postprocessors that depend on this pp. This function will check
-   * whether this event has already been processed and if the result is on the
-   * list. When its not on the list, then it will call the pure virtual
-   * function process event. The latter is done only if either there is no
-   * condition or the condition is true. The histogram where the result of the
-   * evaluation should go to is _result. When the condition is false, then
-   * it will be put into the list as second to first. So that only the first
-   * element of the list contains the last processed histogram.
-   *
-   * Before this function does anything it will writelock itselve. After
-   * finishing this function the write lock will automaticly be released.
-   *
-   * @return const reference to the resulting histogram
-   * @param evt the cassevent to work on
-   */
-  virtual const HistogramBackend& operator()(const CASSEvent& evt);
 
   /** process the event
    *
@@ -110,25 +79,6 @@ public:
    * @param event the event to be processed
    */
   virtual void processEvent(const CASSEvent& event);
-
-  /** retrieve a histogram for a given id.
-   *
-   * Lock this function with a readlock. When this function returns it will
-   * automaticaly release the lock.
-   *
-   * @note we need to use a write lock here. Otherwise on will never get the
-   *       histogram, as the histogram list is almost everytime locked for
-   *       write access.
-   *
-   * When parameter is 0 then it just returns the last known histogram. When
-   * there is no histogram for the requested event id, then this function will
-   * throw an invalid_argument exception.
-   *
-   * @return const reference to the requested histogram
-   * @param eventid the event id of the histogram that is requested.
-   *                Default is 0
-   */
-  virtual const HistogramBackend& getHist(const CASSEvent::id_t eventid);
 
   /** retrieve a result for a given id.
    *
@@ -159,7 +109,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  HistogramBackend::shared_pointer getHistCopy(const uint64_t eventid);
+  HistogramBackend::shared_pointer resultCopy(const uint64_t eventid);
 
   /** Provide default implementation of loadSettings that does nothing
    *
@@ -176,12 +126,6 @@ public:
    * get the specific settings of the postprocessor
    */
   virtual void load();
-
-  /** Provide default implementation of saveSettings that does nothing
-   *
-   * @param unused not used
-   */
-  virtual void saveSettings(size_t unused);
 
   /** function that will be called when the postprocessor is about to be deleted */
   virtual void aboutToQuit();
@@ -208,15 +152,6 @@ public:
    */
   void clearHistograms();
 
-  /** histograms changed notification
-   *
-   * postprocessors can override this virtual function to execute
-   * code after the histograms for this postprocessor have been changed.
-   *
-   * @param in pointer to the histogram that has changed
-   */
-  virtual void histogramsChanged(const HistogramBackend* in);
-
   /** process command in pp
    *
    * overwrite this function in pp. can do whatever it wants to do as a
@@ -226,20 +161,11 @@ public:
    */
   virtual void processCommand(std::string command);
 
-  /** retrieve the key of this postprocessor */
-  const name_t key() const {return _key;}
-
   /** retrieve the name of this postprocessor */
   const name_t name() const {return _key;}
 
   /** retrieve the hide flag of this postprocessor */
   bool hide()const {return _hide;}
-
-  /** retrieve the write flag of this postprocessor */
-  bool write()const {return _write;}
-
-  /** retrieve the write summary flag of this postprocessor */
-  bool write_summary()const {return _write_summary;}
 
   /** retrieve the comment of this postprocessor */
   const std::string& comment()const {return _comment;}
@@ -262,43 +188,15 @@ protected:
    */
   virtual void process(const CASSEvent& event, HistogramBackend& result);
 
-  /** process the event
-   *
-   * This will evaluate the event and fill the resulting histogram. It needs
-   * to be implemented in the postprocessors.
-   *
-   * @param event the cassevent to work on
-   */
-  virtual void process(const CASSEvent& event);
-
   /** create histogram list.
    *
-   * When this postprocessor is an accumulating postprocessor, it will put
-   * copies of the result pointer (that point to the same result in the hist
-   * list). If it is a regular PostProcessor it will clone the results and put
-   * pairs of these clones in the list.
-   *
-   * @todo make derived class that overwrites this and doesn't use a list of
-   *       pairs, but just returns the result.
+   * uses cached_list::setup to generate the result list. The size is
+   * 2+cass::nbrworkers.
    *
    * @param result shared pointer of the result that will be used in the cached
    *               result list
-   * @param[in] size The size of the list. Default is 2 times the number of
-   *                 workers
-   * @param[in] isaccumulate flag to tell this that it is a accumulating pp
    */
-  virtual void createHistList(HistogramBackend::shared_pointer result,
-                              size_t size=2*cass::NbrOfWorkers,
-                              bool isaccumulate=false);
-
-  /** create histogram list.
-   *
-   * left for backward compatibility. Just calls createHistList above.
-   *
-   * @param[in] size The size of the list
-   * @param[in] isaccumulate flag to tell this that it is a accumulating pp
-   */
-  void createHistList(size_t size, bool isaccumulate=false);
+  virtual void createHistList(HistogramBackend::shared_pointer result);
 
   /** general setup of the postprocessor
    *
@@ -356,24 +254,16 @@ protected:
 
 protected:
   /** the postprocessors name */
-  name_t _key;
+  const name_t _name;
 
   /** flag to tell whether this pp should be hidden in the dropdown list */
   bool _hide;
 
-  /** flag to tell whether to write this pp into file */
-  bool _write;
-
-  /** flag to tell whether to write this pp into summary */
-  bool _write_summary;
-
   /** optional comment that one can add to a postprocessor.
+   *
    * Will be used when writing this pp to file.
    */
   std::string _comment;
-
-  /** the list of histograms - event ids */
-  cachedResults_t _histList;
 
   /** the list of results */
   CachedList _resultList;
@@ -381,17 +271,93 @@ protected:
   /** the list of dependencies */
   names_t _dependencies;
 
-  /** pointer to the most recent histogram */
-  HistogramBackend* _result;
-
   /** pointer to the postprocessor that will contain the condition */
   shared_pointer _condition;
+};
 
-  /** reference to the PostProcessors container */
-  PostProcessors &_pp;
 
-  /** histogram list lock */
-  QReadWriteLock _histLock;
+
+
+
+/** an accumulating postprocessor
+ *
+ * instead of having a list of result, just uses one result.
+ * Overwrites functions to only use one result
+ */
+class AccumulatingPostProcessor : public PostprocessorBackend
+{
+public:
+  /** constructor
+   *
+   * @param pp reference to the class that contains all postprocessors
+   * @param name the name of the postprocessor
+   */
+  AccumulatingPostProcessor(const name_t &name)
+    : PostprocessorBackend(name)
+  {}
+
+  /** virtual destructor */
+  virtual ~AccumulatingPostProcessor() {}
+
+  /** process the event
+   *
+   * @note this is the function that should only be called by the PostProcessor
+   *       Manager.
+   * @note only use this function if all dependencies have been processed before.
+   *
+   * retrieve the result from the list. Get the writelock on it and process it,
+   * if condition is true.
+   *
+   *
+   * @param evt the event to be processed
+   */
+  virtual void processEvent(const CASSEvent& evt)
+  {
+    if (_condition->result(evt.id()).isTrue())
+    {
+      HistogramBackend & result(_resultList.latest());
+      QWriteLocker (&result.lock);
+      process(evt,result);
+    }
+  }
+
+  /** retrieve a result.
+   *
+   * return a reference to the latest result no matter what Id has been given,
+   * as it doesn't make any sense to differentiate between different events.
+   *
+   * @return const reference to the requested histogram
+   * @param eventid  Ignored
+   */
+  virtual const HistogramBackend& result(const CASSEvent::id_t)
+  {
+    return _resultList.latest();
+  }
+
+  /** tell the list that the result for event can be overwritten
+   *
+   * unlock the item.
+   *
+   * @param event ignored
+   */
+  virtual void releaseEvent(const CASSEvent&)
+  {
+    _resultList.latest().lock.unlock();
+  }
+
+  /** create histogram list.
+   *
+   * uses cached_list::setup to generate the result list. The size is 1
+   *
+   * @param result shared pointer of the result that will be used in the cached
+   *               result list
+   */
+  virtual void createHistList(HistogramBackend::shared_pointer result)
+  {
+    result->key() = name();
+    _resultList.setup(result, 1);
+  }
+
 };
 
 } //end namespace cass

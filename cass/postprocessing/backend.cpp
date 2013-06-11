@@ -27,107 +27,13 @@ using namespace std;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
-PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const name_t &key)
-  :_key(key),
-   _hide(false),
-   _write(true),
-   _write_summary(true),
-   _result(0),
-   _pp(pp),
-   _histLock(QReadWriteLock::Recursive)
+PostprocessorBackend::PostprocessorBackend(const name_t &name)
+  : _name(name),
+    _hide(false)
 {}
 
 PostprocessorBackend::~PostprocessorBackend()
-{
-  QWriteLocker lock(&_histLock);
-  if (!_histList.empty())
-  {
-    cachedResults_t::iterator it (_histList.begin());
-    HistogramBackend * old = it->second;
-    delete it->second;
-    ++it;
-    for (;it != _histList.end(); ++it)
-      if (old != it->second)
-        delete it->second;
-  _histList.clear();
-  }
-}
-
-const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
-{
-  return result(evt.id());
-//  typedef CASSEvent::id_t id_type;
-//  QWriteLocker lock(&_histLock);
-//  assert(!_histList.empty());
-//  cachedResults_t::iterator it(
-//        find_if(_histList.begin(), _histList.end(),
-//                bind<bool>(equal_to<id_type>(),evt.id(),
-//                           bind<id_type>(&cachedResult_t::first,_1))));
-
-//  if(_histList.end() == it)
-//  {
-////    _result = _histList.back().second.get();
-//     _result = _histList.back().second;
-//    /**
-//     * The calls that either process this event or request the condtion from
-//     * another postprocessor might alter the hist list (ie. if the either one
-//     * will resize and then call histogramsChanged). Also the _result pointer
-//     * might have changed, so create the pair with the pointer and the id only
-//     * after the call and modify the list
-//     */
-//    if (_condition && !(*_condition)(evt).isTrue())
-//    {
-//      _histList.pop_back();
-//      cachedResult_t newPair(make_pair(evt.id(),_result));
-//      it = _histList.begin();
-//      ++it;
-//      it =_histList.insert(it,newPair);
-//    }
-//    else
-//    {
-//      process(evt);
-//      _histList.pop_back();
-//      cachedResult_t newPair(std::make_pair(evt.id(),_result));
-//      _histList.push_front(newPair);
-//      it = _histList.begin();
-//    }
-//  }
-//  return *(it->second);
-}
-
-//void PostprocessorBackend::processEvent(const CASSEvent& evt)
-//{
-//  typedef CASSEvent::id_t id_type;
-//  QWriteLocker listLock(&_histLock);
-//  assert(!_histList.empty());
-//  assert(find_if(_histList.begin(), _histList.end(),
-//                 bind(equal_to<id_type>(),evt.id(),
-//                      bind<id_type>(&cachedResult_t::first,_1)))
-//         == _histList.end());
-
-//  cachedResult_t newPair(make_pair(evt.id(),_histList.back().second));
-
-////  if (_condition->result(evt.id()).isTrue())
-//  if ((*_condition)(evt).isTrue())
-//  {
-//    _histList.pop_back();
-//    _histList.push_front(newPair);
-//    HistogramBackend &result(*(_histList.front().second));
-//    /** @note this command seems to deadlock the program at some undefined point.
-//     *        for now, don't use it.
-//     */
-////    QWriteLocker resultLock(&result.lock);
-//    listLock.unlock();
-//    process(evt,result);
-//  }
-//  else
-//  {
-//    _histList.pop_back();
-//    cachedResults_t::iterator it(_histList.begin());
-//    ++it;
-//    it =_histList.insert(it,newPair);
-//  }
-//}
+{}
 
 void PostprocessorBackend::processEvent(const CASSEvent& evt)
 {
@@ -157,116 +63,20 @@ void PostprocessorBackend::releaseEvent(const CASSEvent &event)
   _resultList.release(event.id());
 }
 
-const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
+HistogramBackend::shared_pointer PostprocessorBackend::resultCopy(const uint64_t eventid)
 {
-  typedef CASSEvent::id_t id_type;
-  QWriteLocker lock(&_histLock);
-  if (0 == eventid)
-    return *(_histList.front().second);
-  else
-  {
-    cachedResults_t::const_iterator it
-        (find_if(_histList.begin(), _histList.end(),
-                 bind(equal_to<id_type>(),eventid,
-                      bind<id_type>(&cachedResult_t::first,_1))));
-    if (_histList.end() == it)
-      throw InvalidHistogramError(eventid);
-    return *(it->second);
-  }
-}
-
-HistogramBackend::shared_pointer PostprocessorBackend::getHistCopy(const uint64_t eventid)
-{
-  typedef CASSEvent::id_t id_type;
-
-  QWriteLocker lock(&_histLock);
-  if (0 == eventid)
-  {
-    QReadLocker(&_histList.front().second->lock);
-    return HistogramBackend::shared_pointer(_histList.front().second->copyclone());
-  }
-  else
-  {
-    cachedResults_t::const_iterator it
-        (find_if(_histList.begin(), _histList.end(),
-                 bind(equal_to<id_type>(),eventid,
-                      bind<id_type>(&cachedResult_t::first,_1))));
-    if (_histList.end() == it)
-      throw InvalidHistogramError(eventid);
-    QReadLocker(&it->second->lock);
-    return HistogramBackend::shared_pointer(it->second->copy_sptr());
-  }
+  return result(eventid).copy_sptr();
 }
 
 void PostprocessorBackend::clearHistograms()
 {
-  QWriteLocker lock(&_histLock);
-  cachedResults_t::iterator it (_histList.begin());
-  for (;it != _histList.end();++it)
-    it->second->clear();
-  histogramsChanged(0); // notify derived classes.
+  _resultList.clearItems();
 }
 
-void PostprocessorBackend::createHistList(HistogramBackend::shared_pointer result,
-                                          size_t size, bool isaccumulate)
+void PostprocessorBackend::createHistList(HistogramBackend::shared_pointer result)
 {
-//  QWriteLocker lock(&_histLock);
-//  _histList.clear();
-
-//  result->key() = name();
-//  if (isaccumulate)
-//  {
-//    for (size_t i=0; i<size; ++i)
-//      _histList.push_back(make_pair(0,result));
-//  }
-//  else
-//  {
-//    for (size_t i=0; i<size; ++i)
-//    {
-//      HistogramBackend::shared_pointer res_cpy(result->copy_sptr());
-//      _histList.push_back(make_pair(0,res_cpy));
-//    }
-//  }
-//  _result = _histList.front().second.get();
-
   result->key() = name();
-  _resultList.setup(result, size, isaccumulate);
-  _result =  const_cast<HistogramBackend*>(&_resultList.latest());
-//  throw logic_error("PostprocessorBackend::createHistList(HistogramBackend::shared_pointer: don't use this function");
-}
-
-void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
-{
-  QWriteLocker lock(&_histLock);
-  if (!_result)
-  {
-    throw runtime_error(string("HistogramBackend::createHistList: result ") +
-                        "histogram of postprocessor '"+name()+"' is not initalized");
-  }
-  if (isaccumulate)
-  {
-    if (!_histList.empty())
-      delete _histList.front().second;
-  }
-  else
-  {
-    cachedResults_t::iterator it(_histList.begin());
-    for (;it != _histList.end();++it)
-      delete it->second;
-  }
-  _histList.clear();
-  for (size_t i=1; i<size;++i)
-  {
-    if (isaccumulate)
-      _histList.push_back(make_pair(0,_result));
-    else
-      _histList.push_back(make_pair(0,_result->clone()));
-  }
-  _histList.push_back(make_pair(0, _result));
-  cachedResults_t::iterator it(_histList.begin());
-  for (;it != _histList.end();++it)
-    it->second->key() = name();
-//  createHistList(_result->copy_sptr(),size,isaccumulate);
+  _resultList.setup(result, cass::NbrOfWorkers + 2);
 }
 
 void PostprocessorBackend::setupGeneral()
@@ -275,11 +85,8 @@ void PostprocessorBackend::setupGeneral()
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(name()));
   _hide = settings.value("Hide",false).toBool();
-  _write = settings.value("Write",true).toBool();
-  _write_summary = settings.value("WriteSummary",true).toBool();
   _comment = settings.value("Comment","").toString().toStdString();
 }
-
 
 bool PostprocessorBackend::setupCondition(bool conditiontype)
 {
@@ -357,18 +164,6 @@ void PostprocessorBackend::load()
 void PostprocessorBackend::process(const CASSEvent& ev, HistogramBackend& result)
 {
   Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + name() +
-           "' call the old process function.");
-  /** @note we don't need to unlock the result, as the histogram lock can
-   *        recursily be locked by the same thread
-   */
-  QWriteLocker lock(&_histLock);
-  _result = &result;
-  process(ev);
-}
-
-void PostprocessorBackend::process(const CASSEvent&)
-{
-  Log::add(Log::DEBUG4,"PostprocessorBackend::process(): '" + name() +
            "' not implemented");
 }
 
@@ -378,21 +173,9 @@ void PostprocessorBackend::loadSettings(size_t)
            "' not implemented");
 }
 
-void PostprocessorBackend::saveSettings(size_t)
-{
-  Log::add(Log::DEBUG4,"PostprocessorBackend::saveSettings(): '" + name() +
-           "' not implemented");
-}
-
 void PostprocessorBackend::aboutToQuit()
 {
   Log::add(Log::DEBUG4,"PostprocessorBackend::aboutToQuit(): '" + name() +
-           "' not implemented");
-}
-
-void PostprocessorBackend::histogramsChanged(const HistogramBackend*)
-{
-  Log::add(Log::DEBUG4,"PostprocessorBackend::histogramsChanged(): '" + name() +
            "' not implemented");
 }
 
@@ -401,4 +184,3 @@ void PostprocessorBackend::processCommand(std::string )
   Log::add(Log::DEBUG4,"PostprocessorBackend::processCommand(): '" + name() +
            "' not implemented");
 }
-
