@@ -74,6 +74,15 @@ public:
     return *(_latest->second);
   }
 
+  /** retrieve the latest item
+   *
+   * @return the latest item
+   */
+  item_type &latest()
+  {
+    return *(_latest->second);
+  }
+
   /** set which one is the latest item
    *
    * change the lock of the item from write lock to read lock
