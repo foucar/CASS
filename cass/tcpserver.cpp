@@ -281,7 +281,7 @@ int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, b
   {
     // get data
     shared_ptr<HistogramBackend> hist(
-          PostProcessors::reference().getPostProcessor(type).getHistCopy(eventId));
+          PostProcessors::reference().getPostProcessor(type).resultCopy(eventId));
     Serializer serializer;
     size_t dim(hist->dimension());
     hist->serialize(serializer);
