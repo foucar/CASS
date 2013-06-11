@@ -58,6 +58,7 @@ public:
     const value_type delta(datum - _mean);
     _mean += (delta / static_cast<value_type>(_N));
     _tmp += (delta * (datum - _mean));
+    _sum += datum;
   }
 
   /** add a number of dati to the distribution
@@ -103,6 +104,15 @@ public:
     return sqrt(variance());
   }
 
+  /** retrieve the sum of all dati that have been added
+   *
+   * @return sum of all dati
+   */
+  value_type sum()
+  {
+    return _sum;
+  }
+
   /** retrieve the number of datum that have been added
    *
    * @return counts
@@ -115,10 +125,13 @@ public:
   /** reset the statistics */
   void reset()
   {
-    _mean = _tmp = _N = 0.;
+    _mean = _tmp = _N = _sum = 0.;
   }
 
 private:
+  /** the sum of all dati */
+  value_type _sum;
+
   /** the current mean value */
   value_type _mean;
 
