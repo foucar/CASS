@@ -162,7 +162,7 @@ public:
   virtual void processCommand(std::string command);
 
   /** retrieve the name of this postprocessor */
-  const name_t name() const {return _key;}
+  const name_t name() const {return _name;}
 
   /** retrieve the hide flag of this postprocessor */
   bool hide()const {return _hide;}
