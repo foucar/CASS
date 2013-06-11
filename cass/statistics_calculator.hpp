@@ -70,7 +70,7 @@ public:
    * @param last The element after last to be added
    */
   template <class InputIterator>
-  void addDistribtion(InputIterator first, InputIterator last)
+  void addDistribution(InputIterator first, InputIterator last)
   {
     while (first != last)
       addDatum(*first++);;
@@ -292,7 +292,7 @@ private:
     do
     {
       _stat.reset();
-      _stat.addDistribtion(lowPos,upPos);
+      _stat.addDistribution(lowPos,upPos);
 
       const value_type lowBound(_stat.mean() - _snr * _stat.stdv());
       const value_type upBound(_stat.mean() + _snr * _stat.stdv());
