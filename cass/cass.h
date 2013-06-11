@@ -144,10 +144,6 @@ struct Tokenizer
         continue;
       }
       lines.push_back(line);
-      VERBOSEOUT(cout <<"tokenize(): adding '"
-                 <<line.c_str()
-                 <<"' to list"
-                 <<endl);
     }
     return lines;
   }
