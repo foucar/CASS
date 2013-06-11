@@ -149,26 +149,32 @@ public:
    * @param size
    * @param isaccumulate
    */
-  void setup(item_sp item, size_t size, bool isaccumulate)
+  void setup(item_sp item, size_t size)
   {
     using std::make_pair;
 
     QMutexLocker lock(&_mutex);
     _list.clear();
-    if (isaccumulate)
-    {
-      for (size_t i=0; i<size; ++i)
-        _list.push_back(make_pair(0,item));
-    }
-    else
-    {
-      for (size_t i=0; i<size; ++i)
-      {
-        HistogramBackend::shared_pointer res_cpy(item->copy_sptr());
-        _list.push_back(make_pair(0,res_cpy));
-      }
-    }
+    for (size_t i=0; i<size; ++i)
+      _list.push_back(make_pair(0,item->copy_sptr()));
     _latest = _current = _list.begin();
+  }
+
+  /** clear the items in the list
+   *
+   * lock and go through all items, lock them and clear them. After they have
+   * been cleard unlock them again.
+   */
+  void clearItems()
+  {
+    QMutexLocker lock(&_mutex);
+    iter_type it(_list.begin());
+    iter_type End(_list.end());
+    while (it != End)
+    {
+      it->second->lock.lockForWrite();
+      it->second->clear();
+    }
   }
 
 private:
