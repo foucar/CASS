@@ -69,7 +69,7 @@ public:
    *
    * @return the latest item
    */
-  const item_type &latest() const
+  const item_type& latest() const
   {
     return *(_latest->second);
   }
@@ -78,7 +78,7 @@ public:
    *
    * @return the latest item
    */
-  item_type &latest()
+  item_type& latest()
   {
     return *(_latest->second);
   }
@@ -89,32 +89,28 @@ public:
    *
    * @param it pointer to the item to be set as latest
    */
-  void latest(const iter_type &it)
+  void latest(const iter_type it)
   {
     QMutexLocker lock(&_mutex);
-    it->second->lock.unlock();
-    it->second->lock.lockForRead();
+    _latest = it;
   }
 
   /** unlock the item with id
+   *
+   * make the entry available again by setting the id to 0
    *
    * @param id the id of the item to be released
    */
   void release(const id_type &id)
   {
     QMutexLocker lock(&_mutex);
-    iter_type it(findId(id));
-    it->second->lock.unlock();
+    findId(id)->first = 0;
   }
 
   /** get an item for processing
    *
-   * try to obtain the write lock of the item. If we don't get it (because it is
-   * still locked for either writing or reading), try with the next item in the
-   * list. When reaching the end of the list start over again.
-   *
-   * When obtained an unlocked item, set the write lock and the id field of the
-   * entry.
+   * find the next item in the list that has the eventid not set (e.g.: id is 0)
+   * Set the id to the event id and return the iterator pointing to the entry.
    *
    * @return iterator to the entry that will be allocated for the id
    * @param id the id that the item will have in the list
@@ -122,7 +118,7 @@ public:
   iter_type newItem(const id_type &id)
   {
     QMutexLocker lock(&_mutex);
-    while(!_current->second->lock.tryLockForWrite())
+    while(_current->first)
     {
       ++_current;
       if (_current == _list.end())
@@ -132,31 +128,17 @@ public:
     return _current;
   }
 
-  /** change the lock type of the item from write to read lock
-   *
-   * @param it pointer to the item that whos lock type should be changed
-   */
-  void relockAsRead(iter_type it)
-  {
-    QMutexLocker lock(&_mutex);
-    it->second->lock.unlock();
-    it->second->lock.lockForRead();
-  }
-
   /** create the list of items
    *
-   * @param item
-   * @param size
-   * @param isaccumulate
+   * @param item the template of which copies will be placed in the container
+   * @param size the number of items that should be in the container
    */
   void setup(item_sp item, size_t size)
   {
-    using std::make_pair;
-
     QMutexLocker lock(&_mutex);
     _list.clear();
     for (size_t i=0; i<size; ++i)
-      _list.push_back(make_pair(0,item->copy_sptr()));
+      _list.push_back(std::make_pair(0,item->copy_sptr()));
     _latest = _current = _list.begin();
   }
 

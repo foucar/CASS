@@ -41,12 +41,10 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
   if (_condition->result(evt.id()).isTrue())
   {
     HistogramBackend &result(*(pointer->second));
+    result.lock.lockForWrite();
     process(evt,result);
+    result.lock.unlock();
     _resultList.latest(pointer);
-  }
-  else
-  {
-    _resultList.relockAsRead(pointer);
   }
 }
 

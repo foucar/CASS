@@ -315,9 +315,8 @@ public:
   {
     if (_condition->result(evt.id()).isTrue())
     {
-      HistogramBackend & result(_resultList.latest());
-      QWriteLocker (&result.lock);
-      process(evt,result);
+      QWriteLocker (&_result->lock);
+      process(evt,*_result);
     }
   }
 
@@ -331,19 +330,11 @@ public:
    */
   virtual const HistogramBackend& result(const CASSEvent::id_t)
   {
-    return _resultList.latest();
+    return *_result;
   }
 
-  /** tell the list that the result for event can be overwritten
-   *
-   * unlock the item.
-   *
-   * @param event ignored
-   */
-  virtual void releaseEvent(const CASSEvent&)
-  {
-    _resultList.latest().lock.unlock();
-  }
+  /** overwrite default behaviour to do nothing */
+  virtual void releaseEvent(const CASSEvent&){}
 
   /** create histogram list.
    *
@@ -355,9 +346,12 @@ public:
   virtual void createHistList(HistogramBackend::shared_pointer result)
   {
     result->key() = name();
-    _resultList.setup(result, 1);
+    _result = result->copy_sptr();
   }
 
+private:
+  /** the result that accumulates the events */
+  HistogramBackend::shared_pointer _result;
 };
 
 } //end namespace cass
