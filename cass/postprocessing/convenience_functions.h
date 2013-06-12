@@ -57,7 +57,7 @@ namespace cass
                              const std::string &detector,
                              int ppNbr,
                              const PostProcessors::key_t& key);
-  }
+  }//end namespace cass
 
   /** Binary function for thresholding
    *
@@ -173,24 +173,20 @@ namespace cass
 
   /** function to set the 1d histogram properties from the ini file.
    *
-   * @param[out] hist pointer to the 1D Histogram whos properties should be updated
-   *            (will be deleted and created with new settings)
-   * @param[in] key the key of the postprocessor too look up in cass.ini
+   * @param[in] name the name of the postprocessor too look up in cass.ini
    *
    * @author Lutz Foucar
    */
-  void set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
+  HistogramBackend::shared_pointer set1DHist(const PostprocessorBackend::name_t &name);
 
 
   /** function to set the 2d histogram properties from the ini file.
    *
-   * @param[out] hist pointer to the 2D Histogram whos properties should be updated
-   *            (will be deleted and created with new settings)
-   * @param[in] key the key of the postprocessor too look up in cass.ini
+   * @param[in] name the name of the postprocessor too look up in cass.ini
    *
    * @author Lutz Foucar
    */
-  void set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
+  HistogramBackend::shared_pointer set2DHist(const PostprocessorBackend::name_t &name);
 
 
   /** Qt names of known/supported Qt image formats

@@ -22,48 +22,50 @@ using namespace cass;
 using namespace ACQIRIS;
 using namespace std;
 
-void cass::set1DHist(HistogramBackend*& hist, PostProcessors::key_t key)
+HistogramBackend::shared_pointer cass::set1DHist(const PostprocessorBackend::name_t &name)
 {
   //open the settings//
-  CASSSettings param;
-  param.beginGroup("PostProcessor");
-  param.beginGroup(key.c_str());
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name));
   //create new histogram using the parameters//
   Log::add(Log::VERBOSEINFO,string("set1dHist(): Creating 1D histogram with") +
-           " XNbrBins:" + toString(param.value("XNbrBins",1).toUInt()) +
-           " XLow:" + toString(param.value("XLow",0).toFloat()) +
-           " XUp:" + toString(param.value("XUp",0).toFloat()) +
-           " XTitle:" + param.value("XTitle","x-axis").toString().toStdString());
-  hist = new Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
-                              param.value("XLow",0).toFloat(),
-                              param.value("XUp",0).toFloat(),
-                              param.value("XTitle","x-axis").toString().toStdString());
+           " XNbrBins:" + toString(s.value("XNbrBins",1).toUInt()) +
+           " XLow:" + toString(s.value("XLow",0).toFloat()) +
+           " XUp:" + toString(s.value("XUp",0).toFloat()) +
+           " XTitle:" + s.value("XTitle","x-axis").toString().toStdString());
+  return tr1::shared_ptr<Histogram1DFloat>
+      (new Histogram1DFloat(s.value("XNbrBins",1).toUInt(),
+                            s.value("XLow",0).toFloat(),
+                            s.value("XUp",0).toFloat(),
+                            s.value("XTitle","x-axis").toString().toStdString()));
 }
 
-void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
+HistogramBackend::shared_pointer cass::set2DHist(const PostprocessorBackend::name_t &name)
 {
   //open the settings//
-  CASSSettings param;
-  param.beginGroup("PostProcessor");
-  param.beginGroup(key.c_str());
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name));
   //create new histogram using the parameters//
   Log::add(Log::VERBOSEINFO,string("set2DHist(): Creating 2D histogram with") +
-             " XNbrBins:" + toString(param.value("XNbrBins",1).toUInt()) +
-             " XLow:" + toString(param.value("XLow",0).toFloat()) +
-             " XUp:" + toString(param.value("XUp",0).toFloat()) +
-             " XTitle:" + param.value("XTitle","x-axis").toString().toStdString() +
-             " YNbrBins:" + toString(param.value("YNbrBins",1).toUInt()) +
-             " YLow:" + toString(param.value("YLow",0).toFloat()) +
-             " YUp:" + toString(param.value("YUp",0).toFloat()) +
-             " YTitle:" + param.value("YTitle","y-axis").toString().toStdString());
-  hist = new Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
-                              param.value("XLow",0).toFloat(),
-                              param.value("XUp",0).toFloat(),
-                              param.value("YNbrBins",1).toUInt(),
-                              param.value("YLow",0).toFloat(),
-                              param.value("YUp",0).toFloat(),
-                              param.value("XTitle","x-axis").toString().toStdString(),
-                              param.value("YTitle","y-axis").toString().toStdString());
+             " XNbrBins:" + toString(s.value("XNbrBins",1).toUInt()) +
+             " XLow:" + toString(s.value("XLow",0).toFloat()) +
+             " XUp:" + toString(s.value("XUp",0).toFloat()) +
+             " XTitle:" + s.value("XTitle","x-axis").toString().toStdString() +
+             " YNbrBins:" + toString(s.value("YNbrBins",1).toUInt()) +
+             " YLow:" + toString(s.value("YLow",0).toFloat()) +
+             " YUp:" + toString(s.value("YUp",0).toFloat()) +
+             " YTitle:" + s.value("YTitle","y-axis").toString().toStdString());
+  return tr1::shared_ptr<Histogram2DFloat>
+  (new Histogram2DFloat(s.value("XNbrBins",1).toUInt(),
+                              s.value("XLow",0).toFloat(),
+                              s.value("XUp",0).toFloat(),
+                              s.value("YNbrBins",1).toUInt(),
+                              s.value("YLow",0).toFloat(),
+                              s.value("YUp",0).toFloat(),
+                              s.value("XTitle","x-axis").toString().toStdString(),
+                              s.value("YTitle","y-axis").toString().toStdString()));
 }
 
 string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
