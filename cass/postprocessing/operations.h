@@ -31,7 +31,7 @@ namespace cass
  *
  * this templated class will compare the sum of all bins to a constant value
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -42,7 +42,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class pp1 : public PostprocessorBackend
+class pp1 : public PostProcessor
 {
 public:
   /** constructor */
@@ -74,7 +74,7 @@ protected:
  *
  * @PPList "2":Operation on histogram with value
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -87,7 +87,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp2 : public PostprocessorBackend
+class pp2 : public PostProcessor
 {
 
 public:
@@ -170,7 +170,7 @@ protected:
  *
  * @PPList "4": Apply boolean NOT to 0D Histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -179,7 +179,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp4 : public PostprocessorBackend
+class pp4 : public PostProcessor
 {
 public:
   /** constructor */
@@ -207,7 +207,7 @@ protected:
  *
  * @PPList "9": Check whether sum value of histogram is in range
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -218,7 +218,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp9 : public PostprocessorBackend
+class pp9 : public PostProcessor
 {
 public:
   /** constructor */
@@ -256,7 +256,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp12 : public PostprocessorBackend
+class pp12 : public PostProcessor
 {
 public:
   /** constructor */
@@ -297,7 +297,7 @@ private:
  *
  * @author Lutz Foucar
  */
-class pp15 : public PostprocessorBackend
+class pp15 : public PostProcessor
 {
 public:
   /** constructor */
@@ -330,7 +330,7 @@ protected:
  *
  * @PPList "40": Threshold histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -340,7 +340,7 @@ protected:
  *
  * @author Thomas White
  */
-class pp40 : public PostprocessorBackend
+class pp40 : public PostProcessor
 {
 public:
   /** constructor */
@@ -380,7 +380,7 @@ protected:
  * value of the image, if so the result will be the the image pixel value and
  * 0 otherwise.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -391,7 +391,7 @@ protected:
  * @author Thomas White
  * @author Lutz Foucar
  */
-class pp41 : public PostprocessorBackend
+class pp41 : public PostProcessor
 {
 public:
   /** constructor */
@@ -421,7 +421,7 @@ protected:
  *
  * @PPList "50": Project 2D histogram onto a axis
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -441,7 +441,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp50 : public PostprocessorBackend
+class pp50 : public PostProcessor
 {
 public:
   /** constructor */
@@ -483,7 +483,7 @@ protected:
  *
  * @PPList "51": Integral of 1D histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -493,7 +493,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp51 : public PostprocessorBackend
+class pp51 : public PostProcessor
 {
 public:
   /** constructor */
@@ -528,7 +528,7 @@ protected:
  *
  * Stores a previous version of another histogram.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -536,7 +536,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp56 : public PostprocessorBackend
+class pp56 : public PostProcessor
 {
 public:
   /** constructor */
@@ -581,7 +581,7 @@ protected:
  * holds only the histogrammed values of one event. Use PostProcessors 61 or
  * 62 to average or sum up this histogram, respectively.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -591,7 +591,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp60 : public PostprocessorBackend
+class pp60 : public PostProcessor
 {
 public:
   /** constructor */
@@ -619,7 +619,7 @@ protected:
  *
  * Running or cummulative average of a histogram.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
@@ -660,7 +660,7 @@ protected:
  *
  * Sums up histograms.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -696,7 +696,7 @@ protected:
  *
  * Makes an running average of a given Histogram over a given time period.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -753,7 +753,7 @@ protected:
  *
  * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -798,7 +798,7 @@ protected:
  * contains only the information from the current event. To get an average or
  * sum use PostProcessor 61 or 62.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -808,7 +808,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp65 : public PostprocessorBackend
+class pp65 : public PostProcessor
 {
 public:
   /** constructor */
@@ -841,7 +841,7 @@ protected:
  *
  * histograms two 1d histograms into one 2D Histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
@@ -849,7 +849,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp66 : public PostprocessorBackend
+class pp66 : public PostProcessor
 {
 public:
   /** constructor */
@@ -882,7 +882,7 @@ protected:
  * histograms two 0d values into one 1D Histogram where the first Histogram
  * defines the x axis bin and the second is the weight.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -892,7 +892,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp67 : public PostprocessorBackend
+class pp67 : public PostProcessor
 {
 public:
   /** constructor */
@@ -926,7 +926,7 @@ protected:
  * One only has to define the y axis since the x axis will be taken from the
  * 1d histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{YNbrBins|YLow|YUp}\n
@@ -938,7 +938,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp68 : public PostprocessorBackend
+class pp68 : public PostProcessor
 {
 public:
   /** constructor */
@@ -970,7 +970,7 @@ protected:
  * sets two 0d values into one 1D Histogram where the first Histogram
  * defines the x axis bin and the second is the weight.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -1012,7 +1012,7 @@ protected:
  *
  * Will copy a subset of another histogram and return it in a new histogram.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1027,7 +1027,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp70 : public PostprocessorBackend
+class pp70 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1066,7 +1066,7 @@ protected:
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{RetrieveType} \n
@@ -1079,7 +1079,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp71 : public PostprocessorBackend
+class pp71 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1115,7 +1115,7 @@ protected:
  *
  * Will clear a specific histogram when the condition is true.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1124,7 +1124,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp75 : public PostprocessorBackend
+class pp75 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1165,12 +1165,12 @@ protected:
  * meaningful. Defaultly "ConditionName" is set to "DefaultTrueHist" which
  * will let the program quit immediately
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @author Lutz Foucar
  */
-class pp76 : public PostprocessorBackend
+class pp76 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1202,7 +1202,7 @@ public:
  * Checks if the id of the current event is on a user provided list. The
  * user provided list of id should be an ascii file where the ids are in lines.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{List} \n
@@ -1211,7 +1211,7 @@ public:
  *
  * @author Lutz Foucar
  */
-class pp77 : public PostprocessorBackend
+class pp77 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1247,7 +1247,7 @@ protected:
  *
  * @PPList "78": Counter
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @author Lutz Foucar
@@ -1281,7 +1281,7 @@ public:
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1290,7 +1290,7 @@ public:
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp81 : public PostprocessorBackend
+class pp81 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1329,7 +1329,7 @@ protected:
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1345,7 +1345,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp82 : public PostprocessorBackend
+class pp82 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1388,7 +1388,7 @@ protected:
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1403,7 +1403,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp85 : public PostprocessorBackend
+class pp85 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1443,7 +1443,7 @@ protected:
  * point in the range that should contain the step. Now it looks for the first
  * x position where the y value is Fraction * (highestPoint + baselline).
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1463,7 +1463,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp86 : public PostprocessorBackend
+class pp86 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1500,7 +1500,7 @@ protected:
  *
  * calculates the center of Mass in the user given range.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1512,7 +1512,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp87 : public PostprocessorBackend
+class pp87 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1540,7 +1540,7 @@ protected:
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1557,7 +1557,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp88 : public PostprocessorBackend
+class pp88 : public PostProcessor
 {
 public:
   /** constructor */
@@ -1586,7 +1586,7 @@ protected:
  *
  * @PPList "88": low / high pass filter of 1d histogram
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -1598,7 +1598,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp89 : public PostprocessorBackend
+class pp89 : public PostProcessor
 {
 public:
   /** constructor */

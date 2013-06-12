@@ -177,7 +177,7 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  HistogramBackend::shared_pointer set1DHist(const PostprocessorBackend::name_t &name);
+  HistogramBackend::shared_pointer set1DHist(const PostProcessor::name_t &name);
 
 
   /** function to set the 2d histogram properties from the ini file.
@@ -186,7 +186,7 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  HistogramBackend::shared_pointer set2DHist(const PostprocessorBackend::name_t &name);
+  HistogramBackend::shared_pointer set2DHist(const PostProcessor::name_t &name);
 
 
   /** Qt names of known/supported Qt image formats

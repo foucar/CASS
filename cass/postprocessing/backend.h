@@ -24,9 +24,6 @@
 
 namespace cass
 {
-//forward declaration
-class PostProcessors;
-
 /** base class for postprocessors.
  *
  * This class handles most of the functionality of a postprocessor. When
@@ -39,11 +36,11 @@ class PostProcessors;
  * @author Lutz Foucar
  * @author Jochen Kuepper
  */
-class PostprocessorBackend
+class PostProcessor
 {
 public:
   /** a shared pointer of this */
-  typedef std::tr1::shared_ptr<PostprocessorBackend> shared_pointer;
+  typedef std::tr1::shared_ptr<PostProcessor> shared_pointer;
 
   /** define the name type */
   typedef std::string name_t;
@@ -56,10 +53,10 @@ public:
    * @param pp reference to the class that contains all postprocessors
    * @param name the name of the postprocessor
    */
-  PostprocessorBackend(const name_t &name);
+  PostProcessor(const name_t &name);
 
   /** virtual destructor */
-  virtual ~PostprocessorBackend();
+  virtual ~PostProcessor();
 
   /** process the event
    *
@@ -284,7 +281,7 @@ protected:
  * instead of having a list of result, just uses one result.
  * Overwrites functions to only use one result
  */
-class AccumulatingPostProcessor : public PostprocessorBackend
+class AccumulatingPostProcessor : public PostProcessor
 {
 public:
   /** constructor
@@ -293,7 +290,7 @@ public:
    * @param name the name of the postprocessor
    */
   AccumulatingPostProcessor(const name_t &name)
-    : PostprocessorBackend(name)
+    : PostProcessor(name)
   {}
 
   /** virtual destructor */

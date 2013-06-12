@@ -22,7 +22,7 @@ using namespace cass;
 using namespace ACQIRIS;
 using namespace std;
 
-HistogramBackend::shared_pointer cass::set1DHist(const PostprocessorBackend::name_t &name)
+HistogramBackend::shared_pointer cass::set1DHist(const PostProcessor::name_t &name)
 {
   //open the settings//
   CASSSettings s;
@@ -41,7 +41,7 @@ HistogramBackend::shared_pointer cass::set1DHist(const PostprocessorBackend::nam
                             s.value("XTitle","x-axis").toString().toStdString()));
 }
 
-HistogramBackend::shared_pointer cass::set2DHist(const PostprocessorBackend::name_t &name)
+HistogramBackend::shared_pointer cass::set2DHist(const PostProcessor::name_t &name)
 {
   //open the settings//
   CASSSettings s;

@@ -34,7 +34,7 @@ using tr1::placeholders::_2;
 // ************ Operation on two results *************
 
 pp1::pp1(const name_t & name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -125,7 +125,7 @@ void pp1::process(const CASSEvent& evt, HistogramBackend &res)
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
 
 pp2::pp2(const name_t &name)
- : PostprocessorBackend(name)
+ : PostProcessor(name)
 {
  loadSettings(0);
 }
@@ -243,7 +243,7 @@ void pp2::process(const CASSEvent& evt, HistogramBackend &res)
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
 
 pp4::pp4(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -286,7 +286,7 @@ void pp4::process(const CASSEvent& evt, HistogramBackend &res)
 // ********** Postprocessor 9: Check if histogram is in given range ************
 
 pp9::pp9(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -335,7 +335,7 @@ void pp9::process(const CASSEvent& evt, HistogramBackend &res)
 // ********** Postprocessor 12: PP with constant value ************
 
 pp12::pp12(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -371,7 +371,7 @@ void pp12::loadSettings(size_t)
 // ********** Postprocessor 15: Check if value has changed ************
 
 pp15::pp15(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -426,7 +426,7 @@ void pp15::process(const CASSEvent& evt, HistogramBackend &res)
 // ****************** Postprocessor 40: Threshold histogram ********************
 
 pp40::pp40(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -470,7 +470,7 @@ void pp40::process(const CASSEvent& evt, HistogramBackend &res)
 // ****************** Postprocessor 40: Threshold histogram ********************
 
 pp41::pp41(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -549,7 +549,7 @@ void pp41::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 50 projects 2d hist to 1d histo for a selected region of the axis ***
 
 pp50::pp50(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -629,7 +629,7 @@ void pp50::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 51 calcs integral over a region in 1d histo ***
 
 pp51::pp51(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -685,7 +685,7 @@ void pp51::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 56 stores previous version of another histogram ***
 
 pp56::pp56(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -736,7 +736,7 @@ void pp56::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 60 histograms 0D values ***
 
 pp60::pp60(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1070,7 +1070,7 @@ void pp64::process(const CASSEvent &evt, HistogramBackend &res)
 // *** postprocessor 65 histograms 2 0D values to 2D histogram ***
 
 pp65::pp65(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1123,7 +1123,7 @@ void pp65::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 66 histograms 2 1D values to 2D histogram ***
 
 pp66::pp66(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1197,7 +1197,7 @@ void pp66::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 67 histograms 2 0D values to 1D histogram add weight ***
 
 pp67::pp67(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1253,7 +1253,7 @@ void pp67::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 68 histograms 0D and 1d Histogram to 2D histogram ***
 
 pp68::pp68(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1401,7 +1401,7 @@ void pp69::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 70 subsets a histogram ***
 
 pp70::pp70(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1502,7 +1502,7 @@ void pp70::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 71 returns a user specific value of a Histogram ***
 
 pp71::pp71(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1555,7 +1555,7 @@ void pp71::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 75 clears a histogram ***
 
 pp75::pp75(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1594,7 +1594,7 @@ void pp75::processEvent(const CASSEvent& evt)
 // ***  pp 76 quit program
 
 pp76::pp76(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1632,7 +1632,7 @@ void pp76::processEvent(const CASSEvent& evt)
 // ***  pp 77 checks ids
 
 pp77::pp77(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1721,7 +1721,7 @@ void pp78::process(const CASSEvent&, HistogramBackend &res)
 // ***  pp 81 returns the highest bin of a 1D Histogram ***
 
 pp81::pp81(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1787,7 +1787,7 @@ void pp81::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 82 returns statistics value of all bins in a Histogram ***
 
 pp82::pp82(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1857,7 +1857,7 @@ void pp82::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 85 return full width at half maximum in given range of 1D histgoram ***
 
 pp85::pp85(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1957,7 +1957,7 @@ void pp85::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 86 return x position of a step in 1D histgoram ***
 
 pp86::pp86(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -2050,7 +2050,7 @@ void pp86::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 87 return center of mass in range of 1D histgoram ***
 
 pp87::pp87(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -2118,7 +2118,7 @@ void pp87::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 88 returns an axis parameter ***
 
 pp88::pp88(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -2209,7 +2209,7 @@ void pp88::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 89 high/low pass filter ***
 
 pp89::pp89(const name_t &name)
-  : PostprocessorBackend(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }

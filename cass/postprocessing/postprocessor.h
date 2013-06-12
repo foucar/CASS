@@ -28,7 +28,6 @@ namespace cass
 {
 //forward declarations
 class CASSEvent;
-class PostprocessorBackend;
 class HistogramBackend;
 class Histogram1DFloat;
 class Histogram2DFloat;
@@ -499,13 +498,13 @@ public:
   typedef std::tr1::shared_ptr<PostProcessors> shared_pointer;
 
   /** type of postproccessor accessor key */
-  typedef PostprocessorBackend::name_t key_t;
+  typedef PostProcessor::name_t key_t;
 
   /** Container of all currently active postprocessors */
-  typedef std::list<std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
+  typedef std::list<PostProcessor::shared_pointer> postprocessors_t;
 
   /** List of all postprocessor keys */
-  typedef PostprocessorBackend::names_t keyList_t;
+  typedef PostProcessor::names_t keyList_t;
 
   /** create the instance if not it does not exist already.
    *
@@ -550,13 +549,13 @@ public:
   std::tr1::shared_ptr<IdList> keys();
 
   /** retreive pp with key */
-  PostprocessorBackend& getPostProcessor(const PostprocessorBackend::name_t &name);
+  PostProcessor& getPostProcessor(const PostProcessor::name_t &name);
 
   /** retreive pp with name
    *
    * @param name The name of the PostProcessor to retrive
    */
-  PostprocessorBackend::shared_pointer getPostProcessorSPointer(const PostprocessorBackend::name_t &name);
+  PostProcessor::shared_pointer getPostProcessorSPointer(const PostProcessor::name_t &name);
 
   /** retrieve pp container */
   postprocessors_t& postprocessors() {return _postprocessors;}
@@ -596,7 +595,7 @@ protected:
    * @return instance the newly created postprocessor
    * @param[in] key the key of the postprocessor
    */
-  std::tr1::shared_ptr<PostprocessorBackend> create(const key_t &key);
+  PostProcessor::shared_pointer create(const key_t &key);
 
 protected:
   /** the list of keys.

@@ -27,15 +27,15 @@ using namespace std;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
-PostprocessorBackend::PostprocessorBackend(const name_t &name)
+PostProcessor::PostProcessor(const name_t &name)
   : _name(name),
     _hide(false)
 {}
 
-PostprocessorBackend::~PostprocessorBackend()
+PostProcessor::~PostProcessor()
 {}
 
-void PostprocessorBackend::processEvent(const CASSEvent& evt)
+void PostProcessor::processEvent(const CASSEvent& evt)
 {
   CachedList::iter_type pointer(_resultList.newItem(evt.id()));
   if (_condition->result(evt.id()).isTrue())
@@ -48,7 +48,7 @@ void PostprocessorBackend::processEvent(const CASSEvent& evt)
   }
 }
 
-const HistogramBackend& PostprocessorBackend::result(const CASSEvent::id_t eventid)
+const HistogramBackend& PostProcessor::result(const CASSEvent::id_t eventid)
 {
   if (0 == eventid)
     return _resultList.latest();
@@ -56,28 +56,28 @@ const HistogramBackend& PostprocessorBackend::result(const CASSEvent::id_t event
     return _resultList.item(eventid);
 }
 
-void PostprocessorBackend::releaseEvent(const CASSEvent &event)
+void PostProcessor::releaseEvent(const CASSEvent &event)
 {
   _resultList.release(event.id());
 }
 
-HistogramBackend::shared_pointer PostprocessorBackend::resultCopy(const uint64_t eventid)
+HistogramBackend::shared_pointer PostProcessor::resultCopy(const uint64_t eventid)
 {
   return result(eventid).copy_sptr();
 }
 
-void PostprocessorBackend::clearHistograms()
+void PostProcessor::clearHistograms()
 {
   _resultList.clearItems();
 }
 
-void PostprocessorBackend::createHistList(HistogramBackend::shared_pointer result)
+void PostProcessor::createHistList(HistogramBackend::shared_pointer result)
 {
   result->key() = name();
   _resultList.setup(result, cass::NbrOfWorkers + 2);
 }
 
-void PostprocessorBackend::setupGeneral()
+void PostProcessor::setupGeneral()
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
@@ -86,7 +86,7 @@ void PostprocessorBackend::setupGeneral()
   _comment = settings.value("Comment","").toString().toStdString();
 }
 
-bool PostprocessorBackend::setupCondition(bool conditiontype)
+bool PostProcessor::setupCondition(bool conditiontype)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
@@ -105,8 +105,8 @@ bool PostprocessorBackend::setupCondition(bool conditiontype)
   return _condition;
 }
 
-PostprocessorBackend::shared_pointer
-PostprocessorBackend::setupDependency(const string &depVarName, const name_t& depkey)
+PostProcessor::shared_pointer
+PostProcessor::setupDependency(const string &depVarName, const name_t& depkey)
 {
   name_t dependkey(depkey);
   shared_pointer dependency;
@@ -119,32 +119,32 @@ PostprocessorBackend::setupDependency(const string &depVarName, const name_t& de
   }
   if (QString::fromStdString(dependkey).toUpper() == QString::fromStdString(name()).toUpper())
   {
-    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" +
+    throw invalid_argument("PostProcessor::setupDependency(): Error: '" +
                            name() + "' looks for a dependency '" + dependkey +
                            "'. One cannot let a postprocessor depend on itself." +
                            " Note that qsettings is not case sensitive, so on must provide" +
                            " names that differ not only in upper / lower case.");
   }
 
-  Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+  Log::add(Log::DEBUG0,"PostProcessor::setupDependency(): '" + name() +
            "' check if dependency key '" + depVarName + "' which is '" +
            dependkey + "' is already on the dependency list");
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
-    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+    Log::add(Log::DEBUG0,"PostProcessor::setupDependency(): '" + name() +
              "': '" + dependkey +"' is not on depend list, add it ");
     _dependencies.push_back(dependkey);
   }
   else
   {
-    Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
+    Log::add(Log::DEBUG0,"PostProcessor::setupDependency(): '" + name() +
              "' Dependency is on list. Retrieve '"+dependkey +"' from the mananger");
     dependency = PostProcessors::reference().getPostProcessorSPointer(dependkey);
   }
   return dependency;
 }
 
-void PostprocessorBackend::load()
+void PostProcessor::load()
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
@@ -157,26 +157,26 @@ void PostprocessorBackend::load()
     _condition = setupDependency("ConditionName","DefaultTrueHist");
 }
 
-void PostprocessorBackend::process(const CASSEvent&, HistogramBackend&)
+void PostProcessor::process(const CASSEvent&, HistogramBackend&)
 {
   Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + name() +
            "' not implemented");
 }
 
-void PostprocessorBackend::loadSettings(size_t)
+void PostProcessor::loadSettings(size_t)
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::loadSettings(): '" + name() +
+  Log::add(Log::DEBUG4,"PostProcessor::loadSettings(): '" + name() +
            "' not implemented");
 }
 
-void PostprocessorBackend::aboutToQuit()
+void PostProcessor::aboutToQuit()
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::aboutToQuit(): '" + name() +
+  Log::add(Log::DEBUG4,"PostProcessor::aboutToQuit(): '" + name() +
            "' not implemented");
 }
 
-void PostprocessorBackend::processCommand(std::string )
+void PostProcessor::processCommand(std::string )
 {
-  Log::add(Log::DEBUG4,"PostprocessorBackend::processCommand(): '" + name() +
+  Log::add(Log::DEBUG4,"PostProcessor::processCommand(): '" + name() +
            "' not implemented");
 }
