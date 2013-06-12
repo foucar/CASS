@@ -74,6 +74,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       tcpserver.cpp \
                       ./postprocessing/postprocessor.cpp \
                       ./postprocessing/convenience_functions.cpp \
+                      ./postprocessing/operations.cpp \
                       ./postprocessing/backend.cpp \
                       ./postprocessing/waveform.cpp \
                       ./postprocessing/acqiris_detectors_helper.cpp \
@@ -84,7 +85,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/pixel_detectors.cpp \
                       ./postprocessing/alignment.cpp \
                       ./postprocessing/imaging.cpp \
-                      ./postprocessing/operations.cpp \
                       ./postprocessing/id_list.cpp \
                       ./postprocessing/rankfilter.cpp \
                       ./postprocessing/coltrims_analysis.cpp \
