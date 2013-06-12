@@ -29,69 +29,67 @@ using std::minus;
 using std::multiplies;
 using std::cout;
 using std::endl;
+using std::invalid_argument;
+using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
 //the last wavefrom postprocessor
-pp110::pp110(PostProcessors &pp, const PostProcessors::key_t &key)
-  :PostprocessorBackend(pp,key)
+pp110::pp110(const name_t &name)
+  :PostProcessor(name)
 {
   loadSettings(0);
 }
 
 void pp110::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
-  _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());
-  _channel    = settings.value("ChannelNbr",0).toUInt();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _instrument = static_cast<Instruments>(s.value("InstrumentId",8).toUInt());
+  _channel    = s.value("ChannelNbr",0).toUInt();
+  int wsize(s.value("NbrSamples",40000).toInt());
+  float sI(s.value("SampleInterval",1e-9).toFloat());
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram1DFloat(1,0,1,"Time [s]");
-  createHistList(2*NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' is showing channel '" +
+  createHistList(
+        shared_ptr<Histogram1DFloat>
+        (new Histogram1DFloat(wsize,0,wsize*sI,"Time [s]")));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' is showing channel '" +
            toString(_channel) + "' of acqiris '" + toString(_instrument) +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp110::process(const CASSEvent &evt)
+void pp110::process(const CASSEvent &evt, HistogramBackend &res)
 {
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
   const Device *dev
       (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
   Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
   if (dev->instruments().end() == instrIt)
-    throw runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
-                        .arg(_key.c_str())
-                        .arg(_instrument).toStdString());
+    throw runtime_error("pp110::process() '" + name() +
+                        "': Data doesn't contain Instrument '"+toString(_instrument)
+                        +"'");
   const Instrument &instr(instrIt->second);
   if (instr.channels().size() <= _channel)
-    throw runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
-                        .arg(_key.c_str())
-                        .arg(_instrument)
-                        .arg(_channel).toStdString());
+    throw runtime_error("pp110::process() '" + name() + "Instrument '"+
+                        toString(_instrument) + "' doesn't contain channel '" +
+                        toString(_channel)+ "'");
   const Channel &channel (instr.channels()[_channel]);
   const waveform_t &waveform (channel.waveform());
-  _result->lock.lockForWrite();
-  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+  if (result.axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    for (cachedResults_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
-    {
-//      dynamic_cast<Histogram1DFloat*>(it->second.get())->resize(waveform.size(),
-      dynamic_cast<Histogram1DFloat*>(it->second)->resize(waveform.size(),
-                                                                0,
-                                                                waveform.size()*channel.sampleInterval());
-    }
-    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-    PostProcessors::keyList_t::iterator it (dependands.begin());
-    for (; it != dependands.end(); ++it)
-      _pp.getPostProcessor(*it).histogramsChanged(_result);
+    throw invalid_argument("Postprocessor '" + name() +
+                           "' incomming waveform '" + toString(waveform.size()) +
+                           "'. Result '" +
+                           toString(result.axis()[HistogramBackend::xAxis].nbrBins()) +
+                           "'");
+
   }
   transform(waveform.begin(), waveform.end(),
-            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-            bind<float>(minus<float>(),
-                        bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
-  _result->nbrOfFills()=1;
-  _result->lock.unlock();
+            result.memory().begin(),
+            bind(minus<float>(),
+                 bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
+  result.nbrOfFills()=1;
 }
