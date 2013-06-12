@@ -168,18 +168,20 @@ int CASSsoapService::getPostprocessorIds(bool *success)
  * analyzers and postprocessors, then resume the worker threads Prevent others
  * from retrieving data from the postprocessors by locking it
  */
-int CASSsoapService::writeini(size_t what, bool *success)
+int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
 {
-  Log::add(Log::VERBOSEINFO,"CASSsoapService::readini(what=" + toString(what) + ")");
-  QMutexLocker workerLock(&Workers::reference().lock);
-  Workers::reference().pause();
-  Analyzer::instance()->saveSettings();
-  QWriteLocker pplock(&PostProcessors::instance()->lock);
-  PostProcessors::instance()->saveSettings();
-  Workers::reference().resume();
-  InputBase::reference().resume();
-  *success = true;;
-  return SOAP_OK;
+//  Log::add(Log::VERBOSEINFO,"CASSsoapService::readini(what=" + toString(what) + ")");
+//  QMutexLocker workerLock(&Workers::reference().lock);
+//  Workers::reference().pause();
+//  Analyzer::instance()->saveSettings();
+//  QWriteLocker pplock(&PostProcessors::instance()->lock);
+//  PostProcessors::instance()->saveSettings();
+//  Workers::reference().resume();
+//  InputBase::reference().resume();
+//  *success = false;;
+  return SOAP_FATAL_ERROR;
+  throw logic_error("CASSsoapService::writeini: should not be used anymore");
+
 }
 
 /** clear the selected postprocessors histogram list

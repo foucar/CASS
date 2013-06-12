@@ -31,7 +31,6 @@
 #include "machine_data.h"
 #include "id_list.h"
 #include "cass_exceptions.h"
-#include "operation_templates.hpp"
 #include "cass_settings.h"
 #include "coltrims_analysis.h"
 #include "pixel_detectors.h"
@@ -251,14 +250,6 @@ void PostProcessors::loadSettings(size_t)
     (*pp++)->loadSettings(0);
 }
 
-void PostProcessors::saveSettings()
-{
-  postprocessors_t::iterator iter(_postprocessors.begin());
-  postprocessors_t::iterator end(_postprocessors.end());
-  while (iter != end)
-    (*iter++)->saveSettings(0);
-}
-
 PostprocessorBackend::shared_pointer
 PostProcessors::getPostProcessorSPointer(const PostprocessorBackend::name_t &name)
 {
@@ -303,9 +294,9 @@ PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::k
 PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
 {
   if (key == "DefaultTrueHist")
-    return PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
+    return PostprocessorBackend::shared_pointer(new pp12("DefaultTrueHist"));
   if (key == "DefaultFalseHist")
-    return PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
+    return PostprocessorBackend::shared_pointer(new pp12("DefaultFalseHist"));
 
   CASSSettings s;
   s.beginGroup("PostProcessor");
@@ -316,182 +307,77 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   PostprocessorBackend::shared_pointer processor;
   switch(ppid)
   {
-  case ConstantLess:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp1<less<float> >(*this, key, less<float>()));
+  case OperationsOn2Histos:
+    processor = PostprocessorBackend::shared_pointer(new pp1(key));
     break;
-  case ConstantGreater:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp1<greater<float> >(*this, key, greater<float>()));
-    break;
-  case ConstantEqual:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp1<equal_to<float> >(*this, key, equal_to<float>()));
+  case OperationWithValue:
+    processor = PostprocessorBackend::shared_pointer(new pp2(key));
     break;
   case BooleanNOT:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp4(*this, key));
-    break;
-  case BooleanAND:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp5<logical_and<bool> >(*this, key, logical_and<bool>()));
-    break;
-  case BooleanOR:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp5<logical_or<bool> >(*this, key, logical_or<bool>()));
-    break;
-  case CompareForLess:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp7<less<float> >(*this, key, less<float>()));
-    break;
-  case CompareForEqual:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp7<greater<float> >(*this, key, greater<float>()));
+    processor = PostprocessorBackend::shared_pointer(new pp4(key));
     break;
   case CheckRange:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp9(*this, key));
-    break;
-  case ConstantTrue:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp10(*this, key, true));
-    break;
-  case ConstantFalse:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp10(*this, key, false));
+    processor = PostprocessorBackend::shared_pointer(new pp9(key));
     break;
   case ConstantValue:
-    processor = PostprocessorBackend::shared_pointer(new pp12(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp12(key));
     break;
   case CheckChange:
-    processor = PostprocessorBackend::shared_pointer(new pp15(*this, key));
-    break;
-  case SubtractHistograms:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp20<minus<float> >(*this, key, minus<float>()));
-    break;
-  case AddHistograms:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp20<plus<float> >(*this, key, plus<float>()));
-    break;
-  case DivideHistograms:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp20<divides<float> >(*this, key, divides<float>()));
-    break;
-  case MultiplyHistograms:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp20<multiplies<float> >(*this, key, multiplies<float>()));
-    break;
-  case SubtractConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp24<minus<float> >(*this, key, minus<float>()));
-    break;
-  case AddConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp24<plus<float> >(*this, key, plus<float>()));
-    break;
-  case MultiplyConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp24<multiplies<float> >(*this, key, multiplies<float>()));
-    break;
-  case DivideConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp24<divides<float> >(*this, key, divides<float>()));
-    break;
-  case Subtract0DConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp30<minus<float> >(*this, key, minus<float>()));
-    break;
-  case Add0DConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp30<plus<float> >(*this, key, plus<float>()));
-    break;
-  case Multiply0DConstant:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp30<multiplies<float> >(*this, key, multiplies<float>()));
-    break;
-  case Divide0DConstant:
-    processor = PostprocessorBackend::shared_pointer
-        (new pp30<divides<float> >(*this, key, divides<float>()));
+    processor = PostprocessorBackend::shared_pointer(new pp15(key));
     break;
   case Threshold:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp40(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp40(key));
     break;
   case ThresholdImage:
-    processor = PostprocessorBackend::shared_pointer(new pp41(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp41(key));
     break;
   case TwoDProjection:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp50(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp50(key));
     break;
   case OneDIntergral:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp51(*this, key));
-    break;
-  case RadalProjection:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp52(*this, key));
-    break;
-  case AngularDistribution:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp53(*this, key));
-    break;
-  case R_Phi_Representation:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp54(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp51(key));
     break;
   case imageManip:
-      processor = PostprocessorBackend::shared_pointer(new pp55(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp55(*this, key));
     break;
   case previousHist:
-      processor = PostprocessorBackend::shared_pointer(new pp56(*this, key));
+      processor = PostprocessorBackend::shared_pointer(new pp56(key));
     break;
   case ZeroDHistogramming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp60(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp60(key));
     break;
   case HistogramAveraging:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp61(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp61(key));
     break;
   case HistogramSumming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp62(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp62(key));
     break;
   case TimeAverage:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp63(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp63(key));
     break;
   case running1Dfrom0D:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp64(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp64(key));
     break;
   case ZeroDto2DHistogramming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp65(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp65(key));
     break;
   case OneDto2DHistogramming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp66(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp66(key));
     break;
   case ZeroDto1DHistogramming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp67(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp67(key));
     break;
   case ZeroDand1Dto2DHistogramming:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp68(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp68(key));
     break;
   case OneDtoScatterPlot:
-    processor = PostprocessorBackend::shared_pointer(new pp69(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp69(key));
     break;
   case SubsetHistogram:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp70(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp70(key));
     break;
   case RetrieveValue:
-    processor = PostprocessorBackend::shared_pointer(new pp71(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp71(key));
     break;
   case RetrieveColFromTable:
     processor = PostprocessorBackend::shared_pointer(new pp72(*this, key));
@@ -500,50 +386,38 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer(new pp73(*this, key));
     break;
   case ClearHistogram:
-    processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp75(key));
     break;
   case QuitCASS:
-    processor = PostprocessorBackend::shared_pointer(new pp76(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp76(key));
     break;
   case IdIsOnList:
-    processor = PostprocessorBackend::shared_pointer(new pp77(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp77(key));
     break;
   case Counter:
-    processor = PostprocessorBackend::shared_pointer(new pp78(*this, key));
-    break;
-  case nbrOfFills:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp80(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp78(key));
     break;
   case maximumBin:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp81(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp81(key));
     break;
   case meanvalue:
-    processor = PostprocessorBackend::shared_pointer(new pp82(*this, key));
-    break;
-  case standartDev:
-    processor = PostprocessorBackend::shared_pointer(new pp83(*this, key));
-    break;
-  case sumbins:
-    processor = PostprocessorBackend::shared_pointer(new pp84(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp82(key));
     break;
   case fwhmPeak:
-      processor = PostprocessorBackend::shared_pointer
-            (new pp85(*this, key));
-      break;
+    processor = PostprocessorBackend::shared_pointer(new pp85(key));
+    break;
   case step:
-      processor = PostprocessorBackend::shared_pointer(new pp86(*this, key));
-      break;
+    processor = PostprocessorBackend::shared_pointer(new pp86(key));
+    break;
   case centerofmass:
-      processor = PostprocessorBackend::shared_pointer(new pp87(*this, key));
-      break;
+    processor = PostprocessorBackend::shared_pointer(new pp87(key));
+    break;
   case axisparameter:
-      processor = PostprocessorBackend::shared_pointer(new pp88(*this, key));
-      break;
+    processor = PostprocessorBackend::shared_pointer(new pp88(key));
+    break;
   case highlowpassfilter:
-      processor = PostprocessorBackend::shared_pointer(new pp89(*this, key));
-      break;
+    processor = PostprocessorBackend::shared_pointer(new pp89(key));
+    break;
   case SingleCcdImage:
     processor = PostprocessorBackend::shared_pointer
           (new pp100(*this, key));
@@ -557,20 +431,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp102(*this, key));
     break;
   case PixelDetectorImage:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp105(*this, key));
-    break;
-  case PixelDetectorImageHistogram:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp106(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp105(key));
     break;
   case CorrectionMaps:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp107(*this, key));
-    break;
-  case SumPixels:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp108(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp107(key));
     break;
   case AcqirisWaveform:
     processor = PostprocessorBackend::shared_pointer
@@ -604,89 +468,56 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp142(*this,key));
     break;
-  case CCDCoalescedPhotonHitsSpectrum:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp143(*this,key));
-    break;
   case CCDCoalescedPhotonHitsImage:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp144(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp144(key));
     break;
   case NbrOfCCDCoalescedPhotonHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp145(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp145(key));
     break;
   case SplitLevelCoalescedPhotonHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp146(*this,key));
-    break;
-  case NewCCDPhotonHitsSpectrum:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp147(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp146(key));
     break;
   case NewCCDPhotonHitsImage:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp148(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp148(key));
     break;
   case NewNbrOfCCDPhotonHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp149(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp149(key));
     break;
   case TofDetNbrSignals:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp150(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp150(key));
     break;
   case TofDetAllSignals:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp151(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp151(key));
     break;
   case TofDetMcpHeightVsFwhm:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp152(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp152(key));
     break;
   case TofDetDeadtime:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp153(*this, key));
-    break;
-  case SumFoundPixels:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp155(*this, key));
-    break;
-  case SumPhotonHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp156(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp153(key));
     break;
   case WireendNbrSignals:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp160(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp160(key));
     break;
   case WireendHeightvsFwhm:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp161(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp161(key));
     break;
   case AnodeTimesum:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp162(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp162(key));
     break;
   case AnodeTimesumVsPos:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp163(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp163(key));
     break;
   case DelaylineFirstGoodHit:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp164(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp164(key));
     break;
   case DelaylineNbrReconstructedHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp165(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp165(key));
     break;
   case DelaylineAllReconstuctedHits:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp166(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp166(key));
     break;
   case DelaylineAnodeSigDeadtime:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp167(*this, key));
+    processor = PostprocessorBackend::shared_pointer(new pp167(key));
     break;
   case HEXCalibrator:
     processor = PostprocessorBackend::shared_pointer
@@ -727,8 +558,7 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp212(*this,key));
     break;
   case PIPICO:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp220(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp220(key));
     break;
   case PhotonEnergy:
     processor = PostprocessorBackend::shared_pointer
@@ -739,22 +569,19 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
             (new pp240(*this,key));
       break;
   case fixOffset:
-    processor = PostprocessorBackend::shared_pointer(new pp241(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp241(key));
     break;
   case MaskValue:
-    processor = PostprocessorBackend::shared_pointer(new pp242(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp242(key));
     break;
   case ParticleValue:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp250(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp250(key));
     break;
   case ParticleValues:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp251(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp251(key));
     break;
   case NbrParticles:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp252(*this,key));
+    processor = PostprocessorBackend::shared_pointer(new pp252(key));
     break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:

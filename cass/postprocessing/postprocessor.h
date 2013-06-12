@@ -49,43 +49,20 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
-00001: Compare histograms for less than constant (pp1)
-00002: Compare histograms for greater than constant (pp1)
-00003: Compare histograms for equal to constant (pp1)
+00001: Operation on 2 Histograms
+00002: Operation on Histogram with value or 0D PostProcessor
 00004: Apply boolean NOT to 0D histograms
-00005: Compare two 0D histograms for boolean AND (pp5)
-00006: Compare two 0D histograms for boolean OR (pp5)
-00007: Compare two histograms whether first is less than second (pp7)
-00008: Compare two histograms whether first is equal to second (pp7)
+
 00009: Check whether histogram is in a range
-00010: Constant true (pp10)
-00011: Constant false (pp10)
 00012: Constant Value
 
 00015: Check whether value of 0d histogram has changed
-
-00020: Subtract second histogram from first histogram (pp20)
-00021: Add first histogram to second histogram (pp20)
-00022: Divide first histogram by second histogram (pp20)
-00023: Multiply first histogram with second histogram (pp20)
-00024: Subtract Constant from histogram (pp24)
-00025: Add Constant to histogram (pp24)
-00026: Multiply histogram with constant (pp24)
-00027: Divide histogram constant constant (pp24)
-
-00030: Subtract Constant from histogram, Constant is taken from 0D histogram (pp30)
-00031: Add Constant to histogram, Constant is taken from 0D histogram  (pp30)
-00032: Multiply histogram with constant, Constant is taken from 0D histogram  (pp30)
-00033: Divide histogram by constant, Constant is taken from 0D histogram  (pp30)
 
 00040: Threshold histogram
 00041: Threshold histogram with another histogram
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
-00052: radial average / Project 2D to radius
-00053: Angular Distribution / Radar Plot
-00054: Convert 2D histogram to Radius - Phi representation (deprectiated; use pp202 instead)
 
 00055: Axis operations performed on 2d histogram
 
@@ -107,19 +84,13 @@ the Class description for information about what parameters are user settable.
 00073: Returns a subset of a table based on a condition on a chossable column
 
 00075: Clear a Histogram
-
 00076: Quit CASS when Condition is met
-
 00077: Checks if eventid is on a user provided list
-
 00078: Count how many times it has been called
 
-00080: nbrOfFills of given histogram
-00081: maximum bin of 1D histogram
-00082: mean value of all bins of a histogram
-00083: standart deviation of the mean of all bins of a histogram
-00084: sum of all bins of a histogram
 00071: retrieve a user choosable value of a histogram
+00081: retrieve user choosable bin of 1D histogram
+00082: user choosable statistics value of all bins of a histogram
 
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
@@ -141,28 +112,24 @@ the Class description for information about what parameters are user settable.
 
 ##Data used with new pixeldetector device (select appropriate format convert to use these)
 00105: Pixeldetector Image
-00106: Histogram of Pixeldetector pixel values, depreciated use pp60 instead
 00107: Display the Map used for correction and pixel detection
-00108: Calculates the sum of all pixels values, depreciated use pp84 instead
 
-00147: detected pixels spectrum (z-values), depreciated use pp60 instead
 00148: 2d image from detected pixels
 00149: Number of detected pixels
-00155: Calculates the sum of the z value of the detected pixels, depreciated use pp84 instead
 
-00143: coalesced detected pixels (hits) spectrum (z-values), depreciated use pp60 instead
 00144: 2d image from coalesced detected pixels (hits)
 00145: Number of coalesced detected pixels (hits)
 00146: Split level of coalesced detected pixels (hits) (how many detected pixels within coalseced hit)
-00156: Calculates the sum of the z values of the coalesced pixels (hits), depreciated use pp84 instead
 
 
+## Beamline Data Retrieval
 00120: Beamline data
 00121: Eventcode check
 00122: EventID retrival
 00130: Epics data
 
 
+## Waveform and detectors recorded via waveform
 00110: Acqiris Waveform
 
 00150: TofDetector number of signals in MCP waveform
@@ -234,6 +201,40 @@ the Class description for information about what parameters are user settable.
 ---Coltrims Analysis--
 05000: Electron Energy from Recoil momenta
 05001: Tripple Coincidence Spectra from same detector
+
+---Removed PostProcessors---
+00003: removed use pp2 instead
+00005: removed use pp1 instead
+00006: removed use pp1 instead
+00007: removed use pp1 instead
+00008: removed use pp1 instead
+00010: removed use pp12 instead
+00011: removed use pp12 instead
+00020: removed used pp1 instead
+00021: removed used pp1 instead
+00022: removed used pp1 instead
+00023: removed used pp1 instead
+00024: removed use pp2 instead
+00025: removed use pp2 instead
+00026: removed use pp2 instead
+00027: removed use pp2 instead
+00030: removed use pp2 instead
+00031: removed use pp2 instead
+00032: removed use pp2 instead
+00033: removed use pp2 instead
+00052: removed use pp202 and pp50 instead
+00053: removed use pp202 and pp50 instead
+00054: removed use pp202 instead
+00080: removed use pp78 instead
+00083: removed use pp82 instead
+00084: removed use pp82 instead
+00106: removed use pp60 instead
+00108: removed use pp84 instead
+00147: removed use pp60 instead
+00155: removed use pp84 instead
+00143: removed use pp60 instead
+00156: removed use pp84 instead
+
 
 @endverbatim
 
@@ -312,8 +313,8 @@ public:
    */
   enum id_t
   {
-    ConstantLess=1,
-    ConstantGreater=2,
+    OperationsOn2Histos=1,
+    OperationWithValue=2,
     ConstantEqual=3,
     BooleanNOT=4,
     BooleanAND=5,
@@ -585,9 +586,6 @@ public:
    * Reset set of active postprocessors/histograms based on cass.ini
    */
   void loadSettings(size_t);
-
-  /** Save active postprocessors and histograms */
-  void saveSettings();
 
 protected:
   /** factory to create new Postprocessor with the name key.

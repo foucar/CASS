@@ -150,7 +150,6 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/acqiris_detectors_helper.h \
                       ./postprocessing/operations.h \
                       ./postprocessing/rankfilter.h \
-                      ./postprocessing/operation_templates.hpp \
                       ./postprocessing/alignment.h \
                       ./postprocessing/backend.h \
                       ./postprocessing/ccd.h \

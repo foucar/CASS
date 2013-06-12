@@ -117,10 +117,10 @@ PostprocessorBackend::setupDependency(const string &depVarName, const name_t& de
     s.beginGroup(QString::fromStdString(name()));
     dependkey = s.value(QString::fromStdString(depVarName),"Unknown").toString().toStdString();
   }
-  if (QString::fromStdString(dependkey).toUpper() == QString::fromStdString(_key).toUpper())
+  if (QString::fromStdString(dependkey).toUpper() == QString::fromStdString(name()).toUpper())
   {
-    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" + name() +
-                           "' looks for a dependency '" + dependkey +
+    throw invalid_argument("PostprocessorBackend::setupDependency(): Error: '" +
+                           name() + "' looks for a dependency '" + dependkey +
                            "'. One cannot let a postprocessor depend on itself." +
                            " Note that qsettings is not case sensitive, so on must provide" +
                            " names that differ not only in upper / lower case.");
@@ -139,7 +139,7 @@ PostprocessorBackend::setupDependency(const string &depVarName, const name_t& de
   {
     Log::add(Log::DEBUG0,"PostprocessorBackend::setupDependency(): '" + name() +
              "' Dependency is on list. Retrieve '"+dependkey +"' from the mananger");
-    dependency = _pp.getPostProcessorSPointer(dependkey);
+    dependency = PostProcessors::reference().getPostProcessorSPointer(dependkey);
   }
   return dependency;
 }
@@ -150,8 +150,6 @@ void PostprocessorBackend::load()
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(name()));
   _hide = settings.value("Hide",false).toBool();
-  _write = settings.value("Write",true).toBool();
-  _write_summary = settings.value("WriteSummary",true).toBool();
   _comment = settings.value("Comment","").toString().toStdString();
   if (settings.contains("ConditionName"))
     _condition = setupDependency("ConditionName");
@@ -159,7 +157,7 @@ void PostprocessorBackend::load()
     _condition = setupDependency("ConditionName","DefaultTrueHist");
 }
 
-void PostprocessorBackend::process(const CASSEvent& ev, HistogramBackend& result)
+void PostprocessorBackend::process(const CASSEvent&, HistogramBackend&)
 {
   Log::add(Log::DEBUG4,"PostProcessorBackend::process(): '" + name() +
            "' not implemented");
