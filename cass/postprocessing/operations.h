@@ -27,18 +27,31 @@ namespace cass
 
 /** Operation on 2 Histograms
  *
- * @PPList "1":Operation on 2 Histograms
- *
- * this templated class will compare the sum of all bins to a constant value
+ * @PPList "1":Operation on 2 Histograms value by value
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Needs to
- *           be implemented, because default is "", which is invalid.
- * @cassttng PostProcessor/\%name\%/{Value} \n
- *           Value to compare the histograms value to. Default is 0.
+ * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ *           the postprocessor name that contain the first histogram.
+ *           Needs to be of the same dimension and size as the second.
+ * @cassttng PostProcessor/\%name\%/{HistTwo} \n
+ *           the postprocessor name that contain the second histogram.
+ *           Needs to be of the same dimension and size as the first
+ * @cassttng PostProcessor/\%name\%/{Operation} \n
+ *           Default is "+". Possible values are:
+ *           - "+": Use add as operation
+ *           - "-": Use minus as operation
+ *           - "/": Use divide as operation
+ *           - "*": Use multiply as operation
+ *           - "AND": Use logical AND as operation
+ *           - "OR": Use logical OR as operation
+ *           - ">": Use greater as operation
+ *           - ">=": Use greater or equal as operation
+ *           - "<": Use less than as operation
+ *           - "<=": Use less or equal as operation
+ *           - "==": Use equal to as operation
+ *           - "!=": Use not equal to as operation
  *
  * @author Lutz Foucar
  */
@@ -83,7 +96,29 @@ protected:
  * @cassttng PostProcessor/\%name\%/{Value} \n
  *           Value for the operation. Default is 1.
  * @cassttng PostProcessor/\%name\%/{ValueName} \n
- *           Value for the operation. Default is 1.
+ *           0D PostProcessor containing value for the operation. If this is not
+ *           the default value of DonnotUse, the value from the PostProcssor is
+ *           used. Otherwise the Value is used. Default is "DonnotUse"
+ * @cassttng PostProcessor/\%name\%/{Operation} \n
+ *           Default is "+". Possible values are:
+ *           - "+": Use add as operation
+ *           - "-": Use minus as operation
+ *           - "/": Use divide as operation
+ *           - "*": Use multiply as operation
+ *           - "AND": Use logical AND as operation
+ *           - "OR": Use logical OR as operation
+ *           - ">": Use greater as operation
+ *           - ">=": Use greater or equal as operation
+ *           - "<": Use less than as operation
+ *           - "<=": Use less or equal as operation
+ *           - "==": Use equal to as operation
+ *           - "!=": Use not equal to as operation
+ * @cassttng PostProcessor/\%name\%/{ValuePos} \n
+ *           Chooses where in the operation the Value or the value taken from
+ *           the 0D PostProcessor will be. Default is "first". Possible values
+ *           are:
+ *           - first: Value will be first operand
+ *           - second: Value will be second operand
  *
  * @author Lutz Foucar
  */
@@ -575,7 +610,7 @@ protected:
 
 /** 0D,1D or 2D to 1D histogramming.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "60": Histogram 0D, 1D or 2D values to a 1D histogram
  *
  * histograms all values of 0D, 1D or 2D into a 1D Histogram. This histogram
  * holds only the histogrammed values of one event. Use PostProcessors 61 or
@@ -615,7 +650,7 @@ protected:
 
 /** Histogram averaging.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "61": Average of a histogram
  *
  * Running or cummulative average of a histogram.
  *
@@ -656,7 +691,7 @@ protected:
 
 /** Histogram summing.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "62": Summing up of histogram
  *
  * Sums up histograms.
  *
@@ -692,7 +727,7 @@ protected:
 
 /** time average of 0d Histogram.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "63": Time Average of a histogram over given time-intervals
  *
  * Makes an running average of a given Histogram over a given time period.
  *
@@ -749,7 +784,7 @@ protected:
 
 /** record 0d Histogram into 1d Histogram.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "64": 0d into 1d (append on right end, shifting old values to the left)
  *
  * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
  *
@@ -792,7 +827,7 @@ protected:
 
 /** 0D to 2D histogramming.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "65": Histogram two 0D values to a 2D histogram
  *
  * histograms two 0d values into one 2D Histogram. The resulting histogram
  * contains only the information from the current event. To get an average or
@@ -837,7 +872,7 @@ protected:
 
 /** 1D to 2D histogramming.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "66": Histogram two 1D traces to a 2D histogram
  *
  * histograms two 1d histograms into one 2D Histogram
  *
@@ -877,7 +912,7 @@ protected:
 
 /** 0D to 1D histogramming.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "67": Histogram two 0D values to a 1D histogram, with first=x, second=weight
  *
  * histograms two 0d values into one 1D Histogram where the first Histogram
  * defines the x axis bin and the second is the weight.
@@ -919,7 +954,7 @@ protected:
 
 /** 0D and 1D to 2D histogramming.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "68": Histogram 0D and 1D histogram to 2D histogram
  *
  * histograms a 0d and 1D Histogram to a 2d Histogram where the first 1d
  * Histogram defines the x axis and the second 0d histogram gives the y axis.
@@ -965,7 +1000,7 @@ protected:
 
 /** 0D to 1D scatter plot.
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "69": Use two 0D values for a scatter plot
  *
  * sets two 0d values into one 1D Histogram where the first Histogram
  * defines the x axis bin and the second is the weight.
@@ -1008,7 +1043,7 @@ protected:
 
 /** Subset Histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "70": Subset a Histogram
  *
  * Will copy a subset of another histogram and return it in a new histogram.
  *
@@ -1062,9 +1097,9 @@ protected:
 
 
 
-/** return the maximum value of a histogram
+/** Returns a user choosable column from a table like 2d histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "71": Returns a user choosable column from a table like 2d histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1111,7 +1146,7 @@ protected:
 
 /** clear Histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "75": Clear a Histogram
  *
  * Will clear a specific histogram when the condition is true.
  *
@@ -1158,7 +1193,7 @@ protected:
 
 /** Quit Program
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "76": Quit CASS when Condition is met
  *
  * Will quit the program, when called. Make sure that it is only called when
  * you want it to be called by setting the "ConditionName" to something
@@ -1197,7 +1232,7 @@ public:
 
 /** Checks for id on list
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "77": Checks if eventid is on a user provided list
  *
  * Checks if the id of the current event is on a user provided list. The
  * user provided list of id should be an ascii file where the ids are in lines.
@@ -1241,7 +1276,7 @@ protected:
 
 /** Counter
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "78": Count how many times it has been called (Counter)
  *
  * Increases the value by one everytime its process function is called
  *
@@ -1277,9 +1312,9 @@ public:
 
 
 
-/** return the bin with the highest value of an 1D histogram
+/** retrieve user choosable bin of 1D histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "81": retrieve user choosable bin of 1D histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1327,7 +1362,7 @@ protected:
 
 /** return the statistic values of all bins of incomming histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "82": user choosable statistics value of all bins of a histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1386,7 +1421,7 @@ protected:
 
 /** return full width at half maximum in given range of 1D histgoram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "85": full width at half maximum for a peak in given range
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1436,7 +1471,7 @@ protected:
 
 /** find step in 1d hist
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "86": find step in a given range of 1d histo
  *
  * finds the x-position of a step in a 1d hist. It does this by defining a
  * baseline from the user selected range. It then searches for the highest
@@ -1496,7 +1531,7 @@ protected:
 
 /** find center of Mass of 1d hist in a user given range
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "87": find center of mass in given range of 1d histo
  *
  * calculates the center of Mass in the user given range.
  *
@@ -1538,7 +1573,7 @@ protected:
 
 /** return axis parameter of an histogram
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "88": retrieve an axis parameter of the histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1584,7 +1619,7 @@ protected:
 
 /** low / high pass filter of 1d histogram
  *
- * @PPList "88": low / high pass filter of 1d histogram
+ * @PPList "89":high or low pass filter on 1d histo
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.

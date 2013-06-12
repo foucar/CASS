@@ -79,24 +79,25 @@ the Class description for information about what parameters are user settable.
 00069: Use two 0D values for a scatter plot
 
 00070: Subset a Histogram
+00071: retrieve a user choosable value of a histogram
+00081: retrieve user choosable bin of 1D histogram
 00072: Returns a user choosable column from a table like 2d histogram
 00073: Returns a subset of a table based on a condition on a chossable column
 
 00075: Clear a Histogram
 00076: Quit CASS when Condition is met
 00077: Checks if eventid is on a user provided list
-00078: Count how many times it has been called
+00078: Count how many times it has been called (Counter)
 
-00071: retrieve a user choosable value of a histogram
-00081: retrieve user choosable bin of 1D histogram
 00082: user choosable statistics value of all bins of a histogram
 
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
 00087: find center of mass in given range of 1d histo
-00089: high or low pass filter on 1d histo
 
 00088: retrieve an axis parameter of the histogram
+
+00089: high or low pass filter on 1d histo
 
 ---Data retrieval (Histogram contain only last shot)--
 ##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
