@@ -115,37 +115,36 @@ AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
 
 
 //----------------Nbr of Peaks MCP---------------------------------------------
-cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp150::pp150(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp150::loadSettings(size_t)
+void pp150::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,150,name());
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' retrieves the nbr of mcp signals of detector '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp150::process(const cass::CASSEvent &evt)
+void pp150::process(const CASSEvent &evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.mcp().output().size());
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  result.fill(det.mcp().output().size());
 }
 
 
@@ -158,41 +157,40 @@ void cass::pp150::process(const cass::CASSEvent &evt)
 
 
 //----------------MCP Hits (Tof)-----------------------------------------------
-cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp151::pp151(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp151::loadSettings(size_t)
+void pp151::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,151,name());
+  createHistList(set1DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms times of the found mcp signals of detector '" + _detector +
-           "'. Condition is '"+ _condition->key() + "'");
+           "'. Condition is '"+ _condition->name() + "'");
 }
 
-void cass::pp151::process(const cass::CASSEvent &evt)
+void pp151::process(const CASSEvent &evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
   SignalProducer::signals_t::const_iterator it (det.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end (det.mcp().output().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  result.clear();
   while ( it != end )
-    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it++)["time"]);
-  _result->lock.unlock();
+    result.fill((*it++)["time"]);
 }
 
 
@@ -205,42 +203,41 @@ void cass::pp151::process(const cass::CASSEvent &evt)
 
 
 //----------------MCP Fwhm vs. height------------------------------------------
-cass::pp152::pp152(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp152::pp152(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp152::loadSettings(size_t)
+void pp152::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,152,name());
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms the FWHM vs the height of the found mcp signals" +
            " of detector '" + _detector + "'. Condition is '" +
-           _condition->key() + "'");
+           _condition->name() + "'");
 }
 
-void cass::pp152::process(const cass::CASSEvent &evt)
+void pp152::process(const CASSEvent &evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
   SignalProducer::signals_t::const_iterator it(det.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end(det.mcp().output().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; it != end; ++it)
-    dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)["fwhm"],(*it)["height"]);
-  _result->lock.unlock();
+    result.fill((*it)["fwhm"],(*it)["height"]);
 }
 
 
@@ -251,8 +248,8 @@ void cass::pp152::process(const cass::CASSEvent &evt)
 
 
 //----------------Deadtime between consecutive MCP signals----------------------
-pp153::pp153(PostProcessors &pp, const PostProcessors::key_t &key)
-  :PostprocessorBackend(pp,key)
+pp153::pp153(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -261,34 +258,33 @@ void pp153::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key.c_str()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,153,name());
+  createHistList(set1DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' creates a histogram of the deatime between two consecutive " +
            "MCP Signals of detctor '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp153::process(const cass::CASSEvent &evt)
+void pp153::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
   const SignalProducer::signals_t& mcp(det.mcp().output());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  result.clear();
   for (size_t i(1); i < mcp.size(); ++i)
   {
     const float diff(mcp[i-1]["time"] - mcp[i]["time"]);
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(diff);
+    result.fill(diff);
   }
-  _result->lock.unlock();
 }
 
 
@@ -303,39 +299,39 @@ void pp153::process(const cass::CASSEvent &evt)
 
 
 //----------------Nbr of Peaks Anode-------------------------------------------
-cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp160::pp160(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp160::loadSettings(size_t)
+void pp160::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,160,_key);
-  _layer = loadLayer(settings,_detector,"Layer",160,_key);
-  _signal = loadWireend(settings,"Wireend",160,_key);
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,160,name());
+  _layer = loadLayer(s,_detector,"Layer",160,name());
+  _signal = loadWireend(s,"Wireend",160,name());
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' outputs the nbr of signals of layer '" + _layer + "' wireend '" +
            _signal + "' of detector '" + _detector +"'. Condition is '" +
-           _condition->key() + "'");
+           _condition->name() + "'");
 }
 
-void cass::pp160::process(const cass::CASSEvent &evt)
+void pp160::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
-   _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.layers()[_layer].wireends()[_signal].output().size());
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  result.fill(det.layers()[_layer].wireends()[_signal].output().size());
 }
 
 
@@ -349,43 +345,43 @@ void cass::pp160::process(const cass::CASSEvent &evt)
 
 
 //----------------FWHM vs. Height of Wireend Signals---------------------------
-cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp161::pp161(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp161::loadSettings(size_t)
+void pp161::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,161,_key);
-  _layer = loadLayer(settings,_detector,"Layer",161,_key);
-  _signal = loadWireend(settings,"Wireend",161,_key);
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,161,name());
+  _layer = loadLayer(s,_detector,"Layer",161,name());
+  _signal = loadWireend(s,"Wireend",161,name());
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms the FWHM vs the height from the signals of layer '" +
            _layer + "' wireend '" + _signal + "' of detector '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp161::process(const cass::CASSEvent &evt)
+void pp161::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   SignalProducer::signals_t::const_iterator it (det.layers()[_layer].wireends()[_signal].output().begin());
   SignalProducer::signals_t::const_iterator end (det.layers()[_layer].wireends()[_signal].output().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; it != end; ++it)
-    dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)["fwhm"],(*it)["height"]);
-  _result->lock.unlock();
+    result.fill((*it)["fwhm"],(*it)["height"]);
 }
 
 
@@ -398,34 +394,33 @@ void cass::pp161::process(const cass::CASSEvent &evt)
 
 
 //----------------Timesum for the layers---------------------------------------
-cass::pp162::pp162(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp162::pp162(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp162::loadSettings(size_t)
+void pp162::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,162,_key);
-  _layer = loadLayer(settings,_detector,"Layer",162,_key);
-  _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
-                     settings.value("TimeRangeHigh",20000).toDouble());
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,162,name());
+  _layer = loadLayer(s,_detector,"Layer",162,name());
+  _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
+                     s.value("TimeRangeHigh",20000).toDouble());
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' calculates the timesum of layer '" + _layer + "' of detector '" +
            _detector + "'. It will use the first signals that appeared in the" +
            "ToF range from '" + toString(_range.first) + "' ns to '" +
-           toString(_range.second) + "' ns. Condition is '" + _condition->key() + "'");
+           toString(_range.second) + "' ns. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp162::process(const cass::CASSEvent &evt)
+void pp162::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -433,9 +428,10 @@ void cass::pp162::process(const cass::CASSEvent &evt)
   const double one (det.layers()[_layer].wireends()['1'].firstGood(_range));
   const double two (det.layers()[_layer].wireends()['2'].firstGood(_range));
   const double mcp (det.mcp().firstGood(_range));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill( one + two - 2.*mcp);
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  result.fill( one + two - 2.*mcp);
 }
 
 
@@ -448,32 +444,31 @@ void cass::pp162::process(const cass::CASSEvent &evt)
 
 
 //----------------Timesum vs Postition for the layers--------------------------
-cass::pp163::pp163(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp163::pp163(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp163::loadSettings(size_t)
+void pp163::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,163,_key);
-  _layer = loadLayer(settings,_detector,"Layer",163,_key);
-  _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
-                     settings.value("TimeRangeHigh",20000).toDouble());
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,163,name());
+  _layer = loadLayer(s,_detector,"Layer",163,name());
+  _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
+                     s.value("TimeRangeHigh",20000).toDouble());
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms the timesum vs Postion on layer '" + _layer + "' of detector '" +
-           _detector + "'. Condition is '" + _condition->key() + "'");
+           _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp163::process(const cass::CASSEvent &evt)
+void pp163::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -483,10 +478,11 @@ void cass::pp163::process(const cass::CASSEvent &evt)
   const double mcp (det.mcp().firstGood(_range));
   const double timesum (one + two - 2.*mcp);
   const double position (one - two);
-  _result->clear();
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram2DFloat*>(_result)->fill(position,timesum);
-  _result->lock.unlock();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
+  result.fill(position,timesum);
 }
 
 
@@ -500,32 +496,31 @@ void cass::pp163::process(const cass::CASSEvent &evt)
 
 
 //----------------Detector First Hit-------------------------------------------
-cass::pp164::pp164(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp164::pp164(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp164::loadSettings(size_t)
+void pp164::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,164,_key);
-  _first = loadLayer(settings,_detector,"FirstLayer",164,_key);
-  _second = loadLayer(settings,_detector,"SecondLayer",164,_key);
-  _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
-                     settings.value("TimeRangeHigh",20000).toDouble());
-  _tsrange = make_pair(make_pair(settings.value("TimesumFirstLayerLow",20).toDouble(),
-                                 settings.value("TimesumFirstLayerHigh",200).toDouble()),
-                       make_pair(settings.value("TimesumSecondLayerLow",20).toDouble(),
-                                 settings.value("TimesumSecondLayerHigh",200).toDouble()));
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,164,name());
+  _first = loadLayer(s,_detector,"FirstLayer",164,name());
+  _second = loadLayer(s,_detector,"SecondLayer",164,name());
+  _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
+                     s.value("TimeRangeHigh",20000).toDouble());
+  _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow",20).toDouble(),
+                                 s.value("TimesumFirstLayerHigh",200).toDouble()),
+                       make_pair(s.value("TimesumSecondLayerLow",20).toDouble(),
+                                 s.value("TimesumSecondLayerHigh",200).toDouble()));
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' creates a detector picture of the first Hit on the detector created" +
            " from  Layers '" + _first + "' and '" + _second + "' of detector '" +
            _detector + "'. The signals from wich the frist hit is calculated have to be in the" +
@@ -533,10 +528,10 @@ void cass::pp164::loadSettings(size_t)
            "' ns. The Timesum range of the first layer goes from '"+ toString(_tsrange.first.first) +
            "' to '" + toString(_tsrange.first.second) + "'. The Timesum range of the second layer goes from '" +
            toString(_tsrange.second.first) + "' to '" + toString(_tsrange.second.second) +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp164::process(const cass::CASSEvent &evt)
+void pp164::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -552,11 +547,12 @@ void cass::pp164::process(const cass::CASSEvent &evt)
   const double s (s1-s2);
   const bool csf = (_tsrange.first.first < tsf && tsf < _tsrange.first.second);
   const bool css = (_tsrange.second.first < tss && tss < _tsrange.second.second);
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   if (csf && css)
-    dynamic_cast<Histogram2DFloat*>(_result)->fill(f,s);
-  _result->lock.unlock();
+    result.fill(f,s);
 }
 
 
@@ -577,36 +573,35 @@ void cass::pp164::process(const cass::CASSEvent &evt)
 
 
 //----------------Nbr of rec. Hits --------------------------------------------
-cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp165::pp165(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp165::loadSettings(size_t)
+void pp165::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,165,_key);
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,165,name());
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' outputs the number of reconstructed hits of detector '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp165::process(const cass::CASSEvent &evt)
+void pp165::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.hits().size());
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  result.fill(det.hits().size());
 }
 
 
@@ -625,56 +620,51 @@ void cass::pp165::process(const cass::CASSEvent &evt)
 
 
 //----------------Detector Values----------------------------------------------
-cass::pp166::pp166(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
-
+pp166::pp166(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp166::loadSettings(size_t)
+void pp166::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,166,_key);
-  _first = settings.value("XInput",'x').toString().toStdString();
-  _second = settings.value("YInput",'y').toString().toStdString();
-  _third =  settings.value("ConditionInput",'t').toString().toStdString();
-  _cond = make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
-                        settings.value("ConditionHigh",50000.).toFloat()),
-                    max(settings.value("ConditionLow",-50000.).toFloat(),
-                        settings.value("ConditionHigh",50000.).toFloat()));
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+  _detector = loadDelayDet(s,166,name());
+  _first = s.value("XInput",'x').toString().toStdString();
+  _second = s.value("YInput",'y').toString().toStdString();
+  _third =  s.value("ConditionInput",'t').toString().toStdString();
+  _cond = make_pair(min(s.value("ConditionLow",-50000.).toFloat(),
+                        s.value("ConditionHigh",50000.).toFloat()),
+                    max(s.value("ConditionLow",-50000.).toFloat(),
+                        s.value("ConditionHigh",50000.).toFloat()));
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
            _second + "' vs. '" + _first +
            "' of the reconstructed detectorhits of detector '" + _detector +
            "'. It puts a condition from '" + toString(_cond.first) +
            "' to '" + toString(_cond.second) +  "' on Property '" +  _third +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp166::process(const cass::CASSEvent &evt)
+void pp166::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   detectorHits_t::iterator it (det.hits().begin());
   detectorHits_t::iterator end (det.hits().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  result.clear();
   for (; it != end; ++it)
   {
     if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_first],(*it)[_second]);
+      result.fill((*it)[_first],(*it)[_second]);
   }
-  _result->lock.unlock();
 }
 
 
@@ -684,8 +674,8 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 
 
 //----------------Deadtime between consecutive Anode signals----------------------
-pp167::pp167(PostProcessors &pp, const PostProcessors::key_t &key)
-  :PostprocessorBackend(pp,key)
+pp167::pp167(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -694,36 +684,33 @@ void pp167::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key.c_str()));
-  _detector = loadDelayDet(s,167,_key);
-  _layer = loadLayer(s,_detector,"Layer",167,_key);
-  _signal = loadWireend(s,"Wireend",167,_key);
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  _detector = loadDelayDet(s,167,name());
+  _layer = loadLayer(s,_detector,"Layer",167,name());
+  _signal = loadWireend(s,"Wireend",167,name());
+  createHistList(set1DHist(name()));
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' creates a histogram of the deatime between two consecutive " +
            "Anode Signals of detctor '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp167::process(const cass::CASSEvent &evt)
+void pp167::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
   const SignalProducer::signals_t& anode(det.layers()[_layer].wireends()[_signal].output());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  result.clear();
   for (size_t i(1); i < anode.size(); ++i)
-  {
-    const float diff(anode[i-1]["time"] - anode[i]["time"]);
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(diff);
-  }
-  _result->lock.unlock();
+    result.fill(anode[i-1]["time"] - anode[i]["time"]);
 }
 
 
@@ -732,32 +719,31 @@ void pp167::process(const cass::CASSEvent &evt)
 
 
 //----------------PIPICO-------------------------------------------------------
-cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp220::pp220(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp220::loadSettings(size_t)
+void pp220::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector01 = settings.value("FirstDetector","blubb").toString().toStdString();
-  _detector02 = settings.value("SecondDetector","blubb").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _detector01 = s.value("FirstDetector","blubb").toString().toStdString();
+  _detector02 = s.value("SecondDetector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(set2DHist(name()));
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
   HelperAcqirisDetectors::instance(_detector02)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '"+ _key +
+  Log::add(Log::INFO,"PostProcessor '"+ name() +
       "' create a PIPICO Histogram of detectors '" + _detector01 +
-      "' and '" + _detector02 + "'. Condition is '"+ _condition->key() + "'");
+      "' and '" + _detector02 + "'. Condition is '"+ _condition->name() + "'");
 }
 
-void cass::pp220::process(const cass::CASSEvent &evt)
+void pp220::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet01(
       HelperAcqirisDetectors::instance(_detector01)->detector(evt));
@@ -768,8 +754,10 @@ void cass::pp220::process(const cass::CASSEvent &evt)
   SignalProducer::signals_t::const_iterator it01(det01.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end01(det01.mcp().output().end());
   SignalProducer::signals_t::const_iterator end02(det02.mcp().output().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; it01 != end01;++it01)
   {
     //if both detectors are the same, then the second iterator should start
@@ -778,9 +766,8 @@ void cass::pp220::process(const cass::CASSEvent &evt)
                                                      it01+1 :
                                                      det02.mcp().output().begin());
     for (; it02 != end02; ++it02)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill((*it01)["time"],(*it02)["time"]);
+      result.fill((*it01)["time"],(*it02)["time"]);
   }
-  _result->lock.unlock();
 }
 
 
@@ -788,32 +775,30 @@ void cass::pp220::process(const cass::CASSEvent &evt)
 
 
 //----------------Particle Value----------------------------------------------
-cass::pp250::pp250(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
-
+pp250::pp250(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp250::loadSettings(size_t)
+void pp250::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,250,_key);
-  _particle = loadParticle(settings,_detector,250,_key);
-  _property = settings.value("Property","px").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+  _detector = loadDelayDet(s,250,name());
+  _particle = loadParticle(s,_detector,250,name());
+  _property = s.value("Property","px").toString().toStdString();
+  createHistList(set1DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
            _property + "' of the particle '" + _particle + "' of detector '" +
-           _detector + "'. Condition is '" + _condition->key() + "'");
+           _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp250::process(const cass::CASSEvent &evt)
+void pp250::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -821,13 +806,12 @@ void cass::pp250::process(const cass::CASSEvent &evt)
   Particle &particle(det.particles()[_particle]);
   particleHits_t::iterator it (particle.hits().begin());
   particleHits_t::iterator end (particle.hits().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  result.clear();
   while( it != end )
-  {
-    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it++)[_property]);
-  }
-  _result->lock.unlock();
+    result.fill((*it++)[_property]);
 }
 
 
@@ -836,34 +820,32 @@ void cass::pp250::process(const cass::CASSEvent &evt)
 
 
 //----------------Particle Values----------------------------------------------
-cass::pp251::pp251(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
-
+pp251::pp251(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp251::loadSettings(size_t)
+void pp251::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,251,_key);
-  _particle = loadParticle(settings,_detector,251,_key);
-  _property01 = settings.value("FirstProperty","px").toString().toStdString();
-  _property02 = settings.value("SecondProperty","py").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+  _detector = loadDelayDet(s,251,name());
+  _particle = loadParticle(s,_detector,251,name());
+  _property01 = s.value("FirstProperty","px").toString().toStdString();
+  _property02 = s.value("SecondProperty","py").toString().toStdString();
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
            _property02 + "' vs. '" + _property01 + "' of the particle '" +
            _particle + "' of detector '" + _detector + "'. Condition is '"+
-           _condition->key() + "'");
+           _condition->name() + "'");
 }
 
-void cass::pp251::process(const cass::CASSEvent &evt)
+void pp251::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -871,48 +853,48 @@ void cass::pp251::process(const cass::CASSEvent &evt)
   Particle &particle(det.particles()[_particle]);
   particleHits_t::iterator it(particle.hits().begin());
   particleHits_t::iterator end(particle.hits().end());
-  _result->clear();
-  _result->lock.lockForWrite();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; it != end; ++it)
-    dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_property01],(*it)[_property02]);
-  _result->lock.unlock();
+    result.fill((*it)[_property01],(*it)[_property02]);
 }
 
 
 
 
 //----------------Number of Particles---------------------------------------------
-cass::pp252::pp252(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
-
+pp252::pp252(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp252::loadSettings(size_t)
+void pp252::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _detector = loadDelayDet(settings,252,_key);
-  _particle = loadParticle(settings,_detector,252,_key);
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  _detector = loadDelayDet(s,252,name());
+  _particle = loadParticle(s,_detector,252,name());
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            + "' outputs how many particles were found for '" + _particle +
-           + "' of detector '" + _detector + "'. Condition is '" + _condition->key() + "'");
+           + "' of detector '" + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp252::process(const cass::CASSEvent &evt)
+void pp252::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   Particle& particle (det.particles()[_particle]);
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(particle.hits().size());
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  result.fill(particle.hits().size());
 }

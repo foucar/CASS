@@ -15,39 +15,44 @@
 #include "cass_settings.h"
 #include "log.h"
 
+
+using namespace cass;
+using namespace MachineData;
+using namespace std;
+using namespace std::tr1;
+
 // *** postprocessors 120 retrives beamline data ***
 
-cass::pp120::pp120(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp120::pp120(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp120::loadSettings(size_t)
+void pp120::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _varname = settings.value("VariableName","").toString().toStdString();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(name().c_str());
+  _varname = s.value("VariableName","").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "': will retrieve datafield ' " +
-           _varname + "' from beamline data. Condition is '" + _condition->key() +"'");
+
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+
+  Log::add(Log::INFO,"PostProcessor '" + name() + "': will retrieve datafield ' " +
+           _varname + "' from beamline data. Condition is '" + _condition->name() +"'");
 }
 
-void cass::pp120::process(const CASSEvent& evt)
+void pp120::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  using namespace cass::MachineData;
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::bldMap_t &bld(mdev->BeamlineData());
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
-  _result->lock.unlock();
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  result = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
 }
 
 
@@ -59,39 +64,37 @@ void cass::pp120::process(const CASSEvent& evt)
 
 // *** postprocessors 121 checks event code ***
 
-cass::pp121::pp121(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp121::pp121(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp121::loadSettings(size_t)
+void pp121::loadSettings(size_t)
 {
-  using namespace std;
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _eventcode = settings.value("EventCode",0).toUInt();
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(name().c_str());
+  _eventcode = s.value("EventCode",0).toUInt();
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '"+ _key + "' will check whether event code '" +
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+
+  Log::add(Log::INFO,"PostProcessor '"+ name() + "' will check whether event code '" +
            toString(_eventcode) + "' is present in the event. Condition is '" +
-           _condition->key() +"'");
+           _condition->name() +"'");
 }
 
-void cass::pp121::process(const CASSEvent& evt)
+void pp121::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  using namespace cass::MachineData;
+  using namespace MachineData;
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::evrStatus_t &evr(mdev->EvrData());
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = ((_eventcode < evr.size()) ? evr[_eventcode] : 0);
-  _result->lock.unlock();
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  result = ((_eventcode < evr.size()) ? evr[_eventcode] : 0);
 }
 
 
@@ -107,29 +110,28 @@ void cass::pp121::process(const CASSEvent& evt)
 
 // *** postprocessors 122 retrieve eventID ***
 
-cass::pp122::pp122(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp122::pp122(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp122::loadSettings(size_t)
+void pp122::loadSettings(size_t)
 {
   using namespace std;
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve the event ID from events. Condition is '" +
-           _condition->key() + "'");
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve the event ID from events. Condition is '" +
+           _condition->name() + "'");
 }
 
-void cass::pp122::process(const CASSEvent& evt)
+void pp122::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = evt.id();
-  _result->lock.unlock();
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  result = evt.id();
 }
 
 
@@ -146,37 +148,35 @@ void cass::pp122::process(const CASSEvent& evt)
 
 // *** postprocessors 130 retrives epics data ***
 
-cass::pp130::pp130(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp130::pp130(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp130::loadSettings(size_t)
+void pp130::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(name().c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve datafield' " +
-           _varname +"' from epics data. Condition is" + _condition->key() + "'");
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve datafield' " +
+           _varname +"' from epics data. Condition is" + _condition->name() + "'");
 }
 
-void cass::pp130::process(const CASSEvent& evt)
+void pp130::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  using namespace cass::MachineData;
+  using namespace MachineData;
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t &epics(mdev->EpicsData());
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
-  _result->lock.unlock();
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  result = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
 }
 
 
@@ -193,31 +193,31 @@ void cass::pp130::process(const CASSEvent& evt)
 
 // *** postprocessors 230 calcs photonenergy from bld ***
 
-cass::pp230::pp230(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp230::pp230(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
-void cass::pp230::loadSettings(size_t)
+void pp230::loadSettings(size_t)
 {
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
   setupGeneral();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' calculates photonenergy from " +
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' calculates photonenergy from " +
            "'EbeamL3Energy' and 'EbeamPkCurrBC2'." + " Condition is '" +
-           _condition->key() + "'");
+           _condition->name() + "'");
 }
 
-void cass::pp230::process(const CASSEvent& evt)
+void pp230::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  using namespace cass::MachineData;
+  using namespace MachineData;
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   const double ebEnergy
       (bld.find("EbeamL3Energy") == bld.end() ? 0 : bld.find("EbeamL3Energy")->second);
@@ -249,7 +249,5 @@ void cass::pp230::process(const CASSEvent& evt)
   // Calculate the resonant photon energy of the first active segment
   const double photonenergy (44.42*energyProfile*energyProfile);
 
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = photonenergy;
-  _result->lock.unlock();
+  result = photonenergy;
 }

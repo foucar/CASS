@@ -27,6 +27,8 @@ class Histogram2DFloat;
 
 /** Number of Signals in MCP Waveform.
  *
+ * @PPList "150":TofDetector number of signals in MCP waveform
+ *
  * This postprocessor will output how many Signals have been found
  * in the acqiris channel for the mcp of the detector.
  *
@@ -35,7 +37,7 @@ class Histogram2DFloat;
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -46,14 +48,14 @@ class Histogram2DFloat;
  *
  * @author Lutz Foucar
  */
-class pp150 : public PostprocessorBackend
+class pp150 : public PostProcessor
 {
 public:
   /** Constructor. Constructor for Number of Signals*/
-  pp150(PostProcessors&, const PostProcessors::key_t&);
+  pp150(const name_t&);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -72,6 +74,8 @@ protected:
 
 /** all mcp signals.
  *
+ * @PPList "151":TofDetector all signals
+ *
  * This postprocessor will output the times of all found singal int the
  * mcp waveform of the detector. This is a Time of Flight Spectrum
  *
@@ -80,7 +84,7 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -93,14 +97,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp151 : public PostprocessorBackend
+class pp151 : public PostProcessor
 {
 public:
   /** Constructor*/
-  pp151(PostProcessors&, const PostProcessors::key_t&);
+  pp151(const name_t&);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -118,6 +122,8 @@ protected:
 
 /** FWHM vs. Height of mcp signals.
  *
+ * @PPList "152":TofDetector signal height vs. fwhm
+ *
  * This postprocessor will make a histogram of the fwhm and height of
  * found mcp signals.
  *
@@ -126,7 +132,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector or cass::ACQIRIS:::TofDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -139,14 +145,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp152 : public PostprocessorBackend
+class pp152 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp152(PostProcessors&, const PostProcessors::key_t&);
+  pp152(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -165,6 +171,8 @@ protected:
 
 /** Deadtime between two consecutive mcp signals
  *
+ * @PPList "153":TofDetector Deadtime between two consecutive MCP signals
+ *
  * This postprocessor will output a histogram of the deadtime between two
  * consecutive mcp signals.
  *
@@ -173,7 +181,7 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -184,14 +192,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp153 : public PostprocessorBackend
+class pp153 : public PostProcessor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-  pp153(PostProcessors&, const PostProcessors::key_t&);
+  pp153(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -215,6 +223,8 @@ protected:
 
 /** Number of Signals in Anode Layers Waveform.
  *
+ * @PPList "160":Delayline wireend number of signals
+ *
  * This postprocessor will output how many Signals have been found in the
  * acqiris channels of requested layers.
  *
@@ -223,7 +233,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -247,14 +257,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp160 : public PostprocessorBackend
+class pp160 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp160(PostProcessors&, const PostProcessors::key_t&);
+  pp160(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -282,6 +292,8 @@ protected:
 
 /** FWHM vs. Height of wireend signals.
  *
+ * @PPList "161":Delayline wireend signal height vs. fwhm
+ *
  * This postprocessor will make a histogram of the fwhm and height of
  * all identified signals in a detector.
  *
@@ -290,7 +302,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -316,14 +328,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp161 : public PostprocessorBackend
+class pp161 : public PostProcessor
 {
 public:
   /** Constructor*/
-  pp161(PostProcessors&, const PostProcessors::key_t&);
+  pp161(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -350,6 +362,8 @@ protected:
 
 /** Timesum of Delayline.
  *
+ * @PPList "162":Delayline timesum on anode
+ *
  * This postprocessor will output Timesum of a Delayline Anode for the first
  * hit in a selectable good range.
  *
@@ -358,7 +372,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -383,14 +397,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp162 : public PostprocessorBackend
+class pp162 : public PostProcessor
 {
 public:
   /** Constructor*/
-  pp162(PostProcessors&, const PostProcessors::key_t&);
+  pp162(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -415,6 +429,8 @@ protected:
 
 /** Timesum of Delayline Anode vs Position of Anode.
  *
+ * @PPList "163":Delayline timesum on anode vs. position
+ *
  * This postprocessor will output Timesum of a Delayline Anode versus the
  * position of the delayline. This is used to know the value for extracting
  * the detectorhits.
@@ -424,7 +440,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -449,14 +465,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp163 : public PostprocessorBackend
+class pp163 : public PostProcessor
 {
 public:
   /** Constructor */
-  pp163(PostProcessors&, const PostProcessors::key_t&);
+  pp163(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -483,6 +499,8 @@ protected:
 
 /** detector picture of first hit.
  *
+ * @PPList "164":Delayline image of first good hit
+ *
  * This postprocessor will output the Detector picture of the first Hit in
  * the selectable good range. The added Hit fullfilles the timesum condition.
  *
@@ -491,7 +509,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -533,14 +551,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp164 : public PostprocessorBackend
+class pp164 : public PostProcessor
 {
 public:
   /** Constructor */
-  pp164(PostProcessors&, const PostProcessors::key_t&);
+  pp164(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -574,6 +592,8 @@ protected:
 
 /** Number of reconstucted hits.
  *
+ * @PPList "165":Delayline reconstructed Number of detectorhits
+ *
  * This postprocessor will output the number of reconstructed detector hits.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -581,7 +601,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -592,14 +612,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp165 : public PostprocessorBackend
+class pp165 : public PostProcessor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-  pp165(PostProcessors&, const PostProcessors::key_t&);
+  pp165(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -620,6 +640,8 @@ protected:
 
 /** detector hits values.
  *
+ * @PPList "166":Delayline data of all reconstructed detectorhits
+ *
  * This postprocessor will output the Detector Hit values reqeuested.
  * depending on the postprocessor id, it will histogram 2 of the 3 values
  * of an detectorhit. It will make a condition on the third value of the
@@ -630,7 +652,7 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -663,14 +685,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp166 : public PostprocessorBackend
+class pp166 : public PostProcessor
 {
 public:
   /** Constructor */
-  pp166(PostProcessors&, const PostProcessors::key_t&);
+  pp166(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -714,6 +736,8 @@ protected:
 
 /** Deadtime between two consecutive anode signals
  *
+ * @PPList "167":Delayline Deadtime between two consecutive anode signals
+ *
  * This postprocessor will output a histogram of the deadtime between two
  * consecutive anode signals.
  *
@@ -722,7 +746,7 @@ protected:
  * @seecass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -746,14 +770,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp167 : public PostprocessorBackend
+class pp167 : public PostProcessor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-  pp167(PostProcessors&, const PostProcessors::key_t&);
+  pp167(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -784,6 +808,8 @@ protected:
 
 /** Pipico spectra.
  *
+ * @PPList "220":PIPICO Spectrum
+ *
  * This postprocessor will create Photo-Ion Photo-Ion Coincidence Spectra.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -791,7 +817,7 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -809,14 +835,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp220 : public PostprocessorBackend
+class pp220 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp220(PostProcessors&, const PostProcessors::key_t&);
+  pp220(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -837,6 +863,8 @@ protected:
 
 /** Particle value.
  *
+ * @PPList "250":Property of particle
+ *
  * retrieve one particle property from a Particle that belong to a detector.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -844,7 +872,7 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -883,14 +911,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp250 : public PostprocessorBackend
+class pp250 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp250(PostProcessors&, const PostProcessors::key_t&);
+  pp250(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -916,6 +944,8 @@ protected:
 
 /** Particle values.
  *
+ * @PPList "251":2d hist with two properties of particle
+ *
  * create 2d hist of two particle properties from a Particle that belong to a
  * detector.
  *
@@ -924,7 +954,7 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal and cass::ACQIRIS::Particle
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -993,14 +1023,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp251 : public PostprocessorBackend
+class pp251 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp251(PostProcessors&, const PostProcessors::key_t&);
+  pp251(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -1025,12 +1055,14 @@ protected:
 
 /** Number of particles found per shot.
  *
+ * @PPList "252":Number of found particle hits per shot
+ *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -1046,14 +1078,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp252 : public PostprocessorBackend
+class pp252 : public PostProcessor
 {
 public:
   /** Constructor for Number of Signals*/
-  pp252(PostProcessors&, const PostProcessors::key_t&);
+  pp252(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
