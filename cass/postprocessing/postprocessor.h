@@ -100,16 +100,6 @@ the Class description for information about what parameters are user settable.
 00089: high or low pass filter on 1d histo
 
 ---Data retrieval (Histogram contain only last shot)--
-##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
-## all of the below are depreciated. Use the new pixeldetector device post processors instead##
-00100: CCD image
-00101: CCD image Integral
-00102: CCD image Integral using pixel(s) over user defined Threshold
-
-00140: Photonhits Spectrum (works with old pnccd and ccd device)
-00141: Photonhits Image (works with old pnccd and ccd device)
-00142: Nbr of Photonhits (works with old pnccd and ccd device)
-
 ##Data used with new pixeldetector device (select appropriate format convert to use these)
 00105: Pixeldetector Image
 00107: Display the Map used for correction and pixel detection
@@ -228,12 +218,19 @@ the Class description for information about what parameters are user settable.
 00080: removed use pp78 instead
 00083: removed use pp82 instead
 00084: removed use pp82 instead
+00100: removed use pp105 instead
+00101: removed use pp105 and pp82 instead
+00102: removed use pp105, pp40 and pp82 instead
 00106: removed use pp60 instead
 00108: removed use pp84 instead
+00140: removed use pp105 and pp60 instead
+00141: removed use pp148 instead
+00142: removed use pp149 instead
+00143: removed use pp60 instead
 00147: removed use pp60 instead
 00155: removed use pp84 instead
-00143: removed use pp60 instead
 00156: removed use pp84 instead
+
 
 
 @endverbatim

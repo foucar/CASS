@@ -19,7 +19,6 @@
 #include "acqiris_detectors.h"
 #include "achimcalibrator_hex.h"
 #include "histogram.h"
-#include "ccd.h"
 #include "alignment.h"
 #include "postprocessor.h"
 #include "waveform.h"
@@ -418,18 +417,6 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case highlowpassfilter:
     processor = PostProcessor::shared_pointer(new pp89(key));
     break;
-  case SingleCcdImage:
-    processor = PostProcessor::shared_pointer
-          (new pp100(*this, key));
-    break;
-  case SingleCcdImageIntegral:
-    processor = PostProcessor::shared_pointer
-          (new pp101(*this, key));
-    break;
-  case SingleCcdImageIntegralOverThres:
-    processor = PostProcessor::shared_pointer
-          (new pp102(*this, key));
-    break;
   case PixelDetectorImage:
     processor = PostProcessor::shared_pointer(new pp105(key));
     break;
@@ -437,36 +424,19 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp107(key));
     break;
   case AcqirisWaveform:
-    processor = PostProcessor::shared_pointer
-          (new pp110(*this,key));
+    processor = PostProcessor::shared_pointer(new pp110(key));
     break;
   case BlData:
-    processor = PostProcessor::shared_pointer
-          (new pp120(*this,key));
+    processor = PostProcessor::shared_pointer(new pp120(key));
     break;
   case EvrCode:
-    processor = PostProcessor::shared_pointer
-          (new pp121(*this,key));
+    processor = PostProcessor::shared_pointer(new pp121(key));
     break;
   case EventID:
-    processor = PostProcessor::shared_pointer
-          (new pp122(*this,key));
+    processor = PostProcessor::shared_pointer(new pp122(key));
     break;
   case EpicsData:
-    processor = PostProcessor::shared_pointer
-          (new pp130(*this,key));
-    break;
-  case CCDPhotonHitsSpectrum:
-    processor = PostProcessor::shared_pointer
-          (new pp140(*this,key));
-    break;
-  case CCDPhotonHitsImage:
-    processor = PostProcessor::shared_pointer
-          (new pp141(*this,key));
-    break;
-  case NbrOfCCDPhotonHits:
-    processor = PostProcessor::shared_pointer
-          (new pp142(*this,key));
+    processor = PostProcessor::shared_pointer(new pp130(key));
     break;
   case CCDCoalescedPhotonHitsImage:
     processor = PostProcessor::shared_pointer(new pp144(key));
@@ -561,13 +531,12 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp220(key));
     break;
   case PhotonEnergy:
-    processor = PostProcessor::shared_pointer
-          (new pp230(*this,key));
+    processor = PostProcessor::shared_pointer(new pp230(key));
     break;
-    case TestImage:
-      processor = PostProcessor::shared_pointer
-            (new pp240(*this,key));
-      break;
+  case TestImage:
+    processor = PostProcessor::shared_pointer
+        (new pp240(*this,key));
+    break;
   case fixOffset:
     processor = PostProcessor::shared_pointer(new pp241(key));
     break;
