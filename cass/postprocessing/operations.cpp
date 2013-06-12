@@ -75,6 +75,8 @@ void pp1::loadSettings(size_t)
     _op = logical_and<bool>();
   else if (operation == "OR")
     _op = logical_or<bool>();
+  else if (operation == ">")
+    _op = greater<float>();
   else if (operation == ">=")
     _op = greater_equal<float>();
   else if (operation == "<")
@@ -163,6 +165,8 @@ void pp2::loadSettings(size_t)
     _op = logical_and<bool>();
   else if (operation == "OR")
     _op = logical_or<bool>();
+  else if (operation == ">")
+    _op = greater<float>();
   else if (operation == ">=")
     _op = greater_equal<float>();
   else if (operation == "<")
