@@ -306,6 +306,9 @@ public:
   /** overwrite default behaviour don't do anything */
   virtual void processEvent(const CASSEvent&){}
 
+  /** overwrite default behaviour don't do anything */
+  virtual void releaseEvent(const CASSEvent &){}
+
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 

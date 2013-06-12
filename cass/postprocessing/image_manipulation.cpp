@@ -243,8 +243,8 @@ private:
 
 
 
-pp55::pp55(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key)
+pp55::pp55(const name_t &name)
+  : PostProcessor(name)
 {
   _functions["90DegCCW"] = make_pair(&cass::Rotate90DegCCW,true);
   _functions["270DegCW"] = make_pair(&cass::Rotate90DegCCW,true);
@@ -261,56 +261,53 @@ void pp55::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
   _operation = s.value("Operation","90DegCCW").toString().toStdString();
   if (_functions.find(_operation) == _functions.end())
-    throw invalid_argument("pp55 (" + _key +"): Operation '" + _operation +
+    throw invalid_argument("pp55 (" + name() +"): Operation '" + _operation +
                            "' is not supported.");
   _pixIdx = _functions[_operation].first;
   if (_functions[_operation].second)
   {
-    const AxisProperty& xaxis(_one->getHist(0).axis()[HistogramBackend::xAxis]);
-    const AxisProperty& yaxis(_one->getHist(0).axis()[HistogramBackend::yAxis]);
-    _result = new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
-                                   xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
-                                   xaxis.title(),yaxis.title());
+    const AxisProperty& xaxis(_one->result().axis()[HistogramBackend::xAxis]);
+    const AxisProperty& yaxis(_one->result().axis()[HistogramBackend::yAxis]);
+    _size = make_pair(_one->result().axis()[HistogramBackend::yAxis].nbrBins(),
+                      _one->result().axis()[HistogramBackend::xAxis].nbrBins());
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
+                              xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
+                              xaxis.title(),yaxis.title())));
   }
   else
   {
-    _result = _one->getHist(0).clone();
+    createHistList(_one->result().copy_sptr());
+    _size = make_pair(_one->result().axis()[HistogramBackend::xAxis].nbrBins(),
+                      _one->result().axis()[HistogramBackend::yAxis].nbrBins());
   }
-  createHistList(2*NbrOfWorkers);
-  _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
-                    _result->axis()[HistogramBackend::yAxis].nbrBins());
 
-  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will do '" + _operation +
-           "' on Histogram in PostProcessor '" +  _one->key() +
-           "'. Condition is '" + _condition->key() + "'");
+  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will do '" + _operation +
+           "' on Histogram in PostProcessor '" +  _one->name() +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp55::process(const CASSEvent &evt,HistogramBackend &result)
-//void pp55::process(const CASSEvent &evt)
+void pp55::process(const CASSEvent &evt,HistogramBackend &res)
 {
-  // Get the input histogram
   const Histogram2DFloat &hist
-//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
-
-//  HistogramBackend &result(*_result);
+      (dynamic_cast<const Histogram2DFloat&>(_one->result(evt.id())));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
 
   QReadLocker(&hist.lock);
-  QWriteLocker(&result.lock);
 
-  HistogramFloatBase::storage_t::iterator dest(
-        dynamic_cast<HistogramFloatBase&>(result).memory().begin());
+  HistogramFloatBase::storage_t::iterator dest(result.memory().begin());
 
-  _result->nbrOfFills()=1;
+  result.nbrOfFills()=1;
 
   for (size_t row(0); row < _size.second; ++row)
     for (size_t col(0); col < _size.first; ++col)
@@ -323,8 +320,8 @@ void pp55::process(const CASSEvent &evt,HistogramBackend &result)
 
 // --------------convert cspad 2 cheetah--------------------
 
-pp1600::pp1600(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key),
+pp1600::pp1600(const name_t &name)
+  : PostProcessor(name),
     _nx(194),
     _ny(185),
     _na(8)
@@ -336,40 +333,35 @@ void pp1600::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
-  _result = new Histogram2DFloat(_na*_nx,_na*_ny);
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(_na*_nx,_na*_ny)));
 
-  createHistList(2*NbrOfWorkers);
-
-  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
-           "PostProcessor '" +  _one->key() + " into the format that cheetah is using."
-           ". Condition is '" + _condition->key() + "'");
+  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert Histogram in " +
+           "PostProcessor '" +  _one->name() + " into the format that cheetah is using."
+           ". Condition is '" + _condition->name() + "'");
 }
 
-void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
-//void pp1600::process(const CASSEvent &evt)
+void pp1600::process(const CASSEvent &evt,HistogramBackend &res)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
-
-//  HistogramBackend &result(*_result);
+      (dynamic_cast<const Histogram2DFloat&>(_one->result(evt.id())));
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
 
   const HistogramFloatBase::storage_t& src(hist.memory());
   HistogramFloatBase::storage_t& dest(
         dynamic_cast<HistogramFloatBase&>(result).memory());
 
   QReadLocker (&hist.lock);
-  QWriteLocker(&result.lock);
 
-  _result->nbrOfFills()=1;
-
+  result.nbrOfFills()=1;
   const size_t pix_per_quad(8*_ny*2*_nx);
   for(size_t quadrant=0; quadrant<4; quadrant++)
   {
@@ -391,8 +383,8 @@ void pp1600::process(const CASSEvent &evt,HistogramBackend &result)
 // --------------convert cspad 2 quasi laboratory --------------------
 
 
-pp1601::pp1601(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key),
+pp1601::pp1601(const name_t &name)
+  : PostProcessor(name),
     _LRTB( 1, 0, 0,-1),
     _RLBT(-1, 0, 0, 1),
     _TBRL( 0,-1,-1, 0),
@@ -407,41 +399,38 @@ void pp1601::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
-  _result = new Histogram2DFloat(2*(2*_nx+2*_ny),2*(2*_nx+2*_ny));
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(2*(2*_nx+2*_ny),2*(2*_nx+2*_ny))));
 
   _copyMatrixSegment =
-      std::tr1::shared_ptr<SegmentCopier>(new SegmentCopier(2*_nx, _ny, 2*(2*_nx+2*_ny)));
+      std::tr1::shared_ptr<SegmentCopier>
+      (new SegmentCopier(2*_nx, _ny, 2*(2*_nx+2*_ny)));
 
-  createHistList(2*NbrOfWorkers);
-
-  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert cspad image in " +
-           "PostProcessor '" +  _one->key() + " into a condensed real layout, " +
+  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert cspad image in " +
+           "PostProcessor '" +  _one->name() + " into a condensed real layout, " +
            " looking from upstream."
-           ". Condition is '" + _condition->key() + "'");
+           ". Condition is '" + _condition->name() + "'");
 }
 
 void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
-//void pp1601::process(const CASSEvent &evt)
 {
   // Get the input histogram
   const Histogram2DFloat &hist
-//      (dynamic_cast<const Histogram2DFloat&>(_one->getHist(evt.id())));
-      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_one->result(evt.id())));
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
 
-//  HistogramBackend &result(*_result);
   HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase&>(result).memory());
 
   QReadLocker(&hist.lock);
-  QWriteLocker(&result.lock);
 
-  _result->nbrOfFills()=1;
+  result.nbrOfFills()=1;
 
 //  const size_t pix_per_seg(2*_nx*_ny);
 //  const size_t pix_per_quad(8*pix_per_seg);
@@ -504,8 +493,8 @@ void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 
 // --------------convert cspad 2 laboratory --------------------
 
-pp1602::pp1602(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key)
+pp1602::pp1602(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -718,7 +707,7 @@ void pp1602::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _imagePP = setupDependency("HistName");
   bool ret (setupCondition());
@@ -727,123 +716,104 @@ void pp1602::loadSettings(size_t)
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
 
-  setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)));
+  setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
 
 }
 
 void pp1602::setup(const Histogram2DFloat &srcImageHist)
 {
   _lookupTable.resize(srcImageHist.memory().size());
-  try
-  {
-    using namespace geometryInfo;
-    conversion_t src2lab = generateConversionMap(_filename,
-                                                 srcImageHist.memory().size(),
-                                                 srcImageHist.axis()[HistogramBackend::xAxis].size(),
-                                                 _convertCheetahToCASSLayout);
+  using namespace geometryInfo;
+  conversion_t src2lab = generateConversionMap(_filename,
+                                               srcImageHist.memory().size(),
+                                               srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                               _convertCheetahToCASSLayout);
 
-    /** get the minimum and maximum position in lab x and y */
-    pos_t min;
-    min.x = min_element(src2lab.begin(),src2lab.end(),
-                        bind(less<pos_t::x_t>(),
-                             bind<pos_t::x_t>(&pos_t::x,_1),
-                             bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-    min.y = min_element(src2lab.begin(),src2lab.end(),
-                        bind(less<pos_t::y_t>(),
-                             bind<pos_t::y_t>(&pos_t::y,_1),
-                             bind<pos_t::y_t>(&pos_t::y,_2)))->y;
-    pos_t max;
-    max.x = max_element(src2lab.begin(),src2lab.end(),
-                        bind(less<pos_t::x_t>(),
-                             bind<pos_t::x_t>(&pos_t::x,_1),
-                             bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-    max.y = max_element(src2lab.begin(),src2lab.end(),
-                        bind(less<pos_t::y_t>(),
-                             bind<pos_t::y_t>(&pos_t::y,_1),
-                             bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+  /** get the minimum and maximum position in lab x and y */
+  pos_t min;
+  min.x = min_element(src2lab.begin(),src2lab.end(),
+                      bind(less<pos_t::x_t>(),
+                           bind<pos_t::x_t>(&pos_t::x,_1),
+                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+  min.y = min_element(src2lab.begin(),src2lab.end(),
+                      bind(less<pos_t::y_t>(),
+                           bind<pos_t::y_t>(&pos_t::y,_1),
+                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+  pos_t max;
+  max.x = max_element(src2lab.begin(),src2lab.end(),
+                      bind(less<pos_t::x_t>(),
+                           bind<pos_t::x_t>(&pos_t::x,_1),
+                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+  max.y = max_element(src2lab.begin(),src2lab.end(),
+                      bind(less<pos_t::y_t>(),
+                           bind<pos_t::y_t>(&pos_t::y,_1),
+                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
-    /** move all values, such that they start at 0
+  /** move all values, such that they start at 0
      *  \f$ pos.x -= min_x\f$
      *  \f$ pos.y -= min_y\f$
      */
-    transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(minus,_1,min));
+  transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(minus,_1,min));
 
-    /** get the new maximum value of the shifted lab, which corresponds to the
+  /** get the new maximum value of the shifted lab, which corresponds to the
      *  number of pixels that are required in the dest image, since all lab
      *  values are in pixel coordinates.
      */
-    const double max_x = max_element(src2lab.begin(),src2lab.end(),
-                                     bind(less<pos_t::x_t>(),
-                                          bind<pos_t::x_t>(&pos_t::x,_1),
-                                          bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-    const double max_y = max_element(src2lab.begin(),src2lab.end(),
-                                     bind(less<pos_t::y_t>(),
-                                          bind<pos_t::y_t>(&pos_t::y,_1),
-                                          bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+  const double max_x = max_element(src2lab.begin(),src2lab.end(),
+                                   bind(less<pos_t::x_t>(),
+                                        bind<pos_t::x_t>(&pos_t::x,_1),
+                                        bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+  const double max_y = max_element(src2lab.begin(),src2lab.end(),
+                                   bind(less<pos_t::y_t>(),
+                                        bind<pos_t::y_t>(&pos_t::y,_1),
+                                        bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
-    /** determine the dimensions of the destination image */
-    const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
-    const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
+  /** determine the dimensions of the destination image */
+  const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
+  const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
 
-    /** convert the positions in the lab space (pixel units) to linearized indizes
+  /** convert the positions in the lab space (pixel units) to linearized indizes
      *  in the destination image
      *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
      */
-    transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
-              bind(linearizeComponents,_1,nDestCols));
+  transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
+            bind(linearizeComponents,_1,nDestCols));
 
-    /** check if the boundaries are ok, @throw out of range if not. */
-    if(nDestCols*nDestRows <= *max_element(_lookupTable.begin(),_lookupTable.end()))
-      throw out_of_range("pp1602::setup: '" + _key + "' the maximum index in the lookup table '" +
-                         toString(*max_element(_lookupTable.begin(),_lookupTable.end())) +
-                         "' does not fit with the destination size of '" +
-                         toString(nDestCols*nDestRows) + "'");
+  /** check if the boundaries are ok, @throw out of range if not. */
+  if(nDestCols*nDestRows <= *max_element(_lookupTable.begin(),_lookupTable.end()))
+    throw out_of_range("pp1602::setup: '" + name() + "' the maximum index in the lookup table '" +
+                       toString(*max_element(_lookupTable.begin(),_lookupTable.end())) +
+                       "' does not fit with the destination size of '" +
+                       toString(nDestCols*nDestRows) + "'");
 
-    /** create the destination image and setup the histlist */
-//    _result = new Histogram2DFloat(nDestCols , nDestRows);
-    _result = new Histogram2DFloat(nDestCols,min.x,max.x, nDestRows,min.y,max.y,
-                                   "Rows","Cols");
-    createHistList(2*NbrOfWorkers);
+  /** create the destination image and setup the histlist */
+  //    _result = new Histogram2DFloat(nDestCols , nDestRows);
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(nDestCols,min.x,max.x, nDestRows,min.y,max.y,
+                              "Rows","Cols")));
 
-    Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
-             "PostProcessor '" +  _imagePP->key() + " into lab frame" +
-             ". Geometry Filename '" + _filename + "'"
-             ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-             ". Beam center is '" + toString(-min.x) + " x " + toString(-min.y) + "' pixels"+
-             ". Condition is '" + _condition->key() + "'");
-  }
-  /** catch the out of range errors and intialize the lookup table and the
-   *  image with bogus. Hopefully once everything resizes to the correct image
-   *  size, no errors will be thrown anymore
-   */
-  catch(const out_of_range &error)
-  {
-    Log::add(Log::DEBUG0,"Postprocessor '" + _key +
-             "': geomfile settings do not fit. Error is '" + error.what() +
-             "'. Initializing histogram with bogus info.");
-    fill(_lookupTable.begin(),_lookupTable.end(),0);
-    _result = new Histogram2DFloat(1,1);
-    createHistList(2*NbrOfWorkers);
-  }
-
+  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert Histogram in " +
+           "PostProcessor '" +  _imagePP->name() + " into lab frame" +
+           ". Geometry Filename '" + _filename + "'"
+           ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
+           ". Beam center is '" + toString(-min.x) + " x " + toString(-min.y) + "' pixels"+
+           ". Condition is '" + _condition->name() + "'");
 }
 
-//void pp1602::process(const CASSEvent &evt)
 void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 {
   /** Get the input histogram and its memory */
   const Histogram2DFloat &imageHist
-      (dynamic_cast<const Histogram2DFloat&>((*_imagePP)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_imagePP->result(evt.id())));
   const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
 
   /** get result image and its memory */
-  //  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(*_result));
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
   HistogramFloatBase::storage_t& destImage(result.memory());
 
   /** lock resources */
-  imageHist.lock.lockForRead();
-  result.lock.lockForWrite();
+  QReadLocker(&imageHist.lock);
 
   /** iterate through the src image and put its pixels at the location in the
    *  destination that is directed in the lookup table
@@ -858,7 +828,5 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 
   /** relfect that only 1 event was processed and release resources */
   result.nbrOfFills()=1;
-  result.lock.unlock();
-  imageHist.lock.unlock();
 }
 

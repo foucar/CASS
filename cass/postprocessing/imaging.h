@@ -1,118 +1,55 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010-2013 Lutz Foucar
 
 #ifndef _IMAGING_H_
 #define _IMAGING_H_
 
-#include "postprocessing/backend.h"
-#include "cass_event.h"
-#include "cass_acqiris.h"
+#include "backend.h"
 
 namespace cass
 {
-  // forward declaration
-  class Histogram0DFloat;
-  class Histogram1DFloat;
-  class Histogram2DFloat;
+//forward declaration
+class CASSEvent;
 
+/** Test image
+ *
+ * @PPList "240": Test image
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{sizeX} \n
+ *           Width of testimage (default = 1024)
+ * @cassttng PostProcessor/\%name\%/{sizeY} \n
+ *           Height of testimage (default = 1024)
+ *
+ * @author Stephan Kassemeyer
+ */
+class pp240 : public PostProcessor
+{
+public:
+  /** constructor. */
+  pp240(const name_t&);
 
-  /** Dump events (from advanced corrected image) to file.
-   *
-   * Dumps events to file.
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           The name of the input postprocessor. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{Coalesce} \n
-   *           Coalesce pixels into single events?. Default is false.
-   * @cassttng PostProcessor/\%name\%/{LowerPreGate|UpperPreGate}\n
-   *           Pre-gate (don't even think about pixels outside this range).
-   *           Default is -1e6 ... 1e6
-   * @cassttng PostProcessor/\%name\%/{LowerGate|UpperGate}\n
-   *           Gate (store events within this range after coalescing). Default
-   *           is -1e6 ... 1e6
-   * @cassttng PostProcessor/\%name\%/{Filename}\n
-   *           The filename to dump events to.
-   *           There is no default - you must provide this value.
-   *
-   * @author Thomas White
-   */
-  class pp212 : public PostprocessorBackend
+  /** overwrite default behaviour and just return the constant */
+  virtual const HistogramBackend& result(const CASSEvent::id_t)
   {
+    return *_result;
+  }
 
-  public:
-    /** Constructor */
-    pp212(PostProcessors& hist, const PostProcessors::key_t &);
+  /** overwrite default behaviour don't do anything */
+  virtual void releaseEvent(const CASSEvent &){}
 
-    /** Dump events */
-    virtual void process(const CASSEvent &);
+  /** overwrite default behaviour don't do anything */
+  virtual void processEvent(const CASSEvent&){}
 
-    /** Load settings */
-    virtual void loadSettings(size_t);
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
 
-  protected:
-    /** The PP providing the input */
-    shared_pointer _input;
+private:
+  /** the constant iamge */
+  std::tr1::shared_ptr<Histogram2DFloat> _result;
 
-    /** Threshold for peakfinding */
-    std::pair<float,float> _gate;
-
-    /** Threshold for coalescing */
-    std::pair<float,float> _pregate;
-
-    /** Filename to write events to */
-    std::string _filename;
-
-    /** File handle */
-    std::ofstream _fh;
-
-    /** Lock to protect the output stream */
-    QMutex _output_lock;
-
-    /** Whether or not to coalesce (small) regions into one event */
-    bool _coalesce;
-
-    /** Function for recursively checking pixels */
-    bool check_pixel(float *f, int x, int y, int w, int h,
-                     double &val, int &depth);
-
-  };
-
-
-
-  /** Test image
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{sizeX} \n
-   *           Width of testimage (default = 1024)
-   * @cassttng PostProcessor/\%name\%/{sizeY} \n
-   *           Height of testimage (default = 1024)
-   *
-   * @author Stephan Kassemeyer
-   */
-  class pp240 : public PostprocessorBackend
-  {
-  public:
-    /** constructor. */
-    pp240(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** create Test image */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings*/
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** Width of testimage */
-    int _sizeX;
-
-    /** Height of testimage */
-    int _sizeY;
-
-  };
+};
 
 
 

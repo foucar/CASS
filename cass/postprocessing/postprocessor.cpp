@@ -43,12 +43,6 @@
 
 #ifdef HDF5
 #include "hdf5_converter.h"
-#include "hdf5dump.h"
-#endif
-
-#ifdef HDF5
-#include "hdf5_converter.h"
-#include "hdf5dump.h"
 #endif
 
 #ifdef SINGLEPARTICLE_HIT
@@ -337,7 +331,7 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp51(key));
     break;
   case imageManip:
-    processor = PostProcessor::shared_pointer(new pp55(*this, key));
+    processor = PostProcessor::shared_pointer(new pp55(key));
     break;
   case previousHist:
       processor = PostProcessor::shared_pointer(new pp56(key));
@@ -379,10 +373,10 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp71(key));
     break;
   case RetrieveColFromTable:
-    processor = PostProcessor::shared_pointer(new pp72(*this, key));
+    processor = PostProcessor::shared_pointer(new pp72(key));
     break;
   case SubsetTable:
-    processor = PostProcessor::shared_pointer(new pp73(*this, key));
+    processor = PostProcessor::shared_pointer(new pp73(key));
     break;
   case ClearHistogram:
     processor = PostProcessor::shared_pointer(new pp75(key));
@@ -490,42 +484,34 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp167(key));
     break;
   case HEXCalibrator:
-    processor = PostProcessor::shared_pointer
-          (new HexCalibrator(*this, key));
+    processor = PostProcessor::shared_pointer(new HexCalibrator(key));
     break;
   case Cos2Theta:
-    processor = PostProcessor::shared_pointer
-          (new pp200(*this,key));
+    processor = PostProcessor::shared_pointer(new pp200(key));
     break;
   case RealAngularDistribution:
-    processor = PostProcessor::shared_pointer
-          (new pp201(*this,key));
+    processor = PostProcessor::shared_pointer(new pp201(key));
     break;
   case RealPolarTransformation:
-    processor = PostProcessor::shared_pointer
-          (new pp202(*this,key));
+    processor = PostProcessor::shared_pointer(new pp202(key));
     break;
   case MedianBoxBackground:
-    processor = PostProcessor::shared_pointer(new pp203(*this,key));
+    processor = PostProcessor::shared_pointer(new pp203(key));
     break;
   case BraggPeakSNR:
-    processor = PostProcessor::shared_pointer(new pp204(*this,key));
+    processor = PostProcessor::shared_pointer(new pp204(key));
     break;
   case DrawPeaks:
-    processor = PostProcessor::shared_pointer(new pp205(*this,key));
+    processor = PostProcessor::shared_pointer(new pp205(key));
     break;
   case BraggPeakThreshold:
-    processor = PostProcessor::shared_pointer(new pp206(*this,key));
+    processor = PostProcessor::shared_pointer(new pp206(key));
     break;
   case ImageFromTable:
-    processor = PostProcessor::shared_pointer(new pp207(*this,key));
+    processor = PostProcessor::shared_pointer(new pp207(key));
     break;
   case BraggPeakSNRWOOutliers:
-    processor = PostProcessor::shared_pointer(new pp208(*this,key));
-    break;
-  case AdvancedPhotonFinderDump:
-    processor = PostProcessor::shared_pointer
-          (new pp212(*this,key));
+    processor = PostProcessor::shared_pointer(new pp208(key));
     break;
   case PIPICO:
     processor = PostProcessor::shared_pointer(new pp220(key));
@@ -534,8 +520,7 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp230(key));
     break;
   case TestImage:
-    processor = PostProcessor::shared_pointer
-        (new pp240(*this,key));
+    processor = PostProcessor::shared_pointer(new pp240(key));
     break;
   case fixOffset:
     processor = PostProcessor::shared_pointer(new pp241(key));
@@ -554,106 +539,79 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
-    processor = PostProcessor::shared_pointer
-          (new pp300(*this,key));
+    processor = PostProcessor::shared_pointer(new pp300(key));
     break;
 #endif
   case medianLastValues:
-    processor = PostProcessor::shared_pointer
-          (new pp301(*this,key));
+    processor = PostProcessor::shared_pointer(new pp301(key));
   break;
   case binaryFile2D:
-      processor = PostProcessor::shared_pointer (new pp302(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp302(key));
+    break;
   case Autocorrelation:
-      processor = PostProcessor::shared_pointer (new pp310(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp310(key));
+    break;
   case Autocorrelation2:
-      processor = PostProcessor::shared_pointer (new pp311(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp311(key));
+    break;
   case tof2energy:
-      processor = PostProcessor::shared_pointer(new pp400(*this,key));
-      break;
-  case calcVariance:
-      processor = PostProcessor::shared_pointer(new pp401(*this,key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp400(key));
+    break;
   case HistogramSqAveraging:
-      processor = PostProcessor::shared_pointer(new pp402(*this, key));
-      break;
-  case Bin1DHist:
-      processor = PostProcessor::shared_pointer(new pp403(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp402(key));
+    break;
   case TofToMTC:
-      processor = PostProcessor::shared_pointer(new pp404(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp404(key));
+    break;
   case PulseDuration:
-      processor = PostProcessor::shared_pointer(new pp405(*this,key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp405(key));
+    break;
   case tof2energy0D:
-      processor = PostProcessor::shared_pointer(new pp406(*this,key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp406(key));
+    break;
   case tof2energylinear:
-      processor = PostProcessor::shared_pointer(new pp407(*this,key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp407(key));
+    break;
   case tof2energylinear0D:
-      processor = PostProcessor::shared_pointer(new pp408(*this,key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp408(key));
+    break;
   case calcCovarianceMap:
-      processor = PostProcessor::shared_pointer(new pp410(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp410(key));
+    break;
   case calcCorrection:
-      processor = PostProcessor::shared_pointer(new pp412(*this, key));
-      break;
-  case EventNumber:
-      processor = PostProcessor::shared_pointer(new pp420(*this, key));
-      break;
+    processor = PostProcessor::shared_pointer(new pp412(key));
+    break;
 #ifdef HDF5
-  case PnccdHDF5:
-    processor = PostProcessor::shared_pointer
-          (new pp1000(*this,key));
-    break;
-  case HDF5Converter:
-    processor = PostProcessor::shared_pointer
-          (new pp1001(*this,key,_outputfilename));
-    break;
   case HDF52dConverter:
-    processor = PostProcessor::shared_pointer
-          (new pp1002(*this,key,_outputfilename));
+    processor = PostProcessor::shared_pointer(new pp1002(key));
     break;
 #endif
   case CBFOutput:
-    processor = PostProcessor::shared_pointer
-        (new pp1500(*this,key,_outputfilename));
+    processor = PostProcessor::shared_pointer(new pp1500(key));
     break;
   case ChetahConv:
-    processor = PostProcessor::shared_pointer
-        (new pp1600(*this,key));
+    processor = PostProcessor::shared_pointer(new pp1600(key));
     break;
   case CoarseCsPadAligment:
-    processor = PostProcessor::shared_pointer
-        (new pp1601(*this,key));
+    processor = PostProcessor::shared_pointer(new pp1601(key));
     break;
   case GeomFileCsPadAligment:
-    processor = PostProcessor::shared_pointer(new pp1602(*this,key));
+    processor = PostProcessor::shared_pointer(new pp1602(key));
     break;
 #ifdef CERNROOT
   case ROOTDump:
-    processor = PostProcessor::shared_pointer
-          (new pp2000(*this,key,_outputfilename));
+    processor = PostProcessor::shared_pointer(new pp2000(key,_outputfilename));
     break;
   case ROOTTreeDump:
-    processor = PostProcessor::shared_pointer
-          (new pp2001(*this,key,_outputfilename));
+    processor = PostProcessor::shared_pointer(new pp2001(key,_outputfilename));
     break;
 #endif
   case ElectronEnergy:
-     processor = PostProcessor::shared_pointer
-           (new pp5000(*this,key));
-     break;
+    processor = PostProcessor::shared_pointer(new pp5000(key));
+    break;
   case TrippleCoincidence:
-     processor = PostProcessor::shared_pointer
-           (new pp5001(*this,key));
-     break;
+    processor = PostProcessor::shared_pointer(new pp5001(key));
+    break;
   default:
     throw invalid_argument("PostProcessors::create(): Postprocessor '" +  key +
                            "' has unknown ID '" + toString(ppid) + "'");

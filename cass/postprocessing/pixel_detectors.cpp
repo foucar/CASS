@@ -61,8 +61,8 @@ frame_t::value_type getZValue(const containerType& container)
 
 // *** frame of the pixeldetector ***
 
-pp105::pp105(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key)
+pp105::pp105(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -71,34 +71,33 @@ void pp105::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
   DetectorHelper::instance(_detector)->loadSettings();
-  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
-                                 CommonData::instance(_detector)->rows);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat
+         (CommonData::instance(_detector)->columns,
+          CommonData::instance(_detector)->rows)));
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will display frame of detector '" + _detector +
-           "'. It will use condition '" + _condition->key() +"'");
+           "'. It will use condition '" + _condition->name() +"'");
 }
 
-void pp105::process(const CASSEvent& evt)
+void pp105::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::frame_t& frame (det->frame().data);
 
-  QWriteLocker resultLock(&(_result->lock));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
-
-//  result.lock.lockForWrite();
   if (result.shape() != det->frame().shape())
   {
-    throw invalid_argument("Postprocessor '" + _key +
+    throw invalid_argument("Postprocessor '" + name() +
                            "' incomming frame '" + toString(det->frame().columns) +
                            "x" + toString(det->frame().rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -106,59 +105,7 @@ void pp105::process(const CASSEvent& evt)
   }
   copy(frame.begin(), frame.end(),result.memory().begin());
   result.nbrOfFills() = 1;
-//  result.lock.unlock();
 }
-
-
-
-
-
-
-
-
-
-
-
-// *** histogram of frame data of the pixeldetector ***
-
-pp106::pp106(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp106::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' will histogram the frame z values of detector '" + _detector +
-           "'. It will use condition '" + _condition->key() + "'");
-}
-
-void pp106::process(const cass::CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  pixeldetector::frame_t::const_iterator pixel(det->frame().data.begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  for (; pixel != det->frame().data.end(); ++pixel)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(*pixel);
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
-}
-
-
-
 
 
 
@@ -170,8 +117,8 @@ void pp106::process(const cass::CASSEvent& evt)
 
 // *** the maps of the pixeldetector ***
 
-pp107::pp107(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key)
+pp107::pp107(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -180,7 +127,7 @@ void pp107::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   string mapType(s.value("MapType","offset").toString().toStdString());
   setupGeneral();
@@ -196,28 +143,27 @@ void pp107::loadSettings(size_t)
   else if (mapType == "correction")
     _map = &CommonData::instance(_detector)->correctionMap;
   else
-    throw invalid_argument("p107::loadSettings(" +_key + "): MapType '"+ mapType +
+    throw invalid_argument("p107::loadSettings(" +name() + "): MapType '"+ mapType +
                            "' does not exist");
   _mapLock = &CommonData::instance(_detector)->lock;
-  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
-                                 CommonData::instance(_detector)->rows);
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"Postprocessor '" + _key + "' will display the '"+ mapType +
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(CommonData::instance(_detector)->columns,
+                              CommonData::instance(_detector)->rows)));
+  Log::add(Log::INFO,"Postprocessor '" + name() + "' will display the '"+ mapType +
            "' map of detector '" + _detector + "'. It will use condition '" +
-           _condition->key() +"'");
+           _condition->name() +"'");
 }
 
-void pp107::process(const cass::CASSEvent&/* evt*/)
+void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
 {
-  QReadLocker locker(_mapLock);
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
-
-  result.lock.lockForWrite();
+  QReadLocker lock(_mapLock);
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   if (result.shape().first != CommonData::instance(_detector)->columns ||
       result.shape().second != CommonData::instance(_detector)->rows)
   {
-    throw invalid_argument("Postprocessor '" + _key +
+    throw invalid_argument("Postprocessor '" + name() +
                            "' The Map '" + toString(CommonData::instance(_detector)->columns) +
                            "x" + toString(CommonData::instance(_detector)->rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -226,105 +172,9 @@ void pp107::process(const cass::CASSEvent&/* evt*/)
   copy(_map->begin(), _map->end(),result.memory().begin());
 
   result.nbrOfFills() = 1;
-  result.lock.unlock();
 }
 
 
-
-
-// *** sum up z values of all pixels ***
-
-pp108::pp108(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp108::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' will sum up the frame z values of detector '" + _detector +
-           "'. It will use condition '" + _condition->key() + "'");
-}
-
-void pp108::process(const cass::CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  pixeldetector::frame_t::const_iterator pixel(det->frame().data.begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  float sum(0);
-  for (; pixel != det->frame().data.end(); ++pixel)
-    sum += *pixel;
-  *dynamic_cast<Histogram0DFloat*>(_result) = sum;
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
-}
-
-
-
-
-
-
-
-
-
-
-// *** will display the coalesced pixels (hits) spectrum ***
-
-pp143::pp143(PostProcessors& pp, const PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp143::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  _splitLevelRange = make_pair(s.value("SplitLevelLowerLimit",0).toUInt(),
-                               s.value("SplitLevelUpperLimit",2).toUInt());
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display the spectrum of detector '"<<_detector
-      <<"' only when the the split level is between '"<<_splitLevelRange.first
-      <<"' and '"<<_splitLevelRange.second
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
-}
-
-void pp143::process(const CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  for (; hit != det->hits().end(); ++hit)
-  {
-    if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
-      dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->z);
-  }
-  _result->lock.unlock();
-}
 
 
 
@@ -338,8 +188,8 @@ void pp143::process(const CASSEvent& evt)
 
 // *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
 
-pp144::pp144(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp144::pp144(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -348,13 +198,12 @@ void pp144::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(set2DHist(name()));
   _range = make_pair(s.value("SpectralLowerLimit",0.).toFloat(),
                      s.value("SpectralUpperLimit",0.).toFloat());
   _splitLevelRange = make_pair(s.value("SplitLevelLowerLimit",0).toUInt(),
@@ -366,7 +215,7 @@ void pp144::loadSettings(size_t)
     _getZ = &getConstant<Hit>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will add all hits of detector '" + _detector +
            "' to an image only when the spectral component is between '" +
            toString(_range.first) + "' and '" + toString(_range.second) +
@@ -374,23 +223,24 @@ void pp144::loadSettings(size_t)
            "' and '" + toString(_splitLevelRange.second) +
            "'. It will fill the weight of the histograms with the " +
            "pixels z value" + toString(fillPixelvalueAsWeight) +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp144::process(const CASSEvent& evt)
+void pp144::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; hit != det->hits().end(); ++hit)
   {
     if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
       if (_range.first < hit->z && hit->z < _range.second)
-        dynamic_cast<Histogram2DFloat*>(_result)->fill(hit->x,hit->y,_getZ(*hit));
+        result.fill(hit->x,hit->y,_getZ(*hit));
   }
-  _result->lock.unlock();
 }
 
 
@@ -404,8 +254,8 @@ void cass::pp144::process(const CASSEvent& evt)
 
 // *** A Postprocessor that will retrieve the number of coalesced hits ***
 
-pp145::pp145(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp145::pp145(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -414,27 +264,27 @@ void pp145::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '"
-           + _detector + "'. Condition is '" + _condition->key() + "'");
+           + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp145::process(const CASSEvent& evt)
+void pp145::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const AdvancedDetector::hits_t& hits(det->hits());
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(hits.size());
-  _result->lock.unlock();
+
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  result.fill(hits.size());
 }
 
 
@@ -446,8 +296,8 @@ void pp145::process(const CASSEvent& evt)
 
 // *** A Postprocessor that will output the split level of the coalesced pixels ***
 
-pp146::pp146(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp146::pp146(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -456,78 +306,30 @@ void pp146::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(set1DHist(name()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will retrieve the number of coalesced photonhits of detector '"
-           + _detector + "'. Condition is '" + _condition->key() + "'");
+           + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp146::process(const CASSEvent& evt)
+void pp146::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  result.clear();
   for (; hit != det->hits().end(); ++hit)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->nbrPixels);
-  _result->lock.unlock();
+    result.fill(hit->nbrPixels);
 }
-
-
-
-
-
-
-
-
-
-// *** will display the detected pixels spectrum ***
-
-pp147::pp147(PostProcessors& pp, const PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp147::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' will histogram the detected pixels of detector '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
-}
-
-void pp147::process(const CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  AdvancedDetector::pixels_t::const_iterator pixel(det->pixels().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  for (; pixel != det->pixels().end(); ++pixel)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(pixel->z);
-  _result->lock.unlock();
-}
-
-
-
 
 
 
@@ -538,8 +340,8 @@ void pp147::process(const CASSEvent& evt)
 
 // *** will display the detected pixel of pixeldetectors as 2d image ***
 
-pp148::pp148(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp148::pp148(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -548,13 +350,12 @@ void pp148::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(set2DHist(name()));
   _range = make_pair(s.value("SpectralLowerLimit",0.).toFloat(),
                      s.value("SpectralUpperLimit",0.).toFloat());
   bool fillPixelvalueAsWeight(s.value("PixelvalueAsWeight","true").toBool());
@@ -564,28 +365,27 @@ void pp148::loadSettings(size_t)
     _getZ = &getConstant<Pixel>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will add all hits of detector '" + _detector +
            "' to an image only when the spectral component is between '" +
            toString(_range.first) + "' and '" + toString(_range.second) +
            "'. It will fill the weight of the histograms with the " +
            "pixels z value" + toString(fillPixelvalueAsWeight) +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void cass::pp148::process(const CASSEvent& evt)
+void pp148::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::pixels_t::const_iterator pixel(det->pixels().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  result.clear();
   for (; pixel != det->pixels().end(); ++pixel)
-  {
     if (_range.first < pixel->z && pixel->z < _range.second)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(pixel->x,pixel->y,_getZ(*pixel));
-  }
-  _result->lock.unlock();
+      result.fill(pixel->x,pixel->y,_getZ(*pixel));
 }
 
 
@@ -599,8 +399,8 @@ void cass::pp148::process(const CASSEvent& evt)
 
 // *** A Postprocessor that will retrieve the number of detected pixels ***
 
-pp149::pp149(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp149::pp149(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -609,127 +409,31 @@ void pp149::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '" +
-           _detector + "'. Condition is '" + _condition->key() + "'");
+           _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp149::process(const CASSEvent& evt)
+void pp149::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const AdvancedDetector::pixels_t& pixels(det->pixels());
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(pixels.size());
-  _result->lock.unlock();
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+  result.fill(pixels.size());
 }
 
 
 
 
-
-
-// *** will sum up the detected pixels ***
-
-pp155::pp155(PostProcessors& pp, const PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp155::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' will sum up the detected pixels of detector '" + _detector +
-           "'. Condition is '" + _condition->key() + "'");
-}
-
-void pp155::process(const CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  AdvancedDetector::pixels_t::const_iterator pixel(det->pixels().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  float sum(0);
-  for (; pixel != det->pixels().end(); ++pixel)
-    sum += pixel->z;
-  *dynamic_cast<Histogram0DFloat*>(_result) = sum;
-  _result->lock.unlock();
-}
-
-
-
-
-
-
-
-
-
-
-// *** will sum up the coalesced pixels (hits)  ***
-
-pp156::pp156(PostProcessors& pp, const PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void pp156::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _detector = s.value("Detector","blubb").toString().toStdString();
-  setupGeneral();
-  if (!setupCondition())
-    return;
-  _splitLevelRange = make_pair(s.value("SplitLevelLowerLimit",0).toUInt(),
-                               s.value("SplitLevelUpperLimit",2).toUInt());
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' will sum up the coalesced pixels of detector '" + _detector +
-           "' only when the the split level is between '" +toString(_splitLevelRange.first) +
-           "' and '" + toString(_splitLevelRange.second) +
-           ". Condition on PostProcessor '" + _condition->key() + "'");
-}
-
-void pp156::process(const CASSEvent& evt)
-{
-  DetectorHelper::AdvDet_sptr det
-      (DetectorHelper::instance(_detector)->detector(evt));
-  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
-  _result->lock.lockForWrite();
-  _result->clear();
-  float sum(0);
-  for (; hit != det->hits().end(); ++hit)
-  {
-    if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
-      sum += hit->z;
-    *dynamic_cast<Histogram0DFloat*>(_result) = sum;
-  }
-  _result->lock.unlock();
-}
 
 
 
@@ -738,8 +442,8 @@ void pp156::process(const CASSEvent& evt)
 
 // *** postprocessor to correct a distorted pnCCD image ***
 
-pp241::pp241(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp241::pp241(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -751,13 +455,14 @@ void pp241::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_hist && ret) )
     return;
-  if (_hist->getHist(0).dimension() != 2)
+  if (_hist->result().dimension() != 2)
     throw std::runtime_error("PP type 241: Incomming is not a 2d histo");
-  setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+
+  createHistList(_hist->result().copy_sptr());
 
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _thresholdA = s.value("ThresholdQuadrantA",0).toFloat();
   _thresholdB = s.value("ThresholdQuadrantA",0).toFloat();
   _thresholdC = s.value("ThresholdQuadrantA",0).toFloat();
@@ -770,60 +475,24 @@ void pp241::loadSettings(size_t)
   _minRow = s.value("MinimumRow",0).toUInt();
   _maxRow = s.value("MaximumRow",1024).toUInt();
 
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' corrects the distorted offset of image in '" + _hist->key() +
-           ". Condition on PostProcessor '" + _condition->key() + "'");
+  Log::add(Log::INFO,"Postprocessor '" + name() +
+           "' corrects the distorted offset of image in '" + _hist->name() +
+           ". Condition on PostProcessor '" + _condition->name() + "'");
 }
 
-void pp241::setup(const Histogram2DFloat &one)
+void pp241::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
-  const AxisProperty &yaxis(one.axis()[HistogramBackend::xAxis]);
-  _result = new Histogram2DFloat(xaxis.nbrBins(),
-                                 xaxis.lowerLimit(),
-                                 xaxis.upperLimit(),
-                                 yaxis.nbrBins(),
-                                 yaxis.lowerLimit(),
-                                 yaxis.upperLimit(),
-                                 xaxis.title(),
-                                 yaxis.title());
-  createHistList(2*cass::NbrOfWorkers);
-}
-
-void pp241::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  //return when there is no incomming histogram
-  if(!in)
-    return;
-  //return when the incomming histogram is not a direct dependant
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-  //return when it is the wrong dimension
-  if (in->dimension() != 2)
-    return;
-  setup(*dynamic_cast<const Histogram2DFloat*>(in));
-  //notify all pp that depend on us that our histograms have changed
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-}
-
-void pp241::process(const CASSEvent& evt)
-{
-  using namespace std;
   const Histogram2DFloat &imagehist
-      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
-  imagehist.lock.lockForRead();
-  _result->lock.lockForWrite();
-  _result->clear();
+      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
+
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+
+  QReadLocker lock(&imagehist.lock);
+
+  result.clear();
 
   const HistogramFloatBase::storage_t& image(imagehist.memory());
-  HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
+  HistogramFloatBase::storage_t& corimage(result.memory());
 
   for(size_t row=0; row < 512; ++row)
   {
@@ -925,8 +594,6 @@ void pp241::process(const CASSEvent& evt)
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;
     }
   }
-  _result->lock.unlock();
-  imagehist.lock.unlock();
 }
 
 
@@ -936,10 +603,10 @@ void pp241::process(const CASSEvent& evt)
 
 
 
-// *** the maps of the pixeldetector ***
+// *** set bad pixel of detector to a user selected value ***
 
-pp242::pp242(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key)
+pp242::pp242(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -948,7 +615,7 @@ void pp242::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","blubb").toString().toStdString();
   _value = s.value("Value",0.f).toFloat();
   setupGeneral();
@@ -957,26 +624,26 @@ void pp242::loadSettings(size_t)
   DetectorHelper::instance(_detector)->loadSettings();
   _mask = &CommonData::instance(_detector)->correctionMap;
   _maskLock = &CommonData::instance(_detector)->lock;
-  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
-                                 CommonData::instance(_detector)->rows);
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"Postprocessor '" + _key + "' sets the masked pixels of detector '" +
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(CommonData::instance(_detector)->columns,
+                              CommonData::instance(_detector)->rows)));
+  Log::add(Log::INFO,"Postprocessor '" + name() + "' sets the masked pixels of detector '" +
            _detector + "' to '" +toString(_value) + "' It will use condition '"
-           + _condition->key() +"'");
+           + _condition->name() +"'");
 }
 
-void pp242::process(const cass::CASSEvent& evt)
+void pp242::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::frame_t& frame (det->frame().data);
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  result.lock.lockForWrite();
   if (result.shape() != det->frame().shape())
   {
-    throw invalid_argument("Postprocessor '" + _key +
+    throw invalid_argument("Postprocessor '" + name() +
                            "' incomming frame '" + toString(det->frame().columns) +
                            "x" + toString(det->frame().rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -992,7 +659,6 @@ void pp242::process(const cass::CASSEvent& evt)
       *pixel = _value;
   }
   result.nbrOfFills() = 1;
-  result.lock.unlock();
 }
 
 

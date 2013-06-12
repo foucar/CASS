@@ -100,7 +100,8 @@ the Class description for information about what parameters are user settable.
 00089: high or low pass filter on 1d histo
 
 ---Data retrieval (Histogram contain only last shot)--
-##Data used with new pixeldetector device (select appropriate format convert to use these)
+## Data used with new pixeldetector device
+## (select appropriate format convert to use these)
 00105: Pixeldetector Image
 00107: Display the Map used for correction and pixel detection
 
@@ -142,7 +143,6 @@ the Class description for information about what parameters are user settable.
 00200: Scalar value of <cos^2\theta> from 2D Histogram
 00201: Angular distribution from a 2D Histogram (interpolating)
 00202: transform 2D Histogram kartesian coordinates to polar coordinates (interpolating)
-00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
 00250: Property of particle
@@ -169,20 +169,16 @@ the Class description for information about what parameters are user settable.
 01601: rearrange cspad to coarsly right orientation (looking from upstream)
 
 00400: ToF to Energy conversion
-00401: Calculate variance; depreciated (use pp83 instead)
 00402: Square average
-00403: Binned 1D histogram; depreciated (use pp70 instead)
 00404: ToF to Mass to Charge ratio conversion
 00405: Pulse duration of shot
 00406: ToF to Energy conversion from 0D histogram
 00407: ToF to Energy conversion by linear interpolation
 00408: ToF to Energy conversion by linear interpolation and correction from 0D histogram
 00410: calculate covariance map
-00420: indicate number of event; depreciated (use pp80 instead)
+00412: calculate intensity correction
 
 ---Output--
-01000: Dump front and back pnCCD images (and more...) to HDF5
-01001: Put selected Histograms to HDF5-File
 01002: Put selectable histograms into HDF5-Files
 01500: Put a selectable 2d histogram into CBF Files
 02000: Dump all selected 0d, 1d and 2d cass histograms to root file
@@ -230,7 +226,12 @@ the Class description for information about what parameters are user settable.
 00147: removed use pp60 instead
 00155: removed use pp84 instead
 00156: removed use pp84 instead
-
+00212: removed use pp144 or pp148 instead
+00401: removed use pp83 instead
+00403: removed use pp70 instead
+00420: removed use pp80 instead
+01000: removed use pp1002 instead
+01001: removed use pp1002 instead
 
 
 @endverbatim

@@ -24,8 +24,8 @@ using tr1::bind;
 
 // ********** Postprocessor 203: subtract local background ************
 
-pp203::pp203(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp203::pp203(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -35,7 +35,7 @@ void pp203::loadSettings(size_t)
   CASSSettings s;
 
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
   _boxSize = make_pair(s.value("BoxSizeX", 10).toUInt(),
@@ -51,52 +51,25 @@ void pp203::loadSettings(size_t)
   if (!(_hist && ret)) return;
 
   // Create the output
-  setup(_hist->getHist(0));
+  createHistList(_hist->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' removes median of a box with size x'" + toString(_boxSize.first) +
            "' and y '" + toString(_boxSize.second) + "' from individual pixels" +
-           " of hist in pp '"+ _hist->key() + "'. Condition is '" +
-           _condition->key() + "'");
+           " of hist in pp '"+ _hist->name() + "'. Condition is '" +
+           _condition->name() + "'");
 }
 
-void pp203::setup(const HistogramBackend &hist)
-{
-  _result = hist.clone();
-  createHistList(2*cass::NbrOfWorkers);
-}
-
-void pp203::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  //return when there is no incomming histogram
-  if(!in)
-    return;
-  //return when the incomming histogram is not a direct dependant
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-  setup(*in);
-  //notify all pp that depend on us that our histograms have changed
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and created new one from input");
-}
-
-void pp203::process(const CASSEvent &evt)
+void pp203::process(const CASSEvent& evt, HistogramBackend &res)
 {
   // Get the input
   const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
   const HistogramFloatBase::storage_t &image_in(hist.memory());
   HistogramFloatBase::storage_t &image_out
-      (dynamic_cast<HistogramFloatBase*>(_result)->memory());
+      (dynamic_cast<HistogramFloatBase&>(res).memory());
 
-  _result->lock.lockForWrite();
-  hist.lock.lockForRead();
+  QReadLocker lock(&hist.lock);
 
   const size_t xsize(hist.axis()[HistogramBackend::xAxis].nbrBins());
   const size_t ysize(hist.axis()[HistogramBackend::yAxis].nbrBins());
@@ -166,17 +139,15 @@ void pp203::process(const CASSEvent &evt)
       }
     }
   }
-  hist.lock.unlock();
-  _result->nbrOfFills() = 1;
-  _result->lock.unlock();
+  res.nbrOfFills() = 1;
 }
 
 
 
 // ********** Postprocessor 204: find bragg peaks ************
 
-pp204::pp204(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp204::pp204(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -186,7 +157,7 @@ void pp204::loadSettings(size_t)
   CASSSettings s;
 
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
   const int peakRadius(s.value("BraggPeakRadius",2).toInt());
@@ -210,19 +181,18 @@ void pp204::loadSettings(size_t)
     return;
 
   /** Create the result output */
-  _result = new Histogram2DFloat(nbrOf);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + _key + "' finds bragg peaks." +
+  string output("PostProcessor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
                 "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
                 "'. MinNbrBackgrndPixels '" + toString(_minBckgndPixels) +
                 "'. Square BraggPeakRadius '" + toString(_peakRadiusSq) +
-                "'. Using input histogram :" + _hist->key() +
-                "'. Condition is '" + _condition->key() + "'");
+                "'. Using input histogram :" + _hist->name() +
+                "'. Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
@@ -267,16 +237,15 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   return good;
 }
 
-void pp204::process(const CASSEvent & evt)
+void pp204::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
   const HistogramFloatBase::storage_t &image(hist.memory());
 
-  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  hist.lock.lockForRead();
-  result.lock.lockForWrite();
+  QReadLocker lock(&hist.lock);
   result.clearTable();
 
   const imagepos_t ncols(hist.axis()[HistogramBackend::xAxis].size());
@@ -428,8 +397,6 @@ void pp204::process(const CASSEvent & evt)
   }
 
   result.nbrOfFills() = 1;
-  result.lock.unlock();
-  hist.lock.unlock();
 }
 
 
@@ -440,8 +407,8 @@ void pp204::process(const CASSEvent & evt)
 
 // ********** Postprocessor 205: display peaks ************
 
-pp205::pp205(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp205::pp205(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -451,7 +418,7 @@ void pp205::loadSettings(size_t)
   CASSSettings s;
 
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
 
@@ -470,58 +437,35 @@ void pp205::loadSettings(size_t)
   _drawCircle = s.value("DrawCircle",true).toBool();
   _drawBox = s.value("DrawBox",true).toBool();
 
-  size_t maxIdx(_table->getHist(0).axis()[HistogramBackend::xAxis].size());
+  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
   if (_idxCol >= maxIdx)
-    throw runtime_error("pp205::loadSettings(): '" + _key + "' The requested " +
+    throw runtime_error("pp205::loadSettings(): '" + name() + "' The requested " +
                         "column '" + toString(_idxCol) + " 'exeeds the " +
                         "maximum possible value of '" + toString(maxIdx) + "'");
 
   // Create the output
-  _result = _hist->getHist(0).clone();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(_hist->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' displays the peaks that are listed in '" + _table->key() +
-           "' and that were found in '" + _hist->key() + "'. Condition is '" +
-           _condition->key() + "'");
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' displays the peaks that are listed in '" + _table->name() +
+           "' and that were found in '" + _hist->name() + "'. Condition is '" +
+           _condition->name() + "'");
 }
 
-void pp205::histogramsChanged(const HistogramBackend* in)
-{
-  QWriteLocker lock(&_histLock);
-  //return when there is no incomming histogram
-  if(!in)
-    return;
-  //return when the incomming histogram is not a direct dependant
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-    return;
-  _result = in->clone();
-  createHistList(2*cass::NbrOfWorkers);
-  //notify all pp that depend on us that our histograms have changed
-  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-  PostProcessors::keyList_t::iterator it (dependands.begin());
-  for (; it != dependands.end(); ++it)
-    _pp.getPostProcessor(*it).histogramsChanged(_result);
-  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
-             "': histograms changed => delete existing histo" +
-             " and created new one from input");
-}
-
-void pp205::process(const CASSEvent &evt)
+void pp205::process(const CASSEvent& evt, HistogramBackend &res)
 {
   // Get the input
   const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>((*_hist)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
   const HistogramFloatBase::storage_t &image_in(hist.memory());
   const HistogramFloatBase &table
-      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
   const HistogramFloatBase::storage_t &tableContents(table.memory());
   HistogramFloatBase::storage_t &image_out
-      (dynamic_cast<HistogramFloatBase*>(_result)->memory());
+      (dynamic_cast<HistogramFloatBase&>(res).memory());
 
-  _result->lock.lockForWrite();
-  hist.lock.lockForRead();
-  table.lock.lockForRead();
+  QReadLocker lock1(&hist.lock);
+  QReadLocker lock2(&table.lock);
 
   /** copy the input image to the resulting image */
   copy(image_in.begin(),image_in.end(),image_out.begin());
@@ -586,10 +530,7 @@ void pp205::process(const CASSEvent &evt)
     }
 
   }
-  _result->nbrOfFills() = 1;
-  table.lock.unlock();
-  hist.lock.unlock();
-  _result->lock.unlock();
+  res.nbrOfFills() = 1;
 }
 
 
@@ -599,8 +540,8 @@ void pp205::process(const CASSEvent &evt)
 
 // ********** Postprocessor 206: find pixels of bragg peaks ************
 
-pp206::pp206(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp206::pp206(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -610,7 +551,7 @@ void pp206::loadSettings(size_t)
   CASSSettings s;
 
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
   _box = make_pair(s.value("BoxSizeX", 10).toUInt(),
@@ -630,34 +571,33 @@ void pp206::loadSettings(size_t)
     return;
 
   /** Create the result output */
-  _result = new Histogram2DFloat(pp204::nbrOf);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(pp204::nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + _key + "' finds bragg peaks." +
+  string output("PostProcessor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
-                "'. Image Histogram :" + _imagePP->key() +
-                "'. Noise Histogram :" + _noisePP->key() +
-                "'. Condition is '" + _condition->key() + "'");
+                "'. Image Histogram :" + _imagePP->name() +
+                "'. Noise Histogram :" + _noisePP->name() +
+                "'. Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
-void pp206::process(const CASSEvent & evt)
+void pp206::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const HistogramFloatBase &imageHist
-      (dynamic_cast<const HistogramFloatBase&>((*_imagePP)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>(_imagePP->result(evt.id())));
   const HistogramFloatBase::storage_t &image(imageHist.memory());
   const HistogramFloatBase &noiseHist
-      (dynamic_cast<const HistogramFloatBase&>((*_noisePP)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>(_noisePP->result(evt.id())));
   const HistogramFloatBase::storage_t &noisemap(noiseHist.memory());
 
-  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  imageHist.lock.lockForRead();
-  noiseHist.lock.lockForRead();
-  result.lock.lockForWrite();
+  QReadLocker lock1(&imageHist.lock);
+  QReadLocker lock2(&noiseHist.lock);
+
   result.clearTable();
 
 
@@ -722,10 +662,6 @@ NEXTPIXEL:;
     }
   }
   result.nbrOfFills() = 1;
-  result.lock.unlock();
-  imageHist.lock.unlock();
-  noiseHist.lock.unlock();
-
 }
 
 
@@ -734,8 +670,8 @@ NEXTPIXEL:;
 
 // *** will display the detected pixel in the table as 2d image ***
 
-pp207::pp207(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-    : PostprocessorBackend(pp, key)
+pp207::pp207(const name_t &name)
+    : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -744,7 +680,7 @@ void pp207::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
 
   _table = setupDependency("Table");
 
@@ -753,34 +689,33 @@ void pp207::loadSettings(size_t)
   if (!(ret && _table))
     return;
 
-  set2DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(set2DHist(name()));
 
   _pixColIdx = s.value("ColumnIndex",0).toUInt();
   _pixRowIdx = s.value("RowIndex",0).toUInt();
   _pixValIdx = s.value("ValIndex",0).toUInt();
 
-  Log::add(Log::INFO,"Postprocessor '" + _key +
-           "' displays the pixels in table '" + _table->key() +
+  Log::add(Log::INFO,"Postprocessor '" + name() +
+           "' displays the pixels in table '" + _table->name() +
            "'' Index of Pixles column '" + toString(_pixColIdx) +
            "'' Index of Pixles row '" + toString(_pixRowIdx) +
            "'' Index of Pixles val '" + toString(_pixValIdx) +
-           "'. Condition is '" + _condition->key() + "'");
+           "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp207::process(const CASSEvent& evt)
+void pp207::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const HistogramFloatBase &table
-      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
   const HistogramFloatBase::storage_t &tableContents(table.memory());
   HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
 
-  Histogram2DFloat &result(*dynamic_cast<Histogram2DFloat*>(_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  result.lock.lockForWrite();
+  QReadLocker lock(&table.lock);
+
   result.clear();
 
-  table.lock.lockForRead();
 
   const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
   const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
@@ -796,9 +731,6 @@ void pp207::process(const CASSEvent& evt)
     result.fill(pixCol,pixRow,pixVal);
     tableIt += nCols;
   }
-
-  table.lock.unlock();
-  result.lock.unlock();
 }
 
 
@@ -807,10 +739,10 @@ void pp207::process(const CASSEvent& evt)
 
 
 
-// ********** Postprocessor 204: find bragg peaks ************
+// ********** Postprocessor 208: find bragg peaks ************
 
-pp208::pp208(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
+pp208::pp208(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 
@@ -868,7 +800,7 @@ void pp208::loadSettings(size_t)
     return;
 
   /** set up the neighbouroffset list */
-  _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(0)).shape();
+  _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->result()).shape();
   _neighbourOffsets.clear();
 //  _neighbourOffsets.push_back(+_imageShape.first-1);     //up left
   _neighbourOffsets.push_back(+_imageShape.first+0);     //up
@@ -880,12 +812,10 @@ void pp208::loadSettings(size_t)
 //  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
 
   /** Create the result output */
-//  createHistList(HistogramBackend::shared_pointer(new Histogram2DFloat(nbrOf)));
-  _result = new Histogram2DFloat(nbrOf);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + _key + "' finds bragg peaks." +
+  string output("PostProcessor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
@@ -977,18 +907,14 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
 
 
 void pp208::process(const CASSEvent & evt, HistogramBackend &r)
-//void pp208::process(const CASSEvent & evt)
 {
   const Histogram2DFloat &hist
-//      (dynamic_cast<const Histogram2DFloat&>(_imagePP->getHist(evt.id())));
-      (dynamic_cast<const Histogram2DFloat&>((*_imagePP)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_imagePP->result(evt.id())));
   const HistogramFloatBase::storage_t &image(hist.memory());
 
-    Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
-//    Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
 
   /** lock the resources */
-  QWriteLocker rLock(&result.lock);
   QReadLocker hLock(&hist.lock);
 
   /** clear the resulting table to fill it with the values of this image */

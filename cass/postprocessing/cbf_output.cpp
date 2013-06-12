@@ -184,55 +184,59 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
 }//end namespace cass
 
 
-pp1500::pp1500(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
-  : PostprocessorBackend(pp,key),
-    _basefilename(outfilename)
+pp1500::pp1500(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
 
 void pp1500::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
+  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
   _pHist = setupDependency("HistName");
   _darkHist = setupDependency("DarkName");
   bool ret (setupCondition());
   if (!(ret && _pHist && _darkHist))
     return;
-  const HistogramBackend &hist(_pHist->getHist(0));
+  const HistogramBackend &hist(_pHist->result());
   if (hist.dimension() != 2)
     throw invalid_argument("pp1500: The histogram that should be written to cbf is not a 2d histogram");
-  const HistogramBackend &dark(_darkHist->getHist(0));
+  const HistogramBackend &dark(_darkHist->result());
   if (dark.dimension() != 2)
     throw invalid_argument("pp1500: The histogram that contains the offset is not a 2d histogram");
 
-  _write = false;
   _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' will write histograms '" + _pHist->key() +"' to cbf file with '" +
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' will write histograms '" + _pHist->name() +"' to cbf file with '" +
            _basefilename + "' as basename" +
-           ". Darkname '" + _darkHist->key() + "'" +
-           ". Condition is '" + _condition->key() + "'");
+           ". Darkname '" + _darkHist->name() + "'" +
+           ". Condition is '" + _condition->name() + "'");
 }
 
-void pp1500::process(const CASSEvent &evt)
+const HistogramBackend& pp1500::result(const CASSEvent::id_t)
 {
-  QMutexLocker locker(&_lock);
-  const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  const Histogram2DFloat::storage_t& histdata( hist.memory() );
+  throw logic_error("pp1500::result: '"+name()+"' should never be called");
+}
 
-  /** create filename from base filename + event id */
-  string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
+void pp1500::processEvent(const CASSEvent &evt)
+{
+  if (_condition->result(evt.id()).isTrue())
+  {
+    QMutexLocker locker(&_lock);
+    const Histogram2DFloat& hist
+        (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
+    const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
-  hist.lock.lockForRead();
-  CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
-  hist.lock.unlock();
+    QReadLocker lock(&hist.lock);
+
+    /** create filename from base filename + event id */
+    string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
+    CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
+  }
 }
 
 void pp1500::aboutToQuit()
@@ -241,7 +245,7 @@ void pp1500::aboutToQuit()
   /** create filename from base filename */
   string filename(_basefilename + "_Dark.cbf");
   const Histogram2DFloat& dark
-      (dynamic_cast<const Histogram2DFloat&>(_darkHist->getHist(0)));
+      (dynamic_cast<const Histogram2DFloat&>(_darkHist->result()));
   const Histogram2DFloat::storage_t& data( dark.memory() );
   dark.lock.lockForRead();
   CBF::write(filename,data,dark.shape().first,dark.shape().second);

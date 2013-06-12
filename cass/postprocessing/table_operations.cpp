@@ -19,8 +19,8 @@ using namespace std;
 
 // ***  pp 72 returns column of a table ***
 
-pp72::pp72(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key)
+pp72::pp72(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -29,7 +29,7 @@ void pp72::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
   bool ret (setupCondition());
@@ -37,29 +37,27 @@ void pp72::loadSettings(size_t)
     return;
   _colIdx = s.value("ColumnIndex",0).toUInt();
 
-  size_t maxIdx(_table->getHist(0).axis()[HistogramBackend::xAxis].size());
+  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
   if (_colIdx >= maxIdx)
-    throw runtime_error("pp72::loadSettings(): '" + _key + "' The requested " +
+    throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
                         "column index '" + toString(_colIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(maxIdx) + "'");
 
-  _result = new Histogram1DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
+  createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
            "' retrieves column with index '" + toString(_colIdx) +
-           "' from table " + _table->key() + "' .Condition on postprocessor '" +
-           _condition->key() + "'");
+           "' from table " + _table->name() + "' .Condition on postprocessor '" +
+           _condition->name() + "'");
 }
 
-void pp72::process(const cass::CASSEvent& evt)
+void pp72::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
   const HistogramFloatBase::storage_t &tableContents(table.memory());
-  Histogram1DFloat &col(dynamic_cast<Histogram1DFloat&>(*_result));
+  Histogram1DFloat &col(dynamic_cast<Histogram1DFloat&>(res));
 
-  table.lock.lockForRead();
-  col.lock.lockForWrite();
+  QReadLocker lock(&table.lock);
 
   col.clearline();
 
@@ -70,8 +68,6 @@ void pp72::process(const cass::CASSEvent& evt)
     col.append(tableContents[row*nCols + _colIdx]);
 
   col.nbrOfFills()=1;
-  col.lock.unlock();
-  table.lock.unlock();
 }
 
 
@@ -79,8 +75,8 @@ void pp72::process(const cass::CASSEvent& evt)
 
 // ***  pp 73 returns subset of table with condition on rows ***
 
-pp73::pp73(PostProcessors& pp, const name_t &key)
-  : PostprocessorBackend(pp, key)
+pp73::pp73(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -89,7 +85,7 @@ void pp73::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
   bool ret (setupCondition());
@@ -99,31 +95,30 @@ void pp73::loadSettings(size_t)
   _bounds = make_pair(s.value("LowerBound",0.f).toFloat(),
                       s.value("UpperBound",1.f).toFloat());
 
-  size_t tableSize(_table->getHist(0).axis()[HistogramBackend::xAxis].size());
+  size_t tableSize(_table->result().axis()[HistogramBackend::xAxis].size());
   if (_colIdx >= tableSize)
-    throw runtime_error("pp73::loadSettings(): '" + _key + "' The requested " +
+    throw runtime_error("pp73::loadSettings(): '" + name() + "' The requested " +
                         "column index '" + toString(_colIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(tableSize) + "'");
 
-  _result = new Histogram2DFloat(tableSize);
-  createHistList(2*cass::NbrOfWorkers);
-  Log::add(Log::INFO,"PostProcessor '" + _key +
-           "' retrieves subset of table in '" + _table->key() + "'. UpperBound '" +
+  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(tableSize)));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' retrieves subset of table in '" + _table->name() + "'. UpperBound '" +
            toString(_bounds.first) + "' LowerBound '" + toString(_bounds.second) +
            "' on values in column with index '" + toString(_colIdx) +
-           "'. Condition on postprocessor '" + _condition->key() + "'");
+           "'. Condition on postprocessor '" + _condition->name() + "'");
 }
 
-void pp73::process(const cass::CASSEvent& evt)
+void pp73::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>((*_table)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
   const HistogramFloatBase::storage_t &tableContents(table.memory());
-  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
-  table.lock.lockForRead();
-  result.lock.lockForWrite();
+  QReadLocker lock(&table.lock);
+
+  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
 
   result.clearTable();
 
@@ -140,8 +135,4 @@ void pp73::process(const cass::CASSEvent& evt)
   result.appendRows(rows);
 
   result.nbrOfFills()=1;
-  result.lock.unlock();
-  table.lock.unlock();
 }
-
-

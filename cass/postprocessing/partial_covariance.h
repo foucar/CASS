@@ -11,6 +11,8 @@ namespace cass
 
 /** converts a Electron Time of Flight trace to Energy
  *
+ * @PPList "400": converts a Electron Time of Flight trace to Energy
+ *
  * converts a time of flight trace of electrons to the coresponding energy
  * using function \f$E = (\frac{\alpha}{(t-t_0)})^2-e_0\f$.
  *
@@ -42,17 +44,14 @@ namespace cass
  *
  * @author Koji Motomura
  */
-class pp400 : public PostprocessorBackend
+class pp400 : public PostProcessor
 {
 public:
   /** constructor */
-  pp400(PostProcessors& hist, const PostProcessors::key_t&);
+  pp400(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -129,69 +128,16 @@ protected:
 
 
 
-/** calculate variance
- *
- * calculate the variance by this on-line algorithm
- * \f$var_n=\frac{1}{n}((n-1)var_{n-1}+(x_n-ave_n)(x_n-ave_{n-1}))\f$
- *
- * @cassttng PostProcessor/\%name\%/{HistName}\n
- *           input 0D or 1D histogram that we calculate variance.
- * @cassttng PostProcessor/\%name\%/{AveHistName}\n
- *           averaged histogram of "HistName"
- *
- * @author Koji Motomura
- */
-class pp401 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp401(PostProcessors& hist, const PostProcessors::key_t&);
-
-  /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** load the settings */
-  virtual void loadSettings(size_t);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
-
-protected:
-  /** pp containing histogram to work on */
-  shared_pointer _pHist;
-
-  /** pp containing input histogram */
-  shared_pointer _ave;
-
-  /** function for variance.
-   *
-   * calculate by on-line algorithm
-   *
-   * @param data input histogram
-   * @param averageOld averaged histgram at previous event
-   * @param averageNew averaged histgram at present event
-   * @param variance output histogram calculated variance
-   * @param n number of present event
-   */
-  void calcVariance(const HistogramFloatBase::storage_t& data ,
-                    const HistogramFloatBase::storage_t& averageOld,
-                    const HistogramFloatBase::storage_t& averageNew,
-                    HistogramFloatBase::storage_t& variance,
-                    float n);
-
-};
-
-
-
-
 
 
 /** Histogram square averaging.
  *
+ * @PPList "402": Histogram square averaging.
+ *
  * Running or cummulative average of a histogram. In this case it will average
  * the squared value.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
@@ -202,20 +148,17 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp402 : public PostprocessorBackend
+class pp402 : public AccumulatingPostProcessor
 {
 public:
   /** constructor */
-  pp402(PostProcessors& hist, const PostProcessors::key_t&);
+  pp402(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings */
   virtual void loadSettings(size_t);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
 
 protected:
   /** alpha for the running average */
@@ -231,59 +174,9 @@ protected:
 
 
 
-
-/** subset and rebin a 1d histogram
- *
- * Subsets a 1d histogram and rebins the bins.
- *
- * @cassttng PostProcessor/\%name\%/{XLow|XUp}\n
- *           The subset range one wants to use. Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{BSize}\n
- *           How many bin should be summed together. If this number is 2 then
- *           Always two consecutive bins will be summed together. If this numer
- *           is 1 it will leave the number of bins therefore the binsize like in
- *           the original histogram. Default is 1.
- * @cassttng PostProcessor/\%name\%/{HistName}\n
- *           input histogram name that subset and rebin.
- *
- * @author Koji Motomura
- * @author Marco Siano
- */
-class pp403 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp403(PostProcessors& hist, const PostProcessors::key_t&);
-
-  /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
-
-  /** load the settings of the pp */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** pp containing input histogram */
-  shared_pointer _pHist;
-
-  /** offset of first bin in input in Histogram coordinates */
-  size_t _inputOffset;
-
-  /** the user requested x-axis limits */
-  std::pair<float,float> _userXRange;
-
-  /** the user requested y-axis limits */
-  std::pair<float,float> _userYRange;
-
-  /** the user requested bin size */
-  size_t _userBinSize;
-};
-
-
-
 /** convert time of flight to charge to mass ratio
+ *
+ * @PPList "404": convert time of flight to charge to mass ratio
  *
  * converts a time of flight trace of ions to the coresponding mass to charge
  * ratio.
@@ -312,17 +205,14 @@ protected:
  *
  * @author Marco Siano
  */
-class pp404 : public PostprocessorBackend
+class pp404 : public PostProcessor
 {
 public:
   /** constructor */
-  pp404(PostProcessors& hist, const PostProcessors::key_t&);
+  pp404(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -417,18 +307,20 @@ protected:
 
 /**  calc the pulse duration from the bld
  *
+ * @PPList "405": pulse duration from the bld
+ *
  * get the duration value of FEL pulse from beam line data base.
  *
  * @author Koji Motomura
  */
-class pp405 : public PostprocessorBackend
+class pp405 : public PostProcessor
 {
 public:
   /** constructor */
-  pp405(PostProcessors& hist, const PostProcessors::key_t&);
+  pp405(const name_t &);
 
   /** calc the  pulse duration from the bld */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -443,6 +335,8 @@ public:
 
 
 /** Tof to Energy correct from 0D histogram
+ *
+ * @PPList "406": Tof to Energy correct from 0D histogram
  *
  * converts a time of flight trace of electrons to the coresponding energy with
  * correction from 0D histogram, using function
@@ -471,17 +365,14 @@ public:
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp406 : public PostprocessorBackend
+class pp406 : public PostProcessor
 {
 public:
   /** constructor */
-  pp406(PostProcessors& hist, const PostProcessors::key_t&);
+  pp406(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -567,6 +458,8 @@ protected:
 
 /** Tof to Energy linear interpolation
  *
+ * @PPList "407":  Tof to Energy linear interpolation
+ *
  * converts a time of flight trace of electrons to the coresponding energy
  * using fuction \f$e=(\frac{\alpha}{t-t_0})^2-e_0\f$ and apply linear
  * interpolation to energy spectrum.
@@ -594,17 +487,14 @@ protected:
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp407 : public PostprocessorBackend
+class pp407 : public PostProcessor
 {
 public:
   /** constructor */
-  pp407(PostProcessors& hist, const PostProcessors::key_t&);
+  pp407(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -697,6 +587,8 @@ protected:
 
 /** Tof to Energy linear interpolation and correct from 0d histogram
  *
+ * @PPList "408": Tof to Energy linear interpolation and correct from 0d histogram
+ *
  * converts a time of flight trace of electrons to the coresponding energy and
  * apply linear interpolation to energy spectrum using fuction
  * \f$e=(\frac{\alpha}{t-t_0})^2-e_0\f$.
@@ -724,17 +616,14 @@ protected:
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp408 : public PostprocessorBackend
+class pp408 : public PostProcessor
 {
 public:
   /** constructor */
-  pp408(PostProcessors& hist, const PostProcessors::key_t&);
+  pp408(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -835,6 +724,8 @@ protected:
 
 /** Covariance map
  *
+ * @PPList "410":Covariance map
+ *
  * calculate the covariance by this on-line algorithm
  * \f$cov_n=((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1})))\f$
  * and makes 2d map from 1d histogram.
@@ -846,20 +737,17 @@ protected:
  *
  * @author Koji Motomura
  */
-class pp410 : public PostprocessorBackend
+class pp410 : public AccumulatingPostProcessor
 {
 public:
   /** constructor */
-  pp410(PostProcessors& hist, const PostProcessors::key_t&);
+  pp410(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings */
   virtual void loadSettings(size_t);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
 
 protected:
   /** pp containing histogram to work on */
@@ -891,6 +779,8 @@ protected:
 
 /** calculate intensity correction
  *
+ * @PPList "412": calculate intensity correction of covariance map
+ *
  * calculate the covariance between wavetrace and intensity
  * by on-line algorithm
  * \f$cov_n=\frac{1}{n}((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1}))\f$
@@ -906,20 +796,17 @@ protected:
  *
  * @author Koji Motomura
  */
-class pp412 : public PostprocessorBackend
+class pp412 : public AccumulatingPostProcessor
 {
 public:
   /** constructor */
-  pp412(PostProcessors& hist, const PostProcessors::key_t&);
+  pp412(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings */
   virtual void loadSettings(size_t);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
 
 protected:
 
@@ -954,41 +841,6 @@ protected:
                       float n);
 
 };
-
-
-
-
-
-
-/** indicate number of event
- *
- * write to the stdout how the number of fills of the this
- *
- * @cassttng PostProcessor/\%name\%/{Frequency}\n
- *           frequency for show the number of event
- *
- * @author Koji Motomura
- */
-class pp420 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp420(PostProcessors& hist, const PostProcessors::key_t&);
-
-  /** retrieve the nbr of fills */
-  virtual void process(const CASSEvent&);
-
-  /** load the settings from cass.ini */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** pp containing input histogram */
-  shared_pointer _pHist;
-
-  /** frequency */
-  size_t freq;
-};
-
 
 }//end namespace cass
 

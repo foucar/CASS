@@ -31,7 +31,7 @@ namespace cass
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp310 : public PostprocessorBackend
+class pp310 : public PostProcessor
 {
 public:
   /** constructor
@@ -39,7 +39,7 @@ public:
    * @param pp reference to the postprocessor manager
    * @param key the name of this PostProce
    */
-  pp310(PostProcessors &pp, const name_t &key);
+  pp310(const name_t &);
 
   /** process the event */
   virtual void process(const CASSEvent&, HistogramBackend &result);
@@ -68,7 +68,7 @@ protected:
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp311 : public PostprocessorBackend
+class pp311 : public PostProcessor
 {
 public:
   /** constructor
@@ -76,7 +76,7 @@ public:
    * @param pp reference to the postprocessor manager
    * @param key the name of this PostProce
    */
-  pp311(PostProcessors &pp, const name_t &key);
+  pp311(const name_t &);
 
   /** process the event */
   virtual void process(const CASSEvent&, HistogramBackend &result);

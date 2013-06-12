@@ -185,8 +185,8 @@ void shift_wLayer(double &w1, double &w2, const double w_offset)
 }//end namespace cass
 
 
-HexCalibrator::HexCalibrator(PostProcessors &pp, const PostProcessors::key_t &key)
-  :PostprocessorBackend(pp,key),
+HexCalibrator::HexCalibrator(const name_t & name)
+  : PostProcessor(name),
     _timesums(3,make_pair(0,0)),
     _scalefactors(2,1)
 {
@@ -201,8 +201,8 @@ void HexCalibrator::loadSettings(size_t)
     return;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
-  _detector = loadDelayDet(settings,161,_key);
+  settings.beginGroup(QString::fromStdString(name()));
+  _detector = loadDelayDet(settings,161,name());
   _ratio = settings.value("RatioFullBins",0.9).toDouble();
   const DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector());
@@ -245,18 +245,17 @@ void HexCalibrator::loadSettings(size_t)
                                                                                     _scalefactors[u],
                                                                                     _scalefactors[v],
                                                                                     _scalefactors[w]));
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"PostProcessor '" + _key + "' calibrates the hex detector '" +
-           _detector + "'. Condition is '" + _condition->key() + "'");
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' calibrates the hex detector '" +
+           _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void HexCalibrator::process(const CASSEvent &evt)
+void HexCalibrator::process(const CASSEvent &evt, HistogramBackend &res)
 {
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &d (dynamic_cast<DelaylineDetector&>(rawdet));
-  _result->lock.lockForWrite();
   vector<double> values(7);
   values[mcp] = d.mcp().firstGood();
   values[u1] = d.layers()['U'].wireends()['1'].firstGood();
@@ -310,7 +309,6 @@ void HexCalibrator::process(const CASSEvent &evt)
       hexsettings.endGroup();
     }
   }
-  *dynamic_cast<Histogram0DFloat*>(_result) = ratio;
-  _result->nbrOfFills()=1;
-  _result->lock.unlock();
+  result = ratio;
+  result.nbrOfFills()=1;
 }

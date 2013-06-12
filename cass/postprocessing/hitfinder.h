@@ -23,12 +23,14 @@ namespace cass
 
 /** get the local background from image.
  *
+ * @PPList "203": get the local background from image
+ *
  * splits up the image into sections of user choosable size. In each of these
  * sections the local background is determined by taking a box of a user
  * choosable size and determining the median of the pixel values inside this
  * box.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -43,22 +45,19 @@ namespace cass
  * @author Lutz Foucar
  * @author Wolfgang Kabsch
  */
-class pp203 : public PostprocessorBackend
+class pp203 : public PostProcessor
 {
 public:
   /** constructor */
-  pp203(PostProcessors& hist, const name_t&);
+  pp203(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
 protected:
-  /** change own histograms when one of the ones we depend on has changed histograms */
-  virtual void histogramsChanged(const HistogramBackend*);
-
   /** pp containing 2d histogram */
   shared_pointer _hist;
 
@@ -67,17 +66,18 @@ protected:
 
   /** size of a image section */
   std::pair<size_t,size_t> _sectionSize;
-
-private:
-  /** set up the histogram */
-  void setup(const HistogramBackend &hist);
 };
+
+
+
+
 
 
 /** find bragg peaks and store them in a list
  *
+ * @PPList "204": find bragg peaks and store them in a list
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -95,14 +95,14 @@ private:
  *
  * @author Lutz Foucar
  */
-class pp204 : public PostprocessorBackend
+class pp204 : public PostProcessor
 {
 public:
   /** constructor */
-  pp204(PostProcessors& hist, const name_t&);
+  pp204(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -193,7 +193,9 @@ protected:
 
 /** visualize the peaks that were found in the image itself
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @PPList "205":  visualize the peaks that were found in the image itself
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -215,22 +217,19 @@ protected:
  * @author Lutz Foucar
  * @author Wolfgang Kabsch
  */
-class pp205 : public PostprocessorBackend
+class pp205 : public PostProcessor
 {
 public:
   /** constructor */
-  pp205(PostProcessors& hist, const name_t&);
+  pp205(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
 protected:
-  /** change own histograms when one of the ones we depend on has changed histograms */
-  virtual void histogramsChanged(const HistogramBackend*);
-
   /** pp containing 2d histogram */
   shared_pointer _hist;
 
@@ -253,8 +252,9 @@ protected:
 
 /** find pixels of bragg peaks and store them in a list
  *
+ * @PPList "206": find pixels of bragg peaks and store them in a list
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -270,14 +270,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp206 : public PostprocessorBackend
+class pp206 : public PostProcessor
 {
 public:
   /** constructor */
-  pp206(PostProcessors& hist, const name_t&);
+  pp206(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -316,10 +316,12 @@ protected:
 
 /** image of pixels in the list
  *
+ * @PPList "207": createimage of pixels in the list
+ *
  * This postprocessor will fill a 2D histogram with the detected pixels that are
  * placed on a list
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -331,14 +333,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp207 : public PostprocessorBackend
+class pp207 : public PostProcessor
 {
 public:
   /** constructor */
-  pp207(PostProcessors&, const name_t&);
+  pp207(const name_t&);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -363,6 +365,8 @@ protected:
 
 /** find bragg peaks and store them in list
  *
+ * @PPList "208": find bragg peaks and store them in list
+ *
  * Finds bragg peaks by checking how many pixels that are connected are above
  * the given singal to noise ratio. The mean and standart deviation for
  * calculating the SNR is determined by a local box size. Here the statistics
@@ -373,9 +377,8 @@ protected:
  * increased and the process to determine the local background and std is
  * repeated.
  *
- * @PPList "208": find bragg peaks and store them in list
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -409,15 +412,15 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp208 : public PostprocessorBackend
+class pp208 : public PostProcessor
 {
 public:
   /** constructor */
-  pp208(PostProcessors& hist, const name_t&);
+  pp208(const name_t &name);
 
   /** process event */
   virtual void process(const CASSEvent&, HistogramBackend &result);
-//  virtual void process(const CASSEvent&);
+//  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);

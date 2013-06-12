@@ -1,4 +1,5 @@
 // Copyright (C) 2010 Stephan Kassemeyer
+// Copyright (C) 2013 Lutz Foucar
 
 #include <QtCore/QString>
 #include <time.h>
@@ -10,17 +11,19 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 
-namespace cass
-{
+using namespace cass;
+using namespace std;
 
 // *** postprocessor 300 finds Single particle hits ***
-cass::pp300::pp300(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _integralimg(NULL), _rowsum(NULL)
+pp300::pp300(const name_t &name)
+  : PostProcessor(name),
+    _integralimg(NULL),
+    _rowsum(NULL)
 {
   loadSettings(0);
 }
 
-cass::pp300::~pp300()
+pp300::~pp300()
 {
   delete _integralimg;
   _integralimg = NULL;
@@ -28,19 +31,19 @@ cass::pp300::~pp300()
   _rowsum = NULL;
 }
 
-void cass::pp300::trainingFinished()
+void pp300::trainingFinished()
 {
   _trainingSetsInserted = _nTrainingSetSize;
   _reTrain = false;
 }
 
-void cass::pp300::startNewTraining()
+void pp300::startNewTraining()
 {
   _trainingSetsInserted = 0;
   _reTrain = 0;
 }
 
-void cass::pp300::readTrainingMatrices()
+void pp300::readTrainingMatrices()
 {
   std::ifstream infile(_trainingFile.c_str(), std::ios::binary|std::ios::in);
   infile.read(reinterpret_cast<char*>(_covI.data()), _covI.size()*sizeof(double));
@@ -48,7 +51,7 @@ void cass::pp300::readTrainingMatrices()
   infile.close();
 }
 
-void cass::pp300::saveTrainingMatrices()
+void pp300::saveTrainingMatrices()
 {
   time_t rawtime;
   struct tm * timeinfo;
@@ -69,7 +72,7 @@ void cass::pp300::saveTrainingMatrices()
   outfile.close();
 }
 
-void cass::pp300::printTrainingMatrices()
+void pp300::printTrainingMatrices()
 {
   typedef matrixType::traverser ttt;
   std::cout << std::endl << "_covI = [";
@@ -92,18 +95,12 @@ void cass::pp300::printTrainingMatrices()
   std::cout << "] " << std::endl;
 }
 
-
-void cass::pp300::saveSettings(size_t)
-{
-  saveTrainingMatrices();
-}
-
-void cass::pp300::loadSettings(size_t)
+void pp300::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(name()));
 
   // Get the input
   _pHist = setupDependency("HistName");
@@ -118,8 +115,7 @@ void cass::pp300::loadSettings(size_t)
   _yend = settings.value("yend", -1).toInt();
 
   // Create result
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
 
   // outlier postprocessor:
@@ -148,42 +144,48 @@ void cass::pp300::loadSettings(size_t)
 
 
   const Histogram2DFloat &img
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
 
   _integralimg = new Histogram2DFloat(img);
   _rowsum = new Histogram2DFloat(img);
 
-  //_pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
+  //_pp.histograms_replace(name(),_integralimg);  // for debuging, output _integralimage instead of _result
 
-  std::cout<<"Postprocessor "<<_key
-      <<": detects Single particle hits in PostProcessor "<< _pHist->key()
+  std::cout<<"Postprocessor "<<name()
+      <<": detects Single particle hits in PostProcessor "<< _pHist->name()
       <<" ROI for detection: ["<<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]"
-      <<". Condition is"<<_condition->key()
+      <<". Condition is"<<_condition->name()
       <<std::endl;
 }
 
-void cass::pp300::clearHistogramEvent()
+void pp300::clearHistogramEvent()
 {
   std::cout << std::endl << "single particle hit: cleared histogram -> restart training." << std::endl;
   startNewTraining();
 }
 
-void cass::pp300::processCommand(std::string command)
+void pp300::processCommand(std::string command)
 {
-  if (command == "retrain") {
+  if (command == "retrain")
+  {
     std::cout << std::endl << "single particle hit: received command to restart training." << std::endl;
     startNewTraining();
   }
+  if (command == "saveTraining")
+  {
+    std::cout << std::endl << "single particle hit: received command to save training." << std::endl;
+    saveTrainingMatrices();
+  }
 }
 
-void cass::pp300::process(const CASSEvent& evt)
+void pp300::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  using namespace std;
   _integralimg->lock.lockForWrite();
   _rowsum->lock.lockForWrite();
   const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  one.lock.lockForRead();
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  QReadLocker lock(&one.lock);
 
   const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
   const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());
@@ -411,15 +413,9 @@ void cass::pp300::process(const CASSEvent& evt)
   std::cout << "cols: " << vigra::columnCount(_covI) << std::endl;*/
   double mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
 
-
-
-  one.lock.unlock();
   _integralimg->lock.unlock();
   _rowsum->lock.unlock();
 
 
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill( mahal_dist );
-  _result->lock.unlock();
-}
+  result.fill( mahal_dist );
 }

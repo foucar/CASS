@@ -15,126 +15,120 @@
 #include <deque>
 
 
-
-
 namespace cass
 {
+/** calculate median of last values.
+ *
+ * @PPList "301": calculate median of last values
+ *
+ * If input histogram is > 0d, its values get
+ *  summed up prior to median calculation.
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{MedianSize} \n
+ *           how many last values should be included in median calculation.
+ *           default is 100.
+ *
+ * @todo make more general: operate on bins. now operates on sum.
+ * @author Stephan Kassemeyer.
+ */
+class pp301 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp301(const name_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &res);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing first histogram */
+  shared_pointer _one;
+
+  /** last N items to be used for median calculation */
+  unsigned int _medianSize;
+
+  /** storage of last values for median calculation */
+  std::deque<float> *_medianStorage;
+};
 
 
-  /** calculate median of last values. If input histogram is > 0d, its values get
-   *  summed up prior to median calculation.
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           the postprocessor name that contain the first histogram. Default
-   *           is 0.
-   * @cassttng PostProcessor/\%name\%/{MedianSize} \n
-   *           how many last values should be included in median calculation.
-   *           default is 100.
-   *
-   * @todo make more general: operate on bins. now operates on sum.
-   * @author Stephan Kassemeyer.
-   */
-  class pp301 : public PostprocessorBackend
+
+
+
+
+/** load data from binary dump into 2DHistogram
+ *
+ * @PPList "302": load data from binary dump into 2DHistogram
+ *
+ *  example python code to generate binary file:
+ *
+ *  import numpy
+ *  arr = numpy.zeros( (1024,1024), dtype=numpy.float32 )
+ *  cord = numpy.mgrid[0:1024,0:1024]
+ *  arr[ cord[0]**2+cord[1]**2 < 5000 ] = 1
+ *  arr.tofile('waterJetMask.bin')
+ *
+ *  import vigra
+ *  import numpy
+ *  arr = vigra.readImage('waterJetMask.png')
+ *  arr = numpy.array( arr[:,:,0], dtype=numpy.float32 )  # only save one color channel
+ *  arr /= 255     # rgb -> 0..1
+ *  arr = arr.T    # transpose image to match cass coordinate system
+ *  arr.tofile('waterJetMask_png.bin')
+ *
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{BinaryFile} \n
+ *           Filename of binary float[sizeX*sizeY] file which contains data.
+ *           Default is "".
+ *
+ * @cassttng PostProcessor/\%name\%/{SizeX} \n
+ *           nr of Pixels for x axis.
+ *           Default is 0.
+ *
+ * @cassttng PostProcessor/\%name\%/{SizeY} \n
+ *           nr of Pixels for y axis.
+ *           Default is 0.
+ *
+ * @author Stephan Kassemeyer
+ */
+class pp302 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp302(const name_t&);
+
+  /** overwrite default behaviour and just return the constant */
+  virtual const HistogramBackend& result(const CASSEvent::id_t)
   {
-  public:
-    /** constructor */
-    pp301(PostProcessors& hist, const name_t&);
+    return *_result;
+  }
 
-    /** process event */
-    virtual void process(const CASSEvent&);
+  /** overwrite and do nothing */
+  virtual void processEvent(const CASSEvent&){}
 
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
+  /** overwrite default behaviour don't do anything */
+  virtual void releaseEvent(const CASSEvent &){}
 
-  protected:
-    /** pp containing first histogram */
-    shared_pointer _one;
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
 
-    /** last N items to be used for median calculation */
-    unsigned int _medianSize;
+private:
+  /** the constant result */
+  std::tr1::shared_ptr<Histogram2DFloat> _result;
+};
 
-    /** storage of last values for median calculation */
-    std::deque<float> *_medianStorage;
-  };
-
-
-
-
-
-
-  /** load data from binary dump into 2DHistogram
-   *
-   *
-   *  example python code to generate binary file:
-   *  
-   *  import numpy
-   *  arr = numpy.zeros( (1024,1024), dtype=numpy.float32 ) 
-   *  cord = numpy.mgrid[0:1024,0:1024]
-   *  arr[ cord[0]**2+cord[1]**2 < 5000 ] = 1 
-   *  arr.tofile('waterJetMask.bin')
-   *  
-   *  import vigra
-   *  import numpy
-   *  arr = vigra.readImage('waterJetMask.png')
-   *  arr = numpy.array( arr[:,:,0], dtype=numpy.float32 )  # only save one color channel
-   *  arr /= 255     # rgb -> 0..1
-   *  arr = arr.T    # transpose image to match cass coordinate system
-   *  arr.tofile('waterJetMask_png.bin')
-   *
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{BinaryFile} \n
-   *           Filename of binary float[sizeX*sizeY] file which contains data.
-   *           Default is "".
-   *
-   * @cassttng PostProcessor/\%name\%/{SizeX} \n
-   *           nr of Pixels for x axis.
-   *           Default is 0.
-   *
-   * @cassttng PostProcessor/\%name\%/{SizeY} \n
-   *           nr of Pixels for y axis.
-   *           Default is 0.
-   *
-   * @author Stephan Kassemeyer
-   */
-  class pp302 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp302(PostProcessors& hist, const name_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-  };
-
-
-
-
-
-
-
-
-
-
-
-}
+}//end namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "gnu"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:

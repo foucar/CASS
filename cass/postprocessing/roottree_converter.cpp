@@ -162,26 +162,31 @@ void copyMapValues(map<string,double>::const_iterator first,
 }
 }//end namespace cass
 
-pp2001::pp2001(PostProcessors& pp, const name_t &key, std::string filename)
-    : PostprocessorBackend(pp, key),
-     _rootfile(ROOTFileHelper::create(filename)),
-     _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
-     _treestructure_ptr(&_treestructure),
-     _machinestructure_ptr(&_machinestructure),
-     _eventstatusstructure_ptr(&_eventstatusstructure),
-     _ppstructure_ptr(&_ppstructure)
+pp2001::pp2001(const name_t &name, std::string filename)
+  : PostProcessor(name),
+    _rootfile(ROOTFileHelper::create(filename)),
+    _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
+    _treestructure_ptr(&_treestructure),
+    _machinestructure_ptr(&_machinestructure),
+    _eventstatusstructure_ptr(&_eventstatusstructure),
+    _ppstructure_ptr(&_ppstructure)
 {
   if (!_rootfile)
-    throw invalid_argument("pp2001 (" + key + "): '" + filename +
+    throw invalid_argument("pp2001 (" + name + "): '" + filename +
                            "' could not be opened! Maybe deleting the file helps.");
   loadSettings(0);
+}
+
+const HistogramBackend& pp2001::result(const CASSEvent::id_t)
+{
+  throw logic_error("pp2001::result: '"+name()+"' should never be called");
 }
 
 void pp2001::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(_key));
+  settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   QStringList pps(settings.value("PostProcessors").toStringList());
   QStringList::const_iterator ppname(pps.begin());
@@ -190,11 +195,12 @@ void pp2001::loadSettings(size_t)
   _pps.clear();
   for (ppname = pps.begin(); ppname != pps.constEnd(); ++ppname)
   {
-    PostprocessorBackend *pp(&(_pp.getPostProcessor((*ppname).toStdString())));
+    ///XXX Will fail!!! XXX
+    PostProcessor *pp(&(PostProcessors::reference().getPostProcessor((*ppname).toStdString())));
     if (!pp)
       return;
-    if (pp->getHist(0).dimension() != 0)
-      throw invalid_argument("pp2001 (" + _key + "): PostProcessor '" + pp->key() +
+    if (pp->result().dimension() != 0)
+      throw invalid_argument("pp2001 (" + name() + "): PostProcessor '" + pp->name() +
                              "' does not handle a non 0d histogram.");
     _pps.push_back(pp);
   }
@@ -222,11 +228,8 @@ void pp2001::loadSettings(size_t)
     if (_tree->FindBranch("PostProcessors") == 0)
       _tree->Branch("PostProcessors","map<string,double>",&_ppstructure_ptr);
 
-  _write = false;
   _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  string output("PostProcessor '" + _key + "' will write the hits of detectors: ");
+  string output("PostProcessor '" + name() + "' will write the hits of detectors: ");
   dlddetectors_t::const_iterator detectorsIt(_detectors.begin());
   for (;detectorsIt!=_detectors.end();++detectorsIt)
     output += ("'" + (*detectorsIt) + "', ");
@@ -235,7 +238,7 @@ void pp2001::loadSettings(size_t)
   for (;particle != _particles.end();++particle)
     output += ("'" + particle->first + "(" + particle->second + ")', ");
   output += (" to rootfile '" + string(_rootfile->GetName()) + "'. Condition is '" +
-            _condition->key() + "'");
+            _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
@@ -245,9 +248,12 @@ void pp2001::aboutToQuit()
   ROOTFileHelper::close(_rootfile);
 }
 
-void pp2001::process(const cass::CASSEvent &evt)
+void pp2001::processEvent(const cass::CASSEvent &evt)
 {
-  _result->lock.lockForWrite();
+  if (!_condition->result(evt.id()).isTrue())
+    return;
+  QMutexLocker locker(&_lock);
+
   _eventid = evt.id();
   dlddetectors_t::const_iterator detector(_detectors.begin());
   dlddetectors_t::const_iterator detectorEnd(_detectors.end());
@@ -297,19 +303,18 @@ void pp2001::process(const cass::CASSEvent &evt)
   copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
 
   /** copy the values of each 0d PostProcessor into the postprocessor structure */
-  std::list<PostprocessorBackend*>::const_iterator pp(_pps.begin());
-  std::list<PostprocessorBackend*>::const_iterator ppEnd(_pps.end());
+  std::list<PostProcessor*>::const_iterator pp(_pps.begin());
+  std::list<PostProcessor*>::const_iterator ppEnd(_pps.end());
   for (;pp != ppEnd;++pp)
   {
-    PostprocessorBackend *postprocessor(*pp);
+    PostProcessor *postprocessor(*pp);
     const Histogram0DFloat &val
-        (dynamic_cast<const Histogram0DFloat&>((*postprocessor)(evt)));
+        (dynamic_cast<const Histogram0DFloat&>(postprocessor->result(_eventid)));
     val.lock.lockForRead();
     float value(val.getValue());
     val.lock.unlock();
-    _ppstructure[postprocessor->key()] = value;
+    _ppstructure[postprocessor->name()] = value;
   }
   _tree->Fill();
-  _result->lock.unlock();
 }
 

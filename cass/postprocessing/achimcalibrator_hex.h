@@ -30,6 +30,8 @@ namespace cass
 {
 /** Achims resort routine calibrator
  *
+ * @PPList "170": Hex Delayline Calibrator (see Hexcalibrator for parameters)
+ *
  * this class will use achims resort routine capabilties to calibrate
  * the timesum shift and the scalefactors. The PostProcessor will return the
  * current ratio of full bins.
@@ -53,7 +55,7 @@ namespace cass
  * @author Lutz Foucar
  */
 class HexCalibrator
-    : public PostprocessorBackend
+    : public PostProcessor
 {
 public:
   /** enum for accessing the vectors */
@@ -61,7 +63,7 @@ public:
   enum {u, v, w};
 
   /** constructor */
-  HexCalibrator(PostProcessors&, const PostProcessors::key_t&);
+  HexCalibrator(const name_t &name);
 
   /** create the calibration
    *
@@ -79,7 +81,7 @@ public:
    *
    * @param evt the event to work on
    */
-  void process(const CASSEvent& evt);
+  void process(const CASSEvent& evt, HistogramBackend &res);
 
   /** load the detector analyzers settings from .ini file
    *

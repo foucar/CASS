@@ -31,7 +31,7 @@ class Histogram2DFloat;
  *
  * Postprocessor will get the frame of the requested pixeldetector.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -41,17 +41,17 @@ class Histogram2DFloat;
  *
  * @author Lutz Foucar
  */
-class pp105 : public PostprocessorBackend
+class pp105 : public PostProcessor
 {
 public:
   /** constructor */
-  pp105(PostProcessors&, const PostProcessors::key_t&);
+  pp105(const name_t &name);
 
   /** copy image from CASS event to histogram storage
    *
    * @throws invalid_argument if user provided size is incorrect
    */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings for this pp */
   virtual void loadSettings(size_t);
@@ -61,44 +61,6 @@ protected:
   pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 };
 
-
-
-
-
-
-/** Pixeldetector frame's histogram
- *
- * Fill all the pixels z values into a 1D histogram. The pixels that are masked
- * will be disregarded and not be filled into the 1D histogram
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
- *           properties of the 1D histogram:
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- *
- * @author Lutz Foucar
- */
-class pp106 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp106(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy image from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** load the settings for this pp */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-};
 
 
 
@@ -110,7 +72,7 @@ protected:
  * Will display the maps that are used the processing units to process the
  * frame and detect the pixels of interest.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -129,17 +91,17 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp107 : public PostprocessorBackend
+class pp107 : public PostProcessor
 {
 public:
   /** constructor */
-  pp107(PostProcessors&, const PostProcessors::key_t&);
+  pp107(const name_t &name);
 
   /** copy pixels from Map to histogram storage
    *
    * @throws invalid argument when the size of the maps have changed
    */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -158,90 +120,6 @@ protected:
 
 
 
-/** sum of the z values of all pixels
- *
- * Will sum up the z values of all pixels
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- *
- * @author Lutz Foucar
- */
-class pp108 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp108(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-};
-
-
-
-
-
-
-/** Spectrum of coalesced pixels (hits) in a pixeldetector.
- *
- * This postprocessor will fill a 1D histogram with the z values of the coalesced
- * hits. See cass::pixeldetector::AdvancedDetector for the options available
- * to coalesce the detected hits on the pixeldetectors. If one wants to fill
- * only pixels that are within a certain area of the pixeldetector, one can
- * use the mask to mask out uninteresting areas. See
- * cass::pixeldetector::CommonData for details how to set the mask.
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
- *           properties of the 1D histogram:
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
- *           The range of the Splitlevel of the photon hit. Splitlevel tells
- *           how many pixels contributed to the photonhit. Both limits are
- *           exclusive. IE: to only see a splitlevel of 1 (single pixel
- *           contributed to the photon hit) lower limit needs to be 0 and
- *           upper limit needs to be 2. Default is 0|2
- *
- * @author Lutz Foucar
- */
-class pp143 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp143(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-
-  /** gate on split level */
-  std::pair<size_t, size_t> _splitLevelRange;
-};
-
-
 
 
 /** coalesced pixels (hits) on a pixeldetector.
@@ -250,7 +128,7 @@ protected:
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * availalbe to coalesce the detected hits on the pixeldetectors.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -276,14 +154,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp144 : public PostprocessorBackend
+class pp144 : public PostProcessor
 {
 public:
   /** constructor */
-  pp144(PostProcessors&, const PostProcessors::key_t&);
+  pp144(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -309,7 +187,7 @@ protected:
  * This postprocessor retrieve how many coalesced photonhits have been
  * detected in a ccd frame.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -319,14 +197,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp145 : public PostprocessorBackend
+class pp145 : public PostProcessor
 {
 public:
   /** constructor */
-  pp145(PostProcessors&, const PostProcessors::key_t&);
+  pp145(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -346,7 +224,7 @@ protected:
  * cass::pixeldetector::AdvancedDetector for the options available to coalesce
  * the detected hits on the pixeldetectors.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -358,14 +236,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp146 : public PostprocessorBackend
+class pp146 : public PostProcessor
 {
 public:
   /** constructor */
-  pp146(PostProcessors&, const PostProcessors::key_t&);
+  pp146(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -375,47 +253,6 @@ protected:
   pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 };
 
-
-
-
-
-/**  histogram of the z value of detected pixel
- *
- * This postprocessor will fill a 1D histogram with the z values of the detected
- * pixels. See See cass::pixeldetector::AdvancedDetector for the options
- * available detect pixels on the pixeldetectors. If one wants to fill
- * only pixels that are within a certain area of the pixeldetector, one can
- * use the mask to mask out uninteresting areas. See
- * cass::pixeldetector::CommonData for details how to set the mask.
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
- *           properties of the 1D histogram:
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- *
- * @author Lutz Foucar
- */
-class pp147 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp147(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-};
 
 
 
@@ -429,7 +266,7 @@ protected:
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * available identify pixels of interest.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
@@ -449,14 +286,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp148 : public PostprocessorBackend
+class pp148 : public PostProcessor
 {
 public:
   /** constructor */
-  pp148(PostProcessors&, const PostProcessors::key_t&);
+  pp148(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -481,7 +318,7 @@ protected:
  * pixeldetector frame. See cass::pixeldetector::AdvancedDetector for available
  * options on how to detect pixels of interest.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -491,14 +328,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp149 : public PostprocessorBackend
+class pp149 : public PostProcessor
 {
 public:
   /** constructor */
-  pp149(PostProcessors&, const PostProcessors::key_t&);
+  pp149(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -511,95 +348,6 @@ protected:
 
 
 
-
-
-/**  sum of the z values of the detected pixels
- *
- * This postprocessor will sum up the z values of the detected
- * pixels. See See cass::pixeldetector::AdvancedDetector for the options
- * available detect pixels on the pixeldetectors. If one wants to fill
- * only pixels that are within a certain area of the pixeldetector, one can
- * use the mask to mask out uninteresting areas. See
- * cass::pixeldetector::CommonData for details how to set the mask.
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- *
- * @author Lutz Foucar
- */
-class pp155 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp155(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-};
-
-
-
-
-
-
-
-
-/** sum of coalesced pixels (hits) in a pixeldetector.
- *
- * This postprocessor will sum up the z values of the coalesced
- * hits. See cass::pixeldetector::AdvancedDetector for the options available
- * to coalesce the detected hits on the pixeldetectors. If one wants to sum
- * only pixels that are within a certain area of the pixeldetector, one can
- * use the mask to mask out uninteresting areas. See
- * cass::pixeldetector::CommonData for details how to set the mask.
- *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
- *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::pixeldetector::DetectorHelper for infos how to set up that
- *           detector.
- * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
- *           The range of the Splitlevel of the photon hit. Splitlevel tells
- *           how many pixels contributed to the photonhit. Both limits are
- *           exclusive. IE: to only see a splitlevel of 1 (single pixel
- *           contributed to the photon hit) lower limit needs to be 0 and
- *           upper limit needs to be 2. Default is 0|2
- *
- * @author Lutz Foucar
- */
-class pp156 : public PostprocessorBackend
-{
-public:
-  /** constructor */
-  pp156(PostProcessors&, const PostProcessors::key_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** detector to work on */
-  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
-
-  /** gate on split level */
-  std::pair<size_t, size_t> _splitLevelRange;
-};
 
 
 
@@ -633,7 +381,7 @@ protected:
  * The average offset at the edge of the first two and the last two rows will
  * only be determined by the current row.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -670,20 +418,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp241 : public PostprocessorBackend
+class pp241 : public PostProcessor
 {
 public:
   /** constructor */
-  pp241(PostProcessors& hist, const PostProcessors::key_t&);
+  pp241(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&);
-
-  /** change the histogram, when told the the dependand histogram has changed */
-  virtual void histogramsChanged(const HistogramBackend*);
-
-  /** set up the histogram */
-  void setup(const Histogram2DFloat &one);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -732,7 +474,7 @@ protected:
  * Copys the frame data and then sets all maked  pixels in the 2d histogram to a
  * predefined value
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -743,14 +485,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp242 : public PostprocessorBackend
+class pp242 : public PostProcessor
 {
 public:
   /** constructor */
-  pp242(PostProcessors&, const PostProcessors::key_t&);
+  pp242(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);

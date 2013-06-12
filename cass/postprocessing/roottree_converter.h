@@ -49,20 +49,26 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class pp2001 : public PostprocessorBackend
+class pp2001 : public PostProcessor
 {
 public:
   /** Construct postprocessor for converting histograms to root histograms */
-  pp2001(PostProcessors&, const name_t&, std::string rootfilename);
+  pp2001(const name_t&, std::string);
 
   /** only a stub does nothing, but needs to be there because its pure virtual in base class */
-  virtual void process(const CASSEvent&);
+  virtual void processEvent(const CASSEvent&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
 
   /** dump all histogram to a root file just before quitting */
   virtual void aboutToQuit();
+
+  /** overwrite the retrieval of an histogram */
+  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+
+  /** overwrite the release */
+  virtual void releaseEvent(const CASSEvent &){}
 
 protected:
   /** the root file */
@@ -100,13 +106,17 @@ protected:
   eventStatus_t *_eventstatusstructure_ptr;
 
   /** container for all 0d PostProcessors that should be added to the tree */
-  std::list<PostprocessorBackend*> _pps;
+  std::list<PostProcessor*> _pps;
 
   /** 0d postprocessor structure */
   ppstructure_t _ppstructure;
 
   /** pointer to the 0d postprocessor structure */
   ppstructure_t *_ppstructure_ptr;
+
+private:
+  /** a lock to make the process reentrant */
+  QMutex _lock;
 };
 } // end namespace cass
 

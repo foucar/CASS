@@ -17,35 +17,39 @@ namespace cass
 {
 /** converts histograms to (c)rystal (b)inary (f)ormat files.
  *
- * details
+ * @PPList "pp1500": converts histograms to (c)rystal (b)inary (f)ormat files.
  *
  * @cassttng PostProcessor/\%name\%/{DarkName} \n
  *           Postprocessor name offsetmap to write to cbf when program quits.
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           Postprocessor name containing the histogram that write to cbf.
+ * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
+ *           Default name given by program parameter
+ *
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp1500 : public PostprocessorBackend
+class pp1500 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp reference to the postprocessor manager
-   * @param key the name of this PostProce
-   * @param filename initial string of the output filename
-   */
-  pp1500(PostProcessors &pp, const name_t &key, const std::string& filename);
+  /** constructor */
+  pp1500(const name_t &);
 
-  /** process the event */
-  virtual void process(const CASSEvent&);
+  /** overwrite process event */
+  virtual void processEvent(const CASSEvent&);
 
   /** dump dark to cbf just before quitting */
   virtual void aboutToQuit();
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
+
+  /** overwrite the retrieval of an histogram */
+  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+
+  /** overwrite the release */
+  virtual void releaseEvent(const CASSEvent &){}
 
 protected:
   /** the filename that the data will be written to */

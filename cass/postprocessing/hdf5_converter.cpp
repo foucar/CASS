@@ -914,14 +914,14 @@ public:
     const uint32_t &options(entry.options);
     const string &gname(entry.groupname);
     const string &name(entry.name);
-    PostprocessorBackend &pp(*entry.pp);
+    PostProcessor &pp(*entry.pp);
 
     /** create the requested group and data name*/
     createGroupWithAbsolutePath(gname,_fh);
     const string dataName(gname + "/" + name);
 
     /** retrieve data from pp and write it to the h5 file */
-    const HistogramBackend &data(pp.getHist(_id));
+    const HistogramBackend &data(pp.result(_id));
     switch (data.dimension())
     {
     case 0:
@@ -955,211 +955,12 @@ private:
 
 
 
-cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key, const std::string& outfilename)
-  :cass::PostprocessorBackend(pp,key),
-    _outfilename(outfilename),
-    _filehandle(H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
-    _events_root_is_filehandle(false)
-{
-  loadSettings(0);
-}
-
-void cass::pp1001::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
-  _store2dAsMatrix = s.value("Write2dAsMatrix",false).toBool();
-  _dumpBLD = s.value("WriteBeamlineData",false).toBool();
-  _dumpEpics = s.value("WriteEpicsData",false).toBool();
-  _dumpEVR = s.value("WriteEvrCodes",false).toBool();
-  _dumpMachineData = _dumpBLD || _dumpEpics || _dumpEVR;
-  _writeSummary = s.value("WriteSummary",true).toBool();
-  _compress = s.value("Compress",false).toBool();
-  _maxsize = s.value("MaximumFilesize",2048).toUInt() * 1024*1024;
-  if (_compress)
-  {
-    htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
-    unsigned int filter_info;
-    H5Zget_filter_info(H5Z_FILTER_DEFLATE, &filter_info);
-    if (!compavailable ||
-        !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
-        !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
-    {
-      Log::add(Log::WARNING,"pp1001: '"+_key+"', compressing is not available in this " +
-               "hdf5 library. Turning it off.");
-      _compress = false;
-    }
-  }
-  setupGeneral();
-  if (!setupCondition(false))
-    return;
-  _write = false;
-  _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  Log::add(Log::INFO,"PostProcessor '"+ _key +
-           "' will write all chosen histograms to hdf5 '" + _outfilename +
-           "'. Compress the file '"+ (_compress?"true":"false") +
-           "'. Write2dAsMatrix '"+ (_store2dAsMatrix?"true":"false") +
-           "'. WriteBeamlineData '"+ (_dumpBLD?"true":"false") +
-           "'. WriteEpicsData '"+ (_dumpEpics?"true":"false") +
-           "'. WriteEvrCodes '"+ (_dumpEVR?"true":"false") +
-           "'. WriteSummary '"+ (_writeSummary?"true":"false") +
-           "'. Maximum Filesize in Bytes '"+ toString(_maxsize) +
-           "'. Condition is '" + _condition->key());
-}
-
-void cass::pp1001::aboutToQuit()
-{
-  if(_writeSummary)
-  {
-    hid_t grouphandle ( H5Gcreate1(_filehandle, "Summary",0));
-    PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
-    PostProcessors::postprocessors_t::iterator it (ppc.begin());
-    for (;it != ppc.end(); ++it)
-    {
-      PostprocessorBackend &pp (*(*it).get());
-      if (pp.write_summary())
-      {
-        hid_t ppgrouphandle (H5Gcreate1(grouphandle, pp.key().c_str(),0));
-        const HistogramBackend &hist (pp.getHist(0));
-        //write comment//
-        hid_t dataspace_id (H5Screate(H5S_SCALAR));
-        hid_t datatype (H5Tcopy(H5T_C_S1));
-        H5Tset_size(datatype,pp.comment().size()+1);
-        hid_t dataset_id (H5Dcreate1(ppgrouphandle, "Comment", datatype,
-                                     dataspace_id, H5P_DEFAULT));
-        H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                 pp.comment().c_str());
-        H5Dclose(dataset_id);
-        H5Sclose(dataspace_id);
-        Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): write '" + pp.key() +
-                 "' which is " + toString(hist.dimension()) +"D");
-        switch (hist.dimension())
-        {
-        case 0:
-          hdf5::write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
-          break;
-        case 1:
-          hdf5::write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle,_compress);
-          break;
-        case 2:
-          if (_store2dAsMatrix)
-            hdf5::write2DMatrix(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
-          else
-            hdf5::write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
-          break;
-        }
-        Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): done writing '" + pp.key() + "'");
-        H5Gclose(ppgrouphandle);
-      }
-    }
-    H5Gclose(grouphandle);
-  }
-  // close file//
-  H5Fflush(_filehandle,H5F_SCOPE_LOCAL);
-  H5Fclose(_filehandle);
-}
-
-hid_t pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
-{
-  if (evt.pvControl.empty())
-  {
-    _events_root_is_filehandle = true;
-    Log::add(Log::DEBUG0,"pp1001::getGroupNameForCalibCycle(): default to root");
-    return _filehandle;
-  }
-  else
-  {
-    QWriteLocker locker(&_calibGroupLock);
-    htri_t result = H5Lexists(_filehandle, evt.pvControl.c_str(), 0);
-    if (result == TRUE)
-    {
-      Log::add(Log::DEBUG0,"pp1001::getGroupNameForCalibCycle():open" +
-               evt.pvControl);
-      return H5Gopen1(_filehandle, evt.pvControl.c_str());
-    }
-    else if (result == FALSE)
-    {
-      Log::add(Log::DEBUG0,"pp1001::getGroupNameForCalibCycle():create" +
-               evt.pvControl);
-      return H5Gcreate1(_filehandle, evt.pvControl.c_str(), 0);
-    }
-    else
-      throw std::runtime_error("pp1001::getGroupNameForCalibCycle(): should not happen");
-  }
-}
-
-void pp1001::process(const CASSEvent &evt)
-{
-  _outfilename = hdf5::reopenFile(_filehandle,_maxsize,_outfilename);
-  hid_t calibcyclehandle (getGroupNameForCalibCycle(evt));
-  hid_t eventgrouphandle (hdf5::createGroupNameFromEventId(evt.id(), calibcyclehandle));
-  PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
-  PostProcessors::postprocessors_t::iterator it (ppc.begin());
-  for (;it != ppc.end(); ++it)
-  {
-    PostprocessorBackend &pp (*(it->get()));
-    if (pp.write())
-    {
-      hid_t ppgrouphandle (H5Gcreate1(eventgrouphandle, pp.key().c_str(),0));
-      const HistogramBackend &hist (pp(evt));
-      //write comment//
-      hid_t dataspace_id (H5Screate(H5S_SCALAR));
-      hid_t datatype (H5Tcopy(H5T_C_S1));
-      H5Tset_size(datatype,pp.comment().size()+1);
-      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "comment", datatype,
-                                   dataspace_id, H5P_DEFAULT));
-      H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-               pp.comment().c_str());
-      H5Dclose(dataset_id);
-      H5Sclose(dataspace_id);
-      Log::add(Log::DEBUG4, "pp1001::process(): write '" + pp.key() +
-               "' which is " + toString(hist.dimension()) +"D");
-      switch (hist.dimension())
-      {
-        case 0:
-          hdf5::write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
-          break;
-        case 1:
-          hdf5::write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle,_compress);
-          break;
-        case 2:
-          if (_store2dAsMatrix)
-            hdf5::write2DMatrix(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
-          else
-            hdf5::write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
-          break;
-      }
-      Log::add(Log::DEBUG4, "pp1001::process(): done writing '" + pp.key() + "'");
-      H5Gclose(ppgrouphandle);
-    }
-  }
-  if(_dumpMachineData)
-  {
-    hid_t mdatagroup(H5Gcreate1(eventgrouphandle,"MachineData",0));
-    const MachineData::MachineDataDevice& mdev(dynamic_cast<const MachineData::MachineDataDevice&>(*(evt.devices().find(CASSEvent::MachineData)->second)));
-    if(_dumpBLD)
-      hdf5::writeBeamlineData(mdev.BeamlineData(), mdatagroup);
-    if(_dumpEpics)
-      hdf5::writeEpicsData(mdev.EpicsData(),mdatagroup);
-    if(_dumpEVR)
-      hdf5::writeEvrCodes(mdev.EvrData(),mdatagroup);
-    H5Gclose(mdatagroup);
-  }
-  H5Gclose(eventgrouphandle);
-  if (!_events_root_is_filehandle) H5Gclose(calibcyclehandle);
-}
 
 
+//*************** h5 output *************************
 
-
-
-
-pp1002::pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
-  : PostprocessorBackend(pp,key),
-    _basefilename(outfilename)
+pp1002::pp1002(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -1168,7 +969,7 @@ void pp1002::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
 
   bool compress = s.value("Compress",true).toBool();
@@ -1241,11 +1042,8 @@ void pp1002::loadSettings(size_t)
     return;
   }
 
-  _write = false;
   _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  string output("PostProcessor '" + _key + "' will write histogram ");
+  string output("PostProcessor '" + name() + "' will write histogram ");
   for (list<entry_t>::const_iterator it(_ppList.begin());
        it != _ppList.end(); ++it)
     output += ("'" + it->pp->name() + "' to Group '" + it->groupname +
@@ -1255,6 +1053,11 @@ void pp1002::loadSettings(size_t)
              " be compressed. Files will " + (_maxFilePerSubDir != -1 ? "" : "NOT") +
              " be distributed. Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
+}
+
+const HistogramBackend& pp1002::result(const CASSEvent::id_t)
+{
+  throw logic_error("pp1002::result: '"+name()+"' should never be called");
 }
 
 void pp1002::aboutToQuit()
@@ -1293,8 +1096,12 @@ void pp1002::aboutToQuit()
   }
 }
 
-void pp1002::process(const CASSEvent &evt)
+void pp1002::processEvent(const CASSEvent &evt)
 {
+
+  if (!_condition->result(evt.id()).isTrue())
+    return;
+
   QMutexLocker locker(&_lock);
 
   /** check if there is something to be written */
@@ -1330,60 +1137,21 @@ void pp1002::process(const CASSEvent &evt)
       _basefilename = newPath.toStdString() + filename.toStdString();
     }
     ++_filecounter;
-//    /** create entry writer with filename using basefilename and event id */
-//    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
 
-//    /** write all entries to file using the writer
-//     *
-//     * @note we can't use for_each here, since we need to ensure that the
-//     *       entries are written sequentially and for_each can potentially use
-//     *       omp to parallelize the execution.
-//     */
-//    list<entry_t>::const_iterator it(_ppList.begin());
-//    list<entry_t>::const_iterator last(_ppList.end());
-//    while(it != last)
-//      writeEntry(*it++);
-    /** create filename from base filename + event id */
-    string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
-    /** create the hdf5 file with the name and the handles to the specific data storage*/
-    hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    if (fh == 0)
-      throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+    /** create entry writer with filename using basefilename and event id */
+    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
 
-    /** iterate through the postprocessor list that should be dumped to h5 */
-    list<entry_t>::iterator entry(_ppList.begin());
-    for (;entry != _ppList.end(); ++entry)
-    {
-      const uint32_t &options(entry->options);
-      const string &gname(entry->groupname);
-      const string &name(entry->name);
-      PostprocessorBackend &pp(*entry->pp);
-
-      /** create the requested group and data name*/
-      hdf5::createGroupWithAbsolutePath(gname,fh);
-      const string dataName(gname + "/" + name);
-
-      /** retrieve data from pp and write it to the h5 file */
-      const HistogramBackend &data(pp(evt));
-      switch (data.dimension())
-      {
-      case 0:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram0DFloat&>(data), fh);
-        break;
-      case 1:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram1DFloat&>(data), fh);
-        break;
-      case 2:
-        hdf5::writeData(dataName, dynamic_cast<const Histogram2DFloat&>(data), options, fh);
-        break;
-      default:
-        throw runtime_error("pp1002::process: data dimension not known");
-        break;
-      }
-    }
-
-    /** close file */
-    H5Fflush(fh,H5F_SCOPE_LOCAL);
-    H5Fclose(fh);
+    /** write all entries to file using the writer
+     *
+     * @note we can't use for_each here, since we need to ensure that the
+     *       entries are written sequentially and for_each can potentially use
+     *       omp to parallelize the execution.
+     */
+    list<entry_t>::const_iterator it(_ppList.begin());
+    list<entry_t>::const_iterator last(_ppList.end());
+    while(it != last)
+      writeEntry(*it++);
   }
 }
+
+

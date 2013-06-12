@@ -59,9 +59,15 @@ struct Rotor
   char incDestRowPerSrcRow;
 };
 
+
+
+
+
 /** rotate, transpose, invert axis on 2d histogram.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @PPList "12": Constant Value
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -81,7 +87,7 @@ struct Rotor
  *
  * @author Lutz Foucar
  */
-class pp55 : public PostprocessorBackend
+class pp55 : public PostProcessor
 {
 public:
   /** constructor
@@ -89,7 +95,7 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp55(PostProcessors& pp, const name_t& key);
+  pp55(const name_t &);
 
   /** process event
    *
@@ -97,7 +103,6 @@ public:
    * @param result the histogram where the result will be written to
    */
   virtual void process(const CASSEvent& evt,HistogramBackend &result);
-//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -132,7 +137,9 @@ protected:
 
 /** convert cspad 2d histogram into cheetah layout
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @PPList "12": Constant Value
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -141,7 +148,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp1600 : public PostprocessorBackend
+class pp1600 : public PostProcessor
 {
 public:
   /** constructor
@@ -149,14 +156,13 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1600(PostProcessors& pp, const name_t& key);
+  pp1600(const name_t &);
 
   /** process event
    *
    * @param evt the event to process
    */
   virtual void process(const CASSEvent& evt, HistogramBackend &result);
-//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -183,6 +189,8 @@ protected:
 
 
 /** convert cspad 2d histogram into a quasi oriented layout
+ *
+ * @PPList "12": Constant Value
  *
  * Converts the cass representation of the CsPad where all segments are in a
  * linearized matrix on top of each other where the origin is in the lower left
@@ -265,7 +273,7 @@ y |     00      |
   +-------------+  |+----+  |+----+         +-------------+| |+----+  |+----+
                    +--->    +--->                     <---+ +--->    +--->
 @endverbatim
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -274,7 +282,7 @@ y |     00      |
  *
  * @author Lutz Foucar
  */
-class pp1601 : public PostprocessorBackend
+class pp1601 : public PostProcessor
 {
 public:
   /** constructor
@@ -282,14 +290,13 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1601(PostProcessors& pp, const name_t& key);
+  pp1601(const name_t &);
 
   /** process event
    *
    * @param evt the event to process
    */
   virtual void process(const CASSEvent& evt, HistogramBackend &result);
-//  virtual void process(const CASSEvent& evt);
 
   /** load the settings of this pp
    *
@@ -341,9 +348,11 @@ private:
 
 /** convert cspad data into laboratory frame using crystfel geometry files
  *
+ * @PPList "12": Constant Value
+ *
  * generates a lookup table of where in the result image will go which pixel
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
@@ -354,7 +363,7 @@ private:
  *
  * @author Lutz Foucar
  */
-class pp1602 : public PostprocessorBackend
+class pp1602 : public PostProcessor
 {
 public:
   /** constructor
@@ -362,13 +371,12 @@ public:
    * @param pp the postprocessor manager that manages this pp
    * @param key the name of this postprocessor in the ini file
    */
-  pp1602(PostProcessors& pp, const name_t& key);
+  pp1602(const name_t &);
 
   /** process event
    *
    * @param evt the event to process
    */
-//  virtual void process(const CASSEvent& evt);
   virtual void process(const CASSEvent& evt,HistogramBackend &);
 
   /** load the settings of this pp

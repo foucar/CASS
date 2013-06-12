@@ -18,10 +18,12 @@ namespace cass
 
 /** get specific column from table like histogram
  *
+ * @PPList "72": get specific column from table like histogram
+ *
  * Will copy all contents of the input tables user specified column into a
  * 1d histogram.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{TableName} \n
@@ -36,14 +38,14 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class pp72 : public PostprocessorBackend
+class pp72 : public PostProcessor
 {
 public:
   /** constructor */
-  pp72(PostProcessors& hist, const name_t&);
+  pp72(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -61,11 +63,13 @@ protected:
 
 /** get all rows with condition on a column
  *
+ * @PPList "73": get all rows with condition on a column
+ *
  * Will copy all rows of the input table where a user specified column value
  * satisfies the set condition. Therefore the value has to be greater or equal
  * to the lower bound and smaller than the upper bound.
  *
- * @see PostprocessorBackend for a list of all commonly available cass.ini
+ * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{TableName} \n
@@ -83,14 +87,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp73 : public PostprocessorBackend
+class pp73 : public PostProcessor
 {
 public:
   /** constructor */
-  pp73(PostProcessors& hist, const name_t&);
+  pp73(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&);
+  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);

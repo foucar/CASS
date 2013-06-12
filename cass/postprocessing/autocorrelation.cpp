@@ -22,8 +22,8 @@ using namespace cass;
 using namespace std;
 
 
-pp310::pp310(PostProcessors &pp, const name_t &key)
-  : PostprocessorBackend(pp,key)
+pp310::pp310(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -35,7 +35,7 @@ void pp310::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
-  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->result()));
   if (srcImageHist.dimension() != 2)
     throw invalid_argument("pp310:setup: '" + name() +
                            "' The input histogram is not a 2d histogram");
@@ -50,8 +50,7 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
 {
   typedef HistogramFloatBase::storage_t::const_iterator const_iterator;
   const Histogram2DFloat& hist
-//      (dynamic_cast<const Histogram2DFloat&>(_hist->getHist(evt.id())));
-      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
@@ -90,8 +89,8 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
 
 
 //*** autocorrelation from image in kartesian coordinates ***
-pp311::pp311(PostProcessors &pp, const name_t &key)
-  : PostprocessorBackend(pp,key)
+pp311::pp311(const name_t &name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -100,7 +99,7 @@ void pp311::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(QString::fromStdString(_key));
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _hist = setupDependency("HistName");
   bool ret (setupCondition());
@@ -111,9 +110,9 @@ void pp311::loadSettings(size_t)
                                             s.value("CenterY",0).toInt());
   const int maxradius(s.value("MaximumRadius",0).toInt());
 
-  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->result()));
   if (srcImageHist.dimension() != 2)
-    throw invalid_argument("pp311:setup: '" + _key +
+    throw invalid_argument("pp311:setup: '" + name() +
                            "' The input histogram is not a 2d histogram");
   /** determine the center in histogram coordinates */
   const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
@@ -124,13 +123,13 @@ void pp311::loadSettings(size_t)
   /** check if coordinates are ok */
   if ((static_cast<int>(srcImageHist.shape().first) < _center.first + maxradius) ||
       (_center.first - maxradius < 0) )
-    throw out_of_range("pp311:loadSettings: '" + _key + "'. Center in lab X '" +
+    throw out_of_range("pp311:loadSettings: '" + name() + "'. Center in lab X '" +
                        toString(_center.first) + "' and maximum radius '" +
                        toString(maxradius) + "' do not fit in image with width '" +
                        toString(srcImageHist.shape().first) + "'");
   if ((static_cast<int>(srcImageHist.shape().second) < _center.second + maxradius) ||
       (_center.second - maxradius < 0))
-    throw out_of_range("pp311:loadSettings: '" + _key + "'. Center in lab Y '" +
+    throw out_of_range("pp311:loadSettings: '" + name() + "'. Center in lab Y '" +
                        toString(_center.second) + "' and maximum radius '" +
                        toString(maxradius) + "' do not fit in image with height '" +
                        toString(srcImageHist.shape().second) + "'");
@@ -243,7 +242,7 @@ void pp311::fillRing(const HistogramFloatBase::storage_t &image,
 void pp311::process(const CASSEvent &evt,HistogramBackend &res)
 {
   const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
