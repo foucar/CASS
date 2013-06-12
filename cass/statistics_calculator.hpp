@@ -108,7 +108,7 @@ public:
    *
    * @return sum of all dati
    */
-  value_type sum()
+  value_type sum() const
   {
     return _sum;
   }
@@ -117,7 +117,7 @@ public:
    *
    * @return counts
    */
-  counter_type count()
+  counter_type count() const
   {
     return _N;
   }
