@@ -69,6 +69,7 @@ PostProcessors::shared_pointer PostProcessors::instance(string outputfilename)
   {
     Log::add(Log::VERBOSEINFO,"PostProcessors::instance -- create "+ toString(++create));
     _instance = shared_pointer(new PostProcessors(outputfilename));
+    locker.unlock();
     _instance->loadSettings(0);
   }
   return _instance;
