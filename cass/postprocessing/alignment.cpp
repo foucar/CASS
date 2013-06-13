@@ -279,7 +279,7 @@ void pp202::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const Histogram2DFloat &image
       (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   QReadLocker lock(&image.lock);
 
