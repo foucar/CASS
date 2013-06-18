@@ -1705,7 +1705,7 @@ void pp78::loadSettings(size_t)
 
 void pp78::process(const CASSEvent&, HistogramBackend &res)
 {
-  Histogram0DFloat result(dynamic_cast<Histogram0DFloat&>(res));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   ++(result.memory()[0]);
   result.nbrOfFills()=1;
 }
