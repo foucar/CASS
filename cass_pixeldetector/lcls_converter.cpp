@@ -389,7 +389,7 @@ Converter::Converter()
                    DetInfo::CxiDsd, 0,
                    DetInfo::Cspad, 0);
 
-  Key CXI2x2(TypeId::Id_Cspad2x2Element,
+  Key CXI2x2Sc2(TypeId::Id_Cspad2x2Element,
                    DetInfo::CxiSc2, 0,
                    DetInfo::Cspad2x2, 0);
 
@@ -397,6 +397,10 @@ Converter::Converter()
                    DetInfo::CxiEndstation, 0,
                    DetInfo::Opal1000, 1);
 
+
+  Key CXI2x2Sc1(TypeId::Id_Cspad2x2Element,
+                   DetInfo::CxiSc1, 0,
+                   DetInfo::Cspad2x2, 0);
 
 
 
@@ -415,8 +419,9 @@ Converter::Converter()
   _LCLSToCASSId[CXIBackCsPadConfig] = 8;
   _LCLSToCASSId[CXIBackCsPad] = 8;
 
-  _LCLSToCASSId[CXI2x2] = 9;
+  _LCLSToCASSId[CXI2x2Sc2] = 9;
   _LCLSToCASSId[CXISeedSpec] = 10;
+  _LCLSToCASSId[CXI2x2Sc1] = 11;
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
