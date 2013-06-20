@@ -9,7 +9,7 @@
 #ifndef _RANKFILTER_H_
 #define _RANKFILTER_H_
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_event.h"
 #include "histogram.h"
 #include <deque>

@@ -11,7 +11,7 @@
 
 #include <tr1/functional>
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_event.h"
 #include "pixel_detector_helper.h"
 #include "cass_pixeldetector.h"

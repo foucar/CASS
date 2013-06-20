@@ -1,13 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
-/** @file backend.h file contains postprocessors baseclass declaration
+/** @file processor.h file contains postprocessors baseclass declaration
  *
  * @author Lutz Foucar
  */
 
-#ifndef _POSTPROCESSOR_BACKEND_H_
-#define _POSTPROCESSOR_BACKEND_H_
+#ifndef _PROCESSOR_H_
+#define _PROCESSOR_H_
 
 #include <QtCore/QReadWriteLock>
 

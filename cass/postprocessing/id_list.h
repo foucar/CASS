@@ -11,7 +11,7 @@
 #define __IDLIST_H__
 
 #include "serializable.h"
-#include "backend.h"
+#include "processor.h"
 
 namespace cass
 {

@@ -10,7 +10,7 @@
 #ifndef _COLTRIMSANALYSIS_H
 #define _COLTRIMSANALYSIS_H
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_acqiris.h"
 #include "acqiris_detectors_helper.h"
 #include "signal_producer.h"

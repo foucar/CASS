@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "postprocessing/backend.h"
+#include "processor.h"
 
 class TFile;
 

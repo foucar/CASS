@@ -10,7 +10,7 @@
 
 #include <tr1/functional>
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_event.h"
 #include "histogram.h"
 #include "statistics_calculator.hpp"

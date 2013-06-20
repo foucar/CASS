@@ -1,6 +1,6 @@
 // Copyright (C) 2010, 2013 Lutz Foucar
 
-/** @file backend.cpp file contains postprocessors baseclass definition
+/** @file processor.cpp file contains postprocessors baseclass definition
  *
  * @author Lutz Foucar
  */
@@ -10,7 +10,7 @@
 #include <tr1/functional>
 #include <tr1/memory>
 
-#include "backend.h"
+#include "processor.h"
 
 #include "cass_exceptions.h"
 #include "convenience_functions.h"

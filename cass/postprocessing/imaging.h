@@ -3,7 +3,7 @@
 #ifndef _IMAGING_H_
 #define _IMAGING_H_
 
-#include "backend.h"
+#include "processor.h"
 
 namespace cass
 {

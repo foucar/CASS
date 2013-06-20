@@ -10,7 +10,7 @@
 #ifndef _AUTOCORRELATION_H_
 #define _AUTOCORRELATION_H_
 
-#include "backend.h"
+#include "processor.h"
 #include "histogram.h"
 
 namespace cass

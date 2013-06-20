@@ -13,7 +13,7 @@
 #include <list>
 #include <hdf5.h>
 
-#include "postprocessing/backend.h"
+#include "processor.h"
 
 namespace cass
 {

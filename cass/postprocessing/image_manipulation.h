@@ -14,7 +14,7 @@
 #include <string>
 #include <tr1/functional>
 
-#include "backend.h"
+#include "processor.h"
 
 namespace cass
 {

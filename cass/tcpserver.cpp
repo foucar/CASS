@@ -21,7 +21,7 @@
 
 #include "CASSsoap.nsmap"
 #include "processor_manager.h"
-#include "backend.h"
+#include "processor.h"
 #include "id_list.h"
 #include "cass_exceptions.h"
 #include "input_base.h"

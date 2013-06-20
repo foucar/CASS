@@ -13,7 +13,7 @@
 #include <list>
 #include <map>
 
-#include "postprocessing/backend.h"
+#include "processor.h"
 #include "acqiris_detectors_helper.h"
 #include "tree_structure.h"
 #include "delayline_detector.h"

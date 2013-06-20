@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_event.h"
 
 namespace cass

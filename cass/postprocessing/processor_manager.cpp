@@ -26,7 +26,7 @@
 #include "rankfilter.h"
 #include "imaging.h"
 #include "machine_data.h"
-#include "backend.h"
+#include "processor.h"
 #include "machine_data.h"
 #include "id_list.h"
 #include "cass_exceptions.h"

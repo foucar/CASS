@@ -10,7 +10,7 @@
 #ifndef _WAVEFORM_POSTPROCESSOR_H_
 #define _WAVEFORM_POSTPROCESSOR_H_
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_acqiris.h"
 
 namespace cass

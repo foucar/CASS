@@ -8,7 +8,7 @@
 #include <vigra/inspectimage.hxx>
 #include <vigra/multi_pointoperators.hxx> 
 
-#include "backend.h"
+#include "processor.h"
 #include "cass_event.h"
 #include "cass_acqiris.h"
 

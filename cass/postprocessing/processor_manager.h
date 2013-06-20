@@ -22,7 +22,7 @@
 #include <QtCore/QReadWriteLock>
 
 #include "cass.h"
-#include "backend.h"
+#include "processor.h"
 
 namespace cass
 {

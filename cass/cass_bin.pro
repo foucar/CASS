@@ -70,10 +70,10 @@ SOURCES            += soapCASSsoapService.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
                       tcpserver.cpp \
+                      ./postprocessing/processor.cpp \
                       ./postprocessing/processor_manager.cpp \
                       ./postprocessing/convenience_functions.cpp \
                       ./postprocessing/operations.cpp \
-                      ./postprocessing/backend.cpp \
                       ./postprocessing/waveform.cpp \
                       ./postprocessing/acqiris_detectors_helper.cpp \
                       ./postprocessing/acqiris_detectors.cpp \
@@ -138,15 +138,15 @@ HEADERS            += analysis_backend.h \
                       statistics_calculator.hpp \
                       generic_factory.hpp \
                       cached_list.hpp \
-                      ./postprocessing/convenience_functions.h \
+                      ./postprocessing/processor.h \
                       ./postprocessing/processor_manager.h \
+                      ./postprocessing/convenience_functions.h \
                       ./postprocessing/id_list.h \
                       ./postprocessing/acqiris_detectors.h \
                       ./postprocessing/acqiris_detectors_helper.h \
                       ./postprocessing/operations.h \
                       ./postprocessing/rankfilter.h \
                       ./postprocessing/alignment.h \
-                      ./postprocessing/backend.h \
                       ./postprocessing/pixel_detector_helper.h \
                       ./postprocessing/pixel_detectors.h \
                       ./postprocessing/imaging.h \
