@@ -65,7 +65,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       image_generator.cpp \
                       ratemeter.cpp \
                       worker.cpp \
-                      pixel_detector.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
