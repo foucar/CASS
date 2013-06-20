@@ -40,11 +40,9 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 # our own stuff
 SOURCES            += soapCASSsoapService.cpp \
                       soapC.cpp \
-                      analyzer.cpp \
                       cass.cpp \
                       cass_event.cpp \
                       conversion_backend.cpp \
-                      daemon.cpp \
                       log.cpp \
                       input_base.cpp \
                       file_input.cpp \
@@ -97,11 +95,9 @@ SOURCES            += soapCASSsoapService.cpp \
 
 
 HEADERS            += analysis_backend.h \
-                      analyzer.h \
                       cass.h \
                       cass_event.h \
                       conversion_backend.h \
-                      daemon.h \
                       log.h \
                       input_base.h \
                       file_input.h \
@@ -185,7 +181,7 @@ INCLUDEPATH        += postprocessing \
 
 DEPENDPATH         += ./postprocessing
 
-DEPENDENCY_LIBRARIES  = cass_acqiris cass_pnccd cass_ccd cass_machinedata cass_pixeldetector
+DEPENDENCY_LIBRARIES  = cass_acqiris cass_machinedata cass_pixeldetector
 DEPENDENCY_LIBRARIES += appdata acqdata camdata evrdata pnccddata pulnixdata controldata xtcdata ipimbdata lusidata bld cspaddata cspad2x2data
 include( $${CASS_ROOT}/cass_dependencies.pri )
 

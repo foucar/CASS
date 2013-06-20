@@ -16,7 +16,6 @@
 
 #include "cass.h"
 #include "log.h"
-#include "analyzer.h"
 #include "input_base.h"
 #include "file_input.h"
 #include "multifile_input.h"
@@ -393,13 +392,3 @@ int main(int argc, char **argv)
   Log::add(Log::INFO,"Quitting CASS");
   cout << endl;
 }
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "gnu"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:

@@ -16,8 +16,6 @@
 #include "xtc_reader.h"
 #include "lma_reader.h"
 #include "txt_reader.h"
-#include "../cass_ccd/raw_sss_reader.h"
-#include "../cass_pnccd/frms6_reader.h"
 #include "../cass_pixeldetector/raw_sss_reader.h"
 #include "../cass_pixeldetector/frms6_reader.h"
 
@@ -37,12 +35,8 @@ FileReader::shared_pointer FileReader::instance(const string &filename)
     ptr = shared_pointer(new ACQIRIS::LmaReader());
   else if ((type == "txt") || (type == "txt_new"))
     ptr = shared_pointer(new TxtReader());
-  else if (type == "sss")
-    ptr = shared_pointer(new CCD::RAWSSSReader());
   else if (type == "sss_new")
     ptr = shared_pointer(new pixeldetector::RAWSSSReader());
-  else if (type == "frms6")
-    ptr = shared_pointer(new pnCCD::Frms6Reader());
   else if (type == "frms6_new")
     ptr = shared_pointer(new pixeldetector::Frms6Reader());
   else

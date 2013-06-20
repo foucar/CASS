@@ -26,7 +26,6 @@
 #include "cass_exceptions.h"
 #include "input_base.h"
 #include "worker.h"
-#include "analyzer.h"
 #include "histogram.h"
 #include "common_data.h"
 #include "log.h"
@@ -131,7 +130,6 @@ int CASSsoapService::readini(size_t what, bool *success)
   InputBase::reference().pause(true);
   Workers::reference().pause();
   InputBase::reference().load();
-  Analyzer::instance()->loadSettings(what);
   QWriteLocker pplock(&PostProcessors::instance()->lock);
   PostProcessors::reference().loadSettings(what);
   Workers::reference().resume();

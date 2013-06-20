@@ -11,8 +11,6 @@
 #include "cass_event.h"
 #include "acqiris_device.h"
 #include "acqiristdc_device.h"
-#include "ccd_device.h"
-#include "pnccd_device.h"
 #include "machine_device.h"
 #include "pixeldetector.hpp"
 
@@ -24,11 +22,9 @@ CASSEvent::CASSEvent()
     _datagrambuffer(cass::DatagramBufferSize,0)
 {
   //add all devices that are available
-  _devices[CCD]            = new cass::CCD::CCDDevice();
   _devices[MachineData]    = new cass::MachineData::MachineDataDevice();
   _devices[Acqiris]        = new cass::ACQIRIS::Device();
   _devices[AcqirisTDC]     = new cass::ACQIRISTDC::Device();
-  _devices[pnCCD]          = new cass::pnCCD::pnCCDDevice();
   _devices[PixelDetectors] = new cass::pixeldetector::Device();
 }
 

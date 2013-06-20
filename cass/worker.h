@@ -1,4 +1,4 @@
-//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2009,2010,2013 Lutz Foucar
 
 /**
  * @file worker.h file contains declaration of class Worker and Workers
@@ -26,7 +26,6 @@ namespace cass
 {
 //forward declarations
 class Ratemeter;
-class Analyzer;
 class PostProcessors;
 
 /** The worker thread.
@@ -69,9 +68,6 @@ public:
 private:
   /** the ringbuffer */
   RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
-
-  /** the pre analyzer */
-  Analyzer &_preanalyze;
 
   /** the postprocessors */
   PostProcessors &_postprocess;
@@ -180,13 +176,3 @@ private:
 }//end namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

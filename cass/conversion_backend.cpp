@@ -16,9 +16,7 @@
 
 #include "acqiris_converter.h"
 #include "acqiristdc_converter.h"
-#include "ccd_converter.h"
 #include "machine_converter.h"
-#include "pnccd_converter.h"
 #include "lcls_converter.h"
 #include "log.h"
 
@@ -34,10 +32,6 @@ ConversionBackend::shared_pointer ConversionBackend::instance(const string &type
     converter = ACQIRIS::Converter::instance();
   else if("AcqirisTDC" == type)
     converter = ACQIRISTDC::Converter::instance();
-  else if("CCD" == type)
-    converter = CCD::Converter::instance();
-  else if("pnCCD" == type)
-    converter = pnCCD::Converter::instance();
   else if("pixeldetector" == type)
     converter = pixeldetector::Converter::instance();
   else if("Machine" == type)

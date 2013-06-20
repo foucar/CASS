@@ -8,16 +8,12 @@ CONFIG        += ordered
 SUBDIRS        = LCLS \
                  cass_acqiris \
                  cass_pixeldetector \
-                 cass_ccd \
-                 cass_pnccd \
                  cass_machinedata \
                  cass
 
 cass.depends = LCLS \
                cass_acqiris \
                cass_pixeldetector \
-               cass_ccd \
-               cass_pnccd \
                cass_machinedata
 
 JoCASSView{

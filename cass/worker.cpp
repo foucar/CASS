@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009, 2010,2013 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 /**
@@ -11,7 +11,6 @@
 #include <QtCore/QMutexLocker>
 
 #include "worker.h"
-#include "analyzer.h"
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "postprocessor.h"
@@ -25,7 +24,6 @@ Worker::Worker(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                QObject *parent)
   :PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
-    _preanalyze(*Analyzer::instance()),
     _postprocess(*PostProcessors::instance()),
     _ratemeter(ratemeter)
 {}
@@ -40,7 +38,6 @@ void Worker::run()
     _ringbuffer.nextToProcess(cassevent, 1000);
     if (cassevent)
     {
-      _preanalyze(cassevent);
       _postprocess(*cassevent);
       _ringbuffer.doneProcessing(cassevent);
       _ratemeter.count();
@@ -116,15 +113,4 @@ void Workers::end()
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
   PostProcessors::instance()->aboutToQuit();
-  Analyzer::instance()->aboutToQuit();
 }
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

@@ -10,8 +10,7 @@
 
 #include "tcp_streamer.h"
 
-#include "../cass_pnccd/shm_deserializer.h"
-#include "../cass_pixeldetector/shm_deserializer.h"
+#include "shm_deserializer.h"
 #include "agat_deserializer.h"
 
 using namespace cass;
@@ -29,9 +28,7 @@ TCPStreamer &TCPStreamer::instance()
 
 TCPStreamer &TCPStreamer::instance(const string &type)
 {
-  if (type == "shmToOld")
-    _instance = shared_pointer(new pnCCD::SHMStreamer());
-  else if (type == "shm")
+  if (type == "shm")
     _instance = shared_pointer(new pixeldetector::SHMStreamer());
   else if (type == "agat")
     _instance = shared_pointer(new ACQIRIS::AGATStreamer());
