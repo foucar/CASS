@@ -16,7 +16,6 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "log.h"
-#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;

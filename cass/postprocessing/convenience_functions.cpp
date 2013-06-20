@@ -70,7 +70,7 @@ HistogramBackend::shared_pointer cass::set2DHist(const PostProcessor::name_t &na
 
 string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
                                    int ppNbr,
-                                   const PostProcessors::key_t& key)
+                                   const string &key)
 {
   string detector
       (s.value("Detector","blubb").toString().toStdString());
@@ -86,7 +86,7 @@ string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
 string cass::ACQIRIS::loadParticle(CASSSettings &s,
                                    const string &detector,
                                    int ppNbr,
-                                   const PostProcessors::key_t& key)
+                                   const string &key)
 {
   string particle (s.value("Particle","NeP").toString().toStdString());
   const DelaylineDetector &det(

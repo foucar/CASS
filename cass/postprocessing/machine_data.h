@@ -12,7 +12,6 @@
 
 #include <string>
 
-#include "postprocessor.h"
 #include "backend.h"
 #include "cass_event.h"
 

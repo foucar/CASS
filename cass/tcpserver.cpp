@@ -20,7 +20,7 @@
 #include "tcpserver.h"
 
 #include "CASSsoap.nsmap"
-#include "postprocessor.h"
+#include "processor_manager.h"
 #include "backend.h"
 #include "id_list.h"
 #include "cass_exceptions.h"

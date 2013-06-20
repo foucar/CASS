@@ -13,7 +13,7 @@
 #include "worker.h"
 #include "format_converter.h"
 #include "ratemeter.h"
-#include "postprocessor.h"
+#include "processor_manager.h"
 
 
 using namespace cass;

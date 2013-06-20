@@ -17,7 +17,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QString>
 
-#include "postprocessor.h"
 #include "backend.h"
 #include "acqiris_detectors_helper.h"
 #include "delayline_detector.h"

@@ -27,7 +27,7 @@
 #include "tcp_input.h"
 #include "test_input.h"
 #include "tcpserver.h"
-#include "postprocessor.h"
+#include "processor_manager.h"
 #ifdef HTTPSERVER
 #include "httpserver.h"
 #endif

@@ -11,8 +11,7 @@
 #define __IDLIST_H__
 
 #include "serializable.h"
-
-#include "postprocessor.h"
+#include "backend.h"
 
 namespace cass
 {
@@ -33,7 +32,7 @@ namespace cass
     {}
 
     /** constructor creating list from incomming list */
-    IdList(const PostProcessors::keyList_t& list);
+    IdList(const PostProcessor::names_t &list);
 
     /** construct from serializer */
     IdList(SerializerBackend* in)
@@ -53,10 +52,10 @@ namespace cass
     void clear();
 
     /** copy the list to us */
-    void setList(const PostProcessors::keyList_t &list);
+    void setList(const PostProcessor::names_t &list);
 
     /** getter for the internal list */
-    const PostProcessors::keyList_t& getList() { return _list; }
+    const PostProcessor::names_t& getList() { return _list; }
 
     /** deserialize the list from the serializer */
     bool deserialize(SerializerBackend *in);
@@ -72,7 +71,7 @@ namespace cass
 
   private:
     /** a list of all postprocessor keys */
-    PostProcessors::keyList_t _list;
+    PostProcessor::names_t _list;
 
     /** the size of the postprocessor keys list */
     size_t _size;

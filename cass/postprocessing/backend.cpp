@@ -16,9 +16,9 @@
 #include "convenience_functions.h"
 #include "operations.h"
 #include "cass_settings.h"
-#include "postprocessor.h"
 #include "cass_event.h"
 #include "histogram.h"
+#include "processor_manager.h"
 
 #include "log.h"
 

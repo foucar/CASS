@@ -2,7 +2,7 @@
 // Copyright (C) 2010 Jochen Küpper
 
 /**
- * @file postprocessor.cpp contains the manager for the postprocessors
+ * @file processor_manager.cpp contains the manager for the postprocessors
  *
  * @author Lutz Foucar
  */
@@ -20,7 +20,7 @@
 #include "achimcalibrator_hex.h"
 #include "histogram.h"
 #include "alignment.h"
-#include "postprocessor.h"
+#include "processor_manager.h"
 #include "waveform.h"
 #include "operations.h"
 #include "rankfilter.h"

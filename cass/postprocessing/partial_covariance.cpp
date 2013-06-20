@@ -5,7 +5,6 @@
 
 #include "cass.h"
 #include "operations.h"
-#include "postprocessor.h"
 #include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"

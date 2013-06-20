@@ -70,7 +70,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
                       tcpserver.cpp \
-                      ./postprocessing/postprocessor.cpp \
+                      ./postprocessing/processor_manager.cpp \
                       ./postprocessing/convenience_functions.cpp \
                       ./postprocessing/operations.cpp \
                       ./postprocessing/backend.cpp \
@@ -139,7 +139,7 @@ HEADERS            += analysis_backend.h \
                       generic_factory.hpp \
                       cached_list.hpp \
                       ./postprocessing/convenience_functions.h \
-                      ./postprocessing/postprocessor.h \
+                      ./postprocessing/processor_manager.h \
                       ./postprocessing/id_list.h \
                       ./postprocessing/acqiris_detectors.h \
                       ./postprocessing/acqiris_detectors_helper.h \

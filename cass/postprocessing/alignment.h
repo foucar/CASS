@@ -5,7 +5,6 @@
 #define _ALGINMENT_POSTPROCESSOR_H_
 
 #include "backend.h"
-#include "postprocessor.h"
 #include "cass_event.h"
 
 namespace cass

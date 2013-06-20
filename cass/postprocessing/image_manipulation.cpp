@@ -18,7 +18,6 @@
 #include "cass_settings.h"
 #include "histogram.h"
 #include "log.h"
-#include "postprocessor.h"
 
 using namespace cass;
 using namespace std;

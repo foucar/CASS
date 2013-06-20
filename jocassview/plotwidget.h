@@ -44,7 +44,6 @@
 #include "../cass/serializer.h"
 #include "../cass/cass.h"
 #include "../cass/histogram.h"
-#include "../cass/postprocessing/postprocessor.h"
 #include "soapCASSsoapProxy.h"
 
 

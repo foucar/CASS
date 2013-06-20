@@ -10,7 +10,6 @@
 #ifndef _DELAYLINE_POSTPROCESSOR_H_
 #define _DELAYLINE_POSTPROCESSOR_H_
 
-#include "postprocessor.h"
 #include "backend.h"
 #include "cass_acqiris.h"
 #include "acqiris_detectors_helper.h"

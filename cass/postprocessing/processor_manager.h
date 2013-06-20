@@ -2,13 +2,13 @@
 // Copyright (C) 2010 Jochen Kuepper
 
 /**
- * @file postprocessor.h contains the manager for the postprocessors
+ * @file processor_manager.h contains the manager for the postprocessors
  *
  * @author Lutz Foucar
  */
 
-#ifndef __POSTPROCESSOR_H__
-#define __POSTPROCESSOR_H__
+#ifndef __PROCESSOR_MANAGER_H__
+#define __PROCESSOR_MANAGER_H__
 
 #include <list>
 #include <string>

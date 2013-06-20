@@ -13,7 +13,6 @@
 
 #include "backend.h"
 #include "cass_event.h"
-#include "postprocessor.h"
 #include "pixel_detector_helper.h"
 #include "cass_pixeldetector.h"
 

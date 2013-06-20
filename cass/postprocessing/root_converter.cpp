@@ -26,7 +26,7 @@
 #include "cass_event.h"
 #include "rootfile_helper.h"
 #include "log.h"
-#include "postprocessor.h"
+#include "processor_manager.h"
 
 
 using namespace cass;

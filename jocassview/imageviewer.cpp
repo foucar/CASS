@@ -226,7 +226,7 @@ bool ImageViewer::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-cass::PostProcessors::keyList_t ImageViewer::getIdList()
+cass::PostProcessor::names_t ImageViewer::getIdList()
 {
   bool ret;
   int retcode=_cass->getPostprocessorIds(&ret);
@@ -237,7 +237,7 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
   else
   {
     VERBOSEOUT(std::cout << "ImageViewer::getIdList(): return value is 'false'" << std::endl);
-    return cass::PostProcessors::keyList_t();
+    return cass::PostProcessor::names_t();
   }
   soap_multipart::iterator attachment = _cass->dime.begin();
   VERBOSEOUT(std::cout << "ImageViewer::getIdList(): DIME attachment:" << std::endl
@@ -253,15 +253,15 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
 void ImageViewer::updateImageList(QComboBox* box)
 {
   /** @todo make list always add items at right alphabetical postion */
-  cass::PostProcessors::keyList_t stdlist = getIdList();
-  for (cass::PostProcessors::keyList_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
+  cass::PostProcessor::names_t stdlist = getIdList();
+  for (cass::PostProcessor::names_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
   {
     VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): list iteration..." << std::endl);
     QString itemstring(QString::fromStdString(*it));
     if (box->findText(itemstring)==-1)
       box->addItem( itemstring, QVariant(0) );
   }
-  cass::PostProcessors::keyList_t removelist;
+  cass::PostProcessor::names_t removelist;
   for (int i=0;i<box->count();++i)
   {
     VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): total counts"<< box->count()
@@ -284,7 +284,7 @@ void ImageViewer::updateImageList(QComboBox* box)
     }
 #endif
   }
-  for (cass::PostProcessors::keyList_t::iterator it(removelist.begin()); it!=removelist.end(); it++)
+  for (cass::PostProcessor::names_t::iterator it(removelist.begin()); it!=removelist.end(); it++)
     box->removeItem(box->findText(it->c_str()));
 }
 

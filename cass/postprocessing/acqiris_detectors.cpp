@@ -53,7 +53,7 @@ DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
                                                      const HelperAcqirisDetectors::helperinstancesmap_t::key_type &detector,
                                                      const std::string &layerKey,
                                                      int ppNbr,
-                                                     const PostProcessors::key_t& key)
+                                                     const string& key)
 {
   HelperAcqirisDetectors::shared_pointer dethelp (HelperAcqirisDetectors::instance(detector));
   DelaylineDetector::anodelayers_t::key_type layer
@@ -99,7 +99,7 @@ DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
 AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
                                              const std::string & wireendKey,
                                              int ppNbr,
-                                             const PostProcessors::key_t& key)
+                                             const string& key)
 {
   AnodeLayer::wireends_t::key_type wireend
       (s.value(wireendKey.c_str(),"1").toString()[0].toAscii());
