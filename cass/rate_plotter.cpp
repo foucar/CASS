@@ -41,9 +41,9 @@ void RatePlotter::run()
   {
     sleep(_interval);
     char tmp[256];
-    snprintf(tmp, 255, "\rInput: %4.1fHz (%4.1fMB/s) | Analyze: %4.1fHz",
-             _inputrate.calculateRate(),_inputload.calculateRate(),
-             (_analyzerate.calculateRate()/1024/1024));
+    snprintf(tmp, 255, "\rInput: %5.1fHz (%5.1fMB/s) | Analyze: %5.1fHz",
+             _inputrate.calculateRate(),(_inputload.calculateRate()/1024/1024),
+             _analyzerate.calculateRate());
     cout << tmp << flush;
   }
 }
