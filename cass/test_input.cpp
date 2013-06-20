@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Lutz Foucar
+// Copyright (C) 2012,2013 Lutz Foucar
 
 /**
  * @file test_input.cpp contains declaration of a input for testing purposes
@@ -29,18 +29,18 @@ using namespace std;
 using namespace cass;
 
 void TestInput::instance(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                         Ratemeter &ratemeter,
+                         Ratemeter &ratemeter, Ratemeter &loadmeter,
                          QObject *parent)
 {
   if(_instance)
     throw logic_error("TestInput::instance(): The instance of the base class is already initialized");
-  _instance = shared_pointer(new TestInput(ringbuffer,ratemeter,parent));
+  _instance = shared_pointer(new TestInput(ringbuffer,ratemeter,loadmeter,parent));
 }
 
 TestInput::TestInput(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                     Ratemeter &ratemeter,
+                     Ratemeter &ratemeter, Ratemeter &loadmeter,
                      QObject *parent)
-  :InputBase(ringbuffer,ratemeter,parent)
+  :InputBase(ringbuffer,ratemeter,loadmeter,parent)
 {
   Log::add(Log::VERBOSEINFO, "TestInput::TestInput(): constructed");
   load();
@@ -90,7 +90,7 @@ void TestInput::run()
       Log::add(Log::ERROR,"TestInput::run(): Error generating a data packet");
       _ringbuffer.doneFilling(cassevent, false);
     }
-    newEventAdded();
+    newEventAdded(cassevent->datagrambuffer().size());
   }
   Log::add(Log::INFO,"TestInput::run():Quitting.");
 }

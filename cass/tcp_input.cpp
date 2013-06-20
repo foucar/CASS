@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011,2013 Lutz Foucar
 
 /**
  * @file tcp_input.cpp contains input that uses tcp as interface
@@ -24,17 +24,19 @@ using namespace std;
 
 void TCPInput::instance(RingBuffer<CASSEvent, RingBufferSize> &buffer,
                    Ratemeter &ratemeter,
+                   Ratemeter &loadmeter,
                    QObject *parent)
 {
   if(_instance)
     throw logic_error("TCPInput::instance(): The instance of the base class is already initialized");
-  _instance = shared_pointer(new TCPInput(buffer,ratemeter,parent));
+  _instance = shared_pointer(new TCPInput(buffer,ratemeter,loadmeter,parent));
 }
 
 TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                    Ratemeter &ratemeter,
+                   Ratemeter &loadmeter,
                    QObject *parent)
-  :InputBase(ringbuffer,ratemeter,parent)
+  :InputBase(ringbuffer,ratemeter,loadmeter,parent)
 {}
 
 void TCPInput::connectToServer(QTcpSocket &socket)
@@ -143,7 +145,7 @@ void TCPInput::run()
         {
           deserialize(stream,*cassevent);
           _ringbuffer.doneFilling(cassevent,true);
-          newEventAdded();
+          newEventAdded(cassevent->datagrambuffer().size());
         }
         catch(const DeserializeError& error)
         {

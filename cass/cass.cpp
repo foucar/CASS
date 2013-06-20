@@ -303,8 +303,9 @@ int main(int argc, char **argv)
      *  the rates that are calculated.
      */
     Ratemeter inputrate;
+    Ratemeter inputload;
     Ratemeter workerrate;
-    RatePlotter plotter(inputrate,workerrate);
+    RatePlotter plotter(inputrate,inputload,workerrate);
 
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
@@ -317,18 +318,18 @@ int main(int argc, char **argv)
     Workers::instance(ringbuffer, workerrate);
 #ifdef OFFLINE
     if (multifile)
-      MultiFileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
+      MultiFileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
     else if (useDatagenerator)
-      TestInput::instance(ringbuffer,inputrate);
+      TestInput::instance(ringbuffer,inputrate, inputload);
     else
-      FileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
+      FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 #else
     if (tcp)
-      TCPInput::instance(ringbuffer,inputrate);
+      TCPInput::instance(ringbuffer,inputrate, inputload);
     else if (useDatagenerator)
-      TestInput::instance(ringbuffer,inputrate);
+      TestInput::instance(ringbuffer,inputrate, inputload);
     else
-      SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
+      SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate, inputload);
 #endif
 
     /** connect a own signal handler that acts on when sigquit is sent by linux

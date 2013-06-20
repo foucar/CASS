@@ -1,4 +1,4 @@
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009,2010,2013 Lutz Foucar
 
 /**
  * @file sharedmemory_input.h file contains declaration of class that interfaces
@@ -44,13 +44,14 @@ public:
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param index the client index of the shared memory
    * @param parent the parent of this object
    */
   static void instance(const std::string &PartitionTag,
                        int index,
                        cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
-                       Ratemeter &ratemeter,
+                       Ratemeter &ratemeter, Ratemeter &loadmeter,
                        QObject *parent=0);
 
   /** starts the thread
@@ -92,13 +93,14 @@ private:
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
    * @param ratemeter reference to the ratemeter to measure the rate of the input
-   * @param index the client index of the shared memory
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent the parent of this object
    */
   SharedMemoryInput(const std::string &PartitionTag,
                     int index,
                     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
                     Ratemeter &ratemeter,
+                    Ratemeter &loadmeter,
                     QObject *parent=0);
 
   /** the name of the partition tag we connect to*/

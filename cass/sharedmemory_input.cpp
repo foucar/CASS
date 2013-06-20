@@ -1,4 +1,4 @@
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009,2010,2013 Lutz Foucar
 
 /**
  * @file sharedmemory_input.cpp file contains definition of class that interfaces
@@ -24,6 +24,7 @@ void SharedMemoryInput::instance(const string &partitionTag,
                                  int index,
                                  RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                                  Ratemeter &ratemeter,
+                                 Ratemeter &loadmeter,
                                  QObject *parent)
 {
   if(_instance)
@@ -32,6 +33,7 @@ void SharedMemoryInput::instance(const string &partitionTag,
                                                    index,
                                                    ringbuffer,
                                                    ratemeter,
+                                                   loadmeter,
                                                    parent));
 }
 
@@ -39,8 +41,9 @@ SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
                                      int index,
                                      RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                                      Ratemeter &ratemeter,
+                                     Ratemeter &loadmeter,
                                      QObject *parent)
-  :InputBase(ringbuffer,ratemeter,parent),
+  :InputBase(ringbuffer,ratemeter,loadmeter,parent),
     _partitionTag(partitionTag),
     _index(index),
     _convert(*FormatConverter::instance())
@@ -115,7 +118,7 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   _ringbuffer.doneFilling(cassevent,isGood);
 
   //for ratemeter purposes send a signal that we added a new event//
-  newEventAdded();
+  newEventAdded(cassevent->datagrambuffer().size());
 
   //return the quit code//
   return  _control == _quit;

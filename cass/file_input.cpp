@@ -26,21 +26,21 @@ using namespace cass;
 
 void FileInput::instance(string filelistname,
                          RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                         Ratemeter &ratemeter,
+                         Ratemeter &ratemeter, Ratemeter &loadmeter,
                          bool quitWhenDone,
                          QObject *parent)
 {
   if(_instance)
     throw logic_error("FileInput::instance(): The instance of the base class is already initialized");
-  _instance = shared_pointer(new FileInput(filelistname,ringbuffer,ratemeter,quitWhenDone,parent));
+  _instance = shared_pointer(new FileInput(filelistname,ringbuffer,ratemeter,loadmeter,quitWhenDone,parent));
 }
 
 FileInput::FileInput(string filelistname,
                      RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                     Ratemeter &ratemeter,
+                     Ratemeter &ratemeter, Ratemeter &loadmeter,
                      bool quitWhenDone,
                      QObject *parent)
-  :InputBase(ringbuffer,ratemeter,parent),
+  :InputBase(ringbuffer,ratemeter,loadmeter,parent),
   _quitWhenDone(quitWhenDone),
   _filelistname(filelistname)
 {
@@ -116,7 +116,7 @@ void FileInput::run()
           ++eventcounter;
         cassevent->setFilename(filelistIt->c_str());
         _ringbuffer.doneFilling(cassevent, isGood);
-        newEventAdded();
+        newEventAdded(cassevent->datagrambuffer().size());
       }
       file.close();
     }

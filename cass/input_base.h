@@ -56,8 +56,10 @@ public:
    *
    * To indicate that we are done processing an event this signal is emitted.
    * This is used for by the ratemeter to evaluate how fast we get events.
+   *
+   * @param eventsize size of the event in bytes
    */
-  void newEventAdded();
+  void newEventAdded(const size_t eventsize);
 
   /** get the signelton instance
    *
@@ -96,10 +98,12 @@ protected:
    */
   InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
             Ratemeter & ratemeter,
+            Ratemeter & loadmeter,
             QObject *parent=0)
-    :PausableThread(lmf::PausableThread::_run,parent),
-     _ringbuffer(ringbuffer),
-     _ratemeter(ratemeter)
+    : PausableThread(lmf::PausableThread::_run,parent),
+      _ringbuffer(ringbuffer),
+      _ratemeter(ratemeter),
+      _loadmeter(loadmeter)
   {}
 
   /** reference to the ringbuffer */
@@ -107,6 +111,9 @@ protected:
 
   /** ratemeter to measure the rate */
   Ratemeter & _ratemeter;
+
+  /** meter to measure the data load */
+  Ratemeter & _loadmeter;
 
   /** singelton instance */
   static shared_pointer _instance;

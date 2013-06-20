@@ -1,4 +1,4 @@
-// Copyright (C) 2011, 2012 Lutz Foucar
+// Copyright (C) 2011, 2012, 2013 Lutz Foucar
 
 /**
  * @file tcp_input.h contains input that uses tcp as interface
@@ -56,10 +56,11 @@ public:
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent the parent of this object
    */
   static void instance(RingBuffer<CASSEvent,RingBufferSize>& buffer,
-                       Ratemeter &ratemeter,
+                       Ratemeter &ratemeter, Ratemeter &loadmeter,
                        QObject *parent=0);
 
   /** starts the thread
@@ -87,10 +88,11 @@ private:
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent the parent of this object
    */
   TCPInput(RingBuffer<CASSEvent,RingBufferSize>& buffer,
-           Ratemeter &ratemeter,
+           Ratemeter &ratemeter, Ratemeter &loadmeter,
            QObject *parent=0);
 
   /** check the socket

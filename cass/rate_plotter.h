@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010,2013 Lutz Foucar
 
 /**
  * @file rate_plotter.h file contains declaration of class to plot the rate
@@ -37,12 +37,14 @@ public:
   /** constructor.
    *
    * @param inputrate the ratemeter of the input thread
+   * @param inputload  ratemeter to measure the data load
    * @param analyzerate the ratemeter of the worker threads
    * @param updateInterval the interval in which the rate will be plottet.
    *        Default is 1
    * @param parent the qt parent of this object
    */
   RatePlotter(Ratemeter &inputrate,
+              Ratemeter &inputload,
               Ratemeter &analyzerate,
               int updateInterval=1,
               QObject *parent=0);
@@ -65,6 +67,9 @@ protected:
 private:
   /** reference to the input Ratemeter */
   Ratemeter &_inputrate;
+
+  /** reference to the input Ratemeter */
+  Ratemeter &_inputload;
 
   /** reference to the workers (analysis) Ratemeter */
   Ratemeter &_analyzerate;

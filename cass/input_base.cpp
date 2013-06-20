@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011,2013 Lutz Foucar
 
 /**
  * @file input_base.cpp contains the base class for all input modules
@@ -34,12 +34,8 @@ InputBase::shared_pointer::element_type& InputBase::reference()
 }
 //===================================================
 
-//void InputBase::loadSettings(size_t)
-//{
-//  load();
-//}
-
-void InputBase::newEventAdded()
+void InputBase::newEventAdded(const size_t eventsize)
 {
   _ratemeter.count();
+  _loadmeter.count(eventsize);
 }

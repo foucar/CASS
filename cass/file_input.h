@@ -47,6 +47,7 @@ public:
    *                     processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param quitwhendone flag that tells this class that it should quit the
    *                     Program when its done reading all events
    * @param parent The parent QT Object of this class
@@ -54,6 +55,7 @@ public:
   static void instance(std::string filelistname,
                        RingBuffer<CASSEvent,RingBufferSize>&,
                        Ratemeter &ratemeter,
+                       Ratemeter &loadmeter,
                        bool quitwhendone,
                        QObject *parent=0);
 
@@ -70,6 +72,7 @@ private:
    *                     processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param quitwhendone flag that tells this class that it should quit the
    *                     Program when its done reading all events
    * @param parent The parent QT Object of this class
@@ -77,6 +80,7 @@ private:
   FileInput(std::string filelistname,
             RingBuffer<CASSEvent,RingBufferSize>&,
             Ratemeter &ratemeter,
+            Ratemeter &loadmeter,
             bool quitwhendone,
             QObject *parent=0);
 

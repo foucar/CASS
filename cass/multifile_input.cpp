@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011, 2013 Lutz Foucar
 
 /**
  * @file multifile_input.cpp file contains definition of file input reading
@@ -33,21 +33,21 @@ namespace cass
 
 void MultiFileInput::instance(const string& filelistname,
                               RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                              Ratemeter &ratemeter,
+                              Ratemeter &ratemeter, Ratemeter &loadmeter,
                               bool quitWhenDone,
                               QObject *parent)
 {
   if(_instance)
     throw logic_error("MultiFileInput::instance(): The instance of the base class is already initialized");
-  _instance = shared_pointer(new MultiFileInput(filelistname,ringbuffer,ratemeter,quitWhenDone,parent));
+  _instance = shared_pointer(new MultiFileInput(filelistname,ringbuffer,ratemeter,loadmeter,quitWhenDone,parent));
 }
 
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
-                               Ratemeter &ratemeter,
+                               Ratemeter &ratemeter, Ratemeter &loadmeter,
                                bool quitWhenDone,
                                QObject *parent)
-  :InputBase(ringbuffer,ratemeter,parent),
+  :InputBase(ringbuffer,ratemeter,loadmeter,parent),
     _quitWhenDone(quitWhenDone),
     _filelistname(filelistname),
     _rewind(false)
@@ -84,7 +84,7 @@ void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
     isGood = read(filestream,*cassevent) && isGood;
   }
   _ringbuffer.doneFilling(cassevent, isGood);
-  newEventAdded();
+  newEventAdded(cassevent->datagrambuffer().size());
 }
 
 void MultiFileInput::run()

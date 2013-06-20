@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Lutz Foucar
+// Copyright (C) 2012,2013 Lutz Foucar
 
 /**
  * @file test_input.h file contains declaration of a input for testing purposes
@@ -41,10 +41,12 @@ public:
    *
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
   static void instance(RingBuffer<CASSEvent,RingBufferSize>&,
                        Ratemeter &ratemeter,
+                       Ratemeter &loadmeter,
                        QObject *parent=0);
 
   /** function with the main loop */
@@ -58,10 +60,12 @@ private:
    *
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
   TestInput(RingBuffer<CASSEvent,RingBufferSize>&,
             Ratemeter &ratemeter,
+            Ratemeter &loadmeter,
             QObject *parent=0);
 
   /** define a container for all data generators */
