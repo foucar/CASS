@@ -216,7 +216,7 @@ void writeAxisProperty(const AxisProperty& axis, hid_t groupid)
  * @param hist the result whos values should be added to the group
  * @param groupid the id of the group that the contents should be written to
  *
- * @param Lutz Foucar
+ * @author Lutz Foucar
  */
 void writeHistProperties(const HistogramBackend& hist, hid_t groupid)
 {

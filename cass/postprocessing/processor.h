@@ -50,7 +50,6 @@ public:
 
   /** constructor
    *
-   * @param pp reference to the class that contains all postprocessors
    * @param name the name of the postprocessor
    */
   PostProcessor(const name_t &name);
@@ -187,7 +186,7 @@ protected:
 
   /** create histogram list.
    *
-   * uses cached_list::setup to generate the result list. The size is
+   * uses cass::CachedList::setup to generate the result list. The size is
    * 2+cass::nbrworkers.
    *
    * @param result shared pointer of the result that will be used in the cached
@@ -286,7 +285,6 @@ class AccumulatingPostProcessor : public PostProcessor
 public:
   /** constructor
    *
-   * @param pp reference to the class that contains all postprocessors
    * @param name the name of the postprocessor
    */
   AccumulatingPostProcessor(const name_t &name)

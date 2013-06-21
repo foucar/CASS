@@ -90,6 +90,7 @@ private:
    * memory.
    *
    * @param PartitionTag the name of the partition tag we want to connect to
+   * @param index the client index of the connection to the shared memory
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
    * @param ratemeter reference to the ratemeter to measure the rate of the input

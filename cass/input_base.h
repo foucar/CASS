@@ -94,6 +94,7 @@ protected:
    *
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
   InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,

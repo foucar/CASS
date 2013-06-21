@@ -17,12 +17,12 @@
 namespace cass
 {
 
-/** @macro for easier adding of the registrar class */
+/** @def macro for easier adding of the registrar class */
 #define REGISTER(basename,derivedname) \
   private: \
     static const Registrar<basename,derivedname> reg;
 
-/** @macro for easier defining the registrar class */
+/** @def macro for easier defining the registrar class */
 #define DEFINEREGISTER(basename,derivedname,key) \
 const Registrar<basename,derivedname> derivedname::reg("key");
 

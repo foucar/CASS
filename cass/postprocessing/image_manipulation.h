@@ -90,11 +90,7 @@ struct Rotor
 class pp55 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp the postprocessor manager that manages this pp
-   * @param key the name of this postprocessor in the ini file
-   */
+  /** constructor */
   pp55(const name_t &);
 
   /** process event
@@ -151,24 +147,17 @@ protected:
 class pp1600 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp the postprocessor manager that manages this pp
-   * @param key the name of this postprocessor in the ini file
-   */
+  /** constructor */
   pp1600(const name_t &);
 
-  /** process event
-   *
-   * @param evt the event to process
-   */
+  /** process event */
   virtual void process(const CASSEvent& evt, HistogramBackend &result);
 
   /** load the settings of this pp
    *
    * @param unused this parameter is not used
    */
-  virtual void loadSettings(size_t /*unused*/);
+  virtual void loadSettings(size_t unused);
 
 protected:
   /** pp containing 2d histogram */
@@ -285,24 +274,17 @@ y |     00      |
 class pp1601 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp the postprocessor manager that manages this pp
-   * @param key the name of this postprocessor in the ini file
-   */
+  /** constructor */
   pp1601(const name_t &);
 
-  /** process event
-   *
-   * @param evt the event to process
-   */
+  /** process event */
   virtual void process(const CASSEvent& evt, HistogramBackend &result);
 
   /** load the settings of this pp
    *
    * @param unused this parameter is not used
    */
-  virtual void loadSettings(size_t /*unused*/);
+  virtual void loadSettings(size_t unused);
 
 protected:
   /** pp containing 2d histogram */
@@ -366,17 +348,10 @@ private:
 class pp1602 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp the postprocessor manager that manages this pp
-   * @param key the name of this postprocessor in the ini file
-   */
+  /** constructor */
   pp1602(const name_t &);
 
-  /** process event
-   *
-   * @param evt the event to process
-   */
+  /** process event */
   virtual void process(const CASSEvent& evt,HistogramBackend &);
 
   /** load the settings of this pp

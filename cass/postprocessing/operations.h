@@ -163,7 +163,7 @@ protected:
   /** retrieve value from PostProcessor
    *
    * @returns value stored in _valuePP
-   * @param evt id of the event for which the value should be returned
+   * @param id id of the event for which the value should be returned
    */
   float valueFromPP(const CASSEvent::id_t &id);
 

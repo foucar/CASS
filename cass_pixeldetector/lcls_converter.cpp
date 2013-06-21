@@ -162,7 +162,7 @@ vector<uint8_t> extractPayload(const Pds::Xtc* xtc)
  *
  * No info is available, just set default values.
  *
- * @param cfg reference to the configuration
+ * @param cfg unused
  * @param det reference to the detector that the info will be copied to
  * @param rowsOfSegment the number of rows in each segment
  * @param columnsOfSegment the number of columns in each segment

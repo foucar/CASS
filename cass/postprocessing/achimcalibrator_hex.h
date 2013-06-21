@@ -79,6 +79,7 @@ public:
    * Extract the name of the .ini file from the settings for this calibrator.
    *
    * @param evt the event to work on
+   * @param res the histogram containing the result
    */
   void process(const CASSEvent& evt, HistogramBackend &res);
 

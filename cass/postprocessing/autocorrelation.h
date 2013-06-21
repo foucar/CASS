@@ -34,11 +34,7 @@ namespace cass
 class pp310 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp reference to the postprocessor manager
-   * @param key the name of this PostProce
-   */
+  /** constructor */
   pp310(const name_t &);
 
   /** process the event */
@@ -71,11 +67,7 @@ protected:
 class pp311 : public PostProcessor
 {
 public:
-  /** constructor
-   *
-   * @param pp reference to the postprocessor manager
-   * @param key the name of this PostProce
-   */
+  /** constructor */
   pp311(const name_t &);
 
   /** process the event */

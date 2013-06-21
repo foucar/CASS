@@ -742,7 +742,7 @@ protected:
  *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.
- * @seecass::ACQIRIS::DelaylineDetector and
+ * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
  * @see PostProcessor for a list of all commonly available cass.ini

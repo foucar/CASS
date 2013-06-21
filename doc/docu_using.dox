@@ -212,24 +212,16 @@ here is a short overview of the
 program flow:\n
 for each event
 - receive an event containing all data from either the xtc file (offline) or the
-  shared memory.
+  shared memory or any other source
 - pick out the information we are interested in (Converters)
-- preprocess parts of the data (PreAnalyzer)
-- postprocess the data using the PostProcessors
+- process the data using the PostProcessors
 
 So the ini file exist of basically three parts:
 
 The Converter part tells CASS what kind of data you are actually interested in.
 To see what options are available please refer to @ref converter.
 
-The PreAnalyzer part will preprocess only the pnCCD and the ccd data. Please
-refer to @ref preanalyzer for details how to tell which pre analyzers should be
-used by CASS. The parameters you can set for the different pre analyzers can be
-found in the description of cass::pnCCD::DetectorParameter and cass::pnCCD::Parameter
-for the pnCCD pre analysis. For the commercial ccd pre analysis the paramters
-can be found in the description of cass::CCD::Parameter.\n
-
-The PostProcessor part is the most advanced part. @ref pplist gives an overview
+The processing part is the most advanced part. @ref pplist gives an overview
 of all available postprocessors. The parenthesis refers to the
 postprocessor to look up in the parameter list @ref casssetting to find out which
 parameters it takes. In this reference you will also find all available
