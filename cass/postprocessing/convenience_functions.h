@@ -11,6 +11,9 @@
 #ifndef __CONVENIENCE_FUNCTIONS_H__
 #define __CONVENIENCE_FUNCTIONS_H__
 
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
 #include "cass.h"
 #include "histogram.h"
 #include "processor.h"
@@ -188,6 +191,91 @@ HistogramBackend::shared_pointer set1DHist(const PostProcessor::name_t &name);
  * @author Lutz Foucar
  */
 HistogramBackend::shared_pointer set2DHist(const PostProcessor::name_t &name);
+
+/** an alphabetical counter extension
+ *
+ * changes dirs by appending a subdir with an alphabetically increasing counter
+ *
+ * @author Lutz Foucar
+ */
+class AlphaCounter
+{
+public:
+  /** initialize the filename
+   *
+   * add an alphabtically subdir to the dir of the filename
+   *
+   * @return the filename containing the new subdir
+   * @param fname the filenname whos dir should be modified
+   */
+  static std::string intializeDir(const std::string &fname)
+  {
+    QFileInfo fInfo(QString::fromStdString(fname));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    path += "/aa/";
+    QDir dir(path);
+    if (!dir.exists())
+      dir.mkpath(".");
+    const std::string newfilename(path.toStdString() + filename.toStdString());
+    return newfilename;
+  }
+
+  /** remove the alpha counter subdir from filename
+   *
+   * @return filename without the alphacounter subdir
+   * @param fname The filename who's subdir should be removed
+   */
+  static std::string removeAlphaSubdir(const std::string &fname)
+  {
+    QFileInfo fInfo(QString::fromStdString(fname));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    QStringList dirs = path.split("/");
+    dirs.removeLast();
+    QString newPath(dirs.join("/"));
+    newPath.append("/");
+    const std::string newfilename(newPath.toStdString() + filename.toStdString());
+    return newfilename;
+
+  }
+
+  /** increase the alpha counter
+   *
+   * @return filename with alphabetically increased subdir
+   * @param fname the Filename whos subdir should be increased
+   */
+  static std::string increaseCounter(const std::string &fname)
+  {
+    QFileInfo fInfo(QString::fromStdString(fname));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    QStringList dirs = path.split("/");
+    QString subdir = dirs.last();
+    QByteArray alphaCounter = subdir.toAscii();
+    if (alphaCounter[1] == 'z')
+    {
+      const char first(alphaCounter[0]);
+      alphaCounter[0] = first + 1;
+      alphaCounter[1] = 'a';
+    }
+    else
+    {
+      const char second(alphaCounter[1]);
+      alphaCounter[1] = second + 1;
+    }
+    QString newSubdir(QString::fromAscii(alphaCounter));
+    dirs.removeLast();
+    dirs.append(newSubdir);
+    QString newPath(dirs.join("/"));
+    newPath.append("/");
+    QDir dir(newPath);
+    if (!dir.exists())
+      dir.mkpath(".");
+    const std::string newfilename(newPath.toStdString() + filename.toStdString());
+    return newfilename;
+  }
+};
 
 
 /** Qt names of known/supported Qt image formats
