@@ -7,8 +7,6 @@
  */
 
 #include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
 
 #include <hdf5.h>
 #include <stdint.h>
@@ -21,6 +19,7 @@
 #include "cass_settings.h"
 #include "machine_device.h"
 #include "log.h"
+#include "convenience_functions.h"
 
 using namespace cass;
 using namespace std;
@@ -983,25 +982,6 @@ void pp1002::loadSettings(size_t)
       compress = false;
   }
 
-  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
-
-  /** when requested add the first subdir to the filename and make sure that the
-   *  directory exists.
-   */
-  _maxFilePerSubDir = s.value("MaximumNbrFilesPerDir",-1).toInt();
-  _filecounter = 0;
-  if(_maxFilePerSubDir != -1)
-  {
-    QFileInfo fInfo(QString::fromStdString(_basefilename));
-    QString path(fInfo.path());
-    QString filename(fInfo.fileName());
-    path += "/aa/";
-    QDir dir(path);
-    if (!dir.exists())
-      dir.mkpath(".");
-    _basefilename = path.toStdString() + filename.toStdString();
-  }
-
   bool allDepsAreThere(true);
   int size = s.beginReadArray("PostProcessor");
   for (int i = 0; i < size; ++i)
@@ -1041,6 +1021,16 @@ void pp1002::loadSettings(size_t)
     return;
   }
 
+  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
+
+  /** when requested add the first subdir to the filename and make sure that the
+   *  directory exists.
+   */
+  _maxFilePerSubDir = s.value("MaximumNbrFilesPerDir",-1).toInt();
+  _filecounter = 0;
+  if(_maxFilePerSubDir != -1)
+    _basefilename = AlphaCounter::intializeDir(_basefilename);
+
   _hide = true;
   string output("PostProcessor '" + name() + "' will write histogram ");
   for (list<entry_t>::const_iterator it(_ppList.begin());
@@ -1068,19 +1058,10 @@ void pp1002::aboutToQuit()
   {
     /** remove subdir from filename when they should be distributed */
     if (_maxFilePerSubDir != -1)
-    {
-      QFileInfo fInfo(QString::fromStdString(_basefilename));
-      QString path(fInfo.path());
-      QString filename(fInfo.fileName());
-      QStringList dirs = path.split("/");
-      dirs.removeLast();
-      QString newPath(dirs.join("/"));
-      newPath.append("/");
-      _basefilename = newPath.toStdString() + filename.toStdString();
-    }
+      _basefilename = AlphaCounter::removeAlphaSubdir(_basefilename);
 
     /** create filename from base filename and write entries to file */
-    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_Summary.h5"));
+    hdf5::WriteEntry writeEntry(_basefilename + "_Summary.h5");
 
     /** write all entries to file using the writer
      *
@@ -1112,33 +1093,12 @@ void pp1002::processEvent(const CASSEvent &evt)
     if (_maxFilePerSubDir == _filecounter)
     {
       _filecounter = 0;
-      QFileInfo fInfo(QString::fromStdString(_basefilename));
-      QString path(fInfo.path());
-      QString filename(fInfo.fileName());
-      QStringList dirs = path.split("/");
-      QString subdir = dirs.last();
-      QByteArray alphaCounter = subdir.toAscii();
-      if (alphaCounter[1] == 'z')
-      {
-        alphaCounter[0] = alphaCounter[0] + 1;
-        alphaCounter[1] = 'a';
-      }
-      else
-        alphaCounter[1] = alphaCounter[1] + 1;
-      QString newSubdir(QString::fromAscii(alphaCounter));
-      dirs.removeLast();
-      dirs.append(newSubdir);
-      QString newPath(dirs.join("/"));
-      newPath.append("/");
-      QDir dir(newPath);
-      if (!dir.exists())
-        dir.mkpath(".");
-      _basefilename = newPath.toStdString() + filename.toStdString();
+      _basefilename = AlphaCounter::increaseCounter(_basefilename);
     }
     ++_filecounter;
 
     /** create entry writer with filename using basefilename and event id */
-    hdf5::WriteEntry writeEntry(hdf5::WriteEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id()));
+    hdf5::WriteEntry writeEntry(_basefilename + "_" + toString(evt.id()) + ".h5",evt.id());
 
     /** write all entries to file using the writer
      *

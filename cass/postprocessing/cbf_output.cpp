@@ -7,8 +7,6 @@
  */
 
 #include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
 
 #include <stdint.h>
 #include <iomanip>
@@ -20,6 +18,7 @@
 #include "cass_settings.h"
 #include "machine_device.h"
 #include "log.h"
+#include "convenience_functions.h"
 
 using namespace cass;
 using namespace std;
@@ -216,16 +215,7 @@ void pp1500::loadSettings(size_t)
   _maxFilePerSubDir = s.value("MaximumNbrFilesPerDir",-1).toInt();
   _filecounter = 0;
   if(_maxFilePerSubDir != -1)
-  {
-    QFileInfo fInfo(QString::fromStdString(_basefilename));
-    QString path(fInfo.path());
-    QString filename(fInfo.fileName());
-    path += "/aa/";
-    QDir dir(path);
-    if (!dir.exists())
-      dir.mkpath(".");
-    _basefilename = path.toStdString() + filename.toStdString();
-  }
+    _basefilename = AlphaCounter::intializeDir(_basefilename);
 
   _hide = true;
   Log::add(Log::INFO,"PostProcessor '" + name() +
@@ -253,28 +243,7 @@ void pp1500::processEvent(const CASSEvent &evt)
   if (_maxFilePerSubDir == _filecounter)
   {
     _filecounter = 0;
-    QFileInfo fInfo(QString::fromStdString(_basefilename));
-    QString path(fInfo.path());
-    QString filename(fInfo.fileName());
-    QStringList dirs = path.split("/");
-    QString subdir = dirs.last();
-    QByteArray alphaCounter = subdir.toAscii();
-    if (alphaCounter[1] == 'z')
-    {
-      alphaCounter[0] = alphaCounter[0] + 1;
-      alphaCounter[1] = 'a';
-    }
-    else
-      alphaCounter[1] = alphaCounter[1] + 1;
-    QString newSubdir(QString::fromAscii(alphaCounter));
-    dirs.removeLast();
-    dirs.append(newSubdir);
-    QString newPath(dirs.join("/"));
-    newPath.append("/");
-    QDir dir(newPath);
-    if (!dir.exists())
-      dir.mkpath(".");
-    _basefilename = newPath.toStdString() + filename.toStdString();
+    _basefilename = AlphaCounter::increaseCounter(_basefilename);
   }
   ++_filecounter;
 
@@ -298,7 +267,11 @@ void pp1500::aboutToQuit()
 
   QReadLocker lock(&dark.lock);
 
-  /** create filename from base filename */
+  /** create filename from base filename, but first remove subdir from filename
+   *   when they should be distributed
+   */
+  if (_maxFilePerSubDir != -1)
+    _basefilename = AlphaCounter::removeAlphaSubdir(_basefilename);
   string filename(_basefilename + "_Dark.cbf");
   CBF::write(filename,data,dark.shape().first,dark.shape().second);
 }
