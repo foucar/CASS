@@ -39,20 +39,27 @@ void GainCalibration::generateCalibration(const Frame &frame)
   frame_t::const_iterator pixel(frame.data.begin());
   frame_t::const_iterator offset(_commondata->offsetMap.begin());
 
-  /** average pixelvalues per pixel that lie within the given adu range */
-  while (stat != statEnd)
+  /** average the common mode and offset corrected pixelvalues per pixel that
+   *  lie within the given adu range
+   */
+  const commonmode::CalculatorBase &commonMode(*_commonModeCalculator);
+  const size_t length(commonMode.width());
+  const size_t parts(frame.data.size() / length);
+  size_t idx(0);
+  for (size_t part(0); part < parts; ++part)
   {
-    const float pixval(*pixel - *offset++);
+    const pixel_t cmode(commonMode(pixel,idx));
+    for (size_t i(0); i < length; ++i, ++stat, ++pixel, ++idx)
+    {
+      const pixel_t pixval(*pixel - *offset++ - cmode);
 
-    if (pixval < _range.first  ||  _range.second < pixval)
-      continue;
+      if (pixval < _range.first  ||  _range.second < pixval)
+        continue;
 
-    double &ave((*stat).second);
-    const double N(static_cast<double>(++(*stat).first));
-    ave = ave + 1./N*(pixval - ave);
-
-    ++stat;
-    ++pixel;
+      double &ave((*stat).second);
+      const double N(static_cast<double>(++(*stat).first));
+      ave = ave + (pixval - ave)/N;
+    }
   }
 
   /** check the median nbr of photons per pixel. Use it as criteria whether to
@@ -79,8 +86,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
     if (s.first < _minPhotonCount)
       continue;
     ++count;
-    const double N(static_cast<double>(++(*stat).first));
-    ave = ave + 1./N*(s.second - ave);
+    ave = ave + (s.second - ave)/count;
   }
 
   /** assing the gain value for each pixel that has seen enough statistics.
@@ -117,6 +123,9 @@ void GainCalibration::loadSettings(CASSSettings &s)
     _createMap = bind(&GainCalibration::generateCalibration,this,_1);
   else
     _createMap = bind(&GainCalibration::doNothing,this,_1);
+  string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());
+  _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);
+  _commonModeCalculator->loadSettings(s);
 }
 
 

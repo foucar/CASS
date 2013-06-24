@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "mapcreator_base.h"
+#include "commonmode_calculator_base.h"
 
 namespace cass
 {
@@ -118,6 +119,9 @@ private:
 
   /** flag whether to write the gain calibration to file */
   bool _writeFile;
+
+  /** functor for calculating the common mode level */
+  commonmode::CalculatorBase::shared_pointer _commonModeCalculator;
 };
 
 
