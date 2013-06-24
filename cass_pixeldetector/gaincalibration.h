@@ -52,6 +52,21 @@ class CommonData;
  *           If true writes the gain calibration to file. For further
  *           information on how the files are written, see
  *           cass::pixeldetector::CommonData. Default is true.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{CommonModeCalculationType}\n
+ *           defines what kind of common mode correction should be done with the
+ *           frames. There are settings that are used fo all calculation types.
+ *           see cass::pixeldetector::commonmode::CalculatorBase. Default type
+ *           is "none". Possible values are:
+ *           - "none": No common mode correction is done
+ *           - "simpleMean": The common mode is calculated from the mean value
+ *                           Which is determined with a simple algorithm. See
+ *                           cass::pixeldetector::commonmode::SimpleMeanCalculator
+ *           - "mean": The common mode is calculated from the mean value of the
+ *                     pixels. See cass::pixeldetector::commonmode::MeanCalculator
+ *           - "median": The common mode is calculated from the median of the
+ *                       pixels. See
+ *                       cass::pixeldetector::commonmode::MedianCalculator for
+ *                       details.
  *
  * @author Lutz Foucar
  */
