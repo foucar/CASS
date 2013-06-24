@@ -7,6 +7,8 @@
  */
 
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <stdint.h>
 #include <iomanip>
@@ -195,7 +197,6 @@ void pp1500::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
   _pHist = setupDependency("HistName");
   _darkHist = setupDependency("DarkName");
   bool ret (setupCondition());
@@ -207,6 +208,24 @@ void pp1500::loadSettings(size_t)
   const HistogramBackend &dark(_darkHist->result());
   if (dark.dimension() != 2)
     throw invalid_argument("pp1500: The histogram that contains the offset is not a 2d histogram");
+
+  /** when requested add the first subdir to the filename and make sure that the
+   *  directory exists.
+   */
+  _basefilename = s.value("FileBaseName",QString::fromStdString(_basefilename)).toString().toStdString();
+  _maxFilePerSubDir = s.value("MaximumNbrFilesPerDir",-1).toInt();
+  _filecounter = 0;
+  if(_maxFilePerSubDir != -1)
+  {
+    QFileInfo fInfo(QString::fromStdString(_basefilename));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    path += "/aa/";
+    QDir dir(path);
+    if (!dir.exists())
+      dir.mkpath(".");
+    _basefilename = path.toStdString() + filename.toStdString();
+  }
 
   _hide = true;
   Log::add(Log::INFO,"PostProcessor '" + name() +
@@ -223,30 +242,63 @@ const HistogramBackend& pp1500::result(const CASSEvent::id_t)
 
 void pp1500::processEvent(const CASSEvent &evt)
 {
-  if (_condition->result(evt.id()).isTrue())
+  if (!_condition->result(evt.id()).isTrue())
+    return;
+
+  QMutexLocker locker(&_lock);
+
+  /** increment subdir in filename when they should be distributed and the
+   *  counter exeeded the maximum amount of files per subdir
+   */
+  if (_maxFilePerSubDir == _filecounter)
   {
-    QMutexLocker locker(&_lock);
-    const Histogram2DFloat& hist
-        (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
-    const Histogram2DFloat::storage_t& histdata( hist.memory() );
-
-    QReadLocker lock(&hist.lock);
-
-    /** create filename from base filename + event id */
-    string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
-    CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
+    _filecounter = 0;
+    QFileInfo fInfo(QString::fromStdString(_basefilename));
+    QString path(fInfo.path());
+    QString filename(fInfo.fileName());
+    QStringList dirs = path.split("/");
+    QString subdir = dirs.last();
+    QByteArray alphaCounter = subdir.toAscii();
+    if (alphaCounter[1] == 'z')
+    {
+      alphaCounter[0] = alphaCounter[0] + 1;
+      alphaCounter[1] = 'a';
+    }
+    else
+      alphaCounter[1] = alphaCounter[1] + 1;
+    QString newSubdir(QString::fromAscii(alphaCounter));
+    dirs.removeLast();
+    dirs.append(newSubdir);
+    QString newPath(dirs.join("/"));
+    newPath.append("/");
+    QDir dir(newPath);
+    if (!dir.exists())
+      dir.mkpath(".");
+    _basefilename = newPath.toStdString() + filename.toStdString();
   }
+  ++_filecounter;
+
+  const Histogram2DFloat& hist
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
+  const Histogram2DFloat::storage_t& histdata( hist.memory() );
+
+  QReadLocker lock(&hist.lock);
+
+  /** create filename from base filename + event id */
+  string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
+  CBF::write(filename,histdata,hist.shape().first,hist.shape().second);
 }
 
 void pp1500::aboutToQuit()
 {
   QMutexLocker locker(&_lock);
-  /** create filename from base filename */
-  string filename(_basefilename + "_Dark.cbf");
   const Histogram2DFloat& dark
       (dynamic_cast<const Histogram2DFloat&>(_darkHist->result()));
   const Histogram2DFloat::storage_t& data( dark.memory() );
-  dark.lock.lockForRead();
+
+  QReadLocker lock(&dark.lock);
+
+  /** create filename from base filename */
+  string filename(_basefilename + "_Dark.cbf");
   CBF::write(filename,data,dark.shape().first,dark.shape().second);
-  dark.lock.unlock();
 }

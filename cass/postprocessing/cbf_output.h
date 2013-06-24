@@ -25,7 +25,10 @@ namespace cass
  *           Postprocessor name containing the histogram that write to cbf.
  * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
  *           Default name given by program parameter
- *
+ * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
+ *           Distribute the files over subdirectories where each subdir contains
+ *           this amount of files. If -1 it will not distribute the files.
+ *           Default is -1.
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
@@ -60,6 +63,12 @@ protected:
 
   /** pp containing offset histogram to dump to cbf */
   shared_pointer _darkHist;
+
+  /** the number of files in each subdir */
+  int _maxFilePerSubDir;
+
+  /** counter to count how many files have been written */
+  int _filecounter;
 
 private:
   /** a lock to make the process reentrant */
