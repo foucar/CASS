@@ -427,7 +427,7 @@ void pp149::process(const CASSEvent& evt, HistogramBackend &res)
       (DetectorHelper::instance(_detector)->detector(evt));
   const AdvancedDetector::pixels_t& pixels(det->pixels());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   result.fill(pixels.size());
 }
 
