@@ -15,25 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += \
-    ./src/PulseConfig.cc \
-    ./src/OutputMap.cc \
-    ./src/ConfigV1.cc \ 
-    ./src/ConfigV2.cc \ 
-    ./src/ConfigV3.cc \
-    ./src/DataV3.cc \
-    ./src/EventCodeV3.cc \
-    ./src/PulseConfigV3.cc
+SOURCES += ./src/*.cc
 
-HEADERS += \
-    ./PulseConfig.hh \
-    ./OutputMap.hh \
-    ./ConfigV1.hh \ 
-    ./ConfigV2.hh \ 
-    ./ConfigV3.hh \
-    ./DataV3.hh \
-    ./EventCodeV3.hh \
-    ./PulseConfigV3.hh
+HEADERS += ./*.hh
 
 
 headers.files = $$HEADERS

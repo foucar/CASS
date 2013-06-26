@@ -1,5 +1,6 @@
 #include "pdsdata/evr/PulseConfigV3.hh"
 
+#include <stdio.h>
 #include <string.h>
 
 using namespace Pds;
@@ -18,4 +19,12 @@ PulseConfigV3::PulseConfigV3(
   _u32Delay     (u32Delay),
   _u32Width     (u32Width)
 {  
+}
+
+void PulseConfigV3::print() const
+{
+  static const double EvrPeriod = 1./119e6;    
+  printf("    Id %d  Polarity %c  Prescale %u Delay %u (%lg ns) Width %u (%lg ns)\n",
+    _u16PulseId, (_u16Polarity == 0? '+' : '-'), _u32Prescale, 
+    _u32Delay, _u32Delay*EvrPeriod*1e9, _u32Width, _u32Width*EvrPeriod*1e9);
 }

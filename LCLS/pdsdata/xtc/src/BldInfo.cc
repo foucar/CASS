@@ -2,12 +2,31 @@
 #include "pdsdata/xtc/Level.hh"
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace Pds;
 
 BldInfo::BldInfo(uint32_t processId, Type type) : Src(Level::Reporter) {
   _log |= processId&0x00ffffff;
   _phy = type;
+}
+
+BldInfo::BldInfo(const char* sname) : Src(Level::Reporter) 
+{
+  for(unsigned i=0; i<NumberOf; i++) {
+    _phy = i;
+    const char* bname = name(*this);
+    unsigned len = strlen(bname);
+    if (strncmp(sname,bname,len)==0) {
+      return;
+    }
+  }
+  _phy = NumberOf;
+}
+
+bool BldInfo::operator==(const BldInfo& o) const
+{
+  return o.phy()==_phy;
 }
 
 uint32_t BldInfo::processId() const { return _log&0xffffff; }
@@ -32,7 +51,7 @@ const char* BldInfo::name(const BldInfo& src){
     "XCS-YAG-2",
     "XCS-YAG-3m",
     "XCS-YAG-3",
-    "XCS-YAG-mono", 
+    "XCS-YAG-mono",
     "XCS-IPM-mono",
     "XCS-DIO-mono",
     "XCS-DEC-mono",
@@ -42,6 +61,25 @@ const char* BldInfo::name(const BldInfo& src){
     "MEC-XT2-IPM-02",
     "MEC-XT2-IPM-03",
     "MEC-HXM-IPM-01",
+    "GMD",
+    "CxiDg1_Imb01",
+    "CxiDg2_Imb01",
+    "CxiDg2_Imb02",
+    "CxiDg4_Imb01",
+    "CxiDg1_Pim",
+    "CxiDg2_Pim",
+    "CxiDg4_Pim",
+    "XppMon_Pim0",
+    "XppMon_Pim1",
+    "XppSb2_Ipm",
+    "XppSb3_Ipm",
+    "XppSb3_Pim",
+    "XppSb4_Pim",
+    "XppEnds_Ipm0",
+    "XppEnds_Ipm1",
+    "MEC-XT2-PIM-02",
+    "MEC-XT2-PIM-03",
+    "CxiDg3_Spec",
   };
   return (src.type() < NumberOf ? _typeNames[src.type()] : "-Invalid-");
 }

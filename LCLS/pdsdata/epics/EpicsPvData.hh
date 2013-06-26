@@ -2,6 +2,8 @@
 #define EPICS_PV_DATA_H
 #include "EpicsDbrTools.hh"
 
+#include <string.h>
+
 namespace Pds
 {
 
@@ -29,7 +31,7 @@ public:
     
     int printPv() const;
 
-    static void* operator new(size_t /*size*/, char* p)     { return p; }
+    static void* operator new(size_t size, char* p)     { return p; }
     // Disable ordinary (non-placement) new: only placement new and memory mapped objects are allowed
     // Disable placement delete: Not allow to delete memory mapped objects
     
@@ -317,7 +319,9 @@ int EpicsPvTime<iDbrType1, EpicsPvBase> ::printPv() const
     char sTimeText[40];
     
     struct tm tmTimeStamp;
-    localtime_r( (const time_t*) (void*) &this->stamp.secPastEpoch, &tmTimeStamp );
+    /* Old code didn't work on 64bit systems, since stamp.secPastEpoch is 4-bytes, but time_t is 8-bytes. */
+    time_t secPastEpoch = this->stamp.secPastEpoch;
+    localtime_r( &secPastEpoch, &tmTimeStamp );
     tmTimeStamp.tm_year += 20; // Epics Epoch starts from 1990, whereas linux time.h Epoch starts from 1970    
     
     strftime(sTimeText, sizeof(sTimeText), timeFormatStr, &tmTimeStamp );

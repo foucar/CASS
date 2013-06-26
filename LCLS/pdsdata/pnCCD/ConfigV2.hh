@@ -18,18 +18,18 @@ namespace Pds {
     public:
       enum { Version=2 };
       ConfigV2();
-      ConfigV2(uint32_t, uint32_t, string);
-      uint32_t numLinks()             const;
-      uint32_t payloadSizePerLink()   const; // in bytes
-      uint32_t numChannels()          const;
-      uint32_t numRows()              const;
-      uint32_t numSubmoduleChannels() const;
-      uint32_t numSubmoduleRows()     const;
-      uint32_t numSubmodules()        const;
-      uint32_t camexMagic()           const;
-      const char*    info()                 const;
-      const char*    timingFName()          const;
-      unsigned size()                 const;
+      ConfigV2(string);
+      uint32_t numLinks()             const {return _numLinks;}
+      uint32_t payloadSizePerLink()   const {return _payloadSizePerLink;} // in bytes
+      uint32_t numChannels()          const {return _numChannels;}
+      uint32_t numRows()              const {return _numRows;}
+      uint32_t numSubmoduleChannels() const {return _numSubmoduleChannels;}
+      uint32_t numSubmoduleRows()     const {return _numSubmoduleRows;}
+      uint32_t numSubmodules()        const {return _numSubmodules;}
+      uint32_t camexMagic()           const {return _camexMagic;}
+      const char* info()              const {return _info;}
+      const char* timingFName()       const {return _timingFName;}
+      unsigned size()                 const {return sizeof(*this);}
     private:
       uint32_t _numLinks;
       uint32_t _payloadSizePerLink;

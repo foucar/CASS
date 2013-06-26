@@ -39,23 +39,23 @@ public:
   typedef OutputMap     OutputMapType;  
 
   ConfigV3(
-    uint32_t neventcodes, const EventCodeV3*    eventcodes,
-    uint32_t npulses,     const PulseConfigV3*  pulses,
+    uint32_t neventcodes, const EventCodeType*  eventcodes,
+    uint32_t npulses,     const PulseType*      pulses,
     uint32_t noutputs,    const OutputMap*      outputs );    
 
   //  event codes appended to this structure   
-  uint32_t              neventcodes ()          const;
-  const  EventCodeV3&   eventcode   (unsigned)  const;
+  uint32_t                neventcodes ()          const;
+  const  EventCodeType&   eventcode   (unsigned)  const;
 
   //  pulse configurations appended to this structure
   uint32_t              npulses     ()          const;
-  const PulseConfigV3&  pulse       (unsigned)  const;
+  const PulseType&      pulse       (unsigned)  const;
 
   //  output configurations appended to this structure
   uint32_t              noutputs    ()          const;
   const OutputMap&      output_map  (unsigned)  const;
 
-  //  size including appended EventCode's, PulseConfigV3's and OutputMap's
+  //  size including appended EventCode's, PulseType's and OutputMap's
   unsigned        size() const;
   
 private:

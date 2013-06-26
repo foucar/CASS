@@ -6,4 +6,10 @@
 using namespace Pds;
 using namespace FCCD;
 
-FccdConfigV1::FccdConfigV1() {}
+FccdConfigV1::FccdConfigV1 () {}
+
+FccdConfigV1::FccdConfigV1 (
+  uint16_t u16OutputMode
+  ) :
+  _u16OutputMode          (u16OutputMode)
+{}

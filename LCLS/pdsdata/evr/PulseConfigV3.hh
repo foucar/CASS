@@ -15,7 +15,7 @@ class PulseConfigV3
 public:
   PulseConfigV3(
     uint16_t  u16PulseId,  
-    uint16_t  u16Polarity,       // 0 -> positive polarity , 1 -> negative polarity
+    uint16_t  u16Polarity,      // 0 -> positive polarity , 1 -> negative polarity
     uint32_t  u32Prescale = 1,  // Clock divider
     uint32_t  u32Delay    = 0,  // Delay in 119MHz clks
     uint32_t  u32Width    = 0   // Width in 119MHz clks
@@ -30,6 +30,9 @@ public:
   uint32_t  width   () const { return _u32Width; }
   
   void      setPulseId(uint16_t u16PulseId) { _u16PulseId = u16PulseId; }
+  
+public:
+  void     print    () const;  
   
 private:
   uint16_t  _u16PulseId;

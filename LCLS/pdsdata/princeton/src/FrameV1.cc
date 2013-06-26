@@ -1,5 +1,4 @@
 #include "pdsdata/princeton/FrameV1.hh"
-#include "pdsdata/princeton/ConfigV1.hh"
 
 using namespace Pds;
 using namespace Princeton;

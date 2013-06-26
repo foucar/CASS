@@ -161,51 +161,68 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     uint32_t version (xtc->contains.version());
     const Pds::BldDataEBeam &beam =
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
-    if (beam.uDamageMask)
-    {
-      for(size_t i(0); i<Pds::BldDataEBeam::nbrOf; ++i)
-      {
-        if ((0x1 << i) & beam.uDamageMask)
-          Log::add(Log::VERBOSEINFO,"'" +
-                   string(Pds::BldDataEBeam::name(static_cast<Pds::BldDataEBeam::varname>(i))) +
-                   "' is damaged");
-      }
-    }
     switch (version)
     {
     case (3):
     {
-      if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC1) & beam.uDamageMask))
+      if(!(Pds::BldDataEBeam::EbeamPkCurrBC1Damage & beam.uDamageMask))
         md->BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC1) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamPkCurrBC1' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamEnergyBC1Damage & beam.uDamageMask))
         md->BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
+      else
+        Log::add(Log::VERBOSEINFO,"'fEbeamEnergyBC1' is damaged");
     }
     case (2):
     {
-      if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC2) & beam.uDamageMask))
+      if(!(Pds::BldDataEBeam::EbeamEnergyBC2Damage & beam.uDamageMask))
         md->BeamlineData()["fEbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
+      else
+        Log::add(Log::VERBOSEINFO,"'fEbeamEnergyBC2' is damaged");
     }
     case (1):
     {
-      if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC2) & beam.uDamageMask))
+      if(!(Pds::BldDataEBeam::EbeamPkCurrBC2Damage & beam.uDamageMask))
         md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamPkCurrBC2' is damaged");
     }
     case (0):
     {
-      if(!((0x1 << Pds::BldDataEBeam::EbeamCharge) & beam.uDamageMask))
+      if(!(Pds::BldDataEBeam::EbeamChargeDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamL3Energy) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamCharge' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamL3EnergyDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngX) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamL3Energy' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamLTUAngXDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngY) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamLTUAngX' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamLTUAngYDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosX) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamLTUAngY' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamLTUPosXDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
-      if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosY) & beam.uDamageMask))
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamLTUPosX' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamLTUPosYDamage & beam.uDamageMask))
         md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamLTUPosY' is damaged");
     }
     default:
+      Log::add(Log::VERBOSEINFO,"Unknown BLD version");
       break;
     }
     break;

@@ -16,11 +16,13 @@ namespace Pds {
     TimeStamp(unsigned ticks, unsigned fiducials, unsigned vector, unsigned control=0);
 
   public:
-    unsigned ticks    () const;
-    unsigned fiducials() const;
-    unsigned control  () const;
-    unsigned vector   () const;
-
+    unsigned ticks    () const;  // 119MHz counter within the fiducial for
+                                 //   eventcode which initiated the readout
+    unsigned fiducials() const;  // 360Hz pulse ID
+    unsigned control  () const;  // internal bits for alternate interpretation
+                                 //   of XTC header fields
+    unsigned vector   () const;  // 15-bit seed for event-level distribution
+                                 //   ( events since configure )
   public:
     TimeStamp& operator= (const TimeStamp&);
     bool       operator==(const TimeStamp&) const;

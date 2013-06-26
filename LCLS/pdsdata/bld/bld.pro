@@ -15,9 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += ./src/bldData.cc
+SOURCES += ./src/*.cc
 
-HEADERS += bldData.hh
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

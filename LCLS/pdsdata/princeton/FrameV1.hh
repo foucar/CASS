@@ -1,10 +1,3 @@
-/*
- * FrameV1.hh
- *
- *  Created on: Nov 6, 2009
- *      Author: jackp
- */
-
 #ifndef PRINCETON_FRAME_V1_HH
 #define PRINCETON_FRAME_V1_HH
 
@@ -19,8 +12,6 @@ namespace Pds
   
 namespace Princeton 
 {
-
-class ConfigV1;
 
 class FrameV1 
 {

@@ -15,9 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += ./src/TM6740ConfigV1.cc
+SOURCES += ./src/*.cc
 
-HEADERS += ./TM6740ConfigV1.hh 
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

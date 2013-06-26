@@ -33,6 +33,8 @@ ConfigV1::ConfigV1(
 
 int ConfigV1::frameSize() const
 {
-  return sizeof(FrameV1) + _uWidth* _uHeight * 2; // 2 -> 16 bit color depth
+  return sizeof(FrameV1) + 
+    (int) ((_uWidth + _uBinX-1)/ _uBinX ) * 
+    (int) ((_uHeight+ _uBinY-1)/ _uBinY ) * 2; // 2 -> 16 bit color depth
   //return sizeof(FrameV1) + 4*1024*1024*2; // 2 -> 16 bit color depth // !! debug
 }

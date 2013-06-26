@@ -181,7 +181,26 @@ INCLUDEPATH        += postprocessing \
 DEPENDPATH         += ./postprocessing
 
 DEPENDENCY_LIBRARIES  = cass_acqiris cass_machinedata cass_pixeldetector
-DEPENDENCY_LIBRARIES += appdata acqdata camdata evrdata pnccddata pulnixdata controldata xtcdata ipimbdata lusidata bld cspaddata cspad2x2data
+DEPENDENCY_LIBRARIES += acqdata \
+                        appdata \
+                        bld \
+                        camdata \
+#                        compressdata \
+                        controldata \
+                        cspaddata \
+                        cspad2x2data \
+                        encoderdata \
+                        epics \
+                        evrdata \
+                        fccddata \
+                        ipimbdata \
+                        lusidata \
+                        opal1kdata \
+                        pnccddata \
+                        princetondata \
+                        pulnixdata \
+                        xtcdata \
+
 include( $${CASS_ROOT}/cass_dependencies.pri )
 
 LIBS               += -lgsoap++ -lgsoap

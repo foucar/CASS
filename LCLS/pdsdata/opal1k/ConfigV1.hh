@@ -7,6 +7,9 @@
 #include <stdint.h>
 
 namespace Pds {
+
+  class DetInfo;
+
   namespace Camera {
     class FrameCoord;
   };
@@ -84,15 +87,19 @@ namespace Pds {
       //  defective pixel count
       unsigned         number_of_defect_pixels() const;
       void             set_number_of_defect_pixels(unsigned);
+
       //  location of defective pixel coordinates appended to
       //  the end of this structure
-      const
+      const 
       Camera::FrameCoord* defect_pixel_coordinates() const;
       Camera::FrameCoord* defect_pixel_coordinates();
 
       //  total size of this structure 
       //  (including defective pixel coords and output lookup table)
       unsigned         size() const;
+
+      static unsigned max_row_pixels   (const DetInfo&);
+      static unsigned max_column_pixels(const DetInfo&);
 
     private:
       uint32_t _offsetAndGain; // offset and gain

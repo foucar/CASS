@@ -10,7 +10,14 @@ Pds::TypeId DataV2::typeId() {
 }
 
 uint64_t DataV2::triggerCounter() const {
-  return _triggerCounter;
+#if 0
+    return _triggerCounter; // You would think so... but no.
+#else
+    return (((_triggerCounter >> 48) & 0x000000000000ffffLL) | 
+            ((_triggerCounter >> 16) & 0x00000000ffff0000LL) | 
+            ((_triggerCounter << 16) & 0x0000ffff00000000LL) | 
+            ((_triggerCounter << 48) & 0xffff000000000000LL));
+#endif
 }
 
 uint16_t DataV2::config0() const {

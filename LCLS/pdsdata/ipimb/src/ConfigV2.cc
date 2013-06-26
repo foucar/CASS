@@ -6,7 +6,7 @@ using namespace Pds;
 using namespace Ipimb;
 
 static const unsigned Version=2;
-const char* ConfigV2::cap_range[] = { "1 pF", "4.7 pF", "24pF", "120pF", "620 pF", "3.3nF","10 nF", NULL };
+const char* ConfigV2::cap_range[] = { "1 pF", "4.7 pF", "24pF", "120pF", "620 pF", "3.3nF","10 nF", "expert", NULL };
 
 Pds::TypeId ConfigV2::typeId() {
   return Pds::TypeId(Pds::TypeId::Id_IpimbConfig,Version);
@@ -18,9 +18,9 @@ ConfigV2::~ConfigV2() {}
 
 void ConfigV2::dump() const {
   printf("------Ipimb Config-------------\n");
-  printf("Trigger counter 0x%llx\n", triggerCounter());
-  printf("Serial ID 0x%llx\n", serialID());
-  printf("Charge range %d\n", chargeAmpRange());
+  printf("Trigger counter 0x%llx\n", (long long) triggerCounter());
+  printf("Serial ID 0x%llx\n", (long long) serialID());
+  printf("Charge amp settings 0x%x\n", chargeAmpRange());
   printf("Reset length %ld ns\n", (unsigned long)resetLength());
   printf("Reset delay %d ns\n", resetDelay());
   printf("Reference voltage %f V\n", chargeAmpRefVoltage());
@@ -60,6 +60,8 @@ ConfigV2::ConfigV2 (uint16_t chargeAmpRange,
 uint64_t ConfigV2::triggerCounter() const{return _triggerCounter;}
 uint64_t ConfigV2::serialID() const{return _serialID;}
 uint16_t ConfigV2::chargeAmpRange() const{return _chargeAmpRange;}
+ConfigV2::CapacitorValue ConfigV2::capacitorValue(unsigned ch) const
+{ return CapacitorValue((_chargeAmpRange>>(4*ch))&0xf); }
 uint16_t ConfigV2::calibrationRange() const{return _calibrationRange;}
 uint32_t ConfigV2::resetLength() const{return _resetLength;}
 uint16_t ConfigV2::resetDelay() const{return _resetDelay;}

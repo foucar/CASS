@@ -1,5 +1,6 @@
 #include "pdsdata/opal1k/ConfigV1.hh"
 #include "pdsdata/camera/FrameCoord.hh"
+#include "pdsdata/xtc/DetInfo.hh"
 
 #include <string.h>
 
@@ -125,5 +126,29 @@ unsigned        ConfigV1::size() const
   return sizeof(*this) + 
     number_of_defect_pixels()*sizeof(Camera::FrameCoord) +
     (output_lookup_table_enabled() ? Output_LUT_Size*sizeof(uint16_t) : 0);
+}
+
+unsigned ConfigV1::max_row_pixels   (const DetInfo& info)
+{
+  switch(info.device()) {
+  case Pds::DetInfo::Opal1000: return 1024;
+  case Pds::DetInfo::Opal1600: return 1200;
+  case Pds::DetInfo::Opal2000: return 1080;
+  case Pds::DetInfo::Opal4000: return 1752;
+  case Pds::DetInfo::Opal8000: return 2472;
+  default:       return 0;
+  }
+}
+
+unsigned ConfigV1::max_column_pixels(const DetInfo& info)
+{
+  switch(info.device()) {
+  case Pds::DetInfo::Opal1000: return 1024;
+  case Pds::DetInfo::Opal1600: return 1600;
+  case Pds::DetInfo::Opal2000: return 1920;
+  case Pds::DetInfo::Opal4000: return 2336;
+  case Pds::DetInfo::Opal8000: return 3296;
+  default:       return 0;
+  }
 }
 

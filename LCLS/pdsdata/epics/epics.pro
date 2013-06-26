@@ -15,18 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += \
-    ./src/EpicsDbrTools.cc \ 
-    ./src/EpicsPvData.cc \
-    ./src/EpicsXtcSettings.cc \
-    ./src/ConfigV1.cc 
+SOURCES += ./src/*.cc
 
-HEADERS += \
-    ./EpicsDbrTools.hh \ 
-    ./EpicsPvData.hh \
-    ./EpicsXtcSettings.hh \
-    ./ConfigV1.hh 
-
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

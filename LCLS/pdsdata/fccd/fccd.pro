@@ -15,9 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += ./src/FccdConfigV1.cc
+SOURCES += ./src/*.cc
 
-HEADERS += FccdConfigV1.hh
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

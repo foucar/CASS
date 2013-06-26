@@ -15,34 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += \
-    ./src/TypeId.cc \
-    ./src/BldInfo.cc \
-    ./src/XtcIterator.cc \
-    ./src/Src.cc \
-    ./src/TransitionId.cc \
-    ./src/ClockTime.cc \
-    ./src/TimeStamp.cc \
-    ./src/Sequence.cc \
-    ./src/ClockTime.cc \
-    ./src/Level.cc \
-    ./src/ProcInfo.cc \
-    ./src/DetInfo.cc
+SOURCES += ./src/*.cc
 
-HEADERS += \
-    ./TypeId.hh \
-    ./BldInfo.hh \
-    ./XtcIterator.hh \
-    ./Src.hh \
-    ./TransitionId.hh \
-    ./ClockTime.hh \
-    ./TimeStamp.hh \
-    ./Sequence.hh \
-    ./ClockTime.hh \
-    ./Level.hh \
-    ./ProcInfo.hh \
-    ./DetInfo.hh
-
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

@@ -15,9 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += ./src/ConfigV1.cc
+SOURCES += ./src/*.cc
 
-HEADERS += ./ConfigV1.hh 
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 

@@ -17,8 +17,8 @@ ConfigV1::~ConfigV1() {}
 
 void ConfigV1::dump() const {
   printf("------Ipimb Config-------------\n");
-  printf("Trigger counter 0x%llx\n", triggerCounter());
-  printf("Serial ID 0x%llx\n", serialID());
+  printf("Trigger counter 0x%llx\n", (long long) triggerCounter());
+  printf("Serial ID 0x%llx\n", (long long) serialID());
   printf("Charge range %d\n", chargeAmpRange());
   printf("Reset length %ld ns\n", (unsigned long)resetLength());
   printf("Reset delay %d ns\n", resetDelay());
@@ -55,6 +55,8 @@ ConfigV1::ConfigV1 (uint16_t chargeAmpRange,
 uint64_t ConfigV1::triggerCounter() const{return _triggerCounter;}
 uint64_t ConfigV1::serialID() const{return _serialID;}
 uint16_t ConfigV1::chargeAmpRange() const{return _chargeAmpRange;}
+ConfigV1::CapacitorValue ConfigV1::capacitorValue(unsigned ch) const
+{ return CapacitorValue((_chargeAmpRange>>(2*ch))&0x3); }
 uint16_t ConfigV1::calibrationRange() const{return _calibrationRange;}
 uint32_t ConfigV1::resetLength() const{return _resetLength;}
 uint16_t ConfigV1::resetDelay() const{return _resetDelay;}

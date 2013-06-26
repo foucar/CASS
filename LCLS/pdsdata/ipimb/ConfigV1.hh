@@ -11,7 +11,8 @@ namespace Pds {
     class ConfigV1 {
     public:
       enum {Version=1};
-      ConfigV1 ();
+      enum CapacitorValue {c_1pF, c_100pF, c_10nF};
+     ConfigV1 ();
       ~ConfigV1 ();
       ConfigV1 (uint16_t chargeAmpRange,
                 uint16_t calibrationRange,
@@ -25,7 +26,8 @@ namespace Pds {
                 );
       uint64_t triggerCounter() const;
       uint64_t serialID() const;
-      uint16_t chargeAmpRange() const;
+      uint16_t chargeAmpRange() const;               // encoded channel feedback capacitor values
+      CapacitorValue capacitorValue(unsigned) const; // decoded
       uint16_t calibrationRange() const;
       uint32_t resetLength() const;
       uint16_t resetDelay() const;

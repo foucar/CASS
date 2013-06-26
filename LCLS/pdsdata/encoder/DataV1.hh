@@ -27,6 +27,8 @@ class Pds::Encoder::DataV1
    static Pds::TypeId typeId()
       { return TypeId( TypeId::Id_EncoderData, Version ); }
 
+   int value() const;
+
    uint32_t _33mhz_timestamp;
    uint32_t _encoder_count;
 };
