@@ -31,6 +31,7 @@
 
 #include "lcls_converter.h"
 
+#include "cass_settings.h"
 #include "cass_event.h"
 #include "pixeldetector.hpp"
 #include "log.h"
@@ -422,6 +423,47 @@ Converter::Converter()
   _LCLSToCASSId[CXI2x2Sc2] = 9;
   _LCLSToCASSId[CXISeedSpec] = 10;
   _LCLSToCASSId[CXI2x2Sc1] = 11;
+
+  CASSSettings s;
+  s.beginGroup("Converter");
+  s.beginGroup("LCLSPixelDetectors");
+
+  int size = s.beginReadArray("Detector");
+  for (int i = 0; i < size; ++i)
+  {
+    string type(s.value("TypeName","Invalid").toString().toStdString());
+    TypeId::Type typeID;
+    for (int i(0); i < TypeId::NumberOf; ++i)
+      if (TypeId::name(static_cast<TypeId::Type>(i)) ==  type)
+      {
+        typeID = static_cast<TypeId::Type>(i);
+        break;
+      }
+
+    uint32_t detID(s.value("DetectorID",0).toUInt());
+    string detname(s.value("DetectorName","Invalid").toString().toStdString());
+    DetInfo::Detector detnameID;
+    for (int i(0); i < DetInfo::NumDetector; ++i)
+      if (DetInfo::name(static_cast<DetInfo::Detector>(i)) ==  detname)
+      {
+        detnameID = static_cast<DetInfo::Detector>(i);
+        break;
+      }
+
+    uint32_t devID(s.value("DeviceID",0).toUInt());
+    string devname(s.value("DeviceName","Invalid").toString().toStdString());
+    DetInfo::Device devnameID;
+    for (int i(0); i < DetInfo::NumDevice; ++i)
+      if (DetInfo::name(static_cast<DetInfo::Device>(i)) ==  devname)
+      {
+        devnameID = static_cast<DetInfo::Device>(i);
+        break;
+      }
+
+    Key key(typeID, detnameID, detID, devnameID, devID);
+    _LCLSToCASSId[key] = s.value("CASSID",0).toInt();
+  }
+  s.endArray();
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
