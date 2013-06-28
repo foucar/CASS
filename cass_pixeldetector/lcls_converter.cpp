@@ -432,7 +432,7 @@ Converter::Converter()
   for (int i = 0; i < size; ++i)
   {
     string type(s.value("TypeName","Invalid").toString().toStdString());
-    TypeId::Type typeID;
+    TypeId::Type typeID(TypeId::NumberOf);
     for (int i(0); i < TypeId::NumberOf; ++i)
       if (TypeId::name(static_cast<TypeId::Type>(i)) ==  type)
       {
@@ -442,7 +442,7 @@ Converter::Converter()
 
     uint32_t detID(s.value("DetectorID",0).toUInt());
     string detname(s.value("DetectorName","Invalid").toString().toStdString());
-    DetInfo::Detector detnameID;
+    DetInfo::Detector detnameID(DetInfo::NumDetector);
     for (int i(0); i < DetInfo::NumDetector; ++i)
       if (DetInfo::name(static_cast<DetInfo::Detector>(i)) ==  detname)
       {
@@ -452,7 +452,7 @@ Converter::Converter()
 
     uint32_t devID(s.value("DeviceID",0).toUInt());
     string devname(s.value("DeviceName","Invalid").toString().toStdString());
-    DetInfo::Device devnameID;
+    DetInfo::Device devnameID(DetInfo::NumDevice);
     for (int i(0); i < DetInfo::NumDevice; ++i)
       if (DetInfo::name(static_cast<DetInfo::Device>(i)) ==  devname)
       {
@@ -461,9 +461,9 @@ Converter::Converter()
       }
 
     /** skip if the either name has not been set or not correctly set */
-    if (typeID+1 == TypeId::NumberOf ||
-        detnameID+1 == DetInfo::NumDetector ||
-        devnameID+1 == DetInfo::NumDevice)
+    if (typeID == TypeId::NumberOf ||
+        detnameID == DetInfo::NumDetector ||
+        devnameID == DetInfo::NumDevice)
       continue;
 
     Key key(typeID, detnameID, detID, devnameID, devID);
