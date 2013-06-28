@@ -33,6 +33,32 @@ class Key;
 
 /** Converter for pnCCD, CsPad and commercial CCD Data.
  *
+ * @note that for pnCCD and CsPad data one must assing also the corresponding
+ *       config, as the config is needed to be able to parse the data part.
+ *
+ * @cassttng Converter/LCLSPixelDetectors/Detector/{size} \n
+ *           Number of user defined detectors to be pulled out of the xtc
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{TypeName} \n
+ *           The type of the detector. Only the following types are supported:
+ *          - Id_pnCCDconfig : config for pnCCD data
+ *          - Id_pnCCDframe : the pnCCD data
+ *          - Id_Frame : Opal, TM6740 images
+ *          - Id_CspadConfig: config for CsPad data
+ *          - Id_CspadElement: the CsPad data
+ *          - Id_Cspad2x2Element: the CsPad2x2 data
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{DetectorName} \n
+ *           Name of the detector. Default is invalid
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{DetectorID} \n
+ *           the id of the detector. Default is 0.
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{DeviceName} \n
+ *           Name of the detector device
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{DeviceID} \n
+ *           Id of the detector device
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{CASSID} \n
+ *           the Id the detector should get in the CASSEvent. One needs this
+ *           number for further processing. Note that the config and the data
+ *           part must have the same CASSID.
+ *
  * see Converter::operator() for details about the functionality
  *
  * @author Lutz Foucar

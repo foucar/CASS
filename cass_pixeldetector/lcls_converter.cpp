@@ -460,6 +460,12 @@ Converter::Converter()
         break;
       }
 
+    /** skip if the either name has not been set or not correctly set */
+    if (typeID+1 == TypeId::NumberOf ||
+        detnameID+1 == DetInfo::NumDetector ||
+        devnameID+1 == DetInfo::NumDevice)
+      continue;
+
     Key key(typeID, detnameID, detID, devnameID, devID);
     _LCLSToCASSId[key] = s.value("CASSID",0).toInt();
   }
