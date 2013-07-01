@@ -775,7 +775,7 @@ void CommonData::saveGainMap()
               QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
               ".cal";
   else
-    outname = _outputOffsetFilename;
+    outname = _outputGainFilename;
   _saveGainTo(outname,*this);
   if (_outputGainFilename == "gain")
   {
