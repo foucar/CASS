@@ -126,6 +126,7 @@ void GainCalibration::loadSettings(CASSSettings &s)
   string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());
   _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);
   _commonModeCalculator->loadSettings(s);
+  s.endGroup();
 }
 
 
