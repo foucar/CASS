@@ -19,9 +19,13 @@
 
 #include "pdsdata/xtc/XtcIterator.hh"
 #include "pdsdata/xtc/Xtc.hh"
+#include "pdsdata/compress/CompressedXtc.hh"
 
 namespace cass
 {
+  /** overwrite the destruction of xtc pointers */
+  static void Destroy(Xtc*) {}
+
   /** Iteration over XTC's.
    *
    * class that will iterate over an xtc using the xtciterator
@@ -59,14 +63,19 @@ namespace cass
      * call this with increased recursion depth, otherwise it will call the
      * format converter for the id.
      */
-    int process(Pds::Xtc* xtc)
+    int process(Pds::Xtc* xtc_orig)
     {
       /** if it is another xtc, then iterate through it */
-      if (xtc->contains.id() == Pds::TypeId::Id_Xtc)
-        iterate(xtc);
+      if (xtc_orig->contains.id() == Pds::TypeId::Id_Xtc)
+        iterate(xtc_orig);
       /** otherwise use the responsible format converter for this xtc */
       else
       {
+        /** need to check wether the xtc is compressed */
+        std::tr1::shared_ptr<Xtc> xtc = xtc_orig->contains.compressed() ?
+          Pds::CompressedXtc::uncompress(*xtc_orig) :
+          std::tr1::shared_ptr<Xtc>(xtc_orig,Destroy);
+
         /** first check whether datagram is damaged or the xtc id is bigger than
          *  we expect when it contains an incomplete contribution stop iterating
          *  and return that it is not good
@@ -90,12 +99,12 @@ namespace cass
           }
           else if(damage & (0x1 <<Pds::Damage::UserDefined))
           {
-            (*_converters[xtc->contains.id()])(xtc,_cassevent);
+            (*_converters[xtc->contains.id()])(xtc.get(),_cassevent);
           }
         }
         else
         {
-          (*_converters[xtc->contains.id()])(xtc,_cassevent);
+          (*_converters[xtc->contains.id()])(xtc.get(),_cassevent);
         }
       }
       return Continue;
