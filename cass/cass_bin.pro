@@ -185,7 +185,7 @@ DEPENDENCY_LIBRARIES += acqdata \
                         appdata \
                         bld \
                         camdata \
-#                        compressdata \
+                        compressdata \
                         controldata \
                         cspaddata \
                         cspad2x2data \

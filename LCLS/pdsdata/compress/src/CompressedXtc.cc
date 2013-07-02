@@ -4,17 +4,18 @@
 #include "pdsdata/compress/Hist16Engine.hh"
 #include "pdsdata/xtc/TypeId.hh"
 
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 
 #include <string.h>
 
 using namespace Pds;
+using std::tr1::shared_ptr;
 
 static const unsigned align_mask = sizeof(uint32_t)-1;
 
 static void Destroy(Xtc* p) { delete[](char*)p; }
 
-boost::shared_ptr<Xtc> CompressedXtc::uncompress(const Xtc& xtc)
+shared_ptr<Xtc> CompressedXtc::uncompress(const Xtc& xtc)
 {
   const char* end = reinterpret_cast<const char*>(xtc.next());
   char* payload = xtc.payload(); 
@@ -42,7 +43,7 @@ boost::shared_ptr<Xtc> CompressedXtc::uncompress(const Xtc& xtc)
     payload += (sizeof(cd) + cd.headerSize() + sizeof(cd.pd()) + cd.pd().csize() + align_mask)&~align_mask;
   }
     
-  boost::shared_ptr<Xtc> q(reinterpret_cast<Xtc*>(p),Destroy);
+  shared_ptr<Xtc> q(reinterpret_cast<Xtc*>(p),Destroy);
   return q;
 }
 

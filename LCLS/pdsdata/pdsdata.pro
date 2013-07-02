@@ -5,7 +5,7 @@ SUBDIRS        = acqiris \
                  app \
                  bld \
                  camera \
-#                 compress \ # need to have boost installed to be able to compile this
+                 compress \ # switched from boost to stl
                  control \
                  cspad \
                  cspad2x2 \
