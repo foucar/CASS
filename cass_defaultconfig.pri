@@ -52,7 +52,10 @@ CONFIG       += JoCASSView
 #QWTINCDIR=/usr/include/qwt
 
 # let the binary know where to look for the dependency shared libraries
-#QMAKE_FLAGS += "-Wl,-rpath=/reg/g/cass/lib"
+#QMAKE_INCDIR   += /lfs/l3/asg/include
+#QMAKE_LIBDIR   += /lfs/l3/asg/lib
+#QMAKE_RPATHDIR += /lfs/l3/asg/root_v5.32.00/lib
+#QMAKE_RPATHDIR += /lfs/l3/asg/lib
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg
