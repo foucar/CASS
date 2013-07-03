@@ -61,8 +61,7 @@ HEADERS       += soapH.h \
 FORMS         += imageviewer.ui
 
 INCLUDEPATH   += $$PWD/.. \
-                 $$PWD/../cass \
-                 $$QWTINCDIR \
+                 $$PWD/../cass
 
 LIBS          += -lgsoap++ -lgsoap \
                  -lqwt

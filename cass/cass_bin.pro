@@ -219,8 +219,7 @@ httpServer {
 
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
-    INCLUDEPATH    += $$(HDF5DIR)/include
-    LIBS           += -L$$(HDF5DIR)/lib -Wl,-rpath=$$(HDF5DIR)/lib -lhdf5
+    LIBS           += -lhdf5
     SOURCES        += ./postprocessing/hdf5_converter.cpp
     DEFINES        += HDF5
 }

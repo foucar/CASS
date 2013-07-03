@@ -47,12 +47,9 @@ CONFIG       += JoCASSView
 # Uncomment the following to also build the LuCASSViewer
 #CONFIG       += LuCASSView
 
-# Uncomment the following line and set the path to your QWT header files,
-# if they are not found directly under /usr/include.
-#QWTINCDIR=/usr/include/qwt
-
 # let the binary know where to look for the dependency shared libraries
 #QMAKE_INCDIR   += /lfs/l3/asg/include
+#QMAKE_INCDIR   += /usr/include/qwt
 #QMAKE_LIBDIR   += /lfs/l3/asg/lib
 #QMAKE_RPATHDIR += /lfs/l3/asg/root_v5.32.00/lib
 #QMAKE_RPATHDIR += /lfs/l3/asg/lib
