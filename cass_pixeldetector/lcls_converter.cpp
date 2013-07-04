@@ -431,6 +431,7 @@ Converter::Converter()
   int size = s.beginReadArray("Detector");
   for (int i = 0; i < size; ++i)
   {
+    s.setArrayIndex(i);
     string type(s.value("TypeName","Invalid").toString().toStdString());
     TypeId::Type typeID(TypeId::NumberOf);
     for (int i(0); i < TypeId::NumberOf; ++i)
