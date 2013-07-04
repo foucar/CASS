@@ -426,9 +426,8 @@ Converter::Converter()
 
   CASSSettings s;
   s.beginGroup("Converter");
-  s.beginGroup("LCLSPixelDetectors");
 
-  int size = s.beginReadArray("Detector");
+  int size = s.beginReadArray("LCLSPixelDetectors");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
