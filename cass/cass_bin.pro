@@ -93,8 +93,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/autocorrelation.cpp
 
 
-HEADERS            += analysis_backend.h \
-                      cass.h \
+HEADERS            += cass.h \
                       cass_event.h \
                       conversion_backend.h \
                       log.h \
