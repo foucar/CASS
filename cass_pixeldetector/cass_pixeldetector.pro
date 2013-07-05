@@ -1,4 +1,4 @@
-# Copyright (C) 2011 Lutz Foucar
+# Copyright (C) 2011, 2013 Lutz Foucar
 
 CASS_ROOT = ..
 include( $${CASS_ROOT}/cass_config.pri )
@@ -75,13 +75,3 @@ HEADERS       += \
 headers.files  = $$HEADERS
 target.path    = $$INSTALLBASE/lib
 INSTALLS      += target
-#INSTALLS      += headers target
-
-
-
-
-## Local Variables:
-## coding: utf-8
-## mode: makefile
-## fill-column: 100
-## End:

@@ -1,12 +1,10 @@
-# Copyright (C) 2010 Lutz Foucar
+# Copyright (C) 2010, 2013 Lutz Foucar
 
-TEMPLATE         = subdirs
-CONFIG          += ordered
-SUBDIRS          = cass_bin \
-#                   cass_lib
+CASS_ROOT            = ..
+include( $${CASS_ROOT}/cass_config.pri )
 
-#cass_bin.subdir  = ./
-cass_bin.file    = cass_bin.pro
-#cass_bin.depends = cass_lib
-#cass_lib.subdir  = ./
-#cass_lib.file    = cass_lib.pro
+TEMPLATE            = subdirs
+CONFIG             += ordered
+
+offline:SUBDIRS    += cass_offline_bin.pro
+online:SUBDIRS     += cass_online_bin.pro

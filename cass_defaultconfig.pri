@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011 Lutz Foucar
+# Copyright (C) 2010, 2011, 2012, 2013 Lutz Foucar
 # Copyright (C) 2011 Stephan Kassemeyer
 
 # if no file named cass_myconfig.pri exists, this file
@@ -26,33 +26,58 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
-# Uncomment this if you want to read files instead of connecting to shared LCLS memory
+# Uncomment this to build the cass_offline version to read files
 CONFIG      += offline
 
-# Uncomment the following line to enable pp1000 (HDF5 output)
-#CONFIG      += hdf5
+# Uncomment this to build the cass_online version to read files
+CONFIG      += online
 
-# Uncomment this if you want to compile and use the single-particle hit detection postprocessors
-#CONFIG      += singleparticle_hit
 
-# Uncomment the following line to enable ROOT Conversion of cass histograms
-#CONFIG      += cernroot
+# Uncomment the following line to enable HDF5 output. If H5 is installed in a
+# non default location tell qmake where to find the hdf5 libraries and includes
+#CONFIG         += hdf5
+#QMAKE_INCDIR   += /path/to/hdf5/include
+#QMAKE_LIBDIR   += /path/to/hdf5/lib
+#QMAKE_RPATHDIR += /path/to/hdf5/lib
 
-# Uncomment the following line to enable a http Server:
-#CONFIG      += httpServer
+# Uncomment this if you want to compile and use the single-particle hit
+# detection postprocessors. If the vigra include files are not in a default
+# location tell qmake here where to find it.
+#CONFIG         += singleparticle_hit
+#QMAKE_INCDIR   += /path/to/vigra/include
+
+# Uncomment the following line to enable ROOT Conversion of cass histograms.
+# Let qmake know where to find the ROOT libs and include files.
+#CONFIG         += cernroot
+#QMAKE_INCDIR   += /path/to/root/include
+#QMAKE_LIBDIR   += /path/to/root/lib
+#QMAKE_RPATHDIR += /path/to/root/lib
+
+# Uncomment the following line to enable a http Server. Let qmake know where
+# to find the microhttpd and jpeg libs and include files.
+# NOTE: Doesn't work currently
+#CONFIG         += httpServer
+#QMAKE_INCDIR   += /path/to/microhttp/include
+#QMAKE_INCDIR   += /path/to/jpeg/include
+#QMAKE_LIBDIR   += /path/to/microhttp/lib
+#QMAKE_LIBDIR   += /path/to/jpeg/lib
+#QMAKE_RPATHDIR += /path/to/microhttp/lib
+#QMAKE_RPATHDIR += /path/to/jpeg/lib
 
 # Uncomment the following to also build the JoCASSViewer
-CONFIG       += JoCASSView
+CONFIG          += JoCASSView
+#QMAKE_INCDIR   += /path/to/qwt/include
+#QMAKE_LIBDIR   += /path/to/qwt/lib
+#QMAKE_RPATHDIR += /path/to/qwt/lib
 
-# Uncomment the following to also build the LuCASSViewer
-#CONFIG       += LuCASSView
+# Uncomment the following to also build the LuCASSViewer. If root is not
+# installed in default location and has variables have not been set in cernroot
+# section, they need to be set here.
+#CONFIG         += LuCASSView
+#QMAKE_INCDIR   += /path/to/root/include
+#QMAKE_LIBDIR   += /path/to/root/lib
+#QMAKE_RPATHDIR += /path/to/root/lib
 
-# let the binary know where to look for the dependency shared libraries
-#QMAKE_INCDIR   += /lfs/l3/asg/include
-#QMAKE_INCDIR   += /usr/include/qwt
-#QMAKE_LIBDIR   += /lfs/l3/asg/lib
-#QMAKE_RPATHDIR += /lfs/l3/asg/root_v5.32.00/lib
-#QMAKE_RPATHDIR += /lfs/l3/asg/lib
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg
@@ -64,6 +89,7 @@ CONFIG       += JoCASSView
 #QMAKE_LFLAGS   += -fopenmp
 #DEFINES        += _GLIBCXX_PARALLEL   #enables openmp support for gcc stdlibc++
 
+# additional compiler / linker flags
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
 QMAKE_LFLAGS +=

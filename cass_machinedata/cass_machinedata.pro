@@ -1,5 +1,5 @@
 # Copyright (C) 2009 Jochen Küpper
-# Copyright (C) 2009, 2010 Lutz Foucar
+# Copyright (C) 2009, 2010, 2013 Lutz Foucar
 
 CASS_ROOT = ..
 include( $${CASS_ROOT}/cass_config.pri )
@@ -19,8 +19,7 @@ DEPENDPATH    += ../cass
 SOURCES       += machine_converter.cpp \
 
 
-HEADERS       += ../cass/analysis_backend.h \
-                 ../cass/conversion_backend.h \
+HEADERS       += ../cass/conversion_backend.h \
                  ../cass/serializer.h \
                  machine_converter.h \
                  cass_machine.h \
@@ -28,18 +27,9 @@ HEADERS       += ../cass/analysis_backend.h \
 
 
 headers.files  = $$HEADERS
-#INSTALLS      += headers target
 INSTALLS      += target
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
 
-
-
-
-## Local Variables:
-## coding: utf-8
-## mode: makefile
-## fill-column: 100
-## End:
