@@ -7,7 +7,7 @@ include( $${CASS_ROOT}/cass_config.pri )
 TARGET         = cass_pixeldetector
 TEMPLATE       = lib
 DESTDIR        = $${CASS_ROOT}/lib
-target.path    = $$INSTALLBASE/lib
+target.path    = $${PREFIX}/lib
 
 QT            -= core
 
@@ -71,7 +71,4 @@ HEADERS       += \
                  frms6_parser.h \
                  gaincalibration.h
 
-
-headers.files  = $$HEADERS
-target.path    = $$INSTALLBASE/lib
 INSTALLS      += target

@@ -10,8 +10,8 @@
 # to be checked in into the main repository.
 
 # if INSTALLBASE has not been set by the user, set a default value
-isEmpty ( INSTALLBASE ){
- INSTALLBASE = ~/installs
+isEmpty ( PREFIX ){
+ PREFIX = ~/installs
 }
 
 CONFIG      += release

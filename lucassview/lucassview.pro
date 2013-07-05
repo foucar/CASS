@@ -6,12 +6,10 @@ include( $${CASS_ROOT}/cass_config.pri )
 TARGET               = lucassview
 TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
-target.path          = $$INSTALLBASE/bin
+target.path          = $${PREFIX}/bin
 CONFIG              -= gui
 
-
 QMAKE_CLEAN        += lucassview
-VERSION             = 0.0.1
 
 #soap creation
 SOAPFiles.target    = soapCASSsoapProxy.cpp
@@ -60,7 +58,6 @@ HEADERS       += soapH.h \
                  serializer.h \
                  tcpclient.h
 
-INCLUDEPATH   += $$(ROOTSYS)/include
 LIBS          += $$system(root-config --libs)
 LIBS          += -lgsoap++ -lgsoap
 

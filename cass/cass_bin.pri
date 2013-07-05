@@ -4,7 +4,7 @@
 
 TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
-target.path          = $$INSTALLBASE/bin
+target.path          = $${PREFIX}/bin
 CONFIG              -= gui
 QT                  += network
 DEFINES             += CASS_LIBRARY

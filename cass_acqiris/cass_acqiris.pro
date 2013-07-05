@@ -10,7 +10,7 @@ TARGET = cass_acqiris
 TEMPLATE = lib
 
 DESTDIR = $${CASS_ROOT}/lib
-target.path = $$INSTALLBASE/lib
+target.path = $${PREFIX}/lib
 
 QT -= core \
     gui
@@ -84,8 +84,6 @@ HEADERS += ./acqiris_converter.h \
     ./classes/detector_analyzer/poscalculator.hpp \
     ./classes/momenta_calculators/spectrometer.h \
     ./classes/momenta_calculators/momenta_calculator.h
-
-headers.files = $$HEADERS
 
 INSTALLS += target
 
