@@ -30,7 +30,7 @@ CONFIG      += staticlib
 CONFIG      += offline
 
 # Uncomment this to build the cass_online version to read files
-CONFIG      += online
+#CONFIG      += online
 
 
 # Uncomment the following line to enable HDF5 output. If H5 is installed in a
