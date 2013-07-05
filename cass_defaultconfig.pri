@@ -80,6 +80,12 @@ CONFIG          += JoCASSView
 #QMAKE_LIBDIR   += /path/to/root/lib
 #QMAKE_RPATHDIR += /path/to/root/lib
 
+# if the lib / include path to gsoap is not default set it here. Make sure that
+# soapcpp2 binary is in your path and can be executed.
+#QMAKE_INCDIR   += /path/to/gsoap/include
+#QMAKE_LIBDIR   += /path/to/gsoap/lib
+#QMAKE_RPATHDIR += /path/to/gsoap/lib
+
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg
