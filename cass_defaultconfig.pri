@@ -11,7 +11,7 @@
 
 # if INSTALLBASE has not been set by the user, set a default value
 isEmpty ( PREFIX ){
- PREFIX = ~/installs
+ PREFIX = /usr/local
 }
 
 CONFIG      += release
