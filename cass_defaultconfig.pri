@@ -47,7 +47,9 @@ CONFIG      += online
 #QMAKE_INCDIR   += /path/to/vigra/include
 
 # Uncomment the following line to enable ROOT Conversion of cass histograms.
-# Let qmake know where to find the ROOT libs and include files.
+# Let qmake know where to find the ROOT libs and include files. You need to
+# ensure that your PATH environmental variable contains the path to the rootcint
+# executable, as this is needed for compiling root.
 #CONFIG         += cernroot
 #QMAKE_INCDIR   += /path/to/root/include
 #QMAKE_LIBDIR   += /path/to/root/lib

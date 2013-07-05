@@ -8,6 +8,15 @@ The following software packages need to be installed and available for building
 and running CASS:
 
 QT (version 4.6.x and above)
+ Download source with git:
+   git clone git://gitorious.org/qt/qt.git
+ checkout the version you want to build by listing all tags then choosing the
+ tag that you want "tagname" into a local branch "bname" with
+   git checkout -b bname tagname
+ to compile and install
+   ./configure -prefix somewhere -opensource
+   make
+   make install
 
 gSOAP (version 2.7.x and above):
  Download gSOAP from here
@@ -32,7 +41,7 @@ QWT (version 5.2.x and above, but not 6.x or newer):
 
 
 
-optional Prerequisites
+Optional Prerequisites
 ----------------------
 
 The following software packages are needed when enabeling optional components in
@@ -56,39 +65,22 @@ VIGRA (version 1.7.0 and above) (for single_particle detection):
  where the above /usr/local is just an example on where to install the headers
 
 ROOT (version 5.28.00c and above):
- Download root sources from here
-   http://root.cern.ch/drupal/content/downloading-root
- to compile and install
-   ./configure
-   make
+ Download root sources using git from here
+   git clone http://root.cern.ch/git/root.git
+ checkout the version you want to build by listing all tags then choosing the
+ tag that you want "tagname" into a local branch "bname" with
+   git checkout -b bname tagname
+ to compile and install (without the need of setting LD_LIBRARY_PATH later on)
+   ./configure --prefix=/somewhere --enable-rpath --etcdir=/somewhere
+   make [-j]
+   make install
 
 
 Needed Environment Variables
 ----------------------------
 
 QTDIR: needs to point to the Qt installation directory
-CPLUS_INCLUDE_PATH: points to place where installed headers are (ie. /usr/local/include)
-LIBRARY_PATH: points to place where installed libraries are (ie. /usr/local/lib)
-LD_LIBRARY_PATH: points to place where installed libraries are (ie. /usr/local/lib)
 PATH: points there where you installed the binaries (ie. /usr/local/bin)
-
-
-When root is enabled you need:
-ROOTSYS: pointing to where root is. Additionally you need to add ROOTSYS variable
-         to the PATH and LD_LIBRARY_PATH variables:
-  export PATH=$ROOTSYS/bin:$PATH
-  export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
- or
-  setenv PATH ${ROOTSYS}/bin:${PATH}
-  setenv LD_LIBRARY_PATH ${ROOTSYS}/lib:${LD_LIBRARY_PATH}
-
-
-If you are compiling hdf5 enabled, you'll need to also define:
-HDF5DIR: pointing at the directory where the HDF5 library is installed.
-         The HDF5 library must have been compiled with the "--enable-threadsafe"
-         option, otherwise it will break at runtime.
-NOTE: the above should not be necessary, if you installed the HDF5 library as
-      described.
 
 
 Building CASS
@@ -97,13 +89,9 @@ Building CASS
 To configure CASS for your needs please copy the default config as follows:
   cp cass_defaultconfig.pri cass_myconfig.pri
 and make all your changes to the created cass_myconfig.pri. By changing the
-INSTALLBASE variable you can control where cass will be installed. Optionally
+PREFIX variable you can control where cass will be installed. Optionally
 this parameter can also be set when calling the qmake utility (see below).
 The following sequence of commands will build and install CASS:
-  qmake [INSTALLBASE=/path/to/your/preferred/binary/directory]
-  make
+  qmake [PREFIX=/path/to/your/preferred/binary/directory]
+  make [-j]
   make install
-
-Compiling CASS on multiple cores with
-  make -j
-will not work with the current structure.

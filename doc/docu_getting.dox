@@ -31,18 +31,18 @@ cd into the directory that contains cass
 copy cass_defaultconfig.pri to cass_myconfig.pri
 @endverbatim
 Now modify the the cass_myconfig.pri file to include what you need and
-whether you want to use the offline or online version of CASS. Once you
+whether you want to use the offline and/or online version of CASS. Once you
 are done with this type:
 @verbatim
 qmake
 @endverbatim
 if you want to install the binaries later on in a directory other than
-"/installs" you need to type
+"/usr/local" you need to type
 @verbatim
-qmake INSTALLBASE=path/to/desired/location
+qmake PREFIX=path/to/desired/location
 @endverbatim
 Once you did this you can type
-@verbatim
+@verbatim [-j]
 make
 @endverbatim
 After it is done with compiling you have the choice to either leave the
