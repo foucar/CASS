@@ -2,20 +2,6 @@
 # Copyright (C) 2009 - 2013 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
-#CASS_ROOT            = ..
-#include( $${CASS_ROOT}/cass_config.pri )
-
-#offline {
-#  TARGET           = cass_offline
-#  DEFINES         += OFFLINE RINGBUFFER_BLOCKING
-#  OBJECTS_DIR      = $${OBJECTS_DIR}_offline
-#} else {
-#  TARGET           = cass_online
-#  OBJECTS_DIR      = $${OBJECTS_DIR}_online
-#}
-
-message ( "$$OBJECTS_DIR" )
-
 TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
 target.path          = $$INSTALLBASE/bin
@@ -253,19 +239,20 @@ cernroot {
     QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
 }
 
-bin_copy.path       = $$INSTALLBASE/bin
-bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
-headers.files       = $$HEADERS
+#bin_copy.path       = $$INSTALLBASE/bin
+#bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
+#headers.files       = $$HEADERS
 
-INSTALLS           += target bin_copy
+#INSTALLS           += target bin_copy
+INSTALLS           += target
 
 
-versiontarget.target = $$PWD/../cass/update-version.sh
-versiontarget.commands = $$PWD/../cass/update-version.sh
-versiontarget.depends= FORCE
+#versiontarget.target = $$PWD/../cass/update-version.sh
+#versiontarget.commands = $$PWD/../cass/update-version.sh
+#versiontarget.depends= FORCE
 
-PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
-QMAKE_EXTRA_TARGETS+= versiontarget
+#PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
+#QMAKE_EXTRA_TARGETS+= versiontarget
 
 QMAKE_CLEAN += $$SOAPFiles.files
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
