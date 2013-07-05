@@ -154,7 +154,6 @@ HEADERS            += cass.h \
                       ./postprocessing/rootfile_helper.h \
                       ./postprocessing/roottree_converter.h \
                       ./postprocessing/tree_structure.h \
-                      ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
                       ./postprocessing/coltrims_analysis.h \
                       ./postprocessing/achimcalibrator_hex.h \
