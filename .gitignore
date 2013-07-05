@@ -1,5 +1,9 @@
 obj_d
 obj
+obj_d_offline
+obj_offline
+obj_d_online
+obj_online
 moc
 *_dict*
 *.doxytag
