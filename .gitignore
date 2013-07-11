@@ -11,6 +11,7 @@ moc
 *.bak
 Makefile*
 *~
+*.swp
 *.user*
 *.xml
 *.xsd
