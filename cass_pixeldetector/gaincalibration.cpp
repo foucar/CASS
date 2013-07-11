@@ -112,7 +112,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
 
 void GainCalibration::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("GainFixedADURange");
   _commondata = CommonData::instance(detectorname);
   _minPhotonCount = s.value("MinimumPhotonCount",50).toInt();

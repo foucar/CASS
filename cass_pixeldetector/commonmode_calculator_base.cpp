@@ -7,11 +7,7 @@
  * @author Lutz Foucar
  */
 
-#include <sstream>
 #include <stdexcept>
-
-#include <QtCore/QString>
-#include <QtCore/QStringList>
 
 #include "commonmode_calculator_base.h"
 
@@ -75,7 +71,7 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
 
 void CalculatorBase::load(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("CommonModeCorrection");
   _nbrPixels = s.value("Width",128).toUInt();

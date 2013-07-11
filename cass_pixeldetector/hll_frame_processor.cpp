@@ -46,7 +46,7 @@ Frame& HLLProcessor::operator ()(Frame &frame)
 
 void HLLProcessor::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").back().toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("HLLProcessing");
   string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());

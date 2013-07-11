@@ -563,7 +563,7 @@ void CommonData::loadSettings(CASSSettings &s)
 {
   if (!_settingsLoaded)
   {
-    detectorname = s.group().split("/").back().toStdString();
+    detectorname = DetectorName::fromSettings(s);
     s.beginGroup("CorrectionMaps");
 
     /** try do deduce the frame size from the detectorname, if it can't be

@@ -173,7 +173,7 @@ void FixedMaps::operator ()(const Frame &frame)
 
 void FixedMaps::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("FixedCreator");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
@@ -283,7 +283,7 @@ void MovingMaps::updateMaps(const Frame &frame)
 
 void MovingMaps::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("ChangingCreator");
   _framecounter = 0;
   _commondata = CommonData::instance(detectorname);
@@ -337,7 +337,7 @@ void HotPixelsFinder::operator()(const Frame &frame)
 
 void HotPixelsFinder::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("HotPixelFinder");
   _commondata = CommonData::instance(detectorname);
   _aduThreshold = s.value("ADUThreshold",3000).toFloat();

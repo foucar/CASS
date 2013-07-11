@@ -15,6 +15,11 @@
 #include <string>
 #include <sstream>
 
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+
+#include "cass_settings.h"
+
 namespace cass
 {
 namespace pixeldetector
@@ -45,6 +50,22 @@ enum detectorsizes
   CsPadRows = 4*8*CsPadAsicRows,
   CsPad2x2Columns = 2*CsPadAsicColumns,
   CsPad2x2Rows = 2*CsPadAsicRows
+};
+
+/** retrieve the DetectorName
+ *
+ * @author Lutz Foucar
+ */
+struct DetectorName
+{
+  /** retrieve it from the casssettings
+   *
+   * @param s the settings to retrieve the name from
+   */
+  static std::string fromSettings(const CASSSettings &s)
+  {
+    return s.group().split("/").at(1).toStdString();
+  }
 };
 
 /** Pixel definition

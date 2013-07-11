@@ -41,7 +41,7 @@ AboveNoiseFinder::pixels_t& AboveNoiseFinder::operator ()(const Frame &frame, pi
 
 void AboveNoiseFinder::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").back().toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("AboveNoiseFinder");
   _multiplier = s.value("Multiplier",4.).toFloat();
