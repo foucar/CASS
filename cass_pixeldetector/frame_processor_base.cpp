@@ -6,7 +6,6 @@
  * @author Lutz Foucar
  */
 
-#include <sstream>
 #include <stdexcept>
 
 #include "frame_processor_base.h"
@@ -49,12 +48,7 @@ FrameProcessorBase::shared_pointer FrameProcessorBase::instance(const string &ty
   else if (type == "hll")
     ptr = shared_pointer(new HLLProcessor());
   else
-  {
-    /** @todo don't use stringstream here */
-    stringstream ss;
-    ss << "FrameProcessorBase::instance: Frame processor type '"<< type
-        <<"' is unknown.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("FrameProcessorBase::instance: Frame processor type '"+
+                           type + "' is unknown.");
   return ptr;
 }

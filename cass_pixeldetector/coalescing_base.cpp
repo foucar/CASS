@@ -6,7 +6,6 @@
  * @author Lutz Foucar
  */
 
-#include <sstream>
 #include <stdexcept>
 
 #include "coalescing_base.h"
@@ -26,12 +25,7 @@ CoalescingBase::shared_pointer CoalescingBase::instance(const string &type)
 //  else if (type == "lma")
 //    ptr = shared_pointer(new LmaReader());
   else
-  {
-    /** @todo get rid of stringstream */
-    stringstream ss;
-    ss << "CoalescingBase::instance: Coalescing function type '"<< type
-        <<"' is unknown.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("CoalescingBase::instance: Coalescing function type '" +
+                           type  +"' is unknown.");
   return ptr;
 }
