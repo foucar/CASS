@@ -6,9 +6,6 @@
  * @author Lutz Foucar
  */
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-
 #include "above_noise_finder.h"
 
 #include "cass_settings.h"

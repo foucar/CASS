@@ -6,9 +6,6 @@
  * @author Lutz Foucar
  */
 
-#include <QtCore/QStringList>
-#include <QtCore/QString>
-
 #include "hll_frame_processor.h"
 
 #include "cass_settings.h"

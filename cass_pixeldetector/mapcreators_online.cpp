@@ -12,8 +12,6 @@
 #include <numeric>
 #include <cmath>
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
 #include <QtCore/QTime>
 #include <QtCore/QtGlobal>
  
@@ -133,7 +131,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
 
 void OnlineFixedCreator::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("FixedOnlineCreator");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
@@ -279,7 +277,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
 
 void OnlineFixedCreatorCommonMode::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  string detectorname(DetectorName::fromSettings(s));
   s.beginGroup("FixedOnlineCreatorCommonMode");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
@@ -295,7 +293,7 @@ void OnlineFixedCreatorCommonMode::loadSettings(CASSSettings &s)
     _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
   _multiplier = s.value("Multiplier",4).toFloat();
   string commonmodetype (s.value("CommonModeCalculationType","simpleMean").toString().toStdString());
-  s.endGroup();
   _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);
   _commonModeCalculator->loadSettings(s);
+  s.endGroup();
 }

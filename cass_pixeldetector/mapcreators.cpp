@@ -11,9 +11,6 @@
 #include <numeric>
 #include <cmath>
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-
 #include "mapcreators.h"
 
 #include "cass_settings.h"

@@ -11,8 +11,6 @@
 #include <numeric>
 #include <cmath>
 
-#include <QtCore/QStringList>
-
 #include "gaincalibration.h"
 
 #include "cass_settings.h"

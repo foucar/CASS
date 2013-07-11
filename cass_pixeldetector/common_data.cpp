@@ -16,7 +16,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
 #include <QtCore/QtGlobal>
 
 #include "common_data.h"
