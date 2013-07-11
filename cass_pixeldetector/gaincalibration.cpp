@@ -32,6 +32,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
 {
   QWriteLocker (&_commondata->lock);
 
+  ++_counter;
   _statistics.resize(frame.data.size(),make_pair(0,0.));
   vector<statistics_t>::iterator stat(_statistics.begin());
   vector<statistics_t>::const_iterator statEnd(_statistics.end());
@@ -62,8 +63,8 @@ void GainCalibration::generateCalibration(const Frame &frame)
     }
   }
 
-  /** check the median nbr of photons per pixel. Use it as criteria whether to
-   *  generate the gain map.
+  /** check the median nbr of photons per pixel. Use this or the number of 
+   *  frames processed so far as criteria whether to generate the gain map.
    */
   vector<statistics_t> statcpy(_statistics);
   const size_t medianPos(0.5*statcpy.size());
@@ -71,7 +72,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
               bind(less<statistics_t::first_type>(),
                    bind<statistics_t::first_type>(&statistics_t::first,_1),
                    bind<statistics_t::first_type>(&statistics_t::first,_2)));
-  if (statcpy[medianPos].first < _minMedianCounts)
+  if (statcpy[medianPos].first < _minMedianCounts || _counter == _nFrames)
     return;
 
   /** calculate the average of the average pixelvalues, disregarding pixels
@@ -119,6 +120,8 @@ void GainCalibration::loadSettings(CASSSettings &s)
   _range = make_pair(s.value("MinADURange",0).toUInt(),
                      s.value("MaxADURange",1000).toUInt());
   _writeFile = s.value("SaveCalibration",true).toBool();
+  _counter = 0;
+  _nFrames = s.value("NbrFrames",-1).toInt();
   if (s.value("StartInstantly",false).toBool())
     _createMap = bind(&GainCalibration::generateCalibration,this,_1);
   else
@@ -133,6 +136,7 @@ void GainCalibration::loadSettings(CASSSettings &s)
 void GainCalibration::controlCalibration(const string &/*unused*/)
 {
   Log::add(Log::INFO,"GainCalibration::controlCalibration(): start collecting statistics for gain calibration'");
+  _counter=0;
   _createMap = bind(&GainCalibration::generateCalibration,this,_1);
 }
 

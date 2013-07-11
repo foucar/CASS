@@ -38,6 +38,10 @@ class CommonData;
  *           Flag to tell whether the calculator should start instantly after
  *           loading the seetings. If false it will wait until told by the
  *           program through the available GUI's. Default is false.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{NbrFrames}\n
+ *           The number of frames that should be processed before the gain map is calculated.
+ *           Default is -1, which means that the only criteria is that the MinimumMedianCounts
+ *           have to be reached before calulating the gain map.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/GainFixedADURange/{MinimumPhotonCount}\n
  *           How many times the adu value of the pixel was in the user defined
  *           ADURange, before the gain for this pixel will be calculated. Default
@@ -137,6 +141,12 @@ private:
 
   /** functor for calculating the common mode level */
   commonmode::CalculatorBase::shared_pointer _commonModeCalculator;
+
+  /** counter to see how many frames have been processed */
+  int64_t _counter;
+
+  /** how many frames should be processed */
+  int64_t _nFrames;
 };
 
 
