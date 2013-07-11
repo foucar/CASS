@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 Jochen Kuepper
 // Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
@@ -85,11 +85,11 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(&cassevent->datagrambuffer().front());
 
 
-  Log::add(Log::DEBUG4,"transition '"+ string(Pds::TransitionId::name(datagram->seq.service()))+ "'");
-  Log::add(Log::DEBUG4,"payload size '" + toString(datagram->xtc.sizeofPayload()) + "'");
-  Log::add(Log::DEBUG4,"damage value '" + toString(datagram->xtc.damage.value()) + "'");
-  Log::add(Log::DEBUG4,"clock seconds '" + toString(datagram->seq.clock().seconds()) + "'");
-  Log::add(Log::DEBUG4,"fiducials '" + toString(datagram->seq.stamp().fiducials()) + "'");
+  Log::add(Log::DEBUG4,"Dgram Transition '"+ string(Pds::TransitionId::name(datagram->seq.service()))+ "'");
+  Log::add(Log::DEBUG4,"DGram Payload size '" + toString(datagram->xtc.sizeofPayload()) + "'");
+  Log::add(Log::DEBUG4,"Dgram Damage value '" + toString(datagram->xtc.damage.value()) + "'");
+  Log::add(Log::DEBUG4,"DGram Clock seconds '" + toString(datagram->seq.clock().seconds()) + "'");
+  Log::add(Log::DEBUG4,"Dgram Fiducials '" + toString(datagram->seq.stamp().fiducials()) + "'");
 
   /** if datagram is configuration or an event (L1Accept) then we will iterate through it
    *  otherwise we ignore the datagram

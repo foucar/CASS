@@ -20,6 +20,8 @@
 #include "pdsdata/xtc/XtcIterator.hh"
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/compress/CompressedXtc.hh"
+#include "pdsdata/xtc/BldInfo.hh"
+#include "pdsdata/xtc/DetInfo.hh"
 
 namespace cass
 {
@@ -65,6 +67,27 @@ namespace cass
      */
     int process(Pds::Xtc* xtc_orig)
     {
+      /** output information about the xtc */
+      using std::string;
+      Log::add(Log::DEBUG4,string("XTC Type '") + TypeId::name(xtc_orig->contains.id()) + "'(" + toString(xtc_orig->contains.id()) + ")");
+      Log::add(Log::DEBUG4,string("XTC Version '") + toString(xtc_orig->contains.version()) + "'");
+      Log::add(Log::DEBUG4,string("XTC Compressed '") + (xtc_orig->contains.compressed() ? "true":"false") + "'");
+      Log::add(Log::DEBUG4,string("XTC CompressedVersion '") + toString(xtc_orig->contains.compressed_version()) + "'");
+      Log::add(Log::DEBUG4,string("XTC Damage value '") + toString(xtc_orig->damage.value()) + "'");
+      Log::add(Log::DEBUG4,string("XTC Level '") + Level::name(xtc_orig->src.level()) + toString(xtc_orig->src.level()) + "'");
+      switch (xtc_orig->src.level())
+      {
+      case Level::Source :
+        Log::add(Log::DEBUG4,string("XTC DetInfo: ") + DetInfo::name(reinterpret_cast<const DetInfo&>(xtc_orig->src)));
+        break;
+      case Level::Reporter :
+        Log::add(Log::DEBUG4,string("XTC BldInfo: ") + BldInfo::name(reinterpret_cast<const BldInfo&>(xtc_orig->src)));
+        break;
+      default :
+        Log::add(Log::DEBUG4,string("XTC Proc '") + toString(xtc_orig->src.log()) + ":" + toString(xtc_orig->src.phy()) + "'");
+        break;
+      }
+
       /** if it is another xtc, then iterate through it */
       if (xtc_orig->contains.id() == Pds::TypeId::Id_Xtc)
         iterate(xtc_orig);
