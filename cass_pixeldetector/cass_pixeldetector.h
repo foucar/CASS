@@ -35,6 +35,8 @@ enum detectorsizes
   PnCCDRows = 1024,
   Opal1KColumns = 1024,
   Opal1KRows = 1024,
+  Opal2KColumns = 1920,
+  Opal2KRows = 1080,
   Opal4KColumns = 2048,
   Opal4KRows = 2048,
   CsPadAsicColumns = 194,

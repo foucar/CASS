@@ -73,6 +73,8 @@ struct Frame
       shape = make_pair(CsPadColumns,CsPadRows);
     else if (name.find("Opal1k") != string::npos)
       shape = make_pair(Opal1KColumns,Opal1KRows);
+    else if (name.find("Opal2k") != string::npos)
+      shape = make_pair(Opal2KColumns,Opal2KRows);
     else if (name.find("Opal4k") != string::npos)
       shape = make_pair(Opal4KColumns,Opal4KRows);
     return shape;
