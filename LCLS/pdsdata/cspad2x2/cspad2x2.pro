@@ -8,7 +8,7 @@ TARGET = cspad2x2data
 TEMPLATE = lib
 
 DESTDIR = $${CASS_ROOT}/lib
-target.path = $$INSTALLBASE/lib
+target.path = $${PREFIX}/lib
 
 QT -= core \
     gui
