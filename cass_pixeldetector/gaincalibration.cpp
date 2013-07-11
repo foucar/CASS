@@ -127,9 +127,9 @@ void GainCalibration::loadSettings(CASSSettings &s)
   else
     _createMap = bind(&GainCalibration::doNothing,this,_1);
   string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());
-  s.endGroup();
   _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);
   _commonModeCalculator->loadSettings(s);
+  s.endGroup();
 }
 
 
