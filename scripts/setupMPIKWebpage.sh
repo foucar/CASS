@@ -8,24 +8,36 @@ BASEDIR=$1
 #BASEDIR=/path/to/CASS/base/directory
 
 # tell where the download loacation is
-DL=$HOME/public_html/Downloads
+DOWNLOAD=${HOME}/public_html/Downloads
 
-# tell the url of the download location
-DLURL=http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads
+# the location where the html files should be copied to
+PUBLIC_WWW=${HOME}/public_html/cass/
 
 
 
 ### create the zip and txt files
 
 # remove the old downloads
-rm -rf $DL/cass.*
+rm -rf ${DOWNLOAD}/cass.*
 
 # create a zip file with the contents of the master branch
-cd $BASEDIR && env -i git archive master | gzip > $DL/cass.latest.tar.gz
+cd ${BASEDIR}
+
+env -i git archive master | gzip > ${DOWNLOAD}/cass.latest.tar.gz
 
 # go through all tags and create a zip file for them and put their download
 # location into the text file
 for tag in $(env -i git tag)
 do
-  env -i git archive $tag | gzip > $DL/cass.$tag.tar.gz
+  env -i git archive ${tag} | gzip > ${DOWNLOAD}/cass.${tag}.tar.gz
 done
+
+
+
+### move the docu to the webpage location
+
+# delete the existing webpage and copy the html files to the
+# webpage and set the permissions correctly
+rm -rf ${PUBLIC_WWW} && cp -r ${BASEDIR}/doc/doxygen/html/ ${PUBLIC_WWW}
+find ${PUBLIC_WWW} -type f -exec chmod 640 {} \;
+find ${PUBLIC_WWW} -type d -exec chmod 750 {} \;
