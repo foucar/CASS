@@ -4,46 +4,30 @@ CASS_ROOT = ../
 
 include( $${CASS_ROOT}/cass_config.pri )
 
-# Dummy, just to get custom compilers to work in qmake
-TEMPLATE = lib
-TARGET = Dummy
+# Dummy as we are only generating the doc target
+TEMPLATE = subdirs
  
-## Compiler for doxygen docu
-#doc_builder.name = doxygen
-##doc_builder.input = TEX
-#doc_builder.input = Doxyfilej
-##doc_builder.output = ${QMAKE_FILE_BASE}.pdf
-#doc_builder.output = dummy
-#doc_builder.commands = doxygen
-# 
-## This makes the custom compiler run before anything else
-##doc_builder.CONFIG += target_predeps
-# 
-#doc_builder.variable_out = doc.files
-#doc_builder.clean = ${CASS_ROOT}/doxgyen 
-#QMAKE_EXTRA_COMPILERS += doc_builder
-# 
 ## Install documentation
-#doc.path = $$PREFIX/doc/
+doc.path     = $$PREFIX/doc/
+
+## for now don't specify any files as we are taking care of the copying ourselves
+#doc.files    = $$PWD/doxygen/html/*
+
 ## If you don't specify this, all files must exist when you run qmake or else they will
-## just silently be ignored
-#doc.CONFIG += no_check_exist
-# 
-#INSTALLS += doc
+## just silently be ignored. When the files don't exist install -m blah will be
+## used, which doesn't copy directories. Therefore the copy command is given
+## explicitly in the extra session below. The extra will be used when make
+## install is called.
+#doc.CONFIG  += no_check_exist
 
-dox.target = doc
-dox.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`env -i git describe`") | doxygen -
-dox.depends =
+## the comamnd that will be executed when make install is called
+doc.extra    = (cat Doxyfile && echo "PROJECT_NUMBER=`env -i git describe --abbrev=4`") | doxygen - && cp -r $$PWD/doxygen/html $$PREFIX/doc/.
 
-QMAKE_EXTRA_TARGETS += dox
+## when one wants to create the docu with make doc
+doc.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`env -i git describe --abbrev=4`") | doxygen -
 
-## Install documentation
-docu.path = $$PREFIX/doc/
-## If you don't specify this, all files must exist when you run qmake or else they will
-## just silently be ignored
-docu.files   = $$PWD/doxygen/*
-docu.CONFIG += no_check_exist
- 
-INSTALLS += docu
+QMAKE_EXTRA_TARGETS += doc
+INSTALLS            += doc
 
-QMAKE_CLEAN += $$PWD/doxygen/
+QMAKE_DISTCLEAN     += -r $$PWD/doxygen
+

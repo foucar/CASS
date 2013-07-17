@@ -9,7 +9,8 @@ SUBDIRS        = LCLS \
                  cass_acqiris \
                  cass_pixeldetector \
                  cass_machinedata \
-                 cass
+                 cass \
+                 doc
 
 cass.depends = LCLS \
                cass_acqiris \
