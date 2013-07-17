@@ -23,14 +23,9 @@ rm -rf $DL/cass.*
 # create a zip file with the contents of the master branch
 cd $BASEDIR && env -i git archive master | gzip > $DL/cass.latest.tar.gz
 
-# remove previous contents of the file containing the locations of the dowloads
-echo "" > $BASEDIR/doc/TAGDownloads.txt
-
 # go through all tags and create a zip file for them and put their download
 # location into the text file
-for tag in $(env -i git tag);
+for tag in $(env -i git tag)
 do
-    echo "$DLURL/cass.$tag.tar.gz" >>  $BASEDIR/doc/TAGDownloads.txt
-    env -i git archive $tag | gzip > $DL/cass.$tag.tar.gz
+  env -i git archive $tag | gzip > $DL/cass.$tag.tar.gz
 done
-
