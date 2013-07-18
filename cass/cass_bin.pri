@@ -26,6 +26,7 @@ SOAPFiles2.target   = soapC.cpp
 SOAPFiles2.depends  = soapCASSsoapService.cpp
 
 QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
+#PRE_TARGETDEPS     += SOAPFiles SOAPFiles2
 
 # our own stuff
 SOURCES            += soapCASSsoapService.cpp \
@@ -246,13 +247,11 @@ cernroot {
 #INSTALLS           += target bin_copy
 INSTALLS           += target
 
-
-#versiontarget.target = $$PWD/../cass/update-version.sh
-#versiontarget.commands = $$PWD/../cass/update-version.sh
-#versiontarget.depends= FORCE
-
-#PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
-#QMAKE_EXTRA_TARGETS+= versiontarget
+# execute script that shows the current version derived from git
+#version.target      = cass_version.h
+version.commands    = $$PWD/update-version.sh
+QMAKE_EXTRA_TARGETS+= version
+PRE_TARGETDEPS     += version
 
 QMAKE_CLEAN += $$SOAPFiles.files
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o

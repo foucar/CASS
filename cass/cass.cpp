@@ -15,6 +15,7 @@
 #include <QtGui/QApplication>
 
 #include "cass.h"
+#include "cass_version.h"
 #include "log.h"
 #include "input_base.h"
 #include "file_input.h"
@@ -279,6 +280,8 @@ int main(int argc, char **argv)
     parser.add("-f","complete path to the cass.ini to use",settingsfilename);
     bool showUsage(false);
     parser.add("-h","show this help",showUsage);
+    bool showVersion(false);
+    parser.add("--version","display the version of cass",showVersion);
 
     parser(QCoreApplication::arguments());
 
@@ -287,6 +290,13 @@ int main(int argc, char **argv)
     if (showUsage)
     {
       parser.usage();
+      exit(0);
+    }
+
+    /** show version and exit if requested */
+    if (showVersion)
+    {
+      cout <<VERSION <<endl;
       exit(0);
     }
 

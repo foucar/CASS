@@ -2,27 +2,41 @@
 
 OUTFILE=cass_version.h
 INCLUDEGUARD=_CASS_VERSION
+VERSION=$(env -i git describe --abbrev=4)
 
-echo "Checking version..."
+#echo "Checking version..."
+#
+## Don't update the version if nothing needs to be compiled
+#numFiles=`make -n | wc -l`
+#
+#if [ $numFiles -lt 6 ]; then
+#    echo "Nothing to update. Project is up to date!"
+#    exit
+#fi
+#
+#echo "Updating version."
+#
+#if [ -f $OUTFILE ]; then
+#  awk '{if ($2 ~ /MY_BUILD_NUMBER/) print $1 " " $2 " " ++$3; else print }' $OUTFILE > _$OUTFILE
+#  mv _$OUTFILE $OUTFILE
+#else
+#  echo "#ifndef $INCLUDEGUARD
+##define $INCLUDEGUARD
+#
+##define MY_BUILD_NUMBER 1
+#
+##endif" > $OUTFILE
+#fi
 
-# Don't update the version if nothing needs to be compiled
-numFiles=`make -n | wc -l`
+if [ -f ${OUTFILE} ] && [ $(cat ${OUTFILE} | grep ${VERSION} | wc -l) -eq 0 ]; then
+echo "Generating file for VERSION: v${VERSION}"
+echo "#ifndef ${INCLUDEGUARD}
+#define ${INCLUDEGUARD}
 
-if [ $numFiles -lt 6 ]; then
-    echo "Nothing to update. Project is up to date!"
-    exit
-fi
+namespace cass
+{
+  std::string VERSION(\"v${VERSION}\");
+}
 
-echo "Updating version."
-
-if [ -f $OUTFILE ]; then
-  awk '{if ($2 ~ /MY_BUILD_NUMBER/) print $1 " " $2 " " ++$3; else print }' $OUTFILE > _$OUTFILE
-  mv _$OUTFILE $OUTFILE
-else
-  echo "#ifndef $INCLUDEGUARD
-#define $INCLUDEGUARD
-
-#define MY_BUILD_NUMBER 1
-
-#endif" > $OUTFILE
+#endif" > ${OUTFILE}
 fi
