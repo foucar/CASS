@@ -2,7 +2,7 @@
 
 OUTFILE=cass_version.h
 INCLUDEGUARD=_CASS_VERSION
-VERSION=$(env -i git describe --abbrev=4)
+VERSION=$(env -u=GIT_DIR -u=GIT_WORK_TREE git describe --abbrev=4)
 
 #echo "Checking version..."
 #
