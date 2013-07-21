@@ -21,13 +21,12 @@ doc.path     = $$PREFIX/doc/
 #doc.CONFIG  += no_check_exist
 
 ## the comamnd that will be executed when make install is called
-doc.extra    = (cat Doxyfile && echo "PROJECT_NUMBER=`env -i git describe --abbrev=4`") | doxygen - && cp -r $$PWD/doxygen/html $$PREFIX/doc/.
+doc.extra    = (cat Doxyfile && echo "PROJECT_NUMBER=`unset GIT_DIR; unset GIT_WORK_TREE; git describe --abbrev=4`") | doxygen - && cp -r $$PWD/doxygen/html $$PREFIX/doc/.
 
 ## when one wants to create the docu with make doc
-doc.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`env -i git describe --abbrev=4`") | doxygen -
+doc.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`unset GIT_DIR; unset GIT_WORK_TREE;  git describe --abbrev=4`") | doxygen -
 
 QMAKE_EXTRA_TARGETS += doc
 INSTALLS            += doc
 
 QMAKE_DISTCLEAN     += -r $$PWD/doxygen
-
