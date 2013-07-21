@@ -8,7 +8,9 @@ BASEDIR=$1
 #BASEDIR=/path/to/CASS/base/directory
 
 # the location where CASS should be installed to
-INSTLOC=/lfs/l3/asg/cass/v$(env -i git describe --abbrev=4)
+unset GIT_DIR
+unset GIT_WORK_TREE
+INSTLOC=/lfs/l3/asg/cass/v$(git describe --abbrev=4)
 
 
 # set the environment variables

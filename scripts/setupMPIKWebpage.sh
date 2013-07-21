@@ -23,13 +23,16 @@ rm -rf ${DOWNLOAD}/cass.*
 # create a zip file with the contents of the master branch
 cd ${BASEDIR}
 
-env -i git archive master | gzip > ${DOWNLOAD}/cass.latest.tar.gz
+
+unset GIT_DIR
+unset GIT_WORK_TREE
+git archive master | gzip > ${DOWNLOAD}/cass.latest.tar.gz
 
 # go through all tags and create a zip file for them and put their download
 # location into the text file
 for tag in $(env -i git tag)
 do
-  env -i git archive ${tag} | gzip > ${DOWNLOAD}/cass.${tag}.tar.gz
+  git archive ${tag} | gzip > ${DOWNLOAD}/cass.${tag}.tar.gz
 done
 
 
