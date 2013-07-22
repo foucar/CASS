@@ -601,7 +601,7 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     break;
 #ifdef CERNROOT
   case ROOTDump:
-    processor = PostProcessor::shared_pointer(new pp2000(key,_outputfilename));
+    processor = PostProcessor::shared_pointer(new pp2000(key));
     break;
   case ROOTTreeDump:
     processor = PostProcessor::shared_pointer(new pp2001(key,_outputfilename));

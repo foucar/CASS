@@ -37,6 +37,12 @@ namespace cass
 /** namespace for ROOT related functions */
 namespace ROOT
 {
+/** function to create a human readable directory name from the eventid
+ *
+ * @param eventid the event id to create the human readable name from
+ *
+ * @author Lutz Foucar
+ */
 string eventIdToDirectoryName(uint64_t eventid)
 {
   uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
@@ -56,20 +62,76 @@ string eventIdToDirectoryName(uint64_t eventid)
   return name.str();
 }
 
-/** function that will copy a histogram to file
+/** create a directory if it does not exist and cd into it
  *
- * @param casshist the cass histogram that should be written to file
+ * @param the directory name that is realtiv to the current directory
  *
  * @author Lutz Foucar
  */
-void copyHistToRootFile(const HistogramFloatBase &casshist)
+void changeDir(TFile* file,const string &dirname)
+{
+  /** find out wether directory exists */
+  file->cd("/");
+  TDirectory * direc = file->GetDirectory(dirname.c_str());
+  /** if not, create it */
+  if (!direc)
+  {
+    string lhs;
+    string rhs;
+    string tmp = dirname;
+    while (1)
+    {
+      /** if there is no '/' then this is the last sub dir */
+      if (tmp.find("/") == string::npos)
+      {
+        lhs = tmp;
+      }
+      /** otherwise split the string to lefthandside and righthandside of "/" */
+      else
+      {
+        lhs = tmp.substr(0,tmp.find("/"));
+        rhs = tmp.substr(tmp.find("/")+1,tmp.length());
+      }
+
+      /** check wether subdir exits */
+      direc = gDirectory->GetDirectory(lhs.c_str());
+      /** if so, cd into it */
+      if (direc)
+        gDirectory->cd(lhs.c_str());
+      /** otherwise create it and then cd into it */
+      else
+      {
+        direc = gDirectory->mkdir(lhs.c_str());
+        gDirectory->cd(lhs.c_str());
+      }
+
+      /** when there is no "/" anymore break */
+      if (tmp.find("/") == string::npos)
+        break;
+
+      /** the new temp is all that is on the right hand side */
+      tmp = rhs;
+    }
+  }
+  /** make the requested dir the current global dir */
+  direc->cd();
+}
+
+/** function that will copy a histogram to file
+ *
+ * @param casshist the cass histogram that should be written to file
+ * @param valname the name of the histogram in the root file
+ *
+ * @author Lutz Foucar
+ */
+void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname)
 {
   TH1 *roothist(0);
   switch (casshist.dimension())
   {
   case 0:
   {
-    roothist = new TH1F(casshist.key().c_str(),casshist.key().c_str(),
+    roothist = new TH1F(valname.c_str(),valname.c_str(),
                         1,0,1);
     roothist->SetBinContent(1,casshist.memory()[0]);
     roothist->SetEntries(casshist.nbrOfFills());
@@ -79,7 +141,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist)
   {
     /** create root histogram from cass histogram properties */
     const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
-    roothist = new TH1F(casshist.key().c_str(),casshist.key().c_str(),
+    roothist = new TH1F(valname.c_str(),valname.c_str(),
                         xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
     /** set up axis */
     roothist->GetXaxis()->CenterTitle(true);
@@ -100,7 +162,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist)
     /** create root histogram from cass histogram properties */
     const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
     const AxisProperty &yaxis(casshist.axis()[HistogramBackend::yAxis]);
-    roothist = new TH2F(casshist.key().c_str(),casshist.key().c_str(),
+    roothist = new TH2F(valname.c_str(),valname.c_str(),
                         xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                         yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
     /** make sure that the histogram is drawn in color and with color bar */
@@ -138,13 +200,9 @@ void copyHistToRootFile(const HistogramFloatBase &casshist)
 }//end namespace root
 }//end namespace cass
 
-pp2000::pp2000(const name_t &name, std::string filename)
-  : PostProcessor(name),
-    _rootfile(ROOTFileHelper::create(filename))
+pp2000::pp2000(const name_t &name)
+  : PostProcessor(name)
 {
-  if (!_rootfile)
-    throw invalid_argument("pp2000 (" + name + "): '" + filename +
-                           "' could not be opened! Maybe deleting the file helps.");
   loadSettings(0);
 }
 
@@ -155,13 +213,55 @@ const HistogramBackend& pp2000::result(const CASSEvent::id_t)
 
 void pp2000::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString::fromStdString(name()));
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  if (!setupCondition(false))
+  bool allDepsAreThere(true);
+  int size = s.beginReadArray("PostProcessor");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    string ppname(s.value("Name","Unknown").toString().toStdString());
+    if (ppname == "Unknown")
+      continue;
+    shared_pointer pp(setupDependency("",ppname));
+    allDepsAreThere = pp && allDepsAreThere;
+    string groupname(s.value("GroupName","/").toString().toStdString());
+    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
+    _ppList.push_back(entry_t(name,groupname,pp));
+  }
+  s.endArray();
+
+  size = s.beginReadArray("PostProcessorSummary");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    string ppname(s.value("Name","Unknown").toString().toStdString());
+    if (ppname == "Unknown")
+      continue;
+    shared_pointer pp(setupDependency("",ppname));
+    allDepsAreThere = pp && allDepsAreThere;
+    string groupname(s.value("GroupName","/").toString().toStdString());
+    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
+    _ppSummaryList.push_back(entry_t(name,groupname,pp));
+  }
+  s.endArray();
+
+  bool ret (setupCondition());
+  if (!(ret && allDepsAreThere))
+  {
+    _ppList.clear();
+    _ppSummaryList.clear();
     return;
+  }
   _hide = true;
+
+  string filename(s.value("FileName","output.root").toString().toStdString());
+  _rootfile= ROOTFileHelper::create(filename);
+  if (!_rootfile)
+    throw invalid_argument("pp2000 (" + name() + "): '" + filename +
+                             "' could not be opened! Maybe deleting the file helps.");
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' will write all cass histograms with the write flag set " +
            "to rootfile '" + _rootfile->GetName() + "'. Condition is '" +
@@ -172,58 +272,58 @@ void pp2000::aboutToQuit()
 {
   Log::add(Log::VERBOSEINFO,"pp2000::aboutToQuit() (" + name() +
            "): Histograms will be written to: '" + _rootfile->GetName() + "'");
-  /** create the summary directory and cd into it */
-  _rootfile->cd("/");
-  _rootfile->mkdir("Summary")->cd();
-  /** retrieve postprocessor container */
-  const PostProcessors::postprocessors_t& container(PostProcessors::reference().postprocessors());
-  /** go through all contents of the container */
-  PostProcessors::postprocessors_t::const_iterator it(container.begin());
-  for (;it != container.end(); ++it)
+
+  /** check if something to be written */
+  if (!_ppSummaryList.empty())
   {
-    /** check if histograms of postprocessor should be written */
-    PostProcessor &pp(*(it->get()));
-    if (false)
+    /** write all entries to file */
+    list<entry_t>::const_iterator it(_ppSummaryList.begin());
+    list<entry_t>::const_iterator last(_ppSummaryList.end());
+    while(it != last)
     {
-      /** if so write it to the root file */
-      const HistogramBackend &cassbackend(pp.result());
-      const HistogramFloatBase &casshist(dynamic_cast<const HistogramFloatBase&>(cassbackend));
-      ROOT::copyHistToRootFile(casshist);
+      /** create and change into dir given by user then write hist with given
+       *  name into the file
+       */
+      string folder("/Summary/" + it->groupname);
+      ROOT::changeDir(_rootfile,folder);
+      ROOT::copyHistToRootFile(dynamic_cast<const HistogramFloatBase&>(it->pp->result()),it->name);
     }
+
+    /** go back to original directory and save file */
+    _rootfile->cd("/");
+    ROOTFileHelper::close(_rootfile);
   }
-  /** go back to original directory and save file */
-  _rootfile->cd("/");
-  ROOTFileHelper::close(_rootfile);
 }
 
 void pp2000::processEvent(const cass::CASSEvent &evt)
 {
   if (!_condition->result(evt.id()).isTrue())
     return;
-  QMutexLocker locker(&_lock);
-  /** create directory from eventId and cd into it */
-  _rootfile->cd("/");
-  string dirname(ROOT::eventIdToDirectoryName(evt.id()));
-  _rootfile->mkdir(dirname.c_str())->cd();
-  /** retrieve postprocessor container */
-  PostProcessors::postprocessors_t &ppc(PostProcessors::reference().postprocessors());
-  /** go through all contents of the container */
-  PostProcessors::postprocessors_t::iterator it (ppc.begin());
-  for (;it != ppc.end(); ++it)
+
+  /** check if there is something to be written */
+  if (!_ppList.empty())
   {
-    PostProcessor &pp (*(it->get()));
-    if (false)
+    QMutexLocker locker(&_lock);
+
+    /** create the directory name from eventId */
+    string dirname(ROOT::eventIdToDirectoryName(evt.id()));
+
+    /** write all entries to file */
+    list<entry_t>::const_iterator it(_ppList.begin());
+    list<entry_t>::const_iterator last(_ppList.end());
+    while(it != last)
     {
-      /** if so write it to the root file */
-      const HistogramBackend &cassbackend(pp.result(evt.id()));
-      const HistogramFloatBase &casshist(dynamic_cast<const HistogramFloatBase&>(cassbackend));
-      casshist.lock.lockForRead();
-      ROOT::copyHistToRootFile(casshist);
-      casshist.lock.unlock();
+      /** create and change into dir given by user then write hist with given
+       *  name into the file
+       */
+      string folder("/" + dirname + "/" + it->groupname);
+      ROOT::changeDir(_rootfile,folder);
+      ROOT::copyHistToRootFile(dynamic_cast<const HistogramFloatBase&>(it->pp->result(evt.id())),it->name);
     }
+
+    /** go back to original directory and save file */
+    _rootfile->cd("/");
+    _rootfile->SaveSelf();
   }
-  /** go back to original directory and save file */
-  _rootfile->cd("/");
-  _rootfile->SaveSelf();
 }
 

@@ -25,15 +25,68 @@ namespace cass
  * them to a root file. Filename can be chosen with the -o parameter at
  * program start.
  *
- * @todo make sure that only the requested list will be written.
+ * @cassttng PostProcessor/\%name\%/{FileName} \n
+ *           The name of the output root file. Default is "output.root"
+ * @cassttng PostProcessor/\%name\%/PostProcessor/{size} \n
+ *           How many PostProcessors should be written to the root file.
+ * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
+ *           Name of the PostProcessor that should be written into the root file.
+ *           Default is "unknown"
+ * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{GroupName} \n
+ *           Name of the group in the h5 file into which the PostProcessor
+ *           should be written into. Default is "/". Note that the eventid will
+ *           be prepended to the Name given here.
+ * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{ValName} \n
+ *           Name that the data should have in the root file. Default is the
+ *           name of the PostProcessor.
+ * @cassttng PostProcessor/\%name\%/PostProcessorSummary/size \n
+ *           How many PostProcessors should be written to the root file.
+ * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
+ *           Name of the PostProcessor that should be written into the root file.
+ *           Default is "unknown"
+ * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{GroupName} \n
+ *           Name of the group in the root file into which the PostProcessor
+ *           should be written into. Default is "/"
+ * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{ValName} \n
+ *           Name that the data should have in the root file. Default is the
+ *           name of the PostProcessor.
  *
  * @author Lutz Foucar
  */
 class pp2000 : public PostProcessor
 {
 public:
+  /** struct bundleing info for writing an entry to file
+   *
+   * @author Lutz Foucar
+   */
+  struct entry_t
+  {
+    /** constructor
+     *
+     * @param _name the name of the value in the file
+     * @param _groupname the group where the data will be written to
+     * @param _options the options for writing
+     * @param _pp the postprocessor holding the data to be written
+     */
+    entry_t(const std::string &_name,
+            const std::string &_groupname,
+            shared_pointer _pp)
+      : name(_name), groupname(_groupname),pp(_pp)
+    {}
+
+    /** name of the value in the file */
+    std::string name;
+
+    /** group where the data will be written to */
+    std::string groupname;
+
+    /** postprocessor holding the data to be written */
+    shared_pointer pp;
+  };
+
   /** Construct postprocessor for converting histograms to root histograms */
-  pp2000(const name_t&name, std::string rootfilename);
+  pp2000(const name_t&name);
 
   /** only a stub does nothing, but needs to be there because its pure virtual in base class */
   virtual void processEvent(const CASSEvent&);
@@ -52,7 +105,13 @@ public:
 
 protected:
   /** the root filename where we store the data in */
-  //    std::string _rootfilename;
+  std::string _rootfilename;
+
+  /** container with all pps that contain the histograms to dump to hdf5 */
+  std::list<entry_t> _ppList;
+
+  /** container for all pps that should be written when program quits */
+  std::list<entry_t> _ppSummaryList;
 
   /** the root file */
   TFile * _rootfile;
