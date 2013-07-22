@@ -41,6 +41,9 @@ namespace cass
  * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{GroupName} \n
  *           Name of the group in the h5 file into which the PostProcessor
  *           should be written into. Default is "/"
+ * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{ValName} \n
+ *           Name that the data should have in the h5 file. Default is the
+ *           name of the PostProcessor.
  * @cassttng PostProcessor/\%name\%/PostProcessorSummary/size \n
  *           How many PostProcessors should be written to the h5 file.
  * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
