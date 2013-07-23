@@ -67,7 +67,7 @@ void pp5000::process(const CASSEvent& evt, HistogramBackend &res)
   result.clear();
   for (; it != particle.hits().end(); ++it)
   {
-    double p = (*it)["roh"];
+    double p = (*it)[roh];
     double e_energy = p*p*13.6;
     result.fill(e_energy);
   }
@@ -118,7 +118,7 @@ void pp5001::process(const CASSEvent& evt, HistogramBackend &res)
       SignalProducer::signals_t::const_iterator it03(it02+1);
       for (; it03 != end; ++it03)
       {
-        result.fill((*it01)["time"]+(*it02)["time"],(*it03)["time"]);
+        result.fill((*it01)[ACQIRIS::time]+(*it02)[ACQIRIS::time],(*it03)[ACQIRIS::time]);
       }
     }
   }

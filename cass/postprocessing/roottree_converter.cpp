@@ -271,7 +271,11 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
     {
       treehit_t treehit;
       detectorHit_t &hitvalues(*hit);
-      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
+//      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
+      treehit["x"] = hitvalues[x];
+      treehit["y"] = hitvalues[y];
+      treehit["t"] = hitvalues[t];
+      treehit["method"] = hitvalues[method];
       treedet.push_back(treehit);
     }
   }
@@ -292,7 +296,25 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
     {
       treehit_t treehit;
       particleHit_t &hitvalues(*hit);
-      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
+//      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
+      treehit["px"] = hitvalues[px];
+      treehit["py"] = hitvalues[py];
+      treehit["pz"] = hitvalues[pz];
+      treehit["x_mm"] = hitvalues[x_mm];
+      treehit["y_mm"] = hitvalues[y_mm];
+      treehit["tof_ns"] = hitvalues[tof_ns];
+      treehit["xCor_mm"] = hitvalues[xCor_mm];
+      treehit["yCor_mm"] = hitvalues[yCor_mm];
+      treehit["xCorScal_mm"] = hitvalues[xCorScal_mm];
+      treehit["yCorScal_mm"] = hitvalues[yCorScal_mm];
+      treehit["xCorScalRot_mm"] = hitvalues[xCorScalRot_mm];
+      treehit["yCorScalRot_mm"] = hitvalues[yCorScalRot_mm];
+      treehit["tofCor_ns"] = hitvalues[tofCor_ns];
+      treehit["roh"] = hitvalues[roh];
+      treehit["theta"] = hitvalues[theta];
+      treehit["phi"] = hitvalues[phi];
+      treehit["e_au"] = hitvalues[e_au];
+      treehit["e_eV"] = hitvalues[e_eV];
       treeparticle.push_back(treehit);
     }
   }

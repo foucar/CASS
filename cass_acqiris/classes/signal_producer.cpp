@@ -19,31 +19,31 @@ using namespace std;
 
 namespace cass
 {
-  namespace ACQIRIS
+namespace ACQIRIS
+{
+/** functor returning true if signal is in requested range
+ *
+ * @author Lutz Foucar
+ */
+class isInTimeRange : std::unary_function<SignalProducer::signal_t,bool>
+{
+public:
+  /** constructor intializing the range*/
+  isInTimeRange(const std::pair<double,double>& range)
+    :_range(range)
+  {}
+
+  bool operator()(const SignalProducer::signal_t &sig)const
   {
-    /** functor returning true if signal is in requested range
-     *
-     * @author Lutz Foucar
-     */
-    class isInTimeRange : std::unary_function<SignalProducer::signal_t,bool>
-    {
-    public:
-      /** constructor intializing the range*/
-      isInTimeRange(const std::pair<double,double>& range)
-        :_range(range)
-      {}
-
-      bool operator()(const SignalProducer::signal_t &sig)const
-      {
-        return (sig["time"] >_range.first && sig["time"] <= _range.second);
-      }
-
-    private:
-      /** the range */
-      std::pair<double,double> _range;
-    };
+    return (sig[time] >_range.first && sig[time] <= _range.second);
   }
-}
+
+private:
+  /** the range */
+  std::pair<double,double> _range;
+};
+}//end namespace cass
+}//end namespace acqiris
 
 void SignalProducer::loadSettings(CASSSettings &s)
 {
@@ -78,19 +78,19 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
     _goodHitExtracted = true;
     signals_t &sigs (output());
     signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(),isInTimeRange(range)));
-    _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
+    _goodHit = (sigIt != sigs.end())? (*sigIt)[time] : 0;
   }
   return _goodHit;
 }
 
 double SignalProducer::firstGood()
 {
-	if(!_goodHitExtracted)
+  if(!_goodHitExtracted)
   {
     _goodHitExtracted = true;
     signals_t &sigs (output());
     signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(_range)));
-    _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
+    _goodHit = (sigIt != sigs.end())? (*sigIt)[time] : 0;
   }
   return _goodHit;
 }

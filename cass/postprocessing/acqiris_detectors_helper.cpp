@@ -52,7 +52,7 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
 {
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
-  s.beginGroup(detname.c_str());
+  s.beginGroup(QString::fromStdString(detname));
   _dettype = (static_cast<DetectorType>(s.value("DetectorType",ToF).toUInt()));
   s.endGroup();
   s.endGroup();

@@ -68,17 +68,17 @@ detectorHits_t& DelaylineNonSorting::operator()(detectorHits_t &hits)
    */
   for (; sigIt != end; ++sigIt, ++iF1, ++iF2, ++iS1, ++iS2)
   {
-    detectorHit_t hit;
-    const double f1 ((*iF1)["time"]);
-    const double f2 ((*iF2)["time"]);
-    const double s1 ((*iS1)["time"]);
-    const double s2 ((*iS2)["time"]);
+    detectorHit_t hit(NbrDetectorHitDefinitions,0);
+    const double f1 ((*iF1)[time]);
+    const double f2 ((*iF2)[time]);
+    const double s1 ((*iS1)[time]);
+    const double s2 ((*iS2)[time]);
     const double f ((f1-f2) * _sf.first);
     const double s ((s1-s2) * _sf.second);
     const pair<double,double> pos ((*_poscalc)(make_pair(f,s)));
-    hit["x"] = pos.first;
-    hit["y"] = pos.second;
-    hit["t"] = 0;
+    hit[x] = pos.first;
+    hit[y] = pos.second;
+    hit[t] = 0;
     hits.push_back(hit);
   }
   return hits;
@@ -93,62 +93,45 @@ void DelaylineNonSorting::loadSettings(CASSSettings& s, DelaylineDetector &d)
 
   s.beginGroup("NonSorting");
   LayerComb lc (static_cast<LayerComb>(s.value("LayersToUse",xy).toInt()));
-  if (lc == xy)
-  {
-    if (delaylinetype == Hex)
-    {
-      stringstream ss;
-      ss << "DelaylineNonSorting::loadSettings: Error using layers xy for Hex-Detector";
-      throw invalid_argument(ss.str());
-    }
-  }
-  if (delaylinetype == Quad)
-  {
-    if (lc == uv || lc == uw || lc == vw)
-    {
-      stringstream ss;
-      ss << "DelaylineNonSorting::loadSettings: Error using layers uv, uw or vw for Quad-Detector";
-      throw invalid_argument(ss.str());
-    }
-  }
+  if ((lc == xy) && (delaylinetype == Hex))
+    throw invalid_argument("DelaylineNonSorting::loadSettings: Error using layers xy for Hex-Detector");
+  if ((delaylinetype == Quad) && (lc == uv || lc == uw || lc == vw))
+    throw invalid_argument("DelaylineNonSorting::loadSettings: Error using layers uv, uw or vw for Quad-Detector");
 
   switch (lc)
   {
   case (xy):
     _layerCombination = make_pair(make_pair(&d.layers()['X'].wireends()['1'],
-                                            &d.layers()['X'].wireends()['2']),
-                                  make_pair(&d.layers()['Y'].wireends()['1'],
-                                            &d.layers()['Y'].wireends()['2']));
+        &d.layers()['X'].wireends()['2']),
+        make_pair(&d.layers()['Y'].wireends()['1'],
+        &d.layers()['Y'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new XYCalc);
     break;
   case (uv):
     _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
-                                            &d.layers()['U'].wireends()['2']),
-                                  make_pair(&d.layers()['V'].wireends()['1'],
-                                            &d.layers()['V'].wireends()['2']));
+        &d.layers()['U'].wireends()['2']),
+        make_pair(&d.layers()['V'].wireends()['1'],
+        &d.layers()['V'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new UVCalc);
     break;
   case (uw):
     _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
-                                            &d.layers()['U'].wireends()['2']),
-                                  make_pair(&d.layers()['W'].wireends()['1'],
-                                            &d.layers()['W'].wireends()['2']));
+        &d.layers()['U'].wireends()['2']),
+        make_pair(&d.layers()['W'].wireends()['1'],
+        &d.layers()['W'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new UWCalc);
     break;
   case (vw):
     _layerCombination = make_pair(make_pair(&d.layers()['V'].wireends()['1'],
-                                            &d.layers()['V'].wireends()['2']),
-                                  make_pair(&d.layers()['W'].wireends()['1'],
-                                            &d.layers()['W'].wireends()['2']));
+        &d.layers()['V'].wireends()['2']),
+        make_pair(&d.layers()['W'].wireends()['1'],
+        &d.layers()['W'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new VWCalc);
     break;
   default:
-    {
-      stringstream ss;
-      ss <<"DelaylineDetectorAnalyzerSimple::loadSettings: Layercombination '"<<lc<<"' not available";
-      throw invalid_argument(ss.str());
-    }
-      break;
+//    throw invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: Layercombination '" +
+//                           toString(lc) + "' not available");
+    break;
   }
   _sf = make_pair(s.value("ScalefactorFirstLayer",0.4).toDouble(),
                   s.value("ScalefactorSecondLayer",0.4).toDouble());

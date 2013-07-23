@@ -7,6 +7,8 @@
  * @author Lutz Foucar
  */
 
+#include <stdexcept>
+
 #include <QtCore/QStringList>
 #include <QtCore/QString>
 
@@ -16,18 +18,13 @@
 #include "detector_analyzer_backend.h"
 
 using namespace cass::ACQIRIS;
+using namespace std;
 
 void AnodeLayer::associate(const CASSEvent &evt)
 {
-//  std::cout <<"    AnodeLay 1"<<std::endl;
   wireends_t::iterator it (_wireends.begin());
-//  std::cout <<"    AnodeLay 2"<<std::endl;
   for (; it != _wireends.end(); ++it)
-  {
-//    std::cout <<"    AnodeLay 3  "<<it->first<<std::endl;
     (*it).second.associate(evt);
-  }
-//  std::cout <<"    AnodeLay 4"<<std::endl;
 }
 
 void AnodeLayer::loadSettings(CASSSettings &s)
@@ -42,32 +39,22 @@ void AnodeLayer::loadSettings(CASSSettings &s)
 
 void DelaylineDetector::associate(const CASSEvent & evt)
 {
-//  std::cout << "   DelayDet 1"<<std::endl;
   _newEventAssociated = true;
-//  std::cout << "   DelayDet 2"<<std::endl;
   _hits.clear();
-//  std::cout << "   DelayDet 3"<<std::endl;
   _mcp.associate(evt);
-//  std::cout << "   DelayDet 4"<<std::endl;
   anodelayers_t::iterator it (_anodelayers.begin());
-//  std::cout << "   DelayDet 5"<<std::endl;
   for (; it != _anodelayers.end(); ++it)
   {
-//    std::cout << "   DelayDet 6 "<<it->first<<std::endl;
     (*it).second.associate(evt);
   }
-//  std::cout << "   DelayDet 7"<<std::endl;
   particles_t::iterator pit (_particles.begin());
-//  std::cout << "   DelayDet 8"<<std::endl;
   for (; pit != _particles.end();++pit)
     (*pit).second.associate(this);
-//  std::cout << "   DelayDet 9"<<std::endl;
 }
 
 void DelaylineDetector::loadSettings(CASSSettings &s)
 {
-  using namespace std;
-  s.beginGroup(_name.c_str());
+  s.beginGroup(QString::fromStdString(_name));
   DelaylineType delaylinetype
       (static_cast<DelaylineType>(s.value("DelaylineType",Hex).toInt()));
   s.beginGroup("MCP");
@@ -95,8 +82,8 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
     s.endGroup();
     break;
   default:
-    throw std::invalid_argument("DelaylineDetector::loadSettings(): delayline type '" +
-                                toString(delaylinetype) + "' does not exist");
+    throw invalid_argument("DelaylineDetector::loadSettings(): delayline type '" +
+                           toString(delaylinetype) + "' does not exist");
     break;
   }
   _analyzer =
@@ -119,11 +106,7 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
 
 detectorHits_t& DelaylineDetector::hits()
 {
-//  std::cout << " DelayDet 1"<<std::endl;
   bool newEventAssociated (_newEventAssociated);
-//  std::cout << " DelayDet 2 "<<std::boolalpha<<_newEventAssociated<<std::endl;
   _newEventAssociated = false;
-//  std::cout << " DelayDet 3 "<<_analyzer.get()<<std::endl;
   return (newEventAssociated)? (*_analyzer)(_hits):_hits;
-//  std::cout << " DelayDet 4"<<std::endl;
 }

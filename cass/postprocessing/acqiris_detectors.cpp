@@ -190,7 +190,7 @@ void pp151::process(const CASSEvent &evt, HistogramBackend &res)
 
   result.clear();
   while ( it != end )
-    result.fill((*it++)["time"]);
+    result.fill((*it++)[ACQIRIS::time]);
 }
 
 
@@ -237,7 +237,7 @@ void pp152::process(const CASSEvent &evt, HistogramBackend &res)
 
   result.clear();
   for (; it != end; ++it)
-    result.fill((*it)["fwhm"],(*it)["height"]);
+    result.fill((*it)[fwhm],(*it)[height]);
 }
 
 
@@ -282,7 +282,7 @@ void pp153::process(const CASSEvent& evt, HistogramBackend &res)
   result.clear();
   for (size_t i(1); i < mcp.size(); ++i)
   {
-    const float diff(mcp[i-1]["time"] - mcp[i]["time"]);
+    const float diff(mcp[i-1][ACQIRIS::time] - mcp[i][ACQIRIS::time]);
     result.fill(diff);
   }
 }
@@ -381,7 +381,7 @@ void pp161::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.clear();
   for (; it != end; ++it)
-    result.fill((*it)["fwhm"],(*it)["height"]);
+    result.fill((*it)[fwhm],(*it)[height]);
 }
 
 
@@ -635,19 +635,19 @@ void pp166::loadSettings(size_t)
   if (!setupCondition())
     return;
   _detector = loadDelayDet(s,166,name());
-  _first = s.value("XInput",'x').toString().toStdString();
-  _second = s.value("YInput",'y').toString().toStdString();
-  _third =  s.value("ConditionInput",'t').toString().toStdString();
+  _first = static_cast<ACQIRIS::detectorHits>(s.value("XInput",0).toInt());
+  _second = static_cast<ACQIRIS::detectorHits>(s.value("YInput",1).toInt());
+  _third =  static_cast<ACQIRIS::detectorHits>(s.value("ConditionInput",2).toInt());
   _cond = make_pair(min(s.value("ConditionLow",-50000.).toFloat(),
                         s.value("ConditionHigh",50000.).toFloat()),
                     max(s.value("ConditionLow",-50000.).toFloat(),
                         s.value("ConditionHigh",50000.).toFloat()));
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
-           _second + "' vs. '" + _first +
+           toString(_second) + "' vs. '" + toString(_first) +
            "' of the reconstructed detectorhits of detector '" + _detector +
            "'. It puts a condition from '" + toString(_cond.first) +
-           "' to '" + toString(_cond.second) +  "' on Property '" +  _third +
+           "' to '" + toString(_cond.second) +  "' on Property '" +  toString(_third) +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -710,7 +710,7 @@ void pp167::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.clear();
   for (size_t i(1); i < anode.size(); ++i)
-    result.fill(anode[i-1]["time"] - anode[i]["time"]);
+    result.fill(anode[i-1][ACQIRIS::time] - anode[i][ACQIRIS::time]);
 }
 
 
@@ -766,7 +766,7 @@ void pp220::process(const CASSEvent& evt, HistogramBackend &res)
                                                      it01+1 :
                                                      det02.mcp().output().begin());
     for (; it02 != end02; ++it02)
-      result.fill((*it01)["time"],(*it02)["time"]);
+      result.fill((*it01)[ACQIRIS::time],(*it02)[ACQIRIS::time]);
   }
 }
 
@@ -791,10 +791,10 @@ void pp250::loadSettings(size_t)
     return;
   _detector = loadDelayDet(s,250,name());
   _particle = loadParticle(s,_detector,250,name());
-  _property = s.value("Property","px").toString().toStdString();
+  _property = static_cast<ACQIRIS::particleHits>(s.value("Property",0).toInt());
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
-           _property + "' of the particle '" + _particle + "' of detector '" +
+           toString(_property) + "' of the particle '" + _particle + "' of detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -836,11 +836,11 @@ void pp251::loadSettings(size_t)
     return;
   _detector = loadDelayDet(s,251,name());
   _particle = loadParticle(s,_detector,251,name());
-  _property01 = s.value("FirstProperty","px").toString().toStdString();
-  _property02 = s.value("SecondProperty","py").toString().toStdString();
+  _property01 = static_cast<ACQIRIS::particleHits>(s.value("Property",0).toInt());
+  _property02 = static_cast<ACQIRIS::particleHits>(s.value("Property",1).toInt());
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
-           _property02 + "' vs. '" + _property01 + "' of the particle '" +
+           toString(_property02) + "' vs. '" + toString(_property01) + "' of the particle '" +
            _particle + "' of detector '" + _detector + "'. Condition is '"+
            _condition->name() + "'");
 }

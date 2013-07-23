@@ -41,7 +41,7 @@ void extactTimes(pair<SignalProducer*,vector<double> > & thePair)
   SignalProducer::signals_t &sigs(thePair.first->output());
   SignalProducer::signals_t::const_iterator sigsIt(sigs.begin());
   for (;sigsIt !=sigs.end(); ++sigsIt)
-    tdcarray.push_back((*sigsIt)["time"]);
+    tdcarray.push_back((*sigsIt)[time]);
 }
 }//end namespace AchimHex
 }//end namespace acqiris
@@ -96,11 +96,11 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
   //copy the reconstructed hits to our dethits//
   for (int i(0);i<nbrOfRecHits;++i)
   {
-    detectorHit_t hit;
-    hit["x"] = _sorter->output_hit_array[i]->x;
-    hit["y"] = _sorter->output_hit_array[i]->y;
-    hit["t"] = _sorter->output_hit_array[i]->time;
-    hit["method"] = _sorter->output_hit_array[i]->method;
+    detectorHit_t hit(NbrDetectorHitDefinitions,0);
+    hit[x] = _sorter->output_hit_array[i]->x;
+    hit[y] = _sorter->output_hit_array[i]->y;
+    hit[t] = _sorter->output_hit_array[i]->time;
+    hit[method] = _sorter->output_hit_array[i]->method;
     hits.push_back(hit);
   }
 

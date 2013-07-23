@@ -21,91 +21,92 @@
 #include "cass_settings.h"
 #include "poscalculator.hpp"
 
+using namespace cass;
 using namespace cass::ACQIRIS;
+using namespace std;
+using namespace std::tr1;
+
 namespace cass
 {
-  namespace ACQIRIS
+namespace ACQIRIS
+{
+//@{
+/** typedefs for shorter code */
+typedef SignalProducer::signal_t signal_t;
+typedef SignalProducer::signals_t signals_t;
+typedef signals_t::iterator sigIt_t;
+typedef std::pair<sigIt_t,sigIt_t> range_t;
+//@}
+
+/** check whether anode end wire signal is correleated to mcp signal
+ *
+ * see getSignalRange() for details
+ *
+ * @author Lutz Foucar
+ */
+struct isInRange : std::unary_function<signal_t,bool>
+{
+  /** constructor
+   *
+   * @param mcp the time of the mcp signal
+   * @param timesum the timesum of the anode layer
+   * @param maxruntime the time it takes a signal to run across the whole anode
+   */
+  isInRange(double mcp, double timesum, double maxruntime)
+    :_mcp(mcp),_timesum(timesum),_maxruntime(maxruntime)
+  {}
+
+  /** check correlation
+   *
+   * check whether signal can be correlated with the mcp signal time
+   *
+   * @return true when signal can be correlated
+   * @param sig the signal which needs to be checked for correlation
+   */
+  bool operator()(const signal_t &sig) const
   {
-    //@{
-    /** typedefs for shorter code */
-    typedef SignalProducer::signal_t signal_t;
-    typedef SignalProducer::signals_t signals_t;
-    typedef signals_t::iterator sigIt_t;
-    typedef std::pair<sigIt_t,sigIt_t> range_t;
-    //@}
-
-    /** check whether anode end wire signal is correleated to mcp signal
-     *
-     * see getSignalRange() for details
-     *
-     * @author Lutz Foucar
-     */
-    struct isInRange : std::unary_function<signal_t,bool>
-    {
-      /** constructor
-       *
-       * @param mcp the time of the mcp signal
-       * @param timesum the timesum of the anode layer
-       * @param maxruntime the time it takes a signal to run across the whole anode
-       */
-      isInRange(double mcp, double timesum, double maxruntime)
-        :_mcp(mcp),_timesum(timesum),_maxruntime(maxruntime)
-      {}
-
-      /** check correlation
-       *
-       * check whether signal can be correlated with the mcp signal time
-       *
-       * @return true when signal can be correlated
-       * @param sig the signal which needs to be checked for correlation
-       */
-      bool operator()(const signal_t &sig) const
-      {
-        return fabs(2.*sig["time"] - 2.*_mcp - _timesum) <= _maxruntime;
-      }
-
-    private:
-      double _mcp;        //!< the time of the mcp signal
-      double _timesum;    //!< the timesum of the anode layer
-      double _maxruntime; //!< the time it takes the signal to run across the anode
-    };
-
-    /** return range of possible anode wire signal candidates
-     *
-     * For a given Mcp time there are only a few signal on the wire ends that
-     * can come with the Mcp Signal. This function will find the indexs of the
-     * list of signals which might come together with the mcp signal.
-     * This is because we know two things (ie. for the x-layer):
-     * \f$|x_1-x_2|<rTime_x\f$
-     * and
-     * \f$x_1+x_2-2*mcp = ts_x\f$
-     * with this knowledge we can calculate the boundries for the anode given
-     * the Timesum and the Runtime.
-     *
-     * @return pair of iterator that define the range
-     * @param sigs the vector of signals of the anode wire end
-     * @param mcp the Mcp Signal for which to find the right wire end signals
-     * @param ts The timesum of the Anode
-     * @param rTime The runtime of a Signal over the whole wire of the anode
-     *
-     * @author Lutz Foucar
-     */
-    std::pair<sigIt_t,sigIt_t> getSignalRange(signals_t &sigs, const double mcp, const double ts, const double rTime)
-    {
-      using namespace std;
-
-      sigIt_t begin (find_if(sigs.begin(),sigs.end(),isInRange(mcp,ts,rTime)));
-      sigIt_t end (find_if(begin, sigs.end(),not1(isInRange(mcp,ts,rTime))));
-      return (make_pair(begin,end));
-    }
-
+    return fabs(2.*sig[time] - 2.*_mcp - _timesum) <= _maxruntime;
   }
+
+private:
+  double _mcp;        //!< the time of the mcp signal
+  double _timesum;    //!< the timesum of the anode layer
+  double _maxruntime; //!< the time it takes the signal to run across the anode
+};
+
+/** return range of possible anode wire signal candidates
+ *
+ * For a given Mcp time there are only a few signal on the wire ends that
+ * can come with the Mcp Signal. This function will find the indexs of the
+ * list of signals which might come together with the mcp signal.
+ * This is because we know two things (ie. for the x-layer):
+ * \f$|x_1-x_2|<rTime_x\f$
+ * and
+ * \f$x_1+x_2-2*mcp = ts_x\f$
+ * with this knowledge we can calculate the boundries for the anode given
+ * the Timesum and the Runtime.
+ *
+ * @return pair of iterator that define the range
+ * @param sigs the vector of signals of the anode wire end
+ * @param mcp the Mcp Signal for which to find the right wire end signals
+ * @param ts The timesum of the Anode
+ * @param rTime The runtime of a Signal over the whole wire of the anode
+ *
+ * @author Lutz Foucar
+ */
+pair<sigIt_t,sigIt_t> getSignalRange(signals_t &sigs, const double mcp, const double ts, const double rTime)
+{
+  sigIt_t begin (find_if(sigs.begin(),sigs.end(),isInRange(mcp,ts,rTime)));
+  sigIt_t end (find_if(begin, sigs.end(),not1(isInRange(mcp,ts,rTime))));
+  return (make_pair(begin,end));
 }
+
+}//end namepsace acqiris
+}//end namespace cass
+
 
 detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits)
 {
-  using namespace std;
-  using namespace cass::ACQIRIS;
   typedef SignalProducer::signal_t signal_t;
   typedef SignalProducer::signals_t signals_t;
   typedef signals_t::iterator sigIt_t;
@@ -119,31 +120,36 @@ detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits
 
   for (sigIt_t iMcp (mcpsignals.begin());iMcp != mcpsignals.end() ;++iMcp)
   {
-    if ((*iMcp)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
-    const double mcp ((*iMcp)["time"]);
+    if (!fuzzyIsNull((*iMcp)[isUsed]))
+      continue;
+    const double mcp ((*iMcp)[time]);
     range_t f1range(getSignalRange(f1signals,mcp,_ts.first,_runtime));
     range_t f2range(getSignalRange(f2signals,mcp,_ts.first,_runtime));
     range_t s1range(getSignalRange(s1signals,mcp,_ts.second,_runtime));
     range_t s2range(getSignalRange(s2signals,mcp,_ts.second,_runtime));
     for (sigIt_t iF1 (f1range.first);iF1!=f1range.second;++iF1)
     {
-      if ((*iF1)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+      if (!fuzzyIsNull((*iF1)[isUsed]))
+        continue;
       for (sigIt_t iF2 (f2range.first);iF2!=f2range.second;++iF2)
       {
-        if ((*iF2)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+        if (!fuzzyIsNull((*iF2)[isUsed]))
+          continue;
         for (sigIt_t iS1 (s1range.first);iS1!=s1range.second;++iS1)
         {
-          if ((*iS1)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+          if (!fuzzyIsNull((*iS1)[isUsed]))
+            continue;
           for (sigIt_t iS2 (s2range.first);iS2!=s2range.second;++iS2)
           {
-            if ((*iS2)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+            if (!fuzzyIsNull((*iS2)[isUsed]))
+              continue;
 
-            const double mcp ((*iMcp)["time"]);
+            const double mcp ((*iMcp)[time]);
 
-            const double f1 ((*iF1)["time"]);
-            const double f2 ((*iF2)["time"]);
-            const double s1 ((*iS1)["time"]);
-            const double s2 ((*iS2)["time"]);
+            const double f1 ((*iF1)[time]);
+            const double f2 ((*iF2)[time]);
+            const double s1 ((*iS1)[time]);
+            const double s2 ((*iS2)[time]);
             const double sumf (f1+f2 - 2.* mcp);
             const double sums (s1+s2 - 2.* mcp);
             const double f((f1-f2) * _sf.first);
@@ -159,16 +165,16 @@ detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits
               {
                 if (radius < _mcpRadius)
                 {
-                  detectorHit_t hit;
-                  hit["x"] = pos.first;
-                  hit["y"] = pos.second;
-                  hit["t"] = (*iMcp)["time"];
+                  detectorHit_t hit(NbrDetectorHitDefinitions,0);
+                  hit[x] = pos.first;
+                  hit[y] = pos.second;
+                  hit[t] = (*iMcp)[time];
                   hits.push_back(hit);
-                  (*iMcp)["isUsed"] = true;
-                  (*iF1)["isUsed"] = true;
-                  (*iF2)["isUsed"] = true;
-                  (*iS1)["isUsed"] = true;
-                  (*iS2)["isUsed"] = true;
+                  (*iMcp)[isUsed] = true;
+                  (*iF1)[isUsed] = true;
+                  (*iF2)[isUsed] = true;
+                  (*iS1)[isUsed] = true;
+                  (*iS2)[isUsed] = true;
                 }
               }
             }
@@ -182,8 +188,6 @@ detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits
 
 void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDetector &d)
 {
-  using namespace std;
-  using namespace std::tr1;
   enum LayerComb{xy,uv,uw,vw};
 
   DelaylineType delaylinetype
@@ -191,62 +195,45 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
 
   s.beginGroup("Simple");
   LayerComb lc (static_cast<LayerComb>(s.value("LayersToUse",xy).toInt()));
-  if (lc == xy)
-  {
-    if (delaylinetype == Hex)
-    {
-      stringstream ss;
-      ss << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers xy for Hex-Detector";
-      throw invalid_argument(ss.str());
-    }
-  }
-  if (delaylinetype == Quad)
-  {
-    if (lc == uv || lc == uw || lc == vw)
-    {
-      stringstream ss;
-      ss << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers uv, uw or vw for Quad-Detector";
-      throw invalid_argument(ss.str());
-    }
-  }
+  if ((lc == xy) && (delaylinetype == Hex))
+      throw invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers xy for Hex-Detector");
+  if ((delaylinetype == Quad) && (lc == uv || lc == uw || lc == vw))
+      throw invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers uv, uw or vw for Quad-Detector");
 
   switch (lc)
   {
   case (xy):
     _layerCombination = make_pair(make_pair(&d.layers()['X'].wireends()['1'],
-                                            &d.layers()['X'].wireends()['2']),
-                                  make_pair(&d.layers()['Y'].wireends()['1'],
-                                            &d.layers()['Y'].wireends()['2']));
+        &d.layers()['X'].wireends()['2']),
+        make_pair(&d.layers()['Y'].wireends()['1'],
+        &d.layers()['Y'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new XYCalc);
     break;
   case (uv):
     _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
-                                            &d.layers()['U'].wireends()['2']),
-                                  make_pair(&d.layers()['V'].wireends()['1'],
-                                            &d.layers()['V'].wireends()['2']));
+        &d.layers()['U'].wireends()['2']),
+        make_pair(&d.layers()['V'].wireends()['1'],
+        &d.layers()['V'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new UVCalc);
     break;
   case (uw):
     _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
-                                            &d.layers()['U'].wireends()['2']),
-                                  make_pair(&d.layers()['W'].wireends()['1'],
-                                            &d.layers()['W'].wireends()['2']));
+        &d.layers()['U'].wireends()['2']),
+        make_pair(&d.layers()['W'].wireends()['1'],
+        &d.layers()['W'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new UWCalc);
     break;
   case (vw):
     _layerCombination = make_pair(make_pair(&d.layers()['V'].wireends()['1'],
-                                            &d.layers()['V'].wireends()['2']),
-                                  make_pair(&d.layers()['W'].wireends()['1'],
-                                            &d.layers()['W'].wireends()['2']));
+        &d.layers()['V'].wireends()['2']),
+        make_pair(&d.layers()['W'].wireends()['1'],
+        &d.layers()['W'].wireends()['2']));
     _poscalc = shared_ptr<PositionCalculator>(new VWCalc);
     break;
   default:
-    {
-      stringstream ss;
-      ss <<"DelaylineDetectorAnalyzerSimple::loadSettings: Layercombination '"<<lc<<"' not available";
-      throw invalid_argument(ss.str());
-    }
-      break;
+//    throw invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: Layercombination '" +
+//                           toString(lc) + "' not available");
+    break;
   }
   _mcp = &d.mcp();
   _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow",0).toDouble(),

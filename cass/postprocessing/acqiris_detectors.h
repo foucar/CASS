@@ -663,22 +663,14 @@ protected:
  *           type detectors.
  * @cassttng PostProcessor/\%name\%/{XInput}\n
  *           The value that should be put onto the x-axis of the histogram.
- *           Default is 'x'. Options are:
- *           - x: x-position of the reconstructed hit
- *           - y: x-position of the reconstructed hit
- *           - t: time of impact of the reconstructed hit
+ *           Default is 0. For all options see ACQIRIS::detectorHits
  * @cassttng PostProcessor/\%name\%/{YInput}\n
  *           The value that should be put onto the x-axis of the histogram.
- *           Default is 'y'. Options are:
- *           - x: x-position of the reconstructed hit
- *           - y: x-position of the reconstructed hit
- *           - t: time of impact of the reconstructed hit
+ *           Default is 1. For all options see ACQIRIS::detectorHits
  * @cassttng PostProcessor/\%name\%/{ConditionInput}\n
  *           The value that should be checked for the range before filling the
- *           histogram. Default is 't'. Options are:
- *           - x: x-position of the reconstructed hit
- *           - y: x-position of the reconstructed hit
- *           - t: time of impact of the reconstructed hit
+ *           histogram.
+ *           Default is 2. For all options see ACQIRIS::detectorHits
  * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
  *           the condition range that should be applied to the condition input
  *
@@ -701,13 +693,13 @@ protected:
   ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
   /** The first value of the detector hit */
-  ACQIRIS::SignalProducer::signal_t::key_type _first;
+  ACQIRIS::detectorHits _first;
 
   /** The second value of the detector */
-  ACQIRIS::SignalProducer::signal_t::key_type _second;
+  ACQIRIS::detectorHits _second;
 
   /** The third value of the detector, that we will check the condition for*/
-  ACQIRIS::SignalProducer::signal_t::key_type _third;
+  ACQIRIS::detectorHits _third;
 
   /** The condition that we impose on the third component*/
   std::pair<float, float> _cond;
@@ -883,30 +875,8 @@ protected:
  *           Default is "NeP"
  * @cassttng PostProcessor/\%name\%/{Property}\n
  *           Name of the particles first property we want to extract
- *           Default is "px".
- *           Available Properties are:
- *           - raw and corrected detectorhit values
- *             - x_mm (raw value of detectorhit)
- *             - y_mm (raw value of detectorhit)
- *             - tof_ns (raw value of detectorhit)
- *             - xCor_mm (corrected position)
- *             - yCor_mm (corrected position)
- *             - xCorScal_mm (corrected and scaled position)
- *             - yCorScal_mm (corrected and scaled position)
- *             - xCorScalRot_mm (corrected, scaled and rotated position)
- *             - yCorScalRot_mm (corrected, scaled and rotated position)
- *             - tofCor_ns (corrected time of flight)
- *           - kartesian coordinates representation of momenta
- *             - px
- *             - py
- *             - pz
- *           - polar coordinate representation of momenta
- *             - roh
- *             - theta
- *             - phi
- *           - Energy
- *             - e_au
- *             - e_eV
+ *           Default is 0.
+ *           Available Properties see ACQIRIS::particleHits
  *
  * @author Lutz Foucar
  */
@@ -930,7 +900,7 @@ protected:
   ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
 
   /** the property of the particle that we want to retrieve */
-  ACQIRIS::particleHit_t::key_type _property;
+  ACQIRIS::particleHits _property;
 };
 
 
@@ -969,56 +939,12 @@ protected:
  *           Default is "NeP"
  * @cassttng PostProcessor/\%name\%/{FirstProperty}\n
  *           Name of the particles first property we want to extract
- *           Default is "px".
- *           Available Properties are:
- *           - raw and corrected detectorhit values
- *             - x_mm (raw value of detectorhit)
- *             - y_mm (raw value of detectorhit)
- *             - tof_ns (raw value of detectorhit)
- *             - xCor_mm (corrected position)
- *             - yCor_mm (corrected position)
- *             - xCorScal_mm (corrected and scaled position)
- *             - yCorScal_mm (corrected and scaled position)
- *             - xCorScalRot_mm (corrected, scaled and rotated position)
- *             - yCorScalRot_mm (corrected, scaled and rotated position)
- *             - tofCor_ns (corrected time of flight)
- *           - kartesian coordinates representation of momenta
- *             - px
- *             - py
- *             - pz
- *           - polar coordinate representation of momenta
- *             - roh
- *             - theta
- *             - phi
- *           - Energy
- *             - e_au
- *             - e_eV
+ *           Default is 0.
+ *           Available Properties see ACQIRIS::particleHits
  * @cassttng PostProcessor/\%name\%/{SecondProperty}\n
  *           Name of the particles second property we want to extract
- *           Default is "py"
- *           Available Properties are:
- *           - raw and corrected detectorhit values
- *             - x_mm (raw value of detectorhit)
- *             - y_mm (raw value of detectorhit)
- *             - tof_ns (raw value of detectorhit)
- *             - xCor_mm (corrected position)
- *             - yCor_mm (corrected position)
- *             - xCorScal_mm (corrected and scaled position)
- *             - yCorScal_mm (corrected and scaled position)
- *             - xCorScalRot_mm (corrected, scaled and rotated position)
- *             - yCorScalRot_mm (corrected, scaled and rotated position)
- *             - tofCor_ns (corrected time of flight)
- *           - kartesian coordinates representation of momenta
- *             - px
- *             - py
- *             - pz
- *           - polar coordinate representation of momenta
- *             - roh
- *             - theta
- *             - phi
- *           - Energy
- *             - e_au
- *             - e_eV
+ *           Default is 1
+ *           Available Properties see ACQIRIS::particleHits
  *
  * @author Lutz Foucar
  */
@@ -1042,10 +968,10 @@ protected:
   ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
 
   /** the first property of the particle that we want to retrieve */
-  ACQIRIS::particleHit_t::key_type _property01;
+  ACQIRIS::particleHits _property01;
 
   /** the second property of the particle that we want to retrieve */
-  ACQIRIS::particleHit_t::key_type _property02;
+  ACQIRIS::particleHits _property02;
 };
 
 

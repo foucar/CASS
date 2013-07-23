@@ -70,7 +70,7 @@ namespace ACQIRIS
  *
  * @author Lutz Foucar
  */
-class CASS_ACQIRISSHARED_EXPORT HexSorter
+class HexSorter
     : public DetectorAnalyzerBackend
 {
 public:

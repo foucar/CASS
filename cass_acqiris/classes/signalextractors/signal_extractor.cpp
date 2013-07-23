@@ -39,11 +39,8 @@ shared_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtra
     sigextr = shared_ptr<SignalExtractor>(new ACQIRISTDC::TDCExtractor());
     break;
   default:
-    {
-      stringstream ss;
-      ss<<"SignalExtractor::instance: SignalExtractor type '"<<type<<"'not available";
-      throw invalid_argument(ss.str());
-    }
+    throw invalid_argument("SignalExtractor::instance: SignalExtractor type '" +
+                           toString(type) + "'not available");
     break;
   }
   return sigextr;

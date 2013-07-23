@@ -6,6 +6,7 @@
  *
  * @author Lutz Foucar
  */
+#include "cass.h"
 
 #include "detector_backend.h"
 #include "delayline_detector.h"
@@ -20,17 +21,14 @@ DetectorBackend::shared_pointer DetectorBackend::instance(const DetectorType &de
   switch(dettype)
   {
   case Delayline:
-    {
-      det = shared_pointer(new DelaylineDetector(detname));
-    }
+    det = shared_pointer(new DelaylineDetector(detname));
     break;
   case ToF:
-    {
-      det = shared_pointer(new TofDetector(detname));
-    }
+    det = shared_pointer(new TofDetector(detname));
     break;
   default:
-      throw invalid_argument("DetectorBackend::instance: no such detector type is present");
+    throw invalid_argument("DetectorBackend::instance: detector type '" +
+                           toString(dettype) + "' is unknown");
   }
   return det;
 }

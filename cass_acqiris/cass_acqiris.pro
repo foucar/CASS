@@ -62,7 +62,6 @@ HEADERS += ./acqiris_converter.h \
     ./agattypes.h \
     ./lma_reader.h \
     ./lma_parser.h \
-    ./map.hpp \
     ../cass/conversion_backend.h \
     ../cass/device_backend.h \
     ../cass/serializer.h \
