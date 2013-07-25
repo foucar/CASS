@@ -54,6 +54,10 @@
 #include "roottree_converter.h"
 #endif
 
+#ifdef FFTW
+#include "fft.h"
+#endif
+
 using namespace cass;
 using namespace std;
 
@@ -555,6 +559,12 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case Autocorrelation2:
     processor = PostProcessor::shared_pointer(new pp311(key));
     break;
+#ifdef FFTW
+  case fft:
+    processor = PostProcessor::shared_pointer(new pp312(key));
+    break;
+#endif
+
   case tof2energy:
     processor = PostProcessor::shared_pointer(new pp400(key));
     break;

@@ -66,6 +66,12 @@ CONFIG      += offline
 #QMAKE_RPATHDIR += /path/to/microhttp/lib
 #QMAKE_RPATHDIR += /path/to/jpeg/lib
 
+# Uncomment the following line to enable a fftw capabilities:
+#CONFIG         += fftw
+#QMAKE_INCDIR   += /path/to/fftw/include
+#QMAKE_LIBDIR   += /path/to/fftw/lib
+#QMAKE_RPATHDIR += /path/to/fftw/lib
+
 # Uncomment the following to also build the JoCASSViewer
 CONFIG          += JoCASSView
 #QMAKE_INCDIR   += /path/to/qwt/include

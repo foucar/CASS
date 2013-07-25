@@ -240,6 +240,13 @@ cernroot {
     QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
 }
 
+# Extra stuff for fftw
+fftw {
+    LIBS           += -lfftw3
+    SOURCES        += ./postprocessing/fft.cpp
+    HEADERS        += ./postprocessing/fft.h
+    DEFINES        += FFTW
+}
 #bin_copy.path       = $$INSTALLBASE/bin
 #bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 #headers.files       = $$HEADERS
