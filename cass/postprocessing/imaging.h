@@ -21,8 +21,15 @@ class CASSEvent;
  *           Width of testimage (default = 1024)
  * @cassttng PostProcessor/\%name\%/{sizeY} \n
  *           Height of testimage (default = 1024)
+ * @cassttng PostProcessor/\%name\%/{FixedValue} \n
+ *           Use a fixed value instead of the product of the column and row index.
+ *           Default is false
+ * @cassttng PostProcessor/\%name\%/{Value} \n
+ *           In case FixedValue is true, this is the value that the image will
+ *           be filled with. Default is 0
  *
  * @author Stephan Kassemeyer
+ * @author Lutz Foucar
  */
 class pp240 : public PostProcessor
 {

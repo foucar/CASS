@@ -30,7 +30,8 @@ void pp240::loadSettings(size_t)
                                                               s.value("sizeY", 1024).toInt()));
   for (int xx=0; xx<s.value("sizeX", 1024).toInt(); ++xx)
     for (int yy=0; yy<s.value("sizeY", 1024).toInt(); ++yy)
-      _result->bin(yy,xx) = xx*yy;
+      _result->bin(yy,xx) = s.value("FixedValue",false).toBool() ?
+            s.value("Value",0).toFloat() : xx*yy;
 
   Log::add(Log::INFO,"Postprocessor " + name() +": creates test image with shape '" +
            toString(s.value("sizeX", 1024).toInt()) + "x" +
