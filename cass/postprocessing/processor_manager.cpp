@@ -416,6 +416,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case highlowpassfilter:
     processor = PostProcessor::shared_pointer(new pp89(key));
     break;
+  case qaverage:
+    processor = PostProcessor::shared_pointer(new pp90(key));
+    break;
   case PixelDetectorImage:
     processor = PostProcessor::shared_pointer(new pp105(key));
     break;

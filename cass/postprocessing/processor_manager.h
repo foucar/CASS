@@ -99,6 +99,8 @@ the Class description for information about what parameters are user settable.
 
 00089: high or low pass filter on 1d histo
 
+00090: Q average of detector image
+
 ---Data retrieval (Histogram contain only last shot)--
 ## Data used with new pixeldetector device
 ## (select appropriate format convert to use these)
@@ -386,6 +388,7 @@ public:
     centerofmass=87,
     axisparameter=88,
     highlowpassfilter=89,
+    qaverage=90,
 
     SingleCcdImage=100,
     SingleCcdImageIntegral=101,

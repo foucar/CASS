@@ -330,7 +330,7 @@ private:
 
 /** convert cspad data into laboratory frame using crystfel geometry files
  *
- * @PPList "12": Constant Value
+ * @PPList "1602": convert cspad data into labframe with geom file
  *
  * generates a lookup table of where in the result image will go which pixel
  *
@@ -372,6 +372,80 @@ protected:
 
   /** the lookup table */
   lookupTable_t _lookupTable;
+
+  /** flag whether to convert the positions in the src from cheetah to cass layout */
+  bool _convertCheetahToCASSLayout;
+
+  /** filename of the geometry file */
+  std::string _filename;
+};
+
+
+
+
+
+
+
+
+
+
+
+/** Create a radial average of q values from a raw detector image
+ *
+ * @PPList "90": Radial average from detector image using geom
+ *
+ * calculate the Q value for each Pixel using the geom file.
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contains the histogram containing the
+ *           cspad image in cass layout. Default is "".
+ * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
+ *           The geom file to use. Default is "cspad.geom".
+ * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
+ *           The wavelength in Angstroem. Default is 1.
+ * @cassttng PostProcessor/\%name\%/{DetectorDistance_m} \n
+ *           The detector distance in m. Default is 6e-2.
+ * @cassttng PostProcessor/\%name\%/{PixelSize_m} \n
+ *           The pixel size in m. Default is 110e-6
+ * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ *           properties of the resulting 1D histogram
+ *
+ * @author Lutz Foucar
+ */
+class pp90 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp90(const name_t &);
+
+  /** process event */
+  virtual void process(const CASSEvent& evt,HistogramBackend &);
+
+  /** load the settings of this pp
+   *
+   * @param unused this parameter is not used
+   */
+  virtual void loadSettings(size_t unused);
+
+protected:
+  /** pp containing 2d histogram */
+  shared_pointer _imagePP;
+
+  /** define the lookuptable */
+  typedef std::vector<size_t> lookupTable_t;
+
+  /** the lookup table */
+  lookupTable_t _lookupTable;
+
+  /** define the normalization factors */
+  typedef std::vector<float> normfactors_t;
+
+  /** the normfactors */
+  normfactors_t _normfactors;
 
   /** flag whether to convert the positions in the src from cheetah to cass layout */
   bool _convertCheetahToCASSLayout;

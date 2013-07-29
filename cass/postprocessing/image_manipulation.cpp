@@ -15,6 +15,7 @@
 
 #include "image_manipulation.h"
 
+#include "convenience_functions.h"
 #include "cass_settings.h"
 #include "histogram.h"
 #include "log.h"
@@ -824,6 +825,123 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 
   for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
     destImage[*idx] = *srcpixel;
+
+  /** relfect that only 1 event was processed and release resources */
+  result.nbrOfFills()=1;
+}
+
+
+
+
+
+
+
+
+
+
+//************ radial average of Q values from det image ***************
+
+pp90::pp90(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp90::loadSettings(size_t)
+{
+  using namespace geometryInfo;
+
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _imagePP = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_imagePP && ret)) return;
+
+  _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
+  _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
+
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
+  conversion_t src2lab = generateConversionMap(_filename,
+                                               srcImageHist.memory().size(),
+                                               srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                               _convertCheetahToCASSLayout);
+
+  /** create the output histogram the storage where to put the normfactors*/
+  createHistList(set1DHist(name()));
+  const Histogram1DFloat& res(dynamic_cast<const Histogram1DFloat&>(result()));
+  _normfactors.resize(res.memory().size());
+  fill(_normfactors.begin(),_normfactors.end(),0);
+
+  /** go through the conversion map and calculate the q value for each pixel
+   *  then find out which bin this corresponses to in the resulting Histogram
+   *  and generate the lookup table this way. Also add it to the normalizing
+   *  vector
+   */
+  _lookupTable.resize(srcImageHist.memory().size());
+  lookupTable_t::iterator lut(_lookupTable.begin());
+  conversion_t::const_iterator pix(src2lab.begin());
+  conversion_t::const_iterator End(src2lab.end());
+  for(;pix != End; ++pix, ++lut)
+  {
+    const double lambda(s.value("Wavelength_A",1).toDouble());
+    const double D(s.value("DetectorDistance_m",6e-2).toDouble());
+    const double n_p(s.value("PixelSize_m",110.e-6).toDouble());
+    const double R(sqrt(pix->x*pix->x + pix->y*pix->y));
+    const double Q(4*3.1415/lambda * sin(0.5*atan(R*n_p/D)));
+    const AxisProperty xaxis(res.axis()[HistogramBackend::xAxis]);
+    int xbin(xaxis.nbrBins() * (Q - xaxis.lowerLimit()) / (xaxis.upperLimit()-xaxis.lowerLimit()) );
+    // figure out whether over of underflow occured//
+    size_t bin;
+    if (0 <= xbin && xbin < static_cast<const int>(xaxis.nbrBins()))
+      bin = xbin;
+    else if (xbin >= static_cast<const int>(xaxis.nbrBins()))
+      bin = xaxis.nbrBins()+HistogramBackend::Overflow;
+    else if (xbin < 0)
+      bin = xaxis.nbrBins()+HistogramBackend::Underflow;
+    *lut = bin;
+    _normfactors[bin] += 1;
+  }
+
+  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will generate Q average from Histogram in " +
+           "PostProcessor '" +  _imagePP->name() +
+           ". Geometry Filename '" + _filename + "'"
+           ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
+           ". Wavelength in Angstroem '" + toString((s.value("Wavelength_A",1).toDouble())) +
+           "' Detector Distance in m '" + toString(s.value("DetectorDistance_m",60e-2).toDouble()) +
+           "' Pixel Size in um '" + toString(s.value("PixelSize_um",110.e-6).toDouble()) +
+           ". Condition is '" + _condition->name() + "'");
+}
+
+void pp90::process(const CASSEvent &evt,HistogramBackend& r)
+{
+  /** Get the input histogram and its memory */
+  const Histogram2DFloat &imageHist
+      (dynamic_cast<const Histogram2DFloat&>(_imagePP->result(evt.id())));
+  const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
+
+  /** get result image and its memory */
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
+  HistogramFloatBase::storage_t& radave(result.memory());
+
+  /** lock resources */
+  QReadLocker(&imageHist.lock);
+
+  /** iterate through the src image and put its pixels at the correct position
+   *  in the vector containing the radial average
+   */
+  HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
+  HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
+  lookupTable_t::const_iterator idx(_lookupTable.begin());
+  for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
+    radave[*idx] = *srcpixel;
+
+  /** normalize by the number of fill for each bin */
+  normfactors_t::const_iterator normfactor(_normfactors.begin());
+  HistogramFloatBase::storage_t::iterator qval(radave.begin());
+  for (; qval != radave.end(); ++qval, ++normfactor)
+    *qval /= *normfactor;
 
   /** relfect that only 1 event was processed and release resources */
   result.nbrOfFills()=1;
