@@ -924,6 +924,7 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   /** get result image and its memory */
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
   HistogramFloatBase::storage_t& radave(result.memory());
+  result.clear();
 
   /** lock resources */
   QReadLocker(&imageHist.lock);
@@ -935,12 +936,13 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
   lookupTable_t::const_iterator idx(_lookupTable.begin());
   for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
-    radave[*idx] = *srcpixel;
+    radave[*idx] += *srcpixel;
 
   /** normalize by the number of fill for each bin */
   normfactors_t::const_iterator normfactor(_normfactors.begin());
   HistogramFloatBase::storage_t::iterator qval(radave.begin());
-  for (; qval != radave.end(); ++qval, ++normfactor)
+  HistogramFloatBase::storage_t::const_iterator qvalsEnd(radave.end());
+  for (; qval != qvalsEnd; ++qval, ++normfactor)
     *qval /= *normfactor;
 
   /** relfect that only 1 event was processed and release resources */
