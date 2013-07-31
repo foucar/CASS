@@ -883,24 +883,16 @@ void pp90::loadSettings(size_t)
   lookupTable_t::iterator lut(_lookupTable.begin());
   conversion_t::const_iterator pix(src2lab.begin());
   conversion_t::const_iterator End(src2lab.end());
+  const double lambda(s.value("Wavelength_A",1).toDouble());
+  const double D(s.value("DetectorDistance_m",6e-2).toDouble());
+  const double n_p(s.value("PixelSize_m",110.e-6).toDouble());
+  const double firstFactor(4.*3.1415/lambda);
   for(;pix != End; ++pix, ++lut)
   {
-    const double lambda(s.value("Wavelength_A",1).toDouble());
-    const double D(s.value("DetectorDistance_m",6e-2).toDouble());
-    const double n_p(s.value("PixelSize_m",110.e-6).toDouble());
     const double R(sqrt(pix->x*pix->x + pix->y*pix->y));
-    const double Q(4*3.1415/lambda * sin(0.5*atan(R*n_p/D)));
-    const AxisProperty xaxis(res.axis()[HistogramBackend::xAxis]);
-    int xbin(xaxis.nbrBins() * (Q - xaxis.lowerLimit()) / (xaxis.upperLimit()-xaxis.lowerLimit()) );
-    // figure out whether over of underflow occured//
-    size_t bin;
-    if (0 <= xbin && xbin < static_cast<const int>(xaxis.nbrBins()))
-      bin = xbin;
-    else if (xbin >= static_cast<const int>(xaxis.nbrBins()))
-      bin = xaxis.nbrBins()+HistogramBackend::Overflow;
-    else if (xbin < 0)
-      bin = xaxis.nbrBins()+HistogramBackend::Underflow;
-    *lut = bin;
+    const double Q(firstFactor * sin(0.5*atan(R*n_p/D)));
+    size_t bin(res.binForVal(Q));
+    *lut = res.binForVal(Q);
     _normfactors[bin] += 1;
   }
 
