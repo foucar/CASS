@@ -501,206 +501,248 @@ pp1602::pp1602(const name_t &name)
 
 namespace cass
 {
-namespace geometryInfo
+/** class to parse a geom file
+ *
+ * @author Lutz Foucar
+ */
+class GeometryInfo
 {
-struct asicInfo_t
-{
-  long int min_fs;
-  long int min_ss;
-  long int max_fs;
-  long int max_ss;
-  string badrow_direction;
-  double res;
-  string clen;
-  double corner_x;
-  double corner_y;
-  long int no_index;
-  double x_fs;
-  double x_ss;
-  double y_fs;
-  double y_ss;
+  /** combine info in the geomfile into a struct */
+  struct asicInfo_t
+  {
+    long int min_fs;
+    long int min_ss;
+    long int max_fs;
+    long int max_ss;
+    string badrow_direction;
+    double res;
+    string clen;
+    double corner_x;
+    double corner_y;
+    long int no_index;
+    double x_fs;
+    double x_ss;
+    double y_fs;
+    double y_ss;
+  };
+
+public:
+  /** combine the position in the lab into a struct */
+  struct pos_t
+  {
+    typedef double x_t;
+    typedef double y_t;
+    x_t x;
+    y_t y;
+  };
+
+  /** define the conversion type */
+  typedef vector<pos_t> conversion_t;
+
+  /** parse the geom file and generate a lookup table
+   *
+   * in the lookup table each entry corresponsed to the coordinates in the lab
+   *
+   * @param filename The filename of the geomfile
+   * @param sizeOfSrc the size of the source image
+   * @param nSrcCols the number of columns (fast changing index) in the image
+   * @param convertFromCheetahToCASS flag to tell whether the geom file uses
+   *                                 layout in Cheetah but CASS uses CASS raw
+   *                                 image coordinates
+   */
+  static conversion_t generateConversionMap(const string &filename,
+                                            const size_t sizeOfSrc,
+                                            const size_t nSrcCols,
+                                            const bool convertFromCheetahToCASS)
+  {
+    typedef map<string,asicInfo_t> asicInfoMap_t;
+    asicInfoMap_t geomInfos;
+    conversion_t src2lab(sizeOfSrc);
+
+    /** open file @throw invalid_argument when it could not be opened */
+    ifstream geomFile (filename.c_str());
+    if (!geomFile.is_open())
+      throw invalid_argument(" pp1602::generateLookupTable(): could not open file '" +
+                             filename +"'");
+
+    /** read the file line by line */
+    string line;
+    while(!geomFile.eof())
+    {
+      getline(geomFile, line);
+
+      /** if there is no '/' in line skip line */
+      if (line.find('/') == string::npos)
+        continue;
+
+      /** get asic string, value name and value (as string) from line */
+      const string asic(line.substr(0,line.find('/')));
+      const string valueNameAndValue(line.substr(line.find('/')+1));
+      string valueName(valueNameAndValue.substr(0,valueNameAndValue.find('=')));
+      string valueString(valueNameAndValue.substr(valueNameAndValue.find('=')+1));
+
+      /** eliminate whitespace from value name */
+      valueName.erase(remove(valueName.begin(), valueName.end(), ' '), valueName.end());
+
+      /** depending on the value name retrieve the value as right type */
+      char * pEnd;
+      if (valueName == "min_fs")
+        geomInfos[asic].min_fs = std::strtol(valueString.c_str(),&pEnd,10);
+      else if (valueName == "min_ss")
+        geomInfos[asic].min_ss = std::strtol(valueString.c_str(),&pEnd,10);
+      else if (valueName == "max_fs")
+        geomInfos[asic].max_fs = std::strtol(valueString.c_str(),&pEnd,10);
+      else if (valueName == "max_ss")
+        geomInfos[asic].max_ss = std::strtol(valueString.c_str(),&pEnd,10);
+      else if (valueName == "badrow_direction")
+      {
+        valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
+        geomInfos[asic].badrow_direction = valueString;
+      }
+      else if (valueName == "res")
+        geomInfos[asic].res = std::strtod(valueString.c_str(),&pEnd);
+      else if (valueName == "clen")
+      {
+        valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
+        geomInfos[asic].clen = valueString;
+      }
+      else if (valueName == "corner_x")
+        geomInfos[asic].corner_x = std::strtod(valueString.c_str(),&pEnd);
+      else if (valueName == "corner_y")
+        geomInfos[asic].corner_y = std::strtod(valueString.c_str(),&pEnd);
+      else if (valueName == "no_index")
+        geomInfos[asic].no_index = std::strtol(valueString.c_str(),&pEnd,10);
+      else if (valueName == "fs")
+      {
+        /** if value is fs then parse the string containing the 2 numbers */
+        pEnd = &valueString[0];
+        for (int i(0); i < 2 ; ++i)
+        {
+          const double number = strtod(pEnd,&pEnd);
+          if (pEnd[0] == 'x')
+            geomInfos[asic].x_fs = number;
+          else if (pEnd[0] == 'y')
+            geomInfos[asic].y_fs = number;
+          else
+            throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
+          ++pEnd;
+        }
+      }
+      else if (valueName == "ss")
+      {
+        pEnd = &valueString[0];
+        for (int i(0); i < 2 ; ++i)
+        {
+          const double number = strtod(pEnd,&pEnd);
+          if (pEnd[0] == 'x')
+            geomInfos[asic].x_ss = number;
+          else if (pEnd[0] == 'y')
+            geomInfos[asic].y_ss = number;
+          else
+            throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
+          ++pEnd;
+        }
+      }
+    }
+
+    /** go through all defined asics */
+    asicInfoMap_t::iterator it(geomInfos.begin());
+    for (; it != geomInfos.end(); ++it)
+    {
+      asicInfo_t& ai(it->second);
+
+      /** if requested transform the start and end positions from the cheetah
+     *  layout to the raw cass layout
+     */
+      if (convertFromCheetahToCASS)
+      {
+        const int nx(Pds::CsPad::MaxRowsPerASIC);
+        const int ny(Pds::CsPad::ColumnsPerASIC);
+        const int quad(ai.min_fs/(2*nx));
+        const int asicRow(ai.min_ss/(1*ny));
+        const int xbegin(ai.min_fs/(1*nx) % 2);
+        const int ybegin(quad*2*4+asicRow);
+
+        ai.min_fs = xbegin*nx;
+        ai.max_fs = xbegin*nx + nx-1;
+
+        ai.min_ss = ybegin*ny;
+        ai.max_ss = ybegin*ny + ny-1;
+      }
+
+
+      /** go through all pixels of this asics module */
+      const int rowAsicRange(ai.max_ss - ai.min_ss);
+      const int colAsicRange(ai.max_fs - ai.min_fs);
+      for (int rowInAsic = 0; rowInAsic <= rowAsicRange; ++rowInAsic)
+      {
+        for (int colInAsic = 0; colInAsic <= colAsicRange; ++colInAsic)
+        {
+          /** find the position in the lab frame (in pixel units) of the current
+          *  position (colInAsic,rowInAsic) in the asic
+          */
+          double xInLab = ai.x_fs*colInAsic + ai.x_ss*rowInAsic + ai.corner_x;
+          double yInLab = ai.y_fs*colInAsic + ai.y_ss*rowInAsic + ai.corner_y;
+
+          /** determine where the current position in the asic is in the src image */
+          int colInSrc = ai.min_fs+colInAsic;
+          int rowInSrc = ai.min_ss+rowInAsic;
+
+          /** find position in the linearized array */
+          int idxInSrc = rowInSrc * nSrcCols + colInSrc;
+
+          /** check if whats been given in the geomfile goes together with the src */
+          if  (idxInSrc >= static_cast<int>(sizeOfSrc))
+            throw out_of_range("generateConversionMap(): The generated index '" +
+                               toString(idxInSrc) + "' is too big for the src with size '"+
+                               toString(sizeOfSrc) +"'");
+
+          /** remember what x,y position in the lab does this position in the
+          *  asic correspond to
+          */
+          src2lab[idxInSrc].x = xInLab;
+          src2lab[idxInSrc].y = yInLab;
+        }
+      }
+    }
+    return src2lab;
+  }
 };
 
-struct pos_t
+namespace geom
 {
-  typedef double x_t;
-  typedef double y_t;
-  x_t x;
-  y_t y;
-};
-
-typedef vector<pos_t> conversion_t;
-
-pos_t minus(const pos_t& minuent, const pos_t &subtrahend )
+/** functor to substract one position from the other
+ *
+ * @return the result of the subtraction
+ * @param minuent the minuent of the subtraction
+ * @param subtrahend the subtrahend of the subtraction
+ *
+ * @author Lutz Foucar
+ */
+GeometryInfo::pos_t minus(const GeometryInfo::pos_t& minuent, const GeometryInfo::pos_t &subtrahend )
 {
-  pos_t pos(minuent);
+  GeometryInfo::pos_t pos(minuent);
   pos.x -= subtrahend.x;
   pos.y -= subtrahend.y;
   return pos;
 }
 
-size_t linearizeComponents(const pos_t &pos, const size_t nCols)
+/** convert index with 2 components into a linearized index
+ *
+ * @return linearized index
+ * @param pos the index in the frame with 2 components
+ * @param nCols the number of columns (fast changing index) in the frame
+ *
+ * @author Lutz Foucar
+ */
+size_t linearizeComponents(const GeometryInfo::pos_t &pos, const size_t nCols)
 {
   const size_t col(static_cast<size_t>(pos.x + 0.5));
   const size_t row(static_cast<size_t>(pos.y + 0.5));
   return (row*nCols + col);
 }
 
-conversion_t generateConversionMap(const string &filename, const size_t sizeOfSrc, const size_t nSrcCols, const bool convertFromCheetahToCASS)
-{
-  typedef map<string,asicInfo_t> asicInfoMap_t;
-  asicInfoMap_t geomInfos;
-  conversion_t src2lab(sizeOfSrc);
-
-  /** open file @throw invalid_argument when it could not be opened */
-  ifstream geomFile (filename.c_str());
-  if (!geomFile.is_open())
-    throw invalid_argument(" pp1602::generateLookupTable(): could not open file '" +
-                           filename +"'");
-
-  /** read the file line by line */
-  string line;
-  while(!geomFile.eof())
-  {
-    getline(geomFile, line);
-
-    /** if there is no '/' in line skip line */
-    if (line.find('/') == string::npos)
-      continue;
-
-    /** get asic string, value name and value (as string) from line */
-    const string asic(line.substr(0,line.find('/')));
-    const string valueNameAndValue(line.substr(line.find('/')+1));
-    string valueName(valueNameAndValue.substr(0,valueNameAndValue.find('=')));
-    string valueString(valueNameAndValue.substr(valueNameAndValue.find('=')+1));
-
-    /** eliminate whitespace from value name */
-    valueName.erase(remove(valueName.begin(), valueName.end(), ' '), valueName.end());
-
-    /** depending on the value name retrieve the value as right type */
-    char * pEnd;
-    if (valueName == "min_fs")
-      geomInfos[asic].min_fs = std::strtol(valueString.c_str(),&pEnd,10);
-    else if (valueName == "min_ss")
-      geomInfos[asic].min_ss = std::strtol(valueString.c_str(),&pEnd,10);
-    else if (valueName == "max_fs")
-      geomInfos[asic].max_fs = std::strtol(valueString.c_str(),&pEnd,10);
-    else if (valueName == "max_ss")
-      geomInfos[asic].max_ss = std::strtol(valueString.c_str(),&pEnd,10);
-    else if (valueName == "badrow_direction")
-    {
-      valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
-      geomInfos[asic].badrow_direction = valueString;
-    }
-    else if (valueName == "res")
-      geomInfos[asic].res = std::strtod(valueString.c_str(),&pEnd);
-    else if (valueName == "clen")
-    {
-      valueString.erase(remove(valueString.begin(), valueString.end(), ' '), valueString.end());
-      geomInfos[asic].clen = valueString;
-    }
-    else if (valueName == "corner_x")
-      geomInfos[asic].corner_x = std::strtod(valueString.c_str(),&pEnd);
-    else if (valueName == "corner_y")
-      geomInfos[asic].corner_y = std::strtod(valueString.c_str(),&pEnd);
-    else if (valueName == "no_index")
-      geomInfos[asic].no_index = std::strtol(valueString.c_str(),&pEnd,10);
-    else if (valueName == "fs")
-    {
-      /** if value is fs then parse the string containing the 2 numbers */
-      pEnd = &valueString[0];
-      for (int i(0); i < 2 ; ++i)
-      {
-        const double number = strtod(pEnd,&pEnd);
-        if (pEnd[0] == 'x')
-          geomInfos[asic].x_fs = number;
-        else if (pEnd[0] == 'y')
-          geomInfos[asic].y_fs = number;
-        else
-          throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
-        ++pEnd;
-      }
-    }
-    else if (valueName == "ss")
-    {
-      pEnd = &valueString[0];
-      for (int i(0); i < 2 ; ++i)
-      {
-        const double number = strtod(pEnd,&pEnd);
-        if (pEnd[0] == 'x')
-          geomInfos[asic].x_ss = number;
-        else if (pEnd[0] == 'y')
-          geomInfos[asic].y_ss = number;
-        else
-          throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
-        ++pEnd;
-      }
-    }
-  }
-
-  /** go through all defined asics */
-  asicInfoMap_t::iterator it(geomInfos.begin());
-  for (; it != geomInfos.end(); ++it)
-  {
-    asicInfo_t& ai(it->second);
-
-    /** if requested transform the start and end positions from the cheetah
-     *  layout to the raw cass layout
-     */
-    if (convertFromCheetahToCASS)
-    {
-      const int nx(Pds::CsPad::MaxRowsPerASIC);
-      const int ny(Pds::CsPad::ColumnsPerASIC);
-      const int quad(ai.min_fs/(2*nx));
-      const int asicRow(ai.min_ss/(1*ny));
-      const int xbegin(ai.min_fs/(1*nx) % 2);
-      const int ybegin(quad*2*4+asicRow);
-
-      ai.min_fs = xbegin*nx;
-      ai.max_fs = xbegin*nx + nx-1;
-
-      ai.min_ss = ybegin*ny;
-      ai.max_ss = ybegin*ny + ny-1;
-    }
-
-
-    /** go through all pixels of this asics module */
-    const int rowAsicRange(ai.max_ss - ai.min_ss);
-    const int colAsicRange(ai.max_fs - ai.min_fs);
-    for (int rowInAsic = 0; rowInAsic <= rowAsicRange; ++rowInAsic)
-    {
-      for (int colInAsic = 0; colInAsic <= colAsicRange; ++colInAsic)
-      {
-        /** find the position in the lab frame (in pixel units) of the current
-          *  position (colInAsic,rowInAsic) in the asic
-          */
-        double xInLab = ai.x_fs*colInAsic + ai.x_ss*rowInAsic + ai.corner_x;
-        double yInLab = ai.y_fs*colInAsic + ai.y_ss*rowInAsic + ai.corner_y;
-
-        /** determine where the current position in the asic is in the src image */
-        int colInSrc = ai.min_fs+colInAsic;
-        int rowInSrc = ai.min_ss+rowInAsic;
-
-        /** find position in the linearized array */
-        int idxInSrc = rowInSrc * nSrcCols + colInSrc;
-
-        /** check if whats been given in the geomfile goes together with the src */
-        if  (idxInSrc >= static_cast<int>(sizeOfSrc))
-          throw out_of_range("generateConversionMap(): The generated index '" +
-                             toString(idxInSrc) + "' is too big for the src with size '"+
-                             toString(sizeOfSrc) +"'");
-
-        /** remember what x,y position in the lab does this position in the
-          *  asic correspond to
-          */
-        src2lab[idxInSrc].x = xInLab;
-        src2lab[idxInSrc].y = yInLab;
-      }
-    }
-  }
-  return src2lab;
-}
-}//end namespace geometryInfo
+}//end namespace geom
 }//end namespace cass
 
 void pp1602::loadSettings(size_t)
@@ -723,50 +765,50 @@ void pp1602::loadSettings(size_t)
 void pp1602::setup(const Histogram2DFloat &srcImageHist)
 {
   _lookupTable.resize(srcImageHist.memory().size());
-  using namespace geometryInfo;
-  conversion_t src2lab = generateConversionMap(_filename,
-                                               srcImageHist.memory().size(),
-                                               srcImageHist.axis()[HistogramBackend::xAxis].size(),
-                                               _convertCheetahToCASSLayout);
+  GeometryInfo::conversion_t src2lab =
+      GeometryInfo::generateConversionMap(_filename,
+                                          srcImageHist.memory().size(),
+                                          srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                          _convertCheetahToCASSLayout);
 
   /** get the minimum and maximum position in lab x and y */
-  pos_t min;
+  GeometryInfo::pos_t min;
   min.x = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::x_t>(),
-                           bind<pos_t::x_t>(&pos_t::x,_1),
-                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                      bind(less<GeometryInfo::pos_t::x_t>(),
+                           bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_1),
+                           bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_2)))->x;
   min.y = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::y_t>(),
-                           bind<pos_t::y_t>(&pos_t::y,_1),
-                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
-  pos_t max;
+                      bind(less<GeometryInfo::pos_t::y_t>(),
+                           bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_1),
+                           bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_2)))->y;
+  GeometryInfo::pos_t max;
   max.x = max_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::x_t>(),
-                           bind<pos_t::x_t>(&pos_t::x,_1),
-                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                      bind(less<GeometryInfo::pos_t::x_t>(),
+                           bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_1),
+                           bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_2)))->x;
   max.y = max_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::y_t>(),
-                           bind<pos_t::y_t>(&pos_t::y,_1),
-                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+                      bind(less<GeometryInfo::pos_t::y_t>(),
+                           bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_1),
+                           bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_2)))->y;
 
   /** move all values, such that they start at 0
      *  \f$ pos.x -= min_x\f$
      *  \f$ pos.y -= min_y\f$
      */
-  transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(minus,_1,min));
+  transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(geom::minus,_1,min));
 
   /** get the new maximum value of the shifted lab, which corresponds to the
      *  number of pixels that are required in the dest image, since all lab
      *  values are in pixel coordinates.
      */
   const double max_x = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::x_t>(),
-                                        bind<pos_t::x_t>(&pos_t::x,_1),
-                                        bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                                   bind(less<GeometryInfo::pos_t::x_t>(),
+                                        bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_1),
+                                        bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_2)))->x;
   const double max_y = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::y_t>(),
-                                        bind<pos_t::y_t>(&pos_t::y,_1),
-                                        bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+                                   bind(less<GeometryInfo::pos_t::y_t>(),
+                                        bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_1),
+                                        bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_2)))->y;
 
   /** determine the dimensions of the destination image */
   const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
@@ -777,7 +819,7 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
      *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
      */
   transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
-            bind(linearizeComponents,_1,nDestCols));
+            bind(geom::linearizeComponents,_1,nDestCols));
 
   /** check if the boundaries are ok, @throw out of range if not. */
   if(nDestCols*nDestRows <= *max_element(_lookupTable.begin(),_lookupTable.end()))
@@ -849,7 +891,6 @@ pp90::pp90(const name_t &name)
 
 void pp90::loadSettings(size_t)
 {
-  using namespace geometryInfo;
 
   CASSSettings s;
   s.beginGroup("PostProcessor");
@@ -861,48 +902,28 @@ void pp90::loadSettings(size_t)
 
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
+  _np_m = s.value("PixelSize_m",110.e-6).toDouble();
+  _wavelength = s.value("Wavelength_A",1).toDouble();
+  _detdist = s.value("DetectorDistance_m",60e-2).toDouble();
 
   const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
-  conversion_t src2lab = generateConversionMap(_filename,
-                                               srcImageHist.memory().size(),
-                                               srcImageHist.axis()[HistogramBackend::xAxis].size(),
-                                               _convertCheetahToCASSLayout);
+  GeometryInfo::conversion_t src2lab = GeometryInfo::generateConversionMap(_filename,
+                                                                           srcImageHist.memory().size(),
+                                                                           srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                                                           _convertCheetahToCASSLayout);
+  for (size_t i=0; i < src2lab.size(); ++i)
+    _src2labradius[i] = sqrt(src2lab[i].x * src2lab[i].x + src2lab[i].y * src2lab[i].y);
 
   /** create the output histogram the storage where to put the normfactors*/
   createHistList(set1DHist(name()));
-  const Histogram1DFloat& res(dynamic_cast<const Histogram1DFloat&>(result()));
-  _normfactors.resize(res.memory().size());
-  fill(_normfactors.begin(),_normfactors.end(),0);
-
-  /** go through the conversion map and calculate the q value for each pixel
-   *  then find out which bin this corresponses to in the resulting Histogram
-   *  and generate the lookup table this way. Also add it to the normalizing
-   *  vector
-   */
-  _lookupTable.resize(srcImageHist.memory().size());
-  lookupTable_t::iterator lut(_lookupTable.begin());
-  conversion_t::const_iterator pix(src2lab.begin());
-  conversion_t::const_iterator End(src2lab.end());
-  const double lambda(s.value("Wavelength_A",1).toDouble());
-  const double D(s.value("DetectorDistance_m",6e-2).toDouble());
-  const double n_p(s.value("PixelSize_m",110.e-6).toDouble());
-  const double firstFactor(4.*3.1415/lambda);
-  for(;pix != End; ++pix, ++lut)
-  {
-    const double R(sqrt(pix->x*pix->x + pix->y*pix->y));
-    const double Q(firstFactor * sin(0.5*atan(R*n_p/D)));
-    size_t bin(res.binForVal(Q));
-    *lut = res.binForVal(Q);
-    _normfactors[bin] += 1;
-  }
 
   Log::add(Log::INFO,"PostProcessor '" +  name() + "' will generate Q average from Histogram in " +
            "PostProcessor '" +  _imagePP->name() +
            ". Geometry Filename '" + _filename + "'"
            ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ". Wavelength in Angstroem '" + toString((s.value("Wavelength_A",1).toDouble())) +
-           "' Detector Distance in m '" + toString(s.value("DetectorDistance_m",60e-2).toDouble()) +
-           "' Pixel Size in um '" + toString(s.value("PixelSize_um",110.e-6).toDouble()) +
+           ". Wavelength in Angstroem '" + toString(_wavelength) +
+           "' Detector Distance in m '" + toString(_detdist) +
+           "' Pixel Size in um '" + toString(_np_m) +
            ". Condition is '" + _condition->name() + "'");
 }
 
@@ -914,8 +935,8 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
 
   /** get result image and its memory */
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
-  HistogramFloatBase::storage_t& radave(result.memory());
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(r));
+  Histogram1DFloat::storage_t& radave(result.memory());
   result.clear();
 
   /** lock resources */
@@ -924,20 +945,24 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   /** iterate through the src image and put its pixels at the correct position
    *  in the vector containing the radial average
    */
+  normfactors_t normfactors(result.memory().size(),0);
   HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
   HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
-  lookupTable_t::const_iterator idx(_lookupTable.begin());
-  for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
-    radave[*idx] += *srcpixel;
+  vector<double>::const_iterator radius(_src2labradius.begin());
+  const double lambda(_wavelength);
+  const double D(_detdist);
+  const double firstFactor(4.*3.1415/lambda);
+  for (; srcpixel != srcImageEnd; ++srcpixel, ++radius)
+  {
+    const double Q(firstFactor * sin(0.5*atan(*radius*_np_m/D)));
+    size_t bin(result.binForVal(Q));
+    radave[bin] += *srcpixel;
+    normfactors[bin] += 1;
+  }
 
-  /** normalize by the number of fill for each bin */
-  normfactors_t::const_iterator normfactor(_normfactors.begin());
-  HistogramFloatBase::storage_t::iterator qval(radave.begin());
-  HistogramFloatBase::storage_t::const_iterator qvalsEnd(radave.end());
-  for (; qval != qvalsEnd; ++qval, ++normfactor)
-    *qval /= *normfactor;
+  /** normalize by the number of fills for each bin */
+  transform(radave.begin(),radave.end(),normfactors.begin(),radave.begin(),divides<double>());
 
   /** relfect that only 1 event was processed and release resources */
   result.nbrOfFills()=1;
 }
-

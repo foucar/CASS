@@ -435,23 +435,26 @@ protected:
   /** pp containing 2d histogram */
   shared_pointer _imagePP;
 
-  /** define the lookuptable */
-  typedef std::vector<size_t> lookupTable_t;
-
-  /** the lookup table */
-  lookupTable_t _lookupTable;
-
   /** define the normalization factors */
   typedef std::vector<float> normfactors_t;
-
-  /** the normfactors */
-  normfactors_t _normfactors;
 
   /** flag whether to convert the positions in the src from cheetah to cass layout */
   bool _convertCheetahToCASSLayout;
 
   /** filename of the geometry file */
   std::string _filename;
+
+  /** the conversion table from raw to lab */
+  std::vector<double> _src2labradius;
+
+  /** the wavelength in case its fixed */
+  double _wavelength;
+
+  /** the detector distance in case its fixed */
+  double _detdist;
+
+  /** the size of one pixel in m */
+  double _np_m;
 };
 
 
