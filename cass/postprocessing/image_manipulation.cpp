@@ -911,6 +911,7 @@ void pp90::loadSettings(size_t)
                                                                            srcImageHist.memory().size(),
                                                                            srcImageHist.axis()[HistogramBackend::xAxis].size(),
                                                                            _convertCheetahToCASSLayout);
+  _src2labradius.resize(src2lab.size());
   for (size_t i=0; i < src2lab.size(); ++i)
     _src2labradius[i] = sqrt(src2lab[i].x * src2lab[i].x + src2lab[i].y * src2lab[i].y);
 
