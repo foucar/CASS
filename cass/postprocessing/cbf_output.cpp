@@ -56,14 +56,14 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
   {
     diff = ((int) data[iadr]) - pixvalue;
     pixvalue = (int) data[iadr];
-
     absdiff = abs(diff);
     ++nbytes;
     if (absdiff < 128)
       continue;
     nbytes += 2;
     if (absdiff < 32768)
-      nbytes += 4;
+      continue;
+    nbytes += 4;
   }
 
 
