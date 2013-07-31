@@ -644,6 +644,24 @@ public:
     /** Return histogram bin */
     const value_t& bin(size_t bin) const { return _memory[bin]; }
 
+    /** return the bin that the value would be placed into */
+    size_t binForVal(float val)const
+    {
+      const int nxBins(static_cast<const int>(_axis[xAxis].nbrBins()));
+      const float xlow(_axis[xAxis].lowerLimit());
+      const float xup(_axis[xAxis].upperLimit());
+      const int xBin(static_cast<int>( nxBins * (val - xlow) / (xup-xlow)));
+
+      //check whether the fill is in the right range//
+      if (0<=xBin && xBin<nxBins)
+        return xBin;
+      else if (xBin >= nxBins)
+        return nxBins+Overflow;
+      else if (xBin < 0)
+        return nxBins+Underflow;
+      else
+        throw std::logic_error("Histogram1DFloat::binforval(): This should not happen");
+    }
 
     /** center of histogram */
     float center() const
