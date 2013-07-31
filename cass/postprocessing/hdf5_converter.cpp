@@ -802,19 +802,48 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
   dims[0] = data.axis()[HistogramBackend::xAxis].nbrBins();
   dims[1] = 1;
 
+  /** create space and dataset for storing the graph (1D hist) */
   hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
   if (dataspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the 2d histogram");
+    throw runtime_error("writeData(): Could not open the dataspace for the 1d histogram");
 
   hid_t dataset_id (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
                               dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
   if (dataset_id == 0)
     throw runtime_error("writeData(): Could not open the dataset");
 
+  /** Create scalar attributes for storing up and low limit of the xaxis */
+  hid_t xLowattspace_id(H5Screate(H5S_SCALAR));
+  if (xLowattspace_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
+  hid_t xLowattr_id(H5Acreate(dataset_id, "xLow", H5T_NATIVE_INT,
+                              xLowattspace_id, H5P_DEFAULT,H5P_DEFAULT));
+  if (xLowattr_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
+
+  hid_t xUpattspace_id(H5Screate(H5S_SCALAR));
+  if (xUpattspace_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
+  hid_t xUpattr_id(H5Acreate(dataset_id, "xUp", H5T_NATIVE_INT,
+                              xUpattspace_id, H5P_DEFAULT,H5P_DEFAULT));
+  if (xUpattr_id == 0)
+    throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
+
   data.lock.lockForRead();
   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &data.memory().front());
+  int xlow(data.axis()[HistogramBackend::xAxis].lowerLimit());
+  H5Awrite(xLowattr_id, H5T_NATIVE_INT, &xlow);
+  int xUp(data.axis()[HistogramBackend::xAxis].upperLimit());
+  H5Awrite(xUpattr_id, H5T_NATIVE_INT, &xUp);
   data.lock.unlock();
+
+  /** close what has been opened before */
+  H5Aclose(xLowattr_id);
+  H5Aclose(xUpattr_id);
+
+  H5Sclose(xLowattspace_id);
+  H5Sclose(xUpattspace_id);
 
   H5Dclose(dataset_id);
   H5Sclose(dataspace_id);
