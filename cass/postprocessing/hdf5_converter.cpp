@@ -879,25 +879,8 @@ void createGroupWithAbsolutePath(const string& name, hid_t filehandle)
  */
 void writeData(const string& datasetname, const Histogram0DFloat& data, hid_t filehandle)
 {
-  hsize_t dims[2];
-  dims[0] = 1;
-
-  hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
-  if (dataspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace");
-
-  hid_t dataset_id (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
-                              dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
-  if (dataset_id == 0)
-    throw runtime_error("writeData(): Could not open the dataset");
-
-  data.lock.lockForRead();
-  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &data.memory().front());
-  data.lock.unlock();
-
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
+  QReadLocker lock(&data.lock);
+  writeScalar(data.memory().front(),datasetname,filehandle);
 }
 
 /** write a 1D value
@@ -913,55 +896,13 @@ void writeData(const string& datasetname, const Histogram0DFloat& data, hid_t fi
  */
 void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t filehandle)
 {
-  hsize_t dims[2];
-  dims[0] = data.axis()[HistogramBackend::xAxis].nbrBins();
-  dims[1] = 1;
-
-  /** create space and dataset for storing the graph (1D hist) */
-  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
-  if (dataspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the 1d histogram");
-
-  hid_t dataset_id (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
-                              dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
-  if (dataset_id == 0)
-    throw runtime_error("writeData(): Could not open the dataset");
-
-  /** Create scalar attributes for storing up and low limit of the xaxis */
-  hid_t xLowattspace_id(H5Screate(H5S_SCALAR));
-  if (xLowattspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
-  hid_t xLowattr_id(H5Acreate(dataset_id, "xLow", H5T_NATIVE_FLOAT,
-                              xLowattspace_id, H5P_DEFAULT,H5P_DEFAULT));
-  if (xLowattr_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
-
-  hid_t xUpattspace_id(H5Screate(H5S_SCALAR));
-  if (xUpattspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
-  hid_t xUpattr_id(H5Acreate(dataset_id, "xUp", H5T_NATIVE_FLOAT,
-                              xUpattspace_id, H5P_DEFAULT,H5P_DEFAULT));
-  if (xUpattr_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
-
-  data.lock.lockForRead();
-  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &data.memory().front());
-  float xlow(data.axis()[HistogramBackend::xAxis].lowerLimit());
-  H5Awrite(xLowattr_id, H5T_NATIVE_FLOAT, &xlow);
-  float xUp(data.axis()[HistogramBackend::xAxis].upperLimit());
-  H5Awrite(xUpattr_id, H5T_NATIVE_FLOAT, &xUp);
-  data.lock.unlock();
-
-  /** close what has been opened before */
-  H5Aclose(xLowattr_id);
-  H5Aclose(xUpattr_id);
-
-  H5Sclose(xLowattspace_id);
-  H5Sclose(xUpattspace_id);
-
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
+  QReadLocker lock(&data.lock);
+  writeArray(data.memory(),data.axis()[HistogramBackend::xAxis].size(),
+      datasetname,filehandle);
+  writeScalarAttribute(data.axis()[HistogramBackend::xAxis].lowerLimit(),"xLow",
+      datasetname,filehandle);
+  writeScalarAttribute(data.axis()[HistogramBackend::xAxis].upperLimit(),"xUp",
+      datasetname,filehandle);
 }
 
 /** write a 2D value without additional info
@@ -970,46 +911,42 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
  *
  * @param datasetname Name of the data set including the full absolute group path
  * @param data histogram containing the data to be written
- * @param compress flag whether the data should be compressed
+ * @param compresslevel the level of compression to be used
  * @param filehandle the File Handle of the opened hdf5 file
  *
  * @author Lutz Foucar
  */
-void writeData(const string& datasetname, const Histogram2DFloat& data, bool compress, hid_t filehandle)
+void writeData(const string& datasetname, const Histogram2DFloat& data, int compresslevel, hid_t filehandle)
 {
-  hsize_t dims[2];
-  dims[0] = data.axis()[HistogramBackend::yAxis].nbrBins();
-  dims[1] = data.axis()[HistogramBackend::xAxis].nbrBins();
+  QReadLocker lock(&data.lock);
+  writeMatrix(data.memory(),data.shape().first,data.shape().second,datasetname,
+              filehandle,compresslevel);
+  writeScalarAttribute(data.axis()[HistogramBackend::xAxis].lowerLimit(),"xLow",
+      datasetname,filehandle);
+  writeScalarAttribute(data.axis()[HistogramBackend::xAxis].upperLimit(),"xUp",
+      datasetname,filehandle);
+  writeScalarAttribute(data.axis()[HistogramBackend::yAxis].lowerLimit(),"yLow",
+      datasetname,filehandle);
+  writeScalarAttribute(data.axis()[HistogramBackend::yAxis].upperLimit(),"yUp",
+      datasetname,filehandle);
 
-  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
-  if (dataspace_id == 0)
-    throw runtime_error("writeData(): Could not open the dataspace for the 2d histogram");
-
-  hid_t dataset_id;
-  if (compress)
-  {
-    // Create dataset creation property list, set the gzip compression filter
-    // and chunck size
-    hsize_t chunk[2] = {40,3};
-    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-    H5Pset_deflate (dcpl, 9);
-    H5Pset_chunk (dcpl, 2, chunk);
-    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
-                             dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
-  }
-  else
-    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
-                            dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
-  if (dataset_id == 0 )
-    throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
-
-  data.lock.lockForRead();
-  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &data.memory().front());
-  data.lock.unlock();
-
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
+//  hid_t dataset_id;
+//  if (compress)
+//  {
+//    // Create dataset creation property list, set the gzip compression filter
+//    // and chunck size
+//    hsize_t chunk[2] = {40,3};
+//    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+//    H5Pset_deflate (dcpl, 9);
+//    H5Pset_chunk (dcpl, 2, chunk);
+//    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+//                             dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+//  }
+//  else
+//    dataset_id = (H5Dcreate(filehandle, datasetname.c_str(), H5T_NATIVE_FLOAT,
+//                            dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
+//  if (dataset_id == 0 )
+//    throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
 }
 
 
