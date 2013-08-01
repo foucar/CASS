@@ -816,7 +816,7 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
   hid_t xLowattspace_id(H5Screate(H5S_SCALAR));
   if (xLowattspace_id == 0)
     throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
-  hid_t xLowattr_id(H5Acreate(dataset_id, "xLow", H5T_NATIVE_INT,
+  hid_t xLowattr_id(H5Acreate(dataset_id, "xLow", H5T_NATIVE_FLOAT,
                               xLowattspace_id, H5P_DEFAULT,H5P_DEFAULT));
   if (xLowattr_id == 0)
     throw runtime_error("writeData(): Could not open the dataspace for the xlow Attribute");
@@ -824,7 +824,7 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
   hid_t xUpattspace_id(H5Screate(H5S_SCALAR));
   if (xUpattspace_id == 0)
     throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
-  hid_t xUpattr_id(H5Acreate(dataset_id, "xUp", H5T_NATIVE_INT,
+  hid_t xUpattr_id(H5Acreate(dataset_id, "xUp", H5T_NATIVE_FLOAT,
                               xUpattspace_id, H5P_DEFAULT,H5P_DEFAULT));
   if (xUpattr_id == 0)
     throw runtime_error("writeData(): Could not open the dataspace for the xUp Attribute");
@@ -832,9 +832,9 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
   data.lock.lockForRead();
   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &data.memory().front());
-  int xlow(data.axis()[HistogramBackend::xAxis].lowerLimit());
+  float xlow(data.axis()[HistogramBackend::xAxis].lowerLimit());
   H5Awrite(xLowattr_id, H5T_NATIVE_INT, &xlow);
-  int xUp(data.axis()[HistogramBackend::xAxis].upperLimit());
+  float xUp(data.axis()[HistogramBackend::xAxis].upperLimit());
   H5Awrite(xUpattr_id, H5T_NATIVE_INT, &xUp);
   data.lock.unlock();
 
