@@ -102,16 +102,15 @@ hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
     groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
   else
     groupname << "UnknownTime_"<<eventid;
-  VERBOSEOUT(std::cout<<"createGroupNameFromEventId(): creating group: "<<groupname.str()
-             <<std::endl);
+  Log::add(Log::VERBOSEINFO,"createGroupNameFromEventId(): creating group: " +
+           groupname.str());
   return H5Gcreate1(calibcycle, groupname.str().c_str(),0);
 }
 
-/** write an float value with a given name as part of a given group
+/** write an float scalar value with a given name as part of a given group
  *
  * create a dataspace and a dataset for writing the value as part of the given
- * group. Then write the value and close all resources later on. The dataspace
- * needs to be a 2d matrix with 1x1 contents.
+ * group. Then write the value and close all resources later on.
  *
  * @todo find out whether it is possible to use scalar instead of 2d value.
  *
@@ -121,28 +120,143 @@ hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
  *
  * @author Lutz Foucar
  */
-void writeFloatValue(const float value, const string& valname, hid_t groupid)
+void writeScalar(const float value, const string& valname, hid_t groupid)
 {
-  // hid_t dataspace_id = (H5Screate(H5S_SCALAR));
+  hid_t dataspace_id(H5Screate(H5S_SCALAR));
+  if (dataspace_id < 0)
+    throw runtime_error("writeScalar(float): Could not open the dataspace");
 
-  hsize_t dims[2];
-  dims[0] = 1;
-  hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
-  if (dataspace_id == 0)
-    throw runtime_error("writeFloatValue(): Could not open the dataspace");
-
-  hid_t dataset_id (H5Dcreate1(groupid, valname.c_str(),
-                               H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
-  if (dataset_id == 0)
-    throw runtime_error("writeFloatValue(): Could not open the dataset '" + valname +"'");
+  hid_t dataset_id(H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+                             dataspace_id, H5P_DEFAULT, H5P_DEFAULT , H5P_DEFAULT));
+  if (dataset_id < 0)
+    throw runtime_error("writeScalar(float): Could not open the dataset '" + valname +"'");
 
   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &value);
 
   H5Dclose(dataset_id);
   H5Sclose(dataspace_id);
-
 }
+
+/** write an float 1d arry with a given name as part of a given group
+ *
+ * create a dataspace and a dataset for writing the value as part of the given
+ * group. Then write the value and close all resources later on.
+ *
+ * @todo find out whether it is possible to use scalar instead of 2d value.
+ *
+ * @param array the array to be written
+ * @param arrayLength the length of the array to be written
+ * @param valname the name of the value
+ * @param groupid the id of the group that the value should be part of
+ *
+ * @author Lutz Foucar
+ */
+void writeArray(const vector<float> &array, const size_t arrayLength,
+                const string& valname, hid_t groupid)
+{
+  hsize_t dims[1] = {arrayLength};
+
+  /** create space and dataset for storing the graph (1D hist) */
+  hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
+  if (dataspace_id < 0)
+    throw runtime_error("writeArray(float): Could not open the dataspace");
+
+  hid_t dataset_id(H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+                             dataspace_id, H5P_DEFAULT, H5P_DEFAULT , H5P_DEFAULT));
+  if (dataset_id < 0)
+    throw runtime_error("writeArray(float): Could not open the dataset '"
+                        + valname +"'");
+
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &array.front());
+
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+}
+
+/** write a linearized array as 2d matrix with a given name as part of a given group
+ *
+ * create a dataspace and a dataset for writing the matrix as part of the given
+ * group. Then write the matrix and close all resources later on.
+ *
+ * @todo find out whether it is possible to use scalar instead of 2d value.
+ *
+ * @param matrix the matrix to be written
+ * @param cols the number of columns in the matrix
+ * @param rows the number of rows in the matrix
+ * @param valname the name of the value
+ * @param groupid the id of the group that the value should be part of
+ * @param compresslevel the compression level of how much the data should be compressed
+ *
+ * @author Lutz Foucar
+ */
+void writeMatrix(const vector<float> &matrix, const size_t cols, const size_t rows,
+                const string& valname, hid_t groupid, int compressLevel)
+{
+  hsize_t dims[2] = {rows,cols};
+
+  /** create space and dataset for storing the graph (1D hist) */
+  hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
+  if (dataspace_id < 0)
+    throw runtime_error("writeMatrix(float): Could not open the dataspace");
+
+  // Create dataset creation property list, set the gzip compression filter
+  // and chunck size
+  hsize_t chunk[2] = {40,3};
+  hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+  H5Pset_deflate (dcpl, compressLevel);
+  H5Pset_chunk (dcpl, 2, chunk);
+  hid_t dataset_id = (H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+                                dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+  if (dataset_id < 0)
+    throw runtime_error("writeMatrix(float): Could not open the dataset '"
+                        + valname +"'");
+
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &matrix.front());
+
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+}
+
+/** write an float scalar attribute with a given name as part of a given dataset
+ *
+ * @param value the value to be written
+ * @param valname the name of the value
+ * @param dsetName the Name of the Dataset
+ * @param fileId the id of the file that contains the dataset
+ *
+ * @author Lutz Foucar
+ */
+void writeScalarAttribute(const float value, const string& valname,
+                          const string & dsetName, hid_t fileId)
+{
+  /** open the dataset that the attribute should be added to */
+  hid_t dataset_id(H5Dopen(fileId,dsetName.c_str(),H5P_DEFAULT));
+  if (dataset_id < 0)
+    throw runtime_error("writeScalarAttribute(float): Could not open the dataset '" +
+                        dsetName + "'");
+
+  /** open the attribute space and attribute of the dataset */
+  hid_t attributespace_id(H5Screate(H5S_SCALAR));
+  if (attributespace_id < 0)
+    throw runtime_error("writeScalarAttribute(float): Could not open the dataspace");
+
+  hid_t attribute_id(H5Acreate(dataset_id, valname.c_str(), H5T_NATIVE_FLOAT,
+                               attributespace_id, H5P_DEFAULT, H5P_DEFAULT));
+  if (attribute_id < 0)
+    throw runtime_error("writeScalarAttribute(float): Could not open the attribute '"
+                        + valname +"'");
+
+  /** write the attribute and close the resources */
+  H5Awrite(attribute_id, H5T_NATIVE_FLOAT, &value);
+
+  H5Aclose(attribute_id);
+  H5Sclose(attributespace_id);
+  H5Dclose(dataset_id);
+}
+
 
 /** write the axis properties to the chosen group
  *
@@ -557,28 +671,28 @@ void write2DMatrix(const Histogram2DFloat& hist, hid_t groupid, bool compress)
 
 
   const float UpperLeft (data[maxSize+HistogramBackend::UpperLeft]);
-  writeFloatValue(UpperLeft,"UpperLeft",groupid);
+  writeScalar(UpperLeft,"UpperLeft",groupid);
 
   const float UpperMiddle (data[maxSize+HistogramBackend::UpperMiddle]);
-  writeFloatValue(UpperMiddle,"UpperMiddle",groupid);
+  writeScalar(UpperMiddle,"UpperMiddle",groupid);
 
   const float UpperRight (data[maxSize+HistogramBackend::UpperRight]);
-  writeFloatValue(UpperRight,"UpperRight",groupid);
+  writeScalar(UpperRight,"UpperRight",groupid);
 
   const float Left (data[maxSize+HistogramBackend::Left]);
-  writeFloatValue(Left,"Left",groupid);
+  writeScalar(Left,"Left",groupid);
 
   const float Right (data[maxSize+HistogramBackend::Right]);
-  writeFloatValue(Right,"Right",groupid);
+  writeScalar(Right,"Right",groupid);
 
   const float LowerLeft (data[maxSize+HistogramBackend::LowerLeft]);
-  writeFloatValue(LowerLeft,"LowerLeft",groupid);
+  writeScalar(LowerLeft,"LowerLeft",groupid);
 
   const float LowerMiddle (data[maxSize+HistogramBackend::LowerMiddle]);
-  writeFloatValue(LowerMiddle,"LowerMiddle",groupid);
+  writeScalar(LowerMiddle,"LowerMiddle",groupid);
 
   const float LowerRight (data[maxSize+HistogramBackend::LowerRight]);
-  writeFloatValue(LowerRight,"LowerRight",groupid);
+  writeScalar(LowerRight,"LowerRight",groupid);
 
   writeHistProperties(hist,groupid);
 
@@ -638,7 +752,7 @@ void writeBeamlineData(const MachineData::MachineDataDevice::bldMap_t &bld, hid_
   MachineData::MachineDataDevice::bldMap_t::const_iterator bldIt(bld.begin());
   MachineData::MachineDataDevice::bldMap_t::const_iterator bldEnd(bld.end());
   for(; bldIt != bldEnd; ++bldIt)
-    writeFloatValue(bldIt->second,bldIt->first,bldGroup);
+    writeScalar(bldIt->second,bldIt->first,bldGroup);
   H5Gclose(bldGroup);
 }
 
@@ -661,7 +775,7 @@ void writeEpicsData(const MachineData::MachineDataDevice::epicsDataMap_t &epics,
   MachineData::MachineDataDevice::epicsDataMap_t::const_iterator epicsIt(epics.begin());
   MachineData::MachineDataDevice::epicsDataMap_t::const_iterator epicsEnd(epics.end());
   for(; epicsIt != epicsEnd; ++epicsIt)
-    writeFloatValue(epicsIt->second,epicsIt->first,epcsGroup);
+    writeScalar(epicsIt->second,epicsIt->first,epcsGroup);
   H5Gclose(epcsGroup);
 }
 
@@ -786,9 +900,10 @@ void writeData(const string& datasetname, const Histogram0DFloat& data, hid_t fi
   H5Sclose(dataspace_id);
 }
 
-/** write a 1D value without additional info
+/** write a 1D value
  *
- * details
+ * Write the data in a 1D histogram to a given file. Add the metadata of the
+ * Histogram as Attributes of the dataset.
  *
  * @param datasetname Name of the data set including the full absolute group path
  * @param data histogram containing the data to be written
