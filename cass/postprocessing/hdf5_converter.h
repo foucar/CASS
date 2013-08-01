@@ -25,8 +25,8 @@ namespace cass
  * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
  * crew is using to be able to read and process the hdf5 with crystfel
  *
- * @cassttng PostProcessor/\%name\%/{compress} \n
- *           Default true
+ * @cassttng PostProcessor/\%name\%/{CompressLevel} \n
+ *           The compression level. Default is 2
  * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
  *           Default name given by program parameter
  * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
@@ -57,7 +57,6 @@ namespace cass
  *           name of the PostProcessor.
  *
  * @todo enable that one can write into just one h5 file multiple events
- * @todo enable that one can write the additional info of a histogram to h5
  *
  * @author Lutz Foucar
  */
