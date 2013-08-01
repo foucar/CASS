@@ -833,9 +833,9 @@ void writeData(const string& datasetname, const Histogram1DFloat& data, hid_t fi
   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &data.memory().front());
   float xlow(data.axis()[HistogramBackend::xAxis].lowerLimit());
-  H5Awrite(xLowattr_id, H5T_NATIVE_INT, &xlow);
+  H5Awrite(xLowattr_id, H5T_NATIVE_FLOAT, &xlow);
   float xUp(data.axis()[HistogramBackend::xAxis].upperLimit());
-  H5Awrite(xUpattr_id, H5T_NATIVE_INT, &xUp);
+  H5Awrite(xUpattr_id, H5T_NATIVE_FLOAT, &xUp);
   data.lock.unlock();
 
   /** close what has been opened before */
