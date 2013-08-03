@@ -107,6 +107,10 @@ hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
   return H5Gcreate1(calibcycle, groupname.str().c_str(),0);
 }
 
+template <typename T> hid_t H5Type() {throw logic_error(string("H5Type does not exist for '") +
+                                                        typeid(T).name()+"'");}
+template <> hid_t H5Type<float>() {return H5T_NATIVE_FLOAT;}
+
 /** write an float scalar value with a given name as part of a given group
  *
  * create a dataspace and a dataset for writing the value as part of the given
@@ -120,18 +124,19 @@ hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
  *
  * @author Lutz Foucar
  */
-void writeScalar(const float value, const string& valname, hid_t groupid)
+template <typename type>
+void writeScalar(const type value, const string& valname, hid_t groupid)
 {
   hid_t dataspace_id(H5Screate(H5S_SCALAR));
   if (dataspace_id < 0)
     throw runtime_error("writeScalar(float): Could not open the dataspace");
 
-  hid_t dataset_id(H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+  hid_t dataset_id(H5Dcreate(groupid, valname.c_str(),H5Type<type>(),
                              dataspace_id, H5P_DEFAULT, H5P_DEFAULT , H5P_DEFAULT));
   if (dataset_id < 0)
     throw runtime_error("writeScalar(float): Could not open the dataset '" + valname +"'");
 
-  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+  H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &value);
 
   H5Dclose(dataset_id);
