@@ -406,9 +406,11 @@ protected:
  *           The geom file to use. Default is "cspad.geom".
  * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
  * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
- *           The wavelength in Angstroem. Default is 1.
+ *           The wavelength in Angstroem. Can also be the name of a PP that
+ *           contains the Wavelength. Default is 1.
  * @cassttng PostProcessor/\%name\%/{DetectorDistance_m} \n
- *           The detector distance in m. Default is 6e-2.
+ *           The detector distance in m. Can also be the name of a PP that
+ *           contains the detector distance. Default is 60e-2.
  * @cassttng PostProcessor/\%name\%/{PixelSize_m} \n
  *           The pixel size in m. Default is 110e-6
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
@@ -432,6 +434,31 @@ public:
   virtual void loadSettings(size_t unused);
 
 protected:
+  /** retrieve the constant wavelength
+   *
+   * @param id unused
+   */
+  double wlFromConstant(const CASSEvent::id_t&) {return _wavelength;}
+
+  /** retrieve the wavelength from the processor
+   *
+   * @param id the id of the event to get the wavelength from
+   */
+  double wlFromProcessor(const CASSEvent::id_t& id);
+
+  /** retrieve the constant detector distance
+   *
+   * @param id unused
+   */
+  double ddFromConstant(const CASSEvent::id_t&) {return _detdist;}
+
+  /** retrieve the detector distance from the processor
+   *
+   * @param id the id of the event to get the detector distance from
+   */
+  double ddFromProcessor(const CASSEvent::id_t& id);
+
+protected:
   /** pp containing 2d histogram */
   shared_pointer _imagePP;
 
@@ -450,8 +477,20 @@ protected:
   /** the wavelength in case its fixed */
   double _wavelength;
 
+  /** pp containing wavelength in case its not fixed */
+  shared_pointer _wavelengthPP;
+
+  /** function that gets the wavelength */
+  std::tr1::function<double(const CASSEvent::id_t&)> _getWavelength;
+
   /** the detector distance in case its fixed */
   double _detdist;
+
+  /** pp containing detector distance in case its not fixed */
+  shared_pointer _detdistPP;
+
+  /** function that gets the detectordistance */
+  std::tr1::function<double(const CASSEvent::id_t&)> _getDetectorDistance;
 
   /** the size of one pixel in m */
   double _np_m;

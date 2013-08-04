@@ -891,20 +891,45 @@ pp90::pp90(const name_t &name)
 
 void pp90::loadSettings(size_t)
 {
-
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _imagePP = setupDependency("HistName");
   bool ret (setupCondition());
+  /** use fixed value for wavelength if value can be converted to double,
+   *  otherwise use the wavelength from the postprocessor
+   */
+  if (s.value("Wavelength_A").canConvert<double>())
+  {
+    _wavelength = s.value("Wavelength_A",1).toDouble();
+    _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+  }
+  else
+  {
+    _wavelengthPP = setupDependency("Wavelength_A");
+    ret = _wavelengthPP && ret;
+    _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
+  }
+  /** use fixed value for detector distance if value can be converted to double,
+   *  otherwise use the detector distance from the postprocessor
+   */
+  if (s.value("DetectorDistance_m").canConvert<double>())
+  {
+    _detdist = s.value("DetectorDistance_m",60e-2).toDouble();
+    _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+  }
+  else
+  {
+    _detdistPP = setupDependency("DetectorDistance_m");
+    ret = _getDetectorDistance && ret;
+    _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
+  }
   if (!(_imagePP && ret)) return;
 
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
   _np_m = s.value("PixelSize_m",110.e-6).toDouble();
-  _wavelength = s.value("Wavelength_A",1).toDouble();
-  _detdist = s.value("DetectorDistance_m",60e-2).toDouble();
 
   const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
   GeometryInfo::conversion_t src2lab = GeometryInfo::generateConversionMap(_filename,
@@ -922,10 +947,28 @@ void pp90::loadSettings(size_t)
            "PostProcessor '" +  _imagePP->name() +
            ". Geometry Filename '" + _filename + "'"
            ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ". Wavelength in Angstroem '" + toString(_wavelength) +
-           "' Detector Distance in m '" + toString(_detdist) +
+           ". Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?
+                                              toString(_wavelength) : ("from PP " + _wavelengthPP->name())) +
+           "' Detector Distance in m '" + (s.value("DetectorDistance_m").canConvert<double>() ?
+                                              toString(_detdist) : ("from PP " + _detdistPP->name())) +
            "' Pixel Size in um '" + toString(_np_m) +
            ". Condition is '" + _condition->name() + "'");
+}
+
+double pp90::wlFromProcessor(const CASSEvent::id_t& id)
+{
+  const Histogram0DFloat &wavelength
+      (dynamic_cast<const Histogram0DFloat&>(_wavelengthPP->result(id)));
+  QReadLocker lock(&wavelength.lock);
+  return wavelength.getValue();
+}
+
+double pp90::ddFromProcessor(const CASSEvent::id_t& id)
+{
+  const Histogram0DFloat &detdist
+      (dynamic_cast<const Histogram0DFloat&>(_detdistPP->result(id)));
+  QReadLocker lock(&detdist.lock);
+  return detdist.getValue();
 }
 
 void pp90::process(const CASSEvent &evt,HistogramBackend& r)
@@ -950,8 +993,8 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
   HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
   vector<double>::const_iterator radius(_src2labradius.begin());
-  const double lambda(_wavelength);
-  const double D(_detdist);
+  const double lambda(_getWavelength(evt.id()));
+  const double D(_getDetectorDistance(evt.id()));
   const double firstFactor(4.*3.1415/lambda);
   for (; srcpixel != srcImageEnd; ++srcpixel, ++radius)
   {
