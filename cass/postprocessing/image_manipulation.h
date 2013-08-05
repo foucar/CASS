@@ -405,6 +405,8 @@ protected:
  * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "cspad.geom".
  * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ *           Set this true if the geom file is for a cheetah layout of the data,
+ *           but the image in HistName is the image in CASS layout.
  * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
  *           The wavelength in Angstroem. Can also be the name of a PP that
  *           contains the Wavelength. Default is 1.

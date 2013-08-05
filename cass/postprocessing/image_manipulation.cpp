@@ -900,28 +900,36 @@ void pp90::loadSettings(size_t)
   /** use fixed value for wavelength if value can be converted to double,
    *  otherwise use the wavelength from the postprocessor
    */
-  if (s.value("Wavelength_A").canConvert<double>())
+  bool isDouble(false);
+  QString wlkey("Wavelength_A");
+  QString wlparam(s.value(wlkey,"1").toString());
+  double wlval(wlparam.toDouble(&isDouble));
+  if (isDouble)
   {
-    _wavelength = s.value("Wavelength_A",1).toDouble();
+    _wavelength = wlval;
     _getWavelength = bind(&pp90::wlFromConstant,this,_1);
   }
   else
   {
-    _wavelengthPP = setupDependency("Wavelength_A");
+    _wavelengthPP = setupDependency(wlkey.toStdString());
     ret = _wavelengthPP && ret;
     _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
   }
   /** use fixed value for detector distance if value can be converted to double,
    *  otherwise use the detector distance from the postprocessor
    */
-  if (s.value("DetectorDistance_m").canConvert<double>())
+  isDouble = false;
+  QString ddkey("DetectorDistance_m");
+  QString ddparam(s.value(ddkey,"60e-2").toString());
+  double ddval(ddparam.toDouble(&isDouble));
+  if (isDouble)
   {
-    _detdist = s.value("DetectorDistance_m",60e-2).toDouble();
+    _detdist = ddval;
     _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
   }
   else
   {
-    _detdistPP = setupDependency("DetectorDistance_m");
+    _detdistPP = setupDependency(ddkey.toStdString());
     ret = _getDetectorDistance && ret;
     _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
   }
