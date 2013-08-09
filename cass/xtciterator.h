@@ -124,6 +124,12 @@ namespace cass
           {
             (*_converters[xtc->contains.id()])(xtc.get(),_cassevent);
           }
+          else
+          {
+            Log::add(Log::ERROR,"'"+ toString(xtc->damage.value()) +
+                     "' is unkown Damage. Skipping Event");
+            return Stop;
+          }
         }
         else
         {
