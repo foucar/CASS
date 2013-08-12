@@ -1055,6 +1055,7 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     peak[MaxADU] = *pixel;
     peak[LocalBackground] = mean;
     peak[LocalBackgroundDeviation] = stdv;
+    peak[nUpOutliers] = stat.nbrUpperOutliers();
 
     result.appendRows(peak);
   }

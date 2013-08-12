@@ -463,6 +463,7 @@ protected:
     MaxRadius                 = 10,
     MinRadius                 = 11,
     MaxADU                    = 12,
+    nUpOutliers               = 13,
     nbrOf
   };
 
