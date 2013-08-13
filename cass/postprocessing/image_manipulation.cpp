@@ -995,7 +995,7 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   QReadLocker(&imageHist.lock);
 
   /** iterate through the src image and put its pixels at the correct position
-   *  in the vector containing the radial average
+   *  in the vector containing the radial average only when they are not masked
    */
   normfactors_t normfactors(result.memory().size(),0);
   HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
@@ -1006,10 +1006,13 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   const double firstFactor(4.*3.1415/lambda);
   for (; srcpixel != srcImageEnd; ++srcpixel, ++radius)
   {
-    const double Q(firstFactor * sin(0.5*atan(*radius*_np_m/D)));
-    size_t bin(result.binForVal(Q));
-    radave[bin] += *srcpixel;
-    normfactors[bin] += 1;
+    if(!qFuzzyIsNull(*srcpixel))
+    {
+      const double Q(firstFactor * sin(0.5*atan(*radius*_np_m/D)));
+      size_t bin(result.binForVal(Q));
+      radave[bin] += *srcpixel;
+      normfactors[bin] += 1;
+    }
   }
 
   /** normalize by the number of fills for each bin */
