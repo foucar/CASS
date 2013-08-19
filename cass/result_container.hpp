@@ -141,9 +141,6 @@ struct Axis
   /** the serialization version of this class */
   enum {serializationVersion=1};
 
-  /** the defintion of an under- and overflow */
-  enum {Underflow = -2, Overflow = -1};
-
   /** the presision type of the axis boundaries */
   typedef T precision_t;
 
@@ -181,6 +178,36 @@ struct Axis
    *       those between <...>, so they can be left empty
    */
   friend SerializerBackend& operator>> <> (SerializerBackend&, Axis<T>&);
+
+  /** return the bin that a value will fall in
+   *
+   * @return the bin that the value will fall into
+   * @param val the value that should be histogrammed
+   */
+  int bin(const precision_t &val)
+  {
+    return(static_cast<int>(nBins * (val - low) / (up-low)));
+  }
+
+  /** check if a bin is an underflow
+   *
+   * @return true if bin is underflow
+   * @param bin the bin to check
+   */
+  bool isUndeflow(int bin)
+  {
+    return (bin < 0);
+  }
+
+  /** check if a bin is an overflow
+   *
+   * @return true if bin is overflow
+   * @param bin the bin to check
+   */
+  bool isOverflow(int bin)
+  {
+    return (nBins < bin);
+  }
 
   /** the number of bins in this axis */
   size_t nBins;
@@ -246,7 +273,10 @@ public:
   typedef typename storage_t::size_type size_type;
 
   /** the axis descriptions of this container */
-  typedef std::vector<Axis<precision_t> > axis_t;
+  typedef Axis<double>  axe_t;
+
+  /** the axis descriptions of this container */
+  typedef std::vector<axe_t > axis_t;
 
   /** which axis one wants to have */
   enum axis_name {xAxis=0, yAxis};
@@ -450,14 +480,10 @@ public:
    */
   size_t bin(const value_t &value) const
   {
-    const int nxBins    = static_cast<const int>(_axis[xAxis].nBins);
-    const float xlow    = _axis[xAxis].low();
-    const float xup     = _axis[xAxis].up();
-    const int xBin      = static_cast<int>( nxBins * (value - xlow) / (xup-xlow));
-
-    if (xBin >= nxBins)
+    const int xBin(_axis[xAxis].bin(value));
+    if (xBin == _axis[xAxis].isOverflow(xBin))
       return nxBins+Overflow;
-    else if (xBin < 0)
+    else if (xBin == _axis[xAxis].isUnderflow(xBin))
       return nxBins+Underflow;
     else
       return xBin;
@@ -470,36 +496,29 @@ public:
    */
   size_t bin(const coordinate_t &coordinate) const
   {
-    const long nxBins   = static_cast<int>(_axis[xAxis].nBins);
-    const float xlow    = _axis[xAxis].low;
-    const float xup     = _axis[xAxis].up;
-    const long xBin     = static_cast<int>(nxBins * (coordinate.first - xlow) / (xup-xlow));
-    const long nyBins   = static_cast<int>(_axis[yAxis].nBins);
-    const float ylow    = _axis[yAxis].low;
-    const float yup     = _axis[yAxis].up;
-    const long yBin     = static_cast<int>(nyBins * (coordinate.second - ylow) / (yup-ylow));
-    const long maxSize  = nyBins*nxBins;
-
-    const bool xInRange(0<=xBin && xBin<nxBins);
-    const bool yInRange(0<=yBin && yBin<nyBins);
-    if (xBin <0 && yBin <0)
+    const int xBin(_axis[xAxis].bin(coordinate.first));
+    const int yBin(_axis[yAxis].bin(coordinate.second));
+    const long maxSize  = _axis[xAxis].nBins*_axis[yAxis].nBins;
+    const bool xInRange(!(_axis[xAxis].isUnderflow(xBin) && _axis[xAxis].isOverflow(xBin)));
+    const bool yInRange(!(_axis[yAxis].isUnderflow(yBin) && _axis[yAxis].isOverflow(yBin)));
+    if (_axis[xAxis].isUnderflow(xBin) && _axis[yAxis].isUnderflow(yBin))
       return maxSize+LowerLeft;
-    else if (xInRange && yBin <0)
-      return maxSize+LowerMiddle;
-    else if (xBin >= nxBins && yBin >=nyBins)
-      return maxSize+LowerRight;
-    else if (xBin < 0 && yInRange)
-      return maxSize+Left;
-    else if (xBin >= nxBins && yInRange)
-      return maxSize+Right;
-    else if (xBin < 0 && yBin >= nyBins)
-      return maxSize+UpperLeft;
-    else if (xInRange && yBin >= nyBins)
-      return maxSize+UpperMiddle;
-    else if (xBin >= nxBins && yBin >= nyBins)
+    else if (_axis[xAxis].isOverflow(xBin)  && _axis[yAxis].isOverflow(yBin))
       return maxSize+UpperRight;
+    else if (_axis[xAxis].isUnderflow(xBin) && _axis[yAxis].isOverflow(yBin))
+      return maxSize+UpperLeft;
+    else if (_axis[xAxis].isOverflow(xBin)  && _axis[yAxis].isUnderflow(yBin))
+      return maxSize+LowerRight;
+    else if (xInRange && _axis[yAxis].isUnderflow(yBin))
+      return maxSize+LowerMiddle;
+    else if (xInRange && _axis[yAxis].isOverflow(yBin))
+      return maxSize+UpperMiddle;
+    else if (_axis[xAxis].isUnderflow(xBin) && yInRange)
+      return maxSize+Left;
+    else if (_axis[xAxis].isOverflow(xBin) && yInRange)
+      return maxSize+Right;
     else
-      return yBin*nxBins + xBin;
+      return yBin*_axis[xAxis].nBins + xBin;
   }
 
   /** insert a value at the right bin in the 1d array
