@@ -981,6 +981,9 @@ double pp90::ddFromProcessor(const CASSEvent::id_t& id)
 
 void pp90::process(const CASSEvent &evt,HistogramBackend& r)
 {
+  using tr1::tuple;
+  using tr1::get;
+
   /** Get the input histogram and its memory */
   const Histogram2DFloat &imageHist
       (dynamic_cast<const Histogram2DFloat&>(_imagePP->result(evt.id())));
@@ -998,21 +1001,33 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
    *  in the vector containing the radial average only when they are not masked
    */
   normfactors_t normfactors(result.memory().size(),0);
-  HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
-  HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
-  vector<double>::const_iterator radius(_src2labradius.begin());
+  size_t ImageSize(_src2labradius.size());
   const double lambda(_getWavelength(evt.id()));
   const double D(_getDetectorDistance(evt.id()));
   const double firstFactor(4.*3.1415/lambda);
-  for (; srcpixel != srcImageEnd; ++srcpixel, ++radius)
+  vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
+#pragma omp for
+  for (size_t i=0; i<ImageSize; ++i)
   {
-    if(!qFuzzyIsNull(*srcpixel))
+    const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
+    const size_t bin(result.binForVal(Q));
+    get<0>(tmparr[i]) = bin;
+    if(qFuzzyIsNull(srcImage[i]))
     {
-      const double Q(firstFactor * sin(0.5*atan(*radius*_np_m/D)));
-      size_t bin(result.binForVal(Q));
-      radave[bin] += *srcpixel;
-      normfactors[bin] += 1;
+      get<1>(tmparr[i]) = 0;
+      get<2>(tmparr[i]) = 0;
     }
+    else
+    {
+      get<1>(tmparr[i]) = srcImage[i];
+      get<2>(tmparr[i]) = 1;
+    }
+  }
+
+  for (size_t i(0); i<ImageSize; ++i)
+  {
+    radave[get<0>(tmparr[i])] += get<1>(tmparr[i]);
+    normfactors[get<0>(tmparr[i])] += get<2>(tmparr[i]);
   }
 
   /** normalize by the number of fills for each bin */
