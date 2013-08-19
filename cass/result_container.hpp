@@ -30,47 +30,8 @@
 namespace cass
 {
 //forward declarations
-
-//template <class T, class U> class Pair;
-
-//template <class T, class U>
-//ostream& operator<<(ostream& out, Pair<T,U>& v);
-
 template<typename T>struct Axis;
-
-
-namespace utility
-{
-/** convert a world position to histogram coordinates
- *
- * @author Lutz Foucar
- */
-template <typename precision, typename return_type>
-struct World2Hist
-{
-  /** the operator
-   *
-   * throws under / over flow errors in case the requested position is not within
-   * the boundaries given by the histogram
-   *
-   * @return the bin that the position correspons to
-   * @param axis
-   * @param pos
-   */
-  return_type operator()(const Axis<precision>& axis, const precision& pos)const
-  {
-    if (pos < axis.low)
-      throw std::underflow_error("World2Hist: Requested position '" + toString(pos) +
-                                 "' to low, the lowest can be '" +toString(axis.low) +"'");
-    if (axis.up < pos)
-      throw std::overflow_error("World2Hist: Requested position '" + toString(pos) +
-                                 "' to high, the highest can be '" +toString(axis.up) +"'");
-
-    return static_cast<return_type>(axis.nBins * (pos - axis.low) / (axis.up - axis.low));
-  }
-};
-
-}//end namespace utility
+template <typename T> class Result;
 
 
 /** add an Axis to a stream
@@ -116,12 +77,6 @@ SerializerBackend& operator>>(SerializerBackend& serializer, Axis<T>& axis)
   return serializer;
 }
 
-
-//forward declaration
-template <typename T, typename precision, class world2hist> class Result;
-
-//namespace utility
-//{
 /** add a Result to a stream
  *
  * @todo add the type info to the stream and check it
@@ -132,11 +87,9 @@ template <typename T, typename precision, class world2hist> class Result;
  *
  * @author Lutz Foucar
  */
-template <typename T,
-          typename precision,
-          class world2hist>
+template <typename T>
 SerializerBackend& operator<<(SerializerBackend& serializer,
-                              const Result<T,precision,world2hist>& result)
+                              const Result<T>& result)
 {
   typedef Result<T,precision,world2hist> result_t;
   serializer.addUint16(result_t::serializationVersion);
@@ -159,13 +112,11 @@ SerializerBackend& operator<<(SerializerBackend& serializer,
  *
  * @author Lutz Foucar
  */
-template <typename T,
-          typename precision,
-          class world2hist>
+template <typename T>
 SerializerBackend& operator>>(SerializerBackend& serializer,
-                              Result<T,precision,world2hist>& result)
+                              Result<T>& result)
 {
-  typedef Result<T,precision,world2hist> result_t;
+  typedef Result<T> result_t;
   uint16_t version(serializer.retrieveUint16());
   assert(version == result_t::serializationVersion);
   result._axis.resize(serializer.retrieveSizet());
@@ -177,7 +128,6 @@ SerializerBackend& operator>>(SerializerBackend& serializer,
   return serializer;
 }
 
-//}//end namespace utility
 
 /** an axis of a more than 0 dimensional container
  *
@@ -190,6 +140,9 @@ struct Axis
 {
   /** the serialization version of this class */
   enum {serializationVersion=1};
+
+  /** the defintion of an under- and overflow */
+  enum {Underflow = -2, Overflow = -1};
 
   /** the presision type of the axis boundaries */
   typedef T precision_t;
@@ -255,9 +208,7 @@ struct Axis
  *
  * @author Lutz Foucar
  */
-template <typename T,
-          typename precision = double,
-          class world2hist = utility::World2Hist<precision, typename std::vector<T>::size_type> >
+template <typename T>
 class Result
 {
 public:
@@ -265,7 +216,7 @@ public:
   enum {serializationVersion=1};
 
   /** this classes type */
-  typedef Result<T,precision,world2hist> self_type;
+  typedef Result<T> self_type;
 
   /** a shared pointer of this class */
   typedef std::tr1::shared_ptr<self_type> shared_pointer;
@@ -273,11 +224,8 @@ public:
   /** the values of this container */
   typedef T value_t;
 
-  /** the precision type */
-  typedef precision precision_t;
-
   /** a coordinate of a 2d array */
-  typedef std::pair<precision_t, precision_t> coordinate_t;
+  typedef std::pair<double, double> coordinate_t;
 
   /** the storage of this container */
   typedef std::vector<value_t> storage_t;
@@ -302,6 +250,14 @@ public:
 
   /** which axis one wants to have */
   enum axis_name {xAxis=0, yAxis};
+
+  /** over/ underflow of 2d histogram */
+  enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight,
+                Left,                     Right,
+                LowerLeft  , LowerMiddle, LowerRight};
+
+  /** the over/underflow bin of 1d histogram */
+  enum OverUnderFlow{Overflow=0, Underflow};
 
   /** default constructor
    *
@@ -487,6 +443,65 @@ public:
   /** retrieve iterator to the end of storage */
   const_iterator end()const {return _storage.end();}
 
+  /** calculate the correct bin index for a value
+   *
+   * @return correct bin index of 1d histogram or overflow / underflow
+   * @param value The value whos corresponding bin should be found
+   */
+  size_t bin(const value_t &value) const
+  {
+    const int nxBins    = static_cast<const int>(_axis[xAxis].nBins);
+    const float xlow    = _axis[xAxis].low();
+    const float xup     = _axis[xAxis].up();
+    const int xBin      = static_cast<int>( nxBins * (value - xlow) / (xup-xlow));
+
+    if (xBin >= nxBins)
+      return nxBins+Overflow;
+    else if (xBin < 0)
+      return nxBins+Underflow;
+    else
+      return xBin;
+  }
+
+  /** calculate the correct bin index for a value
+   *
+   * @return correct bin index of 1d histogram or overflow / underflow
+   * @param value The value whos corresponding bin should be found
+   */
+  size_t bin(const coordinate_t &coordinate) const
+  {
+    const long nxBins   = static_cast<int>(_axis[xAxis].nBins);
+    const float xlow    = _axis[xAxis].low;
+    const float xup     = _axis[xAxis].up;
+    const long xBin     = static_cast<int>(nxBins * (coordinate.first - xlow) / (xup-xlow));
+    const long nyBins   = static_cast<int>(_axis[yAxis].nBins);
+    const float ylow    = _axis[yAxis].low;
+    const float yup     = _axis[yAxis].up;
+    const long yBin     = static_cast<int>(nyBins * (coordinate.second - ylow) / (yup-ylow));
+    const long maxSize  = nyBins*nxBins;
+
+    const bool xInRange(0<=xBin && xBin<nxBins);
+    const bool yInRange(0<=yBin && yBin<nyBins);
+    if (xBin <0 && yBin <0)
+      return maxSize+LowerLeft;
+    else if (xInRange && yBin <0)
+      return maxSize+LowerMiddle;
+    else if (xBin >= nxBins && yBin >=nyBins)
+      return maxSize+LowerRight;
+    else if (xBin < 0 && yInRange)
+      return maxSize+Left;
+    else if (xBin >= nxBins && yInRange)
+      return maxSize+Right;
+    else if (xBin < 0 && yBin >= nyBins)
+      return maxSize+UpperLeft;
+    else if (xInRange && yBin >= nyBins)
+      return maxSize+UpperMiddle;
+    else if (xBin >= nxBins && yBin >= nyBins)
+      return maxSize+UpperRight;
+    else
+      return yBin*nxBins + xBin;
+  }
+
   /** insert a value at the right bin in the 1d array
    *
    * the position that is passed will be converted to the right bin number
@@ -500,14 +515,7 @@ public:
    */
   iterator insert(const precision_t& pos, const value_t& weight=1)
   {
-    try
-    {
-      _storage[world2hist(_axis[xAxis],pos)] += weight;
-    }
-    catch (...)
-    {
-    /** @todo catch over/underflow here and set statistics */
-    }
+    _storage[bin(pos)] += weight;
   }
 
   /** insert a value at the right bin in the 2d array
@@ -523,23 +531,12 @@ public:
    */
   iterator insert(const coordinate_t& pos, const value_t& weight=1)
   {
-    try
-    {
-      const size_type xbin(world2hist(_axis[xAxis],pos.first));
-      const size_type ybin(world2hist(_axis[yAxis],pos.second));
-      const size_type bin(xbin * _axis[xAxis].nBins + ybin);
-      _storage[bin] += weight;
-    }
-    catch(...)
-    {
-    /** @todo catch over/underflow here and set statistics */
-    }
+    _storage[bin(pos)] += weight;
   }
 
   /** enable accessing elements of the storage directly
    *
-   * Returns a reference to the element at position pos in the container.
-   *
+   * @return a reference to the element at position pos in the container.
    * @param pos Position of requested element in the container
    */
   reference operator[](size_type pos)
@@ -564,7 +561,6 @@ public:
    */
   shared_pointer clone()const
   {
-    /** @todo implement it */
     shared_pointer sp(new self_type);
     sp->_axis = _axis;
     sp->_storage = _storage;
@@ -599,7 +595,7 @@ protected:
   /** the axis of the histogram */
   axis_t _axis;
 
-  /** histogram storage */
+  /** result storage */
   storage_t _storage;
 };
 }// end namespace cass
