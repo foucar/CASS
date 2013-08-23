@@ -81,7 +81,8 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/partial_covariance.cpp \
                       ./postprocessing/cbf_output.cpp \
                       ./postprocessing/table_operations.cpp \
-                      ./postprocessing/autocorrelation.cpp
+                      ./postprocessing/autocorrelation.cpp \
+                      ./postprocessing/pixel_detector_calibration.cpp
 
 
 HEADERS            += cass.h \
@@ -153,7 +154,8 @@ HEADERS            += cass.h \
                       ./postprocessing/partial_covariance.h \
                       ./postprocessing/cbf_output.h \
                       ./postprocessing/table_operations.h \
-                      ./postprocessing/autocorrelation.h
+                      ./postprocessing/autocorrelation.h \
+                      ./postprocessing/pixel_detector_calibration.h
 
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \
