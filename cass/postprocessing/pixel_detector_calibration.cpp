@@ -22,11 +22,21 @@ void pp330::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _image = setupDependency("HistName");
+  _image = setupDependency("RawImage");
   setupGeneral();
   bool ret (setupCondition());
   if (!(_image && ret))
     return;
+
+  _filename = s.value("Filename","out.cal").toString().toStdString();
+  _write = s.value("WriteCal",true).toBool();
+  _train = s.value("Train",true).toBool();
+  _minTrainImages = s.value("NbrTrainingImages",200).toUInt();
+  _snr = s.value("SNR",4).toFloat();
+
+  _nTrainImages = 0;
+  _trainstorage.clear();
+
   pair<size_t,size_t> shape(dynamic_cast<const Histogram2DFloat&>(_image->result()).shape());
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
@@ -44,7 +54,26 @@ void pp330::loadCalibration()
 
 void pp330::writeCalibration()
 {
+  ofstream out(_filename.c_str(), ios::binary);
+  if (!out.is_open())
+    throw invalid_argument("pp330::writeCalibration(): Error opening file '" +
+                           _filename + "'");
 
+  const size_t sizeOfImage(0);
+  const Histogram2DFloat::storage_t &result
+      (dynamic_cast<const Histogram2DFloat*>(_result.get())->memory());
+
+  vector<double> offsets(sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator meanbegin(result.begin());
+  Histogram2DFloat::storage_t::const_iterator meanend(result.begin()+sizeOfImage);
+  copy(meanbegin,meanend,offsets.begin());
+  out.write(reinterpret_cast<char*>(&offsets[0]), offsets.size()*sizeof(double));
+
+  vector<double> noises(sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator stdvbegin(result.begin() + sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator stdvend(result.begin() + 2*sizeOfImage);
+  copy(stdvbegin,stdvend,noises.begin());
+  out.write(reinterpret_cast<char*>(&noises[0]), noises.size()*sizeof(double));
 }
 
 void pp330::aboutToQuit()
@@ -65,8 +94,6 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
   Histogram2DFloat::storage_t::iterator nValsAr(result.memory().begin()+2*sizeOfImage);
 
   QReadLocker lock(&image.lock);
-
-
 
   if (_train)
   {
@@ -113,6 +140,8 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
         nValsAr[iPix] = distance(lowPos,upPos);
       }
       _train = false;
+      _nTrainImages = 0;
+      _trainstorage.clear();
     }
   }
   else

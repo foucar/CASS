@@ -23,7 +23,20 @@ class CASSEvent;
  *
  * @cassttng PostProcessor/\%name\%/{RawImage} \n
  *           the raw image of the pixel detector
- * @cassttng PostProcessor/\%name\%/{Value} \n
+ * @cassttng PostProcessor/\%name\%/{Filename} \n
+ *           the name of the file where the calibration will be written to.
+ *           Default is out.cal
+ * @cassttng PostProcessor/\%name\%/{WriteCal} \n
+ *           Flag to tell whether the calibration should be written. Default is
+ *           true.
+ * @cassttng PostProcessor/\%name\%/{Train} \n
+ *           Flag to tell whether training should be done. Default is true
+ * @cassttng PostProcessor/\%name\%/{NbrTrainingImages} \n
+ *           The Number of images used for the training. Default is 200
+ * @cassttng PostProcessor/\%name\%/{SNR} \n
+ *           The signal to noise value that indicates whether a pixel is an
+ *           outlier of the distribution and should not be considered. Default
+ *           is 4.
  *
  * @author Lutz Foucar
  */
@@ -74,6 +87,9 @@ private:
 
   /** the value above which outliers are removed from the distribution */
   float _snr;
+
+  /** the filename that is used to save the calibration */
+  std::string _filename;
 };
 
 }//end namespace cass
