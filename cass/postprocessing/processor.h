@@ -344,7 +344,7 @@ public:
     _result = result->copy_sptr();
   }
 
-private:
+protected:
   /** the result that accumulates the events */
   HistogramBackend::shared_pointer _result;
 };
