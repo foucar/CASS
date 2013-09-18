@@ -166,6 +166,8 @@ the Class description for information about what parameters are user settable.
 00312: FFT of an histogram
 00240: Test Image
 
+00330: Generate Calibration data from raw images
+
 00241: fix distorted offset of pnCCD frames
 00242: same as 105, but one can put a user defined value at the masked pixels
 01600: convert cass cspad to cheetah cspad
@@ -468,6 +470,8 @@ public:
     Autocorrelation=310,
     Autocorrelation2=311,
     fft=312,
+
+    calibration=330,
 
     tof2energy=400,
     calcVariance=401,

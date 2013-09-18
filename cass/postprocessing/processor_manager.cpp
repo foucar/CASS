@@ -40,6 +40,7 @@
 #include "hitfinder.h"
 #include "table_operations.h"
 #include "autocorrelation.h"
+#include "pixel_detector_calibration.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -567,7 +568,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp312(key));
     break;
 #endif
-
+  case calibration:
+    processor = PostProcessor::shared_pointer(new pp330(key));
+    break;
   case tof2energy:
     processor = PostProcessor::shared_pointer(new pp400(key));
     break;
