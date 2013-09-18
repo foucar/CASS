@@ -92,5 +92,95 @@ private:
   std::string _filename;
 };
 
+
+
+
+
+/** pixel detector gain calibrations
+ *
+ * @PPList "331": pixel detector gain calibrations
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Image} \n
+ *           the image of the pixel detector
+ * @cassttng PostProcessor/\%name\%/{Filename} \n
+ *           the name of the file where the calibration will be written to.
+ *           Default is out.cal
+ * @cassttng PostProcessor/\%name\%/{WriteCal} \n
+ *           Flag to tell whether the calibration should be written. Default is
+ *           true.
+ * @cassttng PostProcessor/\%name\%/{ADURangeLow|ADURangeUp} \n
+ *           The adu range that indicates that one photon has hit the pixel.
+ *           Default is 0|0
+ * @cassttng PostProcessor/\%name\%/{MinimumNbrPhotons} \n
+ *           The minimum number of photons that a pixel should have seen before
+ *           the gain is calulated for this pixel. Default is 200
+ * @cassttng PostProcessor/\%name\%/{DefaultGainValue} \n
+ *           The gain value that will be assinged to the pixels that haven't
+ *           seen enough photons. Default is 1.
+ *
+ * @author Lutz Foucar
+ */
+class pp331 : public AccumulatingPostProcessor
+{
+public:
+  /** constructor. */
+  pp331(const name_t&);
+
+  /** overwrite default behaviour don't do anything */
+  virtual void process(const CASSEvent&, HistogramBackend&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+  /** write the calibrations before quitting */
+  virtual void aboutToQuit();
+
+protected:
+  /** write the calibration data to file */
+  void loadCalibration();
+
+  /** write the calibration data to file */
+  void writeCalibration();
+
+  /** write the calibration data to file */
+  void calculateGainMap(Histogram2DFloat& gainmap);
+
+private:
+  /** the raw image */
+  shared_pointer _image;
+
+  /** definition of the statistic */
+  typedef std::pair<size_t,double> statistic_t;
+
+  /** defintion of the statistics */
+  typedef std::vector<statistic_t> statistics_t;
+
+  /** the statistics for each pixel */
+  statistics_t _statistics;
+
+  /** the number of photons that a pixel should have seen before calculating the gain */
+  size_t _minPhotonCount;
+
+  /** define the range type */
+  typedef std::pair<float,float> range_t;
+
+  /** the range of adu that indicates whether a pixel contains a photon */
+  range_t _aduRange;
+
+  /** the gain value that will be assinged to the pixel that one could not
+   *  calculate the gain for
+   */
+  float _constGain;
+
+  /** flag to tell whether the calibration should be written */
+  bool _write;
+
+  /** the filename that is used to save the calibration */
+  std::string _filename;
+};
+
 }//end namespace cass
 #endif

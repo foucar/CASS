@@ -571,6 +571,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case calibration:
     processor = PostProcessor::shared_pointer(new pp330(key));
     break;
+  case gaincalibration:
+    processor = PostProcessor::shared_pointer(new pp331(key));
+    break;
   case tof2energy:
     processor = PostProcessor::shared_pointer(new pp400(key));
     break;

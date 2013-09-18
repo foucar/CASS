@@ -169,3 +169,131 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
     }
   }
 }
+
+
+
+
+
+//********** gain calibrations ******************
+
+pp331::pp331(const name_t &name)
+  : AccumulatingPostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp331::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("Image");
+  setupGeneral();
+  bool ret (setupCondition());
+  if (!(_image && ret))
+    return;
+
+  _filename = s.value("Filename","out.cal").toString().toStdString();
+  _write = s.value("WriteCal",true).toBool();
+  _aduRange = make_pair(s.value("ADURangeLow",0).toFloat(),
+                        s.value("ADURangeUp",0).toFloat());
+  _minPhotonCount = s.value("MinimumNbrPhotons",200).toUInt();
+  _constGain = s.value("DefaultGainValue",1).toFloat();
+
+  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+  _statistics.clear();
+  _statistics.resize(image.memory().size(),make_pair(0,0));
+  pair<size_t,size_t> shape(image.shape());
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(shape.first,shape.second)));
+  loadCalibration();
+  Log::add(Log::INFO,"Postprocessor " + name() +
+           ": generates the gain calibration from images contained in '" +
+           _image->name() + "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp331::loadCalibration()
+{
+
+}
+
+void pp331::writeCalibration()
+{
+  ofstream out(_filename.c_str(), ios::binary);
+  if (!out.is_open())
+    throw invalid_argument("pp331::writeCalibration(): Error opening file '" +
+                           _filename + "'");
+
+  const Histogram2DFloat::storage_t &gains
+      (dynamic_cast<const Histogram2DFloat*>(_result.get())->memory());
+  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(float));
+}
+
+void pp331::aboutToQuit()
+{
+  calculateGainMap(dynamic_cast<Histogram2DFloat&>(*_result));
+  if (_write)
+    writeCalibration();
+}
+
+void pp331::calculateGainMap(Histogram2DFloat& gainmap)
+{
+  /** calculate the average of the average pixelvalues, disregarding pixels
+   *  that have not seen enough photons in the right ADU range.
+   */
+  int count(0);
+  double ave(0);
+  statistics_t::const_iterator stat(_statistics.begin());
+  statistics_t::const_iterator statEnd(_statistics.end());
+  while (stat != statEnd)
+  {
+    const statistic_t &s(*stat++);
+    if (s.first < _minPhotonCount)
+      continue;
+    ++count;
+    ave = ave + (s.second - ave)/count;
+  }
+
+  /** assining the gain value for each pixel that has seen enough statistics.
+   *  gain is calculated by formula
+   *  \f$ gain = frac{average_average_pixelvalue}{average_pixelvalue} \f$
+   *  If not enough photons are in the pixel, set the predefined user value
+   */
+  Histogram2DFloat::storage_t::iterator gain(gainmap.memory().begin());
+  stat = _statistics.begin();
+  while (stat != statEnd)
+  {
+    const statistic_t &s(*stat++);
+    *gain++ = (s.first < _minPhotonCount) ? _constGain : ave/s.second;
+  }
+}
+
+void pp331::process(const CASSEvent &evt, HistogramBackend &/*res*/)
+{
+  const Histogram2DFloat &image
+      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
+
+  //Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  QReadLocker lock(&image.lock);
+  Histogram2DFloat::storage_t::const_iterator pixel(image.memory().begin());
+  Histogram2DFloat::storage_t::const_iterator ImageEnd(image.memory().end());
+
+  statistics_t::iterator stat(_statistics.begin());
+
+  /** go though all pixels of image*/
+  for (; pixel != ImageEnd; ++pixel, ++stat)
+  {
+    /** check if pixel is within the 1 photon adu range */
+    if (_aduRange.first < *pixel && *pixel < _aduRange.second)
+    {
+      /** calculate the mean pixel value */
+      double &ave(stat->second);
+      size_t &N(stat->first);
+
+      ++N;
+      ave += ((*pixel - ave) / N);
+    }
+  }
+}
