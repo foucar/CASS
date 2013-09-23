@@ -168,6 +168,7 @@ the Class description for information about what parameters are user settable.
 
 00330: Generate Calibration data from raw images
 00331: Generate Gain Calibration from images
+00332: Generate Hot Pixel Map from images
 
 00241: fix distorted offset of pnCCD frames
 00242: same as 105, but one can put a user defined value at the masked pixels
@@ -474,6 +475,7 @@ public:
 
     calibration=330,
     gaincalibration=331,
+    hotpixmap=332,
 
     tof2energy=400,
     calcVariance=401,

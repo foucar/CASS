@@ -192,5 +192,93 @@ private:
   int _counter;
 };
 
+
+
+
+
+
+
+
+
+
+/** pixel detector hot pixel detection
+ *
+ * @PPList "332": pixel detector hot pixel detection
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Image} \n
+ *           the image of the pixel detector
+ * @cassttng PostProcessor/\%name\%/{Filename} \n
+ *           the name of the file where the calibration will be written to.
+ *           Default is out.cal
+ * @cassttng PostProcessor/\%name\%/{WriteCal} \n
+ *           Flag to tell whether the calibration should be written. Default is
+ *           true.
+ * @cassttng PostProcessor/\%name\%/{ADURangeLow|ADURangeUp} \n
+ *           The adu range that indicates that one photon has hit the pixel.
+ *           Default is 0|0
+ * @cassttng PostProcessor/\%name\%/{MinimumNbrPhotons} \n
+ *           The minimum number of photons that a pixel should have seen before
+ *           the gain is calulated for this pixel. Default is 200
+ * @cassttng PostProcessor/\%name\%/{DefaultGainValue} \n
+ *           The gain value that will be assinged to the pixels that haven't
+ *           seen enough photons. Default is 1.
+ * @cassttng PostProcessor/\%name\%/{NbrOfFrames} \n
+ *           The number of frames after which the gain map will be calculated.
+ *           Default is -1, which sais that it will never be calulated during
+ *           running and only when the program ends.
+ *
+ * @author Lutz Foucar
+ */
+class pp332 : public AccumulatingPostProcessor
+{
+public:
+  /** constructor. */
+  pp332(const name_t&);
+
+  /** overwrite default behaviour don't do anything */
+  virtual void process(const CASSEvent&, HistogramBackend&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+  /** write the calibrations before quitting */
+  virtual void aboutToQuit();
+
+protected:
+  /** write the calibration data to file */
+  void loadHotPixelMap();
+
+  /** write the calibration data to file */
+  void writeHotPixelMap();
+
+private:
+  /** the image to create the hotpixel map from */
+  shared_pointer _image;
+
+  /** the number of times a pixel is high before masking it as hot pixel */
+  size_t _maxConsecutiveCount;
+
+  /** define the range type */
+  typedef std::pair<float,float> range_t;
+
+  /** the range of adu that indicates whether a pixel is hot */
+  range_t _aduRange;
+
+  /** flag to tell whether the calibration should be written */
+  bool _write;
+
+  /** the filename that is used to save the calibration */
+  std::string _filename;
+
+  /** the number of frames after which the gain map is calculted */
+  int _nFrames;
+
+  /** counter to count how many times this has been called */
+  int _counter;
+};
+
 }//end namespace cass
 #endif

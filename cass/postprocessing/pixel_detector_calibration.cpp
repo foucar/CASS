@@ -307,3 +307,109 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
     calculateGainMap(result);
 
 }
+
+
+
+
+//********** hot pixel detection ******************
+
+pp332::pp332(const name_t &name)
+  : AccumulatingPostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp332::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("Image");
+  setupGeneral();
+  bool ret (setupCondition());
+  if (!(_image && ret))
+    return;
+
+  _counter = 0;
+  _nFrames = s.value("NbrOfFrames",-1).toInt();
+  _filename = s.value("Filename","out.cal").toString().toStdString();
+  _write = s.value("WriteCal",true).toBool();
+  _aduRange = make_pair(s.value("ADURangeLow",0).toFloat(),
+                        s.value("ADURangeUp",0).toFloat());
+  _maxConsecutiveCount = s.value("MaximumConsecutiveFrames",5).toUInt();
+
+  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+  pair<size_t,size_t> shape(image.shape());
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(shape.first,2*shape.second)));
+  loadHotPixelMap();
+  Log::add(Log::INFO,"Postprocessor " + name() +
+           ": generates the hot pixel map from images contained in '" +
+           _image->name() + "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp332::loadHotPixelMap()
+{
+
+}
+
+void pp332::writeHotPixelMap()
+{
+  ofstream out(_filename.c_str(), ios::binary);
+  if (!out.is_open())
+    throw invalid_argument("pp332::writeCalibration(): Error opening file '" +
+                           _filename + "'");
+
+  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(*_result));
+  const size_t sizeOfImage(image.shape().first*image.shape().second/3);
+
+  const Histogram2DFloat::storage_t &gains(image.memory());
+  out.write(reinterpret_cast<const char*>(&gains.front()), sizeOfImage*sizeof(float));
+}
+
+void pp332::aboutToQuit()
+{
+  if (_write)
+    writeHotPixelMap();
+}
+
+void pp332::process(const CASSEvent &evt, HistogramBackend &res)
+{
+  const Histogram2DFloat &image
+      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  QReadLocker lock(&image.lock);
+  Histogram2DFloat::storage_t::const_iterator pixel(image.memory().begin());
+  Histogram2DFloat::storage_t::const_iterator ImageEnd(image.memory().end());
+  const size_t sizeOfImage(image.shape().first * image.shape().second);
+
+  Histogram2DFloat::storage_t::iterator hotpix(result.memory().begin());
+  Histogram2DFloat::storage_t::iterator count(result.memory().begin()+1*sizeOfImage);
+
+  /** go though all pixels of image*/
+  for (; pixel != ImageEnd; ++pixel, ++count, ++hotpix)
+  {
+    /** check if pix is not masked as hot */
+    if (qFuzzyCompare(*hotpix,-1.f))
+        continue;
+
+    /** check if pixel is within the hot pixel adu range */
+    if (_aduRange.first < *pixel && *pixel < _aduRange.second)
+    {
+      *count += 1;
+      if (_maxConsecutiveCount < *count)
+        *hotpix = -1;
+    }
+    else
+      *count = 0;
+  }
+
+//  /** if we have reached the requested nbr of frames calculate the gain map */
+//  ++_counter;
+//  if (_counter % _nFrames == 0)
+//    calculateGainMap(result);
+
+}
