@@ -219,9 +219,9 @@ private:
  * @cassttng PostProcessor/\%name\%/{ADURangeLow|ADURangeUp} \n
  *           The adu range that indicates that one photon has hit the pixel.
  *           Default is 0|0
- * @cassttng PostProcessor/\%name\%/{MinimumNbrPhotons} \n
- *           The minimum number of photons that a pixel should have seen before
- *           the gain is calulated for this pixel. Default is 200
+ * @cassttng PostProcessor/\%name\%/{MaximumConsecutiveFrames} \n
+ *           The maximum number of frames that a pixel should have an adu value
+ *           in the range before the pixel is mased as hot. Default is 5
  * @cassttng PostProcessor/\%name\%/{DefaultGainValue} \n
  *           The gain value that will be assinged to the pixels that haven't
  *           seen enough photons. Default is 1.
