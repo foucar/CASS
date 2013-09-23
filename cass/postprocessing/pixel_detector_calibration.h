@@ -120,6 +120,10 @@ private:
  * @cassttng PostProcessor/\%name\%/{DefaultGainValue} \n
  *           The gain value that will be assinged to the pixels that haven't
  *           seen enough photons. Default is 1.
+ * @cassttng PostProcessor/\%name\%/{NbrOfFrames} \n
+ *           The number of frames after which the gain map will be calculated.
+ *           Default is -1, which sais that it will never be calulated during
+ *           running and only when the program ends.
  *
  * @author Lutz Foucar
  */
@@ -180,6 +184,12 @@ private:
 
   /** the filename that is used to save the calibration */
   std::string _filename;
+
+  /** the number of frames after which the gain map is calculted */
+  int _nFrames;
+
+  /** counter to count how many times this has been called */
+  int _counter;
 };
 
 }//end namespace cass

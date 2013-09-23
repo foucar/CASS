@@ -194,6 +194,8 @@ void pp331::loadSettings(size_t)
   if (!(_image && ret))
     return;
 
+  _counter = 0;
+  _nFrames = s.value("NbrOfFrames",-1).toInt();
   _filename = s.value("Filename","out.cal").toString().toStdString();
   _write = s.value("WriteCal",true).toBool();
   _aduRange = make_pair(s.value("ADURangeLow",0).toFloat(),
@@ -298,4 +300,10 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
       *ave += ((*pixel - *ave) / *count);
     }
   }
+
+  /** if we have reached the requested nbr of frames calculate the gain map */
+  ++_counter;
+  if (_counter % _nFrames == 0)
+    calculateGainMap(result);
+
 }
