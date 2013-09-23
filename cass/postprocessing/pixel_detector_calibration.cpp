@@ -250,8 +250,8 @@ void pp331::calculateGainMap(Histogram2DFloat& gainmap)
   const size_t sizeOfImage(gainmap.shape().first*gainmap.shape().second/3);
 
   Histogram2DFloat::storage_t::iterator gain(gainmap.memory().begin());
-  Histogram2DFloat::storage_t::iterator count(gainmap.memory().begin()+1*sizeOfImage);
-  Histogram2DFloat::storage_t::iterator ave(gainmap.memory().begin()+2*sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator count(gainmap.memory().begin()+1*sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator ave(gainmap.memory().begin()+2*sizeOfImage);
   for (size_t i(0); i < sizeOfImage; ++i, ++count, ++ave)
   {
     if (*count < _minPhotonCount)
@@ -265,11 +265,11 @@ void pp331::calculateGainMap(Histogram2DFloat& gainmap)
    *  \f$ gain = frac{average_average_pixelvalue}{average_pixelvalue} \f$
    *  If not enough photons are in the pixel, set the predefined user value
    */
-  count = gainmap.memory().begin()+sizeOfImage;
+  count = gainmap.memory().begin()+1*sizeOfImage;
   ave = gainmap.memory().begin()+2*sizeOfImage;
   for (size_t i(0); i < sizeOfImage; ++i, ++gain, ++count, ++ave)
   {
-    *gain++ = (*count < _minPhotonCount) ? _constGain : average/(*ave);
+    *gain = (*count < _minPhotonCount) ? _constGain : average/(*ave);
   }
 }
 
