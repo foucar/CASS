@@ -692,7 +692,7 @@ void CommonData::loadSettings(CASSSettings &s)
       if (hotpixfilenameInfo.exists())
         hotpixfilename = hotpixfilenameInfo.symLinkTarget().toStdString();
       else
-        Log::add(Log::WARNING,"CommonData::loadSettings: The given gain filename '" +
+        Log::add(Log::WARNING,"CommonData::loadSettings: The given hotpix filename '" +
                  hotpixfilename + "' is a link that referes to a non existing file!");
     }
     if (hotpixfilename != _inputHotPixFilename)
@@ -705,7 +705,7 @@ void CommonData::loadSettings(CASSSettings &s)
       if (hotpixFiletype == "cass")
         readCASSHotPixFile(_inputHotPixFilename,*this);
       else
-        throw invalid_argument("CommonData::loadSettings: GainFiletype '" +
+        throw invalid_argument("CommonData::loadSettings: HotPixFiletype '" +
                                hotpixFiletype + "' does not exist");
     }
 
