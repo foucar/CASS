@@ -362,7 +362,7 @@ void pp332::writeHotPixelMap()
                            _filename + "'");
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(*_result));
-  const size_t sizeOfImage(image.shape().first*image.shape().second/3);
+  const size_t sizeOfImage(image.shape().first*image.shape().second/2);
 
   const Histogram2DFloat::storage_t &hpmask(image.memory());
   typedef char mask_t;
