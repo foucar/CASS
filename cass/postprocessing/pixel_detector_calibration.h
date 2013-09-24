@@ -270,6 +270,9 @@ private:
   /** the range of adu that indicates whether a pixel is hot */
   range_t _aduRange;
 
+  /** the maximum allowed adu value */
+  float _maxADUVal;
+
   /** flag to tell whether the calibration should be written */
   bool _write;
 
