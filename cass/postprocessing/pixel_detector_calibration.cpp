@@ -351,7 +351,32 @@ void pp332::loadSettings(size_t)
 
 void pp332::loadHotPixelMap()
 {
+  ifstream in(_filename.c_str(), ios::binary);
+  if (!in.is_open())
+  {
+    Log::add(Log::WARNING,"pp332::loadHotPixelMap: Could not open '" + _filename +
+             "'. Skipping reading the hot pixels mask.");
+    return;
+  }
+  in.seekg(0,std::ios::end);
+  const int valuesize(sizeof(mask_t));
+  const size_t size = in.tellg() / valuesize;
+  in.seekg(0,std::ios::beg);
+  vector<mask_t> hotpixmask(size);
+  in.read(reinterpret_cast<char*>(&hotpixmask.front()), size*valuesize);
 
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(*_result));
+
+  const size_t sizeOfImage(result.shape().first*result.shape().second/2);
+  if (sizeOfImage != size)
+  {
+    Log::add(Log::WARNING,"pp332::loadHotPixelMap: Size of mask to load '" +
+             toString(size) + "' does not fit with size of image '" +
+             toString(sizeOfImage) + "'. Skipping reading the hot pixels mask in '" +
+             _filename +"'.");
+    return;
+  }
+  copy(hotpixmask.begin(),hotpixmask.end(),result.memory().begin());
 }
 
 void pp332::writeHotPixelMap()
@@ -365,7 +390,6 @@ void pp332::writeHotPixelMap()
   const size_t sizeOfImage(image.shape().first*image.shape().second/2);
 
   const Histogram2DFloat::storage_t &hpmask(image.memory());
-  typedef char mask_t;
   vector<mask_t> mask(sizeOfImage);
   copy(hpmask.begin(),hpmask.begin()+sizeOfImage,mask.begin());
   out.write(reinterpret_cast<char*>(&mask.front()), sizeOfImage*sizeof(mask_t));

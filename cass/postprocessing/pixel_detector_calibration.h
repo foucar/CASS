@@ -255,6 +255,9 @@ protected:
   void writeHotPixelMap();
 
 private:
+  /** define the output mask type */
+  typedef char mask_t;
+
   /** the image to create the hotpixel map from */
   shared_pointer _image;
 
