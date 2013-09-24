@@ -337,6 +337,7 @@ void pp332::loadSettings(size_t)
   _aduRange = make_pair(s.value("ADURangeLow",0).toFloat(),
                         s.value("ADURangeUp",0).toFloat());
   _maxConsecutiveCount = s.value("MaximumConsecutiveFrames",5).toUInt();
+  _maxADUVal = s.value("MaxADUValue",1e6).toFloat();
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
   pair<size_t,size_t> shape(image.shape());
@@ -432,6 +433,12 @@ void pp332::process(const CASSEvent &evt, HistogramBackend &res)
     }
     else
       *count = 0;
+
+    /** check if pixel exceeds maximum allowed adu value */
+    if (_maxADUVal < *pixel)
+    {
+      *hotpix = -1;
+    }
   }
 
 //  /** if we have reached the requested nbr of frames calculate the gain map */

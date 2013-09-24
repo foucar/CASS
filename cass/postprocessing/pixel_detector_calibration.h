@@ -222,9 +222,9 @@ private:
  * @cassttng PostProcessor/\%name\%/{MaximumConsecutiveFrames} \n
  *           The maximum number of frames that a pixel should have an adu value
  *           in the range before the pixel is mased as hot. Default is 5
- * @cassttng PostProcessor/\%name\%/{DefaultGainValue} \n
- *           The gain value that will be assinged to the pixels that haven't
- *           seen enough photons. Default is 1.
+ * @cassttng PostProcessor/\%name\%/{MaxADUValue} \n
+ *           If a pixel ever exceeds this value it will be masked as bad.
+ *           Default is 1e6
  * @cassttng PostProcessor/\%name\%/{NbrOfFrames} \n
  *           The number of frames after which the gain map will be calculated.
  *           Default is -1, which sais that it will never be calulated during
