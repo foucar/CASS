@@ -473,9 +473,6 @@ protected:
  *           Possible choises are:
  *           - 0:xAxis
  *           - 1:yAxis
- * @cassttng PostProcessor/\%name\%/{Normalize} \n
- *           Normalize the projection, so that maximum value is always 1.
- *           Default is false.
  *
  * @author Lutz Foucar
  */
