@@ -342,6 +342,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case previousHist:
       processor = PostProcessor::shared_pointer(new pp56(key));
     break;
+  case weightedProject:
+      processor = PostProcessor::shared_pointer(new pp57(key));
+    break;
   case ZeroDHistogramming:
     processor = PostProcessor::shared_pointer(new pp60(key));
     break;

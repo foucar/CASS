@@ -61,6 +61,7 @@ the Class description for information about what parameters are user settable.
 00041: Threshold histogram with another histogram
 
 00050: Project 2D histogram onto a axis
+00057: weighted Project 2D histogram onto a axis
 00051: Integral of 1D histogram
 
 00055: Axis operations performed on 2d histogram
@@ -358,6 +359,8 @@ public:
 
     imageManip=55,
     previousHist=56,
+
+    weightedProject=57,
 
     ZeroDHistogramming=60,
     HistogramAveraging=61,

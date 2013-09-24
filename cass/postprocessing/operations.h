@@ -608,6 +608,101 @@ protected:
 
 
 
+/** Weighted Projection of 2d Histogram.
+ *
+ * @PPList "57": Weighted Project 2D histogram onto a axis
+ *
+ * devides each bin by the number of non zero values that have been added in
+ * this bin.
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           Postprocessor name with 2D-Histogram that we create project.
+ *           Default is 0.
+ * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ *           Upper and lower bound of the area to project. Default is
+ *           -1e6 ... 1e6
+ * @cassttng PostProcessor/\%name\%/{Axis} \n
+ *           The axis we want to project to. Default is xAxis.
+ *           Possible choises are:
+ *           - 0:xAxis
+ *           - 1:yAxis
+ * @cassttng PostProcessor/\%name\%/{ExclusionValue} \n
+ *           The value that will be excluded when doing the projection. The
+ *           result will be normilzed by the amount of bins that have been
+ *           summed. Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp57 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp57(const name_t &name);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+private:
+  /** integrate the rows
+   *
+   * @param src 2d image that will be projected
+   * @param result vector were the projection will be written to
+   * @param norm vector where the normalization values will be added to
+   */
+  void projectToX(const HistogramFloatBase::storage_t &src,
+                  HistogramFloatBase::storage_t &result,
+                  HistogramFloatBase::storage_t &norm);
+
+  /** integrate the columns
+   *
+   * @param src 2d image that will be projected
+   * @param result vector were the projection will be written to
+   * @param norm vector where the normalization values will be added to
+   */
+  void projectToY(const HistogramFloatBase::storage_t &src,
+                  HistogramFloatBase::storage_t &result,
+                  HistogramFloatBase::storage_t &norm);
+
+private:
+  /** pp containing the 2d hist we want to project */
+  shared_pointer _pHist;
+
+  /** range in X we want to project */
+  std::pair<size_t,size_t> _Xrange;
+
+  /** range in Y we want to project */
+  std::pair<size_t,size_t> _Yrange;
+
+  /** the size of the original image in X */
+  size_t _nX;
+
+  /** the value that should be excluded in the summation */
+  float _excludeVal;
+
+  /** the function used to project the image */
+  std::tr1::function<void(const HistogramFloatBase::storage_t&,
+                          HistogramFloatBase::storage_t&,
+                          HistogramFloatBase::storage_t&)> _project;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 /** 0D,1D or 2D to 1D histogramming.
  *
  * @PPList "60": Histogram 0D, 1D or 2D values to a 1D histogram

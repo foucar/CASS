@@ -25,6 +25,7 @@ using namespace std;
 using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
+using tr1::placeholders::_3;
 
 
 
@@ -726,6 +727,136 @@ void pp56::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessors 57 weighted projects 2d hist to 1d histo for a selected region of the axis ***
+
+pp57::pp57(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp57::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  if (_pHist->result().dimension() != 2)
+    throw invalid_argument("pp57::setupParameters()'" + name() +
+                           "': Error the histogram we depend on '" + _pHist->name() +
+                           "' is not a 2D Histogram.");
+  const Histogram2DFloat &hist(dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
+
+  pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
+                                        s.value("UpperBound", 1e6).toFloat()));
+  int projection_axis(s.value("Axis",HistogramBackend::xAxis).toUInt());
+  _excludeVal = s.value("ExclusionValue",0).toFloat();
+
+  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
+  const AxisProperty &yAxis(hist.axis()[HistogramBackend::yAxis]);
+  _nX = xAxis.nbrBins();
+
+  switch(projection_axis)
+  {
+  case (HistogramBackend::xAxis):
+    _Xrange = make_pair(0,xAxis.nbrBins());
+    _Yrange = make_pair(yAxis.bin(userRange.first),
+                        yAxis.bin(userRange.second));
+    _project = bind(&pp57::projectToX,this,_1,_2,_3);
+    createHistList(
+          tr1::shared_ptr<Histogram1DFloat>
+          (new Histogram1DFloat(xAxis.nbrBins(),
+                                xAxis.lowerLimit(), xAxis.upperLimit())));
+    break;
+
+  case (HistogramBackend::yAxis):
+    _Xrange = make_pair(xAxis.bin(userRange.first),
+                        xAxis.bin(userRange.second));
+    _Yrange = make_pair(0,xAxis.nbrBins());
+    _project = bind(&pp57::projectToY,this,_1,_2,_3);
+    createHistList(
+          tr1::shared_ptr<Histogram1DFloat>
+          (new Histogram1DFloat(yAxis.nbrBins(),
+                                yAxis.lowerLimit(), yAxis.upperLimit())));
+    break;
+
+  default:
+    throw invalid_argument("pp57::loadSettings() '" + name() +
+                           "': requested _axis '" + toString(projection_axis) +
+                           "' does not exist.");
+    break;
+  }
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+      "' will project histogram of PostProcessor '" + _pHist->name() + "' from '" +
+      toString(userRange.first) + "' to '" + toString(userRange.second) + "' on axis '" +
+      toString(projection_axis) + "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp57::projectToX(const HistogramFloatBase::storage_t &src,
+                      HistogramFloatBase::storage_t& result,
+                      HistogramFloatBase::storage_t& norm)
+{
+  for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
+    for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
+    {
+      const float pixval(src[y*_nX + x]);
+      if (!qFuzzyCompare(pixval,_excludeVal))
+      {
+        result[x] += pixval;
+        norm[x] += 1;
+      }
+    }
+}
+
+void pp57::projectToY(const HistogramFloatBase::storage_t &src,
+                      HistogramFloatBase::storage_t& result,
+                      HistogramFloatBase::storage_t& norm)
+{
+  for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
+    for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
+    {
+      const float pixval(src[y*_nX + x]);
+      if (!qFuzzyCompare(pixval,_excludeVal))
+      {
+        result[y] += pixval;
+        norm[y] += 1;
+      }
+    }
+}
+
+void pp57::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  QReadLocker lock(&one.lock);
+
+  vector<float> norm(result.memory().size(),0);
+  _project(one.memory(),result.memory(),norm);
+  transform(result.memory().begin(),result.memory().end(),
+            norm.begin(),result.memory().begin(),
+            divides<float>());
+
+  result.nbrOfFills()=1;
+}
 
 
 
