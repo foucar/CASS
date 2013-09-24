@@ -421,13 +421,13 @@ void pp332::process(const CASSEvent &evt, HistogramBackend &res)
   {
     /** check if pix is not masked as hot */
     if (qFuzzyCompare(*hotpix,-1.f))
-        continue;
+      continue;
 
     /** check if pixel is within the hot pixel adu range */
     if (_aduRange.first < *pixel && *pixel < _aduRange.second)
     {
       *count += 1;
-      if (_maxConsecutiveCount < *count)
+      if (_maxConsecutiveCount <= *count)
         *hotpix = -1;
     }
     else
