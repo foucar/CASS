@@ -14,6 +14,7 @@
 #include <vector>
 #include <stdint.h>
 #include <string>
+#include <limits>
 
 #include <QtCore/qglobal.h>
 
