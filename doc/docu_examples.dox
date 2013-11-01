@@ -1,26 +1,6 @@
 /**
 \page examples Examples
-@example hdf5dump.ini
-@example photodiode-photonhits.ini
-@example singleParticleDetection.ini
-@example threshold-average.ini
-@example tof.ini
-@example hexanode.ini
-@example quadanode.ini
-@example pnCCDSpectrum.ini
-@example advanced_ccd.ini
-@example pnCCDAnalysis_new.ini
-@example CCDAnalysis_new.ini
-@example tcpinput_shm.ini
-@example multifileinput.ini
-@example fileinput.ini
-@example Covariance_Electrons.ini
-@example scan.ini
-@example nanocrystal_hitdetection.ini
-@example singleParticleDetection_new.ini
-@example darkfilecreation_offline.ini
-@example singleParticleWithMemory.ini
 @example CsPadCrystal.ini
-@example darkfilecreation_cspad.ini
-@example hexanode_resortroutine.ini
+@example CsPadProteinSolution_with_mask.ini
+@example Darkcal.ini
 */
