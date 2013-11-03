@@ -89,6 +89,7 @@ public:
   /** getter */
   uint16_t           columns()const        {return _columns;}
   uint16_t           rows()const           {return _rows;}
+  shape_t            shape()const          {return std::make_pair(_columns,_rows);}
   const frame_t     &frame()const          {return _frame;}
   uint32_t           camaxMagic()const     {return _camaxMagic;}
   const std::string &info()const           {return _info;}
