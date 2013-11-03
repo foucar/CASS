@@ -11,6 +11,8 @@ using namespace cass;
 using namespace std;
 
 
+//********** offset/noise calibrations ******************
+
 pp330::pp330(const name_t &name)
   : AccumulatingPostProcessor(name)
 {
