@@ -104,7 +104,9 @@ the Class description for information about what parameters are user settable.
 
 ---Data retrieval (Histogram contain only last shot)--
 ## Data used with new pixeldetector device
-## (select appropriate format convert to use these)
+00109: retrieve raw, untreated pixeldetector Image
+
+## PostProcessor below only work when one has set up the pixel detectors
 00105: Pixeldetector Image
 00107: Display the Map used for correction and pixel detection
 
@@ -405,6 +407,8 @@ public:
     PixelDetectorImageHistogram=106,
     CorrectionMaps=107,
     SumPixels=108,
+
+    RAWPixeldetectorFrame=109,
 
     AcqirisWaveform=110,
     BlData=120,

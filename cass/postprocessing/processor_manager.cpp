@@ -429,6 +429,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case CorrectionMaps:
     processor = PostProcessor::shared_pointer(new pp107(key));
     break;
+  case RAWPixeldetectorFrame:
+    processor = PostProcessor::shared_pointer(new pp109(key));
+    break;
   case AcqirisWaveform:
     processor = PostProcessor::shared_pointer(new pp110(key));
     break;

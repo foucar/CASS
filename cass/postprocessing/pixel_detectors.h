@@ -15,6 +15,7 @@
 #include "cass_event.h"
 #include "pixel_detector_helper.h"
 #include "cass_pixeldetector.h"
+#include "pixeldetector.hpp"
 
 
 namespace cass
@@ -115,6 +116,51 @@ protected:
   /** the lock for locking the map */
   QReadWriteLock *_mapLock;
 };
+
+
+
+
+/** Pixeldetector raw image.
+ *
+ * @PPList "109": extract raw pixel detector image
+ *
+ * Postprocessor will get the untreated frame directly from the cassevent
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Detector}\n
+ *           The CASS ID of the detector device that one wants to extract. One
+ *           can set up which CASS ID the detector has in the converter part.
+ * @cassttng PostProcessor/\%name\%/{nRows}\n
+ *           The number of rows of the device (only needed when value cannot be
+ *           determined from the name of the PostProcessor)
+ * @cassttng PostProcessor/\%name\%/{nCols}\n
+ *           The number of columns of the device (only needed when value cannot
+ *           be determined from the name of the PostProcessor)
+ *
+ * @author Lutz Foucar
+ */
+class pp109 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp109(const name_t &name);
+
+  /** copy image from CASS event to histogram storage
+   *
+   * @throws invalid_argument if user provided size is incorrect
+   */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings for this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** detector to work on */
+   pixeldetector::Device::detectors_t::key_type _detector;
+};
+
 
 
 

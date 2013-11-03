@@ -182,6 +182,68 @@ void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
 
 
 
+// *** raw frame of the pixeldetector ***
+
+pp109::pp109(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp109::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _detector = s.value("CASSID",-1).toUInt();
+  const shape_t shape(Frame::shapeFromName(name()));
+  const int cols(s.value("nCols",static_cast<int>(shape.first)).toUInt());
+  const int rows(s.value("nRows",static_cast<int>(shape.second)).toUInt());
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(cols,rows)));
+  Log::add(Log::INFO,"Postprocessor '" + name() +
+           "' will display the raw frame of detector '" + toString(_detector) +
+           "'. It will use condition '" + _condition->name() +"'");
+}
+
+void pp109::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  CASSEvent::devices_t::const_iterator devIt(
+        evt.devices().find(CASSEvent::PixelDetectors));
+  if (devIt == evt.devices().end())
+    throw invalid_argument("pp109::process(): Device " +
+                           string("'PixelDetectors' does not exist in CASSEvent"));
+  const Device &dev (dynamic_cast<const Device&>(*(devIt->second)));
+  Device::detectors_t::const_iterator detIt(dev.dets().find(_detector));
+  if (detIt == dev.dets().end())
+    throw invalid_argument("pp109::process(): Detector '" +
+                           toString(_detector) + "' does not exist in Device " +
+                           "'PixelDetectors' within the CASSEvent");
+  const Detector &det(detIt->second);
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  if (result.shape() != det.shape())
+  {
+    throw invalid_argument("Postprocessor '" + name() +
+                           "' incomming frame '" + toString(det.shape().first) +
+                           "x" + toString(det.shape().second) + "'. Result '" +
+                           toString(result.shape().first) + "x" +
+                           toString(result.shape().second) + "'");
+  }
+  copy(det.frame().begin(), det.frame().end(),result.memory().begin());
+  result.nbrOfFills() = 1;
+}
+
+
+
+
+
+
 
 
 
