@@ -73,7 +73,7 @@ public:
   void addDistribution(InputIterator first, InputIterator last)
   {
     while (first != last)
-      addDatum(*first++);;
+      addDatum(*first++);
   }
 
 
@@ -503,7 +503,7 @@ public:
    */
   value_type median() const
   {
-    median(_container);
+    return median(_container);
   }
 
   /** reset the statistics */
@@ -528,7 +528,7 @@ public:
   {
     container_type cc(container);
     const size_t medianpos(0.5*cc.size());
-    std::nth_element(cc.begin, cc.begin() + medianpos, cc.end());
+    std::nth_element(cc.begin(), cc.begin() + medianpos, cc.end());
     const value_type medianval(cc[medianpos]);
     return medianval;
   }
