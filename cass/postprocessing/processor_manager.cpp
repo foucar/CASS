@@ -583,6 +583,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case hotpixmap:
     processor = PostProcessor::shared_pointer(new pp332(key));
     break;
+  case commonmodecalc:
+    processor = PostProcessor::shared_pointer(new pp333(key));
+    break;
   case tof2energy:
     processor = PostProcessor::shared_pointer(new pp400(key));
     break;

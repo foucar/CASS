@@ -286,5 +286,82 @@ private:
   int _counter;
 };
 
+
+
+
+
+
+
+/** pixel detector common mode background calculation
+ *
+ * @PPList "333": pixel detector hot pixel detection
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Image} \n
+ *           the image of the pixel detector
+ * @cassttng PostProcessor/\%name\%/{Width} \n
+ *           The width of the subpart of the detector for which the common
+ *           mode level needs to be calculated.
+ * @cassttng PostProcessor/\%name\%/{CalculationType} \n
+ *           The type of calculation used to calculate the common mode level.
+ *           Default is "mean". Possible values are:
+ *           - "mean": Iterative retrieval of the mean value of distribution of
+ *                     pixels. In each iteration the outliers of the distribution
+ *                     are remove from the distribution.
+ *           - "median": Calculates the mean of the distribution of pixels.
+ * @cassttng PostProcessor/\%name\%/{SNR} \n
+ *           In case of using the mean calculator the signal to noise ratio is
+ *           indicating which values to remove from the distribution before
+ *           recalculating the mean. Default is 4
+ *
+ * @author Lutz Foucar
+ */
+class pp333 : public PostProcessor
+{
+public:
+  /** constructor. */
+  pp333(const name_t&);
+
+  /** overwrite default behaviour don't do anything */
+  virtual void process(const CASSEvent&, HistogramBackend&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** function to calulate the common mode level as mean value
+   *
+   * @return the commonmode level
+   * @param begin iterator to the beginning of the distribution
+   * @param end iterator to the end of the distribution
+   */
+  float meanCalc(HistogramFloatBase::storage_t::const_iterator begin,
+                 HistogramFloatBase::storage_t::const_iterator end);
+
+  /** function to calulate the common mode level via the median value
+   *
+   * @return the commonmode level
+   * @param begin iterator to the beginning of the distribution
+   * @param end iterator to the end of the distribution
+   */
+  float medianCalc(HistogramFloatBase::storage_t::const_iterator begin,
+                   HistogramFloatBase::storage_t::const_iterator end);
+private:
+  /** the image to create the hotpixel map from */
+  shared_pointer _image;
+
+  /** the number of times a pixel is high before masking it as hot pixel */
+  size_t _width;
+
+  /** the signal to noise ratio in case one uses the mean calculator */
+  float _snr;
+
+  /** the function that calculates the commond mode level */
+  std::tr1::function<float(HistogramFloatBase::storage_t::const_iterator,
+                           HistogramFloatBase::storage_t::const_iterator)> _calcCommonmode;
+};
+
 }//end namespace cass
 #endif

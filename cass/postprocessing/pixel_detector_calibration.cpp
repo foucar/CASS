@@ -4,11 +4,15 @@
 
 #include "histogram.h"
 #include "cass_settings.h"
+#include "statistics_calculator.hpp"
 #include "log.h"
 
 
 using namespace cass;
 using namespace std;
+using tr1::bind;
+using tr1::placeholders::_1;
+using tr1::placeholders::_2;
 
 
 //********** offset/noise calibrations ******************
@@ -448,4 +452,95 @@ void pp332::process(const CASSEvent &evt, HistogramBackend &res)
 //  if (_counter % _nFrames == 0)
 //    calculateGainMap(result);
 
+}
+
+
+
+
+
+
+
+
+//********** common mode background calculation ******************
+
+pp333::pp333(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp333::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("Image");
+  setupGeneral();
+  bool ret (setupCondition());
+  if (!(_image && ret))
+    return;
+
+  _width = s.value("Width",-1).toInt();
+  _snr = s.value("SNR",4).toFloat();
+  string calctype(s.value("CalculationType","mean").toString().toStdString());
+  if(calctype == "mean")
+    _calcCommonmode = bind(&pp333::meanCalc,this,_1,_2);
+  else if(calctype == "median")
+    _calcCommonmode = bind(&pp333::medianCalc,this,_1,_2);
+  else
+    throw invalid_argument("pp333::loadSettings() '" + name() +
+                           "': Calculation type '" + calctype + "' is unkown.");
+
+
+  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+  createHistList(_image->result().copy_sptr());
+  Log::add(Log::INFO,"Postprocessor " + name() +
+           ": generates the common mode background level of  '" +
+           _image->name() + "' using calculation type '" + calctype +
+           "'. Condition is '" + _condition->name() + "'");
+}
+
+float pp333::meanCalc(HistogramFloatBase::storage_t::const_iterator begin,
+                      HistogramFloatBase::storage_t::const_iterator end)
+{
+  CummulativeStatisticsNoOutlier<float> stat(_snr);
+  stat.addDistribution(begin,end);
+  return stat.mean();
+}
+
+float pp333::medianCalc(HistogramFloatBase::storage_t::const_iterator begin,
+                        HistogramFloatBase::storage_t::const_iterator end)
+{
+  MedianCalculator<float> stat;
+  stat.addDistribution(begin,end);
+  return stat.median();
+}
+
+void pp333::process(const CASSEvent &evt, HistogramBackend &res)
+{
+  const Histogram2DFloat &image
+      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  QReadLocker lock(&image.lock);
+  /** retrieve iterators to the storages and the size of the image */
+  Histogram2DFloat::storage_t::const_iterator imageIt(image.memory().begin());
+  Histogram2DFloat::storage_t::iterator resultIt(result.memory().begin());
+  const size_t sizeOfImage(image.shape().first * image.shape().second);
+  const size_t parts(sizeOfImage / _width);
+
+  /** go though all common mode parts of image*/
+  for (size_t part(0); part < parts; ++part)
+  {
+    /** calculate the common mode for the part */
+    Histogram2DFloat::storage_t::const_iterator startPart_Image(imageIt + part*_width);
+    Histogram2DFloat::storage_t::const_iterator endPart_Image(startPart_Image + _width);
+    const float commonmodeLevel(_calcCommonmode(startPart_Image,endPart_Image));
+
+    /** fill the result part with the calculated common mode */
+    Histogram2DFloat::storage_t::iterator startPart_Res(resultIt + part*_width);
+    Histogram2DFloat::storage_t::iterator endPart_Res(startPart_Res + _width);
+    fill(startPart_Res, endPart_Res, commonmodeLevel);
+  }
 }
