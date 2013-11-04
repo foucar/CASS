@@ -190,6 +190,21 @@ public:
     _containerChanged=true;
   }
 
+  /** add a number of dati to the distribution
+   *
+   * Adds all elements between first and last to the distribution, but not the
+   * last
+   *
+   * @param first The first in the range to be added
+   * @param last The element after last to be added
+   */
+  template <class InputIterator>
+  void addDistribution(InputIterator first, InputIterator last)
+  {
+    while (first != last)
+      addDatum(*first++);
+  }
+
   /** substitute the internal container with an outside one
    *
    * @param distribution The external container
@@ -493,6 +508,21 @@ public:
   void addDatum(const value_type &datum)
   {
     _container.push_back(datum);
+  }
+
+  /** add a number of dati to the distribution
+   *
+   * Adds all elements between first and last to the distribution, but not the
+   * last
+   *
+   * @param first The first in the range to be added
+   * @param last The element after last to be added
+   */
+  template <class InputIterator>
+  void addDistribution(InputIterator first, InputIterator last)
+  {
+    while (first != last)
+      addDatum(*first++);
   }
 
   /** retrieve the median of the distribution
