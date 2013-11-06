@@ -196,17 +196,41 @@ void pp1500::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
-  _darkHist = setupDependency("DarkName");
+  bool allDepsAreThere(true);
+
+  string hName(s.value("HistName","Unknown").toString().toStdString());
+  if (hName != "Unknown")
+  {
+    _pHist = setupDependency("",hName);
+    allDepsAreThere = _pHist && allDepsAreThere;
+  }
+
+  string summaryName(s.value("SummaryName","Unknown").toString().toStdString());
+  if (summaryName != "Unknown")
+  {
+    _summaryHist = setupDependency("",summaryName);
+    allDepsAreThere = _summaryHist && allDepsAreThere;
+  }
+
   bool ret (setupCondition());
-  if (!(ret && _pHist && _darkHist))
+  if (!(ret && allDepsAreThere))
     return;
-  const HistogramBackend &hist(_pHist->result());
-  if (hist.dimension() != 2)
-    throw invalid_argument("pp1500: The histogram that should be written to cbf is not a 2d histogram");
-  const HistogramBackend &dark(_darkHist->result());
-  if (dark.dimension() != 2)
-    throw invalid_argument("pp1500: The histogram that contains the offset is not a 2d histogram");
+
+  if (_pHist)
+  {
+    const HistogramBackend &hist(_pHist->result());
+    if (hist.dimension() != 2)
+      throw invalid_argument("pp1500: The histogram '" + _pHist->name()
+                             + "' is not a 2d histogram");
+  }
+
+  if (_summaryHist)
+  {
+    const HistogramBackend &sHist(_summaryHist->result());
+    if (sHist.dimension() != 2)
+      throw invalid_argument("pp1500: The summary histogram '" + _summaryHist->name()
+                             + "'is not a 2d histogram");
+  }
 
   /** when requested add the first subdir to the filename and make sure that the
    *  directory exists.
@@ -221,7 +245,7 @@ void pp1500::loadSettings(size_t)
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' will write histograms '" + _pHist->name() +"' to cbf file with '" +
            _basefilename + "' as basename" +
-           ". Darkname '" + _darkHist->name() + "'" +
+           ". Darkname '" + _summaryHist->name() + "'" +
            ". Condition is '" + _condition->name() + "'");
 }
 
@@ -232,6 +256,11 @@ const HistogramBackend& pp1500::result(const CASSEvent::id_t)
 
 void pp1500::processEvent(const CASSEvent &evt)
 {
+  /** return if there is no histogram to be written */
+  if (!_pHist)
+    return;
+
+  /** return if the condition for this pp is false */
   if (!_condition->result(evt.id()).isTrue())
     return;
 
@@ -260,18 +289,22 @@ void pp1500::processEvent(const CASSEvent &evt)
 
 void pp1500::aboutToQuit()
 {
-  QMutexLocker locker(&_lock);
-  const Histogram2DFloat& dark
-      (dynamic_cast<const Histogram2DFloat&>(_darkHist->result()));
-  const Histogram2DFloat::storage_t& data( dark.memory() );
+  /** return if there is no summary to be written */
+  if (!_summaryHist)
+    return;
 
-  QReadLocker lock(&dark.lock);
+  QMutexLocker locker(&_lock);
+  const Histogram2DFloat& sHist
+      (dynamic_cast<const Histogram2DFloat&>(_summaryHist->result()));
+  const Histogram2DFloat::storage_t& data( sHist.memory() );
+
+  QReadLocker lock(&sHist.lock);
 
   /** create filename from base filename, but first remove subdir from filename
    *   when they should be distributed
    */
   if (_maxFilePerSubDir != -1)
     _basefilename = AlphaCounter::removeAlphaSubdir(_basefilename);
-  string filename(_basefilename + "_Dark.cbf");
-  CBF::write(filename,data,dark.shape().first,dark.shape().second);
+  string filename(_basefilename + "_Summary.cbf");
+  CBF::write(filename,data,sHist.shape().first,sHist.shape().second);
 }

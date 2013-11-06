@@ -19,10 +19,12 @@ namespace cass
  *
  * @PPList "pp1500": converts histograms to (c)rystal (b)inary (f)ormat files.
  *
- * @cassttng PostProcessor/\%name\%/{DarkName} \n
- *           Postprocessor name offsetmap to write to cbf when program quits.
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           Postprocessor name containing the histogram that write to cbf.
+ *           If not set then no cbf file will be written when condition is true
+ * @cassttng PostProcessor/\%name\%/{SummaryName} \n
+ *           Postprocessor name containing Histogram to be written as summary to
+ *           cbf. If not set then no summary will be written
  * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
  *           Default name given by program parameter
  * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
@@ -61,8 +63,8 @@ protected:
   /** pp containing histogram to dump to cbf */
   shared_pointer _pHist;
 
-  /** pp containing offset histogram to dump to cbf */
-  shared_pointer _darkHist;
+  /** pp containing histogram that will be written as summary to dump to cbf */
+  shared_pointer _summaryHist;
 
   /** the number of files in each subdir */
   int _maxFilePerSubDir;
