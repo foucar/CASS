@@ -342,6 +342,7 @@ private:
  *           cspad image in cass layout. Default is "".
  * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
  * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ * @cassttng PostProcessor/\%name\%/{BackgroundValue} \n
  *
  * @author Lutz Foucar
  */
@@ -375,6 +376,9 @@ protected:
 
   /** flag whether to convert the positions in the src from cheetah to cass layout */
   bool _convertCheetahToCASSLayout;
+
+  /** the value with wich the background should be filled */
+  float _backgroundValue;
 
   /** filename of the geometry file */
   std::string _filename;

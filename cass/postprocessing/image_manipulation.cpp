@@ -757,6 +757,7 @@ void pp1602::loadSettings(size_t)
 
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
+  _backgroundValue = s.value("BackgroundValue",0).toFloat();
 
   setup(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
 
@@ -856,6 +857,9 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 
   /** lock resources */
   QReadLocker(&imageHist.lock);
+
+  /** fill the result with the background value */
+  fill(destImage.begin(),destImage.end(),_backgroundValue);
 
   /** iterate through the src image and put its pixels at the location in the
    *  destination that is directed in the lookup table
