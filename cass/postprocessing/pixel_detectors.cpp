@@ -665,6 +665,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
+
 // *** set bad pixel of detector to a user selected value ***
 
 pp242::pp242(const name_t &name)
@@ -728,3 +729,49 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
+
+
+// *** apply mask to image ***
+
+pp243::pp243(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp243::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("HistName");
+  _mask = setupDependency("MaskName");
+  _value = s.value("Value",0.f).toFloat();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  createHistList(_image->result().copy_sptr());
+  Log::add(Log::INFO,"Postprocessor '" + name() + "' sets pixels of '" +
+           _image->name() + "' that are masked in '" + _mask->name() + "' to '"
+           + toString(_value) + "' It will use condition '"
+           + _condition->name() +"'");
+}
+
+void pp243::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram2DFloat &image
+      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
+  const Histogram2DFloat &mask
+      (dynamic_cast<const Histogram2DFloat&>(_mask->result(evt.id())));
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  QReadLocker imagelock(&image.lock);
+  QReadLocker masklock(&mask.lock);
+
+  Histogram2DFloat::storage_t::iterator dest(result.memory().begin());
+  Histogram2DFloat::storage_t::const_iterator src(image.memory().begin());
+  Histogram2DFloat::storage_t::const_iterator maskIt(mask.memory().begin());
+  for (; dest != result.memory().end(); ++dest, ++src, ++maskIt)
+    *dest = qFuzzyIsNull(*maskIt) ? _value : *src;
+  result.nbrOfFills() = 1;
+}

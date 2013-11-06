@@ -561,5 +561,54 @@ protected:
 
 
 
+
+
+
+/** apply mask to an image, set the masked pixel to a certain value
+ *
+ * Copys the frame data and then sets all pixels that are 0 in the mask to a
+ * predefined value
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName}\n
+ *           Name of the Histogram that should be masked
+ * @cassttng PostProcessor/\%name\%/{MaskName}\n
+ *           The name of the Mask.
+ * @cassttng PostProcessor/\%name\%/{Value}\n
+ *           Value that should be assigned to pixels that should be masked
+ *           Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp243 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp243(const name_t &name);
+
+  /** copy pixels from CASS event to histogram storage */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** set the histogram size */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing image that will be masked*/
+  shared_pointer _image;
+
+  /** pp containing the mask to apply */
+  shared_pointer _mask;
+
+  /** the value that the masked things should take */
+  float _value;
+};
+
+
+
+
+
+
 }//end namespace cass
 #endif

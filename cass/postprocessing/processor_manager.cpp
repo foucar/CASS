@@ -543,6 +543,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case MaskValue:
     processor = PostProcessor::shared_pointer(new pp242(key));
     break;
+  case MaskImageValue:
+    processor = PostProcessor::shared_pointer(new pp243(key));
+    break;
   case ParticleValue:
     processor = PostProcessor::shared_pointer(new pp250(key));
     break;
