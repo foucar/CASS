@@ -243,9 +243,10 @@ void pp1500::loadSettings(size_t)
 
   _hide = true;
   Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' will write histograms '" + _pHist->name() +"' to cbf file with '" +
-           _basefilename + "' as basename" +
-           ". Darkname '" + _summaryHist->name() + "'" +
+           "' CBF Writer: " +
+           "Basename '" + _basefilename + "'" +
+           (_pHist? " Histname '" + _pHist->name() +"'" :"") +
+           (_summaryHist? " Summary Histogram '" + _summaryHist->name() + "'":"") +
            ". Condition is '" + _condition->name() + "'");
 }
 
