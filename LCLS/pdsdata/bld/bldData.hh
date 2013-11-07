@@ -136,6 +136,44 @@ public:
          EbeamEnergyBC1Damage = 0x200 };
 
     uint32_t    uDamageMask;
+    double      fEbeamCharge;     /* in nC */
+    double      fEbeamL3Energy;   /* in MeV */
+    double      fEbeamLTUPosX;    /* in mm */
+    double      fEbeamLTUPosY;    /* in mm */
+    double      fEbeamLTUAngX;    /* in mrad */
+    double      fEbeamLTUAngY;    /* in mrad */
+    double      fEbeamPkCurrBC2;  /* in Amps */
+    double      fEbeamEnergyBC2;  /* in mm */
+    double      fEbeamPkCurrBC1; /* Amps */
+    double      fEbeamEnergyBC1;  /* in mm */
+
+    int print() const;
+};
+
+
+class BldDataEBeamV4
+{
+public:
+  enum { version=4 };
+
+  // uDamageMask bits
+  enum { EbeamChargeDamage    = 0x001,
+         EbeamL3EnergyDamage  = 0x002,
+         EbeamLTUPosXDamage   = 0x004,
+         EbeamLTUPosYDamage   = 0x008,
+         EbeamLTUAngXDamage   = 0x010,
+         EbeamLTUAngYDamage   = 0x020,
+         EbeamPkCurrBC2Damage = 0x040,
+         EbeamEnergyBC2Damage = 0x080,
+         EbeamPkCurrBC1Damage = 0x100,
+         EbeamEnergyBC1Damage = 0x200,
+         EbeamUndPosXDamage   = 0x400,
+         EbeamUndPosYDamage   = 0x800,
+         EbeamUndAngXDamage   = 0x1000,
+         EbeamUndAngYDamage   = 0x2000
+       };
+
+    uint32_t    uDamageMask;
     double      fEbeamCharge;     /* in nC */ 
     double      fEbeamL3Energy;   /* in MeV */ 
     double      fEbeamLTUPosX;    /* in mm */ 
@@ -146,12 +184,15 @@ public:
     double      fEbeamEnergyBC2;  /* in mm */
     double      fEbeamPkCurrBC1; /* Amps */
     double      fEbeamEnergyBC1;  /* in mm */
-    
+    double      fEbeamUndPosX; /**< Undulator launch feedback (BPMs U4 through U10) beam x-position in mm. */
+    double      fEbeamUndPosY; /**< Undulator launch feedback beam y-position in mm. */
+    double      fEbeamUndAngX; /**< Undulator launch feedback beam x-angle in mrad. */
+    double      fEbeamUndAngY; /**< Undulator launch feedback beam y-angle in mrad. */
     int print() const;    
 };
 
 
-typedef BldDataEBeamV3 BldDataEBeam;
+typedef BldDataEBeamV4 BldDataEBeam;
 
 class BldDataPhaseCavity
 {

@@ -51,6 +51,21 @@ int BldDataEBeamV2::print() const
 }
 
 int BldDataEBeamV3::print() const
+{
+    printf( "ebeamCharge   ( in nC )  : %lf\n", fEbeamCharge  );
+    printf( "ebeamL3Energy ( in MeV ) : %lf\n", fEbeamL3Energy);
+    printf( "ebeamLTUPosX  ( in mm )  : %lf\n", fEbeamLTUPosX );
+    printf( "ebeamLTUPosY  ( in mm )  : %lf\n", fEbeamLTUPosY );
+    printf( "ebeamLTUAngX  ( in mrad ): %lf\n", fEbeamLTUAngX );
+    printf( "ebeamLTUAngY  ( in mrad ): %lf\n", fEbeamLTUAngY );
+    printf( "ebeamPkCurrBC2( in A )   : %lf\n", fEbeamPkCurrBC2 );
+    printf( "ebeamEnergyBC2( in MeV ) : %lf\n", fEbeamEnergyBC2 );
+    printf( "ebeamPkCurrBC1( in A )   : %lf\n", fEbeamPkCurrBC1 );
+    printf( "ebeamEnergyBC1( in MeV ) : %lf\n", fEbeamEnergyBC1 );
+    return 0;
+}
+
+int BldDataEBeamV4::print() const
 {    
     printf( "ebeamCharge   ( in nC )  : %lf\n", fEbeamCharge  ); 
     printf( "ebeamL3Energy ( in MeV ) : %lf\n", fEbeamL3Energy); 

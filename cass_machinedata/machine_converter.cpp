@@ -163,6 +163,28 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
     switch (version)
     {
+    case (4):
+    {
+      if(!(Pds::BldDataEBeam::EbeamUndPosXDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamUndPosX"]= beam.fEbeamUndPosX;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamUndPosX' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamUndPosYDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamUndPosY"]= beam.fEbeamUndPosY;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamUndPosY' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamUndAngXDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamUndAngX"]= beam.fEbeamUndAngX;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamUndPosX' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamUndAngYDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamUndAngY"]= beam.fEbeamUndAngY;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamUndPosY' is damaged");
+    }
     case (3):
     {
       if(!(Pds::BldDataEBeam::EbeamPkCurrBC1Damage & beam.uDamageMask))
@@ -178,9 +200,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     case (2):
     {
       if(!(Pds::BldDataEBeam::EbeamEnergyBC2Damage & beam.uDamageMask))
-        md->BeamlineData()["fEbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
+        md->BeamlineData()["EbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
       else
-        Log::add(Log::VERBOSEINFO,"'fEbeamEnergyBC2' is damaged");
+        Log::add(Log::VERBOSEINFO,"'EbeamEnergyBC2' is damaged");
     }
     case (1):
     {

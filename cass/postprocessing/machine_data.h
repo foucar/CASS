@@ -47,7 +47,14 @@ class Histogram0DFloat;
  *             - EbeamLTUAngY
  *             - EbeamLTUPosX
  *             - EbeamLTUPosY
+ *             - EbeamPkCurrBC1
+ *             - EbeamPkEnergyBC1
  *             - EbeamPkCurrBC2
+ *             - EbeamPkEnergyBC2
+ *             - EbeamUndAngX
+ *             - EbeamUndAngY
+ *             - EbeamUndPosX
+ *             - EbeamUndPosY
  *           - Phase Cavity values
  *             - Charge1
  *             - Charge2
