@@ -242,6 +242,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamLTUPosY' is damaged");
+      break;
     }
     default:
       Log::add(Log::VERBOSEINFO,"Unknown BLD version");
