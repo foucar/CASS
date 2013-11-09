@@ -562,7 +562,7 @@ public:
     /** open file @throw invalid_argument when it could not be opened */
     ifstream geomFile (filename.c_str());
     if (!geomFile.is_open())
-      throw invalid_argument(" pp1602::generateLookupTable(): could not open file '" +
+      throw invalid_argument("pp1602::generateLookupTable(): could not open file '" +
                              filename +"'");
 
     /** read the file line by line */
@@ -652,8 +652,8 @@ public:
       asicInfo_t& ai(it->second);
 
       /** if requested transform the start and end positions from the cheetah
-     *  layout to the raw cass layout
-     */
+       *  layout to the raw cass layout
+       */
       if (convertFromCheetahToCASS)
       {
         const int nx(Pds::CsPad::MaxRowsPerASIC);
@@ -679,8 +679,8 @@ public:
         for (int colInAsic = 0; colInAsic <= colAsicRange; ++colInAsic)
         {
           /** find the position in the lab frame (in pixel units) of the current
-          *  position (colInAsic,rowInAsic) in the asic
-          */
+           *  position (colInAsic,rowInAsic) in the asic
+           */
           double xInLab = ai.x_fs*colInAsic + ai.x_ss*rowInAsic + ai.corner_x;
           double yInLab = ai.y_fs*colInAsic + ai.y_ss*rowInAsic + ai.corner_y;
 
@@ -698,8 +698,8 @@ public:
                                toString(sizeOfSrc) +"'");
 
           /** remember what x,y position in the lab does this position in the
-          *  asic correspond to
-          */
+           *  asic correspond to
+           */
           src2lab[idxInSrc].x = xInLab;
           src2lab[idxInSrc].y = yInLab;
         }
@@ -793,15 +793,15 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
                            bind<GeometryInfo::pos_t::y_t>(&GeometryInfo::pos_t::y,_2)))->y;
 
   /** move all values, such that they start at 0
-     *  \f$ pos.x -= min_x\f$
-     *  \f$ pos.y -= min_y\f$
-     */
+   *  \f$ pos.x -= min_x\f$
+   *  \f$ pos.y -= min_y\f$
+   */
   transform(src2lab.begin(),src2lab.end(),src2lab.begin(),bind(geom::minus,_1,min));
 
   /** get the new maximum value of the shifted lab, which corresponds to the
-     *  number of pixels that are required in the dest image, since all lab
-     *  values are in pixel coordinates.
-     */
+   *  number of pixels that are required in the dest image, since all lab
+   *  values are in pixel coordinates.
+   */
   const double max_x = max_element(src2lab.begin(),src2lab.end(),
                                    bind(less<GeometryInfo::pos_t::x_t>(),
                                         bind<GeometryInfo::pos_t::x_t>(&GeometryInfo::pos_t::x,_1),
@@ -816,9 +816,9 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
   const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
 
   /** convert the positions in the lab space (pixel units) to linearized indizes
-     *  in the destination image
-     *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
-     */
+   *  in the destination image
+   *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
+   */
   transform(src2lab.begin(),src2lab.end(),_lookupTable.begin(),
             bind(geom::linearizeComponents,_1,nDestCols));
 
@@ -830,7 +830,6 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
                        toString(nDestCols*nDestRows) + "'");
 
   /** create the destination image and setup the histlist */
-  //    _result = new Histogram2DFloat(nDestCols , nDestRows);
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(nDestCols,min.x,max.x, nDestRows,min.y,max.y,
