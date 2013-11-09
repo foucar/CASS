@@ -206,14 +206,22 @@ void writeMatrix(const vector<float> &matrix, const size_t cols, const size_t ro
   if (dataspace_id < 0)
     throw runtime_error("writeMatrix(float): Could not open the dataspace");
 
-  // Create dataset creation property list, set the gzip compression filter
-  // and chunck size
-  hsize_t chunk[2] = {40,3};
-  hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-  H5Pset_deflate (dcpl, compressLevel);
-  H5Pset_chunk (dcpl, 2, chunk);
-  hid_t dataset_id = (H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
-                                dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+  hid_t dataset_id;
+  if(compressLevel != 0)
+  {
+    // Create dataset creation property list, set the gzip compression filter
+    // and chunck size
+    hsize_t chunk[2] = {40,3};
+    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+    H5Pset_deflate (dcpl, compressLevel);
+    H5Pset_chunk (dcpl, 2, chunk);
+    dataset_id = (H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+                            dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+  }
+  else
+    dataset_id = (H5Dcreate(groupid, valname.c_str(), H5T_NATIVE_FLOAT,
+                            dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
+
   if (dataset_id < 0)
     throw runtime_error("writeMatrix(float): Could not open the dataset '"
                         + valname +"'");
