@@ -851,7 +851,7 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
   const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
 
   /** get result image and its memory */
-  Histogram2DFloat &result(dynamic_cast<HistogramFloatBase&>(r));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
   Histogram2DFloat::storage_t& destImage(result.memory());
 
   /** lock resources */
