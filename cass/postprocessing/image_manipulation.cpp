@@ -851,8 +851,8 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
   const HistogramFloatBase::storage_t& srcImage(imageHist.memory()) ;
 
   /** get result image and its memory */
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(r));
-  HistogramFloatBase::storage_t& destImage(result.memory());
+  Histogram2DFloat &result(dynamic_cast<HistogramFloatBase&>(r));
+  Histogram2DFloat::storage_t& destImage(result.memory());
 
   /** lock resources */
   QReadLocker(&imageHist.lock);
@@ -863,8 +863,8 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
   /** iterate through the src image and put its pixels at the location in the
    *  destination that is directed in the lookup table
    */
-  HistogramFloatBase::storage_t::const_iterator srcpixel(srcImage.begin());
-  HistogramFloatBase::storage_t::const_iterator srcImageEnd(srcImage.end());
+  Histogram2DFloat::storage_t::const_iterator srcpixel(srcImage.begin());
+  Histogram2DFloat::storage_t::const_iterator srcImageEnd(srcImage.end()-8);
 
   lookupTable_t::const_iterator idx(_lookupTable.begin());
 
