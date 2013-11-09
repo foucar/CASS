@@ -63,7 +63,9 @@ void PostProcessor::releaseEvent(const CASSEvent &event)
 
 HistogramBackend::shared_pointer PostProcessor::resultCopy(const uint64_t eventid)
 {
-  return result(eventid).copy_sptr();
+  const HistogramBackend &h(result(eventid));
+  QReadLocker lock(&h.lock);
+  return h.copy_sptr();
 }
 
 void PostProcessor::clearHistograms()
