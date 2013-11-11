@@ -29,6 +29,8 @@ class Histogram2DFloat;
 
 /** Pixeldetector image.
  *
+ * @PPList "105": display the image from a pixeldetector defined
+ *
  * Postprocessor will get the frame of the requested pixeldetector.
  *
  * @see PostProcessor for a list of all commonly available cass.ini
@@ -68,6 +70,8 @@ protected:
 
 
 /** display the maps
+ *
+ * @PPList "107": display the correction maps
  *
  * Will display the maps that are used the processing units to process the
  * frame and detect the pixels of interest.
@@ -169,6 +173,8 @@ protected:
 
 /** coalesced pixels (hits) on a pixeldetector.
  *
+ * @PPList "144": display the coalesced pixels identified from a pixel detector
+ *
  * This postprocessor will fill a 2D histogram with the coalesced hits on a
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * availalbe to coalesce the detected hits on the pixeldetectors.
@@ -229,6 +235,8 @@ protected:
 
 /** Number of coalesced pixels (hits) in a pixeldetector
  *
+ * @PPList "145": shows the number of coalesced pixels
+ *
  * This postprocessor retrieve how many coalesced photonhits have been
  * detected in a ccd frame.
  *
@@ -263,6 +271,8 @@ protected:
 
 
 /** split level of the colesced pixels (hits) of CCD's.
+ *
+ * @PPList "146": histogram of the split level of coalescing
  *
  * This postprocessor creates a 1d histogram displaying what the split level
  * of the photonhit was (how many pixels contributed to the photonhit). See
@@ -306,6 +316,8 @@ protected:
 
 
 /** image of detected pixels in a pixeldetector.
+ *
+ * @PPList "148": display an image generated from the identified pixels
  *
  * This postprocessor will fill a 2D histogram with the detected pixels in a
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
@@ -359,6 +371,8 @@ protected:
 
 /** Number of detected pixels of an pixeldetector
  *
+ * @PPList "149": the number of detected pixels in a pixeldetector
+ *
  * This postprocessor retrieve how many pixels have been detected in a
  * pixeldetector frame. See cass::pixeldetector::AdvancedDetector for available
  * options on how to detect pixels of interest.
@@ -397,6 +411,8 @@ protected:
 
 
 /** decreased offset correction
+ *
+ * @PPList "241" correct the distorted offset in a pnCCD image
  *
  * modifies the incomming 2d histogram such that a wrong offset du to much charge
  * on the pnCCD detector will be corrected.
@@ -516,6 +532,8 @@ protected:
 
 /** process untreated frame with mask
  *
+ * @PPList "242" same as pp105 but sets the masked pixels to a user defined value
+ *
  * Copys the frame data and then sets all maked  pixels in the 2d histogram to a
  * predefined value
  *
@@ -565,6 +583,9 @@ protected:
 
 
 /** apply mask to an image, set the masked pixel to a certain value
+ *
+ * @PPList "243" generate a copy of the incomming image and set masked pixels to
+ *               a user defined value
  *
  * Copys the frame data and then sets all pixels that are 0 in the mask to a
  * predefined value
