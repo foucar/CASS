@@ -775,3 +775,84 @@ void pp243::process(const CASSEvent& evt, HistogramBackend &res)
     *dest = qFuzzyIsNull(*maskIt) ? _value : *src;
   result.nbrOfFills() = 1;
 }
+
+
+
+
+
+
+// *** generate pixel histograms ***
+
+pp244::pp244(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp244::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("HistName");
+  setupGeneral();
+  if (!setupCondition())
+    return;
+
+  if (_image->result().dimension() != 2)
+    throw invalid_argument("pp244::loadSettings: '" + name() + "' input '" +
+                           _image->name() + "' is not a 2d histogram");
+
+  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+  const size_t nPixels(image.shape().first * image.shape().second);
+
+  const size_t nbins(s.value("XNbrBins",1).toUInt());
+  const float low(s.value("XLow",0).toFloat());
+  const float up(s.value("XUp",0).toFloat());
+  const string title(s.value("XTitle","x-axis").toString().toStdString());
+
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(nbins,low,up,nPixels,0,nPixels-1,title,"Pixel")));
+
+  createHistList(_image->result().copy_sptr());
+  Log::add(Log::INFO,"Postprocessor '" + name() +
+           "' generates histogram nbr Bins '" + toString(nbins) + "', low '" +
+           toString(low) + "', up '" + toString(up) + "', title '" + title +
+           "', for all pixels of '" + _image->name() + "'. Condition '" +
+           _condition->name() +"'");
+}
+
+void pp244::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram2DFloat &image
+      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
+
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  QReadLocker imagelock(&image.lock);
+
+  const size_t nPixels(image.shape().first*image.shape().second);
+  const AxisProperty &prop(result.axis()[Histogram2DFloat::xAxis]);
+  const float up(prop.upperLimit());
+  const float low(prop.lowerLimit());
+  const size_t nBins(prop.nbrBins());
+  for (size_t i=0; i<nPixels;++i)
+  {
+     /** find where in the histogram the pixel value would be put
+      *  only if its within the range of the values
+      */
+    const float pixval(image.memory()[i]);
+    if (low <= pixval && pixval < up)
+    {
+      const size_t bin(
+            static_cast<size_t>(nBins * ((pixval - low) / (up - low))));
+
+      /** get the right row for the pixel from the result and add 1 at the bin
+       *  of the pixel value
+       */
+      Histogram2DFloat::storage_t::iterator row(result.memory().begin() + i*nBins);
+      row[bin] += 1;
+    }
+  }
+  result.nbrOfFills() += 1;
+}

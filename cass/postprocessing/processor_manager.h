@@ -177,6 +177,8 @@ the Class description for information about what parameters are user settable.
 00241: fix distorted offset of pnCCD frames
 00242: same as 105, but one can put a user defined value at the masked pixels
 00243: apply a mask to an image set the masked values to a user defined value
+00244: generate a histogram of the pixelvalues for each pixel in an image
+
 01600: convert cass cspad to cheetah cspad
 01601: rearrange cspad to coarsly right orientation (looking from upstream)
 
@@ -471,6 +473,7 @@ public:
     fixOffset=241,
     MaskValue=242,
     MaskImageValue=243,
+    PixelHistogram=244,
 
     ParticleValue = 250,
     ParticleValues = 251,

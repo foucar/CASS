@@ -631,5 +631,41 @@ protected:
 
 
 
+/** generate a histogram for each pixel of the input 2d image
+ *
+ * @PPList "244" generate a histogram for each pixel of the input 2d image
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName}\n
+ *           Name of the Histogram that should be masked
+ * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
+ *           properties of the 1D histogram generated for each Pixel.
+ *
+ * @author Lutz Foucar
+ */
+class pp244 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp244(const name_t &name);
+
+  /** copy pixels from CASS event to histogram storage */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** set the histogram size */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing image that will be masked*/
+  shared_pointer _image;
+};
+
+
+
+
+
+
 }//end namespace cass
 #endif
