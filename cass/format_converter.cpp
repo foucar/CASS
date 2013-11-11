@@ -45,7 +45,7 @@ tr1::shared_ptr<FormatConverter> FormatConverter::instance()
 
 
 FormatConverter::FormatConverter()
-  :_configseen(false), _pvSS(NULL)
+  :_configseen(false)
 {}
 
 void FormatConverter::loadSettings(size_t)
@@ -109,7 +109,7 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
       bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
       /** put the id into the cassevent */
       cassevent->id() = bunchId;
-      cassevent->pvControl = _pvSS->str();
+      cassevent->pvControl = _pvSS.str();
 
       /** set the return value to true */
       retval = GoodData;
@@ -121,14 +121,13 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
     {
       CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
       retval = iter.iterate() && retval;
-      if (_pvSS) delete _pvSS;
-      _pvSS = new stringstream;
+      _pvSS.str("");
       for (unsigned int i=0; i < _pvNum; i++) 
       {
-        *_pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
-        if (!(i+1 == _pvNum)) *_pvSS << ",";
+        _pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
+        if (!(i+1 == _pvNum)) _pvSS << ",";
       }
-      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS->str());
+      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS.str());
     }
 
     /** now iterate through the datagram and find the wanted information

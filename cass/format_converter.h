@@ -126,7 +126,7 @@ private:
   std::string _pvControlName[pvNumMax];
 
   /** the final name of the pv */
-  std::stringstream *_pvSS;
+  std::stringstream _pvSS;
 };
 
 }//end namespace cass
