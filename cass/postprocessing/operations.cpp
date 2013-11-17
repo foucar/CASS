@@ -1277,7 +1277,7 @@ void pp66::loadSettings(size_t)
                         "' with dimension '" + toString(one.dimension()) +
                         "' or HistTwo '" + _two->name() + "' has dimension '" +
                         toString(two.dimension()) + "' does not have dimension 1");
-   createHistList(
+  createHistList(
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
                               one.axis()[HistogramBackend::xAxis].lowerLimit(),
