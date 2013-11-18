@@ -133,7 +133,53 @@ protected:
 
 /** convert cspad 2d histogram into cheetah layout
  *
- * @PPList "12": Constant Value
+ * @PPList "1600": convert cass to cheetah layout
+ *
+ * The CASS layout is just every segement on top of each other as follows:
+ *
+@verbatim
+  +-------------+
+  |     31      |
+  +-------------+
+  |     30      |
+  +-------------+
+  |     29      |
+  +-------------+
+        .
+        .
+        .
+  +-------------+
+  |     02      |
+  +-------------+
+^ |     01      |
+| +-------------+
+y |     00      |
+| +-------------+
++---x--->
+@endverbatim
+ * wheras the Cheetah layout puts the segemtns of the quadrant into one column as
+ * follows:
+@verbatim
+  +-------------+-------------+-------------+-------------+
+  |     07      |     15      |     23      |     31      |
+  +-------------+-------------+-------------+-------------+
+  |     06      |     14      |     22      |     30      |
+  +-------------+-------------+-------------+-------------+
+  |     05      |     13      |     21      |     29      |
+  +-------------+-------------+-------------+-------------+
+  |     04      |     12      |     20      |     28      |
+  +-------------+-------------+-------------+-------------+
+  |     03      |     11      |     19      |     27      |
+  +-------------+-------------+-------------+-------------+
+  |     02      |     10      |     18      |     26      |
+  +-------------+-------------+-------------+-------------+
+^ |     01      |     09      |     17      |     25      |
+| +-------------+-------------+-------------+-------------+
+y |     00      |     08      |     16      |     24      |
+| +-------------+-------------+-------------+-------------+
++---x--->
+@endverbatim
+ *
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -210,6 +256,9 @@ y |     00      |
  * arrange the segments as follows. The arrows denote the origin of the segment
  * in the source. The x axis of the source follows always the longer edge of the
  * rectangular segment shape. The y axis of the source matrix the shorter edge.
+ * With this one looks at the detector from upstream, thus having a left handed
+ * coordinate system since increasing x values go from left to right, where in
+ * an right handed coordinates system it should go from right to left.
 @verbatim
     <---+    <---+ +--->                      <---+    <---+
   +----+|  +----+| |+-------------+         +----+|  +----+|  +-------------+
@@ -236,7 +285,7 @@ y |     00      |
                    +--->    +--->
 
 
-
+                                       X
 
                                               <---+    <---+
   +----+   +----+   +-------------+         +----+|  +----+|  +-------------+
@@ -260,7 +309,7 @@ y |     00      |
  |+-------------+   |    |   |    |         +-------------+   |    |   |    |
  v|     29      |  ^|    |  ^|    |         |     22      |^ ^|    |  ^|    |
   +-------------+  |+----+  |+----+         +-------------+| |+----+  |+----+
-                   +--->    +--->                     <---+ +--->    +--->
+                   +--->    +--->                      <---+ +--->    +--->
 @endverbatim
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -333,6 +382,85 @@ private:
  * @PPList "1602": convert cspad data into labframe with geom file
  *
  * generates a lookup table of where in the result image will go which pixel
+ *
+ * to generate a right handed corrdinate system one has to arrange the tiles
+ * that are in the CASS layout as follows:
+@verbatim
+  +-------------+
+  |     31      |
+  +-------------+
+  |     30      |
+  +-------------+
+  |     29      |
+  +-------------+
+        .
+        .
+        .
+  +-------------+
+  |     02      |
+  +-------------+
+^ |     01      |
+| +-------------+
+y |     00      |
+| +-------------+
++---x--->
+@endverbatim
+ * to the following layout. The gaps in between the different segments are non
+ * equi distant!
+@verbatim
+                   +--->    +--->                      <---+ +--->    +--->
+  +------------ +  |+----+  |+----+         +------------ +| |+----+  |+----+
+ ^|     13      |  V|    |  V|    |         |     06      |V V|    |  V|    |
+ |+-------------+   |    |   |    |         +-------------+   |    |   |    |
+ +--->              |    |   |    |                           |    |   |    |
+                    | 10 |   | 11 |                           | 04 |   | 05 |
+                    |    |   |    |                    <---+  |    |   |    |
+  +-------------+   |    |   |    |         +-------------+|  |    |   |    |
+ ^|     12      |   |    |   |    |         |     07      |V  |    |   |    |
+ |+-------------+   +----+   +----+         +-------------+   +----+   +----+
+ +--->
+            quadrant 1                                quadrant 0
+ +--->    +--->                <---+                                     <---+
+ |+----+  |+----+   +-------------+|        +----+   +----+   +-------------+|
+ V|    |  V|    |   |     08      |V        |    |   |    |   |     02      |V
+  |    |   |    |   +-------------+         |    |   |    |   +-------------+
+  |    |   |    |                           |    |   |    |
+  | 14 |   | 15 |                           | 01 |   | 00 |
+  |    |   |    |              <---+        |    |   |    |              <---+
+  |    |   |    |   +-------------+|        |    |   |    |   +-------------+|
+  |    |   |    |   |     09      |V        |    |^  |    |^  |     03      |V
+  +----+   +----+   +-------------+         +----+|  +----+|  +-------------+
+                                              <---+    <---+
+
+                                       .
+
+                   +--->    +--->
+  +------------ +  |+----+  |+----+         +------------ +   +----+   +----+
+ ^|     19      |  V|    |  V|    |        ^|     25      |   |    |   |    |
+ |+-------------+   |    |   |    |        |+-------------+   |    |   |    |
+ +--->              |    |   |    |        +--->              |    |   |    |
+                    | 16 |   | 17 |                           | 31 |   | 30 |
+                    |    |   |    |                           |    |   |    |
+  +-------------+   |    |   |    |         +-------------+   |    |   |    |
+ ^|     18      |   |    |   |    |        ^|     24      |   |    |^  |    |^
+ |+-------------+   +----+   +----+        |+-------------+   +----+|  +----+|
+ +--->                                     +--->                <---+    <---+
+            quadrant 2                                quadrant 3
+                                                                         <---+
+  +----+   +----+   +-------------+         +----+   +----+   +-------------+|
+  |    |   |    |  ^|     23      |         |    |   |    |   |     28      |V
+  |    |   |    |  |+-------------+         |    |   |    |   +-------------+
+  |    |   |    |  +--->                    |    |   |    |
+  | 21 |   | 20 |                           | 27 |   | 26 |
+  |    |   |    |                           |    |   |    |              <---+
+  |    |   |    |   +-------------+         |    |   |    |   +-------------+|
+  |    |^  |    |^ ^|     22      |         |    |^  |    |^  |     29      |V
+  +----+|  +----+| |+-------------+         +----+|  +----+|  +-------------+
+    <---+    <---+ +--->                      <---+    <---+
+@endverbatim
+ * One can assume that the geom file doesn't translate from the cass layout shown
+ * above, but from the cheetah layout (see cass::pp1600). In this case one has
+ * to set the ConvertCheetahToCASSLayout to true (default)
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
