@@ -295,6 +295,17 @@ public:
 
 typedef BldDataAcqADCV1 BldDataAcqADC;
 
+
+class BldDataSpectrometerV0
+{
+public:
+  enum { TypeId = Pds::TypeId::Id_Spectrometer /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 0 /**< XTC type version number */ };
+  uint32_t      _hproj[1024];
+  uint32_t      _vproj[256];
+};
+typedef BldDataSpectrometerV0 BldDataSpectrometer;
+
 #pragma pack()
 }
 #endif
