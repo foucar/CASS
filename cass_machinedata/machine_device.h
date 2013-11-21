@@ -50,6 +50,9 @@ namespace cass
       /** typedef for more readable code*/
       typedef std::vector<bool> evrStatus_t;
 
+      /** define the spectrometer data */
+      typedef std::map<std::string,std::vector<uint32_t> > spectrometer_t;
+
     public:
       /** serialize the device to the serializer*/
       void serialize(cass::SerializerBackend&)const;
@@ -76,6 +79,8 @@ namespace cass
       const evrStatus_t     &EvrData()const       {return _evrdata;}
       double                 energy()const        {return _energy;}
       double                 wavelength()const    {return _wavelength;}
+      const spectrometer_t  &spectrometers()const {return _spectrometers;}
+
       //@}
       //@{
       /** setter */
@@ -84,6 +89,7 @@ namespace cass
       evrStatus_t    &EvrData()       {return _evrdata;}
       double         &energy()        {return _energy;}
       double         &wavelength()    {return _wavelength;}
+      spectrometer_t &spectrometers() {return _spectrometers;}
       //@}
 
     private:
@@ -91,6 +97,9 @@ namespace cass
       bldMap_t       _blddata;  //!< map containing the beamlinedata
       epicsDataMap_t _epicsdata;//!< a map containing all epics data in the xtc stream
       evrStatus_t    _evrdata;  //!< a vector of bools describing the evr status
+
+      /** container for beamline spectrometer data */
+      spectrometer_t _spectrometers;
 
       //data that gets calculated in Analysis//
       double        _energy;    //!< the calculated puls energy

@@ -13,6 +13,7 @@
 #include "machine_converter.h"
 
 #include "pdsdata/xtc/Xtc.hh"
+#include "pdsdata/xtc/BldInfo.hh"
 #include "pdsdata/bld/bldData.hh"
 #include "pdsdata/epics/EpicsPvData.hh"
 #include "pdsdata/evr/DataV3.hh"
@@ -130,6 +131,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_IpimbData);
   _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
   _pdsTypeList.push_back(Pds::TypeId::Id_ControlConfig);
+//  _pdsTypeList.push_back(Pds::TypeId::Id_Spectrometer);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
@@ -146,6 +148,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   switch (xtc->contains.id())
   {
+
+
   case(Pds::TypeId::Id_FEEGasDetEnergy):
   {
     const Pds::BldDataFEEGasDetEnergy &gasdet =
@@ -156,6 +160,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
     break;
   }
+
+
   case(Pds::TypeId::Id_EBeam):
   {
     uint32_t version (xtc->contains.version());
@@ -250,6 +256,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
     break;
   }
+
+
   case(Pds::TypeId::Id_PhaseCavity):
   {
     const Pds::BldDataPhaseCavity &cavity =
@@ -260,6 +268,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     md->BeamlineData()["FitTime2"] = cavity.fFitTime2;
     break;
   }
+
+
   case(Pds::TypeId::Id_Epics):
   {
     /** get the epics header and the epics id for this epics variable */
@@ -354,6 +364,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
     break;
   }
+
+
   case(Pds::TypeId::Id_EvrData):
   {
     /** clear the status bytes of the event code */
@@ -373,8 +385,10 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         md->EvrData().resize(eventcode+1,false);
       md->EvrData()[eventcode]=true;
     }
-  }
     break;
+  }
+
+
   case(Pds::TypeId::Id_IpimbData):
   {
     const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
@@ -404,8 +418,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
     md->BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
     md->BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
-  }
     break;
+  }
+
 
   case(Pds::TypeId::Id_ControlConfig):
   {
@@ -415,8 +430,21 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
       _pvStore[pvControlCur.name()] = pvControlCur.value();
     }
-  }
     break;
+  }
+
+
+  case(Pds::TypeId::Id_Spectrometer):
+  {
+    const Pds::BldDataSpectrometer &spec
+        (*reinterpret_cast<const Pds::BldDataSpectrometer*>(xtc->payload()));
+    string specname(Pds::BldInfo::name(reinterpret_cast<const Pds::BldInfo&>(xtc->src)));
+    MachineDataDevice::spectrometer_t::mapped_type &horiz(md->spectrometers()[specname +"_horiz"]);
+    horiz.assign(spec._hproj,spec._hproj+1024);
+    MachineDataDevice::spectrometer_t::mapped_type &vert(md->spectrometers()[specname +"_vert"]);
+    vert.assign(spec._vproj,spec._vproj+256);
+    break;
+  }
 
   default: break;
   }
