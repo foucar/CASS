@@ -60,7 +60,9 @@ namespace Pds {
       MecTimeTool   = 43,
       MecTargetChamber = 44,
       FeeHxSpectrometer = 45,
-      NumDetector   = 46
+      XrayTransportDiagnostic = 46,
+      Lamp          = 47,
+      NumDetector   = 48
     };
 
     enum Device {
@@ -93,7 +95,10 @@ namespace Pds {
       USDUSB    = 26,
       OrcaFl40  = 27,
       Imp       = 28,
-      NumDevice = 29
+      Epix      = 29,
+      Rayonix   = 30,
+      EpixSampler=31,
+      NumDevice = 32
     };
 
     DetInfo() {}

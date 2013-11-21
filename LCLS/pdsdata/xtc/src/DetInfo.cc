@@ -70,7 +70,7 @@ const char* DetInfo::name(Detector det){
     "CxiDg1", "CxiDg2", "CxiDg3", "CxiDg4", "CxiKb1", "CxiDs1", "CxiDs2", "CxiDsu", "CxiSc1", "CxiDsd",
     "XcsBeamline", "CxiSc2",
     "MecXuvSpectrometer","MecXrtsForw","MecXrtsBack","MecFdi","MecTimeTool","MecTargetChamber",
-    "FeeHxSpectrometer",
+    "FeeHxSpectrometer", "XrayTransportDiagnostic", "Lamp"
   };
   return (det < NumDetector ? _detNames[det] : "-Invalid-");
 }
@@ -105,7 +105,10 @@ const char* DetInfo::name(Device dev) {
     "Andor",
     "USDUSB",
     "OrcaFl40",
-    "Imp"
+    "Imp",
+    "Epix",
+    "Rayonix",
+    "EpixSampler"
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

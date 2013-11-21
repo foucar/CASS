@@ -80,6 +80,10 @@ const char* BldInfo::name(const BldInfo& src){
     "MEC-XT2-PIM-02",
     "MEC-XT2-PIM-03",
     "CxiDg3_Spec",
+    "NH2-SB1-IPM-02",
+    "FEE-SPEC0",
+    "SXR-SPEC0",
+    "XPP-SPEC0",
   };
   return (src.type() < NumberOf ? _typeNames[src.type()] : "-Invalid-");
 }

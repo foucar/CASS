@@ -56,6 +56,10 @@ namespace Pds {
                 MecXt2Pim02      = 42,
                 MecXt2Pim03      = 43,
                 CxiDg3Spec       = 44,
+                Nh2Sb1Ipm02      = 45,   // XPP + downstream
+                FeeSpec0         = 46,
+                SxrSpec0         = 47,
+                XppSpec0         = 48,
                 NumberOf };
 
     BldInfo() {}
