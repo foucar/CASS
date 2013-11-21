@@ -122,6 +122,7 @@ the Class description for information about what parameters are user settable.
 00120: Beamline data
 00121: Eventcode check
 00122: EventID retrival
+00123: Beamline Spectrometer Data
 00130: Epics data
 
 
@@ -418,6 +419,7 @@ public:
     BlData=120,
     EvrCode=121,
     EventID=122,
+    BldSpecData=123,
     EpicsData=130,
 
     CCDPhotonHitsSpectrum=140,

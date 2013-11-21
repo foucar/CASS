@@ -444,6 +444,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case EventID:
     processor = PostProcessor::shared_pointer(new pp122(key));
     break;
+  case BldSpecData:
+    processor = PostProcessor::shared_pointer(new pp123(key));
+    break;
   case EpicsData:
     processor = PostProcessor::shared_pointer(new pp130(key));
     break;

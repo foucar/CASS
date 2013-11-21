@@ -146,6 +146,71 @@ void pp122::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
+
+
+// *** postprocessors 123 retrieve beamline spectrometer data ***
+
+pp123::pp123(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp123::loadSettings(size_t)
+{
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(name().c_str());
+  _specname = s.value("SpectrometerName","").toString().toStdString();
+  int size(0);
+  if (_specname.find("horiz") != string::npos)
+    size = 1024;
+  if (_specname.find("vert") != string::npos)
+    size = 256;
+  size = s.value("Size",size).toInt();
+  createHistList(
+        tr1::shared_ptr<Histogram1DFloat>
+        (new Histogram1DFloat(size,0,size,"arb. units")));
+
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve the beamline spectrometer data '"+
+           _specname +"'.Condition is '" + _condition->name() + "'");
+}
+
+void pp123::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  using namespace MachineData;
+  const MachineDataDevice &mdev
+      (*dynamic_cast<const MachineDataDevice *>
+       (evt.devices().find(CASSEvent::MachineData)->second));
+  const MachineDataDevice::spectrometer_t &spectros(mdev.spectrometers());
+  MachineDataDevice::spectrometer_t::const_iterator specIt(spectros.find(_specname));
+  if (specIt == spectros.end())
+    throw invalid_argument("pp123::process (" + name() + "): Spectrometer with name '" +
+                           _specname +"' is unknown.");
+  const MachineDataDevice::spectrometer_t::mapped_type &spec(specIt->second);
+
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+  if (result.memory().size() < spec.size())
+    throw logic_error("pp123:process (" + name() +
+                      "): Result is not large enough to handle spectrometer data");
+  copy(spec.begin(),spec.end(),result.memory().begin());
+  result.nbrOfFills() = 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 // *** postprocessors 130 retrives epics data ***
 
 pp130::pp130(const name_t &name)

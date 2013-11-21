@@ -172,6 +172,46 @@ public:
 
 
 
+
+
+
+/** retrieve beamline spectrometer data
+ *
+ * @PPList "123": retrieve beamline spectrometer data
+ *
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @author Lutz Foucar
+ */
+class pp123 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp123(const name_t &);
+
+  /** copy data from CASS event to histogram storage */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings from cass.ini */
+  virtual void loadSettings(size_t);
+
+private:
+  /** the name of the spectrometer to retrieve from the machine device */
+  std::string _specname;
+};
+
+
+
+
+
+
+
+
+
+
+
 /** retrieval of Epics data.
  *
  * @PPList "130":Epics data
