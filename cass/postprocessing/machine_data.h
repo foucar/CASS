@@ -179,6 +179,15 @@ public:
  *
  * @PPList "123": retrieve beamline spectrometer data
  *
+ * @cassttng PostProcessor/\%name\%/{SpectrometerName}
+ *           The name of the spectrometer one is interested in. One needs to add
+ *           either "_horiz" or "_vert" to the name to tell wether one wants to
+ *           use the vertical or horizontal projection.
+ * @cassttng PostProcessor/\%name\%/{Size}
+ *           The size of the projection. Will defaulty be determined from the
+ *           spectrometer name addition. If "horiz" its set to 1024, if its
+ *           "vert" it is set to 256. Only set this when the default values are
+ *           not working.
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
