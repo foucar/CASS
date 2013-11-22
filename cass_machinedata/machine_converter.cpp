@@ -131,7 +131,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_IpimbData);
   _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
   _pdsTypeList.push_back(Pds::TypeId::Id_ControlConfig);
-//  _pdsTypeList.push_back(Pds::TypeId::Id_Spectrometer);
+  _pdsTypeList.push_back(Pds::TypeId::Id_Spectrometer);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
