@@ -90,7 +90,10 @@ namespace cass
 
       /** if it is another xtc, then iterate through it */
       if (xtc_orig->contains.id() == Pds::TypeId::Id_Xtc)
-        iterate(xtc_orig);
+      {
+        if (!iterate(xtc_orig))
+          return Stop;
+      }
       /** otherwise use the responsible format converter for this xtc */
       else
       {
