@@ -794,7 +794,7 @@ void pp244::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _image = setupDependency("HistName");
+  _image = setupDependency("ImageName");
   setupGeneral();
   if (!setupCondition())
     return;

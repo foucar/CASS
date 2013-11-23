@@ -638,7 +638,7 @@ protected:
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng PostProcessor/\%name\%/{ImageName}\n
  *           Name of the Histogram that should be masked
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the 1D histogram generated for each Pixel.
