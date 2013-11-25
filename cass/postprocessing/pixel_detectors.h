@@ -639,7 +639,7 @@ protected:
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{ImageName}\n
- *           Name of the Histogram that should be masked
+ *           Name of the Image whos pixels should be histogrammed
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the 1D histogram generated for each Pixel.
  *
