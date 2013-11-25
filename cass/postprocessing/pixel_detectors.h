@@ -645,7 +645,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp244 : public PostProcessor
+class pp244 : public AccumulatingPostProcessor
 {
 public:
   /** constructor */

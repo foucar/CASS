@@ -784,7 +784,7 @@ void pp243::process(const CASSEvent& evt, HistogramBackend &res)
 // *** generate pixel histograms ***
 
 pp244::pp244(const name_t &name)
-  : PostProcessor(name)
+  : AccumulatingPostProcessor(name)
 {
   loadSettings(0);
 }
