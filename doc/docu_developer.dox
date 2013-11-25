@@ -79,70 +79,63 @@ processed yet. This is to ensure that it will not evaluate the same event
 over and over again. When it has already processed one event it will return the
 resulting histogram associated with this event.\n
 Some of the post processors do not have a separate result for each event,
-i.e. the summing up and averaging post processors. These contain a list of
-histograms but each one points to the same resource.\n
-To make sure that in the cass::PostprocessorBackend::process() function one will
-always use the right histograms there is an pointer that will always point to
-the right histogram called cass::PostprocessorBackend::_result.
-
+i.e. the summing up and averaging post processors. They are based upon the
+accumulating postprocessor base class.\n
+To make sure that in the cass::PostProcessor::process() function one will
+always use the right histograms a reference to it will be passed to this function.
 The following happens in each post processor when cass::PostProcessors::process()
-will call the cass::PostprocessorBackend::operator()() member of each post
-processor:
-- search in cass::PostprocessorBackend::_histList whether there is a an entry
-  that has the cass::CASSEvent::_id as first part of the pair.
+will call the cass::PostProcessor::processEvent() member of each normal
+post processor:
+- search in the histogram list whether there is a an entry that has the
+  cass::CASSEvent::_id as first part of the pair.
 - if so then just return the second part of the pair.
-- if not, check whether there is an condition and in in this case evalate it. If
-  the conditioin returns true call cass::PostprocessorBackend::process() for this
-  event. And then return the pointer to the histogram that contains the result
-  of the process.
-
+- if not, check if the condition is true and in this case evaluate it.
 
 @section addnew Adding new functionality to CASS
 
 Please refer to @ref develnotes for the rules when developing code
 
 @section newpp How to add a new PostProcessor
-A new PostProcessor needs to inherit from cass::PostprocessorBackend. The most
+A new "normal" PostProcessor needs to inherit from cass::PostProcessor. The most
 important function that need to be overwritten are
-cass::PostprocessorBackend::loadSettings() and
-cass::PostprocessorBackend::process().
-In cass::PostprocessorBackend::loadSettings() you need to setup the
-dependencies you are relying on if there are any, the general available parameters
+cass::PostProcessor::loadSettings() and
+cass::PostProcessor::process().
+In cass::PostProcessor::loadSettings() you need to setup the
+dependencies you are relying on, the general available parameters
 and most importantly the resulting histogram. With
-cass::PostprocessorBackend::setupCondition() you set up that the post processor
-is conditionable. This needs to be called in each overwritten member cass::PostprocessorBackend::loadSettings ().
-cass::PostprocessorBackend::setupGeneral() will setup all the parameters that are
-available for post processors. Optionally you can use the function member
-cass::PostprocessorBackend::setupDependency() to set up the dependencies you
-rely on. After initializing the cass::PostprocessorBackend::_result member you
-can use the member function cass::PostprocessorBackend::createHistList() to
-create the histogram list of the post processor.
+cass::PostProcessor::setupCondition() you set up that your PostProcessor has a
+condition.
 
-If your histogram relays on a histogram of an dependency, you might have to
-overwrite cass::PostprocessorBackend::histogramsChanged() and assign a new
-histogram with the new parameters to cass::PostprocessorBackend::_result. Calling
-cass::PostprocessorBackend::createHistList() after that will make sure that the
-old histogramlist is deleted properly before creating the new one. Make sure that
-when you have altered your histogram to inform all dependance about the change. You
-can use cass::PostProcessors::find_dependant() to find all post processors that
-depend on you. Then call the cass::PostprocessorBackend::histogramsChanged()
-member of all the post processors that depend on you. Here is some example code
-that does that for you
-@code
-//notify all pp that depend on us that our histograms have changed
-PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-PostProcessors::keyList_t::iterator it (dependands.begin());
-for (; it != dependands.end(); ++it)
-  _pp.getPostProcessor(*it).histogramsChanged(_result);
-@endcode
+cass::PostProcessor::setupGeneral() will setup all the default parameters that
+are available for post processors. Optionally you can use the function member
+cass::PostProcessor::setupDependency() to set up the dependencies you
+rely on.
 
-If you modify the contents of your histogram by filling or doing other operations
-on it make sure that you lock the histogram for write access using its
-cass::HistogramBackend::lock. When you access histograms of your dependencies
-you need to lock them for read access using their cass::HistogramBackend::lock.
-Access to the histograms of your dependencies should be done by calling the
-dependencies cass::PostprocessorBackend::operator()() member for that event.
-This will then return the resulting histogram for this event as described above.
+To initialize the list of cached resulting histograms you need to call the
+cass::PostProcessor::createHistList() member. This member needs to have a
+shared pointer to the histogram that will work as a result of the PostProcessor
+passed.
+
+Most PostProcessors rely on the fact that a histograms shape or size will not be
+changed during the processing step. (An exception to this rule are the table like
+PostProcessors.) Therefore one needs to ensure that the result Histogram will
+have the right size or shape during the load settings step.
+
+The resulting histogram is write locked before calling the cass::PostProcessor::process()
+function. There is no need to lock it again in definition of you PostProcessor.
+However the Histogram of the PostProcessor you depend on is not locked. Therefore
+one needs to readlock it before trying to read contents from it to ensure its
+contents are not changed during the time one reads them. It is recommended to
+use the locker facility that Qt provides. Eg:
+@verbatim
+// retrieve the histogram for this event from the dependency (_pHist) and cast it to an 1d histogram
+const Histogram1DFloat& one
+    (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
+
+// lock the histogram for read access
+QReadLocker lock(&one.lock);
+@endverbatim
+
 
 When you are done coding your postprocessor you need to make it available to
 the user. To do this you need to complete the following steps:
