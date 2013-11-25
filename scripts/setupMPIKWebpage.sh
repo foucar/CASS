@@ -23,7 +23,6 @@ rm -rf ${DOWNLOAD}/cass.*
 # create a zip file with the contents of the master branch
 cd ${BASEDIR}
 
-
 unset GIT_DIR
 unset GIT_WORK_TREE
 git archive master | gzip > ${DOWNLOAD}/cass.latest.tar.gz
@@ -35,7 +34,8 @@ do
   git archive ${tag} | gzip > ${DOWNLOAD}/cass.${tag}.tar.gz
 done
 
-
+# generate the documentation
+cd ${BASEDIR}/doc && make doc && cd ..
 
 ### move the docu to the webpage location
 
