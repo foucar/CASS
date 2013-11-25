@@ -815,7 +815,6 @@ void pp244::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(nbins,low,up,nPixels,0,nPixels-1,title,"Pixel")));
 
-  createHistList(_image->result().copy_sptr());
   Log::add(Log::INFO,"Postprocessor '" + name() +
            "' generates histogram nbr Bins '" + toString(nbins) + "', low '" +
            toString(low) + "', up '" + toString(up) + "', title '" + title +
