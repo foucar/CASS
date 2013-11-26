@@ -202,6 +202,8 @@ protected:
  *           the z value should be added on the coordinate or a constant. If
  *           true the z value will be used. If false the coordinate will be
  *           increased by 1. Default is true.
+ * @cassttng PostProcessor/\%name\%/{BaseValue}\n
+ *           Value of the pixels that are not set. Default is 0
  *
  * @author Lutz Foucar
  */
@@ -228,6 +230,9 @@ protected:
   std::pair<size_t, size_t> _splitLevelRange;
 
   std::tr1::function<pixeldetector::frame_t::value_type(const pixeldetector::Hit&)> _getZ;
+
+  /** value of the image where no pixel is set */
+  float _baseValue;
 };
 
 
@@ -340,6 +345,8 @@ protected:
  *           the z value should be added on the coordinate or a constant. If
  *           true the z value will be used. If false the coordinate will be
  *           increased by 1. Default is true.
+ * @cassttng PostProcessor/\%name\%/{BaseValue}\n
+ *           Value of the pixels that are not set. Default is 0
  *
  * @author Lutz Foucar
  */
@@ -364,6 +371,9 @@ protected:
 
   /** function to retrieve the z value of the pixels */
   std::tr1::function<pixeldetector::frame_t::value_type(const pixeldetector::Pixel&)> _getZ;
+
+  /** value of the image where no pixel is set */
+  float _baseValue;
 };
 
 

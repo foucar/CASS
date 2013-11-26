@@ -270,6 +270,7 @@ void pp144::loadSettings(size_t)
                      s.value("SpectralUpperLimit",0.).toFloat());
   _splitLevelRange = make_pair(s.value("SplitLevelLowerLimit",0).toUInt(),
                                s.value("SplitLevelUpperLimit",2).toUInt());
+  _baseValue = s.value("BaseValue",0).toFloat();
   bool fillPixelvalueAsWeight(s.value("PixelvalueAsWeight","true").toBool());
   if(fillPixelvalueAsWeight)
     _getZ = &getZValue<Hit>;
@@ -297,6 +298,7 @@ void pp144::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   result.clear();
+  fill(result.memory().begin(),result.memory().end(),_baseValue);
   for (; hit != det->hits().end(); ++hit)
   {
     if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
@@ -420,6 +422,7 @@ void pp148::loadSettings(size_t)
   createHistList(set2DHist(name()));
   _range = make_pair(s.value("SpectralLowerLimit",0.).toFloat(),
                      s.value("SpectralUpperLimit",0.).toFloat());
+  _baseValue = s.value("BaseValue",0).toFloat();
   bool fillPixelvalueAsWeight(s.value("PixelvalueAsWeight","true").toBool());
   if(fillPixelvalueAsWeight)
     _getZ = &getZValue<Pixel>;
@@ -445,6 +448,7 @@ void pp148::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   result.clear();
+  fill(result.memory().begin(),result.memory().end(),_baseValue);
   for (; pixel != det->pixels().end(); ++pixel)
     if (_range.first < pixel->z && pixel->z < _range.second)
       result.fill(pixel->x,pixel->y,_getZ(*pixel));
