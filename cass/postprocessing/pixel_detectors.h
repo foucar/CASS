@@ -642,10 +642,12 @@ protected:
  *           Name of the Image whos pixels should be histogrammed
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the 1D histogram generated for each Pixel.
+ * @cassttng PostProcessor/\%name\%/{Weight}\n
+ *           The value that will be added to the histogram. Default is 1
  *
  * @author Lutz Foucar
  */
-class pp244 : public AccumulatingPostProcessor
+class pp244 : public PostProcessor
 {
 public:
   /** constructor */
@@ -660,6 +662,9 @@ public:
 protected:
   /** pp containing image that will be masked*/
   shared_pointer _image;
+
+  /** the weight to fill the histogram with */
+  float _weight;
 };
 
 

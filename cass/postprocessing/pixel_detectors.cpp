@@ -784,7 +784,7 @@ void pp243::process(const CASSEvent& evt, HistogramBackend &res)
 // *** generate pixel histograms ***
 
 pp244::pp244(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : PostProcessor(name)
 {
   loadSettings(0);
 }
@@ -810,6 +810,7 @@ void pp244::loadSettings(size_t)
   const float low(s.value("XLow",0).toFloat());
   const float up(s.value("XUp",0).toFloat());
   const string title(s.value("XTitle","x-axis").toString().toStdString());
+  _weight = s.value("Weight",1).toFloat();
 
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
@@ -828,7 +829,10 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
       (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  result.clear();
+
   QReadLocker imagelock(&image.lock);
+
 
   const size_t nPixels(image.shape().first*image.shape().second);
   const AxisProperty &prop(result.axis()[Histogram2DFloat::xAxis]);
@@ -850,8 +854,8 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
        *  of the pixel value
        */
       Histogram2DFloat::storage_t::iterator row(result.memory().begin() + i*nBins);
-      row[bin] += 1;
+      row[bin] += _weight;
     }
   }
-  result.nbrOfFills() += 1;
+  result.nbrOfFills() = 1;
 }
