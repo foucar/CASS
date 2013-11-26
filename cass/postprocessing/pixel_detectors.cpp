@@ -811,6 +811,7 @@ void pp244::loadSettings(size_t)
   const float up(s.value("XUp",0).toFloat());
   const string title(s.value("XTitle","x-axis").toString().toStdString());
   _weight = s.value("Weight",1).toFloat();
+  _maskval = s.value("MaskValue",0).toFloat();
 
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
@@ -845,7 +846,7 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
       *  only if its within the range of the values
       */
     const float pixval(image.memory()[i]);
-    if (low <= pixval && pixval < up)
+    if (!qFuzzyCompare(pixval,_maskval) && low <= pixval && pixval < up)
     {
       const size_t bin(
             static_cast<size_t>(nBins * ((pixval - low) / (up - low))));

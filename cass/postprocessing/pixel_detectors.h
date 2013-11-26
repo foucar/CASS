@@ -644,6 +644,9 @@ protected:
  *           properties of the 1D histogram generated for each Pixel.
  * @cassttng PostProcessor/\%name\%/{Weight}\n
  *           The value that will be added to the histogram. Default is 1
+ * @cassttng PostProcessor/\%name\%/{MaskVal}\n
+ *           The value that the masked pixels have in the image. Masked pixels
+ *           will not be added to the histogram. Default is 0
  *
  * @author Lutz Foucar
  */
@@ -665,6 +668,9 @@ protected:
 
   /** the weight to fill the histogram with */
   float _weight;
+
+  /** the value of masked pixels */
+  float _maskval;
 };
 
 
