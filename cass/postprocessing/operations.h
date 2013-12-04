@@ -1770,6 +1770,46 @@ protected:
 
 
 
+
+
+/** returns the distance between the first 2 nodes of a histogram
+ *
+ * @PPList "91": returns the distance between the first 2 nodes of a histogram
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           Histogram name of the 1d Histogram that we look for the step in.
+ *           Default is 0.
+ * @cassttng PostProcessor/\%name\%/{Range} \n
+ *           The range to check for the local minima. Default is 10
+ *
+ * @author Lutz Foucar
+ */
+class pp91 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp91(const name_t &name);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing input histogram */
+  shared_pointer _pHist;
+
+  /** the requested x-axis limits in histogram coordinates */
+  size_t _range;
+};
+
+
+
+
 }//end namspace cass
 
 #endif

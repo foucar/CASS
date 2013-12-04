@@ -2457,3 +2457,79 @@ void pp89::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
+
+
+
+// ***  pp 91 ***
+
+pp91::pp91(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp91::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  const HistogramBackend &hist(_pHist->result());
+  if (hist.dimension() != 1)
+    throw invalid_argument("pp91::loadSettings()'" + name() +
+                           "': Error the histogram we depend on '" + _pHist->name() +
+                           "' is not a 1D Histogram.");
+  _range =  s.value("Range",10).toUInt();
+
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  Log::add(Log::INFO, "PostProcessor '" + name() +
+           "' returns the distance between two nodes of '" + _pHist->name() +
+           "'. It checks for nodes as local minimum within a range of +- '" +
+           toString(_range) + "' .Condition on postprocessor '"+_condition->name()
+           +"'");
+}
+
+void pp91::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram1DFloat& hist
+      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  QReadLocker lock(&hist.lock);
+
+  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
+  const HistogramFloatBase::storage_t &data(hist.memory());
+
+  vector<size_t> candidates;
+
+  for (size_t i=_range;i < data.size()-_range; ++i)
+  {
+    float curval(data[i]);
+    bool isSmaller(true);
+    for (size_t j=i-_range; j < i+_range; ++j)
+    {
+      if(curval > data[j])
+        isSmaller = false;
+    }
+    if (isSmaller)
+      candidates.push_back(i);
+  }
+
+  float dist(0);
+  if (candidates.size() > 1)
+    dist = xAxis.hist2user(candidates[1]) - xAxis.hist2user(candidates[0]);
+
+  result.fill(dist);
+  result.nbrOfFills()=1;
+}
+
+
+
+
+
+
+

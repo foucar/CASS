@@ -423,6 +423,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case qaverage:
     processor = PostProcessor::shared_pointer(new pp90(key));
     break;
+  case nodes:
+    processor = PostProcessor::shared_pointer(new pp91(key));
+    break;
   case PixelDetectorImage:
     processor = PostProcessor::shared_pointer(new pp105(key));
     break;
