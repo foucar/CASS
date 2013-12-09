@@ -2508,11 +2508,14 @@ void pp91::process(const CASSEvent& evt, HistogramBackend &res)
 
   for (size_t i=_range;i < data.size()-_range; ++i)
   {
+    if (isnan(data[i]))
+      continue;
+
     float curval(data[i]);
     bool isSmaller(true);
     for (size_t j=i-_range; j < i+_range; ++j)
     {
-      if(curval > data[j])
+      if(isnan(data[j]) || curval > data[j])
         isSmaller = false;
     }
     if (isSmaller)
