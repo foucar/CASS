@@ -387,6 +387,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case SubsetTable:
     processor = PostProcessor::shared_pointer(new pp73(key));
     break;
+  case RetrieveValOfRow:
+    processor = PostProcessor::shared_pointer(new pp74(key));
+    break;
   case ClearHistogram:
     processor = PostProcessor::shared_pointer(new pp75(key));
     break;

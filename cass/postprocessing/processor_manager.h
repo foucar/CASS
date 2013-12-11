@@ -84,6 +84,7 @@ the Class description for information about what parameters are user settable.
 00081: retrieve user choosable bin of 1D histogram
 00072: Returns a user choosable column from a table like 2d histogram
 00073: Returns a subset of a table based on a condition on a chossable column
+00074: Returns a specific value of a specific row
 
 00075: Clear a Histogram
 00076: Quit CASS when Condition is met
@@ -386,6 +387,7 @@ public:
     RetrieveValue=71,
     RetrieveColFromTable=72,
     SubsetTable=73,
+    RetrieveValOfRow=74,
 
     ClearHistogram=75,
     QuitCASS=76,

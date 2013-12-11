@@ -136,3 +136,67 @@ void pp73::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.nbrOfFills()=1;
 }
+
+
+
+
+// *** pp 74 retrieve a specific value of a specific row ***
+
+pp74::pp74(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp74::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _table = setupDependency("TableName");
+  bool ret (setupCondition());
+  if (!(ret && _table))
+    return;
+  _colIdx = s.value("ColumnIndex",0).toUInt();
+  _rowIdx = s.value("RowIndex",0).toUInt();
+
+  size_t tableSize(_table->result().axis()[HistogramBackend::xAxis].size());
+  if (_colIdx >= tableSize)
+    throw runtime_error("pp73::loadSettings(): '" + name() + "' The requested " +
+                        "column index '" + toString(_colIdx) + " 'exeeds the " +
+                        "maximum possible index value '" + toString(tableSize) + "'");
+
+  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' retrieves the value of row '" + toString(_rowIdx) +
+           "' and column '" + toString(_colIdx) + "' from table '" +
+           _table->name() + "'. Condition on postprocessor '" +
+           _condition->name() + "'");
+}
+
+void pp74::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram2DFloat& table
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
+  const HistogramFloatBase::storage_t &tableContents(table.memory());
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  QReadLocker lock(&table.lock);
+
+  result.clear();
+
+  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+
+  if (_rowIdx >= nRows)
+    throw invalid_argument("pp74::process(): '" + name() + "' The requested row index '" +
+                           toString(_rowIdx) + "' is too big for a table with '" +
+                           toString(nRows) + "' rows.");
+
+  const HistogramFloatBase::value_t val(tableContents[_rowIdx * nCols + _colIdx]);
+
+  result.fill(val);
+  result.nbrOfFills()=1;
+}

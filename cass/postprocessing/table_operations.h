@@ -110,5 +110,56 @@ protected:
   std::pair<float,float> _bounds;
 };
 
+
+
+
+
+
+/** retrieve a specific value of a specific row
+ *
+ * @PPList "74": retrieve a specific value of a specific row
+ *
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{TableName} \n
+ *           name of postprocessor that contains the table like histogram
+ *           subset from. Default is "".
+ * @cassttng PostProcessor/\%name\%/{RowIndex} \n
+ *           The index of the row in the table that contains the requested value.
+ *           Default is "0"
+ * @cassttng PostProcessor/\%name\%/{ColumnIndex} \n
+ *           The index of the column in the table that contains the requested
+ *           value. Please refer to the PostProcessor description of the
+ *           PostProcessor that contains the table to find out what column
+ *           indizes are available.
+ *           Default is "0".
+ *
+ * @author Lutz Foucar
+ */
+class pp74 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp74(const name_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing input table */
+  shared_pointer _table;
+
+  /** index of the column */
+  size_t _colIdx;
+
+  /** the index of the row */
+  size_t _rowIdx;
+};
+
 }//end namespace cass
 #endif
