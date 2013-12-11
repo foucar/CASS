@@ -1192,9 +1192,9 @@ protected:
 
 
 
-/** Returns a user choosable column from a table like 2d histogram
+/** Returns a the min or max value of a histogram
  *
- * @PPList "71": Returns a user choosable column from a table like 2d histogram
+ * @PPList "71": Returns the min or max value of a histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
