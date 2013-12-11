@@ -36,8 +36,9 @@ namespace cass
  *
  * @todo make more general: operate on bins. now operates on sum.
  * @author Stephan Kassemeyer.
+ * @author Lutz Foucar
  */
-class pp301 : public PostProcessor
+class pp301 : public AccumulatingPostProcessor
 {
 public:
   /** constructor */
@@ -57,7 +58,7 @@ protected:
   unsigned int _medianSize;
 
   /** storage of last values for median calculation */
-  std::deque<float> *_medianStorage;
+  std::deque<float> _medianStorage;
 };
 
 

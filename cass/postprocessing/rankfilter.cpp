@@ -24,8 +24,7 @@ using namespace cass;
 // ********** Postprocessor 301: median of last values ************
 
 pp301::pp301(const name_t &name)
-  : PostProcessor(name),
-    _medianStorage(NULL)
+  : AccumulatingPostProcessor(name)
 {
   loadSettings(0);
 }
@@ -47,11 +46,7 @@ void pp301::loadSettings(size_t)
   if (!(_one && ret))
     return;
 
-  // Create the output
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-
-  delete _medianStorage;
-  _medianStorage = new deque<float>();
 
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' computes median with a size of '" + toString(_medianSize) +
@@ -72,15 +67,15 @@ void pp301::process(const CASSEvent& evt, HistogramBackend &res)
                           0.f));
   one.lock.unlock();
 
-  if (_medianStorage->empty())
-    _medianStorage->resize(_medianSize,value);
+  if (_medianStorage.empty())
+    _medianStorage.resize(_medianSize,value);
   else
-    _medianStorage->push_back(value);
-  vector<float> lastData(_medianStorage->begin(),_medianStorage->end());
+    _medianStorage.push_back(value);
+  vector<float> lastData(_medianStorage.begin(),_medianStorage.end());
   nth_element(lastData.begin(), lastData.begin() + _medianSize/2,
               lastData.end());
   result = lastData[_medianSize/2];
-  _medianStorage->pop_front();
+  _medianStorage.pop_front();
 }
 
 
