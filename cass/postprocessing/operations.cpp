@@ -2460,7 +2460,7 @@ void pp89::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ***  pp 91 ***
+// ***  pp 91 return a list of minima in a histogram ***
 
 pp91::pp91(const name_t &name)
   : PostProcessor(name)
@@ -2485,10 +2485,11 @@ void pp91::loadSettings(size_t)
                            "' is not a 1D Histogram.");
   _range =  s.value("Range",10).toUInt();
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
+
   Log::add(Log::INFO, "PostProcessor '" + name() +
-           "' returns the distance between two nodes of '" + _pHist->name() +
-           "'. It checks for nodes as local minimum within a range of +- '" +
+           "' returns a list of local minima in '" + _pHist->name() +
+           "'. The local minimum is the minimum within a range of +- '" +
            toString(_range) + "' .Condition on postprocessor '"+_condition->name()
            +"'");
 }
@@ -2497,14 +2498,15 @@ void pp91::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const Histogram1DFloat& hist
       (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   QReadLocker lock(&hist.lock);
 
   const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
   const HistogramFloatBase::storage_t &data(hist.memory());
 
-  vector<size_t> candidates;
+  result.clearTable();
+  table_t candidate(nbrOf,0);
 
   for (size_t i=_range;i < data.size()-_range; ++i)
   {
@@ -2519,14 +2521,19 @@ void pp91::process(const CASSEvent& evt, HistogramBackend &res)
         isSmaller = false;
     }
     if (isSmaller)
-      candidates.push_back(i);
+    {
+      candidate[Index] = i;
+      candidate[Position] = xAxis.hist2user(i);
+      candidate[Value] = data[i];
+      result.appendRows(candidate);
+    }
   }
 
-  float dist(0);
-  if (candidates.size() > 1)
-    dist = xAxis.hist2user(candidates[1]) - xAxis.hist2user(candidates[0]);
-
-  result.fill(dist);
+//  float dist(0);
+//  if (candidates.size() > 1)
+//    dist = xAxis.hist2user(candidates[1]) - xAxis.hist2user(candidates[0]);
+//
+//  result.fill(dist);
   result.nbrOfFills()=1;
 }
 

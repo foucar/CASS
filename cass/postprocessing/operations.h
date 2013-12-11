@@ -1772,9 +1772,9 @@ protected:
 
 
 
-/** returns the distance between the first 2 nodes of a histogram
+/** returns a list of local minimal in a Histogram
  *
- * @PPList "91": returns the distance between the first 2 nodes of a histogram
+ * @PPList "91": returns a list of local minima in a Histogram
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1800,6 +1800,18 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** definition of the table */
+  typedef HistogramFloatBase::storage_t table_t;
+
+  /** enum describing the contents of the resulting table */
+  enum ColumnNames
+  {
+    Index     =  0,
+    Position  =  1,
+    Value     =  2,
+    nbrOf
+  };
+
   /** pp containing input histogram */
   shared_pointer _pHist;
 
