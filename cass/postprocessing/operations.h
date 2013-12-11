@@ -1825,4 +1825,3 @@ protected:
 }//end namspace cass
 
 #endif
-
