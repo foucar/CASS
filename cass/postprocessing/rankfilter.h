@@ -59,6 +59,9 @@ protected:
 
   /** storage of last values for median calculation */
   std::deque<float> _medianStorage;
+
+  /** mutex to lock the median storage */
+  QMutex _mutex;
 };
 
 

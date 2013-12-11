@@ -61,16 +61,17 @@ void pp301::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   QReadLocker lock(&one.lock);
+  QMutexLocker mLock(&_mutex);
 
   float value (accumulate(one.memory().begin(),
                           one.memory().end(),
                           0.f));
-  one.lock.unlock();
 
   if (_medianStorage.empty())
     _medianStorage.resize(_medianSize,value);
   else
     _medianStorage.push_back(value);
+
   vector<float> lastData(_medianStorage.begin(),_medianStorage.end());
   nth_element(lastData.begin(), lastData.begin() + _medianSize/2,
               lastData.end());
