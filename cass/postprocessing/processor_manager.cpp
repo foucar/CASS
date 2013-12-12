@@ -137,7 +137,6 @@ void PostProcessors::operator()(const CASSEvent& event)
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
   while(iter != end)
-//    (*(*iter++))(event);
     (*iter++)->processEvent(event);
   /** tell the pp that the event is completly processed */
   iter=_postprocessors.begin();
@@ -665,4 +664,3 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   }
   return processor;
 }
-
