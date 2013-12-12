@@ -213,6 +213,12 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
   try
   {
     pixeldetector::CommonData::controlCalibration(controlCommand);
+    QWriteLocker pplock(&PostProcessors::reference().lock);
+    PostProcessors::postprocessors_t &postprocessors(PostProcessors::reference().postprocessors());
+    PostProcessors::postprocessors_t::iterator iter(postprocessors.begin());
+    PostProcessors::postprocessors_t::iterator end(postprocessors.end());
+    while( iter != end )
+      (*iter++)->processCommand(controlCommand);
     *success = true;
     return SOAP_OK;
   }
