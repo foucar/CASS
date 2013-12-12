@@ -211,9 +211,15 @@ void pp331::loadSettings(size_t)
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
   pair<size_t,size_t> shape(image.shape());
+  _sizeOfImage = shape.first * shape.second;
+  _gainOffset  = 0*_sizeOfImage;
+  _countOffset = 1*_sizeOfImage;
+  _aveOffset   = 2*_sizeOfImage;
+
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(shape.first,3*shape.second)));
+
   loadCalibration();
   Log::add(Log::INFO,"Postprocessor " + name() +
            ": generates the gain calibration from images contained in '" +
@@ -233,10 +239,9 @@ void pp331::writeCalibration()
                            _filename + "'");
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(*_result));
-  const size_t sizeOfImage(image.shape().first*image.shape().second/3);
 
   const Histogram2DFloat::storage_t &gains(image.memory());
-  out.write(reinterpret_cast<const char*>(&gains.front()), sizeOfImage*sizeof(float));
+  out.write(reinterpret_cast<const char*>(&gains.front()), _sizeOfImage*sizeof(float));
 }
 
 void pp331::aboutToQuit()
@@ -253,12 +258,11 @@ void pp331::calculateGainMap(Histogram2DFloat& gainmap)
    */
   int counter(0);
   double average(0);
-  const size_t sizeOfImage(gainmap.shape().first*gainmap.shape().second/3);
 
-  Histogram2DFloat::storage_t::iterator gain(gainmap.memory().begin());
-  Histogram2DFloat::storage_t::const_iterator count(gainmap.memory().begin()+1*sizeOfImage);
-  Histogram2DFloat::storage_t::const_iterator ave(gainmap.memory().begin()+2*sizeOfImage);
-  for (size_t i(0); i < sizeOfImage; ++i, ++count, ++ave)
+  Histogram2DFloat::storage_t::iterator gain(gainmap.memory().begin() + _gainOffset);
+  Histogram2DFloat::storage_t::const_iterator count(gainmap.memory().begin() + _countOffset);
+  Histogram2DFloat::storage_t::const_iterator ave(gainmap.memory().begin() + _aveOffset);
+  for (size_t i(0); i < _sizeOfImage; ++i, ++count, ++ave)
   {
     if (*count < _minPhotonCount)
       continue;
@@ -271,12 +275,10 @@ void pp331::calculateGainMap(Histogram2DFloat& gainmap)
    *  \f$ gain = frac{average_average_pixelvalue}{average_pixelvalue} \f$
    *  If not enough photons are in the pixel, set the predefined user value
    */
-  count = gainmap.memory().begin()+1*sizeOfImage;
-  ave = gainmap.memory().begin()+2*sizeOfImage;
-  for (size_t i(0); i < sizeOfImage; ++i, ++gain, ++count, ++ave)
-  {
+  count = gainmap.memory().begin() + _countOffset;
+  ave = gainmap.memory().begin() + _aveOffset;
+  for (size_t i(0); i < _sizeOfImage; ++i, ++gain, ++count, ++ave)
     *gain = (*count < _minPhotonCount) ? _constGain : average/(*ave);
-  }
 }
 
 void pp331::process(const CASSEvent &evt, HistogramBackend &res)
@@ -289,11 +291,10 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
   QReadLocker lock(&image.lock);
   Histogram2DFloat::storage_t::const_iterator pixel(image.memory().begin());
   Histogram2DFloat::storage_t::const_iterator ImageEnd(image.memory().end());
-  const size_t sizeOfImage(image.shape().first * image.shape().second);
 
-  Histogram2DFloat::storage_t::iterator gain(result.memory().begin());
-  Histogram2DFloat::storage_t::iterator count(result.memory().begin()+1*sizeOfImage);
-  Histogram2DFloat::storage_t::iterator ave(result.memory().begin()+2*sizeOfImage);
+  Histogram2DFloat::storage_t::iterator gain(result.memory().begin() + _gainOffset);
+  Histogram2DFloat::storage_t::iterator count(result.memory().begin()+ _countOffset);
+  Histogram2DFloat::storage_t::iterator ave(result.memory().begin()  + _aveOffset);
 
   /** go though all pixels of image*/
   for (; pixel != ImageEnd; ++pixel, ++gain, ++count, ++ave)
@@ -311,8 +312,11 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
   ++_counter;
   if (_counter % _nFrames == 0)
     calculateGainMap(result);
-
 }
+
+
+
+
 
 
 

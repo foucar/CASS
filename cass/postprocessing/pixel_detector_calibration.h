@@ -199,6 +199,18 @@ private:
 
   /** counter to count how many times this has been called */
   int _counter;
+
+  /** offset to the gain part */
+  size_t _gainOffset;
+
+  /** offset to the counts part */
+  size_t _countOffset;
+
+  /** offset to the average part */
+  size_t _aveOffset;
+
+  /** the size of the input image */
+  size_t _sizeOfImage;
 };
 
 
