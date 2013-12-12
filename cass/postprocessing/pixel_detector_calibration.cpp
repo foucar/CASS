@@ -226,6 +226,14 @@ void pp331::loadSettings(size_t)
            _image->name() + "'. Condition is '" + _condition->name() + "'");
 }
 
+void pp331::processCommand(std::string command)
+{
+  if (command == "startGain")
+  {
+
+  }
+}
+
 void pp331::loadCalibration()
 {
 

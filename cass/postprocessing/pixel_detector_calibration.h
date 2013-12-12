@@ -151,6 +151,9 @@ public:
   /** write the calibrations before quitting */
   virtual void aboutToQuit();
 
+  /** receive commands from the gui */
+  virtual void processCommand(std::string command);
+
 protected:
   /** write the calibration data to file */
   void loadCalibration();
