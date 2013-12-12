@@ -103,6 +103,15 @@ private:
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
+ * The output of this PostProcessor consits of 3 images stiched together along
+ * the y (slow) coordinate. The ouput has the same x width as the input, but 3
+ * times the y width as the input.
+ *
+ * Y from 0 * y_input .. 1 * y_input-1: The calculated Gain Map
+ * Y from 1 * y_input .. 2 * y_input-1: The photons counts map
+ * Y from 2 * y_input .. 3 * y_input-1: The Average value of the photons of
+ *                                      interest in that pixel
+ *
  * @cassttng PostProcessor/\%name\%/{Image} \n
  *           the image of the pixel detector
  * @cassttng PostProcessor/\%name\%/{Filename} \n
