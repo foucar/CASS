@@ -50,9 +50,11 @@ int main(int argc, char *argv[])
   cass::CommandlineArgumentParser parser;
   std::string filename("nofile");
   parser.add("-f","filename of file that one wants to open",filename);
+  std::string key("nokey");
+  parser.add("--h5key","key of the datafield in the hdf5 file",key);
   parser(QCoreApplication::arguments());
   if ( filename != "nofile")
-    window.loadData(QString::fromStdString(filename),false);
+    window.loadData(QString::fromStdString(filename),false,QString::fromStdString(key));
 
   return app.exec();
 }

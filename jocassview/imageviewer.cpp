@@ -15,6 +15,7 @@
 #include <algorithm>
 
 #include "imageviewer.h"
+#include "hdf5_handle.hpp"
 #include "CASSsoap.nsmap"
 #include "cass/postprocessing/id_list.h"
 
@@ -329,7 +330,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 void ImageViewer::on_open_triggered()
 {
   // todo: use cass::imageExtension(cass::PNG)...   unfortunately cannot iterate over enums
-  QString filter("Images (*.png *.tiff *.jpg *.jpeg *.gif *.bmp);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
+  QString filter("Images (*.png *.tiff *.jpg *.jpeg *.gif *.bmp);;Csv plot files (*.csv);;Histogram binary files (*.hst);;HDF5 files(*.h5 *.hdf5)");
   QString fileName = QFileDialog::getOpenFileName(this,
                                                   tr("Open File"), QDir::currentPath(), filter);
   if(!fileName.isEmpty()) loadData(fileName, false);
@@ -345,7 +346,7 @@ void ImageViewer::on_overlay_data_triggered()
 }
 
 
-void ImageViewer::loadData( QString fileName, bool overlay )
+void ImageViewer::loadData(QString fileName, bool overlay , QString key)
 {
   QFileInfo fileInfo(fileName);
   if (! fileInfo.exists()) return;
@@ -413,10 +414,87 @@ void ImageViewer::loadData( QString fileName, bool overlay )
         }*/
 
   }
+#ifdef HDF5
   if ( fileInfo.suffix().toUpper() == QString("h5").toUpper() )
   {
-    throw invalid_argument("hdf5 reading still needs to be implemented");
+    try
+    {
+      hdf5::Handler h5handle(fileName.toStdString(),"r");
+
+      switch (h5handle.dimension(key.toStdString()))
+      {
+      case (0):
+        break;
+      case (1):
+        break;
+      case (2):
+      {
+        vector<float> matrix;
+        pair<size_t,size_t> shape;
+        h5handle.readMatrix(matrix,shape,key.toStdString());
+        float xlow,xup,ylow,yup;
+        try
+        {
+          xlow = h5handle.readScalarAttribute<float>(key.toStdString(),"XLow");
+        }
+        catch(const runtime_error & what)
+        {
+          xlow = 0;
+        }
+        try
+        {
+          xup = h5handle.readScalarAttribute<float>(key.toStdString(),"XUp");
+        }
+        catch(const runtime_error & what)
+        {
+          xup = shape.first;
+        }
+        try
+        {
+          ylow = h5handle.readScalarAttribute<float>(key.toStdString(),"YLow");
+        }
+        catch(const runtime_error & what)
+        {
+          ylow = 0;
+        }
+        try
+        {
+          yup = h5handle.readScalarAttribute<float>(key.toStdString(),"YUp");
+        }
+        catch(const runtime_error & what)
+        {
+          yup = shape.second;
+        }
+        cout<< xlow << " "<< xup<< " "<<ylow<< " "<<yup<<endl;
+        cass::Histogram2DFloat * hist(new cass::Histogram2DFloat(shape.first,xlow,xup,
+                                                                 shape.second,ylow,yup));
+        copy(matrix.begin(),matrix.end(),hist->memory().begin());
+        hist->key() = key.toStdString();
+        updateHistogram(hist);
+        break;
+      }
+      default:
+        throw logic_error("loadData(): Unknown dimension");
+      }
+    }
+    catch(const logic_error& err)
+    {
+      cout << err.what()<<endl;
+    }
+    catch(const invalid_argument & err)
+    {
+      cout << err.what()<<endl;
+    }
+    catch(const runtime_error & err)
+    {
+      cout << err.what()<<endl;
+    }
+    catch(...)
+    {
+      cout << "cant open h5 files"<<endl;
+    }
   }
+#endif
 }
 
 

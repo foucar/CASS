@@ -65,6 +65,12 @@ INCLUDEPATH   += $$PWD/.. \
 LIBS          += -lgsoap++ -lgsoap \
                  -lqwt
 
+# Extra stuff if compiling pp1000,pp1001
+hdf5 {
+    LIBS           += -lhdf5
+    DEFINES        += HDF5
+}
+
 # TODO: THIS IS NOT CROSS-PLATFORM!!
 #bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 #bin_copy.path  = ./
