@@ -55,11 +55,12 @@ public:
 
   /** constructor opening the file
    *
+   * @param mode Open the file in read "r" or write "w" mode. Default is "w"
    * @param filename the name of the file to open
    */
-  Handler(const std::string &filename)
+  Handler(const std::string &filename, const std::string & mode="w")
   {
-    open(filename);
+    open(filename,mode);
   }
 
   /** destructor
@@ -77,12 +78,23 @@ public:
    * @throw logic_error when file could not be opened
    *
    * @param filename the name of the file to be opened
+   * @param mode Open the file in read "r" or write "w" mode. Default is "w"
    */
-  void open(const std::string &filename)
+  void open(const std::string &filename, const std::string & mode="w")
   {
-    _fileid = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (mode == "w")
+    {
+      _fileid = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    }
+    else if (mode == "r")
+    {
+      _fileid = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    }
+    else
+      throw std::invalid_argument("hdf5::Handler::open(): Open mode '" +
+                                  mode + "' unknown");
     if (_fileid < 0)
-      throw std::logic_error("hdf5::Handler::open(): File '" + filename +
+      throw std::invalid_argument("hdf5::Handler::open(): File '" + filename +
                              "' could not be opened");
   }
 
@@ -213,6 +225,46 @@ public:
     H5Sclose(dataspace_id);
   }
 
+  /** read a matrix with a given name into a linearized array
+   *
+   * reads a matrix from the h5 file. The dimensions of the matrix will be
+   * returned in the shape parameter and the vector will be resized to fit the
+   * data before copying the data into the vector.
+   *
+   * @tparam type The type that should be written
+   * @param matrix the matrix to be written
+   * @param cols the number of columns in the matrix
+   * @param rows the number of rows in the matrix
+   * @param valname the name of the value
+   * @param compressLevel the compression level of the matrix
+   */
+  template<typename type>
+  void readMatrix(std::vector<type> &matrix, std::pair<size_t,size_t> &shape,
+                   const std::string& valname)
+  {
+    using namespace std;
+    hsize_t dims[2];
+
+    hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("readMatrix(): Could not open Dataset'"+ valname +"'");
+
+    hid_t dataspace_id(H5Dget_space (dataset_id));
+    int ndims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    shape.first = dims[1];
+    shape.second = dims[0];
+
+    matrix.resize(shape.first*shape.second,0);
+
+    herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                          &matrix.front()));
+    if (status < 0 )
+      throw runtime_error("readMatrix: Something went wrong reading image data");
+
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+  }
+
   /** write an float scalar attribute with a given name as part of a given dataset
    *
    * @tparam type The type that should be written
@@ -236,7 +288,6 @@ public:
     hid_t attributespace_id(H5Screate(H5S_SCALAR));
     if (attributespace_id < 0)
       throw runtime_error("writeScalarAttribute(): Could not open the dataspace");
-
     hid_t attribute_id(H5Acreate(dataset_id, valname.c_str(), H5Type<type>(),
                                  attributespace_id, H5P_DEFAULT, H5P_DEFAULT));
     if (attribute_id < 0)
@@ -249,6 +300,56 @@ public:
     H5Aclose(attribute_id);
     H5Sclose(attributespace_id);
     H5Dclose(dataset_id);
+  }
+
+  /** read an scalar attribute with a given name as part of a given dataset
+   *
+   * @throws runtime_error when the requested parameter is not present
+   *
+   * @tparam type The type of the scalar value
+   * @return the value of the scalar attribute
+   * @param valname the name of the value
+   * @param dsetName the Name of the Dataset
+   */
+  template<typename type>
+  type readScalarAttribute(const std::string& valname, const std::string & dsetName)
+  {
+    using namespace std;
+    throw runtime_error("readScalarAttribute(): Not implemented");
+
+//    /** open the dataset that the attribute should be added to */
+//    hid_t dataset_id(H5Dopen(_fileid,dsetName.c_str(),H5P_DEFAULT));
+//    if (dataset_id < 0)
+//      throw runtime_error("writeScalarAttribute(): Could not open the dataset '" +
+//                          dsetName + "'");
+//
+//    /** open the attribute space and attribute of the dataset */
+//    hid_t attributespace_id(H5Screate(H5S_SCALAR));
+//    if (attributespace_id < 0)
+//      throw runtime_error("writeScalarAttribute(): Could not open the dataspace");
+//    hid_t attribute_id(H5Acreate(dataset_id, valname.c_str(), H5Type<type>(),
+//                                 attributespace_id, H5P_DEFAULT, H5P_DEFAULT));
+//    if (attribute_id < 0)
+//      throw runtime_error("writeScalarAttribute(): Could not open the attribute '"
+//                          + valname +"'");
+//
+//    /** write the attribute and close the resources */
+//    H5Awrite(attribute_id, H5Type<type>(), &value);
+//
+//    H5Aclose(attribute_id);
+//    H5Sclose(attributespace_id);
+//    H5Dclose(dataset_id);
+  }
+
+
+  /** get the dimension of a value with a given name
+   *
+   * @return the dimension of the value
+   * @param valname the name of the value
+   */
+  size_t dimension(const std::string &valname)
+  {
+    return 2;
   }
 
 private:
