@@ -86,6 +86,7 @@ SOURCES            += soapCASSsoapService.cpp \
 
 
 HEADERS            += cass.h \
+                      cl_parser.hpp \
                       cass_event.h \
                       conversion_backend.h \
                       log.h \
