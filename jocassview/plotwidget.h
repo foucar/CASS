@@ -315,6 +315,11 @@ public:
     return new spectrogramData(_hist, _boundRect, _interval);
   }
 
+  virtual void setRange(const QwtDoubleInterval & range)
+  {
+    _interval = range;
+  }
+
   virtual QwtDoubleInterval range() const
   {
     VERBOSEOUT(std::cout << "spectrogramData::range(): " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
@@ -490,7 +495,7 @@ public:
 
     connect(_sbz_scale_min, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
     connect(_sbz_scale_max, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
-    //connect(_sbz_scale_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+    connect(_bool_auto_scale, SIGNAL(stateChanged(int)), this, SLOT(Replot()));
 
     _toolbar->addWidget( _colorbarPresets );
     _toolbar->addWidget( _saveColorbar );
@@ -828,18 +833,38 @@ protected slots:
 
   void Replot()
   {
-    /*    _spectrogramData->setHistogram(hist,
-                                   _bool_auto_scale->checkState(),
-                                   _sbz_scale_min->value(),
-                                   _sbz_scale_max->value() );*/
-
-    if(_bool_auto_scale->checkState())
-    {
-      _plot->setAxisScale(QwtPlot::yRight,
-                          _sbz_scale_min->text().toDouble(),
-                          _sbz_scale_max->text().toDouble() );
-      _plot->replot();
-    }
+    const double min = _bool_auto_scale->checkState() ? _sbz_scale_min->text().toDouble() : _spectrogramData->histogram()->min();
+    const double max = _bool_auto_scale->checkState() ? _sbz_scale_max->text().toDouble() : _spectrogramData->histogram()->max();
+    _spectrogramData->setRange(QwtDoubleInterval(min, max));
+    _spectrogram->setData(*_spectrogramData);
+    if(_color_scale->value()==-1)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
+    else if(_color_scale->value()==0)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColMany);
+    else if(_color_scale->value()==1)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapRed);
+    else if(_color_scale->value()==2)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapGreen);
+    else if(_color_scale->value()==3)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBlue);
+    else if(_color_scale->value()==4)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapVio);
+    else if(_color_scale->value()==5)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCyn);
+    else if(_color_scale->value()==6)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColAll);
+    else if(_color_scale->value()==7)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperature);
+    else if(_color_scale->value()==8)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureCool);
+    else if(_color_scale->value()==9)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureHot);
+    else if(_color_scale->value()==10)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBluetoGreen);
+    else if(_color_scale->value()==11)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCopper);
+    _plot->setAxisScale(QwtPlot::yRight,min,max);
+    _plot->replot();
   }
 
 
