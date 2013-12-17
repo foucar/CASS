@@ -247,7 +247,7 @@ public:
 
     hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readMatrix(): Could not open Dataset'"+ valname +"'");
+      throw invalid_argument("readMatrix(): Could not open Dataset '"+ valname +"'");
 
     hid_t dataspace_id(H5Dget_space (dataset_id));
     int ndims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
