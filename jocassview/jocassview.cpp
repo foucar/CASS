@@ -7,6 +7,7 @@
 #include <QDesktopWidget>
 
 #include "imageviewer.h"
+#include "cl_parser.hpp"
 
 using namespace jocassview;
 
@@ -44,15 +45,14 @@ int main(int argc, char *argv[])
   window.resize(winsize);
 
   window.show();
+
+  /** parse command line parameters and if first parameter is given open file */
+  cass::CommandlineArgumentParser parser;
+  std::string filename("nofile");
+  parser.add("-f","filename of file that one wants to open",filename);
+  parser(QCoreApplication::arguments());
+  if ( filename != "nofile")
+    window.loadData(QString::fromStdString(filename),false);
+
   return app.exec();
 }
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

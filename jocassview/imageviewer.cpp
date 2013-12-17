@@ -390,7 +390,7 @@ void ImageViewer::loadData( QString fileName, bool overlay )
       }
       else
         updateHistogram( reinterpret_cast<cass::Histogram0DFloat*>(hist) ); break;
-            case 1:
+    case 1:
       hist = new cass::Histogram1DFloat( serializer2 );
       if (overlay && _dock->widget()==_plotWidget1D)
       {
@@ -399,7 +399,7 @@ void ImageViewer::loadData( QString fileName, bool overlay )
       }
       else
         updateHistogram( reinterpret_cast<cass::Histogram1DFloat*>(hist) ); break;
-            case 2:
+    case 2:
       hist = new cass::Histogram2DFloat( serializer2 );
       updateHistogram( reinterpret_cast<cass::Histogram2DFloat*>(hist) ); break;
     }
@@ -412,6 +412,10 @@ void ImageViewer::loadData( QString fileName, bool overlay )
             case 2: updateHistogram( reinterpret_cast<cass::Histogram2DFloat*>(hist) ); break;
         }*/
 
+  }
+  if ( fileInfo.suffix().toUpper() == QString("h5").toUpper() )
+  {
+    throw invalid_argument("hdf5 reading still needs to be implemented");
   }
 }
 
