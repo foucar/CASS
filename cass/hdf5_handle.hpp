@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <list>
 #include <string>
 #include <stdexcept>
 #include <typeinfo>
@@ -40,6 +41,19 @@ template <> hid_t H5Type<int>() {return H5T_NATIVE_INT;}
 
 /** trait implementation for float */
 template <> hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
+
+/** function for the iterator of the h5 file
+ *
+ * @param
+ */
+herr_t iterator_func(hid_t, const char * name, const H5O_info_t *info, void *dlist)
+{
+  using namespace std;
+  list<string>& dsetlist(*reinterpret_cast<list<string>*>(dlist));
+  if (info->type == H5O_TYPE_DATASET)
+    dsetlist.push_back(name);
+  return 0;
+}
 
 /** A handler for h5 files
  *
@@ -122,8 +136,10 @@ public:
     if (dataset_id < 0)
       throw runtime_error("writeScalar(float): Could not open the dataset '" + valname +"'");
 
-    H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
-             H5P_DEFAULT, &value);
+    herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
+                           H5P_DEFAULT, &value));
+    if (status < 0)
+      throw runtime_error("writeScalar(): Could not write value");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
@@ -171,8 +187,10 @@ public:
       throw runtime_error("writeArray(): Could not open the dataset '"
                           + valname +"'");
 
-    H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
-             H5P_DEFAULT, &array.front());
+    herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
+                           H5P_DEFAULT, &array.front()));
+    if (status < 0)
+      throw runtime_error("writeArray(): Could not write array");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
@@ -205,7 +223,7 @@ public:
 
     /** create space and dataset for storing the graph (1D hist) */
     hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
-    if (dataspace_id < 0)
+   if (dataspace_id < 0)
       throw runtime_error("writeMatrix(): Could not open the dataspace");
 
     hsize_t chunk[2] = {40,3};
@@ -218,8 +236,10 @@ public:
       throw runtime_error("writeMatrix(): Could not open the dataset '"
                           + valname +"'");
 
-    H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
-             H5P_DEFAULT, &matrix.front());
+    herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
+                           H5P_DEFAULT, &matrix.front()));
+    if (status < 0)
+      throw runtime_error("writeMatrix(): Could not write array");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
@@ -245,12 +265,21 @@ public:
     using namespace std;
     hsize_t dims[2];
 
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
     hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
       throw invalid_argument("readMatrix(): Could not open Dataset '"+ valname +"'");
 
     hid_t dataspace_id(H5Dget_space (dataset_id));
+    if (dataspace_id < 0)
+      throw logic_error("readMatrix(): Could not open the dataspace");
+
     int ndims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    if (ndims < 0)
+      throw logic_error("readMatrix(): Could not read the dimensions");
+
     shape.first = dims[1];
     shape.second = dims[0];
 
@@ -259,7 +288,7 @@ public:
     herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
                           &matrix.front()));
     if (status < 0 )
-      throw runtime_error("readMatrix: Something went wrong reading image data");
+      throw logic_error("readMatrix: Something went wrong reading matrix data");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
@@ -295,7 +324,9 @@ public:
                           + valname +"'");
 
     /** write the attribute and close the resources */
-    H5Awrite(attribute_id, H5Type<type>(), &value);
+    herr_t status(H5Awrite(attribute_id, H5Type<type>(), &value));
+    if (status < 0 )
+      throw logic_error("writeScalarAttribute: Something went wrong reading matrix data");
 
     H5Aclose(attribute_id);
     H5Sclose(attributespace_id);
@@ -304,7 +335,7 @@ public:
 
   /** read an scalar attribute with a given name as part of a given dataset
    *
-   * @throws runtime_error when the requested parameter is not present
+   * @throws invalid_argument when the requested parameter is not present
    *
    * @tparam type The type of the scalar value
    * @return the value of the scalar attribute
@@ -315,44 +346,101 @@ public:
   type readScalarAttribute(const std::string& valname, const std::string & dsetName)
   {
     using namespace std;
-    throw runtime_error("readScalarAttribute(): Not implemented");
 
-//    /** open the dataset that the attribute should be added to */
-//    hid_t dataset_id(H5Dopen(_fileid,dsetName.c_str(),H5P_DEFAULT));
-//    if (dataset_id < 0)
-//      throw runtime_error("writeScalarAttribute(): Could not open the dataset '" +
-//                          dsetName + "'");
-//
-//    /** open the attribute space and attribute of the dataset */
-//    hid_t attributespace_id(H5Screate(H5S_SCALAR));
-//    if (attributespace_id < 0)
-//      throw runtime_error("writeScalarAttribute(): Could not open the dataspace");
-//    hid_t attribute_id(H5Acreate(dataset_id, valname.c_str(), H5Type<type>(),
-//                                 attributespace_id, H5P_DEFAULT, H5P_DEFAULT));
-//    if (attribute_id < 0)
-//      throw runtime_error("writeScalarAttribute(): Could not open the attribute '"
-//                          + valname +"'");
-//
-//    /** write the attribute and close the resources */
-//    H5Awrite(attribute_id, H5Type<type>(), &value);
-//
-//    H5Aclose(attribute_id);
-//    H5Sclose(attributespace_id);
-//    H5Dclose(dataset_id);
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    /** open the dataset that the attribute should be added to */
+    hid_t dataset_id(H5Dopen(_fileid,dsetName.c_str(),H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("readScalarAttribute(): Could not open the dataset '" +
+                          dsetName + "'");
+
+    /** attach to the scalar attribute of the dataset and read it */
+    hid_t attribute_id(H5Aopen(dataset_id, valname.c_str(), H5P_DEFAULT));
+    if (attribute_id < 0)
+      throw invalid_argument("readScalarAttribute(): Could not open the attribute '"
+                          + valname +"'");
+
+    /** read the attribute and close the resources */
+    type value;
+    herr_t status(H5Aread(attribute_id, H5Type<type>(), &value));
+    if (status < 0)
+      throw logic_error("readScalarAttribute(): Could read the attribute '"
+                        + valname +"' of dataset '" + dsetName + "'");
+
+    H5Aclose(attribute_id);
+    H5Dclose(dataset_id);
+
+    return value;
   }
 
 
   /** get the dimension of a value with a given name
    *
+   * retrieve the dataset with the given name, then the dataspace for the
+   * dataset. Judge by the type and the number of dimension what the dimensions
+   * are.
+   *
    * @return the dimension of the value
    * @param valname the name of the value
    */
-  size_t dimension(const std::string &valname)
+  size_t dimension(const std::string &valname) const
   {
-    return 2;
+    using namespace std;
+    size_t dimension;
+    hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("dimension(): Could not open Dataset '"+ valname +"'");
+
+    hid_t dataspace_id(H5Dget_space (dataset_id));
+    switch(H5Sget_simple_extent_type(dataspace_id))
+    {
+    case H5S_SCALAR:
+      dimension = 0;
+      break;
+    case H5S_SIMPLE:
+      switch(H5Sget_simple_extent_ndims(dataspace_id))
+      {
+      case 1:
+        dimension = 1;
+        break;
+      case 2:
+        dimension = 2;
+        break;
+      default:
+        throw logic_error("dimension(): Unkown dataspace dimension");
+        break;
+      }
+      break;
+    default:
+      throw logic_error("dimension(): Unknown dataspace type");
+      break;
+    }
+
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+
+    return dimension;
+  }
+
+  /** get the list of datasets in the file
+   *
+   * @return list of strings that point to valid datasets
+   */
+  std::list<std::string> datasets() const
+  {
+    using namespace std;
+    list<string> dsetlist;
+    hid_t status(H5Ovisit(_fileid,H5_INDEX_NAME,H5_ITER_NATIVE,iterator_func,&dsetlist));
+    if (status < 0)
+      throw logic_error("datasets(): Error when iterating trough the h5 file");
+
+    return dsetlist;
   }
 
 private:
+
   /** check filesize and open new file if too big
    *
    * check if the current size of the h5 file is bigger than the
