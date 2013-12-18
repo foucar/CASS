@@ -22,18 +22,13 @@ SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
                       CASSsoap.clearHistogram.req.xml CASSsoap.clearHistogram.res.xml \
                       CASSsoap.getPostprocessorIds.req.xml CASSsoap.getPostprocessorIds.res.xml \
                       CASSsoap.writeini.req.xml CASSsoap.writeini.res.xml \
-                      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
+                      ns.xsd CASSsoap.nsmap CASSsoap.wsdl CASSsoap.receiveCommand.req.xml \
+                      CASSsoap.controlDarkcal.req.xml
 SOAPFiles.depends   = $$PWD/../cass/soapserver.h
 
 SOAPFiles2.target   = soapC.cpp
 SOAPFiles2.depends  = soapCASSsoapProxy.cpp
 
-#versiontarget.target = $$PWD/../jocassview/update-version.sh
-#versiontarget.commands = $$PWD/../jocassview/update-version.sh
-#versiontarget.depends = FORCE
-
-#PRE_TARGETDEPS     += $$PWD/../jocassview/update-version.sh
-#QMAKE_EXTRA_TARGETS+= versiontarget
 QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 
