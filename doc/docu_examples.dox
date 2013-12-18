@@ -3,4 +3,7 @@
 @example CsPadCrystal.ini
 @example CsPadProteinSolution_with_mask.ini
 @example Darkcal.ini
+@example Darkcal-pnCCD.ini
+@example Fluorescence.ini
+@example singleParticle.ini
 */
