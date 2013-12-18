@@ -420,12 +420,13 @@ void ImageViewer::loadData(QString fileName, bool overlay , QString key)
     try
     {
       hdf5::Handler h5handle(fileName.toStdString(),"r");
-
       switch (h5handle.dimension(key.toStdString()))
       {
       case (0):
+        throw runtime_error("loadData(): h5 reading dimension 0 is not yet implemented");
         break;
       case (1):
+        throw runtime_error("loadData(): h5 reading dimension 1 is not yet implemented");
         break;
       case (2):
       {
@@ -435,37 +436,36 @@ void ImageViewer::loadData(QString fileName, bool overlay , QString key)
         float xlow,xup,ylow,yup;
         try
         {
-          xlow = h5handle.readScalarAttribute<float>(key.toStdString(),"XLow");
+          xlow = h5handle.readScalarAttribute<float>("xLow",key.toStdString());
         }
-        catch(const runtime_error & what)
+        catch(const invalid_argument & what)
         {
           xlow = 0;
         }
         try
         {
-          xup = h5handle.readScalarAttribute<float>(key.toStdString(),"XUp");
+          xup = h5handle.readScalarAttribute<float>("xUp",key.toStdString());
         }
-        catch(const runtime_error & what)
+        catch(const invalid_argument & what)
         {
           xup = shape.first;
         }
         try
         {
-          ylow = h5handle.readScalarAttribute<float>(key.toStdString(),"YLow");
+          ylow = h5handle.readScalarAttribute<float>("yLow",key.toStdString());
         }
-        catch(const runtime_error & what)
+        catch(const invalid_argument & what)
         {
           ylow = 0;
         }
         try
         {
-          yup = h5handle.readScalarAttribute<float>(key.toStdString(),"YUp");
+          yup = h5handle.readScalarAttribute<float>("yUp",key.toStdString());
         }
-        catch(const runtime_error & what)
+        catch(const invalid_argument & what)
         {
           yup = shape.second;
         }
-        cout<< xlow << " "<< xup<< " "<<ylow<< " "<<yup<<endl;
         cass::Histogram2DFloat * hist(new cass::Histogram2DFloat(shape.first,xlow,xup,
                                                                  shape.second,ylow,yup));
         copy(matrix.begin(),matrix.end(),hist->memory().begin());
@@ -474,14 +474,16 @@ void ImageViewer::loadData(QString fileName, bool overlay , QString key)
         break;
       }
       default:
-        throw logic_error("loadData(): Unknown dimension");
+        throw logic_error("loadData(): Unknown dimension of dataset '" +
+                          key.toStdString() + "' in file '" +
+                          fileName.toStdString() + "'");
       }
     }
-    catch(const logic_error& err)
+    catch(const invalid_argument & err)
     {
       cout << err.what()<<endl;
     }
-    catch(const invalid_argument & err)
+    catch(const logic_error& err)
     {
       cout << err.what()<<endl;
     }
@@ -491,7 +493,8 @@ void ImageViewer::loadData(QString fileName, bool overlay , QString key)
     }
     catch(...)
     {
-      cout << "cant open h5 files"<<endl;
+      cout << "loadData(): can't open '" + fileName.toStdString() +
+              "'. Unknown error occured"<<endl;
     }
   }
 #endif
