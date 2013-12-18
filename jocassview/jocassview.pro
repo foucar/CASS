@@ -1,5 +1,5 @@
 # Copyright (C) 2010 Jochen Küpper
-# Copyright (C) 2010 Lutz Foucar
+# Copyright (C) 2010,2013 Lutz Foucar
 
 
 CASS_ROOT = ..
@@ -32,27 +32,28 @@ SOAPFiles2.depends  = soapCASSsoapProxy.cpp
 QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 
-
-SOURCES       += soapCASSsoapProxy.cpp \
-                 soapC.cpp \
+SOURCES       += \
+#                 soapCASSsoapProxy.cpp \
+#                 soapC.cpp \
+                 main_window.cpp \
                  jocassview.cpp \
-                 imageviewer.cpp \
-                 plotwidget.cpp \
-                 qwt_logcolor_map.cpp \
-                 qwt_scroll_zoomer.cpp \
-                 qwt_scroll_bar.cpp \
-                 ../cass/postprocessing/id_list.cpp
+#                 imageviewer.cpp \
+#                 plotwidget.cpp \
+#                 qwt_logcolor_map.cpp \
+#                 qwt_scroll_zoomer.cpp \
+#                 qwt_scroll_bar.cpp \
+#                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += soapH.h \
-                 imageviewer.h \
-                 plotwidget.h \
-                 qwt_scroll_zoomer.h \
-                 qwt_scroll_bar.h \
                  soapCASSsoapProxy.h \
                  soapStub.h \
-                 ../cass/postprocessing/id_list.h
-
-FORMS         += imageviewer.ui
+                 main_window.h \
+                 status_led.hpp \
+#                 imageviewer.h \
+#                 plotwidget.h \
+#                 qwt_scroll_zoomer.h \
+#                 qwt_scroll_bar.h \
+#                 ../cass/postprocessing/id_list.h
 
 INCLUDEPATH   += $$PWD/.. \
                  $$PWD/../cass
@@ -60,16 +61,12 @@ INCLUDEPATH   += $$PWD/.. \
 LIBS          += -lgsoap++ -lgsoap \
                  -lqwt
 
-# Extra stuff if compiling pp1000,pp1001
+# Extra stuff if compiling with hdf5 support
 hdf5 {
     LIBS           += -lhdf5
     DEFINES        += HDF5
 }
 
-# TODO: THIS IS NOT CROSS-PLATFORM!!
-#bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE} $${TARGET}
-#bin_copy.path  = ./
-#INSTALLS      += target bin_copy
 INSTALLS      += target
 
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc

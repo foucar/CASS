@@ -6,7 +6,7 @@
 #include <QtGui/QApplication>
 #include <QDesktopWidget>
 
-#include "imageviewer.h"
+#include "main_window.h"
 #include "cl_parser.hpp"
 
 using namespace jocassview;
@@ -18,31 +18,31 @@ int main(int argc, char *argv[])
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("jocassview");
   QSettings::setDefaultFormat(QSettings::IniFormat);
-  ImageViewer window;
+  MainWindow window;
 
-  QDesktopWidget *my_desktop= app.desktop();
-  const QRect displ(my_desktop->availableGeometry(-1));
-  int displ_height= displ.height();
-  int displ_width= displ.width();
-  //trick to fake the number of screens
-  if(displ_height>2000)displ_height /=2;
-  if(displ_width>2000)displ_width /=2;
-  const int min_size = std::min(displ_height,displ_width);
-#ifdef VERBOSE
-  const int nscreens= my_desktop->screenCount();
-  const QRect screen(my_desktop->screenGeometry(-1));
-  const int screen_height= screen.height();
-  const int screen_width= screen.width();
-  std::cout<<"main():: Display dimensions: "<< displ_height << " x "
-      << displ_width << " " << nscreens
-      << " "
-      << screen_height << " x "
-      << screen_width << " " <<  my_desktop->isVirtualDesktop()
-      << " " <<  my_desktop->primaryScreen() <<std::endl;
-#endif
-  QSettings s;
-  QSize winsize(s.value("WindowSize",QSize(min_size,min_size)).toSize());
-  window.resize(winsize);
+//  QDesktopWidget *my_desktop= app.desktop();
+//  const QRect displ(my_desktop->availableGeometry(-1));
+//  int displ_height= displ.height();
+//  int displ_width= displ.width();
+//  //trick to fake the number of screens
+//  if(displ_height>2000)displ_height /=2;
+//  if(displ_width>2000)displ_width /=2;
+//  const int min_size = std::min(displ_height,displ_width);
+//#ifdef VERBOSE
+//  const int nscreens= my_desktop->screenCount();
+//  const QRect screen(my_desktop->screenGeometry(-1));
+//  const int screen_height= screen.height();
+//  const int screen_width= screen.width();
+//  std::cout<<"main():: Display dimensions: "<< displ_height << " x "
+//      << displ_width << " " << nscreens
+//      << " "
+//      << screen_height << " x "
+//      << screen_width << " " <<  my_desktop->isVirtualDesktop()
+//      << " " <<  my_desktop->primaryScreen() <<std::endl;
+//#endif
+//  QSettings s;
+//  QSize winsize(s.value("WindowSize",QSize(min_size,min_size)).toSize());
+//  window.resize(winsize);
 
   window.show();
 
@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
   std::string key("nokey");
   parser.add("--h5key","key of the datafield in the hdf5 file",key);
   parser(QCoreApplication::arguments());
-  if ( filename != "nofile")
-    window.loadData(QString::fromStdString(filename),false,QString::fromStdString(key));
+//  if ( filename != "nofile")
+//    window.loadData(QString::fromStdString(filename),false,QString::fromStdString(key));
 
   return app.exec();
 }
