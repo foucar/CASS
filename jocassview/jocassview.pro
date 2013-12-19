@@ -35,6 +35,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 SOURCES       += \
                  main.cpp \
                  main_window.cpp \
+                 led.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
@@ -46,6 +47,7 @@ SOURCES       += \
 
 HEADERS       += \
                  main_window.h \
+                 led.h \
                  status_led.hpp \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
