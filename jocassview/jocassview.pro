@@ -33,22 +33,23 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 
 SOURCES       += \
+                 main.cpp \
+                 main_window.cpp \
+#                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
-                 main_window.cpp \
-                 jocassview.cpp \
-#                 imageviewer.cpp \
 #                 plotwidget.cpp \
 #                 qwt_logcolor_map.cpp \
 #                 qwt_scroll_zoomer.cpp \
 #                 qwt_scroll_bar.cpp \
 #                 ../cass/postprocessing/id_list.cpp
 
-HEADERS       += soapH.h \
-                 soapCASSsoapProxy.h \
-                 soapStub.h \
+HEADERS       += \
                  main_window.h \
                  status_led.hpp \
+#                 soapH.h \
+#                 soapCASSsoapProxy.h \
+#                 soapStub.h \
 #                 imageviewer.h \
 #                 plotwidget.h \
 #                 qwt_scroll_zoomer.h \
