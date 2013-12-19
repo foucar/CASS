@@ -12,6 +12,13 @@
 #include<QtGui/QMainWindow>
 
 class QComboBox;
+class QString;
+class QStringList;
+
+namespace cass
+{
+class Histogram2DFloat;
+}//end namespace cass
 
 namespace jocassview
 {
@@ -38,12 +45,6 @@ public:
   /** destructor */
   ~MainWindow();
 
-public:
-  /** access the combobox
-   *
-   * @return pointer to the combobox
-   */
-  QComboBox *displayableItems() {return _attachId;}
 
 signals:
   /** signal that "get data" was triggered */
@@ -68,13 +69,13 @@ signals:
   void quit_server_triggered();
 
   /** signal that "get data" was triggered */
-  void open_triggered();
+  void load_file_triggered(QString);
+
+  /** signal that "get data" was triggered */
+  void save_file_triggered(QString);
 
   /** signal that "get data" was triggered */
   void save_triggered();
-
-  /** signal that "get data" was triggered */
-  void save_autofilename_triggered();
 
   /** signal that "get data" was triggered */
   void overlay_data_triggered();
@@ -104,9 +105,33 @@ public slots:
    */
   void change_status(int status);
 
+  /** set the items in the combobox
+   *
+   * @return pointer to the combobox
+   */
+  void setDisplayableItems(QStringList itemNames);
+
+  /** set the items in the combobox
+   *
+   * @return pointer to the combobox
+   */
+  void setDisplayedItem(QString item);
+
+  /** display a 2d Item
+   *
+   * @param histogram the 2d histogram that should be displayed
+   */
+  void displayItem(cass::Histogram2DFloat * histogram);
+
 private slots:
   /** display about this box */
   void on_about_triggered();
+
+  /** open file dialog and emit filname */
+  void on_load_triggered();
+
+  /** open file dialog and emit filname */
+  void on_save_as_triggered();
 
 private:
   /** the combobox that contains the contents that can be displayed */

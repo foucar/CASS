@@ -8,6 +8,9 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QSize>
+#include <QtCore/QDir>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include <QtGui/QMenuBar>
 #include <QtGui/QMenu>
@@ -25,10 +28,12 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QAction>
 #include <QtGui/QRadioButton>
+#include <QtGui/QFileDialog>
 
 #include "main_window.h"
 
 #include "status_led.hpp"
+#include "histogram.h"
 
 using namespace jocassview;
 
@@ -42,10 +47,10 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 
   // Add file menu
   QMenu *fmenu = menu->addMenu(tr("&File"));
-  fmenu->addAction(tr("Open"),this,SIGNAL(open_triggered()));
-  fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()));
-  fmenu->addAction(tr("Save Auto Filename"),this,SIGNAL(save_autofilename_triggered()),QKeySequence(tr("F10")));
+  fmenu->addAction(tr("Load Data"),this,SLOT(on_load_triggered()));
   fmenu->addAction(tr("Overlay Data"),this,SIGNAL(overlay_data_triggered()));
+  fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")));
+  fmenu->addAction(tr("Save as..."),this,SLOT(on_save_as_triggered()));
   fmenu->addAction(tr("Print"),this,SIGNAL(print_triggered()));
   fmenu->addSeparator();
   fmenu->addAction(tr("Quit"),qApp,SLOT(closeAllWindows()),QKeySequence(tr("Ctrl+q")));
@@ -153,7 +158,40 @@ void MainWindow::on_about_triggered()
       "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
 }
 
+void MainWindow::on_load_triggered()
+{
+  QString filter("Data Files (*.png *.tiff *.jpg *.jpeg *.gif *.bmp *.csv *.hst *.h5 *.hdf5)");
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(), filter);
+  if(!fileName.isEmpty())
+    emit load_file_triggered(fileName);
+}
+
+void MainWindow::on_save_as_triggered()
+{
+  QString filter("Data Files (*.png *.tiff *.jpg *.jpeg *.gif *.bmp *.csv *.hst *.h5 *.hdf5)");
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save Data to File"), QDir::currentPath(), filter);
+  if(!fileName.isEmpty())
+    emit save_file_triggered(fileName);
+}
+
 void MainWindow::change_status(int status)
 {
   _statusLED->setStatus(status);
+}
+
+void MainWindow::setDisplayedItem(QString item)
+{
+  int itemIdx = _attachId->findText(item);
+ _attachId->setCurrentIndex(itemIdx);
+}
+
+void MainWindow::setDisplayableItems(QStringList itemNames)
+{
+  _attachId->clear();
+  _attachId->addItems(itemNames);
+}
+
+void MainWindow::displayItem(cass::Histogram2DFloat *histogram)
+{
+
 }

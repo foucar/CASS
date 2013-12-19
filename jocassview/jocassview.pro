@@ -34,6 +34,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 SOURCES       += \
                  main.cpp \
+                 jocassview.cpp \
                  main_window.cpp \
                  led.cpp \
 #                 imageviewer.cpp \
@@ -46,6 +47,7 @@ SOURCES       += \
 #                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += \
+                 jocassview.h \
                  main_window.h \
                  led.h \
                  status_led.hpp \

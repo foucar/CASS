@@ -6,7 +6,7 @@
 #include <QtGui/QApplication>
 #include <QDesktopWidget>
 
-#include "main_window.h"
+#include "jocassview.h"
 #include "cl_parser.hpp"
 
 using namespace jocassview;
@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("jocassview");
   QSettings::setDefaultFormat(QSettings::IniFormat);
-  MainWindow window;
+
+
 
 //  QDesktopWidget *my_desktop= app.desktop();
 //  const QRect displ(my_desktop->availableGeometry(-1));
@@ -44,17 +45,25 @@ int main(int argc, char *argv[])
 //  QSize winsize(s.value("WindowSize",QSize(min_size,min_size)).toSize());
 //  window.resize(winsize);
 
-  window.show();
+  /** open an instance of the jocassviwer */
+  JoCASSViewer jocassviewer;
 
   /** parse command line parameters and if first parameter is given open file */
   cass::CommandlineArgumentParser parser;
   std::string filename("nofile");
   parser.add("-f","filename of file that one wants to open",filename);
-  std::string key("nokey");
+  std::string key("");
   parser.add("--h5key","key of the datafield in the hdf5 file",key);
   parser(QCoreApplication::arguments());
-//  if ( filename != "nofile")
-//    window.loadData(QString::fromStdString(filename),false,QString::fromStdString(key));
+  if ( filename != "nofile")
+  {
+    QString fname(QString::fromStdString(filename));
+    QString keyname(QString::fromStdString(key));
+    /** @todo remove all non alphanumerical characters from the keystring before
+     *        calling function
+     */
+    jocassviewer.loadData(fname,keyname);
+  }
 
   return app.exec();
 }
