@@ -28,6 +28,10 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   : QObject(parent)
 {
   _mw = new MainWindow();
+
+  connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
+  connect(_mw,SIGNAL(item_to_display_changed(QString)),this,SLOT(setCurrentRetrieveItem(QString)));
+
   _mw->show();
 }
 
@@ -109,7 +113,7 @@ void JoCASSViewer::loadDataFromH5(const QString &filename, const QString &key)
     }
 
     /** connect the item changed to displaying the new key */
-    disconnect(_mw,SIGNAL(item_to_display_changed(QString)),this,SLOT(set_retrieve_item()));
+    disconnect(_mw,SIGNAL(item_to_display_changed(QString)),this,SLOT(setCurrentRetrieveItem(QString)));
     connect(_mw,SIGNAL(item_to_display_changed(QString)),this,SLOT(loadH5KeyFromFile(QString)));
   }
   catch(const invalid_argument & err)
@@ -189,7 +193,10 @@ void JoCASSViewer::loadH5KeyFromFile(QString key)
     QMessageBox::critical(_mw,tr("Error"),QString("JoCASSViewer::loadDataFromH5(): can't open '" +
                                                   _filename + "'. Unknown error occured"));
   }
-
 #endif
 }
 
+void JoCASSViewer::setCurrentRetrieveItem(QString key)
+{
+
+}

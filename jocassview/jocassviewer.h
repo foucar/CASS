@@ -28,6 +28,9 @@ class JoCASSViewer : public QObject
 public:
   /** constructor
    *
+   * create a main window and set up the connections
+   *
+   * @param parent the parent widget. Default is 0
    */
   JoCASSViewer(QObject *parent=0);
 
@@ -44,11 +47,18 @@ public slots:
    */
   void loadData(QString filename, QString key="");
 
+private slots:
   /** load a specific key from the given h5 file
    *
    * @param key the key to load from the file
    */
   void loadH5KeyFromFile(QString key);
+
+  /** sets the current retrieve item
+   *
+   * @param key the key to load from the file
+   */
+  void setCurrentRetrieveItem(QString key);
 
 private:
   /** load data from image file
