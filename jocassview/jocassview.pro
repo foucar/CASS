@@ -37,6 +37,7 @@ SOURCES       += \
                  jocassviewer.cpp \
                  main_window.cpp \
                  led.cpp \
+                 status_led.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
@@ -50,7 +51,7 @@ HEADERS       += \
                  jocassviewer.h \
                  main_window.h \
                  led.h \
-                 status_led.hpp \
+                 status_led.h \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
 #                 soapStub.h \

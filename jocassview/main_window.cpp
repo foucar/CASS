@@ -32,7 +32,7 @@
 
 #include "main_window.h"
 
-#include "status_led.hpp"
+#include "status_led.h"
 #include "histogram.h"
 
 using namespace jocassview;
