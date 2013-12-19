@@ -34,7 +34,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 SOURCES       += \
                  main.cpp \
-                 jocassview.cpp \
+                 jocassviewer.cpp \
                  main_window.cpp \
                  led.cpp \
 #                 imageviewer.cpp \
@@ -47,7 +47,7 @@ SOURCES       += \
 #                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += \
-                 jocassview.h \
+                 jocassviewer.h \
                  main_window.h \
                  led.h \
                  status_led.hpp \
@@ -68,8 +68,8 @@ LIBS          += -lgsoap++ -lgsoap \
 
 # Extra stuff if compiling with hdf5 support
 hdf5 {
-    LIBS           += -lhdf5
-    DEFINES        += HDF5
+    LIBS      += -lhdf5
+    DEFINES   += HDF5
 }
 
 INSTALLS      += target

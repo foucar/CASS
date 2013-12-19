@@ -14,7 +14,7 @@
 
 #include <QtGui/QMessageBox>
 
-#include "jocassview.h"
+#include "jocassviewer.h"
 
 #include "main_window.h"
 #include "hdf5_handle.hpp"

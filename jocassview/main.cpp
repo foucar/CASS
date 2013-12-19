@@ -6,7 +6,7 @@
 #include <QtGui/QApplication>
 #include <QDesktopWidget>
 
-#include "jocassview.h"
+#include "jocassviewer.h"
 #include "cl_parser.hpp"
 
 using namespace jocassview;
