@@ -34,6 +34,9 @@
 
 #include "status_led.h"
 #include "histogram.h"
+#include "zero_d_viewer.h"
+#include "one_d_viewer.h"
+#include "two_d_viewer.h"
 
 using namespace jocassview;
 
@@ -138,9 +141,10 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   statusBar()->setToolTip(tr("Actual frequency to get and display "
                           "images averaged over (n) times."));
 
-  // Add the central dock widget containing the data
-  QDockWidget *dock(new QDockWidget(tr("Data"), this));
-  setCentralWidget(dock);
+  // Add the data viewers
+  _0DView = new ZeroDViewer(this);
+  _1DView = new OneDViewer(this);
+  _2DView = new TwoDViewer(this);
 
   // Set the size of the window
   QSize winsize(settings.value("WindowSize",QSize(800,800)).toSize());
@@ -191,7 +195,23 @@ void MainWindow::setDisplayableItems(QStringList itemNames)
   _attachId->addItems(itemNames);
 }
 
+void MainWindow::displayItem(cass::Histogram0DFloat *histogram)
+{
+  _0DView->setData(histogram);
+  if (centralWidget() != _0DView)
+    setCentralWidget(_0DView);
+}
+
+void MainWindow::displayItem(cass::Histogram1DFloat *histogram)
+{
+  _1DView->setData(histogram);
+  if (centralWidget() != _1DView)
+    setCentralWidget(_1DView);
+}
+
 void MainWindow::displayItem(cass::Histogram2DFloat *histogram)
 {
-
+  _2DView->setData(histogram);
+  if (centralWidget() != _2DView)
+    setCentralWidget(_2DView);
 }

@@ -17,12 +17,17 @@ class QStringList;
 
 namespace cass
 {
+class Histogram0DFloat;
+class Histogram1DFloat;
 class Histogram2DFloat;
 }//end namespace cass
 
 namespace jocassview
 {
 class StatusLED;
+class ZeroDViewer;
+class OneDViewer;
+class TwoDViewer;
 
 /** the main window of jocassview
  *
@@ -117,6 +122,18 @@ public slots:
    */
   void setDisplayedItem(QString item);
 
+  /** display a 0d Item
+   *
+   * @param histogram the 0d histogram that should be displayed
+   */
+  void displayItem(cass::Histogram0DFloat * histogram);
+
+  /** display a 1d Item
+   *
+   * @param histogram the 1d histogram that should be displayed
+   */
+  void displayItem(cass::Histogram1DFloat * histogram);
+
   /** display a 2d Item
    *
    * @param histogram the 2d histogram that should be displayed
@@ -139,6 +156,15 @@ private:
 
   /** the status LED */
   StatusLED * _statusLED;
+
+  /** the widget that contains the 0D View */
+  ZeroDViewer * _0DView;
+
+  /** the widget that contains the 0D View */
+  OneDViewer * _1DView;
+
+  /** the widget that contains the 0D View */
+  TwoDViewer * _2DView;
 };
 
 }//end namspace jocassview
