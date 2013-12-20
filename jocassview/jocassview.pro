@@ -38,6 +38,9 @@ SOURCES       += \
                  main_window.cpp \
                  led.cpp \
                  status_led.cpp \
+                 zero_d_viewer.cpp \
+                 one_d_viewer.cpp \
+                 two_d_viewer.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
@@ -52,6 +55,9 @@ HEADERS       += \
                  main_window.h \
                  led.h \
                  status_led.h \
+                 zero_d_viewer.h \
+                 one_d_viewer.h \
+                 two_d_viewer.h \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
 #                 soapStub.h \
