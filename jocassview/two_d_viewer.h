@@ -9,12 +9,20 @@
 #ifndef _TWODVIEWER_
 #define _TWODVIEWER_
 
+#include <QtCore/QMap>
+
 #include <QtGui/QWidget>
+
+#include <qwt_color_map.h>
 
 namespace cass
 {
 class Histogram2DFloat;
 }//end namespace cass
+
+class QwtPlot;
+class QwtLinearColorMap;
+class QwtPlotSpectrogram;
 
 namespace jocassview
 {
@@ -42,6 +50,15 @@ public slots:
    */
   void setData(cass::Histogram2DFloat *histogram);
 
+private:
+  /** The plot area */
+  QwtPlot * _plot;
+
+  /** the spectrogram that is used to display the 2d data */
+  QwtPlotSpectrogram * _spectrogram;
+
+  /** the color maps */
+  QMap<int,QwtLinearColorMap> _maps;
 };
 }//end namespace jocassview
 
