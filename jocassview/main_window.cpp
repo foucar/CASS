@@ -146,6 +146,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   _1DView = new OneDViewer(this);
   _2DView = new TwoDViewer(this);
 
+  // Set the 2d view as central widget for a start
+  setCentralWidget(_2DView);
+
   // Set the size of the window
   QSize winsize(settings.value("WindowSize",QSize(800,800)).toSize());
   resize(winsize);
