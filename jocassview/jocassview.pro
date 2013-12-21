@@ -41,6 +41,7 @@ SOURCES       += \
                  zero_d_viewer.cpp \
                  one_d_viewer.cpp \
                  two_d_viewer.cpp \
+                 two_d_viewer_data.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
@@ -58,6 +59,7 @@ HEADERS       += \
                  zero_d_viewer.h \
                  one_d_viewer.h \
                  two_d_viewer.h \
+                 two_d_viewer_data.h \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
 #                 soapStub.h \
