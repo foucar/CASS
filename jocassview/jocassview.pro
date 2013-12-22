@@ -42,13 +42,14 @@ SOURCES       += \
                  one_d_viewer.cpp \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
+                 minmax_control.cpp \
+                 track_zoomer_2d.cpp \
+                 qwt_scroll_zoomer.cpp \
+                 qwt_scroll_bar.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
-#                 plotwidget.cpp \
 #                 qwt_logcolor_map.cpp \
-#                 qwt_scroll_zoomer.cpp \
-#                 qwt_scroll_bar.cpp \
 #                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += \
@@ -60,13 +61,14 @@ HEADERS       += \
                  one_d_viewer.h \
                  two_d_viewer.h \
                  two_d_viewer_data.h \
+                 minmax_control.h \
+                 track_zoomer_2d.h \
+                 qwt_scroll_zoomer.h \
+                 qwt_scroll_bar.h \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
 #                 soapStub.h \
 #                 imageviewer.h \
-#                 plotwidget.h \
-#                 qwt_scroll_zoomer.h \
-#                 qwt_scroll_bar.h \
 #                 ../cass/postprocessing/id_list.h
 
 INCLUDEPATH   += $$PWD/.. \
