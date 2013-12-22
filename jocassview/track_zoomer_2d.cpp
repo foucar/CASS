@@ -5,21 +5,21 @@
  *
  * @author Lutz Foucar
  */
-
+#include <QtCore/QDebug>
 #include <qwt_raster_data.h>
 
 #include "track_zoomer_2d.h"
 
 using namespace jocassview;
 
-TrackZoomer2d::TrackZoomer2d(QwtPlotCanvas *canvas)
+TrackZoomer2D::TrackZoomer2D(QwtPlotCanvas *canvas)
   : ScrollZoomer(canvas),
     _data(0)
 {
-
+  setTrackerMode(AlwaysOn);
 }
 
-QwtText TrackZoomer2d::trackerText(const QwtDoublePoint & pos) const
+QwtText TrackZoomer2D::trackerText(const QwtDoublePoint & pos) const
 {
     QColor bg(Qt::white);
     bg.setAlpha(200);
@@ -27,14 +27,16 @@ QwtText TrackZoomer2d::trackerText(const QwtDoublePoint & pos) const
     QwtText text = QwtPlotZoomer::trackerText(pos);
     QString text_string(text.text());
     if (_data)
-      text_string = text_string + " : " + QString::number( _data->value(pos.x(), pos.y()) );
+      text_string = "x:" + QString::number(pos.x()) + " , " +
+          "y:" + QString::number(pos.y()) + " , " +
+          "z:" + QString::number(_data->value(pos.x(),pos.y()));
     text.setText(text_string);
     text.setBackgroundBrush( QBrush( bg ));
+    qDebug()<<text_string;
     return text;
-
 }
 
-void TrackZoomer2d::setData(QwtRasterData *data)
+void TrackZoomer2D::setData(QwtRasterData *data)
 {
   _data = data;
 }

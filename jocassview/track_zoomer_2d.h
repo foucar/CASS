@@ -22,7 +22,7 @@ namespace jocassview
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class TrackZoomer2d : public ScrollZoomer
+class TrackZoomer2D : public ScrollZoomer
 {
   Q_OBJECT
 
@@ -31,7 +31,7 @@ public:
    *
    * @param canvas the canvas which hold the plot
    */
-  TrackZoomer2d(QwtPlotCanvas *canvas);
+  TrackZoomer2D(QwtPlotCanvas *canvas);
 
   /** change the tracker text
    *

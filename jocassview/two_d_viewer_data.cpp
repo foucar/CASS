@@ -20,20 +20,20 @@ TwoDViewerData::TwoDViewerData()
     _xRange(QwtDoubleInterval(0.,1.)),
     _yRange(QwtDoubleInterval(0.,1.)),
     _zRange(QwtDoubleInterval(0.,1.)),
-    _shape(0,0)
+    _shape(0,0),
+    _name("")
 {
 
 }
 
-TwoDViewerData::TwoDViewerData(const std::vector<float> &data,  const shape_t &shape,
-                               const QwtDoubleInterval &xrange, const QwtDoubleInterval &yrange,
-                               const QwtDoubleInterval &zrange, const QwtDoubleRect &boundingRect)
-  : QwtRasterData(boundingRect),
-    _xRange(xrange),
-    _yRange(yrange),
-    _zRange(zrange),
-    _data(data),
-    _shape(shape)
+TwoDViewerData::TwoDViewerData(const TwoDViewerData &other)
+  : QwtRasterData(other.boundingRect()),
+    _xRange(other._xRange),
+    _yRange(other._yRange),
+    _zRange(other._zRange),
+    _data(other._data),
+    _shape(other._shape),
+    _name(other._name)
 {
 
 }
@@ -47,19 +47,9 @@ void TwoDViewerData::setData(const std::vector<float> &data, const shape_t &shap
   _yRange = yrange;
   _zRange = QwtDoubleInterval(*min_element(data.begin(),data.end()),
                               *max_element(data.begin(),data.end()));
-  QwtDoubleRect rect;
-  rect.setCoords(_xRange.minValue(),_yRange.maxValue(),
-                 _xRange.maxValue(),_yRange.minValue());
   setBoundingRect(QwtDoubleRect(_xRange.minValue(),_yRange.minValue(),
                                 _xRange.maxValue()-_xRange.minValue(),
                                 _yRange.maxValue()-_yRange.minValue()));
-//  setBoundingRect(rect);
-  qDebug()<<"--";
-  qDebug()<<"x:"<<_xRange.minValue()<< " "<<_xRange.maxValue()<<" "<<_xRange.maxValue()-_xRange.minValue();
-  qDebug()<<"y:"<<_yRange.minValue()<< " "<<_yRange.maxValue()<<" "<<_yRange.maxValue()-_yRange.minValue();
-  qDebug()<<"--";
-  qDebug()<<"x:" << boundingRect().left()<< " " << boundingRect().right()<< " " << boundingRect().width();
-  qDebug()<<"y:" << boundingRect().bottom()<< " " << boundingRect().top()<< " " << boundingRect().height();
 }
 
 void TwoDViewerData::setZRange(const QwtDoubleInterval &zrange)
@@ -88,5 +78,15 @@ QwtDoubleInterval TwoDViewerData::zRange() const
 
 QwtRasterData * TwoDViewerData::copy() const
 {
-  return new TwoDViewerData(_data,_shape,_xRange, _yRange, _zRange,boundingRect());
+  return new TwoDViewerData(*this);
+}
+
+void TwoDViewerData::setName(const QString &name)
+{
+  _name = name;
+}
+
+QString TwoDViewerData::name()const
+{
+  return _name;
 }

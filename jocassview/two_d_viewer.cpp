@@ -126,6 +126,13 @@ TwoDViewer::TwoDViewer(QWidget *parent)
   _spectrogram->setData(*_data);
   _spectrogram->attach(_plot);
   _spectrogram->setColorMap(_maps[-1]);
+  // create a zoomer for the 2d data
+  _zoomer = new TrackZoomer2D(_plot->canvas());
+  _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
+  _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                           Qt::RightButton, Qt::ControlModifier);
+  _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+                           Qt::RightButton);
   layout->addWidget(_plot);
 
   // create the toolbar
@@ -148,9 +155,21 @@ void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
   _spectrogram->invalidateCache();
   _spectrogram->itemChanged();
 
-  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
-  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+  /** @note the below will be done when zooming into the initial bounding rect
+   *  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
+   *  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+   */
 
+  _zoomer->setData(_data);
+
+  // check if the data is new (the bounding box changed) in which case we
+  // reinitialize the zoomer
+  if (_zoomer->zoomBase() != _spectrogram->boundingRect())
+  {
+    _zoomer->setZoomBase(_spectrogram->boundingRect());
+    _zoomer->zoom(_spectrogram->boundingRect());
+    _zoomer->setZoomBase(true);
+  }
   replot();
 }
 
@@ -164,13 +183,4 @@ void TwoDViewer::replot()
   _spectrogram->setColorMap(_maps[colorid]);
   _plot->setAxisScale(QwtPlot::yRight,min,max);
   _plot->replot();
-
-  qDebug()<<"x:" << _spectrogram->boundingRect().left()<< " " << _spectrogram->boundingRect().width();
-  qDebug()<<"y:" << _spectrogram->boundingRect().bottom()<< " " << _spectrogram->boundingRect().height();
-  qDebug()<<"____";
-  qDebug()<< _plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound();
-  qDebug()<< _plot->axisScaleDiv(QwtPlot::xBottom)->upperBound();
-  qDebug()<< _plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound();
-  qDebug()<< _plot->axisScaleDiv(QwtPlot::yLeft)->upperBound();
-
 }

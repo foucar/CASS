@@ -29,18 +29,11 @@ public:
   /** default constructor */
   TwoDViewerData();
 
-  /** constructor with user parameters
+  /** copy constructor
    *
-   * @param data the vector containing the data
-   * @param shape the Shape of the data to be displayed
-   * @param xrange the range in user coordinates in x
-   * @param yrange the range in user coordinates in y
-   * @param zrange the range of values to be displayed
-   * @param boundingRect the boundingRect to be used
+   * @param other the other object to copy
    */
-  TwoDViewerData(const std::vector<float> &data, const shape_t &shape,
-                 const QwtDoubleInterval &xrange, const QwtDoubleInterval &yrange,
-                 const QwtDoubleInterval &zrange, const QwtDoubleRect &boundingRect);
+  TwoDViewerData(const TwoDViewerData &other);
 
 
   /** set the data that should be wrapped
@@ -89,6 +82,18 @@ public:
    */
   virtual QwtRasterData * copy() const;
 
+  /** set the name of the data
+   *
+   * @param name  the name of the data
+   */
+  void setName(const QString &name);
+
+  /** retrieve the current name of the data
+   *
+   * @return the current name
+   */
+  QString name()const;
+
 private:
   /** the range in along x (fast) dimension */
   QwtDoubleInterval _xRange;
@@ -104,6 +109,9 @@ private:
 
   /** the shape of the 2d data */
   shape_t _shape;
+
+  /** the name of the data */
+  QString _name;
 };
 }//end namespace jocassview
 #endif
