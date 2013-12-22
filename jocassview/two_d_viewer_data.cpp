@@ -8,12 +8,15 @@
 
 #include <algorithm>
 
+#include <QtCore/QDebug>
+
 #include "two_d_viewer_data.h"
 
 using namespace jocassview;
+using namespace std;
 
 TwoDViewerData::TwoDViewerData()
-  : QwtRasterData(QwtDoubleRect(0.,0.,500.,500.)),
+  : QwtRasterData(QwtDoubleRect(-100.,-200.,400.,300.)),
     _xRange(QwtDoubleInterval(0.,1.)),
     _yRange(QwtDoubleInterval(0.,1.)),
     _zRange(QwtDoubleInterval(0.,1.)),
@@ -44,8 +47,19 @@ void TwoDViewerData::setData(const std::vector<float> &data, const shape_t &shap
   _yRange = yrange;
   _zRange = QwtDoubleInterval(*min_element(data.begin(),data.end()),
                               *max_element(data.begin(),data.end()));
-  setBoundingRect(QwtDoubleRect(_xRange.minValue(),_yRange.maxValue(),
-                                _xRange.maxValue(),_yRange.minValue()));
+  QwtDoubleRect rect;
+  rect.setCoords(_xRange.minValue(),_yRange.maxValue(),
+                 _xRange.maxValue(),_yRange.minValue());
+  setBoundingRect(QwtDoubleRect(_xRange.minValue(),_yRange.minValue(),
+                                _xRange.maxValue()-_xRange.minValue(),
+                                _yRange.maxValue()-_yRange.minValue()));
+//  setBoundingRect(rect);
+  qDebug()<<"--";
+  qDebug()<<"x:"<<_xRange.minValue()<< " "<<_xRange.maxValue()<<" "<<_xRange.maxValue()-_xRange.minValue();
+  qDebug()<<"y:"<<_yRange.minValue()<< " "<<_yRange.maxValue()<<" "<<_yRange.maxValue()-_yRange.minValue();
+  qDebug()<<"--";
+  qDebug()<<"x:" << boundingRect().left()<< " " << boundingRect().right()<< " " << boundingRect().width();
+  qDebug()<<"y:" << boundingRect().bottom()<< " " << boundingRect().top()<< " " << boundingRect().height();
 }
 
 void TwoDViewerData::setZRange(const QwtDoubleInterval &zrange)
@@ -64,6 +78,12 @@ double TwoDViewerData::value(double x, double y) const
 QwtDoubleInterval TwoDViewerData::range() const
 {
   return _zRange;
+}
+
+QwtDoubleInterval TwoDViewerData::zRange() const
+{
+  return QwtDoubleInterval(*min_element(_data.begin(),_data.end()),
+                           *max_element(_data.begin(),_data.end()));
 }
 
 QwtRasterData * TwoDViewerData::copy() const

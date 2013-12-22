@@ -76,6 +76,13 @@ public:
    */
   virtual QwtDoubleInterval range() const;
 
+
+  /** return the z range of the data
+   *
+   * @return the z range of the data
+   */
+  QwtDoubleInterval zRange() const;
+
   /** return a pointer to a copy of this
    *
    * @return a pointer to a copy of this

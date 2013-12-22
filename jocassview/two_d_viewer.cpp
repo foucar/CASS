@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QDebug>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
 
@@ -15,6 +17,11 @@
 #include <qwt_plot_spectrogram.h>
 
 #include "two_d_viewer.h"
+
+#include "two_d_viewer_data.h"
+#include "histogram.h"
+#include "minmax_control.h"
+#include "track_zoomer_2d.h"
 
 using namespace jocassview;
 
@@ -111,19 +118,59 @@ TwoDViewer::TwoDViewer(QWidget *parent)
   _plot->axisWidget(QwtPlot::yLeft)->setTitle("y-axis");
   _plot->enableAxis(QwtPlot::yRight);
   _plot->plotLayout()->setAlignCanvasToScales(true);
+  _plot->setAutoReplot(false);
+  // create spectrogram data
+  _data = new TwoDViewerData;
   // create the spectrom that is displayed in the plot
   _spectrogram = new QwtPlotSpectrogram();
+  _spectrogram->setData(*_data);
   _spectrogram->attach(_plot);
   _spectrogram->setColorMap(_maps[-1]);
   layout->addWidget(_plot);
 
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
+  _zControl = new MinMaxControl();
+  toolbar->addWidget(_zControl);
+  toolbar->addSeparator();
   layout->addWidget(toolbar);
   setLayout(layout);
 }
 
 void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
 {
+  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
+  const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
+  _data->setData(histogram->memory(),std::make_pair(xaxis.nbrBins(),yaxis.nbrBins()),
+                 QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()),
+                 QwtDoubleInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
+  _spectrogram->setData(*_data);
+  _spectrogram->invalidateCache();
+  _spectrogram->itemChanged();
+
+  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
+  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+
+  replot();
+}
+
+void TwoDViewer::replot()
+{
+  const double min(_data->zRange().minValue());
+  const double max(_data->zRange().maxValue());
+  int colorid = 6;
+
+  _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data().range(),_maps[colorid]);
+  _spectrogram->setColorMap(_maps[colorid]);
+  _plot->setAxisScale(QwtPlot::yRight,min,max);
+  _plot->replot();
+
+  qDebug()<<"x:" << _spectrogram->boundingRect().left()<< " " << _spectrogram->boundingRect().width();
+  qDebug()<<"y:" << _spectrogram->boundingRect().bottom()<< " " << _spectrogram->boundingRect().height();
+  qDebug()<<"____";
+  qDebug()<< _plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound();
+  qDebug()<< _plot->axisScaleDiv(QwtPlot::xBottom)->upperBound();
+  qDebug()<< _plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound();
+  qDebug()<< _plot->axisScaleDiv(QwtPlot::yLeft)->upperBound();
 
 }

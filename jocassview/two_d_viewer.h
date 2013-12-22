@@ -26,6 +26,9 @@ class QwtPlotSpectrogram;
 
 namespace jocassview
 {
+class TwoDViewerData;
+class MinMaxControl;
+class TrackZoomer2D;
 
 /** a viewer that displays 2d data
  *
@@ -50,6 +53,10 @@ public slots:
    */
   void setData(cass::Histogram2DFloat *histogram);
 
+private slots:
+  /** replot the data */
+  void replot();
+
 private:
   /** The plot area */
   QwtPlot * _plot;
@@ -57,8 +64,17 @@ private:
   /** the spectrogram that is used to display the 2d data */
   QwtPlotSpectrogram * _spectrogram;
 
+  /** the wrapper for the 2d data */
+  TwoDViewerData *_data;
+
   /** the color maps */
   QMap<int,QwtLinearColorMap> _maps;
+
+  /** the z-scale control */
+  MinMaxControl *_zControl;
+
+  /** a zoomer for the 2d view */
+  TrackZoomer2D *_zoomer;
 };
 }//end namespace jocassview
 
