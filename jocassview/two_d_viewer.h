@@ -23,6 +23,7 @@ class Histogram2DFloat;
 class QwtPlot;
 class QwtLinearColorMap;
 class QwtPlotSpectrogram;
+class QSpinBox;
 
 namespace jocassview
 {
@@ -72,6 +73,9 @@ private:
 
   /** the z-scale control */
   MinMaxControl *_zControl;
+
+  /** the colorbar control */
+  QSpinBox *_colorId;
 
   /** a zoomer for the 2d view */
   TrackZoomer2D *_zoomer;

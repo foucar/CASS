@@ -10,6 +10,8 @@
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
+#include <QtGui/QSpinBox>
+#include <QtGui/QLabel>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -137,9 +139,21 @@ TwoDViewer::TwoDViewer(QWidget *parent)
 
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
+  // add the min/max control to the toolbar
   _zControl = new MinMaxControl();
+  connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_zControl);
+  // Add separator
   toolbar->addSeparator();
+  // Add the colorbar control
+  QLabel * cLabel(new QLabel(tr("Colorbar ID")));
+  toolbar->addWidget(cLabel);
+  _colorId = new QSpinBox();
+  _colorId->setRange(-1,11);
+  _colorId->setValue(-1);
+  connect(_colorId,SIGNAL(valueChanged(int)),this,SLOT(replot()));
+  toolbar->addWidget(_colorId);
+
   layout->addWidget(toolbar);
   setLayout(layout);
 }
@@ -154,6 +168,9 @@ void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
   _spectrogram->setData(*_data);
   _spectrogram->invalidateCache();
   _spectrogram->itemChanged();
+
+  _plot->axisWidget(QwtPlot::xBottom)->setTitle(QString::fromStdString(xaxis.title()));
+  _plot->axisWidget(QwtPlot::yLeft)->setTitle(QString::fromStdString(yaxis.title()));
 
   /** @note the below will be done when zooming into the initial bounding rect
    *  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
@@ -175,12 +192,14 @@ void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
 
 void TwoDViewer::replot()
 {
-  const double min(_data->zRange().minValue());
-  const double max(_data->zRange().maxValue());
-  int colorid = 6;
+  const double min(_zControl->manual() ? _zControl->min() : _data->zRange().minValue());
+  const double max(_zControl->manual() ? _zControl->max() : _data->zRange().maxValue());
+  int colorid = _colorId->value();
 
-  _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data().range(),_maps[colorid]);
+  _data->setZRange(QwtDoubleInterval(min,max));
+  _spectrogram->setData(*_data);
   _spectrogram->setColorMap(_maps[colorid]);
+  _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data().range(),_maps[colorid]);
   _plot->setAxisScale(QwtPlot::yRight,min,max);
   _plot->replot();
 }
