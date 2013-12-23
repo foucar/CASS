@@ -82,8 +82,7 @@ void MinMaxControl::on_changed()
     _maxinput->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
   }
 
-  if(_manual->isChecked())
-    emit controls_changed();
+  emit controls_changed();
 }
 
 bool MinMaxControl::manual() const
