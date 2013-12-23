@@ -16,11 +16,13 @@ namespace cass
 class Histogram1DFloat;
 }//end namespace cass
 
+class QwtPlot;
 
 namespace jocassview
 {
+class MinMaxControl;
 
-/** a viewer that displays 2d data
+/** a viewer that displays 1d data
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
@@ -43,6 +45,15 @@ public slots:
    */
   void setData(cass::Histogram1DFloat *histogram);
 
+private:
+  /** The plot area */
+  QwtPlot * _plot;
+
+  /** control for the x-axis */
+  MinMaxControl *_xControl;
+
+  /** control for the y-axis */
+  MinMaxControl *_yControl;
 };
 }//end namespace jocassview
 
