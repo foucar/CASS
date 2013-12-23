@@ -32,7 +32,6 @@ QwtText TrackZoomer2D::trackerText(const QwtDoublePoint & pos) const
           "z:" + QString::number(_data->value(pos.x(),pos.y()));
     text.setText(text_string);
     text.setBackgroundBrush( QBrush( bg ));
-    qDebug()<<text_string;
     return text;
 }
 
