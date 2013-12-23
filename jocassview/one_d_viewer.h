@@ -9,6 +9,8 @@
 #ifndef _ONEDVIEWER_
 #define _ONEDVIEWER_
 
+#include <QtCore/QList>
+
 #include <QtGui/QWidget>
 
 namespace cass
@@ -17,6 +19,7 @@ class Histogram1DFloat;
 }//end namespace cass
 
 class QwtPlot;
+class QwtPlotCurve;
 
 namespace jocassview
 {
@@ -45,6 +48,10 @@ public slots:
    */
   void setData(cass::Histogram1DFloat *histogram);
 
+private slots:
+  /** redraw the plot */
+  void replot();
+
 private:
   /** The plot area */
   QwtPlot * _plot;
@@ -54,6 +61,9 @@ private:
 
   /** control for the y-axis */
   MinMaxControl *_yControl;
+
+  /** this plots curves */
+  QList<QwtPlotCurve*> _curves;
 };
 }//end namespace jocassview
 
