@@ -16,6 +16,7 @@ namespace cass
 class Histogram0DFloat;
 }//end namespace cass
 
+class QLabel;
 
 namespace jocassview
 {
@@ -42,6 +43,16 @@ public slots:
    * @param histogram The histogram that contains the data to display
    */
   void setData(cass::Histogram0DFloat *histogram);
+
+  /** set the data to display
+   *
+   * @param float The value to be displayed
+   */
+  void setData(float value);
+
+private:
+  /** the label that displays the value */
+  QLabel *_value;
 
 };
 }//end namespace jocassview
