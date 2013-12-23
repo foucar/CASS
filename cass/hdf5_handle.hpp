@@ -145,6 +145,40 @@ public:
     H5Sclose(dataspace_id);
   }
 
+  /** read an scalar value with a given name as part of a given group
+   *
+   * create a dataspace and a dataset for writing the scalar value as part of
+   * the given group. Then write the value and close all resources later on.
+   *
+   * @tparam type The scalar type that should be written
+   * @param value the value to be written
+   * @param valname the name of the value
+   */
+  template <typename type>
+  type readScalar(const std::string& valname)
+  {
+    using namespace std;
+
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    /** open the scalar dataset */
+    hid_t dataset_id(H5Dopen(_fileid,valname.c_str(),H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("readScalar(): Could not open the dataset '" +
+                          valname + "'");
+
+    /** read the attribute and close the resources */
+    type value;
+    herr_t status(H5Dread(dataset_id, H5Type<type>(), &value));
+    if (status < 0)
+      throw logic_error("readScalar()): Could read the value '" + valname + "'");
+
+    H5Dclose(dataset_id);
+
+    return value;
+  }
+
   /** write a 1d array with a given name
    *
    * create a dataspace and a dataset for writing the value as part of the given
