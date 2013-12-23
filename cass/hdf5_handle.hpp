@@ -170,7 +170,8 @@ public:
 
     /** read the attribute and close the resources */
     type value;
-    herr_t status(H5Dread(dataset_id, H5Type<type>(), &value));
+    herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                          &value));
     if (status < 0)
       throw logic_error("readScalar()): Could read the value '" + valname + "'");
 
