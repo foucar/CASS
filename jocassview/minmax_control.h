@@ -37,6 +37,12 @@ public:
    */
   bool manual() const;
 
+  /** return wether log is enabled
+   *
+   * @return true when log is enabled
+   */
+  bool log() const;
+
   /** retrieve the minimum value
    *
    * @return the minimum value
@@ -61,6 +67,9 @@ signals:
   void controls_changed();
 
 private:
+  /** select manual input */
+  QCheckBox *_log;
+
   /** select manual input */
   QCheckBox *_manual;
 

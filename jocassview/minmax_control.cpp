@@ -27,6 +27,12 @@ MinMaxControl::MinMaxControl(QWidget *parent)
   // generate a vertical layout that will hold the controls
   QHBoxLayout *layout(new QHBoxLayout);
 
+  // creat a checkbox that toggles between log and linear scale
+  _log = new QCheckBox("log",this);
+  _log->setChecked(settings.value("Log",false).toBool());
+  connect(_log,SIGNAL(stateChanged(int)),this,SLOT(on_changed()));
+  layout->addWidget(_log);
+
   // generate the checkbox to enable manual control
   _manual = new QCheckBox("man control",this);
   _manual->setChecked(settings.value("Manual",false).toBool());
@@ -83,6 +89,11 @@ void MinMaxControl::on_changed()
 bool MinMaxControl::manual() const
 {
   return _manual->isChecked();
+}
+
+bool MinMaxControl::log() const
+{
+  return _log->isChecked();
 }
 
 double MinMaxControl::min() const
