@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 
 #include <QtGui/QMessageBox>
 
@@ -145,11 +146,34 @@ void JoCASSViewer::loadH5KeyFromFile(QString key)
     switch (h5handle.dimension(key.toStdString()))
     {
     case (0):
-      QMessageBox::information(_mw,tr("Info"),tr("H5 Dim 0 not yet implemented"));
+    {
+      float value(h5handle.readScalar<float>(key.toStdString()));
+      _mw->displayItem(value);
       break;
+    }
     case (1):
-      QMessageBox::information(_mw,tr("Info"),tr("H5 Dim 1 not yet implemented"));
+    {
+      vector<float> array;
+      size_t length(2);
+      float xlow,xup;
+      h5handle.readArray(array,length,key.toStdString());
+      if (length > 1)
+      {
+        try { xlow = h5handle.readScalarAttribute<float>("xLow",key.toStdString()); }
+        catch(const invalid_argument & what) { xlow = 0; }
+        try { xup = h5handle.readScalarAttribute<float>("xUp",key.toStdString()); }
+        catch(const invalid_argument & what) { xup = length; }
+        cass::Histogram1DFloat * hist(new cass::Histogram1DFloat(length,xlow,xup));
+        copy(array.begin(),array.end(),hist->memory().begin());
+        hist->key() = key.toStdString();
+        _mw->displayItem(hist);
+      }
+      else
+      {
+        _mw->displayItem(array[0]);
+      }
       break;
+    }
     case (2):
     {
       vector<float> matrix;
