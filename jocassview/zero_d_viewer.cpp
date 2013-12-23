@@ -11,6 +11,7 @@
 using namespace jocassview;
 
 ZeroDViewer::ZeroDViewer(QWidget *parent)
+  : QWidget(parent)
 {
 
 }
