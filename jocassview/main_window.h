@@ -14,6 +14,7 @@
 class QComboBox;
 class QString;
 class QStringList;
+class QStackedWidget;
 
 namespace cass
 {
@@ -122,6 +123,12 @@ public slots:
    */
   void setDisplayedItem(QString item);
 
+  /** display a 0d value
+   *
+   * @param value the value that should be displayed
+   */
+  void displayItem(float value);
+
   /** display a 0d Item
    *
    * @param histogram the 0d histogram that should be displayed
@@ -156,6 +163,9 @@ private:
 
   /** the status LED */
   StatusLED * _statusLED;
+
+  /** stacked widget to hold the viewers */
+  QStackedWidget * _stackedWidget;
 
   /** the widget that contains the 0D View */
   ZeroDViewer * _0DView;

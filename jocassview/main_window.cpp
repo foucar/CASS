@@ -29,6 +29,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QRadioButton>
 #include <QtGui/QFileDialog>
+#include <QtGui/QStackedWidget>
 
 #include "main_window.h"
 
@@ -141,13 +142,18 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   statusBar()->setToolTip(tr("Actual frequency to get and display "
                           "images averaged over (n) times."));
 
-  // Add the data viewers
-  _0DView = new ZeroDViewer(this);
-  _1DView = new OneDViewer(this);
-  _2DView = new TwoDViewer(this);
+  // Add the viewers to a stacked widget which serves as the central widget
+  _stackedWidget = new QStackedWidget(this);
+  _0DView = new ZeroDViewer();
+  _stackedWidget->addWidget(_0DView);
+  _1DView = new OneDViewer();
+  _stackedWidget->addWidget(_1DView);
+  _2DView = new TwoDViewer();
+  _stackedWidget->addWidget(_2DView);
 
-  // Set the 2d view as central widget for a start
-  setCentralWidget(_2DView);
+
+  // Set the stackedwidget as central widget
+  setCentralWidget(_stackedWidget);
 
   // Set the size of the window
   QSize winsize(settings.value("WindowSize",QSize(800,800)).toSize());
@@ -201,20 +207,27 @@ void MainWindow::setDisplayableItems(QStringList itemNames)
 void MainWindow::displayItem(cass::Histogram0DFloat *histogram)
 {
   _0DView->setData(histogram);
-  if (centralWidget() != _0DView)
-    setCentralWidget(_0DView);
+  if (_stackedWidget->currentIndex() != 0)
+    _stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::displayItem(float value)
+{
+  _0DView->setData(value);
+  if (_stackedWidget->currentIndex() != 0)
+    _stackedWidget->setCurrentIndex(0);
 }
 
 void MainWindow::displayItem(cass::Histogram1DFloat *histogram)
 {
   _1DView->setData(histogram);
-  if (centralWidget() != _1DView)
-    setCentralWidget(_1DView);
+  if (_stackedWidget->currentIndex() != 1)
+    _stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::displayItem(cass::Histogram2DFloat *histogram)
 {
   _2DView->setData(histogram);
-  if (centralWidget() != _2DView)
-    setCentralWidget(_2DView);
+  if (_stackedWidget->currentIndex() != 2)
+    _stackedWidget->setCurrentIndex(2);
 }
