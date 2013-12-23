@@ -196,6 +196,53 @@ public:
     H5Sclose(dataspace_id);
   }
 
+  /** read a array with a given name into a linearized array
+   *
+   * reads a array from the h5 file. The dimensions of the matrix will be
+   * returned in the arrayLength and the vector will be resized to fit the
+   * data before copying the data into the vector.
+   *
+   * @tparam type The type that should be read
+   * @param[out] array the array that will be read
+   * @param[out] arrayLength the length of the array
+   * @param[in] valname the name of the value
+   */
+  template<typename type>
+  void readArray(std::vector<type> &array, size_t &arrayLength,
+                 const std::string& valname)
+  {
+    using namespace std;
+    hsize_t dims[1];
+
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    hid_t dataset_id(H5Dopen(_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("readArray(): Could not open Dataset '"+ valname +"'");
+
+    hid_t dataspace_id(H5Dget_space (dataset_id));
+    if (dataspace_id < 0)
+      throw logic_error("readArray(): Could not open the dataspace");
+
+    int ndims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    if (ndims < 0)
+      throw logic_error("readMatrix(): Could not read the dimensions");
+
+    arrayLength = dims[0];
+
+    array.resize(arrayLength,0);
+
+    herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                          &array.front()));
+    if (status < 0 )
+      throw logic_error("readArray: Something went wrong reading matrix data");
+
+    H5Sclose(dataspace_id);
+    H5Dclose(dataset_id);
+  }
+
+
   /** write a linearized matrix with a given name
    *
    * create a dataspace and a dataset for writing the matrix as part of the given
