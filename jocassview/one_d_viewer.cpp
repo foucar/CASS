@@ -6,8 +6,12 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QSettings>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
+#include <QtGui/QAction>
+#include <QtGui/QIcon>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -22,6 +26,8 @@ using namespace jocassview;
 OneDViewer::OneDViewer(QWidget *parent)
   : QWidget(parent)
 {
+  QSettings settings;
+
   //create an vertical layout to put the plot and the toolbar in
   QVBoxLayout *layout(new QVBoxLayout);
 
@@ -34,8 +40,18 @@ OneDViewer::OneDViewer(QWidget *parent)
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
 
+  // Add grid control to toolbar
+  QAction * _gridControl = new QAction(QIcon(":images/grid.png"),
+                                       tr("toggle Grid"),toolbar);
+  _gridControl->setCheckable(true);
+  _gridControl->setChecked(settings.value("GridEnabled",true).toBool());
+  toolbar->addAction(_gridControl);
+
+  // Add separator to toolbar
+  toolbar->addSeparator();
+
   // Add x-axis control to the toolbar
-  _xControl = new MinMaxControl();
+  _xControl = new MinMaxControl(tr("x-scale"));
   connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_xControl);
 
@@ -43,7 +59,7 @@ OneDViewer::OneDViewer(QWidget *parent)
   toolbar->addSeparator();
 
   // Add y-axis control to the toolbar
-  _yControl = new MinMaxControl();
+  _yControl = new MinMaxControl(tr("y-scale"));
   connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_yControl);
 

@@ -140,17 +140,19 @@ TwoDViewer::TwoDViewer(QWidget *parent)
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
   // add the min/max control to the toolbar
-  _zControl = new MinMaxControl();
+  _zControl = new MinMaxControl(tr("z-scale"));
   connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_zControl);
   // Add separator
   toolbar->addSeparator();
   // Add the colorbar control
-  QLabel * cLabel(new QLabel(tr("Colorbar ID")));
-  toolbar->addWidget(cLabel);
+//  QLabel * cLabel(new QLabel(tr("Colorbar ID")));
+//  toolbar->addWidget(cLabel);
   _colorId = new QSpinBox();
   _colorId->setRange(-1,11);
   _colorId->setValue(-1);
+  _colorId->setWrapping(true);
+  _colorId->setToolTip(tr("Select the used Colorbar"));
   connect(_colorId,SIGNAL(valueChanged(int)),this,SLOT(replot()));
   toolbar->addWidget(_colorId);
 
@@ -192,8 +194,8 @@ void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
 
 void TwoDViewer::replot()
 {
-  const double min(_zControl->manual() ? _zControl->min() : _data->zRange().minValue());
-  const double max(_zControl->manual() ? _zControl->max() : _data->zRange().maxValue());
+  const double min(!_zControl->autoscale() ? _zControl->min() : _data->zRange().minValue());
+  const double max(!_zControl->autoscale() ? _zControl->max() : _data->zRange().maxValue());
   int colorid = _colorId->value();
 
   _data->setZRange(QwtDoubleInterval(min,max));
