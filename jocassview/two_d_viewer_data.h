@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file tow_d_viewer_data.h contains the wrappe of the data for the 2d viewer
+ * @file two_d_viewer_data.h contains the wrappe of the data for the 2d viewer
  *
  * @author Lutz Foucar
  */
@@ -23,7 +23,7 @@ namespace jocassview
 class TwoDViewerData : public QwtRasterData
 {
 public:
-  /** define the shape of the data */\
+  /** define the shape of the data */
   typedef std::pair<size_t,size_t> shape_t;
 
   /** default constructor */

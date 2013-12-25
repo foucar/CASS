@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file tow_d_viewer_data.cpp contains the wrappe of the data for the 2d viewer
+ * @file two_d_viewer_data.cpp contains the wrappe of the data for the 2d viewer
  *
  * @author Lutz Foucar
  */
