@@ -9,9 +9,12 @@
 #ifndef _MINMAXCONTROL_
 #define _MINMAXCONTROL_
 
+#include <QtCore/QString>
+
 #include <QtGui/QWidget>
 
 class QCheckBox;
+class QToolButton;
 class QLineEdit;
 
 namespace jocassview
@@ -29,13 +32,13 @@ public:
    *
    * @param parent the parent of this
    */
-  MinMaxControl(QWidget *parent=0);
+  MinMaxControl(QString title, QWidget *parent=0);
 
-  /** return whether the manual control is activated
+  /** return whether the plot should be autoscaled
    *
-   * @return true when manual control is activated
+   * @return true when plot should be autoscaled
    */
-  bool manual() const;
+  bool autoscale() const;
 
   /** return wether log is enabled
    *
@@ -68,10 +71,10 @@ signals:
 
 private:
   /** select manual input */
-  QCheckBox *_log;
+  QToolButton *_log;
 
   /** select manual input */
-  QCheckBox *_manual;
+  QToolButton *_auto;
 
   /** the minimum value input */
   QLineEdit *_mininput;

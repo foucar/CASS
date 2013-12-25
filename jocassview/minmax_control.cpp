@@ -13,12 +13,13 @@
 #include <QtGui/QDoubleValidator>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QToolButton>
 
 #include "minmax_control.h"
 
 using namespace jocassview;
 
-MinMaxControl::MinMaxControl(QWidget *parent)
+MinMaxControl::MinMaxControl(QString title, QWidget *parent)
   : QWidget(parent)
 {
   // the object to load the settings from
@@ -28,37 +29,45 @@ MinMaxControl::MinMaxControl(QWidget *parent)
   QHBoxLayout *layout(new QHBoxLayout);
 
   // creat a checkbox that toggles between log and linear scale
-  _log = new QCheckBox("log",this);
+  _log = new QToolButton(this);
+  _log->setIcon(QIcon(":images/log.png"));
+  _log->setCheckable(true);
   _log->setChecked(settings.value("Log",false).toBool());
-  connect(_log,SIGNAL(stateChanged(int)),this,SLOT(on_changed()));
+  _log->setToolTip(title + tr(": Plot the axis in logrithmic scale"));
+  connect(_log,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
   layout->addWidget(_log);
 
   // generate the checkbox to enable manual control
-  _manual = new QCheckBox("man control",this);
-  _manual->setChecked(settings.value("Manual",false).toBool());
-  connect(_manual,SIGNAL(stateChanged(int)),this,SLOT(on_changed()));
-  layout->addWidget(_manual);
+  _auto = new QToolButton(this);
+  _auto->setIcon(QIcon(":images/autoscale.png"));
+  _auto->setCheckable(true);
+  _auto->setChecked(settings.value("AutoScale",true).toBool());
+  _auto->setToolTip(title + tr(": Toggle manual setting the minimum and maximum value of the scale"));
+  connect(_auto,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
+  layout->addWidget(_auto);
 
   // generate a validator to ensure that only numbers are entered in the input
   QDoubleValidator *doubleValidator(new QDoubleValidator(-2e12,2e12,3,this));
 
   // generate the min input
-  QLabel *minlabel(new QLabel(tr("Min"),this));
-  layout->addWidget(minlabel);
+//  QLabel *minlabel(new QLabel(tr("Min"),this));
+//  layout->addWidget(minlabel);
   _mininput = new QLineEdit(this);
   _mininput->setValidator(doubleValidator);
   _mininput->setText(settings.value("MinValue","0").toString());
   _mininput->setMaximumWidth(120);
+  _mininput->setToolTip(title + tr(": Minimum axis value"));
   connect(_mininput,SIGNAL(textChanged(QString)),this,SLOT(on_changed()));
   layout->addWidget(_mininput);
 
   // generate the min input
-  QLabel *maxlabel(new QLabel(tr("Max"),this));
-  layout->addWidget(maxlabel);
+//  QLabel *maxlabel(new QLabel(tr("Max"),this));
+//  layout->addWidget(maxlabel);
   _maxinput = new QLineEdit(this);
   _maxinput->setValidator(doubleValidator);
   _maxinput->setText(settings.value("MaxValue","1").toString());
   _maxinput->setMaximumWidth(120);
+  _maxinput->setToolTip(title + tr(": Maximum axis value"));
   connect(_maxinput,SIGNAL(textChanged(QString)),this,SLOT(on_changed()));
   layout->addWidget(_maxinput);
 
@@ -85,9 +94,9 @@ void MinMaxControl::on_changed()
   emit controls_changed();
 }
 
-bool MinMaxControl::manual() const
+bool MinMaxControl::autoscale() const
 {
-  return _manual->isChecked();
+  return _auto->isChecked();
 }
 
 bool MinMaxControl::log() const
