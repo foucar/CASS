@@ -21,7 +21,7 @@ ZeroDViewer::ZeroDViewer(QWidget *parent)
 {
   QVBoxLayout *layout(new QVBoxLayout);
   _value = new QLabel(tr("Number"));
-  _value->setAlignment(Qt::AlignHCenter);
+  _value->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
   QFont font(_value->font());
   font.setPointSize(20);
   _value->setFont(font);
