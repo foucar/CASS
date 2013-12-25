@@ -46,7 +46,7 @@ double OneDViewerData::x(size_t i) const
 
 double OneDViewerData::y(size_t i) const
 {
-  return _data[i];
+  return (std::isnan(_data[i]) || std::isinf(_data[i])) ? 0 : _data[i];
 }
 
 QwtDoubleRect OneDViewerData::boundingRect() const
