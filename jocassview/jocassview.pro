@@ -40,6 +40,7 @@ SOURCES       += \
                  status_led.cpp \
                  zero_d_viewer.cpp \
                  one_d_viewer.cpp \
+                 one_d_viewer_data.cpp \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
                  minmax_control.cpp \
@@ -59,6 +60,7 @@ HEADERS       += \
                  status_led.h \
                  zero_d_viewer.h \
                  one_d_viewer.h \
+                 one_d_viewer_data.h \
                  two_d_viewer.h \
                  two_d_viewer_data.h \
                  minmax_control.h \
