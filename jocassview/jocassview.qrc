@@ -12,5 +12,6 @@
         <file>images/log.png</file>
         <file>images/autoscale.png</file>
         <file>images/legend.png</file>
+        <file>images/graph_add.png</file>
     </qresource>
 </RCC>
