@@ -23,6 +23,7 @@ class QwtPlot;
 class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtLegend;
+class QwtPlotItem;
 
 namespace jocassview
 {
@@ -52,9 +53,23 @@ public slots:
    */
   void setData(cass::Histogram1DFloat *histogram);
 
+  /** add a curve with data to the plot
+   *
+   * @param histogram the additional curve to be plotted
+   */
+  void addData(cass::Histogram1DFloat *histogram);
+
 private slots:
   /** redraw the plot */
   void replot();
+
+  /** react when an legend item has been selected
+   *
+   * open a context menue at the position of the legenditem.
+   *
+   * @param pos the position where the context menu should be opened
+   */
+  void on_legend_right_clicked(QPoint pos);
 
 private:
   /** The plot area */

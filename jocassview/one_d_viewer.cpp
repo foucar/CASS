@@ -13,6 +13,9 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QAction>
 #include <QtGui/QIcon>
+#include <QtGui/QMenu>
+#include <QtGui/QColorDialog>
+#include <QtGui/QInputDialog>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -41,6 +44,10 @@ OneDViewer::OneDViewer(QWidget *parent)
   _curvesData.push_front(new OneDViewerData);
   _curves.push_front(new QwtPlotCurve);
   _curves[0]->setTitle("current data");
+  QPen pen;
+  pen.setColor(settings.value("CurveColor",Qt::blue).value<QColor>());
+  pen.setWidth(settings.value("CurveWidth",1).toInt());
+  _curves[0]->setPen(pen);
   _curves[0]->attach(_plot);
   // add a grid to show on the plot
   _grid = new QwtPlotGrid;
@@ -48,9 +55,11 @@ OneDViewer::OneDViewer(QWidget *parent)
   _grid->attach(_plot);
   // add a legend to the plot
   _legend = new QwtLegend;
-  _legend->setItemMode(QwtLegend::CheckableItem);
+//  _legend->setItemMode(QwtLegend::CheckableItem);
   _plot->insertLegend(_legend,QwtPlot::RightLegend);
-//  connect(_plot,SIGNAL(legendChecked(QwtPlotItem*,bool)),this,SLOT(on_legend_checked(QwtPlotItem)));
+  QWidget *curveLegendWidget(_legend->find(_curves[0]));
+  curveLegendWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(curveLegendWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
   // add the plot to the widget
   layout->addWidget(_plot);
 
@@ -119,15 +128,100 @@ void OneDViewer::setData(cass::Histogram1DFloat *histogram)
   replot();
 }
 
+void OneDViewer::addData(cass::Histogram1DFloat *histogram)
+{
+  _curves.push_back(new QwtPlotCurve);
+  QwtPlotCurve * curve(_curves.back());
+
+  QwtArray<double> xx(histogram->size());
+  QwtArray<double> yy(histogram->size());
+  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
+  for (size_t i=0; i<xaxis.nbrBins();++i)
+  {
+    xx[i] = xaxis.position(i);
+    const float yVal(histogram->memory()[i]);
+    yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
+  }
+  curve->setData(xx,yy);
+
+//  qDebug()<<_curves[0]->boundingRect();
+//
+//  _curvesData[0]->setData(histogram->memory(),
+//                          QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
+//  _curves[0]->setData(*_curvesData[0]);
+
+  replot();
+}
+
 void OneDViewer::replot()
 {
   _grid->enableX(_gridControl->isChecked());
   _grid->enableY(_gridControl->isChecked());
 
-  if(_legendControl->isChecked())
-    _legend->show();
-  else
-    _legend->hide();
+  QList<QWidget*> list(_legend->legendItems());
+  for (int i=0; i<list.size();++i)
+  {
+    if(_legendControl->isChecked())
+      list.at(i)->show();
+    else
+      list.at(i)->hide();
+  }
 
+  _plot->updateLayout();
   _plot->replot();
+}
+
+void OneDViewer::on_legend_right_clicked(QPoint pos)
+{
+  qDebug()<<"ContextMenuRequested";
+
+  if (!sender()->isWidgetType())
+    return;
+
+  QWidget *curveWidget(dynamic_cast<QWidget*>(sender()));
+  QwtPlotCurve *curve(dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget)));
+  QPoint globalPos(curveWidget->mapToGlobal(pos));
+
+  QMenu myMenu;
+  myMenu.addAction(tr("Color"));
+  myMenu.addAction(tr("Width"));
+  myMenu.addSeparator();
+  if(curve->isVisible())
+    myMenu.addAction(tr("Hide"));
+  else
+    myMenu.addAction(tr("Show"));
+  if(curve->title() != QwtText("current data"))
+    myMenu.addAction(tr("Delete"));
+
+  QPen pen(curve->pen());
+  QAction* selectedItem = myMenu.exec(globalPos);
+  if (selectedItem && !selectedItem->isSeparator())
+  {
+    if (selectedItem->text() == tr("Hide"))
+      curve->hide();
+    else if (selectedItem->text() == tr("Show"))
+      curve->show();
+    else if (selectedItem->text() == tr("Delete"))
+    {
+      _curves.removeAll(curve);
+      curve->detach();
+      _legend->update();
+    }
+    else if(selectedItem->text() == tr("Color"))
+    {
+      QColor col(QColorDialog::getColor(pen.color(),this,tr("Select Color")));
+      if (col.isValid())
+        pen.setColor(col);
+    }
+    else if (selectedItem->text() == tr("Width"))
+    {
+      bool ok(false);
+      int width(QInputDialog::getInt(this,tr("Set Line Width"),tr("Line width"),pen.width(),0,20,1,&ok));
+      if (ok)
+        pen.setWidth(width);
+    }
+
+    curve->setPen(pen);
+    replot();
+  }
 }
