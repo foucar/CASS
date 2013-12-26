@@ -69,6 +69,7 @@ void JoCASSViewer::loadData(QString filename, QString key)
   {
     loadDataFromH5(filename,key);
   }
+  _mw->setWindowTitle(fileInfo.fileName());
 }
 
 void JoCASSViewer::loadDataFromImage(const QString &filename)
