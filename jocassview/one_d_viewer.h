@@ -46,6 +46,10 @@ public:
    */
   OneDViewer(QWidget *parent=0);
 
+signals:
+  /** emit when add graph has been clicked */
+  void add_graph_triggered();
+
 public slots:
   /** set the data to display
    *

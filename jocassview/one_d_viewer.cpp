@@ -21,6 +21,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 #include <qwt_legend.h>
+#include <qwt_scale_engine.h>
 
 #include "one_d_viewer.h"
 
@@ -66,6 +67,9 @@ OneDViewer::OneDViewer(QWidget *parent)
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
 
+  // Add a button that allows to add a reference curve
+  toolbar->addAction(QIcon(":images/graph_add.png"),tr("Add a reference Graph to the Plot"),this,SIGNAL(add_graph_triggered()));
+
   // Add grid control to toolbar
   _gridControl = new QAction(QIcon(":images/grid.png"),
                              tr("toggle Grid"),toolbar);
@@ -94,7 +98,7 @@ OneDViewer::OneDViewer(QWidget *parent)
 
   // Add y-axis control to the toolbar
   _yControl = new MinMaxControl(tr("y-scale"));
-  connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
+  connect(_yControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_yControl);
 
   // Add toolbar to layout
@@ -155,9 +159,12 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 
 void OneDViewer::replot()
 {
+  // check if grid should be enabled
   _grid->enableX(_gridControl->isChecked());
   _grid->enableY(_gridControl->isChecked());
 
+  // check if legend should be drawn
+  // (hide all legend items and update the layout if not)
   QList<QWidget*> list(_legend->legendItems());
   for (int i=0; i<list.size();++i)
   {
@@ -166,6 +173,17 @@ void OneDViewer::replot()
     else
       list.at(i)->hide();
   }
+
+  // check if the scales should be log or linear
+  if(_xControl->log())
+    _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLog10ScaleEngine);
+  else
+    _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
+
+  if(_yControl->log())
+    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
+  else
+    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
   _plot->updateLayout();
   _plot->replot();
