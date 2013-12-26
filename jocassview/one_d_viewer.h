@@ -18,12 +18,16 @@ namespace cass
 class Histogram1DFloat;
 }//end namespace cass
 
+class QAction;
 class QwtPlot;
 class QwtPlotCurve;
+class QwtPlotGrid;
+class QwtLegend;
 
 namespace jocassview
 {
 class MinMaxControl;
+class OneDViewerData;
 
 /** a viewer that displays 1d data
  *
@@ -64,6 +68,21 @@ private:
 
   /** this plots curves */
   QList<QwtPlotCurve*> _curves;
+
+  /** this plots curves */
+  QList<OneDViewerData*> _curvesData;
+
+  /** an action to control the grid in the plot */
+  QAction * _gridControl;
+
+  /** a grid in the plot */
+  QwtPlotGrid *_grid;
+
+  /** an action to control the legend of curves */
+  QAction * _legendControl;
+
+  /** a legend for the different curves */
+  QwtLegend *_legend;
 };
 }//end namespace jocassview
 

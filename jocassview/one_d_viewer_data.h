@@ -65,6 +65,13 @@ public:
    */
   virtual QwtDoubleRect boundingRect() const;
 
+  /** set the data
+   *
+   * @param data vector containing the data
+   * @param xRange the x Range
+   */
+  void setData(const std::vector<float> &data, const QwtDoubleInterval &xRange);
+
 public:
   /** vector that contains the linearized array */
   std::vector<float> _data;

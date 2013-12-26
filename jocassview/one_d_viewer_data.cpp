@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QDebug>
+
 #include "one_d_viewer_data.h"
 
 using namespace jocassview;
@@ -54,4 +56,23 @@ QwtDoubleRect OneDViewerData::boundingRect() const
   return QwtDoubleRect(_xRange.minValue(),_yRange.minValue(),
                        _xRange.maxValue() - _xRange.minValue(),
                        _yRange.minValue() - _yRange.minValue());
+}
+
+void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInterval &xRange)
+{
+  _data = data;
+  _xRange = xRange;
+  double ymin( 1e30);
+  double ymax(-1e30);
+  for (std::vector<float>::const_iterator it(_data.begin()); it != _data.end(); ++it)
+  {
+    if (std::isnan(*it) || std::isinf(*it))
+      continue;
+    if (*it < ymin)
+      ymin = *it;
+    if (ymax < *it)
+      ymax = *it;
+    qDebug()<< *it<<" "<<ymin<<" "<<ymax<<" "<<(*it<ymin)<<" "<<(ymax<*it);
+  }
+  _yRange = QwtDoubleInterval(ymin,ymax);
 }

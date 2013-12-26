@@ -7,6 +7,7 @@
  */
 
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
@@ -15,11 +16,14 @@
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_legend.h>
 
 #include "one_d_viewer.h"
 
 #include "histogram.h"
 #include "minmax_control.h"
+#include "one_d_viewer_data.h"
 
 using namespace jocassview;
 
@@ -33,19 +37,40 @@ OneDViewer::OneDViewer(QWidget *parent)
 
   // Add the plot where the 1d data will be displayed in to layout
   _plot = new QwtPlot(this);
+  // add data and a curve that should be displayed
+  _curvesData.push_front(new OneDViewerData);
   _curves.push_front(new QwtPlotCurve);
+  _curves[0]->setTitle("current data");
   _curves[0]->attach(_plot);
+  // add a grid to show on the plot
+  _grid = new QwtPlotGrid;
+  _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
+  _grid->attach(_plot);
+  // add a legend to the plot
+  _legend = new QwtLegend;
+  _legend->setItemMode(QwtLegend::CheckableItem);
+  _plot->insertLegend(_legend,QwtPlot::RightLegend);
+//  connect(_plot,SIGNAL(legendChecked(QwtPlotItem*,bool)),this,SLOT(on_legend_checked(QwtPlotItem)));
+  // add the plot to the widget
   layout->addWidget(_plot);
 
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
 
   // Add grid control to toolbar
-  QAction * _gridControl = new QAction(QIcon(":images/grid.png"),
-                                       tr("toggle Grid"),toolbar);
+  _gridControl = new QAction(QIcon(":images/grid.png"),
+                             tr("toggle Grid"),toolbar);
   _gridControl->setCheckable(true);
   _gridControl->setChecked(settings.value("GridEnabled",true).toBool());
+  connect(_gridControl,SIGNAL(triggered()),this,SLOT(replot()));
   toolbar->addAction(_gridControl);
+
+  // Add legend control to toolbar
+  _legendControl = new QAction(QIcon(":images/legend.png"),tr("toggle Legend"),toolbar);
+  _legendControl->setCheckable(true);
+  _legendControl->setChecked(settings.value("LegendShown",true).toBool());
+  connect(_legendControl,SIGNAL(triggered()),this,SLOT(replot()));
+  toolbar->addAction(_legendControl);
 
   // Add separator to toolbar
   toolbar->addSeparator();
@@ -85,10 +110,24 @@ void OneDViewer::setData(cass::Histogram1DFloat *histogram)
   }
   _curves[0]->setData(xx,yy);
 
+//  qDebug()<<_curves[0]->boundingRect();
+//
+//  _curvesData[0]->setData(histogram->memory(),
+//                          QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
+//  _curves[0]->setData(*_curvesData[0]);
+
   replot();
 }
 
 void OneDViewer::replot()
 {
+  _grid->enableX(_gridControl->isChecked());
+  _grid->enableY(_gridControl->isChecked());
+
+  if(_legendControl->isChecked())
+    _legend->show();
+  else
+    _legend->hide();
+
   _plot->replot();
 }
