@@ -97,6 +97,7 @@ void MinMaxControl::on_changed()
 
   // save the states
   QSettings settings;
+  settings.beginGroup(windowTitle());
   settings.setValue("LogScale",log());
   settings.setValue("AutoScale",autoscale());
   settings.setValue("MinValue",min());

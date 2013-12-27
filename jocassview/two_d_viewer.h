@@ -43,6 +43,9 @@ public:
    */
   TwoDViewer(QString title, QWidget *parent=0);
 
+  /** destructor */
+  virtual ~TwoDViewer();
+
   /** set the data to display
    *
    * @param histogram The histogram that contains the data to display

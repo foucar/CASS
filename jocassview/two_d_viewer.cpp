@@ -158,6 +158,12 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
 
   layout->addWidget(toolbar);
   setLayout(layout);
+  show();
+}
+
+TwoDViewer::~TwoDViewer()
+{
+
 }
 
 void TwoDViewer::setData(cass::HistogramBackend *hist)

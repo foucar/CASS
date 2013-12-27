@@ -33,6 +33,9 @@ public:
    */
   ZeroDViewer(QString title, QWidget *parent=0);
 
+  /** destructor */
+  virtual ~ZeroDViewer();
+
   /** set the data to display
    *
    * @param histogram The histogram that contains the data to display

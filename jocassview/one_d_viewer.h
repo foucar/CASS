@@ -13,6 +13,10 @@
 
 #include "data_viewer.h"
 
+namespace cass
+{
+class Histogram1DFloat;
+}//end namespace cass
 class QAction;
 class QwtPlot;
 class QwtPlotCurve;
@@ -41,6 +45,9 @@ public:
    * @param parent The parent of this
    */
   OneDViewer(QString title, QWidget *parent=0);
+
+  /** destructor */
+  virtual ~OneDViewer();
 
   /** set the data to display
    *

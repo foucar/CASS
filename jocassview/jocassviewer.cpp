@@ -149,7 +149,10 @@ void JoCASSViewer::loadH5KeyFromFile(QString key)
     case (0):
     {
       float value(h5handle.readScalar<float>(key.toStdString()));
-      _mw->displayItem(value);
+      cass::Histogram0DFloat * hist(new cass::Histogram0DFloat());
+      hist->fill(value);
+      hist->key() = key.toStdString();
+      _mw->displayItem(hist);
       break;
     }
     case (1):
@@ -171,7 +174,10 @@ void JoCASSViewer::loadH5KeyFromFile(QString key)
       }
       else
       {
-        _mw->displayItem(array[0]);
+        cass::Histogram0DFloat * hist(new cass::Histogram0DFloat());
+        hist->fill(array[0]);
+        hist->key() = key.toStdString();
+        _mw->displayItem(hist);
       }
       break;
     }

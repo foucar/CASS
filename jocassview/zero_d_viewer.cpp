@@ -29,6 +29,11 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   setLayout(layout);
 }
 
+ZeroDViewer::~ZeroDViewer()
+{
+
+}
+
 void ZeroDViewer::setData(cass::HistogramBackend *histogram)
 {
   _value->setText( QString::number(dynamic_cast<cass::Histogram0DFloat*>(histogram)->getValue()));

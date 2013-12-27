@@ -116,10 +116,17 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   setLayout(layout);
 
   replot();
+  show();
 }
 
-void OneDViewer::setData(cass::Histogram1DFloat *histogram)
+OneDViewer::~OneDViewer()
 {
+
+}
+
+void OneDViewer::setData(cass::HistogramBackend *hist)
+{
+  cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
   QwtArray<double> xx(histogram->size());
   QwtArray<double> yy(histogram->size());
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
@@ -214,6 +221,7 @@ void OneDViewer::replot()
 
   // save the states of the controls
   QSettings settings;
+  settings.beginGroup(windowTitle());
   settings.setValue("CurveColor",_curves[0]->pen().color());
   settings.setValue("CurveWidth",_curves[0]->pen().width());
   settings.setValue("GridEnabled",_gridControl->isChecked());

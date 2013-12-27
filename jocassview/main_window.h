@@ -9,12 +9,13 @@
 #ifndef _MAIN_WINDOW_H_
 #define _MAIN_WINDOW_H_
 
-#include<QtGui/QMainWindow>
+#include <QtCore/QMap>
+#include <QtCore/QString>
+
+#include <QtGui/QMainWindow>
 
 class QComboBox;
-class QString;
 class QStringList;
-class QStackedWidget;
 
 namespace cass
 {
@@ -26,9 +27,7 @@ class Histogram2DFloat;
 namespace jocassview
 {
 class StatusLED;
-class ZeroDViewer;
-class OneDViewer;
-class TwoDViewer;
+class DataViewer;
 
 /** the main window of jocassview
  *
@@ -123,12 +122,6 @@ public slots:
    */
   void setDisplayedItem(QString item);
 
-  /** display a 0d value
-   *
-   * @param value the value that should be displayed
-   */
-  void displayItem(float value);
-
   /** display a 0d Item
    *
    * @param histogram the 0d histogram that should be displayed
@@ -164,17 +157,8 @@ private:
   /** the status LED */
   StatusLED * _statusLED;
 
-  /** stacked widget to hold the viewers */
-  QStackedWidget * _stackedWidget;
-
-  /** the widget that contains the 0D View */
-  ZeroDViewer * _0DView;
-
-  /** the widget that contains the 0D View */
-  OneDViewer * _1DView;
-
-  /** the widget that contains the 0D View */
-  TwoDViewer * _2DView;
+  /** the container for all opened viewers */
+  QMap<QString,DataViewer*> _viewers;
 };
 
 }//end namspace jocassview
