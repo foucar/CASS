@@ -7,6 +7,7 @@
  */
 
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
@@ -30,6 +31,10 @@ using namespace jocassview;
 TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   : DataViewer(title,parent)
 {
+  // settings to read from the ini file
+  QSettings settings;
+  settings.beginGroup(windowTitle());
+
   // generate the list of color maps
   _maps[-1] = QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255));
   _maps[-1].addColorStop(0.10, QColor(0,0,0));
@@ -124,10 +129,11 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // create spectrogram data
   _data = new TwoDViewerData;
   // create the spectrom that is displayed in the plot
+  int colorid(settings.value("ColorTableID",-1).toInt());
   _spectrogram = new QwtPlotSpectrogram();
   _spectrogram->setData(*_data);
   _spectrogram->attach(_plot);
-  _spectrogram->setColorMap(_maps[-1]);
+  _spectrogram->setColorMap(_maps[colorid]);
   // create a zoomer for the 2d data
   _zoomer = new TrackZoomer2D(_plot->canvas());
   _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
@@ -140,17 +146,15 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
   // add the min/max control to the toolbar
-  _zControl = new MinMaxControl(tr("z-scale"));
+  _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"));
   connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_zControl);
   // Add separator
   toolbar->addSeparator();
   // Add the colorbar control
-//  QLabel * cLabel(new QLabel(tr("Colorbar ID")));
-//  toolbar->addWidget(cLabel);
   _colorId = new QSpinBox();
-  _colorId->setRange(-1,11);
-  _colorId->setValue(-1);
+  _colorId->setRange(_maps.constBegin().key(),(_maps.constEnd()-1).key());
+  _colorId->setValue(colorid);
   _colorId->setWrapping(true);
   _colorId->setToolTip(tr("Select the used Colorbar"));
   connect(_colorId,SIGNAL(valueChanged(int)),this,SLOT(replot()));
@@ -216,4 +220,8 @@ void TwoDViewer::replot()
   _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data().range(),_maps[colorid]);
   _plot->setAxisScale(QwtPlot::yRight,min,max);
   _plot->replot();
+
+  QSettings settings;
+  settings.beginGroup(windowTitle());
+  settings.setValue("ColorTableID",colorid);
 }
