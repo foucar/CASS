@@ -59,6 +59,7 @@ HEADERS       += \
                  main_window.h \
                  led.h \
                  status_led.h \
+                 data_viewer.h \
                  zero_d_viewer.h \
                  one_d_viewer.h \
                  one_d_viewer_data.h \
