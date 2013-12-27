@@ -44,7 +44,7 @@ public:
    *
    * virtual to make this a base class
    */
-  virtual ~DataViewer();
+  virtual ~DataViewer() {}
 
   /** set the data to be displayed by this viewer
    *
