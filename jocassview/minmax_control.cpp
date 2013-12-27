@@ -22,8 +22,12 @@ using namespace jocassview;
 MinMaxControl::MinMaxControl(QString title, QWidget *parent)
   : QWidget(parent)
 {
+  // set the title of this widget
+  setWindowTitle(title);
+
   // the object to load the settings from
   QSettings settings;
+  settings.beginGroup(windowTitle());
 
   // generate a vertical layout that will hold the controls
   QHBoxLayout *layout(new QHBoxLayout);
@@ -32,7 +36,7 @@ MinMaxControl::MinMaxControl(QString title, QWidget *parent)
   _log = new QToolButton(this);
   _log->setIcon(QIcon(":images/log.png"));
   _log->setCheckable(true);
-  _log->setChecked(settings.value("Log",false).toBool());
+  _log->setChecked(settings.value("LogScale",false).toBool());
   _log->setToolTip(title + tr(": Plot the axis in logrithmic scale"));
   connect(_log,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
   layout->addWidget(_log);
@@ -91,6 +95,14 @@ void MinMaxControl::on_changed()
     _maxinput->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
   }
 
+  // save the states
+  QSettings settings;
+  settings.setValue("LogScale",log());
+  settings.setValue("AutoScale",autoscale());
+  settings.setValue("MinValue",min());
+  settings.setValue("MaxValue",max());
+
+  // tell others that something has changed
   emit controls_changed();
 }
 
