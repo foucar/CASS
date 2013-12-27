@@ -24,28 +24,29 @@ namespace hdf5
  * Default @throw logic_error reporting that the type is not supported by the
  * H5 handling.
  */
-template <typename T> hid_t H5Type()
+template <typename T> inline hid_t H5Type()
 {
   throw std::logic_error(std::string("H5Type does not exist for '") +
                     typeid(T).name() + "'");
 }
 
 /** trait implementation for float */
-template <> hid_t H5Type<float>() {return H5T_NATIVE_FLOAT;}
+template <> inline hid_t H5Type<float>() {return H5T_NATIVE_FLOAT;}
 
 /** trait implementation for float */
-template <> hid_t H5Type<double>() {return H5T_NATIVE_DOUBLE;}
+template <> inline hid_t H5Type<double>() {return H5T_NATIVE_DOUBLE;}
 
 /** trait implementation for float */
-template <> hid_t H5Type<int>() {return H5T_NATIVE_INT;}
+template <> inline hid_t H5Type<int>() {return H5T_NATIVE_INT;}
 
 /** trait implementation for float */
-template <> hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
+template <> inline hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
 
 /** function for the iterator of the h5 file
  *
  * @param
  */
+inline
 herr_t iterator_func(hid_t, const char * name, const H5O_info_t *info, void *dlist)
 {
   using namespace std;
@@ -522,7 +523,6 @@ public:
   }
 
 private:
-
   /** check filesize and open new file if too big
    *
    * check if the current size of the h5 file is bigger than the
