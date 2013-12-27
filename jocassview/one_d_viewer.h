@@ -46,10 +46,6 @@ public:
    */
   OneDViewer(QWidget *parent=0);
 
-signals:
-  /** emit when add graph has been clicked */
-  void add_graph_triggered();
-
 public slots:
   /** set the data to display
    *
@@ -74,6 +70,49 @@ private slots:
    * @param pos the position where the context menu should be opened
    */
   void on_legend_right_clicked(QPoint pos);
+
+  /** react when an legend item has been clicked
+   *
+   * toggle hide / show the curve
+   *
+   * @param item the plot item assiciated with the legend entry
+   */
+  void on_legend_clicked(QwtPlotItem *item);
+
+  /** change the curves color
+   *
+   * if no parameter is given try to retrieve the curve from the sender
+   * signal that is connected to this slot. We're assuming this is an QAction
+   * whos parent is the curve.
+   *
+   * @param curve the curve to change is the senders parent widget
+   */
+  void change_curve_color(QwtPlotCurve *curve=0);
+
+  /** change the curves line width
+   *
+   * if no parameter is given try to retrieve the curve from the sender
+   * signal that is connected to this slot. We're assuming this is an QAction
+   * whos parent is the curve.
+   *
+   * @param curve the curve to change is the senders parent widget
+   */
+  void change_curve_width(QwtPlotCurve *curve=0);
+
+  /** remove the curve from the plot
+   *
+   * if no parameter is given try to retrieve the curve from the sender
+   * signal that is connected to this slot. We're assuming this is an QAction
+   * whos parent is the curve.
+   *
+   * @param curve the curve to remove from the plot
+   */
+  void remove_curve(QwtPlotCurve *curve=0);
+
+  /** react when addGraph action has been triggered
+   *
+   */
+  void on_add_graph_triggered();
 
 private:
   /** The plot area */

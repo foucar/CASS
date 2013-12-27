@@ -16,6 +16,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QColorDialog>
 #include <QtGui/QInputDialog>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -28,6 +30,7 @@
 #include "histogram.h"
 #include "minmax_control.h"
 #include "one_d_viewer_data.h"
+#include "file_handler.h"
 
 using namespace jocassview;
 
@@ -56,11 +59,12 @@ OneDViewer::OneDViewer(QWidget *parent)
   _grid->attach(_plot);
   // add a legend to the plot
   _legend = new QwtLegend;
-//  _legend->setItemMode(QwtLegend::CheckableItem);
+  _legend->setItemMode(QwtLegend::ClickableItem);
   _plot->insertLegend(_legend,QwtPlot::RightLegend);
   QWidget *curveLegendWidget(_legend->find(_curves[0]));
   curveLegendWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(curveLegendWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
+  connect(_plot,SIGNAL(legendClicked(QwtPlotItem*)),this,SLOT(on_legend_clicked(QwtPlotItem*)));
   // add the plot to the widget
   layout->addWidget(_plot);
 
@@ -68,7 +72,9 @@ OneDViewer::OneDViewer(QWidget *parent)
   QToolBar * toolbar(new QToolBar(this));
 
   // Add a button that allows to add a reference curve
-  toolbar->addAction(QIcon(":images/graph_add.png"),tr("Add a reference Graph to the Plot"),this,SIGNAL(add_graph_triggered()));
+  toolbar->addAction(QIcon(":images/graph_add.png"),
+                     tr("Add a reference Graph to the Plot"),
+                     this,SLOT(on_add_graph_triggered()));
 
   // Add grid control to toolbar
   _gridControl = new QAction(QIcon(":images/grid.png"),
@@ -137,6 +143,12 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   _curves.push_back(new QwtPlotCurve);
   QwtPlotCurve * curve(_curves.back());
 
+  QPen pen;
+  pen.setWidth(1);
+  pen.setColor(QColor::fromHsv(qrand() % 256, 255, 190));
+  curve->setPen(pen);
+  curve->setTitle(QString::fromStdString(histogram->key()));
+
   QwtArray<double> xx(histogram->size());
   QwtArray<double> yy(histogram->size());
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
@@ -147,6 +159,10 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
     yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
   }
   curve->setData(xx,yy);
+  curve->attach(_plot);
+  QWidget *curveWidget(_legend->find(curve));
+  curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
 
 //  qDebug()<<_curves[0]->boundingRect();
 //
@@ -191,8 +207,6 @@ void OneDViewer::replot()
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)
 {
-  qDebug()<<"ContextMenuRequested";
-
   if (!sender()->isWidgetType())
     return;
 
@@ -200,46 +214,97 @@ void OneDViewer::on_legend_right_clicked(QPoint pos)
   QwtPlotCurve *curve(dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget)));
   QPoint globalPos(curveWidget->mapToGlobal(pos));
 
-  QMenu myMenu;
-  myMenu.addAction(tr("Color"));
-  myMenu.addAction(tr("Width"));
-  myMenu.addSeparator();
-  if(curve->isVisible())
-    myMenu.addAction(tr("Hide"));
-  else
-    myMenu.addAction(tr("Show"));
+  QMenu menu;
+  QAction *act;
+  act = menu.addAction(tr("Color"),this,SLOT(change_curve_color()));
+  act->setParent(curveWidget);
+  act = menu.addAction(tr("Line Width"),this,SLOT(change_curve_width()));
+  act->setParent(curveWidget);
   if(curve->title() != QwtText("current data"))
-    myMenu.addAction(tr("Delete"));
+  {
+    act = menu.addSeparator();
+    act = menu.addAction(tr("Delete"),this,SLOT(remove_curve()));
+    act->setParent(curveWidget);
+  }
+  menu.exec(globalPos);
+}
+
+void OneDViewer::on_legend_clicked(QwtPlotItem *item)
+{
+  if(item->isVisible())
+    item->hide();
+  else
+    item->show();
+  replot();
+}
+
+void OneDViewer::change_curve_color(QwtPlotCurve *curve)
+{
+  if (!curve)
+  {
+    if (!sender()->parent()->isWidgetType())
+      return;
+    QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
+    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
+  }
 
   QPen pen(curve->pen());
-  QAction* selectedItem = myMenu.exec(globalPos);
-  if (selectedItem && !selectedItem->isSeparator())
-  {
-    if (selectedItem->text() == tr("Hide"))
-      curve->hide();
-    else if (selectedItem->text() == tr("Show"))
-      curve->show();
-    else if (selectedItem->text() == tr("Delete"))
-    {
-      _curves.removeAll(curve);
-      curve->detach();
-      _legend->update();
-    }
-    else if(selectedItem->text() == tr("Color"))
-    {
-      QColor col(QColorDialog::getColor(pen.color(),this,tr("Select Color")));
-      if (col.isValid())
-        pen.setColor(col);
-    }
-    else if (selectedItem->text() == tr("Width"))
-    {
-      bool ok(false);
-      int width(QInputDialog::getInt(this,tr("Set Line Width"),tr("Line width"),pen.width(),0,20,1,&ok));
-      if (ok)
-        pen.setWidth(width);
-    }
 
-    curve->setPen(pen);
-    replot();
+  QColor col(QColorDialog::getColor(pen.color(),this,tr("Select Color")));
+  if (col.isValid())
+    pen.setColor(col);
+
+  curve->setPen(pen);
+  replot();
+}
+
+void OneDViewer::change_curve_width(QwtPlotCurve *curve)
+{
+  if (!curve)
+  {
+    if (!sender()->parent()->isWidgetType())
+      return;
+    QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
+    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
   }
+
+  QPen pen(curve->pen());
+
+  bool ok(false);
+  int width(QInputDialog::getInt(this,tr("Set Line Width"),tr("Line width"),pen.width(),0,20,1,&ok));
+  if (ok)
+    pen.setWidth(width);
+
+  curve->setPen(pen);
+  replot();
+}
+
+void OneDViewer::remove_curve(QwtPlotCurve *curve)
+{
+  if (!curve)
+  {
+    if (!sender()->parent()->isWidgetType())
+      return;
+    QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
+    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
+  }
+
+  _curves.removeAll(curve);
+  curve->detach();
+  _legend->update();
+
+  replot();
+}
+
+void OneDViewer::on_add_graph_triggered()
+{
+  QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Reference Data File"), QDir::currentPath(), filter);
+  if(fileName.isEmpty())
+    return;
+  cass::HistogramBackend *data(FileHandler::getData(fileName));
+  if (data->dimension() == 1)
+    addData(dynamic_cast<cass::Histogram1DFloat*>(data));
+  else
+    QMessageBox::critical(this,tr("Error"),tr("The requested data is not 1d data"));
 }
