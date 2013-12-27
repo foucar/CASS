@@ -42,9 +42,10 @@ class OneDViewer : public QWidget
 public:
   /** constructor
    *
+   * @param title The title of this view
    * @param parent The parent of this
    */
-  OneDViewer(QWidget *parent=0);
+  OneDViewer(QString title, QWidget *parent=0);
 
 public slots:
   /** set the data to display

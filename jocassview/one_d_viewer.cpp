@@ -34,10 +34,15 @@
 
 using namespace jocassview;
 
-OneDViewer::OneDViewer(QWidget *parent)
+OneDViewer::OneDViewer(QString title, QWidget *parent)
   : QWidget(parent)
 {
+  // add the title of this window
+  setWindowTitle(title);
+
+  // add settings object to retrieve the settings for this view
   QSettings settings;
+  settings.beginGroup(windowTitle());
 
   //create an vertical layout to put the plot and the toolbar in
   QVBoxLayout *layout(new QVBoxLayout);
@@ -95,7 +100,7 @@ OneDViewer::OneDViewer(QWidget *parent)
   toolbar->addSeparator();
 
   // Add x-axis control to the toolbar
-  _xControl = new MinMaxControl(tr("x-scale"));
+  _xControl = new MinMaxControl(QString(windowTitle() + "/x-scale"));
   connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_xControl);
 
@@ -103,7 +108,7 @@ OneDViewer::OneDViewer(QWidget *parent)
   toolbar->addSeparator();
 
   // Add y-axis control to the toolbar
-  _yControl = new MinMaxControl(tr("y-scale"));
+  _yControl = new MinMaxControl(QString(windowTitle() + "/y-scale"));
   connect(_yControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_yControl);
 
@@ -201,8 +206,16 @@ void OneDViewer::replot()
   else
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
+  // update the layout and replot the plot
   _plot->updateLayout();
   _plot->replot();
+
+  // save the states of the controls
+  QSettings settings;
+  settings.setValue("CurveColor",_curves[0]->pen().color());
+  settings.setValue("CurveWidth",_curves[0]->pen().width());
+  settings.setValue("GridEnabled",_gridControl->isChecked());
+  settings.setValue("LegendShown",_legendControl->isChecked());
 }
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)
