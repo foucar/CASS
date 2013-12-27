@@ -27,6 +27,7 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   _value->setFont(font);
   layout->addWidget(_value);
   setLayout(layout);
+  show();
 }
 
 ZeroDViewer::~ZeroDViewer()
