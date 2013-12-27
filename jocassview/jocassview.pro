@@ -47,6 +47,7 @@ SOURCES       += \
                  track_zoomer_2d.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
+                 file_handler.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
@@ -67,6 +68,7 @@ HEADERS       += \
                  track_zoomer_2d.h \
                  qwt_scroll_zoomer.h \
                  qwt_scroll_bar.h \
+                 file_handler.h \
 #                 soapH.h \
 #                 soapCASSsoapProxy.h \
 #                 soapStub.h \
