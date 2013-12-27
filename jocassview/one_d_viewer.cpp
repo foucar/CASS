@@ -35,11 +35,8 @@
 using namespace jocassview;
 
 OneDViewer::OneDViewer(QString title, QWidget *parent)
-  : QWidget(parent)
+  : DataViewer(title,parent)
 {
-  // add the title of this window
-  setWindowTitle(title);
-
   // add settings object to retrieve the settings for this view
   QSettings settings;
   settings.beginGroup(windowTitle());
@@ -141,6 +138,11 @@ void OneDViewer::setData(cass::Histogram1DFloat *histogram)
 //  _curves[0]->setData(*_curvesData[0]);
 
   replot();
+}
+
+cass::HistogramBackend* OneDViewer::data()
+{
+  return 0;
 }
 
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)

@@ -11,12 +11,7 @@
 
 #include <QtCore/QList>
 
-#include <QtGui/QWidget>
-
-namespace cass
-{
-class Histogram1DFloat;
-}//end namespace cass
+#include "data_viewer.h"
 
 class QAction;
 class QwtPlot;
@@ -35,7 +30,7 @@ class OneDViewerData;
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class OneDViewer : public QWidget
+class OneDViewer : public DataViewer
 {
   Q_OBJECT
 
@@ -47,20 +42,25 @@ public:
    */
   OneDViewer(QString title, QWidget *parent=0);
 
-public slots:
   /** set the data to display
    *
-   * @param histogram The histogram that contains the data to display
+   * @param data The histogram that contains the data to display
    */
-  void setData(cass::Histogram1DFloat *histogram);
+  void setData(cass::HistogramBackend *data);
 
+  /** retrieve the displayed data
+   *
+   * @return pointer to the viewed data
+   */
+  cass::HistogramBackend *data();
+
+private slots:
   /** add a curve with data to the plot
    *
    * @param histogram the additional curve to be plotted
    */
   void addData(cass::Histogram1DFloat *histogram);
 
-private slots:
   /** redraw the plot */
   void replot();
 

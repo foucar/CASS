@@ -16,8 +16,8 @@
 
 using namespace jocassview;
 
-ZeroDViewer::ZeroDViewer(QWidget *parent)
-  : QWidget(parent)
+ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
+  : DataViewer(title,parent)
 {
   QVBoxLayout *layout(new QVBoxLayout);
   _value = new QLabel(tr("Number"));
@@ -29,9 +29,14 @@ ZeroDViewer::ZeroDViewer(QWidget *parent)
   setLayout(layout);
 }
 
-void ZeroDViewer::setData(cass::Histogram0DFloat *histogram)
+void ZeroDViewer::setData(cass::HistogramBackend *histogram)
 {
-  _value->setText( QString::number(histogram->getValue()));
+  _value->setText( QString::number(dynamic_cast<cass::Histogram0DFloat*>(histogram)->getValue()));
+}
+
+cass::HistogramBackend* ZeroDViewer::data()
+{
+  return 0;
 }
 
 void ZeroDViewer::setData(float value)

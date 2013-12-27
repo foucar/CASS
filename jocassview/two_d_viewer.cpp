@@ -27,8 +27,8 @@
 
 using namespace jocassview;
 
-TwoDViewer::TwoDViewer(QWidget *parent)
-  : QWidget(parent)
+TwoDViewer::TwoDViewer(QString title, QWidget *parent)
+  : DataViewer(title,parent)
 {
   // generate the list of color maps
   _maps[-1] = QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255));
@@ -160,8 +160,9 @@ TwoDViewer::TwoDViewer(QWidget *parent)
   setLayout(layout);
 }
 
-void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
+void TwoDViewer::setData(cass::HistogramBackend *hist)
 {
+  cass::Histogram2DFloat *histogram(dynamic_cast<cass::Histogram2DFloat*>(hist));
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
   const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
   _data->setData(histogram->memory(),std::make_pair(xaxis.nbrBins(),yaxis.nbrBins()),
@@ -190,6 +191,11 @@ void TwoDViewer::setData(cass::Histogram2DFloat *histogram)
     _zoomer->setZoomBase(true);
   }
   replot();
+}
+
+cass::HistogramBackend* TwoDViewer::data()
+{
+  return 0;
 }
 
 void TwoDViewer::replot()

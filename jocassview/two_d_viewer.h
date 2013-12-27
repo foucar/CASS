@@ -11,14 +11,9 @@
 
 #include <QtCore/QMap>
 
-#include <QtGui/QWidget>
+#include "data_viewer.h"
 
 #include <qwt_color_map.h>
-
-namespace cass
-{
-class Histogram2DFloat;
-}//end namespace cass
 
 class QwtPlot;
 class QwtLinearColorMap;
@@ -36,23 +31,29 @@ class TrackZoomer2D;
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class TwoDViewer : public QWidget
+class TwoDViewer : public DataViewer
 {
   Q_OBJECT
 
 public:
   /** constructor
    *
+   * @param title the title of this viewer
    * @param parent The parent of this
    */
-  TwoDViewer(QWidget *parent=0);
+  TwoDViewer(QString title, QWidget *parent=0);
 
-public slots:
   /** set the data to display
    *
    * @param histogram The histogram that contains the data to display
    */
-  void setData(cass::Histogram2DFloat *histogram);
+  void setData(cass::HistogramBackend *histogram);
+
+  /** set the data to display
+   *
+   * @param histogram The histogram that contains the data to display
+   */
+  cass::HistogramBackend *data();
 
 private slots:
   /** replot the data */

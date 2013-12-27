@@ -9,12 +9,7 @@
 #ifndef _ZERODVIEWER_
 #define _ZERODVIEWER_
 
-#include <QtGui/QWidget>
-
-namespace cass
-{
-class Histogram0DFloat;
-}//end namespace cass
+#include "data_viewer.h"
 
 class QLabel;
 
@@ -26,23 +21,29 @@ namespace jocassview
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class ZeroDViewer : public QWidget
+class ZeroDViewer : public DataViewer
 {
   Q_OBJECT
 
 public:
   /** constructor
    *
+   * @param title the title of this viewer
    * @param parent The parent of this
    */
-  ZeroDViewer(QWidget *parent=0);
+  ZeroDViewer(QString title, QWidget *parent=0);
 
-public slots:
   /** set the data to display
    *
    * @param histogram The histogram that contains the data to display
    */
-  void setData(cass::Histogram0DFloat *histogram);
+  void setData(cass::HistogramBackend *histogram);
+
+  /** retrieve the displayed data
+   *
+   * @return The histogram that contains the displayed data
+   */
+  cass::HistogramBackend* data();
 
   /** set the data to display
    *
