@@ -9,25 +9,19 @@
 #ifndef _MAIN_WINDOW_H_
 #define _MAIN_WINDOW_H_
 
-#include <QtCore/QMap>
-#include <QtCore/QString>
 
 #include <QtGui/QMainWindow>
 
 class QComboBox;
+class QString;
 class QStringList;
-
-namespace cass
-{
-class Histogram0DFloat;
-class Histogram1DFloat;
-class Histogram2DFloat;
-}//end namespace cass
+class QListWidgetItem;
+class QLineEdit;
+class QSpinBox;
 
 namespace jocassview
 {
 class StatusLED;
-class DataViewer;
 
 /** the main window of jocassview
  *
@@ -39,8 +33,7 @@ Q_OBJECT
 public:
   /** constructor
    *
-   * set up the main window from the ui file and then adds the general input
-   * things to the toolbar and the current rate lable to the statusbar.
+   * set up the main window
    *
    * @param parent the parent window
    * @param flags the flags
@@ -49,7 +42,6 @@ public:
 
   /** destructor */
   ~MainWindow();
-
 
 signals:
   /** signal that "get data" was triggered */
@@ -89,13 +81,14 @@ signals:
   void print_triggered();
 
   /** signal that "get data" was triggered */
-  void servername_changed(QString);
+  void server_changed(QString);
 
-  /** signal that "get data" was triggered */
-  void serverport_changed(int);
-
-  /** signal that "get data" was triggered */
-  void item_to_display_changed(QString);
+  /** signal that an item in the list has been checked
+   *
+   * @param itemName the name of the item that has been checked
+   * @param state the state of the item
+   */
+  void item_checked(QString itemName,bool state);
 
   /** signal that "get data" was triggered */
   void runstatus_changed(int);
@@ -110,35 +103,18 @@ public slots:
    */
   void change_status(int status);
 
-  /** set the items in the combobox
+  /** set the items in the list
    *
-   * @return pointer to the combobox
+   * @param itemNames list with the names of the displayable items
    */
   void setDisplayableItems(QStringList itemNames);
 
-  /** set the items in the combobox
+  /** check an item in the list
    *
-   * @return pointer to the combobox
+   * @param itemName the name of the item
+   * @param state the state of the item
    */
-  void setDisplayedItem(QString item);
-
-  /** display a 0d Item
-   *
-   * @param histogram the 0d histogram that should be displayed
-   */
-  void displayItem(cass::Histogram0DFloat * histogram);
-
-  /** display a 1d Item
-   *
-   * @param histogram the 1d histogram that should be displayed
-   */
-  void displayItem(cass::Histogram1DFloat * histogram);
-
-  /** display a 2d Item
-   *
-   * @param histogram the 2d histogram that should be displayed
-   */
-  void displayItem(cass::Histogram2DFloat * histogram);
+  void setDisplayedItem(QString itemName, bool state);
 
 private slots:
   /** display about this box */
@@ -150,15 +126,31 @@ private slots:
   /** open file dialog and emit filname */
   void on_save_as_triggered();
 
-private:
-  /** the combobox that contains the contents that can be displayed */
-  QComboBox *_attachId;
+  /** react on when an item in the list has been clicked
+   *
+   * check the state of the item and emit the name of the item together with its
+   * state.
+   *
+   * @param item The item that has been clicked
+   */
+  void on_listitem_clicked(QListWidgetItem *item);
 
+  /** react when the server string or port has changed
+   *
+   * assemble the server string and port to a server address and emit
+   * server_changed(); signal
+   */
+  void on_server_property_changed();
+
+private:
   /** the status LED */
   StatusLED * _statusLED;
 
-  /** the container for all opened viewers */
-  QMap<QString,DataViewer*> _viewers;
+  /** the servername input widget */
+  QLineEdit *_servername;
+
+  /** the server port input widget */
+  QSpinBox *_serverport;
 };
 
 }//end namspace jocassview

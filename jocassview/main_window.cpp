@@ -79,35 +79,38 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   QToolBar *toolBar(addToolBar(tr("Display control")));
 
   // Add servername and port to toolbar.
-  QLineEdit *servername(new QLineEdit(settings.value("Servername", "server?").toString()));
-  servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-  servername->setToolTip(tr("Name of the server to connect to."));
-  connect(servername,SIGNAL(textEdited(QString)),this,SIGNAL(servername_changed(QString)));
-  toolBar->addWidget(servername);
+  _servername = new QLineEdit(settings.value("Servername", "server?").toString());
+  _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+  _servername->setToolTip(tr("Name of the server to connect to."));
+  connect(_servername,SIGNAL(textEdited(QString)),this,SLOT(on_server_property_changed()));
+  toolBar->addWidget(_servername);
 
-  QSpinBox *serverport(new QSpinBox());
-  serverport->setKeyboardTracking(false);
-  serverport->setRange(1000, 50000);
-  serverport->setValue(settings.value("Serverport", 12321).toInt());
-  serverport->setToolTip(tr("Port of the server to connect to."));
-  connect(serverport,SIGNAL(valueChanged(int)),this,SIGNAL(serverport_changed(int)));
-  toolBar->addWidget(serverport);
+  _serverport = new QSpinBox();
+  _serverport->setKeyboardTracking(false);
+  _serverport->setRange(1000, 50000);
+  _serverport->setValue(settings.value("Serverport", 12321).toInt());
+  _serverport->setToolTip(tr("Port of the server to connect to."));
+  connect(_serverport,SIGNAL(valueChanged(int)),this,SLOT(on_server_property_changed()));
+  toolBar->addWidget(_serverport);
 
   // Add spacer to toolbar.
   QWidget *spacer1(new QWidget());
   spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   toolBar->addWidget(spacer1);
 
-  // Add Attachment identifier to toolbar.
-  _attachId = new QComboBox();
-  _attachId->setToolTip(tr("Attachment identifier."));
-  _attachId->setDuplicatesEnabled(false);
-  _attachId->setInsertPolicy(QComboBox::InsertAlphabetically);
-  _attachId->setEditable(false);
-  _attachId->installEventFilter(this);
-  _attachId->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-  connect(_attachId,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(item_to_display_changed(QString)));
-  toolBar->addWidget(_attachId);
+  // Add a separator
+  toolBar->addSeparator();
+
+//  // Add Attachment identifier to toolbar.
+//  _attachId = new QComboBox();
+//  _attachId->setToolTip(tr("Attachment identifier."));
+//  _attachId->setDuplicatesEnabled(false);
+//  _attachId->setInsertPolicy(QComboBox::InsertAlphabetically);
+//  _attachId->setEditable(false);
+//  _attachId->installEventFilter(this);
+//  _attachId->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+//  connect(_attachId,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(item_to_display_changed(QString)));
+//  toolBar->addWidget(_attachId);
 
   // Add spacer to toolbar.
   QWidget *spacer2(new QWidget());
@@ -143,8 +146,10 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
                           "images averaged over (n) times."));
 
   // Set a list item as central widget
-  QListWidget *lv(new QListWidget(this));
-  setCentralWidget(lv);
+  QListWidget *listview(new QListWidget(this));
+  listview->setSelectionMode(QAbstractItemView::MultiSelection);
+  connect(listview,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(on_listitem_clicked(QListWidgetItem*)));
+  setCentralWidget(listview);
 
   // Set the size of the window
   QSize winsize(settings.value("WindowSize",QSize(800,800)).toSize());
@@ -154,6 +159,26 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::change_status(int status)
+{
+  _statusLED->setStatus(status);
+}
+
+void MainWindow::setDisplayableItems(QStringList itemNames)
+{
+  QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
+  listwidget->clear();
+  listwidget->addItems(itemNames);
+}
+
+void MainWindow::setDisplayedItem(QString item,bool state)
+{
+  QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
+  QListWidgetItem *listwidgetitem(listwidget->findItems(item,Qt::MatchExactly).front());
+  listwidgetitem->setSelected(state);
+  on_listitem_clicked(listwidgetitem);
 }
 
 void MainWindow::on_about_triggered()
@@ -178,40 +203,20 @@ void MainWindow::on_save_as_triggered()
     emit save_file_triggered(fileName);
 }
 
-void MainWindow::change_status(int status)
+void MainWindow::on_listitem_clicked(QListWidgetItem *item)
 {
-  _statusLED->setStatus(status);
+  bool state(item->isSelected());
+  QString name(item->text());
+  emit item_checked(name,state);
 }
 
-void MainWindow::setDisplayedItem(QString item)
+void MainWindow::on_server_property_changed()
 {
-  int itemIdx = _attachId->findText(item);
- _attachId->setCurrentIndex(itemIdx);
-}
-
-void MainWindow::setDisplayableItems(QStringList itemNames)
-{
-  _attachId->clear();
-  _attachId->addItems(itemNames);
-}
-
-void MainWindow::displayItem(cass::Histogram0DFloat *histogram)
-{
-  QString key(QString::fromStdString(histogram->key()));
-  _viewers[key] = new ZeroDViewer(key);
-  _viewers[key]->setData(histogram);
-}
-
-void MainWindow::displayItem(cass::Histogram1DFloat *histogram)
-{
-  QString key(QString::fromStdString(histogram->key()));
-  _viewers[key] = new OneDViewer(key);
-  _viewers[key]->setData(histogram);
-}
-
-void MainWindow::displayItem(cass::Histogram2DFloat *histogram)
-{
-  QString key(QString::fromStdString(histogram->key()));
-  _viewers[key] = new TwoDViewer(key);
-  _viewers[key]->setData(histogram);
+  QString servername(_servername->text());
+  QString serverport(QString::number(_serverport->value()));
+  QSettings settings;
+  settings.setValue("Servername",servername);
+  settings.setValue("Serverport",serverport);
+  QString serveraddress(servername + ":" + serverport);
+  emit server_changed(serveraddress);
 }

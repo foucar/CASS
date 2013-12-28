@@ -10,12 +10,14 @@
 #define _JOCASSVIEW_
 
 #include <QtCore/QObject>
+#include <QtCore/QMap>
+#include <QtCore/QString>
 
-class QString;
 
 namespace jocassview
 {
 class MainWindow;
+class DataViewer;
 
 /** the jocassview class
  *
@@ -48,19 +50,13 @@ public slots:
   void loadData(QString filename, QString key="");
 
 private slots:
-  /** load a specific key from the given h5 file
+  /** react on when an item in the list has been checked
    *
-   * @param key the key to load from the file
+   * @param key the name of the checked item
+   * @param state the state of the checked item
    */
-  void loadH5KeyFromFile(QString key);
+  void on_displayitem_checked(QString key,bool state);
 
-  /** sets the current retrieve item
-   *
-   * @param key the key to load from the file
-   */
-  void setCurrentRetrieveItem(QString key);
-
-private:
   /** load data from image file
    *
    * @param filename the file to load the data from
@@ -86,12 +82,21 @@ private:
    */
   void loadDataFromH5(const QString& filename, const QString &key="");
 
+  /** load a specific key from the given h5 file
+   *
+   * @param key the key to load from the file
+   */
+  void loadH5KeyFromFile(QString key);
+
 private:
   /** the main window of the jocassviewer */
   MainWindow * _mw;
 
   /** the current data filename */
   QString _filename;
+
+  /** the container for all opened viewers */
+  QMap<QString,DataViewer*> _viewers;
 };
 }//end namspace jocassview
 
