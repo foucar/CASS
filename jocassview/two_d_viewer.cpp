@@ -162,6 +162,10 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
 
   layout->addWidget(toolbar);
   setLayout(layout);
+
+  resize(settings.value("WindowSize",size()).toSize());
+  move(settings.value("WindowPosition",pos()).toPoint());
+
   show();
 }
 

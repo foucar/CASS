@@ -116,6 +116,10 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   setLayout(layout);
 
   replot();
+
+  resize(settings.value("WindowSize",size()).toSize());
+  move(settings.value("WindowPosition",pos()).toPoint());
+
   show();
 }
 

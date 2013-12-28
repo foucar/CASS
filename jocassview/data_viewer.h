@@ -92,7 +92,7 @@ protected:
   {
     QSettings settings;
     settings.beginGroup(windowTitle());
-    settings.setValue("MainWindowPosition",event->pos());
+    settings.setValue("WindowPosition",event->pos());
   }
 
   /** receive resize events to store the current size to the settings
@@ -103,7 +103,7 @@ protected:
   {
     QSettings settings;
     settings.beginGroup(windowTitle());
-    settings.setValue("MainWindowSize",event->size());
+    settings.setValue("WindowSize",event->size());
   }
 
 

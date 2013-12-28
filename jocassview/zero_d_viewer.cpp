@@ -19,6 +19,9 @@ using namespace jocassview;
 ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   : DataViewer(title,parent)
 {
+  QSettings settings;
+  settings.beginGroup(windowTitle());
+
   QVBoxLayout *layout(new QVBoxLayout);
   _value = new QLabel(tr("Number"));
   _value->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
@@ -27,6 +30,10 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   _value->setFont(font);
   layout->addWidget(_value);
   setLayout(layout);
+
+  resize(settings.value("WindowSize",size()).toSize());
+  move(settings.value("WindowPosition",pos()).toPoint());
+
   show();
 }
 
