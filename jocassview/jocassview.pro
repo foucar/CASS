@@ -34,20 +34,20 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 SOURCES       += \
                  main.cpp \
-                 jocassviewer.cpp \
-                 main_window.cpp \
                  led.cpp \
                  status_led.cpp \
+                 main_window.cpp \
                  zero_d_viewer.cpp \
+                 minmax_control.cpp \
                  one_d_viewer.cpp \
                  one_d_viewer_data.cpp \
-                 two_d_viewer.cpp \
-                 two_d_viewer_data.cpp \
-                 minmax_control.cpp \
                  track_zoomer_2d.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
+                 two_d_viewer.cpp \
+                 two_d_viewer_data.cpp \
                  file_handler.cpp \
+                 jocassviewer.cpp \
 #                 imageviewer.cpp \
 #                 soapCASSsoapProxy.cpp \
 #                 soapC.cpp \
