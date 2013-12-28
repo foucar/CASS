@@ -64,9 +64,9 @@ void JoCASSViewer::loadData(QString filename, QString key)
 
 void JoCASSViewer::on_displayitem_checked(QString key, bool state)
 {
-  if (!_filename.isEmpty())
+  if (state)
   {
-    if (state)
+    if (!_filename.isEmpty())
     {
       cass::HistogramBackend *hist(FileHandler::getData(_filename,key));
       if (!hist)
@@ -88,18 +88,12 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
       connect(_viewers[key],SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
     }
     else
-    {
-      if (_viewers.contains(key) && _viewers[key])
-        _viewers[key]->close();
-    }
+      _viewers[key] = 0;
   }
   else
   {
-    if (state)
-      _viewers[key] = 0;
-    else
-      if (_viewers.contains(key) && _viewers[key])
-        _viewers[key]->close();
+    if (_viewers.contains(key) && _viewers[key])
+      _viewers[key]->close();
   }
 }
 
