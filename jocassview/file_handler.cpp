@@ -61,6 +61,56 @@ cass::HistogramBackend* FileHandler::getData(const QString &filename, const QStr
   return 0;
 }
 
+QStringList FileHandler::getKeyList(const QString &filename)
+{
+  QStringList items;
+  if (isContainerFile(filename))
+  {
+#ifdef HDF5
+    try
+    {
+      hdf5::Handler h5handle(filename.toStdString(),"r");
+
+      list<string> dataset(h5handle.datasets());
+      for (list<string>::const_iterator it=dataset.begin(); it != dataset.end(); ++it)
+        items.append(QString::fromStdString(*it));
+    }
+    catch(...)
+    {
+      QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("FileHandler::getKeyList(): some error occured"));
+    }
+#endif
+  }
+  else
+  {
+    items.append(getBaseName(filename));
+  }
+  return items;
+}
+
+QString FileHandler::getBaseName(const QString &filename)
+{
+  QFileInfo fileInfo(filename);
+  if (! fileInfo.exists())
+    return QString();
+
+  return fileInfo.baseName();
+}
+
+bool FileHandler::isContainerFile(const QString &filename)
+{
+  QFileInfo fileInfo(filename);
+  if (! fileInfo.exists())
+    return false;
+
+  bool retval(false);
+  if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
+    retval = true;
+
+  return retval;
+}
+
 QImage FileHandler::loadImage(const QString &filename)
 {
   QMessageBox::information(0,QObject::tr("Info"),QObject::tr("Image loading not yet implemented"));

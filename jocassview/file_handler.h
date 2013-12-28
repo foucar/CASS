@@ -16,6 +16,7 @@ class HistogramBackend;
 
 class QString;
 class QImage;
+class QStringList;
 
 namespace jocassview
 {
@@ -34,6 +35,30 @@ public:
    * @param key in case of a hdf5 file the key to the requested data. Default is ""
    */
   static cass::HistogramBackend * getData(const QString &filename, const QString &key="");
+
+  /** return the list of keys in the file
+   *
+   * in case this is not a container file (e.g. h5) this will just return the
+   * filename without path and suffix.
+   *
+   * @return a list of keys
+   * @param filename The name of the file whos keys should be read
+   */
+  static QStringList getKeyList(const QString &filename);
+
+  /** return the basename of the filename
+   *
+   * @return basename of filename
+   * @param filename the filename whos basename should be extracted
+   */
+  static QString getBaseName(const QString &filename);
+
+  /** return whether the file is a container file
+   *
+   * @return true when the file is a container file (e.g. hdf5 file)
+   * @param filename the name of the file
+   */
+  static bool isContainerFile(const QString &filename);
 
 private:
   /** read the data from an image file
