@@ -150,8 +150,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   setCentralWidget(listview);
 
   // Set the size of the window
-  resize(settings.value("MainWindowSize",QSize(800,800)).toSize());
-  move(settings.value("MainWindowPosition",QPoint(1,1)).toPoint());
+  resize(settings.value("MainWindowSize",size()).toSize());
+  move(settings.value("MainWindowPosition",pos()).toPoint());
 }
 
 MainWindow::~MainWindow()
