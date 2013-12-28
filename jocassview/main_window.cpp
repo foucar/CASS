@@ -149,7 +149,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   connect(listview,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(on_listitem_clicked(QListWidgetItem*)));
   setCentralWidget(listview);
 
-  // Set the size of the window
+  // Set the size and position of the window
   resize(settings.value("MainWindowSize",size()).toSize());
   move(settings.value("MainWindowPosition",pos()).toPoint());
 }
