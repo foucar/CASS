@@ -75,17 +75,16 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
       {
       case(0):
         _viewers[key] = new ZeroDViewer(key,_mw);
-        _viewers[key]->setData(hist);
         break;
       case(1):
         _viewers[key] = new OneDViewer(key,_mw);
-        _viewers[key]->setData(hist);
         break;
       case(2):
         _viewers[key] = new TwoDViewer(key,_mw);
-        _viewers[key]->setData(hist);
         break;
       }
+      _viewers[key]->setData(hist);
+      _viewers[key]->show();
       connect(_viewers[key],SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
     }
     else

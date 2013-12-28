@@ -34,8 +34,6 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
-
-  show();
 }
 
 ZeroDViewer::~ZeroDViewer()
