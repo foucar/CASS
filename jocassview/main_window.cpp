@@ -30,14 +30,12 @@
 #include <QtGui/QRadioButton>
 #include <QtGui/QFileDialog>
 #include <QtGui/QListWidget>
+#include <QtGui/QMoveEvent>
+#include <QtGui/QResizeEvent>
 
 #include "main_window.h"
 
 #include "status_led.h"
-#include "histogram.h"
-#include "zero_d_viewer.h"
-#include "one_d_viewer.h"
-#include "two_d_viewer.h"
 
 using namespace jocassview;
 
@@ -152,8 +150,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   setCentralWidget(listview);
 
   // Set the size of the window
-  QSize winsize(settings.value("WindowSize",QSize(800,800)).toSize());
-  resize(winsize);
+  resize(settings.value("MainWindowSize",QSize(800,800)).toSize());
+  move(settings.value("MainWindowPosition",QPoint(1,1)).toPoint());
 }
 
 MainWindow::~MainWindow()
@@ -219,4 +217,16 @@ void MainWindow::on_server_property_changed()
   settings.setValue("Serverport",serverport);
   QString serveraddress(servername + ":" + serverport);
   emit server_changed(serveraddress);
+}
+
+void MainWindow::moveEvent(QMoveEvent *event)
+{
+  QSettings settings;
+  settings.setValue("MainWindowPosition",event->pos());
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+  QSettings settings;
+  settings.setValue("MainWindowSize",event->size());
 }

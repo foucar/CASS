@@ -57,36 +57,11 @@ private slots:
    */
   void on_displayitem_checked(QString key,bool state);
 
-  /** load data from image file
+  /** remove the viewer from the container when it has been destroyed
    *
-   * @param filename the file to load the data from
+   * @param obj The viewer object that has been destroyed
    */
-  void loadDataFromImage(const QString& filename);
-
-  /** load data from histogram binary file
-   *
-   * @param filename the file to load the data from
-   */
-  void loadDataFromHist(const QString& filename);
-
-  /** load data from comma separated values csv file
-   *
-   * @param filename the file to load the data from
-   */
-  void loadDataFromCSV(const QString& filename);
-
-  /** load data from image file
-   *
-   * @param filename the file to load the data from
-   * @param key the key of the datafield in case its an h5 file
-   */
-  void loadDataFromH5(const QString& filename, const QString &key="");
-
-  /** load a specific key from the given h5 file
-   *
-   * @param key the key to load from the file
-   */
-  void loadH5KeyFromFile(QString key);
+  void on_viewer_destroyed(DataViewer *obj);
 
 private:
   /** the main window of the jocassviewer */

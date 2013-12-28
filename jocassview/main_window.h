@@ -142,6 +142,19 @@ private slots:
    */
   void on_server_property_changed();
 
+protected:
+  /** receive move events to store the current position to the settings
+   *
+   * @param event the move event
+   */
+  void moveEvent(QMoveEvent *event);
+
+  /** receive resize events to store the current size to the settings
+   *
+   * @param event the resize event
+   */
+  void resizeEvent(QResizeEvent *event);
+
 private:
   /** the status LED */
   StatusLED * _statusLED;
