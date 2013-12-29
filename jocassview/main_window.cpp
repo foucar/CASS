@@ -32,6 +32,7 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QMoveEvent>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QInputDialog>
 
 #include "main_window.h"
 
@@ -60,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   QMenu *cmenu = menu->addMenu(tr("&Control"));
   cmenu->addAction(tr("Get Data"),this,SIGNAL(get_data_triggered()),QKeySequence(tr("Ctrl+i")));
   cmenu->addAction(tr("Clear Histogram"),this,SIGNAL(clear_histogram_triggered()));
-  cmenu->addAction(tr("Send custom Command"),this,SIGNAL(send_command_triggered()));
+  cmenu->addAction(tr("Send custom Command"),this,SLOT(on_send_command_triggered()));
   cmenu->addAction(tr("Reload ini File"),this,SIGNAL(reload_ini_triggered()),QKeySequence(tr("Ctrl+r")));
   cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(on_broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")));
   cmenu->addAction(tr("Broadcast gaincal command"),this,SLOT(on_broadcast_gaincal_triggered()),QKeySequence(tr("Ctrl+g")));
@@ -163,6 +164,14 @@ bool MainWindow::autoUpdate() const
   return _autoUpdate->isChecked();
 }
 
+QStringList MainWindow::displayableItems()const
+{
+  QStringList items;
+  QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
+  for (int i=0; i < listwidget->count(); ++i)
+    items.append(listwidget->item(i)->text());
+}
+
 void MainWindow::setLEDStatus(int status)
 {
   _statusLED->setStatus(status);
@@ -252,4 +261,30 @@ void MainWindow::on_broadcast_darkcal_triggered()
 void MainWindow::on_broadcast_gaincal_triggered()
 {
   emit broadcast_triggered("startGaincal");
+}
+
+void MainWindow::on_send_command_triggered()
+{
+  QStringList items(displayableItems());
+  bool ok(false);
+  QString key(QInputDialog::getItem(this, QObject::tr("Select Key"),
+                                    QObject::tr("Key:"), items, 0, false, &ok));
+  if (!ok)
+    return;
+  QString command = QInputDialog::getText(this,tr("Command"),tr("Type command:"),
+                                          QLineEdit::Normal,tr("Type command here"),&ok);
+  if (!ok)
+    return;
+  emit send_command_triggered(key,command);
+}
+
+void MainWindow::on_clear_histogram_triggered()
+{
+  QStringList items(displayableItems());
+  bool ok(false);
+  QString key(QInputDialog::getItem(this, QObject::tr("Select Key"),
+                                    QObject::tr("Key:"), items, 0, false, &ok));
+  if (!ok)
+    return;
+  emit clear_histogram_triggered(key);
 }

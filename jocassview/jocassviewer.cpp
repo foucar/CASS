@@ -45,7 +45,10 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
   connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
   connect(_mw,SIGNAL(reload_ini_triggered()),&_client,SLOT(reloadIni()));
-  connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(controlCalibration(QString)));
+  connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(broadcastCommand(QString)));
+  connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
+  connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
+
   _mw->show();
 
   on_autoupdate_changed();

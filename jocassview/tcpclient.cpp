@@ -129,7 +129,7 @@ void TCPClient::reloadIni() const
 //    throw runtime_error("TCPClient::reloadIni(): Could not communicate writeini command");
 }
 
-void TCPClient::controlCalibration(const QString &command) const
+void TCPClient::broadcastCommand(const QString &command) const
 {
 //  bool ret(false);
 //  CASSsoapProxy client;
@@ -139,12 +139,22 @@ void TCPClient::controlCalibration(const QString &command) const
 //    throw runtime_error("TCPClient::controlCalibration(): Could not communicate command '"+ command +"'");
 }
 
+void TCPClient::sendCommandTo(const QString &key, const QString &command) const
+{
+
+}
+
 void TCPClient::setServer(const QString &serverstring)
 {
   _server = serverstring;
 }
 
-void TCPClient::quitServer()
+void TCPClient::quitServer() const
+{
+
+}
+
+void TCPClient::clearHistograms(QString key) const
 {
 
 }

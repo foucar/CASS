@@ -58,8 +58,18 @@ public slots:
   /** reload .ini file */
   void reloadIni() const;
 
-  /** reload .ini file */
-  void controlCalibration(const QString& command) const;
+  /** broadcast a command to all postprocessors in the server
+   *
+   * @param command The command to broadcast
+   */
+  void broadcastCommand(const QString& command) const;
+
+  /** broadcast a command to all postprocessors in the server
+   *
+   * @param key The key of the Postprocessor to send the command to
+   * @param command The command to broadcast
+   */
+  void sendCommandTo(const QString &key, const QString& command) const;
 
   /** change the server to connect to
    *
@@ -68,7 +78,13 @@ public slots:
   void setServer(const QString &serverstring);
 
   /** tell the server to quit */
-  void quitServer();
+  void quitServer() const;
+
+  /** clear the histogram of a postprocessor
+   *
+   * @param key The key of the Postprocessor whos histograms should be cleared
+   */
+  void clearHistograms(QString key) const;
 
 private:
   /** the server to connect to */

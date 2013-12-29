@@ -63,15 +63,15 @@ public:
    */
   bool autoUpdate() const;
 
+  /** retrieve a list with all items
+   *
+   * @return list with all items
+   */
+  QStringList displayableItems() const;
+
 signals:
   /** signal that "get data" was triggered */
   void get_data_triggered();
-
-  /** signal that "get data" was triggered */
-  void clear_histogram_triggered();
-
-  /** signal that "get data" was triggered */
-  void send_command_triggered();
 
   /** signal that "get data" was triggered */
   void reload_ini_triggered();
@@ -101,14 +101,27 @@ signals:
    */
   void item_checked(QString itemName,bool state);
 
-  /** signal that "get data" was triggered */
-  void runstatus_changed(int);
-
   /** signal that something related to the auto update changed*/
   void autoupdate_changed();
 
-  /** signal the broadcast command */
-  void broadcast_triggered(QString);
+  /** signal the broadcast command
+   *
+   * @param command the command that should be broadcasted
+   */
+  void broadcast_triggered(QString command);
+
+  /** signal that a command should be sent to a specific postprocessor
+   *
+   * @param name the name of the postprocessor to sent the signal to
+   * @param command the command to sent
+   */
+  void send_command_triggered(QString name, QString command);
+
+  /** signal that tells which postprocessors histogram should be cleared
+   *
+   * @param name the name of the postprocesor whos histogram should be cleared
+   */
+  void clear_histogram_triggered(QString name);
 
 public slots:
   /** change the status displayed by the LED
@@ -174,6 +187,20 @@ private slots:
    * emit the broadcast signal with "startGaincal" as string
    */
   void on_broadcast_gaincal_triggered();
+
+  /** react when send command was triggered
+   *
+   * ask to whom the command should be sent to and for the command to send, then
+   * emit the send_command_triggered(qstring,qstring) signal.
+   */
+  void on_send_command_triggered();
+
+  /** react when clear histogram was triggered
+   *
+   * ask the user which postprocessors histograms should be cleared and then emit
+   * the clear_histogram(QString) signal
+   */
+  void on_clear_histogram_triggered();
 
 protected:
   /** receive move events to store the current position to the settings
