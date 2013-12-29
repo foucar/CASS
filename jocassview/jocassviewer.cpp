@@ -16,6 +16,8 @@
 
 #include <QtGui/QMessageBox>
 
+#include <QtTest/QTest>
+
 #include "jocassviewer.h"
 
 #include "main_window.h"
@@ -24,6 +26,7 @@
 #include "zero_d_viewer.h"
 #include "one_d_viewer.h"
 #include "two_d_viewer.h"
+#include "status_led.h"
 
 using namespace jocassview;
 using namespace std;
@@ -39,7 +42,11 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
   connect(_mw,SIGNAL(get_data_triggered()),this,SLOT(update_viewers()));
   connect(_mw,SIGNAL(autoupdate_changed()),this,SLOT(on_autoupdate_changed()));
-
+  connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
+  connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
+  connect(_mw,SIGNAL(reload_ini_triggered()),&_client,SLOT(reloadIni()));
+  connect(_mw,SIGNAL(broadcast_darkcal_triggered()),&_client,SLOT(controlCalibration("startDarkcal")));
+  connect(_mw,SIGNAL(broadcast_gaincal_triggered()),&_client,SLOT(controlCalibration("startGaincal")));
   _mw->show();
 
   on_autoupdate_changed();
@@ -112,7 +119,10 @@ void JoCASSViewer::on_viewer_destroyed(DataViewer *obj)
 
 void JoCASSViewer::update_viewers()
 {
+  _mw->setLEDStatus(StatusLED::busy);
   qDebug()<<"update viewers";
+  QTest::qWait(500);
+  _mw->setLEDStatus(StatusLED::ok);
 }
 
 void JoCASSViewer::on_autoupdate_changed()

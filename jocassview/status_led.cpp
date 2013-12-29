@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QDebug>
+
 #include <QtGui/QMessageBox>
 #include <QtGui/QColor>
 
@@ -24,18 +26,22 @@ void StatusLED::setStatus(int status)
   switch(status)
   {
   case ok:
-    setColor(Qt::green);
+    qDebug()<<"LED Status ok";
+    setColor(Qt::darkGreen);
     setState(true);
     break;
   case fail:
-    setColor(Qt::red);
+    qDebug()<<"LED Status fail";
+    setColor(Qt::darkRed);
     setState(true);
     break;
   case off:
-    setColor(Qt::white);
+    qDebug()<<"LED Status off";
+    setColor(Qt::black);
     setState(false);
     break;
-  case buisy:
+  case busy:
+    qDebug()<<"LED Status busy";
     setColor(QColor("#b0b000"));
     setState(true);
     break;

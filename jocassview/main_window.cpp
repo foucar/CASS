@@ -163,7 +163,7 @@ bool MainWindow::autoUpdate() const
   return _autoUpdate->isChecked();
 }
 
-void MainWindow::change_status(int status)
+void MainWindow::setLEDStatus(int status)
 {
   _statusLED->setStatus(status);
 }

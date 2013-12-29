@@ -14,6 +14,8 @@
 #include <QtCore/QString>
 #include <QtCore/QTimer>
 
+#include "tcpclient.h"
+
 namespace jocassview
 {
 class MainWindow;
@@ -81,6 +83,9 @@ private:
 
   /** timer for the auto update function */
   QTimer _updateTimer;
+
+  /** the client to connect to the cass server */
+  TCPClient _client;
 };
 }//end namspace jocassview
 

@@ -118,7 +118,7 @@ public slots:
    *
    * @param status the new status that should be displayed
    */
-  void change_status(int status);
+  void setLEDStatus(int status);
 
   /** set the items in the list
    *

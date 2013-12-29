@@ -10,6 +10,7 @@ TEMPLATE            = app
 DESTDIR             = $${CASS_ROOT}/bin
 target.path         = $${PREFIX}/bin
 
+CONFIG             += qtestlib
 
 QMAKE_CLEAN        += jocassview
 
@@ -47,12 +48,11 @@ SOURCES       += \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
                  file_handler.cpp \
+                 soapCASSsoapProxy.cpp \
+                 soapC.cpp \
+                 tcpclient.cpp \
                  jocassviewer.cpp \
-#                 imageviewer.cpp \
-#                 soapCASSsoapProxy.cpp \
-#                 soapC.cpp \
 #                 qwt_logcolor_map.cpp \
-#                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += \
                  jocassviewer.h \
@@ -70,11 +70,10 @@ HEADERS       += \
                  qwt_scroll_zoomer.h \
                  qwt_scroll_bar.h \
                  file_handler.h \
-#                 soapH.h \
-#                 soapCASSsoapProxy.h \
-#                 soapStub.h \
-#                 imageviewer.h \
-#                 ../cass/postprocessing/id_list.h
+                 soapH.h \
+                 soapCASSsoapProxy.h \
+                 soapStub.h \
+                 tcpclient.h \
 
 INCLUDEPATH   += $$PWD/.. \
                  $$PWD/../cass
