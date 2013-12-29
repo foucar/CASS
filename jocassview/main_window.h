@@ -156,10 +156,10 @@ private slots:
   /** display about this box */
   void on_about_triggered();
 
-  /** open file dialog and emit filname */
+  /** open the openfile dialog and emit filename */
   void on_load_triggered();
 
-  /** open file dialog and emit filname */
+  /** open the getsavefile dialog and emit filename */
   void on_save_as_triggered();
 
   /** react on when an item in the list has been clicked

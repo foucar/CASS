@@ -235,22 +235,9 @@ void MainWindow::on_server_property_changed()
 void MainWindow::on_autoupdate_changed()
 {
   QSettings settings;
-  qDebug()<<rate();
   settings.setValue("Rate",rate());
   settings.setValue("AutoUpdateOn",autoUpdate());
   emit autoupdate_changed();
-}
-
-void MainWindow::moveEvent(QMoveEvent *event)
-{
-  QSettings settings;
-  settings.setValue("MainWindowPosition",event->pos());
-}
-
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-  QSettings settings;
-  settings.setValue("MainWindowSize",event->size());
 }
 
 void MainWindow::on_broadcast_darkcal_triggered()
@@ -287,4 +274,16 @@ void MainWindow::on_clear_histogram_triggered()
   if (!ok)
     return;
   emit clear_histogram_triggered(key);
+}
+
+void MainWindow::moveEvent(QMoveEvent *event)
+{
+  QSettings settings;
+  settings.setValue("MainWindowPosition",event->pos());
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+  QSettings settings;
+  settings.setValue("MainWindowSize",event->size());
 }
