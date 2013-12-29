@@ -19,6 +19,9 @@ StatusLED::StatusLED(QWidget *parent)
   : LED(parent)
 {
   setDiameter(3.5);
+  _offTimer.setSingleShot(true);
+  _offTimer.setInterval(5000);
+  connect(&_offTimer,SIGNAL(timeout()),this,SLOT(turnOff()));
 }
 
 void StatusLED::setStatus(int status)
@@ -27,11 +30,13 @@ void StatusLED::setStatus(int status)
   {
   case ok:
     qDebug()<<"LED Status ok";
+    _offTimer.start();
     setColor(Qt::darkGreen);
     setState(true);
     break;
   case fail:
     qDebug()<<"LED Status fail";
+    _offTimer.start();
     setColor(Qt::darkRed);
     setState(true);
     break;
@@ -46,7 +51,13 @@ void StatusLED::setStatus(int status)
     setState(true);
     break;
   default:
-    QMessageBox::critical(this,tr("Error"),QString("StatusLED::setStatus(): Unknown dimension status"));
+    QMessageBox::critical(this,tr("Error"),
+                          QString("StatusLED::setStatus(): Unknown dimension status"));
     break;
   }
+}
+
+void StatusLED::turnOff()
+{
+  setStatus(off);
 }

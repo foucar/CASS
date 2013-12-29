@@ -48,6 +48,14 @@ public slots:
    * @param status the status that should be reflected by this
    */
   void setStatus(int status);
+
+private slots:
+  /** turn the led of */
+  void turnOff();
+
+private:
+  /** the turn off timer */
+  QTimer _offTimer;
 };
 
 }//end namespace jocassview
