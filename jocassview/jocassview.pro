@@ -34,6 +34,8 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 
 SOURCES       += \
+                 soapCASSsoapProxy.cpp \
+                 soapC.cpp \
                  main.cpp \
                  led.cpp \
                  status_led.cpp \
@@ -48,8 +50,6 @@ SOURCES       += \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
                  file_handler.cpp \
-                 soapCASSsoapProxy.cpp \
-                 soapC.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
 #                 qwt_logcolor_map.cpp \

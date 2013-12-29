@@ -5,30 +5,29 @@
  *
  * @author Lutz Foucar
  */
-#include <stdexcept>
-#include <sstream>
-#include <string>
+
+#include <QtCore/QDebug>
 
 #include "tcpclient.h"
+
+//#include "id_list.h"
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
-//#include "id_list.h"
 #include "histogram.h"
 
 using namespace jocassview;
 using namespace std;
 
 TCPClient::TCPClient()
-  : _transferredBytes(0)
+  : _transferredBytes(0),
+    _client(new CASSsoapProxy)
 {
 
 }
 
-TCPClient::TCPClient(const QString &server)
-  :_server(server),
-   _transferredBytes(0)
+TCPClient::~TCPClient()
 {
-
+  delete _client;
 }
 
 QStringList TCPClient::getIdList()const
@@ -148,7 +147,7 @@ void TCPClient::sendCommandTo(const QString &key, const QString &command) const
 
 void TCPClient::setServer(const QString &serverstring)
 {
-  _server = serverstring;
+  _client->soap_endpoint = serverstring.toStdString().c_str();
 }
 
 void TCPClient::quitServer() const

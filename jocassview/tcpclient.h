@@ -17,12 +17,14 @@
 namespace cass
 {
 class HistogramFloatBase;
-}
+}//end namespace cass
 
 class QStringList;
+class CASSsoapProxy;
 
 namespace jocassview
 {
+
 /** the tcp client that connects to the cass server
  *
  * @author Lutz Foucar
@@ -35,11 +37,8 @@ public:
   /** default constructor */
   TCPClient();
 
-  /** constructor
-   *
-   * @param server string containing the server ip and port
-   */
-  TCPClient(const QString &server);
+  /** destructor */
+  virtual ~TCPClient();
 
   /** retrieve the list of available histograms */
   QStringList getIdList()const;
@@ -87,11 +86,11 @@ public slots:
   void clearHistogram(QString key) const;
 
 private:
-  /** the server to connect to */
-  QString _server;
-
   /** the amount of bytes transferred */
   mutable size_t _transferredBytes;
+
+  /** the interface to cass */
+  CASSsoapProxy *_client;
 };
 }//end namespace jocassview
 #endif
