@@ -45,8 +45,7 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
   connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
   connect(_mw,SIGNAL(reload_ini_triggered()),&_client,SLOT(reloadIni()));
-  connect(_mw,SIGNAL(broadcast_darkcal_triggered()),&_client,SLOT(controlCalibration("startDarkcal")));
-  connect(_mw,SIGNAL(broadcast_gaincal_triggered()),&_client,SLOT(controlCalibration("startGaincal")));
+  connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(controlCalibration(QString)));
   _mw->show();
 
   on_autoupdate_changed();

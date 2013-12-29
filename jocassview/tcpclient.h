@@ -67,6 +67,9 @@ public slots:
    */
   void setServer(const QString &serverstring);
 
+  /** tell the server to quit */
+  void quitServer();
+
 private:
   /** the server to connect to */
   QString _server;

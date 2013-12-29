@@ -77,12 +77,6 @@ signals:
   void reload_ini_triggered();
 
   /** signal that "get data" was triggered */
-  void broadcast_darkcal_triggered();
-
-  /** signal that "get data" was triggered */
-  void broadcast_gaincal_triggered();
-
-  /** signal that "get data" was triggered */
   void quit_server_triggered();
 
   /** signal that "get data" was triggered */
@@ -112,6 +106,9 @@ signals:
 
   /** signal that something related to the auto update changed*/
   void autoupdate_changed();
+
+  /** signal the broadcast command */
+  void broadcast_triggered(QString);
 
 public slots:
   /** change the status displayed by the LED
@@ -165,6 +162,18 @@ private slots:
    * signal
    */
   void on_autoupdate_changed();
+
+  /** react when broadcast darkal has been clicked
+   *
+   * emit the broadcast signal with "startDarkcal" as string
+   */
+  void on_broadcast_darkcal_triggered();
+
+  /** react when broadcast gaincal has been clicked
+   *
+   * emit the broadcast signal with "startGaincal" as string
+   */
+  void on_broadcast_gaincal_triggered();
 
 protected:
   /** receive move events to store the current position to the settings

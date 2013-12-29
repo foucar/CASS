@@ -143,3 +143,8 @@ void TCPClient::setServer(const QString &serverstring)
 {
   _server = serverstring;
 }
+
+void TCPClient::quitServer()
+{
+
+}

@@ -62,8 +62,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   cmenu->addAction(tr("Clear Histogram"),this,SIGNAL(clear_histogram_triggered()));
   cmenu->addAction(tr("Send custom Command"),this,SIGNAL(send_command_triggered()));
   cmenu->addAction(tr("Reload ini File"),this,SIGNAL(reload_ini_triggered()),QKeySequence(tr("Ctrl+r")));
-  cmenu->addAction(tr("Broadcast darkcal command"),this,SIGNAL(broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")));
-  cmenu->addAction(tr("Broadcast gaincal command"),this,SIGNAL(broadcast_gaincal_triggered()),QKeySequence(tr("Ctrl+g")));
+  cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(on_broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")));
+  cmenu->addAction(tr("Broadcast gaincal command"),this,SLOT(on_broadcast_gaincal_triggered()),QKeySequence(tr("Ctrl+g")));
   cmenu->addSeparator();
   cmenu->addAction(tr("Quit Server"),this,SIGNAL(quit_server_triggered()));
 
@@ -242,4 +242,14 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
   QSettings settings;
   settings.setValue("MainWindowSize",event->size());
+}
+
+void MainWindow::on_broadcast_darkcal_triggered()
+{
+  emit broadcast_triggered("startDarkcal");
+}
+
+void MainWindow::on_broadcast_gaincal_triggered()
+{
+  emit broadcast_triggered("startGaincal");
 }
