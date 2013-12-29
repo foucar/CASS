@@ -18,6 +18,8 @@ class QStringList;
 class QListWidgetItem;
 class QLineEdit;
 class QSpinBox;
+class QDoubleSpinBox;
+class QAction;
 
 namespace jocassview
 {
@@ -42,6 +44,24 @@ public:
 
   /** destructor */
   ~MainWindow();
+
+  /** retrieve the rate as interval in ms
+   *
+   * @return the interval in ms
+   */
+  double interval() const;
+
+  /** retrieve the rate in Hz
+   *
+   * @return the rate in Hz
+   */
+  double rate() const;
+
+  /** retrieve the auto update status
+   *
+   * @return true when auto update has been selected
+   */
+  bool autoUpdate() const;
 
 signals:
   /** signal that "get data" was triggered */
@@ -75,9 +95,6 @@ signals:
   void save_triggered();
 
   /** signal that "get data" was triggered */
-  void overlay_data_triggered();
-
-  /** signal that "get data" was triggered */
   void print_triggered();
 
   /** signal that "get data" was triggered */
@@ -93,8 +110,8 @@ signals:
   /** signal that "get data" was triggered */
   void runstatus_changed(int);
 
-  /** signal that "get data" was triggered */
-  void rate_changed(double);
+  /** signal that something related to the auto update changed*/
+  void autoupdate_changed();
 
 public slots:
   /** change the status displayed by the LED
@@ -142,6 +159,13 @@ private slots:
    */
   void on_server_property_changed();
 
+  /** react when something related to auto updates has changed
+   *
+   * write the current settings to the ini file and emit the autoupdate_changed()
+   * signal
+   */
+  void on_autoupdate_changed();
+
 protected:
   /** receive move events to store the current position to the settings
    *
@@ -164,6 +188,12 @@ private:
 
   /** the server port input widget */
   QSpinBox *_serverport;
+
+  /** the rate input */
+  QDoubleSpinBox *_rate;
+
+  /** the auto update input */
+  QAction *_autoUpdate;
 };
 
 }//end namspace jocassview

@@ -50,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   // Add file menu
   QMenu *fmenu = menu->addMenu(tr("&File"));
   fmenu->addAction(tr("Load Data"),this,SLOT(on_load_triggered()));
-  fmenu->addAction(tr("Overlay Data"),this,SIGNAL(overlay_data_triggered()));
   fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")));
   fmenu->addAction(tr("Save as..."),this,SLOT(on_save_as_triggered()));
   fmenu->addAction(tr("Print"),this,SIGNAL(print_triggered()));
@@ -99,28 +98,18 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   // Add a separator
   toolBar->addSeparator();
 
-//  // Add Attachment identifier to toolbar.
-//  _attachId = new QComboBox();
-//  _attachId->setToolTip(tr("Attachment identifier."));
-//  _attachId->setDuplicatesEnabled(false);
-//  _attachId->setInsertPolicy(QComboBox::InsertAlphabetically);
-//  _attachId->setEditable(false);
-//  _attachId->installEventFilter(this);
-//  _attachId->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-//  connect(_attachId,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(item_to_display_changed(QString)));
-//  toolBar->addWidget(_attachId);
-
   // Add spacer to toolbar.
   QWidget *spacer2(new QWidget());
   spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   toolBar->addWidget(spacer2);
 
   // Add run control to toolbar.
-  QCheckBox *running(new QCheckBox());
-  running->setCheckState(Qt::Unchecked);
-  running->setToolTip(tr("If checked, continuously retrieve and display images."));
-  connect(running,SIGNAL(stateChanged(int)),this,SIGNAL(runstatus_changed(int)));
-  toolBar->addWidget(running);
+  _autoUpdate = new QAction(QIcon(":images/auto_update.png"),tr("Toggle auto update"),toolBar);
+  _autoUpdate->setCheckable(true);
+  _autoUpdate->setChecked(settings.value("AutoUpdateOn",false).toBool());
+  _autoUpdate->setToolTip(tr("If checked, continuously retrieve and display images."));
+  connect(_autoUpdate,SIGNAL(triggered()),this,SLOT(on_autoupdate_changed()));
+  toolBar->addAction(_autoUpdate);
 
   // Add status LED to toolbar.
   _statusLED = new StatusLED();
@@ -129,12 +118,12 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   toolBar->addWidget(_statusLED);
 
   // Add rate to toolbar.
-  QDoubleSpinBox *rate(new QDoubleSpinBox());
-  rate->setRange(0.01, 100.);
-  rate->setValue(settings.value("Rate", 10.).toDouble());
-  rate->setToolTip(tr("Image update frequency."));
-  connect(rate,SIGNAL(valueChanged(double)),this,SIGNAL(rate_changed(double)));
-  toolBar->addWidget(rate);
+  _rate = new QDoubleSpinBox();
+  _rate->setRange(0.01, 100.);
+  _rate->setValue(settings.value("Rate", 10.).toDouble());
+  _rate->setToolTip(tr("Image update frequency."));
+  connect(_rate,SIGNAL(valueChanged(double)),this,SLOT(on_autoupdate_changed()));
+  toolBar->addWidget(_rate);
   QLabel *punit = new QLabel;
   punit->setText("Hz");
   toolBar->addWidget(punit);
@@ -157,6 +146,21 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 MainWindow::~MainWindow()
 {
 
+}
+
+double MainWindow::interval() const
+{
+  return (1000./_rate->value());
+}
+
+double MainWindow::rate() const
+{
+  return _rate->value();
+}
+
+bool MainWindow::autoUpdate() const
+{
+  return _autoUpdate->isChecked();
 }
 
 void MainWindow::change_status(int status)
@@ -217,6 +221,15 @@ void MainWindow::on_server_property_changed()
   settings.setValue("Serverport",serverport);
   QString serveraddress(servername + ":" + serverport);
   emit server_changed(serveraddress);
+}
+
+void MainWindow::on_autoupdate_changed()
+{
+  QSettings settings;
+  qDebug()<<rate();
+  settings.setValue("Rate",rate());
+  settings.setValue("AutoUpdateOn",autoUpdate());
+  emit autoupdate_changed();
 }
 
 void MainWindow::moveEvent(QMoveEvent *event)

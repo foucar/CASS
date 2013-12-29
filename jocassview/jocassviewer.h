@@ -12,7 +12,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QString>
-
+#include <QtCore/QTimer>
 
 namespace jocassview
 {
@@ -63,15 +63,24 @@ private slots:
    */
   void on_viewer_destroyed(DataViewer *obj);
 
+  /** update the contents within the viewers */
+  void update_viewers();
+
+  /** react on the when something related to auto update changed */
+  void on_autoupdate_changed();
+
 private:
   /** the main window of the jocassviewer */
-  MainWindow * _mw;
+  MainWindow *_mw;
 
   /** the current data filename */
   QString _filename;
 
   /** the container for all opened viewers */
   QMap<QString,DataViewer*> _viewers;
+
+  /** timer for the auto update function */
+  QTimer _updateTimer;
 };
 }//end namspace jocassview
 

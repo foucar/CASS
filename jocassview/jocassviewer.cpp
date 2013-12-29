@@ -12,6 +12,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 #include <QtGui/QMessageBox>
 
@@ -35,8 +36,13 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
 
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
   connect(_mw,SIGNAL(item_checked(QString,bool)),this,SLOT(on_displayitem_checked(QString,bool)));
+  connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
+  connect(_mw,SIGNAL(get_data_triggered()),this,SLOT(update_viewers()));
+  connect(_mw,SIGNAL(autoupdate_changed()),this,SLOT(on_autoupdate_changed()));
 
   _mw->show();
+
+  on_autoupdate_changed();
 }
 
 JoCASSViewer::~JoCASSViewer()
@@ -102,4 +108,15 @@ void JoCASSViewer::on_viewer_destroyed(DataViewer *obj)
   QString key(obj->windowTitle());
   _viewers.remove(key);
   _mw->setDisplayedItem(key,false);
+}
+
+void JoCASSViewer::update_viewers()
+{
+  qDebug()<<"update viewers";
+}
+
+void JoCASSViewer::on_autoupdate_changed()
+{
+  _updateTimer.setInterval(_mw->interval());
+  _mw->autoUpdate() ? _updateTimer.start() : _updateTimer.stop();
 }
