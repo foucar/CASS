@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   // Add control menu
   QMenu *cmenu = menu->addMenu(tr("&Control"));
   cmenu->addAction(tr("Get Data"),this,SIGNAL(get_data_triggered()),QKeySequence(tr("Ctrl+i")));
-  cmenu->addAction(tr("Clear Histogram"),this,SIGNAL(clear_histogram_triggered()));
+  cmenu->addAction(tr("Clear Histogram"),this,SLOT(on_clear_histogram_triggered()));
   cmenu->addAction(tr("Send custom Command"),this,SLOT(on_send_command_triggered()));
   cmenu->addAction(tr("Reload ini File"),this,SIGNAL(reload_ini_triggered()),QKeySequence(tr("Ctrl+r")));
   cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(on_broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")));
@@ -170,6 +170,7 @@ QStringList MainWindow::displayableItems()const
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
   for (int i=0; i < listwidget->count(); ++i)
     items.append(listwidget->item(i)->text());
+  return items;
 }
 
 void MainWindow::setLEDStatus(int status)
@@ -253,6 +254,8 @@ void MainWindow::on_broadcast_gaincal_triggered()
 void MainWindow::on_send_command_triggered()
 {
   QStringList items(displayableItems());
+  if (items.empty())
+    return;
   bool ok(false);
   QString key(QInputDialog::getItem(this, QObject::tr("Select Key"),
                                     QObject::tr("Key:"), items, 0, false, &ok));
@@ -268,6 +271,8 @@ void MainWindow::on_send_command_triggered()
 void MainWindow::on_clear_histogram_triggered()
 {
   QStringList items(displayableItems());
+  if (items.empty())
+    return;
   bool ok(false);
   QString key(QInputDialog::getItem(this, QObject::tr("Select Key"),
                                     QObject::tr("Key:"), items, 0, false, &ok));

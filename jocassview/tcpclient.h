@@ -84,7 +84,7 @@ public slots:
    *
    * @param key The key of the Postprocessor whos histograms should be cleared
    */
-  void clearHistograms(QString key) const;
+  void clearHistogram(QString key) const;
 
 private:
   /** the server to connect to */

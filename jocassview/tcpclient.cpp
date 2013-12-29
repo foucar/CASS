@@ -27,7 +27,9 @@ TCPClient::TCPClient()
 TCPClient::TCPClient(const QString &server)
   :_server(server),
    _transferredBytes(0)
-{}
+{
+
+}
 
 QStringList TCPClient::getIdList()const
 {
@@ -154,7 +156,7 @@ void TCPClient::quitServer() const
 
 }
 
-void TCPClient::clearHistograms(QString key) const
+void TCPClient::clearHistogram(QString key) const
 {
 
 }
