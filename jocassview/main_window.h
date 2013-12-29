@@ -73,33 +73,42 @@ signals:
   /** signal that "get data" was triggered */
   void get_data_triggered();
 
-  /** signal that "get data" was triggered */
+  /** signal that "reload ini" was triggered */
   void reload_ini_triggered();
 
-  /** signal that "get data" was triggered */
+  /** signal that "quit server" was triggered */
   void quit_server_triggered();
 
-  /** signal that "get data" was triggered */
-  void load_file_triggered(QString);
+  /** signal that load file was triggered
+   *
+   * @param filename The filename of the file that should be loaded
+   */
+  void load_file_triggered(QString filename);
 
-  /** signal that "get data" was triggered */
-  void save_file_triggered(QString);
+  /** signal that save file was triggered
+   *
+   * @param filename the name of the file where the data should be saved to
+   */
+  void save_file_triggered(QString filename);
 
-  /** signal that "get data" was triggered */
+  /** signal that "save" was triggered */
   void save_triggered();
 
-  /** signal that "get data" was triggered */
+  /** signal that "print" was triggered */
   void print_triggered();
 
-  /** signal that "get data" was triggered */
-  void server_changed(QString);
+  /** signal that "one of the server inputs" was changed
+   *
+   * @param serverstring the new server string
+   */
+  void server_changed(QString serverstring);
 
   /** signal that an item in the list has been checked
    *
    * @param itemName the name of the item that has been checked
    * @param state the state of the item
    */
-  void item_checked(QString itemName,bool state);
+  void item_checked(QString itemName, bool state);
 
   /** signal that something related to the auto update changed*/
   void autoupdate_changed();
