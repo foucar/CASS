@@ -47,11 +47,13 @@ public:
 
   /** retrieve the rate as interval in ms
    *
+   * convert the rate in hz to an interval in ms (1000/rate()) and return it.
+   *
    * @return the interval in ms
    */
   double interval() const;
 
-  /** retrieve the rate in Hz
+  /** retrieve the user set rate in Hz
    *
    * @return the rate in Hz
    */

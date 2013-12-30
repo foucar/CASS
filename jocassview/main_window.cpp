@@ -151,7 +151,7 @@ MainWindow::~MainWindow()
 
 double MainWindow::interval() const
 {
-  return (1000./_rate->value());
+  return (1000./rate());
 }
 
 double MainWindow::rate() const
