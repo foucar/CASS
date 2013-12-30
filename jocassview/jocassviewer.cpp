@@ -17,6 +17,7 @@
 #include <QtCore/QDateTime>
 
 #include <QtGui/QMessageBox>
+#include <QtGui/QInputDialog>
 
 #include <QtTest/QTest>
 
@@ -161,10 +162,45 @@ void JoCASSViewer::on_autosave_triggered() const
       saveFile(QString(fileNameBase + view.key() +".csv"),view.key());
       saveFile(QString(fileNameBase + view.key() +".png"),view.key());
     }
+    ++view;
   }
 }
 
 void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 {
+  if (_viewers.isEmpty())
+    return;
 
+  if (FileHandler::isContainerFile(filename))
+  {
+    QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
+    while( view != _viewers.constEnd())
+    {
+      FileHandler::saveDataToContainer(filename,view.value()->data());
+      ++view;
+    }
+  }
+  else
+  {
+    QString savekey(key);
+    if (savekey.isEmpty() || savekey == "")
+    {
+      QStringList items;
+      QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
+      while( view != _viewers.constEnd())
+      {
+        items.append(view.key());
+        ++view;
+      }
+
+      bool ok(false);
+      QString item(QInputDialog::getItem(_mw, QObject::tr("Select Key"),
+                                         QObject::tr("Key:"), items, 0, false, &ok));
+      if (!ok)
+        return;
+      savekey = item;
+    }
+
+    FileHandler::saveData(filename,_viewers[savekey]->data());
+  }
 }

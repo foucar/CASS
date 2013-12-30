@@ -99,7 +99,7 @@ QString FileHandler::getBaseName(const QString &filename)
 
 bool FileHandler::isContainerFile(const QString &filename)
 {
-  QFileInfo fileInfo(filename);
+ QFileInfo fileInfo(filename);
   if (! fileInfo.exists())
     return false;
 
@@ -109,6 +109,16 @@ bool FileHandler::isContainerFile(const QString &filename)
     retval = true;
 
   return retval;
+}
+
+void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data)
+{
+
+}
+
+void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBackend *data)
+{
+
 }
 
 QImage FileHandler::loadImage(const QString &filename)

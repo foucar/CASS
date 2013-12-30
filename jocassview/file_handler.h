@@ -60,6 +60,20 @@ public:
    */
   static bool isContainerFile(const QString &filename);
 
+  /** save data to a given file
+   *
+   * @param filename The filename to save the data to
+   * @param data the data to save
+   */
+  static void saveData(const QString &filename, cass::HistogramBackend* data);
+
+  /** save data to a given container file
+   *
+   * @param filename The filename to save the data to
+   * @param data the data to save
+   */
+  static void saveDataToContainer(const QString &filename, cass::HistogramBackend* data);
+
 private:
   /** read the data from an image file
    *
