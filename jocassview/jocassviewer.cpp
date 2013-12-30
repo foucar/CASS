@@ -51,7 +51,7 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(broadcastCommand(QString)));
   connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
   connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
-  connect(_mw,SIGNAL(refresh_list_triggered()),&_client,SLOT(on_refresh_list_triggered()));
+  connect(_mw,SIGNAL(refresh_list_triggered()),this,SLOT(on_refresh_list_triggered()));
 
   _mw->show();
 
@@ -116,26 +116,26 @@ void JoCASSViewer::update_viewers()
 
   _mw->setLEDStatus(StatusLED::busy);
   qDebug()<<"update viewers";
+  bool sucess=true;
 
-  try
+  QMap<QString,DataViewer*>::iterator view(_viewers.begin());
+  cass::HistogramBackend *hist(_client.getData(view.key()));
+  const quint64 eventID = hist && false ? hist->id() : 0;
+  while( view != _viewers.end())
   {
-    QMap<QString,DataViewer*>::iterator view(_viewers.begin());
-    cass::HistogramBackend * hist(_client.getData(view.key()));
-    const quint64 eventID(hist->id());
-    while( view != _viewers.end())
+    cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
+    if (!hist)
     {
-      cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
-      if (!view.value())
-        createViewerForType(view,hist);
-      view.value()->setData(hist);
+      sucess = false;
       ++view;
+      continue;
     }
-    _mw->setLEDStatus(StatusLED::ok);
+    if (!view.value())
+      createViewerForType(view,hist);
+    view.value()->setData(hist);
+    ++view;
   }
-  catch(...)
-  {
-    _mw->setLEDStatus(StatusLED::fail);
-  }
+  sucess ? _mw->setLEDStatus(StatusLED::ok) : _mw->setLEDStatus(StatusLED::fail);
 }
 
 void JoCASSViewer::on_autoupdate_changed()
@@ -215,6 +215,7 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 
 void JoCASSViewer::on_refresh_list_triggered()
 {
+  qDebug()<<"refresh list";
   _mw->setDisplayableItems(_client.getIdList());
 }
 
