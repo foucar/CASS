@@ -96,6 +96,16 @@ private slots:
   void saveFile(const QString &filename, const QString &key="") const;
 
 private:
+  /** convenience function to create a viewer thats appropriate for a given type
+   *  of data
+   *
+   * @param view iterator to the item in the viewer list where the viewer needs
+   *        to be created.
+   * @param hist pointer to the histogram that hold the data
+   */
+  void createViewerForType(QMap<QString,DataViewer*>::iterator view,
+                           cass::HistogramBackend *hist);
+private:
   /** the main window of the jocassviewer */
   MainWindow *_mw;
 

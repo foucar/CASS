@@ -84,29 +84,15 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
 {
   if (state)
   {
+    _viewers[key] = 0;
     if (!_filename.isEmpty())
     {
       cass::HistogramBackend *hist(FileHandler::getData(_filename,key));
       if (!hist)
         return;
-      switch(hist->dimension())
-      {
-      case(0):
-        _viewers[key] = new ZeroDViewer(key,_mw);
-        break;
-      case(1):
-        _viewers[key] = new OneDViewer(key,_mw);
-        break;
-      case(2):
-        _viewers[key] = new TwoDViewer(key,_mw);
-        break;
-      }
+      createViewerForType(_viewers.find(key),hist);
       _viewers[key]->setData(hist);
-      _viewers[key]->show();
-      connect(_viewers[key],SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
     }
-    else
-      _viewers[key] = 0;
   }
   else
   {
@@ -139,22 +125,7 @@ void JoCASSViewer::update_viewers()
     {
       cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
       if (!view.value())
-      {
-        switch (hist->dimension())
-        {
-        case 0:
-          view.value() = new ZeroDViewer(view.key(),_mw);
-          break;
-        case 1:
-          view.value() = new OneDViewer(view.key(),_mw);
-          break;
-        case 2:
-          view.value() = new TwoDViewer(view.key(),_mw);
-          break;
-        }
-        view.value()->show();
-        connect(view.value(),SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
-      }
+        createViewerForType(view,hist);
       view.value()->setData(hist);
       ++view;
     }
@@ -239,4 +210,23 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
     if(_viewers[savekey])
       FileHandler::saveData(filename,_viewers[savekey]->data());
   }
+}
+
+void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
+                                       cass::HistogramBackend *hist)
+{
+  switch (hist->dimension())
+  {
+  case 0:
+    view.value() = new ZeroDViewer(view.key(),_mw);
+    break;
+  case 1:
+    view.value() = new OneDViewer(view.key(),_mw);
+    break;
+  case 2:
+    view.value() = new TwoDViewer(view.key(),_mw);
+    break;
+  }
+  view.value()->show();
+  connect(view.value(),SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
 }
