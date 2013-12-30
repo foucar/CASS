@@ -16,7 +16,7 @@
 
 namespace cass
 {
-class HistogramFloatBase;
+class HistogramBackend;
 }//end namespace cass
 
 class QStringList;
@@ -48,7 +48,7 @@ public:
    * @return Histogram for requested key
    * @param histogramkey the key of the requested histogram
    */
-  std::tr1::shared_ptr<cass::HistogramFloatBase> getData(const QString &histogramkey)const;
+  cass::HistogramBackend *getData(const QString &histogramkey,quint64 id=0)const;
 
   /** retrieve the transferred bytes */
   size_t receivedBytes()const;

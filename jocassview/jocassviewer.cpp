@@ -19,8 +19,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
 
-#include <QtTest/QTest>
-
 #include "jocassviewer.h"
 
 #include "main_window.h"
@@ -126,10 +124,29 @@ void JoCASSViewer::on_viewer_destroyed(DataViewer *obj)
 
 void JoCASSViewer::update_viewers()
 {
+  if (_viewers.isEmpty())
+    return;
+
   _mw->setLEDStatus(StatusLED::busy);
   qDebug()<<"update viewers";
-  QTest::qWait(500);
-  _mw->setLEDStatus(StatusLED::ok);
+
+  try
+  {
+    QMap<QString,DataViewer*>::iterator view(_viewers.begin());
+    view.value()->setData(_client.getData(view.key()));
+    const quint64 eventID(view.value()->data()->id());
+    ++view;
+    while( view != _viewers.end())
+    {
+      view.value()->setData(_client.getData(view.key(),eventID));
+      ++view;
+    }
+    _mw->setLEDStatus(StatusLED::ok);
+  }
+  catch(...)
+  {
+    _mw->setLEDStatus(StatusLED::fail);
+  }
 }
 
 void JoCASSViewer::on_autoupdate_changed()

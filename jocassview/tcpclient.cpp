@@ -61,7 +61,7 @@ QStringList TCPClient::getIdList()const
 //  return returnlist;
 }
 
-std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::getData(const QString &histogramkey)const
+cass::HistogramBackend* TCPClient::getData(const QString &histogramkey, quint64 id)const
 {
 //  using namespace std;
 //  using namespace std::tr1;

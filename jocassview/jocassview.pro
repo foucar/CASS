@@ -10,8 +10,6 @@ TEMPLATE            = app
 DESTDIR             = $${CASS_ROOT}/bin
 target.path         = $${PREFIX}/bin
 
-CONFIG             += qtestlib
-
 QMAKE_CLEAN        += jocassview
 
 SOAPFiles.target    = soapCASSsoapProxy.cpp
