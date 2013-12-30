@@ -34,7 +34,7 @@ class StatusLED : public LED
 
 public:
   /** enum describing the possible states of the LED */
-  enum{ok,fail,off,busy};
+  enum{fail,ok,off,busy};
 
   /** constructor
    *

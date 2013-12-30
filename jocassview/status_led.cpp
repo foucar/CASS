@@ -31,13 +31,13 @@ void StatusLED::setStatus(int status)
   case ok:
     qDebug()<<"LED Status ok";
     _offTimer.start();
-    setColor(Qt::darkGreen);
+    setColor(Qt::green);
     setState(true);
     break;
   case fail:
     qDebug()<<"LED Status fail";
     _offTimer.start();
-    setColor(Qt::darkRed);
+    setColor(Qt::red);
     setState(true);
     break;
   case off:
