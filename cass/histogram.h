@@ -256,7 +256,8 @@ public:
     /** setter */
     size_t      &nbrOfFills()         {return _nbrOfFills;}
     std::string &MimeType()           {return _mime;}
-    std::string &key()      {return _key;}
+    std::string &key()                {return _key;}
+    uint64_t    &id()                 {return _id;}
     //@}
     //@{
     /** getter*/
@@ -264,7 +265,8 @@ public:
     size_t             dimension()const   {return _dimension;}
     const axis_t      &axis()const        {return _axis;}
     const std::string &mimeType()const    {return _mime;}
-    const std::string &key()const{return _key;}
+    const std::string &key()const         {return _key;}
+    uint64_t           id()const          {return _id;}
     //@}
 
 public:
@@ -295,7 +297,8 @@ protected:
     std::string _mime;
     /** the id of the histogram */
     std::string _key;
-
+    /** the id of the event that make the contents */
+    uint64_t _id;
 };
 
 

@@ -311,6 +311,7 @@ public:
     if (_condition->result(evt.id()).isTrue())
     {
       QWriteLocker (&_result->lock);
+      _result->id() = evt.id();
       process(evt,*_result);
     }
   }

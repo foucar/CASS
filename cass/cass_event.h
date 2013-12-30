@@ -61,14 +61,14 @@ public:
 public:
   //@{
   /** setters */
-  id_t         &id()             {return _id;}
+  id_t            &id()             {return _id;}
   buffer_t        &datagrambuffer() {return _datagrambuffer;}
   devices_t       &devices()        {return _devices;}
   void             setFilename(const char * f) {_filename = f;}
   //@}
   //@{
   /** getters */
-  id_t           id()const        {return _id;}
+  id_t              id()const        {return _id;}
   const buffer_t   &datagrambuffer()const {return _datagrambuffer;}
   const devices_t  &devices()const   {return _devices;}
   const char       *filename()const  {return _filename;}

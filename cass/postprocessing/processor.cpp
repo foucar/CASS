@@ -42,6 +42,7 @@ void PostProcessor::processEvent(const CASSEvent& evt)
   {
     HistogramBackend &result(*(pointer->second));
     result.lock.lockForWrite();
+    result.id() = evt.id();
     process(evt,result);
     result.lock.unlock();
     _resultList.latest(pointer);
