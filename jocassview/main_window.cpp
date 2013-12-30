@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
 
   // Add control menu
   QMenu *cmenu = menu->addMenu(tr("&Control"));
+  cmenu->addAction(tr("Refresh List"),this,SIGNAL(refresh_list_triggered()),QKeySequence(tr("F5")));
   cmenu->addAction(tr("Get Data"),this,SIGNAL(get_data_triggered()),QKeySequence(tr("Ctrl+i")));
   cmenu->addAction(tr("Clear Histogram"),this,SLOT(on_clear_histogram_triggered()));
   cmenu->addAction(tr("Send custom Command"),this,SLOT(on_send_command_triggered()));
@@ -173,6 +174,16 @@ QStringList MainWindow::displayableItems()const
   return items;
 }
 
+QStringList MainWindow::selectedDisplayableItems()const
+{
+  QStringList items;
+  QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
+  QList<QListWidgetItem*> selected(listwidget->selectedItems());
+  for (int i=0; i < selected.size(); ++i)
+    items.append(selected[i]->text());
+  return items;
+}
+
 void MainWindow::setLEDStatus(int status)
 {
   _statusLED->setStatus(status);
@@ -181,11 +192,14 @@ void MainWindow::setLEDStatus(int status)
 void MainWindow::setDisplayableItems(QStringList itemNames)
 {
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
+  QStringList selectedItems(selectedDisplayableItems());
   listwidget->clear();
   listwidget->addItems(itemNames);
+  for (int i=0; i < selectedItems.size(); ++i)
+    setDisplayedItem(selectedItems[i],true,false);
 }
 
-void MainWindow::setDisplayedItem(QString item,bool state)
+void MainWindow::setDisplayedItem(QString item,bool state, bool simulateClickedSignal)
 {
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
   QList<QListWidgetItem*> listwidgetitems(listwidget->findItems(item,Qt::MatchExactly));
@@ -193,13 +207,14 @@ void MainWindow::setDisplayedItem(QString item,bool state)
     return;
   QListWidgetItem *listwidgetitem(listwidgetitems.front());
   listwidgetitem->setSelected(state);
-  on_listitem_clicked(listwidgetitem);
+  if(simulateClickedSignal)
+    on_listitem_clicked(listwidgetitem);
 }
 
 void MainWindow::on_about_triggered()
 {
-  QMessageBox::about(this, tr("About jocassview"), tr(
-      "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
+  QMessageBox::about(this, tr("About jocassview"),
+                     tr("<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
 }
 
 void MainWindow::on_load_triggered()

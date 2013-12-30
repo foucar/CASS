@@ -95,6 +95,13 @@ private slots:
    */
   void saveFile(const QString &filename, const QString &key="") const;
 
+  /** react on when refresh list has been triggered
+   *
+   * retrieve the list of possible displayable items from the server and update
+   * the list.
+   */
+  void on_refresh_list_triggered();
+
 private:
   /** convenience function to create a viewer thats appropriate for a given type
    *  of data

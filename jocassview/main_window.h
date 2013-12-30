@@ -71,7 +71,16 @@ public:
    */
   QStringList displayableItems() const;
 
+  /** retrieve a list with the selected items
+   *
+   * @return list with all selected items
+   */
+  QStringList selectedDisplayableItems() const;
+
 signals:
+  /** signal that "refresh list" was triggered */
+  void refresh_list_triggered();
+
   /** signal that "get data" was triggered */
   void get_data_triggered();
 
@@ -157,8 +166,9 @@ public slots:
    *
    * @param itemName the name of the item
    * @param state the state of the item
+   * @param emit Emit the clicked signal
    */
-  void setDisplayedItem(QString itemName, bool state);
+  void setDisplayedItem(QString itemName, bool state, bool simulateClickedSignal=true);
 
 private slots:
   /** display about this box */

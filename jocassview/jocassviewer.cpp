@@ -51,6 +51,7 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(broadcastCommand(QString)));
   connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
   connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
+  connect(_mw,SIGNAL(refresh_list_triggered()),&_client,SLOT(on_refresh_list_triggered()));
 
   _mw->show();
 
@@ -210,6 +211,11 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
     if(_viewers[savekey])
       FileHandler::saveData(filename,_viewers[savekey]->data());
   }
+}
+
+void JoCASSViewer::on_refresh_list_triggered()
+{
+  _mw->setDisplayableItems(_client.getIdList());
 }
 
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
