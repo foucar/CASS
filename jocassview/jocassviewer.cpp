@@ -133,12 +133,27 @@ void JoCASSViewer::update_viewers()
   try
   {
     QMap<QString,DataViewer*>::iterator view(_viewers.begin());
-    view.value()->setData(_client.getData(view.key()));
-    const quint64 eventID(view.value()->data()->id());
-    ++view;
+    cass::HistogramBackend * hist(_client.getData(view.key()));
+    const quint64 eventID(hist->id());
     while( view != _viewers.end())
     {
-      view.value()->setData(_client.getData(view.key(),eventID));
+      cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
+      if (!view.value())
+      {
+        switch (hist->dimension())
+        {
+        case 0:
+          view.value() = new ZeroDViewer(view.key(),_mw);
+          break;
+        case 1:
+          view.value() = new OneDViewer(view.key(),_mw);
+          break;
+        case 2:
+          view.value() = new TwoDViewer(view.key(),_mw);
+          break;
+        }
+      }
+      view.value()->setData(hist);
       ++view;
     }
     _mw->setLEDStatus(StatusLED::ok);
