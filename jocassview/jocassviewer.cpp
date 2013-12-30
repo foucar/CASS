@@ -152,6 +152,8 @@ void JoCASSViewer::update_viewers()
           view.value() = new TwoDViewer(view.key(),_mw);
           break;
         }
+        view.value()->show();
+        connect(view.value(),SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
       }
       view.value()->setData(hist);
       ++view;
