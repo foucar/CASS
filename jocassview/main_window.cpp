@@ -188,7 +188,10 @@ void MainWindow::setDisplayableItems(QStringList itemNames)
 void MainWindow::setDisplayedItem(QString item,bool state)
 {
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
-  QListWidgetItem *listwidgetitem(listwidget->findItems(item,Qt::MatchExactly).front());
+  QList<QListWidgetItem*> listwidgetitems(listwidget->findItems(item,Qt::MatchExactly));
+  if (listwidgetitems.empty() || listwidgetitems.size() > 1)
+    return;
+  QListWidgetItem *listwidgetitem(listwidgetitems.front());
   listwidgetitem->setSelected(state);
   on_listitem_clicked(listwidgetitem);
 }

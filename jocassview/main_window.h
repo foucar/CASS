@@ -147,6 +147,12 @@ public slots:
 
   /** check an item in the list
    *
+   * find the listwidget item by the itemname. In case there is no or more than
+   * one item with the requested name return without doing anything. Otherwise
+   * change the checked state of the item to the requested state and call the
+   * slot on_listitem_clicked() to ensure that it is the same behavious as if the
+   * user clicked the item in the gui.
+   *
    * @param itemName the name of the item
    * @param state the state of the item
    */
