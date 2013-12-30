@@ -13,6 +13,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QDir>
+#include <QtCore/QDateTime>
 
 #include <QtGui/QMessageBox>
 
@@ -137,7 +139,29 @@ void JoCASSViewer::on_autoupdate_changed()
 
 void JoCASSViewer::on_autosave_triggered() const
 {
+  QString fileNameBase(QDir::currentPath() + "/" + QDateTime::currentDateTime().toString() + "_");
 
+  saveFile(QString(fileNameBase + "autoSave.h5"));
+
+  QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
+  while( view != _viewers.constEnd())
+  {
+    if (view.value()->type() == "0DViewer")
+    {
+
+    }
+    else if (view.value()->type() == "1DViewer")
+    {
+      saveFile(QString(fileNameBase + view.key() +".hst"),view.key());
+      saveFile(QString(fileNameBase + view.key() +".csv"),view.key());
+    }
+    else if (view.value()->type() == "2DViewer")
+    {
+      saveFile(QString(fileNameBase + view.key() +".hst"),view.key());
+      saveFile(QString(fileNameBase + view.key() +".csv"),view.key());
+      saveFile(QString(fileNameBase + view.key() +".png"),view.key());
+    }
+  }
 }
 
 void JoCASSViewer::saveFile(const QString &filename, const QString &key) const

@@ -61,6 +61,12 @@ public:
    */
   cass::HistogramBackend *data();
 
+  /** retrieve the type of the data viewer
+   *
+   * @return the type as name
+   */
+  QString type() const;
+
 private slots:
   /** add a curve with data to the plot
    *

@@ -211,6 +211,11 @@ cass::HistogramBackend* TwoDViewer::data()
   return 0;
 }
 
+QString TwoDViewer::type() const
+{
+  return QString("2DViewer");
+}
+
 void TwoDViewer::replot()
 {
   const double min(!_zControl->autoscale() ? _zControl->min() : _data->zRange().minValue());

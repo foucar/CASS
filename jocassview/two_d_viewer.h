@@ -58,6 +58,12 @@ public:
    */
   cass::HistogramBackend *data();
 
+  /** retrieve the type of the data viewer
+   *
+   * @return the type as name
+   */
+  QString type() const;
+
 private slots:
   /** replot the data */
   void replot();

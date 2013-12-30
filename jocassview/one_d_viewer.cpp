@@ -155,6 +155,11 @@ cass::HistogramBackend* OneDViewer::data()
   return 0;
 }
 
+QString OneDViewer::type() const
+{
+  return QString("1DViewer");
+}
+
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 {
   _curves.push_back(new QwtPlotCurve);

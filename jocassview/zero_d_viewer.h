@@ -54,6 +54,12 @@ public:
    */
   void setData(float value);
 
+  /** retrieve the type of the data viewer
+   *
+   * @return the type as name
+   */
+  QString type() const;
+
 private:
   /** the label that displays the value */
   QLabel *_value;

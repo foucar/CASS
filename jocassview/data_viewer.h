@@ -66,6 +66,12 @@ public:
    */
   virtual cass::HistogramBackend * data() = 0;
 
+  /** retrieve the type of the data viewer
+   *
+   * @return the type as name
+   */
+  virtual QString type() const = 0;
+
 signals:
   /** signal emitted when viewer is about to be destroyed
    *

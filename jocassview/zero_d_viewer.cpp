@@ -55,3 +55,8 @@ void ZeroDViewer::setData(float value)
 {
   _value->setText( QString::number(value));
 }
+
+QString ZeroDViewer::type() const
+{
+  return QString("0DViewer");
+}
