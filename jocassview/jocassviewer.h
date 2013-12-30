@@ -68,7 +68,11 @@ private slots:
   /** update the contents within the viewers */
   void update_viewers();
 
-  /** react on the when something related to auto update changed */
+  /** react on the when something related to auto update changed
+   *
+   * change the interval and start or stop the timer according to the checked
+   * stated
+   */
   void on_autoupdate_changed();
 
   /** react on when "save" has been triggered
