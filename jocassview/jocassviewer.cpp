@@ -208,7 +208,8 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
     QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
     while( view != _viewers.constEnd())
     {
-      FileHandler::saveDataToContainer(filename,view.value()->data());
+      if (view.value())
+        FileHandler::saveDataToContainer(filename,view.value()->data());
       ++view;
     }
   }
@@ -233,6 +234,7 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
       savekey = item;
     }
 
-    FileHandler::saveData(filename,_viewers[savekey]->data());
+    if(_viewers[savekey])
+      FileHandler::saveData(filename,_viewers[savekey]->data());
   }
 }
