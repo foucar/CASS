@@ -32,6 +32,7 @@ TCPClient::~TCPClient()
 
 QStringList TCPClient::getIdList()const
 {
+  return QStringList();
 //  bool ret(false);
 //  CASSsoapProxy client;
 //  client.soap_endpoint = _server.c_str();
@@ -63,6 +64,7 @@ QStringList TCPClient::getIdList()const
 
 cass::HistogramBackend* TCPClient::getData(const QString &histogramkey, quint64 id)const
 {
+  return 0;
 //  using namespace std;
 //  using namespace std::tr1;
 //  using namespace cass;
