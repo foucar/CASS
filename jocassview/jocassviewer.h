@@ -71,6 +71,26 @@ private slots:
   /** react on the when something related to auto update changed */
   void on_autoupdate_changed();
 
+  /** react on when "save" has been triggered
+   *
+   * go through all opend windows and generate an appropriate filename with the
+   * date and the key of the data. Then use the saveFile(QString fname, QString key)
+   * slot to acutally save the data.
+   */
+  void on_autosave_triggered() const;
+
+  /** save a data from key to the given filename
+   *
+   * save the data with the given key to a given file. If no key is given and the
+   * file is not a container type (e.g. hdf5) file, then ask the user which of
+   * the available keys should be written. Write the data of all opened windows
+   * in the container type file.
+   *
+   * @param filename The name of the file
+   * @param key The key of the window whos contens should be written
+   */
+  void saveFile(const QString &filename, const QString &key="") const;
+
 private:
   /** the main window of the jocassviewer */
   MainWindow *_mw;

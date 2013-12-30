@@ -38,6 +38,8 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   _mw = new MainWindow();
 
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
+  connect(_mw,SIGNAL(save_triggered()),this,SLOT(on_autosave_triggered()));
+  connect(_mw,SIGNAL(save_file_triggered(QString)),this,SLOT(saveFile(QString)));
   connect(_mw,SIGNAL(item_checked(QString,bool)),this,SLOT(on_displayitem_checked(QString,bool)));
   connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
   connect(_mw,SIGNAL(get_data_triggered()),this,SLOT(update_viewers()));
@@ -131,4 +133,14 @@ void JoCASSViewer::on_autoupdate_changed()
 {
   _updateTimer.setInterval(_mw->interval());
   _mw->autoUpdate() ? _updateTimer.start() : _updateTimer.stop();
+}
+
+void JoCASSViewer::on_autosave_triggered() const
+{
+
+}
+
+void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
+{
+
 }
