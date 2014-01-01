@@ -10,6 +10,8 @@ TEMPLATE            = app
 DESTDIR             = $${CASS_ROOT}/bin
 target.path         = $${PREFIX}/bin
 
+CONFIG             += qtestlib
+
 QMAKE_CLEAN        += jocassview
 
 SOAPFiles.target    = soapCASSsoapProxy.cpp
@@ -48,6 +50,7 @@ SOURCES       += \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
                  file_handler.cpp \
+                 id_list.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
 #                 qwt_logcolor_map.cpp \
@@ -71,6 +74,7 @@ HEADERS       += \
                  soapH.h \
                  soapCASSsoapProxy.h \
                  soapStub.h \
+                 id_list.h \
                  tcpclient.h \
 
 INCLUDEPATH   += $$PWD/.. \
