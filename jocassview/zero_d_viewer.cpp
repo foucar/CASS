@@ -43,6 +43,9 @@ ZeroDViewer::~ZeroDViewer()
 
 void ZeroDViewer::setData(cass::HistogramBackend *histogram)
 {
+  if (!histogram)
+    return;
+
   _value->setText( QString::number(dynamic_cast<cass::Histogram0DFloat*>(histogram)->getValue()));
 }
 

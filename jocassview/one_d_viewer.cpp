@@ -162,6 +162,9 @@ QString OneDViewer::type() const
 
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 {
+  if (!histogram)
+    return;
+
   _curves.push_back(new QwtPlotCurve);
   QwtPlotCurve * curve(_curves.back());
 

@@ -175,6 +175,9 @@ TwoDViewer::~TwoDViewer()
 
 void TwoDViewer::setData(cass::HistogramBackend *hist)
 {
+  if (!hist)
+    return;
+
   cass::Histogram2DFloat *histogram(dynamic_cast<cass::Histogram2DFloat*>(hist));
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
   const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
