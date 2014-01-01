@@ -91,57 +91,30 @@ QStringList TCPClient::getIdList()const
 
 cass::HistogramBackend* TCPClient::getData(const QString &histogramkey, quint64 id)const
 {
-  return 0;
-//  using namespace std;
-//  using namespace std::tr1;
-//  using namespace cass;
-//  bool ret(false);
-//  CASSsoapProxy client;
-//  client.soap_endpoint = _server.c_str();
-//  client.getHistogram(histogramkey,0,&ret);
-//  if(!ret)
-//  {
-//    stringstream ss;
-//    ss << "TCPClient(): Did not get Histogram with key '"<<histogramkey<<"'";
-//    throw runtime_error(ss.str());
-//  }
-//  soap_multipart::iterator attachment(client.dime.begin());
-//  if(client.dime.end() == attachment)
-//  {
-//    stringstream ss;
-//    ss << "TCPClient(key): There is no attachmend in the received soap data";
-//    throw runtime_error(ss.str());
-//  }
-////  cout << "TCPClient: DIME attachment:" << endl
-////      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
-////      << " TCPClient: Size=" << (*attachment).size << endl
-////      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-////      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-//  _transferredBytes += (*attachment).size;
-//  string mimeType((*attachment).type);
-//  shared_ptr<HistogramFloatBase> hist;
-//  if(mimeType == "application/cass2Dhistogram")
-//  {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      hist = shared_ptr<HistogramFloatBase>(new Histogram2DFloat(serializer));
-//  }
-//  else if(mimeType == "application/cass1Dhistogram")
-//  {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      hist = shared_ptr<HistogramFloatBase>(new Histogram1DFloat(serializer));
-//  }
-//  else if(mimeType == "application/cass0Dhistogram")
-//  {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      hist = shared_ptr<HistogramFloatBase>(new Histogram0DFloat(serializer));
-//  }
-//  else
-//  {
-//    stringstream ss;
-//    ss << "The mime type '"<<mimeType<<"' is unknown";
-//    throw runtime_error(ss.str());
-//  }
-//  return hist;
+  bool ret(false);
+  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getHistogram,
+                                          histogramkey.toStdString(), id, &ret);
+  while (future.isRunning())
+  {
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    QTest::qSleep(10);
+  }
+  if( (future.result() != SOAP_OK) || !ret)
+    return 0;
+  soap_multipart::iterator attachment(_client->dime.begin());
+  if(_client->dime.end() == attachment)
+    return 0;
+  _transferredBytes += (*attachment).size;
+  string mimeType((*attachment).type);
+  cass::HistogramBackend* hist(0);
+  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+  if(mimeType == "application/cass2Dhistogram")
+    hist = new cass::Histogram2DFloat(serializer);
+  else if(mimeType == "application/cass1Dhistogram")
+    hist = new cass::Histogram1DFloat(serializer);
+  else if(mimeType == "application/cass0Dhistogram")
+    hist = new cass::Histogram0DFloat(serializer);
+  return hist;
 }
 
 size_t TCPClient::receivedBytes()const
