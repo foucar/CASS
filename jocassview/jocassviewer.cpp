@@ -116,7 +116,7 @@ void JoCASSViewer::update_viewers()
 
   _mw->setLEDStatus(StatusLED::busy);
   qDebug()<<"update viewers";
-  bool sucess=true;
+  bool sucess(true);
 
   QMap<QString,DataViewer*>::iterator view(_viewers.begin());
   cass::HistogramBackend *hist(_client.getData(view.key()));
@@ -215,7 +215,6 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 
 void JoCASSViewer::on_refresh_list_triggered()
 {
-  qDebug()<<"refresh list";
   _mw->setDisplayableItems(_client.getIdList());
 }
 

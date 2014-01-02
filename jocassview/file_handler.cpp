@@ -12,6 +12,7 @@
 #include <QtCore/QString>
 #include <QtCore/QFileInfo>
 #include <QtCore/QObject>
+#include <QtCore/QDebug>
 
 #include <QtGui/QImage>
 #include <QtGui/QMessageBox>
