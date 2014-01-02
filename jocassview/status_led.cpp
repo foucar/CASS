@@ -20,7 +20,7 @@ StatusLED::StatusLED(QWidget *parent)
 {
   setDiameter(3.5);
   _offTimer.setSingleShot(true);
-  _offTimer.setInterval(5000);
+  _offTimer.setInterval(60000);
   connect(&_offTimer,SIGNAL(timeout()),this,SLOT(turnOff()));
 }
 

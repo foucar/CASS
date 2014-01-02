@@ -111,7 +111,7 @@ void JoCASSViewer::on_viewer_destroyed(DataViewer *obj)
 
 void JoCASSViewer::update_viewers()
 {
-  if (_viewers.isEmpty())
+  if (_viewers.isEmpty() || !_filename.isEmpty())
     return;
 
   _mw->setLEDStatus(StatusLED::busy);
@@ -141,11 +141,20 @@ void JoCASSViewer::update_viewers()
 void JoCASSViewer::on_autoupdate_changed()
 {
   _updateTimer.setInterval(_mw->interval());
-  _mw->autoUpdate() ? _updateTimer.start() : _updateTimer.stop();
+  if(_mw->autoUpdate())
+  {
+    on_refresh_list_triggered();
+    _updateTimer.start();
+  }
+  else
+    _updateTimer.stop();
 }
 
 void JoCASSViewer::on_autosave_triggered() const
 {
+  if (_viewers.isEmpty() || !_filename.isEmpty())
+    return;
+
   QString fileNameBase(QDir::currentPath() + "/" + QDateTime::currentDateTime().toString() + "_");
 
   saveFile(QString(fileNameBase + "autoSave.h5"));
@@ -174,7 +183,7 @@ void JoCASSViewer::on_autosave_triggered() const
 
 void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 {
-  if (_viewers.isEmpty())
+  if (_viewers.isEmpty() || !_filename.isEmpty())
     return;
 
   if (FileHandler::isContainerFile(filename))
@@ -215,6 +224,7 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 
 void JoCASSViewer::on_refresh_list_triggered()
 {
+  _filename.clear();
   _mw->setDisplayableItems(_client.getIdList());
 }
 
