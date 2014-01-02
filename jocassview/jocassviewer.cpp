@@ -56,6 +56,7 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   _mw->show();
 
   on_autoupdate_changed();
+  _client.setServer(_mw->on_server_property_changed());
 }
 
 JoCASSViewer::~JoCASSViewer()

@@ -45,6 +45,7 @@ QStringList TCPClient::getIdList()const
     QCoreApplication::processEvents(QEventLoop::AllEvents);
     QTest::qSleep(10);
   }
+  qDebug()<<ret<<future.result()<<_client->soap_endpoint;
   if( (future.result() != SOAP_OK) || !ret)
   {
     QMessageBox::information(0, tr("TcpClient"),
@@ -170,7 +171,9 @@ void TCPClient::sendCommandTo(const QString &key, const QString &command) const
 
 void TCPClient::setServer(const QString &serverstring)
 {
-  _client->soap_endpoint = serverstring.toStdString().c_str();
+  _server = serverstring.toStdString();
+  _client->soap_endpoint = _server.c_str();
+  qDebug()<<QString::fromStdString(_server)<<_client->soap_endpoint;
 }
 
 void TCPClient::quitServer() const

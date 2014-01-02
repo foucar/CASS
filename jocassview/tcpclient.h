@@ -91,6 +91,13 @@ private:
 
   /** the interface to cass */
   CASSsoapProxy *_client;
+
+  /** the server string
+   *
+   * @note this is needed because the client only hold a pointer to the string
+   *       and not the string itself.
+   */
+  std::string _server;
 };
 }//end namespace jocassview
 #endif

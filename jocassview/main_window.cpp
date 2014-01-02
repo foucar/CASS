@@ -195,6 +195,7 @@ void MainWindow::setDisplayableItems(QStringList itemNames)
   QStringList selectedItems(selectedDisplayableItems());
   listwidget->clear();
   listwidget->addItems(itemNames);
+  listwidget->sortItems();
   for (int i=0; i < selectedItems.size(); ++i)
     setDisplayedItem(selectedItems[i],true,false);
 }
@@ -240,7 +241,7 @@ void MainWindow::on_listitem_clicked(QListWidgetItem *item)
   emit item_checked(name,state);
 }
 
-void MainWindow::on_server_property_changed()
+QString MainWindow::on_server_property_changed()
 {
   QString servername(_servername->text());
   QString serverport(QString::number(_serverport->value()));
@@ -249,6 +250,7 @@ void MainWindow::on_server_property_changed()
   settings.setValue("Serverport",serverport);
   QString serveraddress(servername + ":" + serverport);
   emit server_changed(serveraddress);
+  return serveraddress;
 }
 
 void MainWindow::on_autoupdate_changed()
