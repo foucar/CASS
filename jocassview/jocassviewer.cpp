@@ -119,23 +119,41 @@ void JoCASSViewer::update_viewers()
   qDebug()<<"update viewers";
   bool sucess(true);
 
+  /** get an iterator to go through the map and retrieve the first item where
+   *  we get the id from. Then check whether all the other histograms should have
+   *  the same id (if not then set the id to 0).
+   *  Remember how big the container is for error checking later on
+   */
   QMap<QString,DataViewer*>::iterator view(_viewers.begin());
   cass::HistogramBackend *hist(_client.getData(view.key()));
   const quint64 eventID = hist && false ? hist->id() : 0;
+  const int nbrWindows(_viewers.size());
   while( view != _viewers.end())
   {
     cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
+    /** if the size of the container changed (because the user closed or opened
+     *  another window) break out here, because the iterator has been invalidated
+     */
+    if(_viewers.size() != nbrWindows)
+    {
+      sucess = false;
+      break;
+    }
+    /** if there is nothing returned, there was an error. Just try the next one */
     if (!hist)
     {
       sucess = false;
       ++view;
       continue;
     }
+    /** if the viewer hasn't been initalized, initialize it now */
     if (!view.value())
       createViewerForType(view,hist);
+    /** if everything was fine then set the data in the viewer */
     view.value()->setData(hist);
     ++view;
   }
+  /** set the to report sucess or faliure */
   sucess ? _mw->setLEDStatus(StatusLED::ok) : _mw->setLEDStatus(StatusLED::fail);
 }
 
