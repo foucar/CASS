@@ -129,6 +129,8 @@ OneDViewer::~OneDViewer()
 
 void OneDViewer::setData(cass::HistogramBackend *hist)
 {
+  if (!hist)
+    return;
   cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
   QwtArray<double> xx(histogram->size());
   QwtArray<double> yy(histogram->size());
@@ -225,6 +227,17 @@ void OneDViewer::replot()
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
+
+  // set the axis limits
+  if (_xControl->autoscale())
+    _plot->setAxisAutoScale(QwtPlot::xBottom);
+  else
+    _plot->setAxisScale(QwtPlot::xBottom,_xControl->min(),_xControl->max());
+
+  if (_yControl->autoscale())
+    _plot->setAxisAutoScale(QwtPlot::yLeft);
+  else
+    _plot->setAxisScale(QwtPlot::yLeft,_yControl->min(),_yControl->max());
 
   // update the layout and replot the plot
   _plot->updateLayout();
