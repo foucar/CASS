@@ -93,7 +93,8 @@ public:
    * @throw logic_error when file could not be opened
    *
    * @param filename the name of the file to be opened
-   * @param mode Open the file in read "r" or write "w" mode. Default is "w"
+   * @param mode Open the file in read "r", write "w" or in read write "rw" mode.
+   *        Default is "w"
    */
   void open(const std::string &filename, const std::string & mode="w")
   {
@@ -104,6 +105,10 @@ public:
     else if (mode == "r")
     {
       _fileid = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    }
+    else if (mode == "rw")
+    {
+      _fileid = H5Fopen(filename.c_str(),H5F_ACC_RDWR, H5P_DEFAULT);
     }
     else
       throw std::invalid_argument("hdf5::Handler::open(): Open mode '" +
