@@ -124,6 +124,19 @@ private:
    * @param key in case of a hdf5 file the key to the requested data. Default is ""
    */
   cass::HistogramBackend * loadDataFromH5(const QString &filename, const QString &key="");
+
+  /** write the data to a hdf5 file
+   *
+   * The key under which name the data is saved in the file is given provided as
+   * part of the data.
+   *
+   * @sa hdf5::Handler::open for options how the file will be opened
+   *
+   * @param filename the name of the file
+   * @param pointer to the data
+   * @param mode The mode in which the file will be opened. Default is "w".
+   */
+  void saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString& mode="w");
 };
 }//end namespace jocassview
 #endif

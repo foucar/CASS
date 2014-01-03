@@ -116,7 +116,7 @@ bool FileHandler::isContainerFile(const QString &filename)
 void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data)
 {
   QFileInfo fileInfo(filename);
-  if (! fileInfo.exists())
+  if (fileInfo.exists())
     return;
 
   FileHandler instance;
@@ -143,7 +143,12 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
 
 void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBackend *data)
 {
-
+  QFileInfo fileInfo(filename);
+  FileHandler instance;
+  if (fileInfo.exists())
+    instance.saveDataToH5(filename,data,"rw");
+  else
+    instance.saveDataToH5(filename,data,"w");
 }
 
 QImage FileHandler::loadImage(const QString &filename)
@@ -353,5 +358,66 @@ cass::HistogramBackend * FileHandler::loadDataFromH5(const QString &filename, co
                                                 filename + "'. Unknown error occured"));
   }
   return 0;
+#endif
+}
+
+void FileHandler::saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString &mode)
+{
+#ifdef HDF5
+  try
+  {
+    hdf5::Handler h5handle(filename.toStdString(),mode.toStdString());
+    switch (data->dimension())
+    {
+    case 0:
+    {
+      cass::Histogram0DFloat *hist(dynamic_cast<cass::Histogram0DFloat*>(data));
+      h5handle.writeScalar(hist->memory().front(),data->key());
+      break;
+    }
+    case 1:
+    {
+      cass::Histogram1DFloat *hist(dynamic_cast<cass::Histogram1DFloat*>(data));
+      h5handle.writeArray(hist->memory(),data->axis()[cass::Histogram1DFloat::xAxis].size(),
+          data->key());
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram1DFloat::xAxis].lowerLimit(),
+          "xLow", data->key());
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram1DFloat::xAxis].upperLimit(),
+          "xUp", data->key());
+      break;
+    }
+    case 2:
+    {
+      cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
+      h5handle.writeMatrix(hist->memory(),hist->shape(),data->key(),9);
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::xAxis].lowerLimit(),
+          "xLow", data->key());
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::xAxis].upperLimit(),
+          "xUp", data->key());
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::yAxis].lowerLimit(),
+          "yLow", data->key());
+      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::yAxis].upperLimit(),
+          "yUp", data->key());
+      break;
+    }
+    }
+  }
+  catch(const invalid_argument & err)
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QString::fromStdString(err.what()));
+  }
+  catch(const logic_error& err)
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QString::fromStdString(err.what()));
+  }
+  catch(const runtime_error & err)
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QString::fromStdString(err.what()));
+  }
+  catch(...)
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): can't open '" +
+                                                filename + "'. Unknown error occured"));
+  }
 #endif
 }
