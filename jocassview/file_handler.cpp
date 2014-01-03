@@ -15,6 +15,7 @@
 #include <QtCore/QDebug>
 
 #include <QtGui/QImage>
+#include <QtGui/QImageReader>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
 
@@ -114,7 +115,30 @@ bool FileHandler::isContainerFile(const QString &filename)
 
 void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data)
 {
+  QFileInfo fileInfo(filename);
+  if (! fileInfo.exists())
+    return;
 
+  FileHandler instance;
+
+  if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("jpeg").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("giv").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("Can't convert Data to image."));
+  }
+  else if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
+  {
+    instance.saveDataToHist(filename,data);
+  }
+  else if (fileInfo.suffix().toUpper() == QString("csv").toUpper())
+  {
+    instance.saveDataToCSV(filename,data);
+  }
+  return;
 }
 
 void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBackend *data)
@@ -124,21 +148,101 @@ void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBa
 
 QImage FileHandler::loadImage(const QString &filename)
 {
-  QMessageBox::information(0,QObject::tr("Info"),QObject::tr("Image loading not yet implemented"));
+  QImageReader imageReader(filename);
+  if (imageReader.canRead())
+    return QImage(filename);
   return QImage();
 }
 
+void FileHandler::saveImage(const QString &filename, const QImage &image)
+{
+  if(! image.save(filename, "PNG"))
+    QMessageBox::critical(0, QObject::tr("Error"), QObject::tr("Image'") + filename +
+                          QObject::tr("' could not be saved!"));
+}
 
 cass::HistogramBackend * FileHandler::loadDataFromHist(const QString &filename)
 {
-  QMessageBox::information(0,QObject::tr("Info"),QObject::tr("Histogram loading not yet implemented"));
-  return 0;
+  /** use a file serializer to deserialize the data in the file to a hist object
+   *  and get the dimension from the object.
+   */
+  cass::SerializerReadFile serializer( filename.toStdString().c_str() );
+  cass::HistogramBackend* hist = new cass::HistogramFloatBase(serializer);
+  serializer.close();
+  size_t dim = hist->dimension();
+  delete hist;
+
+  /** one needs to reopen the file using the correct derived class
+   *  (serializing base class doesn't work) as it will give problems using
+   *  when dynamic_casting the baseclass back to the derived class)
+   */
+  cass::SerializerReadFile serializer2( filename.toStdString().c_str() );
+  switch(dim)
+  {
+  case 0:
+    hist = new cass::Histogram0DFloat( serializer2 );
+    break;
+  case 1:
+    hist = new cass::Histogram1DFloat( serializer2 );
+    break;
+  case 2:
+    hist = new cass::Histogram2DFloat( serializer2 );
+    break;
+  }
+  serializer2.close();
+
+  return hist;
+}
+
+void FileHandler::saveDataToHist(const QString &filename, cass::HistogramBackend *data)
+{
+  cass::SerializerWriteFile serializer( filename.toStdString().c_str() );
+  data->serialize( serializer );
+  serializer.close();
 }
 
 cass::HistogramBackend * FileHandler::loadDataFromCSV(const QString &filename)
 {
   QMessageBox::information(0,QObject::tr("Info"),QObject::tr("CSV loading not yet implemented"));
   return 0;
+}
+
+void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend *data)
+{
+  QFile file(filename);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    return;
+  QTextStream out(&file);
+  switch (data->dimension())
+  {
+  case 0:
+  {
+    cass::Histogram0DFloat *hist(dynamic_cast<cass::Histogram0DFloat*>(data));
+    for (size_t i(0); i < hist->memory().size(); ++i)
+      out << hist->memory()[i] << endl;
+    break;
+  }
+  case 1:
+  {
+    cass::Histogram1DFloat *hist(dynamic_cast<cass::Histogram1DFloat*>(data));
+    const cass::AxisProperty &xaxis(hist->axis()[cass::Histogram1DFloat::xAxis]);
+    out<<"x-axis value, y-axis value"<<endl;
+    for (size_t i(0); i < xaxis.nbrBins(); ++i)
+      out <<xaxis.position(i)<<";"<< hist->bin(i) << endl;
+    break;
+  }
+  case 2:
+  {
+    cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
+    const cass::AxisProperty &xaxis(hist->axis()[cass::Histogram2DFloat::xAxis]);
+    const cass::AxisProperty &yaxis(hist->axis()[cass::Histogram2DFloat::yAxis]);
+    out<<"x-axis value, y-axis value, z-axis value"<<endl;
+    for (size_t i(0); i < xaxis.nbrBins(); ++i)
+      for (size_t j(0); j < yaxis.nbrBins(); ++j)
+        out << xaxis.position(i) << ";" << yaxis.position(j) <<";"<<hist->bin(i,j) << endl;
+    break;
+  }
+  }
 }
 
 cass::HistogramBackend * FileHandler::loadDataFromH5(const QString &filename, const QString &keyname)

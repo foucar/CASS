@@ -82,6 +82,13 @@ private:
    */
   QImage loadImage(const QString &filename);
 
+  /** save image data
+   *
+   * @param filename the name of the file to save the image in
+   * @param image the image to save
+   */
+  void saveImage(const QString &filename,const QImage &image);
+
   /** read the data from a hist file
    *
    * @return pointer to the data
@@ -89,12 +96,26 @@ private:
    */
   cass::HistogramBackend * loadDataFromHist(const QString &filename);
 
+  /** save the data from a hist file
+   *
+   * @param filename the name of the file
+   * @param data pointer to the data to save
+   */
+  void saveDataToHist(const QString &filename, cass::HistogramBackend *data);
+
   /** read the data from a CSV file
    *
    * @return pointer to the data
    * @param filename the name of the file
    */
   cass::HistogramBackend * loadDataFromCSV(const QString &filename);
+
+  /** save the data from a CSV file
+   *
+   * @param filename the name of the file
+   * @param data pointer to the data to save
+   */
+  void saveDataToCSV(const QString &filename, cass::HistogramBackend *data);
 
   /** read the data from a hdf5 file
    *
