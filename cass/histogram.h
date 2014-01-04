@@ -317,7 +317,7 @@ public:
      * @param memory_size size of the memory, used for special cases
      */
     HistogramFloatBase(size_t dim, size_t memory_size)
-        :HistogramBackend(dim,2),
+        :HistogramBackend(dim,3),
         _memory(memory_size, 0.)
     {}
 
@@ -327,7 +327,7 @@ public:
      * @param[in] in The Serializer that we read the histogram from
      */
     HistogramFloatBase(SerializerBackend& in)
-        : HistogramBackend(0,2)
+        : HistogramBackend(0,3)
     {
         deserialize(in);
     }
@@ -1028,7 +1028,9 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)con
   out.addSizet(_nbrOfFills);
   //the dimension//
   out.addSizet(_dimension);
-    //the axis properties//
+  //the event id//
+  out.addUint64(_id);
+  //the axis properties//
   for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
@@ -1050,6 +1052,8 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   _nbrOfFills = in.retrieveSizet();
   //the dimension//
   _dimension = in.retrieveSizet();
+  //the event id//
+  _id = in.retrieveUint64();
   //initialize axis for all dimensions//
   for (size_t i=0; i<_dimension;++i)
     _axis.push_back(AxisProperty(in));
