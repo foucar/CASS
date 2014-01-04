@@ -124,11 +124,9 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
   if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
       fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
       fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("jpeg").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("giv").toUpper() ||
       fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
   {
-    QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("Can't convert Data to image."));
+    instance.saveImage(filename,dynamic_cast<cass::Histogram2DFloat*>(data)->qimage());
   }
   else if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
   {
@@ -174,7 +172,7 @@ cass::HistogramBackend * FileHandler::loadDataFromHist(const QString &filename)
   cass::SerializerReadFile serializer( filename.toStdString().c_str() );
   cass::HistogramBackend* hist = new cass::HistogramFloatBase(serializer);
   serializer.close();
-  size_t dim = hist->dimension();
+  size_t dim(hist->dimension());
   delete hist;
 
   /** one needs to reopen the file using the correct derived class
