@@ -79,7 +79,7 @@ private:
   TwoDViewerData *_data;
 
   /** the color maps */
-  QMap<int,QwtLinearColorMap> _maps;
+  QMap<int,QwtLinearColorMap*> _maps;
 
   /** the z-scale control */
   MinMaxControl *_zControl;

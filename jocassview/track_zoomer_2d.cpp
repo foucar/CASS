@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 #include <QtCore/QDebug>
+#include <QtCore/QPoint>
+
 #include <qwt_raster_data.h>
 
 #include "track_zoomer_2d.h"
@@ -19,7 +21,7 @@ TrackZoomer2D::TrackZoomer2D(QwtPlotCanvas *canvas)
   setTrackerMode(AlwaysOn);
 }
 
-QwtText TrackZoomer2D::trackerText(const QwtDoublePoint & pos) const
+QwtText TrackZoomer2D::trackerText(const QPoint &pos) const
 {
     QColor bg(Qt::white);
     bg.setAlpha(200);

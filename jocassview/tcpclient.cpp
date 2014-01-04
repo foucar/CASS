@@ -45,7 +45,6 @@ QStringList TCPClient::getIdList()const
     QCoreApplication::processEvents(QEventLoop::AllEvents);
     QTest::qSleep(10);
   }
-  qDebug()<<ret<<future.result()<<_client->soap_endpoint;
   if( (future.result() != SOAP_OK) || !ret)
   {
     QMessageBox::information(0, tr("TcpClient"),
@@ -64,30 +63,11 @@ QStringList TCPClient::getIdList()const
   IdList list(serializer);
   return list.getList();
 
-//  int retcode (client.getPostprocessorIds(&ret));
-//  if( (retcode != SOAP_OK) || !ret)
-//  {
-//    stringstream ss;
-//    ss << "TCPClient(): Could not retrieve the List of Histograms on '"<<_server<<"'";
-//    throw runtime_error(ss.str());
-//  }
-//  soap_multipart::iterator attachment (client.dime.begin());
-//  if(client.dime.end() == attachment)
-//  {
-//    stringstream ss;
-//    ss << "There is no attachmend in the received soap data";
-//    throw runtime_error(ss.str());
-//  }
-////  cout << "TCPClient: DIME attachment:" << endl
-////      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
-////      << " TCPClient: Size=" << (*attachment).size << endl
-////      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-////      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-//  _transferredBytes += (*attachment).size;
-//  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//  cass::IdList list(serializer);
-//  std::list<std::string> returnlist (list.getList());
-//  return returnlist;
+//  cout << "TCPClient: DIME attachment:" << endl
+//      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
+//      << " TCPClient: Size=" << (*attachment).size << endl
+//      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+//      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
 }
 
 cass::HistogramBackend* TCPClient::getData(const QString &histogramkey, quint64 id)const
@@ -173,7 +153,6 @@ void TCPClient::setServer(const QString &serverstring)
 {
   _server = serverstring.toStdString();
   _client->soap_endpoint = _server.c_str();
-  qDebug()<<QString::fromStdString(_server)<<_client->soap_endpoint;
 }
 
 void TCPClient::quitServer() const

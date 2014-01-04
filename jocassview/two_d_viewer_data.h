@@ -26,16 +26,6 @@ public:
   /** define the shape of the data */
   typedef std::pair<size_t,size_t> shape_t;
 
-  /** default constructor */
-  TwoDViewerData();
-
-  /** copy constructor
-   *
-   * @param other the other object to copy
-   */
-  TwoDViewerData(const TwoDViewerData &other);
-
-
   /** set the data that should be wrapped
    *
    * When setting the data, the z range will be defaulty set to the min and max
@@ -47,14 +37,13 @@ public:
    * @param yrange the range in user coordinates in y
    */
   void setData(const std::vector<float> &data, const shape_t &shape,
-               const QwtDoubleInterval &xrange, const QwtDoubleInterval &yrange);
+               const QwtInterval &xrange, const QwtInterval &yrange);
 
-  /** set the range that should be displayed
+  /** return the min max values of the values in the data
    *
-   * @param min the minimum value to be displayed
-   * @param max the maximum value to be displayed
+   * @return the interval of min to max values in the data
    */
-  void setZRange(const QwtDoubleInterval & zrange);
+  QwtInterval origZInterval()const;
 
   /** return the value of the data at point x,y
    *
@@ -63,55 +52,12 @@ public:
    */
   virtual double value(double x, double y) const;
 
-  /** return the z range to be displayed
-   *
-   * @return the z range to be displayed
-   */
-  virtual QwtDoubleInterval range() const;
-
-
-  /** return the z range of the data
-   *
-   * @return the z range of the data
-   */
-  QwtDoubleInterval zRange() const;
-
-  /** return a pointer to a copy of this
-   *
-   * @return a pointer to a copy of this
-   */
-  virtual QwtRasterData * copy() const;
-
-  /** set the name of the data
-   *
-   * @param name  the name of the data
-   */
-  void setName(const QString &name);
-
-  /** retrieve the current name of the data
-   *
-   * @return the current name
-   */
-  QString name()const;
-
 private:
-  /** the range in along x (fast) dimension */
-  QwtDoubleInterval _xRange;
-
-  /** the range in along y (slow) dimension */
-  QwtDoubleInterval _yRange;
-
-  /** the value range that should be displayed */
-  QwtDoubleInterval _zRange;
-
   /** vector that contains the linearized array */
   std::vector<float> _data;
 
   /** the shape of the 2d data */
   shape_t _shape;
-
-  /** the name of the data */
-  QString _name;
 };
 }//end namespace jocassview
 #endif

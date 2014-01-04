@@ -43,7 +43,7 @@ SOURCES       += \
                  zero_d_viewer.cpp \
                  minmax_control.cpp \
                  one_d_viewer.cpp \
-                 one_d_viewer_data.cpp \
+#                 one_d_viewer_data.cpp \
                  track_zoomer_2d.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
@@ -63,7 +63,7 @@ HEADERS       += \
                  data_viewer.h \
                  zero_d_viewer.h \
                  one_d_viewer.h \
-                 one_d_viewer_data.h \
+#                 one_d_viewer_data.h \
                  two_d_viewer.h \
                  two_d_viewer_data.h \
                  minmax_control.h \

@@ -12,6 +12,7 @@
 #include "qwt_scroll_zoomer.h"
 
 class QwtRasterData;
+class QPoint;
 
 namespace jocassview
 {
@@ -38,7 +39,7 @@ public:
    * @return the text to be displayed
    * @param pos The position of the mouse
    */
-  virtual QwtText trackerText(const QwtDoublePoint &pos) const;
+  virtual QwtText trackerText(const QPoint &pos) const;
 
   /** set the data to retrieve the values from
    *

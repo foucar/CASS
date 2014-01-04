@@ -43,19 +43,20 @@ size_t OneDViewerData::size() const
 
 double OneDViewerData::x(size_t i) const
 {
-  return _xRange.minValue() + i*(_xRange.maxValue()-_xRange.minValue()/(size()-1));
+  return _xRange.minValue() + i*(_xRange.maxValue()-_xRange.minValue())/(size()-1);
 }
 
 double OneDViewerData::y(size_t i) const
 {
-  return (std::isnan(_data[i]) || std::isinf(_data[i])) ? 0 : _data[i];
+//  return (std::isnan(_data[i]) || std::isinf(_data[i])) ? 0 : _data[i];
+  return _data[i];
 }
 
 QwtDoubleRect OneDViewerData::boundingRect() const
 {
   return QwtDoubleRect(_xRange.minValue(),_yRange.minValue(),
                        _xRange.maxValue() - _xRange.minValue(),
-                       _yRange.minValue() - _yRange.minValue());
+                       _yRange.maxValue() - _yRange.minValue());
 }
 
 void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInterval &xRange)
@@ -64,7 +65,7 @@ void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInte
   _xRange = xRange;
   double ymin( 1e30);
   double ymax(-1e30);
-  for (std::vector<float>::const_iterator it(_data.begin()); it != _data.end(); ++it)
+  for (std::vector<float>::const_iterator it(_data.begin()); it != _data.end()-2; ++it)
   {
     if (std::isnan(*it) || std::isinf(*it))
       continue;
@@ -72,7 +73,9 @@ void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInte
       ymin = *it;
     if (ymax < *it)
       ymax = *it;
-    qDebug()<< *it<<" "<<ymin<<" "<<ymax<<" "<<(*it<ymin)<<" "<<(ymax<*it);
+    if (qFuzzyIsNull(*it))
+      qDebug()<<x(it-_data.begin());
   }
+  qDebug()<<ymin<<ymax;
   _yRange = QwtDoubleInterval(ymin,ymax);
 }

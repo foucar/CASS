@@ -36,79 +36,79 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   settings.beginGroup(windowTitle());
 
   // generate the list of color maps
-  _maps[-1] = QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255));
-  _maps[-1].addColorStop(0.10, QColor(0,0,0));
-  _maps[-1].addColorStop(0.80, QColor(255,255,255));
+  _maps[-1] = new QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255));
+  _maps[-1]->addColorStop(0.10, QColor(0,0,0));
+  _maps[-1]->addColorStop(0.80, QColor(255,255,255));
 
-  _maps[ 0] = QwtLinearColorMap(Qt::darkCyan, Qt::red);
-  _maps[ 0].addColorStop(0.10, QColor(Qt::darkCyan));
-  _maps[ 0].addColorStop(0.60, QColor(Qt::green));
-  _maps[ 0].addColorStop(0.90, QColor(Qt::yellow));
+  _maps[ 0] = new QwtLinearColorMap(Qt::darkCyan, Qt::red);
+  _maps[ 0]->addColorStop(0.10, QColor(Qt::darkCyan));
+  _maps[ 0]->addColorStop(0.60, QColor(Qt::green));
+  _maps[ 0]->addColorStop(0.90, QColor(Qt::yellow));
 
-  _maps[ 1] = QwtLinearColorMap(QColor(0,0,0), QColor(255,0,0));
-  _maps[ 1].addColorStop(0.10, QColor(50,0,0));
-  _maps[ 1].addColorStop(0.35, QColor(115,0,0));
-  _maps[ 1].addColorStop(0.80, QColor(180,0,0));
+  _maps[ 1] = new QwtLinearColorMap(QColor(0,0,0), QColor(255,0,0));
+  _maps[ 1]->addColorStop(0.10, QColor(50,0,0));
+  _maps[ 1]->addColorStop(0.35, QColor(115,0,0));
+  _maps[ 1]->addColorStop(0.80, QColor(180,0,0));
 
-  _maps[ 2] = QwtLinearColorMap(QColor(0,0,0), QColor(0,255,0));
-  _maps[ 2].addColorStop(0.10, QColor(0,50,0));
-  _maps[ 2].addColorStop(0.35, QColor(0,115,0));
-  _maps[ 2].addColorStop(0.80, QColor(0,180,0));
+  _maps[ 2] = new QwtLinearColorMap(QColor(0,0,0), QColor(0,255,0));
+  _maps[ 2]->addColorStop(0.10, QColor(0,50,0));
+  _maps[ 2]->addColorStop(0.35, QColor(0,115,0));
+  _maps[ 2]->addColorStop(0.80, QColor(0,180,0));
 
-  _maps[ 3] = QwtLinearColorMap(QColor(0,0,0), QColor(0,0,255));
-  _maps[ 3].addColorStop(0.10, QColor(0,0,50));
-  _maps[ 3].addColorStop(0.35, QColor(0,0,115));
-  _maps[ 3].addColorStop(0.80, QColor(0,0,180));
+  _maps[ 3] = new QwtLinearColorMap(QColor(0,0,0), QColor(0,0,255));
+  _maps[ 3]->addColorStop(0.10, QColor(0,0,50));
+  _maps[ 3]->addColorStop(0.35, QColor(0,0,115));
+  _maps[ 3]->addColorStop(0.80, QColor(0,0,180));
 
-  _maps[ 4] = QwtLinearColorMap(QColor(0,0,0), QColor(255,0,255));
-  _maps[ 4].addColorStop(0.10, QColor(50,0,50));
-  _maps[ 4].addColorStop(0.35, QColor(115,0,115));
-  _maps[ 4].addColorStop(0.80, QColor(180,0,180));
+  _maps[ 4] = new QwtLinearColorMap(QColor(0,0,0), QColor(255,0,255));
+  _maps[ 4]->addColorStop(0.10, QColor(50,0,50));
+  _maps[ 4]->addColorStop(0.35, QColor(115,0,115));
+  _maps[ 4]->addColorStop(0.80, QColor(180,0,180));
 
-  _maps[ 5] = QwtLinearColorMap(QColor(0,0,0), QColor(0,255,255));
-  _maps[ 5].addColorStop(0.10, QColor(0,50,50));
-  _maps[ 5].addColorStop(0.35, QColor(0,115,115));
-  _maps[ 5].addColorStop(0.80, QColor(0,180,180));
+  _maps[ 5] = new QwtLinearColorMap(QColor(0,0,0), QColor(0,255,255));
+  _maps[ 5]->addColorStop(0.10, QColor(0,50,50));
+  _maps[ 5]->addColorStop(0.35, QColor(0,115,115));
+  _maps[ 5]->addColorStop(0.80, QColor(0,180,180));
 
-  _maps[ 6] = QwtLinearColorMap(Qt::black, Qt::red);
-  _maps[ 6].addColorStop(0.10, Qt::blue);
-  _maps[ 6].addColorStop(0.30, Qt::darkCyan);
-  _maps[ 6].addColorStop(0.40, Qt::cyan);
-  _maps[ 6].addColorStop(0.60, Qt::darkGreen);
-  _maps[ 6].addColorStop(0.70, Qt::green);
-  _maps[ 6].addColorStop(0.95, Qt::yellow);
+  _maps[ 6] = new QwtLinearColorMap(Qt::black, Qt::red);
+  _maps[ 6]->addColorStop(0.10, Qt::blue);
+  _maps[ 6]->addColorStop(0.30, Qt::darkCyan);
+  _maps[ 6]->addColorStop(0.40, Qt::cyan);
+  _maps[ 6]->addColorStop(0.60, Qt::darkGreen);
+  _maps[ 6]->addColorStop(0.70, Qt::green);
+  _maps[ 6]->addColorStop(0.95, Qt::yellow);
 
-  _maps[ 7] = QwtLinearColorMap(Qt::darkBlue, Qt::white);
-  _maps[ 7].addColorStop(0.15, Qt::blue);
-  _maps[ 7].addColorStop(0.30, QColor(255,90,255));
-  _maps[ 7].addColorStop(0.40, Qt::yellow);
-  _maps[ 7].addColorStop(0.60, Qt::darkYellow);
-  _maps[ 7].addColorStop(0.70, Qt::red);
-  _maps[ 7].addColorStop(0.80, Qt::darkRed);
-  _maps[ 7].addColorStop(0.95, QColor(149,24,0));
+  _maps[ 7] = new QwtLinearColorMap(Qt::darkBlue, Qt::white);
+  _maps[ 7]->addColorStop(0.15, Qt::blue);
+  _maps[ 7]->addColorStop(0.30, QColor(255,90,255));
+  _maps[ 7]->addColorStop(0.40, Qt::yellow);
+  _maps[ 7]->addColorStop(0.60, Qt::darkYellow);
+  _maps[ 7]->addColorStop(0.70, Qt::red);
+  _maps[ 7]->addColorStop(0.80, Qt::darkRed);
+  _maps[ 7]->addColorStop(0.95, QColor(149,24,0));
 
-  _maps[ 8] = QwtLinearColorMap(QColor(65,105,241), QColor(255,51,204));
-  _maps[ 8].addColorStop(0.10, QColor(0,127,255));
-  _maps[ 8].addColorStop(0.60, QColor(221,0,225));
-  _maps[ 8].addColorStop(0.95, QColor(255,51,204));
+  _maps[ 8] = new QwtLinearColorMap(QColor(65,105,241), QColor(255,51,204));
+  _maps[ 8]->addColorStop(0.10, QColor(0,127,255));
+  _maps[ 8]->addColorStop(0.60, QColor(221,0,225));
+  _maps[ 8]->addColorStop(0.95, QColor(255,51,204));
 
-  _maps[ 9] = QwtLinearColorMap(QColor(72,6,7), Qt::white);
-  _maps[ 9].addColorStop(0.10, QColor(72,6,7));
-  _maps[ 9].addColorStop(0.20, Qt::darkRed);
-  _maps[ 9].addColorStop(0.35, Qt::red);
-  _maps[ 9].addColorStop(0.65, QColor(255,195,59));
-  _maps[ 9].addColorStop(0.85, Qt::yellow);
-  _maps[ 9].addColorStop(0.98, Qt::white);
+  _maps[ 9] = new QwtLinearColorMap(QColor(72,6,7), Qt::white);
+  _maps[ 9]->addColorStop(0.10, QColor(72,6,7));
+  _maps[ 9]->addColorStop(0.20, Qt::darkRed);
+  _maps[ 9]->addColorStop(0.35, Qt::red);
+  _maps[ 9]->addColorStop(0.65, QColor(255,195,59));
+  _maps[ 9]->addColorStop(0.85, Qt::yellow);
+  _maps[ 9]->addColorStop(0.98, Qt::white);
 
-  _maps[10] = QwtLinearColorMap(QColor(16,16,255), QColor(0,255,129));
-  _maps[10].addColorStop(0.10, QColor(16,16,255));
-  _maps[10].addColorStop(0.50, Qt::cyan);
-  _maps[10].addColorStop(0.90, QColor(0,255,155));
+  _maps[10] = new QwtLinearColorMap(QColor(16,16,255), QColor(0,255,129));
+  _maps[10]->addColorStop(0.10, QColor(16,16,255));
+  _maps[10]->addColorStop(0.50, Qt::cyan);
+  _maps[10]->addColorStop(0.90, QColor(0,255,155));
 
-  _maps[11] = QwtLinearColorMap(QColor(10,10,10), QColor(184,115,51));
-  _maps[11].addColorStop(0.10, QColor(10,10,10));
-  _maps[11].addColorStop(0.20, QColor(149,34,0));
-  _maps[11].addColorStop(0.90, QColor(184,115,51));
+  _maps[11] = new QwtLinearColorMap(QColor(10,10,10), QColor(184,115,51));
+  _maps[11]->addColorStop(0.10, QColor(10,10,10));
+  _maps[11]->addColorStop(0.20, QColor(149,34,0));
+  _maps[11]->addColorStop(0.90, QColor(184,115,51));
 
 
   //create an vertical layout to put the plot and the toolbar in
@@ -119,7 +119,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   QwtScaleWidget *rightAxis(_plot->axisWidget(QwtPlot::yRight));
   rightAxis->setTitle("Intensity");
   rightAxis->setColorBarEnabled(true);
-  rightAxis->setColorMap(QwtDoubleInterval(0,1),_maps[-1]);
+  rightAxis->setColorMap(QwtInterval(0,1),_maps[-1]);
   _plot->setAxisScale(QwtPlot::yRight,0,1);
   _plot->axisWidget(QwtPlot::xBottom)->setTitle("x-axis");
   _plot->axisWidget(QwtPlot::yLeft)->setTitle("y-axis");
@@ -131,12 +131,12 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // create the spectrom that is displayed in the plot
   int colorid(settings.value("ColorTableID",-1).toInt());
   _spectrogram = new QwtPlotSpectrogram();
-  _spectrogram->setData(*_data);
+  _spectrogram->setData(_data);
   _spectrogram->attach(_plot);
   _spectrogram->setColorMap(_maps[colorid]);
   // create a zoomer for the 2d data
   _zoomer = new TrackZoomer2D(_plot->canvas());
-  _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
+//  _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
                            Qt::RightButton, Qt::ControlModifier);
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
@@ -182,9 +182,9 @@ void TwoDViewer::setData(cass::HistogramBackend *hist)
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
   const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
   _data->setData(histogram->memory(),std::make_pair(xaxis.nbrBins(),yaxis.nbrBins()),
-                 QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()),
-                 QwtDoubleInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
-  _spectrogram->setData(*_data);
+                 QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()),
+                 QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
+  _spectrogram->setData(_data);
   _spectrogram->invalidateCache();
   _spectrogram->itemChanged();
 
@@ -221,14 +221,13 @@ QString TwoDViewer::type() const
 
 void TwoDViewer::replot()
 {
-  const double min(!_zControl->autoscale() ? _zControl->min() : _data->zRange().minValue());
-  const double max(!_zControl->autoscale() ? _zControl->max() : _data->zRange().maxValue());
+  const double min(!_zControl->autoscale() ? _zControl->min() : _data->origZInterval().minValue());
+  const double max(!_zControl->autoscale() ? _zControl->max() : _data->origZInterval().maxValue());
   int colorid = _colorId->value();
 
-  _data->setZRange(QwtDoubleInterval(min,max));
-  _spectrogram->setData(*_data);
+  _spectrogram->data()->setInterval(Qt::ZAxis,QwtInterval(min,max));
   _spectrogram->setColorMap(_maps[colorid]);
-  _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data().range(),_maps[colorid]);
+  _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data()->interval(Qt::ZAxis),_maps[colorid]);
   _plot->setAxisScale(QwtPlot::yRight,min,max);
   _plot->replot();
 

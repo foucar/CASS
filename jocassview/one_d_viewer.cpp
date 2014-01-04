@@ -7,6 +7,7 @@
  */
 
 #include <QtCore/QSettings>
+#include <QtCore/QVector>
 #include <QtCore/QDebug>
 
 #include <QtGui/QVBoxLayout>
@@ -29,7 +30,7 @@
 
 #include "histogram.h"
 #include "minmax_control.h"
-#include "one_d_viewer_data.h"
+//#include "one_d_viewer_data.h"
 #include "file_handler.h"
 
 using namespace jocassview;
@@ -47,7 +48,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add the plot where the 1d data will be displayed in to layout
   _plot = new QwtPlot(this);
   // add data and a curve that should be displayed
-  _curvesData.push_front(new OneDViewerData);
+//  _curvesData.push_front(new OneDViewerData);
   _curves.push_front(new QwtPlotCurve);
   _curves[0]->setTitle("current data");
   QPen pen;
@@ -131,9 +132,10 @@ void OneDViewer::setData(cass::HistogramBackend *hist)
 {
   if (!hist)
     return;
+
   cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
-  QwtArray<double> xx(histogram->size());
-  QwtArray<double> yy(histogram->size());
+  QVector<double> xx(histogram->size());
+  QVector<double> yy(histogram->size());
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
   for (size_t i=0; i<xaxis.nbrBins();++i)
   {
@@ -141,14 +143,14 @@ void OneDViewer::setData(cass::HistogramBackend *hist)
     const float yVal(histogram->memory()[i]);
     yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
   }
-  _curves[0]->setData(xx,yy);
+  _curves[0]->setSamples(xx,yy);
 
-//  qDebug()<<_curves[0]->boundingRect();
-//
 //  _curvesData[0]->setData(histogram->memory(),
 //                          QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
 //  _curves[0]->setData(*_curvesData[0]);
 
+  _curves[0]->setStyle(QwtPlotCurve::Steps);
+  _curves[0]->setPaintAttribute(QwtPlotCurve::ClipPolygons);
   replot();
 }
 
@@ -176,8 +178,8 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   curve->setPen(pen);
   curve->setTitle(QString::fromStdString(histogram->key()));
 
-  QwtArray<double> xx(histogram->size());
-  QwtArray<double> yy(histogram->size());
+  QVector<double> xx(histogram->size());
+  QVector<double> yy(histogram->size());
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
   for (size_t i=0; i<xaxis.nbrBins();++i)
   {
@@ -185,7 +187,8 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
     const float yVal(histogram->memory()[i]);
     yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
   }
-  curve->setData(xx,yy);
+  curve->setSamples(xx,yy);
+  curve->setStyle(QwtPlotCurve::Steps);
   curve->attach(_plot);
   QWidget *curveWidget(_legend->find(curve));
   curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -229,15 +232,32 @@ void OneDViewer::replot()
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
   // set the axis limits
-  if (_xControl->autoscale())
+  if (_xControl->autoscale() && !_xControl->log())
     _plot->setAxisAutoScale(QwtPlot::xBottom);
+  else if (_xControl->autoscale() && _xControl->log())
+    _plot->setAxisScale(QwtPlot::xBottom,0.01,_curves[0]->boundingRect().right());
   else
     _plot->setAxisScale(QwtPlot::xBottom,_xControl->min(),_xControl->max());
 
-  if (_yControl->autoscale())
+  qDebug()<< _yControl->autoscale() << _yControl->log();
+//  dynamic_cast<const OneDViewerData&>(_curves[0]->data());
+  if (_yControl->autoscale() && !_yControl->log())
+  {
+    qDebug()<<"autoscale and not log";
     _plot->setAxisAutoScale(QwtPlot::yLeft);
+  }
+  else if (_yControl->autoscale() && _yControl->log())
+  {
+    qDebug()<<"autoscale and log";
+    qDebug()<<qMax(0.01,_curves[0]->boundingRect().top());
+    qDebug()<<_curves[0]->boundingRect().bottom();
+    _plot->setAxisScale(QwtPlot::yLeft,qMax(0.01,_curves[0]->boundingRect().top()),_curves[0]->boundingRect().bottom());
+  }
   else
+  {
+    qDebug()<<"otherwise";
     _plot->setAxisScale(QwtPlot::yLeft,_yControl->min(),_yControl->max());
+  }
 
   // update the layout and replot the plot
   _plot->updateLayout();
