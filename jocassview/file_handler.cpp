@@ -248,22 +248,25 @@ void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend 
   }
 }
 
-cass::HistogramBackend * FileHandler::loadDataFromH5(const QString &filename, const QString &keyname)
+cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &filename, const QString &keyname)
 {
 #ifdef HDF5
   try
   {
     hdf5::Handler h5handle(filename.toStdString(),"r");
 
-    /** fill the combobox with all displayable items in the file */
+    /** get the list of all items in the h5 file */
     list<string> dataset(h5handle.datasets());
     QStringList items;
     for (list<string>::const_iterator it=dataset.begin(); it != dataset.end(); ++it)
       items.append(QString::fromStdString(*it));
 
-    /** if no key is given request one from the user */
+    /** if no key is given or the given key is not on the list,
+     *  request one from the user
+     */
     QString key(keyname);
-    if (key == "" || key.isEmpty())
+    qDebug()<<key<<key.isEmpty()<<(key =="")<< !items.contains(key);
+    if (key == "" || key.isEmpty() || !items.contains(key))
     {
       bool ok(false);
       QString item(QInputDialog::getItem(0, QObject::tr("Select Key"),
