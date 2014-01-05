@@ -59,6 +59,34 @@ public:
    */
   void setData(const std::vector<float> &data, const QwtInterval &xRange);
 
+  /** set up the bounding rect for when x should be log scale
+   *
+   * in case of log-scale:
+   * find the minimum x value that is bigger than 0 and set Left to be that
+   * value.
+   *
+   * in case of lin-scale:
+   * set Left to the lowest value
+   *
+   * @param log when this parameter is true the scale will be set up for
+   *            log-scale otherwise for lin-scale
+   */
+  void setXRangeForLog(bool log);
+
+  /** set up the bounding rect for when y should be log scale
+   *
+   * in case of log-scale:
+   * find the minimum y value that is bigger than 0 and a valid number, set
+   * bottom to that value.
+   *
+   * in case of lin-scale:
+   * set bottom to the lowest value
+   *
+   * @param log when this parameter is true the scale will be set up for
+   *            log-scale otherwise for lin-scale
+   */
+  void setYRangeForLog(bool log);
+
 public:
   /** vector that contains the linearized array */
   std::vector<float> _data;
@@ -68,6 +96,15 @@ public:
 
   /** the range in y */
   QwtInterval _yRange;
+
+  /** the minimum positions in x and y for log scales */
+  QPointF _logMinPos;
+
+  /** flag to tell whether x scale will be drawn in log */
+  bool _xLog;
+
+  /** flag to tell whether y scale will be drawn in log */
+  bool _yLog;
 
   /** the name of the data */
   QString _name;

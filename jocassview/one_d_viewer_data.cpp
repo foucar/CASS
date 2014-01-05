@@ -27,32 +27,69 @@ size_t OneDViewerData::size() const
 
 QPointF OneDViewerData::sample(size_t i) const
 {
-  const qreal x(_xRange.minValue() + i*(_xRange.maxValue()-_xRange.minValue())/(size()-1));
+  const qreal xMin(d_boundingRect.left());
+  const qreal xWidth(d_boundingRect.width());
+  const qreal x(xMin + i*xWidth/(size()-1));
   const qreal y(_data[i]);
   return QPointF(x,y);
 }
 
 QRectF OneDViewerData::boundingRect() const
 {
-  return QRectF(_xRange.minValue(),_yRange.minValue(),
-                _xRange.maxValue() - _xRange.minValue(),
-                _yRange.maxValue() - _yRange.minValue());
+  QRectF rect(d_boundingRect);
+  if (_xLog)
+    rect.setLeft(_logMinPos.x());
+  if (_yLog)
+    rect.setTop(_logMinPos.y());
+  return rect;
 }
 
 void OneDViewerData::setData(const std::vector<float> &data, const QwtInterval &xRange)
 {
   _data = data;
-  _xRange = xRange;
-  double ymin( 1e30);
-  double ymax(-1e30);
-  for (std::vector<float>::const_iterator it(_data.begin()); it != _data.end()-2; ++it)
+  d_boundingRect.setLeft(xRange.minValue());
+  d_boundingRect.setRight(xRange.maxValue());
+  d_boundingRect.setTop(1e30);
+  d_boundingRect.setBottom(-1e30);
+  _logMinPos.setX(1e30);
+  _logMinPos.setY(1e30);
+
+  /** go through all data points of the curve and find min/max values for lin
+   *  and log scale purposes
+   */
+  for (size_t i(0); i < size(); ++i)
   {
-    if (std::isnan(*it) || std::isinf(*it))
+    const qreal x(sample(i).x());
+    const qreal y(sample(i).y());
+
+    /** skip the check if the either coordinate of the point is not a number */
+    if (!std::isfinite(x) || !std::isfinite(y))
       continue;
-    if (*it < ymin)
-      ymin = *it;
-    if (ymax < *it)
-      ymax = *it;
+
+    /** find the max y value */
+    if (d_boundingRect.bottom() < y)
+      d_boundingRect.setBottom(y);
+
+    /** find the min y value */
+    if (y < d_boundingRect.top())
+      d_boundingRect.setTop(y);
+
+    /** find the min y value that is positive */
+    if (y < _logMinPos.y() && 0 < y)
+      _logMinPos.setY(y);
+
+    /** find the min x value that is positive */
+    if (x < _logMinPos.x() && 0 < x)
+      _logMinPos.setX(x);
   }
-  _yRange = QwtInterval(ymin,ymax);
+}
+
+void OneDViewerData::setXRangeForLog(bool log)
+{
+  _xLog = log;
+}
+
+void OneDViewerData::setYRangeForLog(bool log)
+{
+  _yLog = log;
 }
