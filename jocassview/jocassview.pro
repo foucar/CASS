@@ -55,7 +55,6 @@ SOURCES       += \
                  id_list.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
-#                 qwt_logcolor_map.cpp \
 
 HEADERS       += \
                  jocassviewer.h \
