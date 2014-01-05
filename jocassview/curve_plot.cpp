@@ -53,12 +53,12 @@ void PlotCurve::drawSeries(QPainter *painter,
   while(i<=to)
   {
     /** find the first point that is valid */
-    while(!validate(d_series->sample(i),xMap,yMap) && i <= to)
+    while(!validate(data()->sample(i),xMap,yMap) && i <= to)
       ++i;
     const int firstValid(i);
 
     /** find the last point that is valid */
-    while(validate(d_series->sample(i),xMap,yMap) && i <= to)
+    while(validate(data()->sample(i),xMap,yMap) && i <= to)
       ++i;
     const int lastValid(i-1);
 
