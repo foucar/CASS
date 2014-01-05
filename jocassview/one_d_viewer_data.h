@@ -13,8 +13,7 @@
 
 #include <QtCore/QString>
 
-#include "qwt_data.h"
-#include "qwt_double_interval.h"
+#include <qwt_series_data.h>
 
 namespace jocassview
 {
@@ -23,7 +22,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class OneDViewerData : public QwtData
+class OneDViewerData : public QwtSeriesData<QPointF>
 {
 public:
   /** default constructor */
@@ -35,12 +34,6 @@ public:
    */
   OneDViewerData(const OneDViewerData& other);
 
-  /** return a pointer to a copy of this
-   *
-   * @return a pointer to a copy of this
-   */
-  virtual QwtData * copy() const;
-
   /** return the size of the data
    *
    * @return the size of the vector that holds the data
@@ -51,36 +44,30 @@ public:
    *
    * @param i the datapoint whos x value should be returned
    */
-  virtual double x(size_t i) const;
-
-  /** return the y value for data point
-   *
-   * @param i the datapoint whos y value should be returned
-   */
-  virtual double y(size_t i) const;
+  virtual QPointF sample(size_t i) const;
 
   /** return the bounding rectangle
    *
    * @return the bounding rectangle
    */
-  virtual QwtDoubleRect boundingRect() const;
+  virtual QRectF boundingRect() const;
 
   /** set the data
    *
    * @param data vector containing the data
    * @param xRange the x Range
    */
-  void setData(const std::vector<float> &data, const QwtDoubleInterval &xRange);
+  void setData(const std::vector<float> &data, const QwtInterval &xRange);
 
 public:
   /** vector that contains the linearized array */
   std::vector<float> _data;
 
   /** the range in x */
-  QwtDoubleInterval _xRange;
+  QwtInterval _xRange;
 
   /** the range in y */
-  QwtDoubleInterval _yRange;
+  QwtInterval _yRange;
 
   /** the name of the data */
   QString _name;

@@ -84,6 +84,7 @@ void JoCASSViewer::loadData(QString filename, QString key)
 
 void JoCASSViewer::on_displayitem_checked(QString key, bool state)
 {
+  qDebug()<<"on_displayable_checked"<<key<<state;
   if (state)
   {
     _viewers[key] = 0;

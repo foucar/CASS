@@ -13,27 +13,11 @@
 using namespace jocassview;
 
 OneDViewerData::OneDViewerData()
-  : QwtData(),
-    _xRange(QwtDoubleInterval(0,1)),
-    _yRange(QwtDoubleInterval(0,1)),
+  : _xRange(QwtInterval(0,1)),
+    _yRange(QwtInterval(0,1)),
     _name("")
 {
 
-}
-
-OneDViewerData::OneDViewerData(const OneDViewerData &other)
-  : QwtData(),
-    _data(other._data),
-    _xRange(other._xRange),
-    _yRange(other._yRange),
-    _name(other._name)
-{
-
-}
-
-QwtData * OneDViewerData::copy() const
-{
-  return new OneDViewerData(*this);
 }
 
 size_t OneDViewerData::size() const
@@ -41,25 +25,21 @@ size_t OneDViewerData::size() const
   return _data.size();
 }
 
-double OneDViewerData::x(size_t i) const
+QPointF OneDViewerData::sample(size_t i) const
 {
-  return _xRange.minValue() + i*(_xRange.maxValue()-_xRange.minValue())/(size()-1);
+  const qreal x(_xRange.minValue() + i*(_xRange.maxValue()-_xRange.minValue())/(size()-1));
+  const qreal y(_data[i]);
+  return QPointF(x,y);
 }
 
-double OneDViewerData::y(size_t i) const
+QRectF OneDViewerData::boundingRect() const
 {
-//  return (std::isnan(_data[i]) || std::isinf(_data[i])) ? 0 : _data[i];
-  return _data[i];
+  return QRectF(_xRange.minValue(),_yRange.minValue(),
+                _xRange.maxValue() - _xRange.minValue(),
+                _yRange.maxValue() - _yRange.minValue());
 }
 
-QwtDoubleRect OneDViewerData::boundingRect() const
-{
-  return QwtDoubleRect(_xRange.minValue(),_yRange.minValue(),
-                       _xRange.maxValue() - _xRange.minValue(),
-                       _yRange.maxValue() - _yRange.minValue());
-}
-
-void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInterval &xRange)
+void OneDViewerData::setData(const std::vector<float> &data, const QwtInterval &xRange)
 {
   _data = data;
   _xRange = xRange;
@@ -73,9 +53,6 @@ void OneDViewerData::setData(const std::vector<float> &data, const QwtDoubleInte
       ymin = *it;
     if (ymax < *it)
       ymax = *it;
-    if (qFuzzyIsNull(*it))
-      qDebug()<<x(it-_data.begin());
   }
-  qDebug()<<ymin<<ymax;
-  _yRange = QwtDoubleInterval(ymin,ymax);
+  _yRange = QwtInterval(ymin,ymax);
 }

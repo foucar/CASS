@@ -125,6 +125,8 @@ private slots:
 
   /** react when addGraph action has been triggered
    *
+   * use the openfile dialog to get the graph. Then use the FileHandler to
+   * retrieve the data form the file.
    */
   void on_add_graph_triggered();
 

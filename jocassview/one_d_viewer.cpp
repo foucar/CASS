@@ -30,7 +30,7 @@
 
 #include "histogram.h"
 #include "minmax_control.h"
-//#include "one_d_viewer_data.h"
+#include "one_d_viewer_data.h"
 #include "file_handler.h"
 
 using namespace jocassview;
@@ -50,10 +50,11 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // add data and a curve that should be displayed
 //  _curvesData.push_front(new OneDViewerData);
   _curves.push_front(new QwtPlotCurve);
-  _curves[0]->setTitle("current data");
   QPen pen;
   pen.setColor(settings.value("CurveColor",Qt::blue).value<QColor>());
   pen.setWidth(settings.value("CurveWidth",1).toInt());
+  _curves[0]->setTitle("current data");
+  _curves[0]->setStyle(QwtPlotCurve::Steps);
   _curves[0]->setPen(pen);
   _curves[0]->attach(_plot);
   // add a grid to show on the plot
@@ -116,8 +117,6 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // set the widgets layout
   setLayout(layout);
 
-  replot();
-
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
@@ -134,23 +133,11 @@ void OneDViewer::setData(cass::HistogramBackend *hist)
     return;
 
   cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
-  QVector<double> xx(histogram->size());
-  QVector<double> yy(histogram->size());
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
-  for (size_t i=0; i<xaxis.nbrBins();++i)
-  {
-    xx[i] = xaxis.position(i);
-    const float yVal(histogram->memory()[i]);
-    yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
-  }
-  _curves[0]->setSamples(xx,yy);
 
-//  _curvesData[0]->setData(histogram->memory(),
-//                          QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
-//  _curves[0]->setData(*_curvesData[0]);
-
-  _curves[0]->setStyle(QwtPlotCurve::Steps);
-  _curves[0]->setPaintAttribute(QwtPlotCurve::ClipPolygons);
+  OneDViewerData *data(new OneDViewerData);
+  data->setData(histogram->memory(), QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
+  _curves[0]->setData(data);
   replot();
 }
 
@@ -177,40 +164,29 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   pen.setColor(QColor::fromHsv(qrand() % 256, 255, 190));
   curve->setPen(pen);
   curve->setTitle(QString::fromStdString(histogram->key()));
-
-  QVector<double> xx(histogram->size());
-  QVector<double> yy(histogram->size());
-  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
-  for (size_t i=0; i<xaxis.nbrBins();++i)
-  {
-    xx[i] = xaxis.position(i);
-    const float yVal(histogram->memory()[i]);
-    yy[i] = (std::isnan(yVal) || std::isinf(yVal)) ? 0 : yVal;
-  }
-  curve->setSamples(xx,yy);
   curve->setStyle(QwtPlotCurve::Steps);
   curve->attach(_plot);
   QWidget *curveWidget(_legend->find(curve));
   curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
 
-//  qDebug()<<_curves[0]->boundingRect();
-//
-//  _curvesData[0]->setData(histogram->memory(),
-//                          QwtDoubleInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
-//  _curves[0]->setData(*_curvesData[0]);
+  OneDViewerData *data(new OneDViewerData);
+  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
+  data->setData(histogram->memory(), QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
+  curve->setData(data);
 
   replot();
 }
 
 void OneDViewer::replot()
 {
-  // check if grid should be enabled
+  /** check if grid should be enabled */
   _grid->enableX(_gridControl->isChecked());
   _grid->enableY(_gridControl->isChecked());
 
-  // check if legend should be drawn
-  // (hide all legend items and update the layout if not)
+  /** check if legend should be drawn
+   *  (hide all legend items and update the layout if not)
+   */
   QList<QWidget*> list(_legend->legendItems());
   for (int i=0; i<list.size();++i)
   {
@@ -220,50 +196,37 @@ void OneDViewer::replot()
       list.at(i)->hide();
   }
 
-  // check if the scales should be log or linear
+  QwtLog10ScaleEngine *log(new QwtLog10ScaleEngine);
+  log->setAttribute(QwtScaleEngine::Symmetric);
+
+  /** check if the scales should be log or linear */
   if(_xControl->log())
     _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLog10ScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
 
   if(_yControl->log())
-    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
+//    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
+    _plot->setAxisScaleEngine(QwtPlot::yLeft, log);
   else
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
-  // set the axis limits
-  if (_xControl->autoscale() && !_xControl->log())
+  /** check if autoscale, and set the axis limits */
+  if (_xControl->autoscale())
     _plot->setAxisAutoScale(QwtPlot::xBottom);
-  else if (_xControl->autoscale() && _xControl->log())
-    _plot->setAxisScale(QwtPlot::xBottom,0.01,_curves[0]->boundingRect().right());
   else
     _plot->setAxisScale(QwtPlot::xBottom,_xControl->min(),_xControl->max());
 
-  qDebug()<< _yControl->autoscale() << _yControl->log();
-//  dynamic_cast<const OneDViewerData&>(_curves[0]->data());
-  if (_yControl->autoscale() && !_yControl->log())
-  {
-    qDebug()<<"autoscale and not log";
+  if (_yControl->autoscale())
     _plot->setAxisAutoScale(QwtPlot::yLeft);
-  }
-  else if (_yControl->autoscale() && _yControl->log())
-  {
-    qDebug()<<"autoscale and log";
-    qDebug()<<qMax(0.01,_curves[0]->boundingRect().top());
-    qDebug()<<_curves[0]->boundingRect().bottom();
-    _plot->setAxisScale(QwtPlot::yLeft,qMax(0.01,_curves[0]->boundingRect().top()),_curves[0]->boundingRect().bottom());
-  }
   else
-  {
-    qDebug()<<"otherwise";
     _plot->setAxisScale(QwtPlot::yLeft,_yControl->min(),_yControl->max());
-  }
 
-  // update the layout and replot the plot
+  /** update the layout and replot the plot */
   _plot->updateLayout();
   _plot->replot();
 
-  // save the states of the controls
+  /** save the states of the controls */
   QSettings settings;
   settings.beginGroup(windowTitle());
   settings.setValue("CurveColor",_curves[0]->pen().color());
@@ -274,13 +237,26 @@ void OneDViewer::replot()
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)
 {
+  /** check if the sender of the signal is of widget type (is the legend item) */
   if (!sender()->isWidgetType())
     return;
 
+  /** retrieve the legenditem widget and the corresponding curve, determine the
+   *  position where the right click happen to be able to open the menu at this
+   *  position
+   */
   QWidget *curveWidget(dynamic_cast<QWidget*>(sender()));
   QwtPlotCurve *curve(dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget)));
   QPoint globalPos(curveWidget->mapToGlobal(pos));
 
+  /** create the context menu and execute it (block in this function until a
+   *  choice has been made).
+   *
+   *  In case this is the main curve (name is the name of the main curve), don't
+   *  add the option to delete the curve. Otherwise create and connect their
+   *  triggered signals to the appropriate private slots that will react on
+   *  the choice.
+   */
   QMenu menu;
   QAction *act;
   act = menu.addAction(tr("Color"),this,SLOT(change_curve_color()));
