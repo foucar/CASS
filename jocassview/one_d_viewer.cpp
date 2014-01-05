@@ -32,6 +32,7 @@
 #include "minmax_control.h"
 #include "one_d_viewer_data.h"
 #include "file_handler.h"
+#include "curve_plot.h"
 
 using namespace jocassview;
 
@@ -48,7 +49,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add the plot where the 1d data will be displayed in to layout
   _plot = new QwtPlot(this);
   // add a curve that should be displayed
-  _curves.push_front(new QwtPlotCurve);
+  _curves.push_front(new PlotCurve);
   _curves[0]->setTitle("current data");
   OneDViewerData *data(new OneDViewerData);
   _curves[0]->setData(data);
@@ -157,8 +158,8 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   if (!histogram)
     return;
 
-  _curves.push_back(new QwtPlotCurve);
-  QwtPlotCurve * curve(_curves.back());
+  _curves.push_back(new PlotCurve);
+  PlotCurve * curve(_curves.back());
 
   QPen pen;
   pen.setWidth(1);
@@ -247,7 +248,7 @@ void OneDViewer::on_legend_right_clicked(QPoint pos)
    *  position
    */
   QWidget *curveWidget(dynamic_cast<QWidget*>(sender()));
-  QwtPlotCurve *curve(dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget)));
+  PlotCurve *curve(dynamic_cast<PlotCurve*>(_legend->find(curveWidget)));
   QPoint globalPos(curveWidget->mapToGlobal(pos));
 
   /** create the context menu and execute it (block in this function until a
@@ -282,14 +283,14 @@ void OneDViewer::on_legend_clicked(QwtPlotItem *item)
   replot();
 }
 
-void OneDViewer::change_curve_color(QwtPlotCurve *curve)
+void OneDViewer::change_curve_color(PlotCurve *curve)
 {
   if (!curve)
   {
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
   }
 
   QPen pen(curve->pen());
@@ -302,14 +303,14 @@ void OneDViewer::change_curve_color(QwtPlotCurve *curve)
   replot();
 }
 
-void OneDViewer::change_curve_width(QwtPlotCurve *curve)
+void OneDViewer::change_curve_width(PlotCurve *curve)
 {
   if (!curve)
   {
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
   }
 
   QPen pen(curve->pen());
@@ -323,14 +324,14 @@ void OneDViewer::change_curve_width(QwtPlotCurve *curve)
   replot();
 }
 
-void OneDViewer::remove_curve(QwtPlotCurve *curve)
+void OneDViewer::remove_curve(PlotCurve *curve)
 {
   if (!curve)
   {
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<QwtPlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
   }
 
   _curves.removeAll(curve);

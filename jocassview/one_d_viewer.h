@@ -19,7 +19,6 @@ class Histogram1DFloat;
 }//end namespace cass
 class QAction;
 class QwtPlot;
-class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtLegend;
 class QwtPlotItem;
@@ -28,6 +27,7 @@ namespace jocassview
 {
 class MinMaxControl;
 class OneDViewerData;
+class PlotCurve;
 
 /** a viewer that displays 1d data
  *
@@ -101,7 +101,7 @@ private slots:
    *
    * @param curve the curve to change is the senders parent widget
    */
-  void change_curve_color(QwtPlotCurve *curve=0);
+  void change_curve_color(PlotCurve *curve=0);
 
   /** change the curves line width
    *
@@ -111,7 +111,7 @@ private slots:
    *
    * @param curve the curve to change is the senders parent widget
    */
-  void change_curve_width(QwtPlotCurve *curve=0);
+  void change_curve_width(PlotCurve *curve=0);
 
   /** remove the curve from the plot
    *
@@ -121,7 +121,7 @@ private slots:
    *
    * @param curve the curve to remove from the plot
    */
-  void remove_curve(QwtPlotCurve *curve=0);
+  void remove_curve(PlotCurve *curve=0);
 
   /** react when addGraph action has been triggered
    *
@@ -141,7 +141,7 @@ private:
   MinMaxControl *_yControl;
 
   /** this plots curves */
-  QList<QwtPlotCurve*> _curves;
+  QList<PlotCurve*> _curves;
 
   /** this plots curves */
   QList<OneDViewerData*> _curvesData;
