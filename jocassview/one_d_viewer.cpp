@@ -101,7 +101,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   toolbar->addSeparator();
 
   // Add x-axis control to the toolbar
-  _xControl = new MinMaxControl(QString(windowTitle() + "/x-scale"));
+  _xControl = new MinMaxControl(QString(windowTitle() + "/x-scale"),toolbar);
   connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_xControl);
 
@@ -109,7 +109,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   toolbar->addSeparator();
 
   // Add y-axis control to the toolbar
-  _yControl = new MinMaxControl(QString(windowTitle() + "/y-scale"));
+  _yControl = new MinMaxControl(QString(windowTitle() + "/y-scale"),toolbar);
   connect(_yControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_yControl);
 

@@ -7,6 +7,7 @@
  */
 
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QCheckBox>
@@ -14,12 +15,13 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
+#include <QtGui/QToolBar>
 
 #include "minmax_control.h"
 
 using namespace jocassview;
 
-MinMaxControl::MinMaxControl(QString title, QWidget *parent)
+MinMaxControl::MinMaxControl(QString title, QToolBar *parent)
   : QWidget(parent)
 {
   // set the title of this widget
@@ -38,6 +40,9 @@ MinMaxControl::MinMaxControl(QString title, QWidget *parent)
   _log->setCheckable(true);
   _log->setChecked(settings.value("LogScale",false).toBool());
   _log->setToolTip(title + tr(": Plot the axis in logrithmic scale"));
+  _log->setToolButtonStyle(parent->toolButtonStyle());
+  _log->setIconSize(parent->iconSize());
+  _log->setAutoRaise(true);
   connect(_log,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
   layout->addWidget(_log);
 
@@ -47,6 +52,9 @@ MinMaxControl::MinMaxControl(QString title, QWidget *parent)
   _auto->setCheckable(true);
   _auto->setChecked(settings.value("AutoScale",true).toBool());
   _auto->setToolTip(title + tr(": Toggle manual setting the minimum and maximum value of the scale"));
+  _auto->setToolButtonStyle(parent->toolButtonStyle());
+  _auto->setIconSize(parent->iconSize());
+  _auto->setAutoRaise(true);
   connect(_auto,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
   layout->addWidget(_auto);
 

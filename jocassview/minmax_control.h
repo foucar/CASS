@@ -16,6 +16,7 @@
 class QCheckBox;
 class QToolButton;
 class QLineEdit;
+class QToolBar;
 
 namespace jocassview
 {
@@ -32,7 +33,7 @@ public:
    *
    * @param parent the parent of this
    */
-  MinMaxControl(QString title, QWidget *parent=0);
+  MinMaxControl(QString title, QToolBar *parent);
 
   /** return whether the plot should be autoscaled
    *

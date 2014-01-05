@@ -69,7 +69,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // create the toolbar
   QToolBar * toolbar(new QToolBar(this));
   // add the min/max control to the toolbar
-  _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"));
+  _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"),toolbar);
   connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_zControl);
   // Add separator
