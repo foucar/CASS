@@ -47,13 +47,14 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
 
   // Add the plot where the 1d data will be displayed in to layout
   _plot = new QwtPlot(this);
-  // add data and a curve that should be displayed
-//  _curvesData.push_front(new OneDViewerData);
+  // add a curve that should be displayed
   _curves.push_front(new QwtPlotCurve);
+  _curves[0]->setTitle("current data");
+  OneDViewerData *data(new OneDViewerData);
+  _curves[0]->setData(data);
   QPen pen;
   pen.setColor(settings.value("CurveColor",Qt::blue).value<QColor>());
   pen.setWidth(settings.value("CurveWidth",1).toInt());
-  _curves[0]->setTitle("current data");
   _curves[0]->setStyle(QwtPlotCurve::Steps);
   _curves[0]->setPen(pen);
   _curves[0]->attach(_plot);
@@ -135,9 +136,9 @@ void OneDViewer::setData(cass::HistogramBackend *hist)
   cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
   const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram1DFloat::xAxis]);
 
-  OneDViewerData *data(new OneDViewerData);
+  OneDViewerData *data (dynamic_cast<OneDViewerData*>(_curves[0]->data()));
   data->setData(histogram->memory(), QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
-  _curves[0]->setData(data);
+  _curves[0]->itemChanged();
   replot();
 }
 
