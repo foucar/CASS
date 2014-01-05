@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file tow_d_viewer.h contains the viewer for 2d data
+ * @file two_d_viewer.h contains the viewer for 2d data
  *
  * @author Lutz Foucar
  */
@@ -12,8 +12,6 @@
 #include <QtCore/QMap>
 
 #include "data_viewer.h"
-
-#include <qwt_color_map.h>
 
 class QwtPlot;
 class QwtLinearColorMap;
