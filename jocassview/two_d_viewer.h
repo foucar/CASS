@@ -19,10 +19,10 @@ class QwtPlot;
 class QwtLinearColorMap;
 class QwtPlotSpectrogram;
 class QSpinBox;
+class QStringList;
 
 namespace jocassview
 {
-class TwoDViewerData;
 class MinMaxControl;
 class TrackZoomer2D;
 
@@ -69,17 +69,30 @@ private slots:
   void replot();
 
 private:
+  /** retrieve a color id
+   *
+   * the colormap needs be created on the heap and a pointer is then passed to
+   * the functions who will take over ownership and destroy the allocated space.
+   *
+   * In case the mapId is unknown a standart black & white map is returned
+   *
+   * @return pointer to the requested colormap
+   * @param mapId the key of the requested color id
+   */
+  QwtLinearColorMap* cmap(const int mapId) const;
+
+  /** return the list of possible colormaps
+   *
+   * @return list with possible colormap ids
+   */
+  QStringList cmaps()const;
+
+private:
   /** The plot area */
   QwtPlot * _plot;
 
   /** the spectrogram that is used to display the 2d data */
   QwtPlotSpectrogram * _spectrogram;
-
-  /** the wrapper for the 2d data */
-  TwoDViewerData *_data;
-
-  /** the color maps */
-  QMap<int,QwtLinearColorMap*> _maps;
 
   /** the z-scale control */
   MinMaxControl *_zControl;
