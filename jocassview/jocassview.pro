@@ -47,6 +47,7 @@ SOURCES       += \
                  track_zoomer_2d.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
+                 logcolor_map.cpp \
                  two_d_viewer.cpp \
                  two_d_viewer_data.cpp \
                  file_handler.cpp \
@@ -64,6 +65,7 @@ HEADERS       += \
                  zero_d_viewer.h \
                  one_d_viewer.h \
                  one_d_viewer_data.h \
+                 logcolor_map.h \
                  two_d_viewer.h \
                  two_d_viewer_data.h \
                  minmax_control.h \
