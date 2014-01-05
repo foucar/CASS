@@ -63,6 +63,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   _grid = new QwtPlotGrid;
   _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
   _grid->attach(_plot);
+  _gridLines = settings.value("GridEnabled",0).toUInt();
   // add a legend to the plot
   _legend = new QwtLegend;
   _legend->setItemMode(QwtLegend::ClickableItem);
@@ -85,9 +86,9 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add grid control to toolbar
   _gridControl = new QAction(QIcon(":images/grid.png"),
                              tr("toggle Grid"),toolbar);
-  _gridControl->setCheckable(true);
-  _gridControl->setChecked(settings.value("GridEnabled",true).toBool());
-  connect(_gridControl,SIGNAL(triggered()),this,SLOT(replot()));
+//  _gridControl->setCheckable(true);
+//  _gridControl->setChecked(settings.value("GridEnabled",true).toBool());
+  connect(_gridControl,SIGNAL(triggered()),this,SLOT(on_grid_triggered()));
   toolbar->addAction(_gridControl);
 
   // Add legend control to toolbar
@@ -183,8 +184,9 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 void OneDViewer::replot()
 {
   /** check if grid should be enabled */
-  _grid->enableX(_gridControl->isChecked());
-  _grid->enableY(_gridControl->isChecked());
+  qDebug()<< _gridLines<< static_cast<bool>(_gridLines & 0x1) << static_cast<bool>(_gridLines & 0x2);
+  _grid->enableX(static_cast<bool>(_gridLines & 0x1));
+  _grid->enableY(static_cast<bool>(_gridLines & 0x2));
 
   /** check if legend should be drawn
    *  (hide all legend items and update the layout if not)
@@ -198,18 +200,17 @@ void OneDViewer::replot()
       list.at(i)->hide();
   }
 
-  QwtLog10ScaleEngine *log(new QwtLog10ScaleEngine);
-  log->setAttribute(QwtScaleEngine::Symmetric);
-
-  /** check if the scales should be log or linear */
+  OneDViewerData *data(dynamic_cast<OneDViewerData*>(_curves[0]->data()));
+  /** set the scales to be log or linear */
+  data->setXRangeForLog(_xControl->log());
   if(_xControl->log())
     _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLog10ScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
 
+  data->setYRangeForLog(_yControl->log());
   if(_yControl->log())
-//    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
-    _plot->setAxisScaleEngine(QwtPlot::yLeft, log);
+    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
@@ -233,7 +234,7 @@ void OneDViewer::replot()
   settings.beginGroup(windowTitle());
   settings.setValue("CurveColor",_curves[0]->pen().color());
   settings.setValue("CurveWidth",_curves[0]->pen().width());
-  settings.setValue("GridEnabled",_gridControl->isChecked());
+  settings.setValue("GridEnabled",_gridLines);
   settings.setValue("LegendShown",_legendControl->isChecked());
 }
 
@@ -352,4 +353,10 @@ void OneDViewer::on_add_graph_triggered()
     addData(dynamic_cast<cass::Histogram1DFloat*>(data));
   else
     QMessageBox::critical(this,tr("Error"),tr("The requested data is not 1d data"));
+}
+
+void OneDViewer::on_grid_triggered()
+{
+  _gridLines = (_gridLines+1) & 0x3;
+  replot();
 }

@@ -130,6 +130,12 @@ private slots:
    */
   void on_add_graph_triggered();
 
+  /** react on when the gridControl has been triggered
+   *
+   * increase the the _gridLines variable and mask off the unneeded bits
+   */
+  void on_grid_triggered();
+
 private:
   /** The plot area */
   QwtPlot * _plot;
@@ -151,6 +157,9 @@ private:
 
   /** a grid in the plot */
   QwtPlotGrid *_grid;
+
+  /** flags to tell which grid lines should be drawn */
+  quint8 _gridLines;
 
   /** an action to control the legend of curves */
   QAction * _legendControl;
