@@ -42,6 +42,7 @@ SOURCES       += \
                  main_window.cpp \
                  zero_d_viewer.cpp \
                  minmax_control.cpp \
+                 curve_plot.cpp \
                  one_d_viewer.cpp \
                  one_d_viewer_data.cpp \
                  track_zoomer_2d.cpp \
@@ -63,6 +64,7 @@ HEADERS       += \
                  status_led.h \
                  data_viewer.h \
                  zero_d_viewer.h \
+                 curve_plot.h \
                  one_d_viewer.h \
                  one_d_viewer_data.h \
                  logcolor_map.h \
