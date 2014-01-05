@@ -6,6 +6,11 @@
  * @author Lutz Foucar
  */
 
+#include <cmath>
+
+#include <QtGui/QColor>
+#include <QtGui/QRgb>
+
 #include "logcolor_map.h"
 
 using namespace jocassview;
