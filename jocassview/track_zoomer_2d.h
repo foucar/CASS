@@ -32,7 +32,7 @@ public:
    *
    * @param canvas the canvas which hold the plot
    */
-  TrackZoomer2D(QwtPlotCanvas *canvas);
+  TrackZoomer2D(QWidget *canvas);
 
   /** change the tracker text
    *

@@ -2,10 +2,8 @@
 #define _SCROLLZOOMER_H
 
 #include <qglobal.h>
-#if QT_VERSION < 0x040000
-#include <qscrollview.h>
-#endif
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot.h>
 
 class ScrollData;
 class ScrollBar;
@@ -20,25 +18,17 @@ public:
         OppositeToScale
     };
 
-    ScrollZoomer(QwtPlotCanvas *);
+    ScrollZoomer(QWidget *);
     virtual ~ScrollZoomer();
 
     ScrollBar *horizontalScrollBar() const;
     ScrollBar *verticalScrollBar() const;
 
-#if QT_VERSION < 0x040000
-    void setHScrollBarMode(QScrollView::ScrollBarMode);
-    void setVScrollBarMode(QScrollView::ScrollBarMode);
-
-    QScrollView::ScrollBarMode vScrollBarMode () const;
-    QScrollView::ScrollBarMode hScrollBarMode () const;
-#else
     void setHScrollBarMode(Qt::ScrollBarPolicy);
     void setVScrollBarMode(Qt::ScrollBarPolicy);
 
     Qt::ScrollBarPolicy vScrollBarMode () const;
     Qt::ScrollBarPolicy hScrollBarMode () const;
-#endif
 
     void setHScrollBarPosition(ScrollBarPosition);
     void setVScrollBarPosition(ScrollBarPosition);
@@ -71,7 +61,7 @@ private:
     ScrollData *d_vScrollData;
 
     bool d_inZoom;
-    bool d_alignCanvasToScales;
+    bool d_alignCanvasToScales[ QwtPlot::axisCnt ];
 };
             
 #endif

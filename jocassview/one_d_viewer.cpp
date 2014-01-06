@@ -25,6 +25,7 @@
 #include <qwt_plot_grid.h>
 #include <qwt_legend.h>
 #include <qwt_scale_engine.h>
+#include <qwt_legend_label.h>
 
 #include "one_d_viewer.h"
 
@@ -61,17 +62,17 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   _curves[0]->attach(_plot);
   // add a grid to show on the plot
   _grid = new QwtPlotGrid;
-  _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
+  _grid->setMajorPen(QPen(Qt::black, 0, Qt::DashLine));
   _grid->attach(_plot);
   _gridLines = settings.value("GridEnabled",0).toUInt();
   // add a legend to the plot
   _legend = new QwtLegend;
-  _legend->setItemMode(QwtLegend::ClickableItem);
+  _legend->setDefaultItemMode(QwtLegendData::Clickable);
   _plot->insertLegend(_legend,QwtPlot::RightLegend);
-  QWidget *curveLegendWidget(_legend->find(_curves[0]));
-  curveLegendWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(curveLegendWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
-  connect(_plot,SIGNAL(legendClicked(QwtPlotItem*)),this,SLOT(on_legend_clicked(QwtPlotItem*)));
+  QwtLegendLabel *curveLegendLabel(qobject_cast<QwtLegendLabel *>(_legend->legendWidget(_plot->itemToInfo(_curves[0]))));
+  curveLegendLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(curveLegendLabel,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
+  connect(_legend,SIGNAL(checked(const QVariant&,bool,int)),this,SLOT(on_legend_checked(const QVariant &,bool)));
   // add the plot to the widget
   layout->addWidget(_plot);
 
@@ -169,7 +170,7 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   curve->setTitle(QString::fromStdString(histogram->key()));
   curve->setStyle(QwtPlotCurve::Steps);
   curve->attach(_plot);
-  QWidget *curveWidget(_legend->find(curve));
+  QwtLegendLabel *curveWidget(qobject_cast<QwtLegendLabel*>(_legend->legendWidget(_plot->itemToInfo(curve))));
   curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
 
@@ -188,29 +189,25 @@ void OneDViewer::replot()
   _grid->enableX(static_cast<bool>(_gridLines & 0x1));
   _grid->enableY(static_cast<bool>(_gridLines & 0x2));
 
-  /** check if legend should be drawn
-   *  (hide all legend items and update the layout if not)
+  /** hide /show the legend (this is a hack, since legends can't be directly hidden)
+   *  retrieve all curve plots from the plot and get theier corresponding
+   *  legend widget. This needs to be hidden and then the legend to be updated
    */
-  QList<QWidget*> list(_legend->legendItems());
-  for (int i=0; i<list.size();++i)
-  {
-    if(_legendControl->isChecked())
-      list.at(i)->show();
-    else
-      list.at(i)->hide();
-  }
+  QwtPlotItemList list(_plot->itemList(QwtPlotItem::Rtti_PlotCurve));
+  for (QwtPlotItemIterator it = list.begin(); it != list.end() ; ++it)
+    _legend->legendWidget(_plot->itemToInfo(*it))->setVisible(_legendControl->isChecked());
 
   OneDViewerData *data(dynamic_cast<OneDViewerData*>(_curves[0]->data()));
   /** set the scales to be log or linear */
   data->setXRangeForLog(_xControl->log());
   if(_xControl->log())
-    _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLog10ScaleEngine);
+    _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
 
   data->setYRangeForLog(_yControl->log());
   if(_yControl->log())
-    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLog10ScaleEngine);
+    _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine);
   else
     _plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
 
@@ -249,7 +246,7 @@ void OneDViewer::on_legend_right_clicked(QPoint pos)
    *  position
    */
   QWidget *curveWidget(dynamic_cast<QWidget*>(sender()));
-  PlotCurve *curve(dynamic_cast<PlotCurve*>(_legend->find(curveWidget)));
+  PlotCurve * curve(dynamic_cast<PlotCurve*>((_plot->infoToItem(_legend->itemInfo(curveWidget)))));
   QPoint globalPos(curveWidget->mapToGlobal(pos));
 
   /** create the context menu and execute it (block in this function until a
@@ -275,12 +272,10 @@ void OneDViewer::on_legend_right_clicked(QPoint pos)
   menu.exec(globalPos);
 }
 
-void OneDViewer::on_legend_clicked(QwtPlotItem *item)
+void OneDViewer::on_legend_checked(const QVariant &itemInfo, bool on)
 {
-  if(item->isVisible())
-    item->hide();
-  else
-    item->show();
+  QwtPlotItem *curve(_plot->infoToItem(itemInfo));
+  curve->setVisible(on);
   replot();
 }
 
@@ -291,7 +286,7 @@ void OneDViewer::change_curve_color(PlotCurve *curve)
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_plot->infoToItem(_legend->itemInfo(curveWidget)));
   }
 
   QPen pen(curve->pen());
@@ -311,7 +306,7 @@ void OneDViewer::change_curve_width(PlotCurve *curve)
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_plot->infoToItem(_legend->itemInfo(curveWidget)));
   }
 
   QPen pen(curve->pen());
@@ -332,7 +327,7 @@ void OneDViewer::remove_curve(PlotCurve *curve)
     if (!sender()->parent()->isWidgetType())
       return;
     QWidget *curveWidget(dynamic_cast<QWidget*>(sender()->parent()));
-    curve = dynamic_cast<PlotCurve*>(_legend->find(curveWidget));
+    curve = dynamic_cast<PlotCurve*>(_plot->infoToItem(_legend->itemInfo(curveWidget)));
   }
 
   _curves.removeAll(curve);

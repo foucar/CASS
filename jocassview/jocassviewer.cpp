@@ -55,8 +55,8 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
 
   _mw->show();
 
-  on_autoupdate_changed();
   _client.setServer(_mw->on_server_property_changed());
+  on_autoupdate_changed();
 }
 
 JoCASSViewer::~JoCASSViewer()
@@ -126,12 +126,15 @@ void JoCASSViewer::update_viewers()
    *  Remember how big the container is for error checking later on
    */
   QMap<QString,DataViewer*>::iterator view(_viewers.begin());
-  cass::HistogramBackend *hist(_client.getData(view.key()));
-  const quint64 eventID = hist && false ? hist->id() : 0;
+//  cass::HistogramBackend *hist(_client.getData(view.key()));
+//  const quint64 eventID = hist && false ? hist->id() : 0;
+  const quint64 eventID(0);
   const int nbrWindows(_viewers.size());
   while( view != _viewers.end())
   {
+    qDebug()<<"before:"<<_viewers.size()<<nbrWindows;
     cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
+    qDebug()<<"after:"<<_viewers.size()<<nbrWindows;
     /** if the size of the container changed (because the user closed or opened
      *  another window) break out here, because the iterator has been invalidated
      */

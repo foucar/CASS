@@ -12,11 +12,7 @@ public:
     ScrollData():
         scrollBar(NULL),
         position(ScrollZoomer::OppositeToScale),
-#if QT_VERSION < 0x040000
-        mode(QScrollView::Auto)
-#else
         mode(Qt::ScrollBarAsNeeded)
-#endif
     {
     }
 
@@ -27,21 +23,19 @@ public:
 
     ScrollBar *scrollBar;
     ScrollZoomer::ScrollBarPosition position;
-#if QT_VERSION < 0x040000
-    QScrollView::ScrollBarMode mode;
-#else
     Qt::ScrollBarPolicy mode;
-#endif
 };
 
-ScrollZoomer::ScrollZoomer(QwtPlotCanvas *canvas):
+ScrollZoomer::ScrollZoomer(QWidget *canvas):
     QwtPlotZoomer(canvas),
     d_cornerWidget(NULL),
     d_hScrollData(NULL),
     d_vScrollData(NULL),
-    d_inZoom(false),
-    d_alignCanvasToScales(false)
+    d_inZoom(false)
 {
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        d_alignCanvasToScales[ axis ] = false;
+
     if ( !canvas )
         return;
 
@@ -95,7 +89,11 @@ void ScrollZoomer::rescale()
             yScale->setMinBorderDist(start, end);
 
             QwtPlotLayout *layout = plot()->plotLayout();
-            d_alignCanvasToScales = layout->alignCanvasToScales();
+            for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+            {
+                d_alignCanvasToScales[axis] =
+                    layout->alignCanvasToScale( axis );
+            }
             layout->setAlignCanvasToScales(false);
 
             d_inZoom = true;
@@ -343,12 +341,8 @@ void ScrollZoomer::updateScrollBars()
     if ( showHScrollBar )
     {
         ScrollBar *sb = scrollBar(Qt::Horizontal);
-
         sb->setPalette(plot()->palette());
-
-        const QwtScaleDiv *sd = plot()->axisScaleDiv(xAxis);
-        sb->setInverted(sd->lowerBound() > sd->upperBound() );
-
+        sb->setInverted( !plot()->axisScaleDiv( xAxis ).isIncreasing() );
         sb->setBase(zoomBase().left(), zoomBase().right());
         sb->moveSlider(zoomRect().left(), zoomRect().right());
 
@@ -373,12 +367,8 @@ void ScrollZoomer::updateScrollBars()
     if ( showVScrollBar )
     {
         ScrollBar *sb = scrollBar(Qt::Vertical);
-
         sb->setPalette(plot()->palette());
-
-        const QwtScaleDiv *sd = plot()->axisScaleDiv(yAxis);
-        sb->setInverted(sd->lowerBound() < sd->upperBound() );
-
+        sb->setInverted( !plot()->axisScaleDiv( yAxis ).isIncreasing() );
         sb->setBase(zoomBase().top(), zoomBase().bottom());
         sb->moveSlider(zoomRect().top(), zoomRect().bottom());
 

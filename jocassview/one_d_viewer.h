@@ -90,8 +90,9 @@ private slots:
    * toggle hide / show the curve
    *
    * @param item the plot item assiciated with the legend entry
+   * @param on when true the associated curve will be shown
    */
-  void on_legend_clicked(QwtPlotItem *item);
+  void on_legend_checked(const QVariant &item, bool on);
 
   /** change the curves color
    *

@@ -14,7 +14,7 @@
 
 using namespace jocassview;
 
-TrackZoomer2D::TrackZoomer2D(QwtPlotCanvas *canvas)
+TrackZoomer2D::TrackZoomer2D(QWidget *canvas)
   : ScrollZoomer(canvas),
     _data(0)
 {
