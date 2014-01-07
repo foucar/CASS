@@ -12,6 +12,7 @@
 #include <QtCore/QString>
 
 #include <QtGui/QWidget>
+#include <QtGui/QWidgetAction>
 
 class QCheckBox;
 class QToolButton;
@@ -34,6 +35,12 @@ public:
    * @param parent the parent of this
    */
   MinMaxControl(QString title, QToolBar *parent);
+
+  /** return whether the axis title shoudl be displayed
+   *
+   * @return true when axis title should be displayed
+   */
+  bool title() const;
 
   /** return whether the plot should be autoscaled
    *
@@ -71,6 +78,9 @@ signals:
   void controls_changed();
 
 private:
+  /** toggle display of the axis title */
+  QToolButton *_axisTitle;
+
   /** select manual input */
   QToolButton *_log;
 
