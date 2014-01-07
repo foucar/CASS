@@ -167,6 +167,9 @@ private:
 
   /** a legend for the different curves */
   QwtLegend *_legend;
+
+  /** an action to control the legend of curves */
+  QAction * _axisTitleControl;
 };
 }//end namespace jocassview
 

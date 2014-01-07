@@ -23,6 +23,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
+#include <qwt_scale_widget.h>
 #include <qwt_legend.h>
 #include <qwt_scale_engine.h>
 #include <qwt_legend_label.h>
@@ -88,6 +89,14 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
                              tr("toggle Grid"),toolbar);
   connect(_gridControl,SIGNAL(triggered()),this,SLOT(on_grid_triggered()));
   toolbar->addAction(_gridControl);
+
+  // Add title display to the toolbar
+  _axisTitleControl = new QAction(QIcon(":images/axistitle.png"),
+                                  tr("Toggle Axis Titles"),toolbar);
+  _axisTitleControl->setCheckable(true);
+  _axisTitleControl->setChecked(settings.value("DisplayTitles",true).toBool());
+  connect(_axisTitleControl,SIGNAL(triggered()),this,SLOT(replot()));
+  toolbar->addAction(_axisTitleControl);
 
   // Add legend control to toolbar
   _legendControl = new QAction(QIcon(":images/legend.png"),tr("toggle Legend"),toolbar);
@@ -217,6 +226,19 @@ void OneDViewer::replot()
   else
     _plot->setAxisScale(QwtPlot::yLeft,_yControl->min(),_yControl->max());
 
+  /** display the axis titles */
+  if (_axisTitleControl->isChecked())
+  {
+    cass::HistogramBackend *hist(this->data());
+    if (hist)
+    {
+      QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+      _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
+    }
+  }
+  else
+    _plot->axisWidget(QwtPlot::xBottom)->setTitle("");
+
   /** update the layout and replot the plot */
   _plot->updateLayout();
   _plot->replot();
@@ -228,6 +250,7 @@ void OneDViewer::replot()
   settings.setValue("CurveWidth",_curves[0]->pen().width());
   settings.setValue("GridEnabled",_gridLines);
   settings.setValue("LegendShown",_legendControl->isChecked());
+  settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
 }
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)

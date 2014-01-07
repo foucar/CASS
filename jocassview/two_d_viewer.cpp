@@ -66,6 +66,14 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   QToolBar * toolbar(new QToolBar("Plot Control",this));
   addToolBar(Qt::BottomToolBarArea,toolbar);
 
+  // Add title display to the toolbar
+  _axisTitleControl = new QAction(QIcon(":images/axistitle.png"),
+                                  tr("Toggle Axis Titles"),toolbar);
+  _axisTitleControl->setCheckable(true);
+  _axisTitleControl->setChecked(settings.value("DisplayTitles",true).toBool());
+  connect(_axisTitleControl,SIGNAL(triggered()),this,SLOT(replot()));
+  toolbar->addAction(_axisTitleControl);
+
   // add the min/max control to the toolbar
   _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"),toolbar);
   connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
@@ -140,20 +148,47 @@ QString TwoDViewer::type() const
 
 void TwoDViewer::replot()
 {
+  /** get the data from the spectrogram and get the min and max z-values to be displayed */
   TwoDViewerData *data(dynamic_cast<TwoDViewerData*>(_spectrogram->data()));
   const double min(!_zControl->autoscale() ? _zControl->min() : data->origZInterval().minValue());
   const double max(!_zControl->autoscale() ? _zControl->max() : data->origZInterval().maxValue());
+
+  /** get the colormap to be used */
   int colorid = _colorId->value();
 
+  /** set the colormap and min / max z-value */
   _spectrogram->data()->setInterval(Qt::ZAxis,QwtInterval(min,max));
   _spectrogram->setColorMap(cmap(colorid));
   _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data()->interval(Qt::ZAxis),cmap(colorid));
   _plot->setAxisScale(QwtPlot::yRight,min,max);
+
+  /** display the axis titles */
+  if (_axisTitleControl->isChecked())
+  {
+    cass::HistogramBackend *hist(this->data());
+    if (hist)
+    {
+      QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+      _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
+      QString ytitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::yAxis].title()));
+      _plot->axisWidget(QwtPlot::yLeft)->setTitle(ytitle);
+    }
+  }
+  else
+  {
+    _plot->axisWidget(QwtPlot::yLeft)->setTitle("");
+    _plot->axisWidget(QwtPlot::xBottom)->setTitle("");
+  }
+
+
+  /** replot the plot */
   _plot->replot();
 
+  /** save the current settings */
   QSettings settings;
   settings.beginGroup(windowTitle());
   settings.setValue("ColorTableID",colorid);
+  settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
 }
 
 QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const

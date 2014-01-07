@@ -35,18 +35,6 @@ MinMaxControl::MinMaxControl(QString title, QToolBar *parent)
   QHBoxLayout *layout(new QHBoxLayout);
   layout->setContentsMargins(0,0,0,0);
 
-  // create button that controls the display of the axis title
-  _axisTitle = new QToolButton(this);
-  _axisTitle->setIcon(QIcon(":images/axistitle.png"));
-  _axisTitle->setCheckable(true);
-  _axisTitle->setChecked(settings.value("ShowTitle",false).toBool());
-  _axisTitle->setToolTip(title + tr(": Toggle display of the axis title"));
-  _axisTitle->setToolButtonStyle(parent->toolButtonStyle());
-  _axisTitle->setIconSize(parent->iconSize());
-  _axisTitle->setAutoRaise(true);
-  connect(_axisTitle,SIGNAL(toggled(bool)),this,SLOT(on_changed()));
-  layout->addWidget(_axisTitle);
-
   // create a button that toggles between log and linear scale
   _log = new QToolButton(this);
   _log->setIcon(QIcon(":images/log.png"));
@@ -119,7 +107,6 @@ void MinMaxControl::on_changed()
   // save the states
   QSettings settings;
   settings.beginGroup(windowTitle());
-  settings.setValue("ShowTitle",title());
   settings.setValue("LogScale",log());
   settings.setValue("AutoScale",autoscale());
   settings.setValue("MinValue",min());
@@ -127,11 +114,6 @@ void MinMaxControl::on_changed()
 
   // tell others that something has changed
   emit controls_changed();
-}
-
-bool MinMaxControl::title() const
-{
-  return _axisTitle->isChecked();
 }
 
 bool MinMaxControl::autoscale() const

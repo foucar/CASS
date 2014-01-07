@@ -98,6 +98,9 @@ private:
   /** the colorbar control */
   QSpinBox *_colorId;
 
+  /** an action to control the legend of curves */
+  QAction * _axisTitleControl;
+
   /** a zoomer for the 2d view */
   TrackZoomer2D *_zoomer;
 };
