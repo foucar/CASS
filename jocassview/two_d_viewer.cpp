@@ -40,7 +40,6 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // create the plot where the 2d data will be displayed in as central widget
   _plot = new QwtPlot(this);
   QwtScaleWidget *rightAxis(_plot->axisWidget(QwtPlot::yRight));
-  rightAxis->setTitle("Intensity");
   rightAxis->setColorBarEnabled(true);
   _plot->enableAxis(QwtPlot::yRight);
   _plot->plotLayout()->setAlignCanvasToScales(true);
@@ -60,6 +59,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
                            Qt::RightButton, Qt::ControlModifier);
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
                            Qt::RightButton);
+  _zoomer->setData(data);
   setCentralWidget(_plot);
 
   // create the toolbar
@@ -107,26 +107,23 @@ void TwoDViewer::setData(cass::HistogramBackend *hist)
     return;
 
   cass::Histogram2DFloat *histogram(dynamic_cast<cass::Histogram2DFloat*>(hist));
-  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
-  const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
   TwoDViewerData *data(dynamic_cast<TwoDViewerData*>(_spectrogram->data()));
-  data->setData(histogram->memory(),std::make_pair(xaxis.nbrBins(),yaxis.nbrBins()),
-                QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()),
-                QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
-  _spectrogram->itemChanged();
+  data->setData(histogram);
+//  const cass::AxisProperty &xaxis(histogram->axis()[cass::Histogram2DFloat::xAxis]);
+//  const cass::AxisProperty &yaxis(histogram->axis()[cass::Histogram2DFloat::yAxis]);
+//  data->setData(histogram->memory(),std::make_pair(xaxis.nbrBins(),yaxis.nbrBins()),
+//                QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()),
+//                QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
+//  _spectrogram->itemChanged();
 
-  _plot->axisWidget(QwtPlot::xBottom)->setTitle(QString::fromStdString(xaxis.title()));
-  _plot->axisWidget(QwtPlot::yLeft)->setTitle(QString::fromStdString(yaxis.title()));
-
-  /** @note the below will be done when zooming into the initial bounding rect
-   *  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
-   *  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+  /** check if the data is different (the bounding box changed) in which case we
+   *  reinitialize the zoomer
+   *  @note the below will be done when zooming into the initial bounding rect
+@code
+  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
+  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+@endcode
    */
-
-  _zoomer->setData(data);
-
-  // check if the data is new (the bounding box changed) in which case we
-  // reinitialize the zoomer
   if (_zoomer->zoomBase() != _spectrogram->boundingRect())
   {
     _zoomer->setZoomBase(_spectrogram->boundingRect());
@@ -138,7 +135,7 @@ void TwoDViewer::setData(cass::HistogramBackend *hist)
 
 cass::HistogramBackend* TwoDViewer::data()
 {
-  return 0;
+  return dynamic_cast<TwoDViewerData*>(_spectrogram->data())->data();
 }
 
 QString TwoDViewer::type() const
@@ -162,7 +159,7 @@ void TwoDViewer::replot()
   _plot->axisWidget(QwtPlot::yRight)->setColorMap(_spectrogram->data()->interval(Qt::ZAxis),cmap(colorid));
   _plot->setAxisScale(QwtPlot::yRight,min,max);
 
-  /** display the axis titles */
+  /** display the axis titles if requested */
   if (_axisTitleControl->isChecked())
   {
     cass::HistogramBackend *hist(this->data());
@@ -179,7 +176,6 @@ void TwoDViewer::replot()
     _plot->axisWidget(QwtPlot::yLeft)->setTitle("");
     _plot->axisWidget(QwtPlot::xBottom)->setTitle("");
   }
-
 
   /** replot the plot */
   _plot->replot();

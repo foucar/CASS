@@ -15,6 +15,11 @@
 
 #include <qwt_series_data.h>
 
+namespace cass
+{
+class Histogram1DFloat;
+}//end namespace cass
+
 namespace jocassview
 {
 
@@ -25,14 +30,17 @@ namespace jocassview
 class OneDViewerData : public QwtSeriesData<QPointF>
 {
 public:
-  /** default constructor */
+  /** default constructor
+   *
+   * intializes the _hist pointer with 0
+   */
   OneDViewerData();
 
-  /** copy constructor
+  /** destructor
    *
-   * @param other the other object to copy
+   * deletes the _hist pointer
    */
-  OneDViewerData(const OneDViewerData& other);
+  ~OneDViewerData();
 
   /** return the size of the data
    *
@@ -52,12 +60,23 @@ public:
    */
   virtual QRectF boundingRect() const;
 
-  /** set the data
+  /** set the cass data to be wrapped by this
    *
-   * @param data vector containing the data
-   * @param xRange the x Range
+   * @param hist the cass data to be wrapped
    */
-  void setData(const std::vector<float> &data, const QwtInterval &xRange);
+  void setData(cass::Histogram1DFloat *hist);
+
+  /** retrieve pointer to the cass data
+   *
+   * @return pointer to cass data
+   */
+  cass::Histogram1DFloat* data();
+
+  /** retrieve const pointer to the cass data
+   *
+   * @return const pointer to cass data
+   */
+  const cass::Histogram1DFloat* data()const;
 
   /** set up the bounding rect for when x should be log scale
    *
@@ -88,15 +107,6 @@ public:
   void setYRangeForLog(bool log);
 
 public:
-  /** vector that contains the linearized array */
-  std::vector<float> _data;
-
-  /** the range in x */
-  QwtInterval _xRange;
-
-  /** the range in y */
-  QwtInterval _yRange;
-
   /** the minimum positions in x and y for log scales */
   QPointF _logMinPos;
 
@@ -106,8 +116,8 @@ public:
   /** flag to tell whether y scale will be drawn in log */
   bool _yLog;
 
-  /** the name of the data */
-  QString _name;
+  /** pointer to the cass data */
+  cass::Histogram1DFloat *_hist;
 };
 }//end namespace jocassview
 #endif

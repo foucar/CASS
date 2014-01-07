@@ -13,6 +13,11 @@
 
 #include <qwt_raster_data.h>
 
+namespace cass
+{
+class Histogram2DFloat;
+}//end namespace cass
+
 namespace jocassview
 {
 
@@ -26,18 +31,38 @@ public:
   /** define the shape of the data */
   typedef std::pair<size_t,size_t> shape_t;
 
-  /** set the data that should be wrapped
+  /** default constructor
    *
-   * When setting the data, the z range will be defaulty set to the min and max
-   * value of the data.
-   *
-   * @param data the vector containing the linearized data to be displayed
-   * @param shape the Shape of the data to be displayed
-   * @param xrange the range in user coordinates in x
-   * @param yrange the range in user coordinates in y
+   * intialize the histogram pointer to 0
    */
-  void setData(const std::vector<float> &data, const shape_t &shape,
-               const QwtInterval &xrange, const QwtInterval &yrange);
+  TwoDViewerData();
+
+  /** destructor
+   *
+   * delete the histogram data pointed to
+   */
+  ~TwoDViewerData();
+
+  /** set the cass data to be wrapped by this
+   *
+   * takes over ownership of the data pointed to and deletes it when another
+   * pointer is passed to this.
+   *
+   * @param hist the histogram that contains the data
+   */
+  void setData(cass::Histogram2DFloat *hist);
+
+  /** retrieve the pointer to the data
+   *
+   * @return pointer to the data
+   */
+  cass::Histogram2DFloat* data();
+
+  /** retrieve the const pointer to the data
+   *
+   * @return const pointer to the data
+   */
+  const cass::Histogram2DFloat* data()const;
 
   /** return the min max values of the values in the data
    *
@@ -53,11 +78,8 @@ public:
   virtual double value(double x, double y) const;
 
 private:
-  /** vector that contains the linearized array */
-  std::vector<float> _data;
-
-  /** the shape of the 2d data */
-  shape_t _shape;
+  /** the cass data container */
+  cass::Histogram2DFloat *_hist;
 };
 }//end namespace jocassview
 #endif

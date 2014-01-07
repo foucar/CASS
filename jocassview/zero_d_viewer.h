@@ -11,6 +11,10 @@
 
 #include "data_viewer.h"
 
+namespace cass
+{
+class Histogram0DFloat;
+}//end namespace cass
 class QLabel;
 
 namespace jocassview
@@ -63,6 +67,9 @@ public:
 private:
   /** the label that displays the value */
   QLabel *_value;
+
+  /** pointer to the histogram conatining the 0d value */
+  cass::Histogram0DFloat *_hist;
 
 };
 }//end namespace jocassview

@@ -10,19 +10,25 @@
 
 #include "one_d_viewer_data.h"
 
+#include "histogram.h"
+
 using namespace jocassview;
+using namespace cass;
 
 OneDViewerData::OneDViewerData()
-  : _xRange(QwtInterval(0,1)),
-    _yRange(QwtInterval(0,1)),
-    _name("")
+  : _hist(0)
 {
 
 }
 
+OneDViewerData::~OneDViewerData()
+{
+  delete _hist;
+}
+
 size_t OneDViewerData::size() const
 {
-  return _data.size();
+  return data()->axis()[Histogram1DFloat::xAxis].nbrBins();
 }
 
 QPointF OneDViewerData::sample(size_t i) const
@@ -30,7 +36,7 @@ QPointF OneDViewerData::sample(size_t i) const
   const qreal xMin(d_boundingRect.left());
   const qreal xWidth(d_boundingRect.width());
   const qreal x(xMin + i*xWidth/(size()-1));
-  const qreal y(_data[i]);
+  const qreal y(data()->memory()[i]);
   return QPointF(x,y);
 }
 
@@ -44,19 +50,25 @@ QRectF OneDViewerData::boundingRect() const
   return rect;
 }
 
-void OneDViewerData::setData(const std::vector<float> &data, const QwtInterval &xRange)
+void OneDViewerData::setData(Histogram1DFloat *hist)
 {
-  _data = data;
-  d_boundingRect.setLeft(xRange.minValue());
-  d_boundingRect.setRight(xRange.maxValue());
-  d_boundingRect.setTop(1e30);
-  d_boundingRect.setBottom(-1e30);
-  _logMinPos.setX(1e30);
-  _logMinPos.setY(1e30);
+  if(!hist || hist == _hist)
+    return;
+  delete _hist;
+  _hist = hist;
+
+  /** set the initial bounding rect in x */
+  const AxisProperty &xaxis(data()->axis()[cass::Histogram1DFloat::xAxis]);
+  d_boundingRect.setLeft(xaxis.lowerLimit());
+  d_boundingRect.setRight(xaxis.upperLimit());
 
   /** go through all data points of the curve and find min/max values for lin
    *  and log scale purposes
    */
+  d_boundingRect.setTop(1e30);
+  d_boundingRect.setBottom(-1e30);
+  _logMinPos.setX(1e30);
+  _logMinPos.setY(1e30);
   for (size_t i(0); i < size(); ++i)
   {
     const qreal x(sample(i).x());
@@ -82,6 +94,16 @@ void OneDViewerData::setData(const std::vector<float> &data, const QwtInterval &
     if (x < _logMinPos.x() && 0 < x)
       _logMinPos.setX(x);
   }
+}
+
+Histogram1DFloat* OneDViewerData::data()
+{
+  return _hist;
+}
+
+const Histogram1DFloat* OneDViewerData::data()const
+{
+  return _hist;
 }
 
 void OneDViewerData::setXRangeForLog(bool log)
