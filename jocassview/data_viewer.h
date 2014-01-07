@@ -12,7 +12,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-#include <QtGui/QWidget>
+#include <QtGui/QMainWindow>
 #include <QtGui/QCloseEvent>
 
 namespace cass
@@ -26,7 +26,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class DataViewer : public QWidget
+class DataViewer : public QMainWindow
 {
   Q_OBJECT
 
@@ -38,8 +38,8 @@ public:
    * @param title the window title of this viewer
    * @param parent the parent widget of this viewer
    */
-  DataViewer(QString title, QWidget *parent=0)
-    : QWidget(parent,Qt::Window)
+  DataViewer(QString title, QWidget *parent)
+    : QMainWindow(parent)
   {
     setWindowTitle(title);
     setAttribute(Qt::WA_DeleteOnClose);

@@ -22,14 +22,13 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   QSettings settings;
   settings.beginGroup(windowTitle());
 
-  QVBoxLayout *layout(new QVBoxLayout);
+  // set the label to display the value as central widget
   _value = new QLabel(tr("Number"));
   _value->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
   QFont font(_value->font());
   font.setPointSize(20);
   _value->setFont(font);
-  layout->addWidget(_value);
-  setLayout(layout);
+  setCentralWidget(_value);
 
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());

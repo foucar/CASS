@@ -26,6 +26,7 @@
 #include "histogram.h"
 #include "minmax_control.h"
 #include "track_zoomer_2d.h"
+#include "logcolor_map.h"
 
 using namespace jocassview;
 
@@ -36,12 +37,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   QSettings settings;
   settings.beginGroup(windowTitle());
 
-
-
-  //create an vertical layout to put the plot and the toolbar in
-  QVBoxLayout *layout(new QVBoxLayout);
-
-  // create the plot where the 2d data will be displayed in
+  // create the plot where the 2d data will be displayed in as central widget
   _plot = new QwtPlot(this);
   QwtScaleWidget *rightAxis(_plot->axisWidget(QwtPlot::yRight));
   rightAxis->setTitle("Intensity");
@@ -64,16 +60,20 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
                            Qt::RightButton, Qt::ControlModifier);
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
                            Qt::RightButton);
-  layout->addWidget(_plot);
+  setCentralWidget(_plot);
 
   // create the toolbar
-  QToolBar * toolbar(new QToolBar(this));
+  QToolBar * toolbar(new QToolBar("Plot Control",this));
+  addToolBar(Qt::BottomToolBarArea,toolbar);
+
   // add the min/max control to the toolbar
   _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"),toolbar);
   connect(_zControl,SIGNAL(controls_changed()),this,SLOT(replot()));
   toolbar->addWidget(_zControl);
+
   // Add separator
   toolbar->addSeparator();
+
   // Add the colorbar control
   _colorId = new QSpinBox();
   _colorId->setRange(-1,11);
@@ -82,9 +82,6 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   _colorId->setToolTip(tr("Select the used Colorbar"));
   connect(_colorId,SIGNAL(valueChanged(int)),this,SLOT(replot()));
   toolbar->addWidget(_colorId);
-
-  layout->addWidget(toolbar);
-  setLayout(layout);
 
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
@@ -195,7 +192,6 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else if(colorid == 3)
   {
-
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(0,0,255)));
     map->addColorStop(0.10, QColor(0,0,50));
     map->addColorStop(0.35, QColor(0,0,115));
@@ -212,7 +208,6 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else if(colorid == 5)
   {
-
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(0,255,255)));
     map->addColorStop(0.10, QColor(0,50,50));
     map->addColorStop(0.35, QColor(0,115,115));
@@ -221,7 +216,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else if(colorid == 6)
   {
-
+//    QwtLinearColorMap *map( new LogColorMap(Qt::black, Qt::red));
     QwtLinearColorMap *map( new QwtLinearColorMap(Qt::black, Qt::red));
     map->addColorStop(0.10, Qt::blue);
     map->addColorStop(0.30, Qt::darkCyan);

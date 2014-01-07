@@ -44,10 +44,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   QSettings settings;
   settings.beginGroup(windowTitle());
 
-  //create an vertical layout to put the plot and the toolbar in
-  QVBoxLayout *layout(new QVBoxLayout);
-
-  // Add the plot where the 1d data will be displayed in to layout
+  // Add the plot where the 1d data will be displayed as central widget
   _plot = new QwtPlot(this);
   // add a curve that should be displayed
   _curves.push_front(new PlotCurve);
@@ -67,17 +64,19 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   _gridLines = settings.value("GridEnabled",0).toUInt();
   // add a legend to the plot
   _legend = new QwtLegend;
-  _legend->setDefaultItemMode(QwtLegendData::Clickable);
+  _legend->setDefaultItemMode(QwtLegendData::Checkable);
   _plot->insertLegend(_legend,QwtPlot::RightLegend);
   QwtLegendLabel *curveLegendLabel(qobject_cast<QwtLegendLabel *>(_legend->legendWidget(_plot->itemToInfo(_curves[0]))));
   curveLegendLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+  curveLegendLabel->setChecked(true);
   connect(curveLegendLabel,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
   connect(_legend,SIGNAL(checked(const QVariant&,bool,int)),this,SLOT(on_legend_checked(const QVariant &,bool)));
   // add the plot to the widget
-  layout->addWidget(_plot);
+  setCentralWidget(_plot);
 
   // create the toolbar
-  QToolBar * toolbar(new QToolBar(this));
+  QToolBar * toolbar(new QToolBar("Plot Control",this));
+  addToolBar(Qt::BottomToolBarArea,toolbar);
 
   // Add a button that allows to add a reference curve
   toolbar->addAction(QIcon(":images/graph_add.png"),
@@ -87,8 +86,6 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add grid control to toolbar
   _gridControl = new QAction(QIcon(":images/grid.png"),
                              tr("toggle Grid"),toolbar);
-//  _gridControl->setCheckable(true);
-//  _gridControl->setChecked(settings.value("GridEnabled",true).toBool());
   connect(_gridControl,SIGNAL(triggered()),this,SLOT(on_grid_triggered()));
   toolbar->addAction(_gridControl);
 
@@ -105,7 +102,9 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add x-axis control to the toolbar
   _xControl = new MinMaxControl(QString(windowTitle() + "/x-scale"),toolbar);
   connect(_xControl,SIGNAL(controls_changed()),this,SLOT(replot()));
-  toolbar->addWidget(_xControl);
+  QWidgetAction *xControlAction(new QWidgetAction(toolbar));
+  xControlAction->setDefaultWidget(_xControl);
+  toolbar->addAction(xControlAction);
 
   // Add separator to toolbar
   toolbar->addSeparator();
@@ -113,13 +112,9 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Add y-axis control to the toolbar
   _yControl = new MinMaxControl(QString(windowTitle() + "/y-scale"),toolbar);
   connect(_yControl,SIGNAL(controls_changed()),this,SLOT(replot()));
-  toolbar->addWidget(_yControl);
-
-  // Add toolbar to layout
-  layout->addWidget(toolbar);
-
-  // set the widgets layout
-  setLayout(layout);
+  QWidgetAction *yControlAction(new QWidgetAction(toolbar));
+  yControlAction->setDefaultWidget(_yControl);
+  toolbar->addAction(yControlAction);
 
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
@@ -172,6 +167,7 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   curve->attach(_plot);
   QwtLegendLabel *curveWidget(qobject_cast<QwtLegendLabel*>(_legend->legendWidget(_plot->itemToInfo(curve))));
   curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  curveWidget->setChecked(true);
   connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
 
   OneDViewerData *data(new OneDViewerData);
@@ -185,7 +181,6 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 void OneDViewer::replot()
 {
   /** check if grid should be enabled */
-  qDebug()<< _gridLines<< static_cast<bool>(_gridLines & 0x1) << static_cast<bool>(_gridLines & 0x2);
   _grid->enableX(static_cast<bool>(_gridLines & 0x1));
   _grid->enableY(static_cast<bool>(_gridLines & 0x2));
 
