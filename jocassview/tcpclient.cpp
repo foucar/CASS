@@ -48,14 +48,16 @@ QStringList TCPClient::getIdList()const
   if( (future.result() != SOAP_OK) || !ret)
   {
     QMessageBox::information(0, tr("TcpClient"),
-                             tr("Error: Can't retrieve list of keys"));
+                             tr("Error GetIdList: No communication to '") +
+                             QString::fromStdString(_server)+ tr("' possible."));
     return QStringList();
   }
   soap_multipart::iterator attachment (_client->dime.begin());
   if(_client->dime.end() == attachment)
   {
     QMessageBox::information(0, tr("TcpClient"),
-                             tr("Error: Can't retrieve list of keys"));
+                             tr("Error GetIdList: No data send from Server '")+
+                             QString::fromStdString(_server) + tr("'."));
     return QStringList();
   }
   _transferredBytes += (*attachment).size;
