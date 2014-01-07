@@ -51,21 +51,21 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   // Add file menu
   QMenu *fmenu = menu->addMenu(tr("&File"));
   fmenu->addAction(tr("Load Data"),this,SLOT(on_load_triggered()));
-  fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")));
+  fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addAction(tr("Save as..."),this,SLOT(on_save_as_triggered()));
   fmenu->addAction(tr("Print"),this,SIGNAL(print_triggered()));
   fmenu->addSeparator();
-  fmenu->addAction(tr("Quit"),qApp,SLOT(closeAllWindows()),QKeySequence(tr("Ctrl+q")));
+  fmenu->addAction(tr("Quit"),qApp,SLOT(closeAllWindows()),QKeySequence(tr("Ctrl+q")))->setShortcutContext(Qt::ApplicationShortcut);
 
   // Add control menu
   QMenu *cmenu = menu->addMenu(tr("&Control"));
-  cmenu->addAction(tr("Refresh List"),this,SIGNAL(refresh_list_triggered()),QKeySequence(tr("F5")));
-  cmenu->addAction(tr("Get Data"),this,SIGNAL(get_data_triggered()),QKeySequence(tr("Ctrl+i")));
+  cmenu->addAction(tr("Refresh List"),this,SIGNAL(refresh_list_triggered()),QKeySequence(tr("F5")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Get Data"),this,SIGNAL(get_data_triggered()),QKeySequence(tr("Ctrl+i")))->setShortcutContext(Qt::ApplicationShortcut);
   cmenu->addAction(tr("Clear Histogram"),this,SLOT(on_clear_histogram_triggered()));
   cmenu->addAction(tr("Send custom Command"),this,SLOT(on_send_command_triggered()));
-  cmenu->addAction(tr("Reload ini File"),this,SIGNAL(reload_ini_triggered()),QKeySequence(tr("Ctrl+r")));
-  cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(on_broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")));
-  cmenu->addAction(tr("Broadcast gaincal command"),this,SLOT(on_broadcast_gaincal_triggered()),QKeySequence(tr("Ctrl+g")));
+  cmenu->addAction(tr("Reload ini File"),this,SIGNAL(reload_ini_triggered()),QKeySequence(tr("Ctrl+r")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(on_broadcast_darkcal_triggered()),QKeySequence(tr("Ctrl+d")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Broadcast gaincal command"),this,SLOT(on_broadcast_gaincal_triggered()),QKeySequence(tr("Ctrl+g")))->setShortcutContext(Qt::ApplicationShortcut);
   cmenu->addSeparator();
   cmenu->addAction(tr("Quit Server"),this,SIGNAL(quit_server_triggered()));
 
