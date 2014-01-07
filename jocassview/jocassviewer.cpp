@@ -34,8 +34,11 @@ using namespace std;
 
 
 JoCASSViewer::JoCASSViewer(QObject *parent)
-  : QObject(parent)
+  : QObject(parent),
+    _updateInProgress(false)
 {
+  _updateTimer.setSingleShot(true);
+
   _mw = new MainWindow();
 
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
@@ -96,6 +99,8 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
       createViewerForType(_viewers.find(key),hist);
       _viewers[key]->setData(hist);
     }
+    else
+      update_viewers();
   }
   else
   {
@@ -113,11 +118,22 @@ void JoCASSViewer::on_viewer_destroyed(DataViewer *obj)
 
 void JoCASSViewer::update_viewers()
 {
+  /** if another process is still updating return here
+   *  @note this can happen, because while retrieving data from the server all
+   *        pending processes on the eventloop will be processed. One of them
+   *        could be the user trying to retrieve data another time (while another
+   *        retrieval process is still ongoing, thus resulting this function will
+   *        be reentered, even though it is still working.
+   */
+  if (_updateInProgress)
+    return;
+
   if (_viewers.isEmpty() || !_filename.isEmpty())
     return;
 
-  _mw->setLEDStatus(StatusLED::busy);
   qDebug()<<"update viewers";
+  _updateInProgress = true;
+  _mw->setLEDStatus(StatusLED::busy);
   bool sucess(true);
 
   /** get an iterator to go through the map and retrieve the first item where
@@ -132,9 +148,7 @@ void JoCASSViewer::update_viewers()
   const int nbrWindows(_viewers.size());
   while( view != _viewers.end())
   {
-    qDebug()<<"before:"<<_viewers.size()<<nbrWindows;
     cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
-    qDebug()<<"after:"<<_viewers.size()<<nbrWindows;
     /** if the size of the container changed (because the user closed or opened
      *  another window) break out here, because the iterator has been invalidated
      */
@@ -159,6 +173,13 @@ void JoCASSViewer::update_viewers()
   }
   /** set the to report sucess or faliure */
   sucess ? _mw->setLEDStatus(StatusLED::ok) : _mw->setLEDStatus(StatusLED::fail);
+
+  /** restart the updatetimer, if autoupdate is requested and reset the flag
+   *  that indicates that a update is in progress
+   */
+  if (_mw->autoUpdate())
+    _updateTimer.start();
+  _updateInProgress = false;
 }
 
 void JoCASSViewer::on_autoupdate_changed()

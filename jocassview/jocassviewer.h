@@ -127,6 +127,9 @@ private:
 
   /** the client to connect to the cass server */
   TCPClient _client;
+
+  /** flag to tell whether an update is in progess */
+  bool _updateInProgress;
 };
 }//end namspace jocassview
 
