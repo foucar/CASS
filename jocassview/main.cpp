@@ -1,10 +1,18 @@
 // Copyright (C) 2010 Uwe Hoppe
 // Copyright (C) 2010 Jochen Küpper
 // Copyright (C) 2010 Nicola Coppola
+// Copyright (C) 2013,2014 Lutz Foucar
+
+/**
+ * @file main.cpp the main starter for jocassview
+ *
+ * @author Lutz Foucar
+ */
 
 #include <QtCore/QSettings>
+#include <QtCore/QFileInfo>
+
 #include <QtGui/QApplication>
-#include <QDesktopWidget>
 
 #include "jocassviewer.h"
 #include "cl_parser.hpp"
@@ -52,13 +60,15 @@ int main(int argc, char *argv[])
   cass::CommandlineArgumentParser parser;
   std::string filename("nofile");
   parser.add("-f","filename of file that one wants to open",filename);
-  std::string key("");
+  std::string key("empty");
   parser.add("--h5key","key of the datafield in the hdf5 file",key);
   parser(QCoreApplication::arguments());
   if ( filename != "nofile")
   {
     QString fname(QString::fromStdString(filename));
     QString keyname(QString::fromStdString(key));
+    if (keyname == "empty")
+      keyname = QFileInfo(fname).baseName();
     /** @todo remove all non alphanumerical characters from the keystring before
      *        calling function
      */
