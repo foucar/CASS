@@ -6,9 +6,12 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QSettings>
+
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QFont>
+#include <QtGui/QMessageBox>
 
 #include "zero_d_viewer.h"
 
@@ -60,4 +63,9 @@ HistogramBackend* ZeroDViewer::data()
 QString ZeroDViewer::type() const
 {
   return QString("0DViewer");
+}
+
+void ZeroDViewer::print()const
+{
+  QMessageBox::critical(0,tr("ZeroDViewer"),tr("Error: Can't print 0D data"));
 }

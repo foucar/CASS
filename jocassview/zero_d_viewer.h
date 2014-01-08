@@ -64,6 +64,12 @@ public:
    */
   QString type() const;
 
+  /** overload printing
+   *
+   * just create an error message saying that a 0d value can't be plottet
+   */
+  virtual void print()const;
+
 private:
   /** the label that displays the value */
   QLabel *_value;
