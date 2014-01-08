@@ -136,18 +136,6 @@ OneDViewer::~OneDViewer()
 
 }
 
-void OneDViewer::setData(cass::HistogramBackend *hist)
-{
-  if (!hist)
-    return;
-
-  cass::Histogram1DFloat *histogram(dynamic_cast<cass::Histogram1DFloat*>(hist));
-  OneDViewerData *data (dynamic_cast<OneDViewerData*>(_curves[0]->data()));
-  data->setData(histogram);
-
-  replot();
-}
-
 QList<Data *> OneDViewer::data()
 {
 //  return dynamic_cast<OneDViewerData*>(_curves[0]->data())->data();
@@ -180,7 +168,7 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
   connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
 
   OneDViewerData *data(new OneDViewerData);
-  data->setData(histogram);
+  data->setResult(histogram);
   curve->setData(data);
 
   replot();

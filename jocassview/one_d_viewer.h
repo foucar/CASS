@@ -49,12 +49,6 @@ public:
   /** destructor */
   virtual ~OneDViewer();
 
-  /** set the data to display
-   *
-   * @param data The histogram that contains the data to display
-   */
-  void setData(cass::HistogramBackend *data);
-
   /** retrieve the displayed data
    *
    * @return pointer to the viewed data

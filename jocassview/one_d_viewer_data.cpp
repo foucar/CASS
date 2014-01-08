@@ -28,7 +28,7 @@ OneDViewerData::~OneDViewerData()
 
 size_t OneDViewerData::size() const
 {
-  return data()->axis()[Histogram1DFloat::xAxis].nbrBins();
+  return result()->axis()[Histogram1DFloat::xAxis].nbrBins();
 }
 
 QPointF OneDViewerData::sample(size_t i) const
@@ -36,7 +36,7 @@ QPointF OneDViewerData::sample(size_t i) const
   const qreal xMin(d_boundingRect.left());
   const qreal xWidth(d_boundingRect.width());
   const qreal x(xMin + i*xWidth/(size()-1));
-  const qreal y(data()->memory()[i]);
+  const qreal y(_hist->memory()[i]);
   return QPointF(x,y);
 }
 
@@ -50,15 +50,15 @@ QRectF OneDViewerData::boundingRect() const
   return rect;
 }
 
-void OneDViewerData::setData(Histogram1DFloat *hist)
+void OneDViewerData::setResult(HistogramBackend *hist)
 {
-  if(!hist || hist == _hist)
+  if(!hist || dynamic_cast<Histogram1DFloat*>(hist) == _hist)
     return;
   delete _hist;
-  _hist = hist;
+  _hist = dynamic_cast<Histogram1DFloat*>(hist);
 
   /** set the initial bounding rect in x */
-  const AxisProperty &xaxis(data()->axis()[cass::Histogram1DFloat::xAxis]);
+  const AxisProperty &xaxis(result()->axis()[Histogram1DFloat::xAxis]);
   d_boundingRect.setLeft(xaxis.lowerLimit());
   d_boundingRect.setRight(xaxis.upperLimit());
 
@@ -96,12 +96,12 @@ void OneDViewerData::setData(Histogram1DFloat *hist)
   }
 }
 
-Histogram1DFloat* OneDViewerData::data()
+HistogramBackend* OneDViewerData::result()
 {
   return _hist;
 }
 
-const Histogram1DFloat* OneDViewerData::data()const
+const HistogramBackend* OneDViewerData::result()const
 {
   return _hist;
 }

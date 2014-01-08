@@ -66,19 +66,19 @@ public:
    *
    * @param hist the cass data to be wrapped
    */
-  void setData(cass::Histogram1DFloat *hist);
+  void setResult(cass::HistogramBackend *hist);
 
   /** retrieve pointer to the cass data
    *
    * @return pointer to cass data
    */
-  cass::Histogram1DFloat* data();
+  cass::HistogramBackend* result();
 
   /** retrieve const pointer to the cass data
    *
    * @return const pointer to cass data
    */
-  const cass::Histogram1DFloat* data()const;
+  const cass::HistogramBackend* result()const;
 
   /** set up the bounding rect for when x should be log scale
    *
