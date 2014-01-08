@@ -84,7 +84,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
 
   // Add the colorbar control
   _colorId = new QSpinBox();
-  _colorId->setRange(-1,11);
+  _colorId->setRange(-4,11);
   _colorId->setValue(colorid);
   _colorId->setWrapping(true);
   _colorId->setToolTip(tr("Select the used Colorbar"));
@@ -189,11 +189,27 @@ void TwoDViewer::replot()
 
 QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
 {
+  if (colorid == -4)
+  {
+    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(Qt::black), QColor(Qt::red)));
+    map->addColorStop(0.999, QColor(Qt::white));
+    map->addColorStop(0.001, QColor(Qt::white));
+    return map;
+  }
+  if (colorid == -3)
+  {
+    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(Qt::black), QColor(Qt::black)));
+    map->addColorStop(0.999, QColor(Qt::white));
+    return map;
+  }
+  if (colorid == -2)
+  {
+    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(Qt::white),QColor(Qt::black)));
+    return map;
+  }
   if (colorid == -1)
   {
-    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255)));
-    map->addColorStop(0.10, QColor(0,0,0));
-    map->addColorStop(0.80, QColor(255,255,255));
+    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(Qt::black), QColor(Qt::white)));
     return map;
   }
   else if(colorid == 0)
@@ -206,7 +222,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else if(colorid == 1)
   {
-    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(255,0,0)));
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(255,0,0)));
     map->addColorStop(0.10, QColor(50,0,0));
     map->addColorStop(0.35, QColor(115,0,0));
     map->addColorStop(0.80, QColor(180,0,0));
@@ -214,38 +230,30 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else if(colorid == 2)
   {
-
-    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(0,255,0)));
-    map->addColorStop(0.10, QColor(0,50,0));
-    map->addColorStop(0.35, QColor(0,115,0));
-    map->addColorStop(0.80, QColor(0,180,0));
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(0,255,0)));
     return map;
   }
   else if(colorid == 3)
   {
-    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(0,0,255)));
-    map->addColorStop(0.10, QColor(0,0,50));
-    map->addColorStop(0.35, QColor(0,0,115));
-    map->addColorStop(0.80, QColor(0,0,180));
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(0,0,255)));
     return map;
   }
   else if(colorid == 4)
   {
-    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(255,0,255)));
-    map->addColorStop(0.10, QColor(50,0,50));
-    map->addColorStop(0.35, QColor(115,0,115));
-    map->addColorStop(0.80, QColor(180,0,180));
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(255,0,255)));
     return map;
   }
   else if(colorid == 5)
   {
-    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(0,0,0), QColor(0,255,255)));
-    map->addColorStop(0.10, QColor(0,50,50));
-    map->addColorStop(0.35, QColor(0,115,115));
-    map->addColorStop(0.80, QColor(0,180,180));
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(0,255,255)));
     return map;
   }
   else if(colorid == 6)
+  {
+    QwtLinearColorMap *map( new QwtLinearColorMap(QColor(Qt::black), QColor(255,255,0)));
+    return map;
+  }
+  else if(colorid == 7)
   {
 //    QwtLinearColorMap *map( new LogColorMap(Qt::black, Qt::red));
     QwtLinearColorMap *map( new QwtLinearColorMap(Qt::black, Qt::red));
@@ -257,7 +265,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
     map->addColorStop(0.95, Qt::yellow);
     return map;
   }
-  else if(colorid == 7)
+  else if(colorid == 8)
   {
 
     QwtLinearColorMap *map( new QwtLinearColorMap(Qt::darkBlue, Qt::white));
@@ -270,7 +278,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
     map->addColorStop(0.95, QColor(149,24,0));
     return map;
   }
-  else if(colorid == 8)
+  else if(colorid == 9)
   {
 
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(65,105,241), QColor(255,51,204)));
@@ -279,7 +287,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
     map->addColorStop(0.95, QColor(255,51,204));
     return map;
   }
-  else if(colorid == 9)
+  else if(colorid ==10)
   {
 
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(72,6,7), Qt::white));
@@ -291,7 +299,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
     map->addColorStop(0.98, Qt::white);
     return map;
   }
-  else if(colorid ==10)
+  else if(colorid ==11)
   {
 
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(16,16,255), QColor(0,255,129)));
@@ -300,7 +308,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
     map->addColorStop(0.90, QColor(0,255,155));
     return map;
   }
-  else if(colorid == 11)
+  else if(colorid ==12)
   {
 
     QwtLinearColorMap *map( new QwtLinearColorMap(QColor(10,10,10), QColor(184,115,51)));
@@ -311,9 +319,7 @@ QwtLinearColorMap* TwoDViewer::cmap(const int colorid) const
   }
   else
   {
-    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(0,0,0), QColor(255,255,255)));
-    map->addColorStop(0.10, QColor(0,0,0));
-    map->addColorStop(0.80, QColor(255,255,255));
+    QwtLinearColorMap *map(new QwtLinearColorMap(QColor(Qt::black), QColor(Qt::white)));
     return map;
   }
 }
