@@ -76,7 +76,7 @@ double TwoDViewerData::value(double x, double y) const
   const int xWidth(interval(Qt::XAxis).width());
   const int binx(xSize  * (x - xMin) / xWidth);
 
-  const int ySize(data()->shape().first);
+  const int ySize(data()->shape().second);
   const int yMin(interval(Qt::YAxis).minValue());
   const int yWidth(interval(Qt::YAxis).width());
   const int biny(ySize  * (y - yMin) / yWidth);

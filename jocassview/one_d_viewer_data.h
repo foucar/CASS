@@ -40,7 +40,7 @@ public:
    *
    * deletes the _hist pointer
    */
-  ~OneDViewerData();
+  virtual ~OneDViewerData();
 
   /** return the size of the data
    *
