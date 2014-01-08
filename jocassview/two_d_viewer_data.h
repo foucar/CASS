@@ -41,7 +41,7 @@ public:
    *
    * delete the histogram data pointed to
    */
-  ~TwoDViewerData();
+  virtual ~TwoDViewerData();
 
   /** set the cass data to be wrapped by this
    *
