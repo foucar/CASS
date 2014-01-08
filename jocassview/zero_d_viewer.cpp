@@ -64,3 +64,8 @@ void ZeroDViewer::print()const
 {
   QMessageBox::critical(0,tr("ZeroDViewer"),tr("Error: Can't print 0D data"));
 }
+
+void ZeroDViewer::saveData(const QString &filename)
+{
+
+}

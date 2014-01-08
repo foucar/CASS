@@ -61,6 +61,12 @@ public:
    */
   QString type() const;
 
+  /** save the data to file
+   *
+   * @param filename the filename to save the data to
+   */
+  void saveData(const QString &filename);
+
 private slots:
   /** add a curve with data to the plot
    *

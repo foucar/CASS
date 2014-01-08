@@ -55,6 +55,12 @@ public:
    */
   virtual void print()const;
 
+  /** overlaod saving
+   *
+   * @param filename the filename to save this to
+   */
+  void saveData(const QString &filename);
+
 private:
   /** the label that displays the value */
   QLabel *_value;

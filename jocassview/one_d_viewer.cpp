@@ -147,6 +147,11 @@ QString OneDViewer::type() const
   return QString("1DViewer");
 }
 
+void OneDViewer::saveData(const QString &filename)
+{
+
+}
+
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 {
   if (!histogram)
