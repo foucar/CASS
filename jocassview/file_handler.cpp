@@ -31,65 +31,6 @@ using namespace jocassview;
 using namespace cass;
 using namespace std;
 
-HistogramBackend* FileHandler::getData(const QString &filename, const QString &key)
-{
-  QFileInfo fileInfo(filename);
-  if (! fileInfo.exists())
-    return 0;
-
-  FileHandler instance;
-
-  if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("jpeg").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("giv").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
-  {
-    QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("Can't convert image to Data."));
-  }
-  if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
-  {
-    return instance.loadDataFromHist(filename);
-  }
-  if (fileInfo.suffix().toUpper() == QString("csv").toUpper())
-  {
-    return instance.loadDataFromCSV(filename);
-  }
-  if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
-  {
-    return instance.loadDataFromH5(filename,key);
-  }
-  return 0;
-}
-
-QStringList FileHandler::getKeyList(const QString &filename)
-{
-  QStringList items;
-  if (isContainerFile(filename))
-  {
-#ifdef HDF5
-    try
-    {
-      hdf5::Handler h5handle(filename.toStdString(),"r");
-
-      list<string> dataset(h5handle.datasets());
-      for (list<string>::const_iterator it=dataset.begin(); it != dataset.end(); ++it)
-        items.append(QString::fromStdString(*it));
-    }
-    catch(...)
-    {
-      QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("FileHandler::getKeyList(): some error occured"));
-    }
-#endif
-  }
-  else
-  {
-    items.append(getBaseName(filename));
-  }
-  return items;
-}
 
 QString FileHandler::getBaseName(const QString &filename)
 {
@@ -150,8 +91,34 @@ void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBa
     instance.saveDataToH5(filename,data,"w");
 }
 
-HistogramBackend* FileHandler::result(const QString &key, quint64 id)
+HistogramBackend* FileHandler::result(const QString &key, quint64)
 {
+  QFileInfo fileInfo(_filename);
+  if (! fileInfo.exists())
+    return 0;
+
+  if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("jpeg").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("giv").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
+  {
+    QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("Can't convert image to Data."));
+  }
+  if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
+  {
+    return loadDataFromHist();
+  }
+  if (fileInfo.suffix().toUpper() == QString("csv").toUpper())
+  {
+    return loadDataFromCSV();
+  }
+  if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
+      fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
+  {
+    return loadDataFromH5(key);
+  }
   return 0;
 }
 
@@ -207,12 +174,12 @@ void FileHandler::saveImage(const QString &filename, const QImage &image)
                           QObject::tr("' could not be saved!"));
 }
 
-cass::HistogramBackend * FileHandler::loadDataFromHist(const QString &filename)
+cass::HistogramBackend* FileHandler::loadDataFromHist()
 {
   /** use a file serializer to deserialize the data in the file to a hist object
    *  and get the dimension from the object.
    */
-  cass::SerializerReadFile serializer( filename.toStdString().c_str() );
+  cass::SerializerReadFile serializer( _filename.toStdString().c_str() );
   cass::HistogramBackend* hist = new cass::HistogramFloatBase(serializer);
   serializer.close();
   size_t dim(hist->dimension());
@@ -222,7 +189,7 @@ cass::HistogramBackend * FileHandler::loadDataFromHist(const QString &filename)
    *  (serializing base class doesn't work) as it will give problems using
    *  when dynamic_casting the baseclass back to the derived class)
    */
-  cass::SerializerReadFile serializer2( filename.toStdString().c_str() );
+  cass::SerializerReadFile serializer2(_filename.toStdString().c_str() );
   switch(dim)
   {
   case 0:
@@ -247,7 +214,7 @@ void FileHandler::saveDataToHist(const QString &filename, cass::HistogramBackend
   serializer.close();
 }
 
-cass::HistogramBackend * FileHandler::loadDataFromCSV(const QString &filename)
+cass::HistogramBackend* FileHandler::loadDataFromCSV()
 {
   QMessageBox::information(0,QObject::tr("Info"),QObject::tr("CSV loading not yet implemented"));
   return 0;
@@ -291,12 +258,12 @@ void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend 
   }
 }
 
-cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &filename, const QString &keyname)
+cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
 {
 #ifdef HDF5
   try
   {
-    hdf5::Handler h5handle(filename.toStdString(),"r");
+    hdf5::Handler h5handle(_filename.toStdString(),"r");
 
     /** get the list of all items in the h5 file */
     list<string> dataset(h5handle.datasets());
@@ -308,7 +275,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &filename, con
      *  request one from the user
      */
     QString key(keyname);
-    qDebug()<<key<<key.isEmpty()<<(key =="")<< !items.contains(key);
+    qDebug()<<"loadDatafromH5"<<key<<key.isEmpty()<<(key =="")<< !items.contains(key);
     if (key == "" || key.isEmpty() || !items.contains(key))
     {
       bool ok(false);
@@ -380,7 +347,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &filename, con
     }
     default:
       QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): Unknown dimension of dataset '" +
-                                                    key + "' in file '" + filename + "'"));
+                                                    key + "' in file '" + _filename + "'"));
       return 0;
     }
   }
@@ -399,7 +366,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &filename, con
   catch(...)
   {
     QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): can't open '" +
-                                                filename + "'. Unknown error occured"));
+                                                _filename + "'. Unknown error occured"));
   }
   return 0;
 #endif

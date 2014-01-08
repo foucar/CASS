@@ -30,24 +30,6 @@ namespace jocassview
 class FileHandler : public DataSource
 {
 public:
-  /** read data from a file
-   *
-   * @return the container for the data
-   * @param filename The file to read the data from
-   * @param key in case of a hdf5 file the key to the requested data. Default is ""
-   */
-  static cass::HistogramBackend * getData(const QString &filename, const QString &key="");
-
-  /** return the list of keys in the file
-   *
-   * in case this is not a container file (e.g. h5) this will just return the
-   * filename without path and suffix.
-   *
-   * @return a list of keys
-   * @param filename The name of the file whos keys should be read
-   */
-  static QStringList getKeyList(const QString &filename);
-
   /** return the basename of the filename
    *
    * @return basename of filename
@@ -119,9 +101,8 @@ private:
   /** read the data from a hist file
    *
    * @return pointer to the data
-   * @param filename the name of the file
    */
-  cass::HistogramBackend * loadDataFromHist(const QString &filename);
+  cass::HistogramBackend* loadDataFromHist();
 
   /** save the data from a hist file
    *
@@ -133,9 +114,8 @@ private:
   /** read the data from a CSV file
    *
    * @return pointer to the data
-   * @param filename the name of the file
    */
-  cass::HistogramBackend * loadDataFromCSV(const QString &filename);
+  cass::HistogramBackend * loadDataFromCSV();
 
   /** save the data from a CSV file
    *
@@ -147,10 +127,9 @@ private:
   /** read the data from a hdf5 file
    *
    * @return pointer to the data
-   * @param filename the name of the file
    * @param key in case of a hdf5 file the key to the requested data. Default is ""
    */
-  cass::HistogramBackend * loadDataFromH5(const QString &filename, const QString &key="");
+  cass::HistogramBackend* loadDataFromH5(const QString &key="");
 
   /** write the data to a hdf5 file
    *
