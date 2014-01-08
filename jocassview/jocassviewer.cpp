@@ -177,9 +177,18 @@ void JoCASSViewer::update_viewers()
   {
     if (!view.value())
     {
+      /** check if current source is available, if remove the viewer from the
+       *  list and quit updating
+       */
+      if (!currentSource())
+      {
+        _mw->setDisplayedItem(view.key(),false,false);
+        _viewers.remove(view.key());
+        sucess = false;
+        break;
+      }
       /** if the viewer hasn't been initalized, initialize it with new result
-       *  from the current active source. Set the result to the data of the
-       *  viewer and let the data now what source type it has been filled with
+       *  from the current active source.
        */
       QString sourceType(currentSource()->type());
       HistogramBackend * result(currentSource()->result(view.key(),eventID));
@@ -199,7 +208,9 @@ void JoCASSViewer::update_viewers()
         _viewers.remove(view.key());
         break;
       }
-
+      /** Set the result to the data of the viewer and let the data now what
+       *  source type it has been filled with
+       */
       createViewerForType(view,result);
       view.value()->data().front()->setResult(result);
       view.value()->data().front()->setSourceType(sourceType);
@@ -214,6 +225,12 @@ void JoCASSViewer::update_viewers()
       QList<Data*>::iterator dataIt(data.begin());
       while (dataIt != data.end())
       {
+        /** validate source */
+        if(!_sources.contains((*dataIt)->sourceType()))
+          continue;
+        /** validate result to update */
+        if (!(*dataIt)->result())
+          continue;
         const QString key(QString::fromStdString((*dataIt)->result()->key()));
         HistogramBackend * result(_sources[(*dataIt)->sourceType()]->result(key,eventID));
         /** validate container consistency */
