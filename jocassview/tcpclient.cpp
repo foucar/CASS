@@ -76,7 +76,7 @@ QStringList TCPClient::resultNames()
   if( (future.result() != SOAP_OK) || !ret)
   {
     QMessageBox::information(0, tr("TcpClient"),
-                             tr("Error GetIdList: No communication to '") +
+                             tr("Error resultNames: No communication to '") +
                              QString::fromStdString(_server)+ tr("' possible."));
     return QStringList();
   }
@@ -84,8 +84,8 @@ QStringList TCPClient::resultNames()
   if(_client->dime.end() == attachment)
   {
     QMessageBox::information(0, tr("TcpClient"),
-                             tr("Error GetIdList: No data send from Server '")+
-                             QString::fromStdString(_server) + tr("'."));
+                             tr("Error resultNames: Server '")+
+                             QString::fromStdString(_server) + tr("'didn't send data"));
     return QStringList();
   }
   _transferredBytes += (*attachment).size;
