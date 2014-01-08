@@ -63,7 +63,9 @@ int main(int argc, char *argv[])
   std::string key("empty");
   parser.add("--h5key","key of the datafield in the hdf5 file",key);
   parser(QCoreApplication::arguments());
-  if ( filename != "nofile")
+  if ( filename == "nofile")
+    jocassviewer.startViewer();
+  else
   {
     QString fname(QString::fromStdString(filename));
     QString keyname(QString::fromStdString(key));
