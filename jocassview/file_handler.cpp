@@ -157,7 +157,29 @@ HistogramBackend* FileHandler::result(const QString &key, quint64 id)
 
 QStringList FileHandler::resultNames()
 {
-  return QStringList();
+  QStringList items;
+  if (isContainerFile(_filename))
+  {
+#ifdef HDF5
+    try
+    {
+      hdf5::Handler h5handle(_filename.toStdString(),"r");
+
+      list<string> dataset(h5handle.datasets());
+      for (list<string>::const_iterator it=dataset.begin(); it != dataset.end(); ++it)
+        items.append(QString::fromStdString(*it));
+    }
+    catch(...)
+    {
+      QMessageBox::critical(0,QObject::tr("Error"),QObject::tr("FileHandler::getKeyList(): some error occured"));
+    }
+#endif
+  }
+  else
+  {
+    items.append(getBaseName(_filename));
+  }
+  return items;
 }
 
 QString FileHandler::type()const
@@ -167,7 +189,7 @@ QString FileHandler::type()const
 
 void FileHandler::setFilename(const QString &filename)
 {
-
+  _filename = filename;
 }
 
 QImage FileHandler::loadImage(const QString &filename)
