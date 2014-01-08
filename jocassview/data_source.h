@@ -6,8 +6,12 @@
  * @author Lutz Foucar
  */
 
-#ifndef _JOCASSVIEWDATA_
-#define _JOCASSVIEWDATA_
+#ifndef _DATASOURCE_
+#define _DATASOURCE_
+
+#include <QtGlobal>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 namespace cass
 {
@@ -30,6 +34,20 @@ public:
    * @param key the key of the result
    * @param id The event id of the result
    */
-  cass::HistogramBackend* result(const QString &key, quint64 id) = 0;
+  virtual cass::HistogramBackend* result(const QString &key, quint64 id) = 0;
+
+  /** retrieve the list items that can be displayed
+   *
+   * @return the list of strings that name the items that can be displayed
+   */
+  virtual QStringList resultNames() = 0;
+
+  /** return the type of this source
+   *
+   * @return the type of the source
+   */
+  virtual QString type()const=0;
 };
 }//end namespace jocassview
+
+#endif
