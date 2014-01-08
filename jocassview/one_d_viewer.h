@@ -138,9 +138,6 @@ private slots:
   void on_grid_triggered();
 
 private:
-  /** The plot area */
-  QwtPlot * _plot;
-
   /** control for the x-axis */
   MinMaxControl *_xControl;
 

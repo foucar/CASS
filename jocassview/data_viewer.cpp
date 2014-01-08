@@ -28,13 +28,12 @@ DataViewer::DataViewer(QString title, QWidget *parent)
 
 DataViewer::~DataViewer()
 {
-  delete _plot;
+
 }
 
 void DataViewer::print()const
 {
   QPrinter printer( QPrinter::HighResolution );
-
   printer.setDocName(windowTitle());
   printer.setCreator(windowTitle());
   printer.setOrientation( QPrinter::Landscape );

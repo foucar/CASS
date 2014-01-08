@@ -86,9 +86,6 @@ private:
   QStringList cmaps()const;
 
 private:
-  /** The plot area */
-  QwtPlot * _plot;
-
   /** the spectrogram that is used to display the 2d data */
   QwtPlotSpectrogram * _spectrogram;
 
