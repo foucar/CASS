@@ -609,7 +609,7 @@ private:
     /** prepend a '/' if its not there to ensure that it is a absolute path */
     wholename = "/" + name;
     string gname(wholename.substr(0, wholename.find_last_of('/')+1));
-    for (int i=0; i < gname.length(); ++i)
+    for (int i=0; i < static_cast<int>(gname.length()); ++i)
     {
       if(gname[i] == '/')
       {
