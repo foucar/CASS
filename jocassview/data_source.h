@@ -34,7 +34,7 @@ public:
    * @param key the key of the result
    * @param id The event id of the result
    */
-  virtual cass::HistogramBackend* result(const QString &key, quint64 id) = 0;
+  virtual cass::HistogramBackend* result(const QString &key, quint64 id=0) = 0;
 
   /** retrieve the list items that can be displayed
    *

@@ -28,9 +28,10 @@
 
 
 using namespace jocassview;
+using namespace cass;
 using namespace std;
 
-cass::HistogramBackend* FileHandler::getData(const QString &filename, const QString &key)
+HistogramBackend* FileHandler::getData(const QString &filename, const QString &key)
 {
   QFileInfo fileInfo(filename);
   if (! fileInfo.exists())

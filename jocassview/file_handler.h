@@ -76,6 +76,31 @@ public:
    */
   static void saveDataToContainer(const QString &filename, cass::HistogramBackend* data);
 
+  /** retrieve an result from the file
+   *
+   * @param key the key of the result
+   * @param id the eventid of the result
+   */
+  cass::HistogramBackend* result(const QString &key, quint64 id=0);
+
+  /** retrieve the list of names that an be displayed from the file
+   *
+   * @return list of names of displayable items
+   */
+  QStringList resultNames();
+
+  /** retrieve the type of source
+   *
+   * @return "File"
+   */
+  QString type()const;
+
+  /** set the filename
+   *
+   * @param filename the filename to work on
+   */
+  void setFilename(const QString &filename);
+
 private:
   /** read the data from an image file
    *
