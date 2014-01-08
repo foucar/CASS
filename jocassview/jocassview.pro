@@ -40,6 +40,7 @@ SOURCES       += \
                  led.cpp \
                  status_led.cpp \
                  main_window.cpp \
+                 data_viewer.cpp \
                  zero_d_viewer.cpp \
                  minmax_control.cpp \
                  curve_plot.cpp \

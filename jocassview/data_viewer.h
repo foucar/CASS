@@ -9,8 +9,6 @@
 #ifndef _DATAVIEWER_
 #define _DATAVIEWER_
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QCloseEvent>
@@ -19,6 +17,8 @@ namespace cass
 {
 class HistogramBackend;
 }//end namespace cass
+
+class QwtPlot;
 
 namespace jocassview
 {
@@ -38,18 +38,13 @@ public:
    * @param title the window title of this viewer
    * @param parent the parent widget of this viewer
    */
-  DataViewer(QString title, QWidget *parent)
-    : QMainWindow(parent)
-  {
-    setWindowTitle(title);
-    setAttribute(Qt::WA_DeleteOnClose);
-  }
+  DataViewer(QString title, QWidget *parent);
 
   /** destructor
    *
    * virtual to make this a base class
    */
-  virtual ~DataViewer() {}
+  virtual ~DataViewer();
 
   /** set the data to be displayed by this viewer
    *
@@ -72,6 +67,9 @@ public:
    */
   virtual QString type() const = 0;
 
+  /** print the plot */
+  virtual void print()const;
+
 signals:
   /** signal emitted when viewer is about to be destroyed
    *
@@ -84,35 +82,23 @@ protected:
    *
    * @param event the close event
    */
-  void closeEvent(QCloseEvent *event)
-  {
-    emit viewerClosed(this);
-    event->accept();
-  }
+  void closeEvent(QCloseEvent *event);
 
   /** receive move events to store the current position to the settings
    *
    * @param event the move event
    */
-  void moveEvent(QMoveEvent *event)
-  {
-    QSettings settings;
-    settings.beginGroup(windowTitle());
-    settings.setValue("WindowPosition",event->pos());
-  }
+  void moveEvent(QMoveEvent *event);
 
   /** receive resize events to store the current size to the settings
    *
    * @param event the resize event
    */
-  void resizeEvent(QResizeEvent *event)
-  {
-    QSettings settings;
-    settings.beginGroup(windowTitle());
-    settings.setValue("WindowSize",event->size());
-  }
+  void resizeEvent(QResizeEvent *event);
 
-
+protected:
+  /** the plot inside which the data will be displayed */
+  QwtPlot *_plot;
 };
 }//end namespace jocassview
 #endif
