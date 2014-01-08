@@ -105,7 +105,7 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
      *  the viewer based upon the type of data
      */
     _viewers[key] = 0;
-      update_viewers();
+    update_viewers();
   }
   else
   {
@@ -137,7 +137,6 @@ void JoCASSViewer::update_viewers()
   if (_updateInProgress)
     return;
 
-//  if (_viewers.isEmpty() || !_filename.isEmpty())
   if (_viewers.isEmpty())
     return;
 
