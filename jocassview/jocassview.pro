@@ -40,6 +40,7 @@ SOURCES       += \
                  led.cpp \
                  status_led.cpp \
                  main_window.cpp \
+                 data.cpp \
                  data_viewer.cpp \
                  zero_d_viewer.cpp \
                  minmax_control.cpp \
@@ -54,6 +55,7 @@ SOURCES       += \
                  two_d_viewer_data.cpp \
                  file_handler.cpp \
                  id_list.cpp \
+                 data_source.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
 
@@ -62,6 +64,7 @@ HEADERS       += \
                  main_window.h \
                  led.h \
                  status_led.h \
+                 data.h \
                  data_viewer.h \
                  zero_d_viewer.h \
                  curve_plot.h \
@@ -79,6 +82,7 @@ HEADERS       += \
                  soapCASSsoapProxy.h \
                  soapStub.h \
                  id_list.h \
+                 data_source.h \
                  tcpclient.h \
 
 INCLUDEPATH   += $$PWD/.. \
