@@ -15,6 +15,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
+#include <QApplication>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
@@ -44,17 +45,21 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
   connect(_mw,SIGNAL(save_triggered()),this,SLOT(on_autosave_triggered()));
   connect(_mw,SIGNAL(save_file_triggered(QString)),this,SLOT(saveFile(QString)));
-  connect(_mw,SIGNAL(item_checked(QString,bool)),this,SLOT(on_displayitem_checked(QString,bool)));
-  connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
+  connect(_mw,SIGNAL(print_triggered()),this,SLOT(on_print_triggered()));
+
+  connect(_mw,SIGNAL(refresh_list_triggered()),this,SLOT(on_refresh_list_triggered()));
   connect(_mw,SIGNAL(get_data_triggered()),this,SLOT(update_viewers()));
-  connect(_mw,SIGNAL(autoupdate_changed()),this,SLOT(on_autoupdate_changed()));
-  connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
-  connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
+  connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
+  connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
   connect(_mw,SIGNAL(reload_ini_triggered()),&_client,SLOT(reloadIni()));
   connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(broadcastCommand(QString)));
-  connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
-  connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
-  connect(_mw,SIGNAL(refresh_list_triggered()),this,SLOT(on_refresh_list_triggered()));
+  connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
+
+  connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
+  connect(_mw,SIGNAL(autoupdate_changed()),this,SLOT(on_autoupdate_changed()));
+  connect(_mw,SIGNAL(item_checked(QString,bool)),this,SLOT(on_displayitem_checked(QString,bool)));
+
+  connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
 
   _mw->show();
 
@@ -289,4 +294,25 @@ void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
   }
   view.value()->show();
   connect(view.value(),SIGNAL(viewerClosed(DataViewer*)),SLOT(on_viewer_destroyed(DataViewer*)));
+}
+
+void JoCASSViewer::on_print_triggered()
+{
+  QStringList items(_mw->selectedDisplayableItems());
+  QWidget *focusWiget(QApplication::focusWidget());
+  QString preselectItem;
+  if (focusWiget)
+    preselectItem=focusWiget->windowTitle();
+  bool ok(false);
+  QString item(QInputDialog::getItem(_mw, QObject::tr("Select Key"),
+                                     QObject::tr("Print Key:"), items,
+                                     items.indexOf(preselectItem), false, &ok));
+  if (!ok)
+    return;
+
+  if(!_viewers.contains(item))
+    return;
+
+  _viewers.value(item)->print();
+
 }

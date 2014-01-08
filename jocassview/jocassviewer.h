@@ -102,6 +102,13 @@ private slots:
    */
   void on_refresh_list_triggered();
 
+  /** react when print has been triggered
+   *
+   * ask the user which window should be printed, and then call print for the
+   * requested window.
+   */
+  void on_print_triggered();
+
 private:
   /** convenience function to create a viewer thats appropriate for a given type
    *  of data
