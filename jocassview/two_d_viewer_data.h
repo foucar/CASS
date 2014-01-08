@@ -52,19 +52,19 @@ public:
    *
    * @param hist the histogram that contains the data
    */
-  void setData(cass::Histogram2DFloat *hist);
+  void setResult(cass::HistogramBackend *hist);
 
   /** retrieve the pointer to the data
    *
    * @return pointer to the data
    */
-  cass::Histogram2DFloat* data();
+  cass::HistogramBackend* result();
 
   /** retrieve the const pointer to the data
    *
    * @return const pointer to the data
    */
-  const cass::Histogram2DFloat* data()const;
+  const cass::HistogramBackend* result()const;
 
   /** return the min max values of the values in the data
    *

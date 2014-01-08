@@ -48,12 +48,6 @@ public:
    *
    * @param histogram The histogram that contains the data to display
    */
-  void setData(cass::HistogramBackend *histogram);
-
-  /** set the data to display
-   *
-   * @param histogram The histogram that contains the data to display
-   */
   QList<Data*> data();
 
   /** retrieve the type of the data viewer
@@ -61,6 +55,12 @@ public:
    * @return the type as name
    */
   QString type() const;
+
+  /** save the data to file
+   *
+   * @param filename the file name to save the data to
+   */
+  virtual void saveData(const QString &filename);
 
 private slots:
   /** replot the data */
