@@ -174,7 +174,7 @@ QStringList MainWindow::displayableItems()const
   return items;
 }
 
-QStringList MainWindow::selectedDisplayableItems()const
+QStringList MainWindow::displayedItems()const
 {
   QStringList items;
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
@@ -192,7 +192,7 @@ void MainWindow::setLEDStatus(int status)
 void MainWindow::setDisplayableItems(QStringList itemNames)
 {
   QListWidget *listwidget(dynamic_cast<QListWidget*>(centralWidget()));
-  QStringList selectedItems(selectedDisplayableItems());
+  QStringList selectedItems(displayedItems());
   listwidget->clear();
   listwidget->addItems(itemNames);
   listwidget->sortItems();

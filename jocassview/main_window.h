@@ -75,7 +75,7 @@ public:
    *
    * @return list with all selected items
    */
-  QStringList selectedDisplayableItems() const;
+  QStringList displayedItems() const;
 
 signals:
   /** signal that "refresh list" was triggered */
