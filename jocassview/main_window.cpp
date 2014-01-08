@@ -51,9 +51,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   // Add file menu
   QMenu *fmenu = menu->addMenu(tr("&File"));
   fmenu->addAction(tr("Load Data"),this,SLOT(on_load_triggered()));
-  fmenu->addAction(tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")))->setShortcutContext(Qt::ApplicationShortcut);
+  fmenu->addAction(QIcon(":images/save.png"),tr("Save"),this,SIGNAL(save_triggered()),QKeySequence(tr("F10")))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addAction(tr("Save as..."),this,SLOT(on_save_as_triggered()));
-  fmenu->addAction(tr("Print"),this,SIGNAL(print_triggered()));
+  fmenu->addAction(QIcon(":images/print.png"),tr("Print"),this,SIGNAL(print_triggered()));
   fmenu->addSeparator();
   fmenu->addAction(tr("Quit"),qApp,SLOT(closeAllWindows()),QKeySequence(tr("Ctrl+q")))->setShortcutContext(Qt::ApplicationShortcut);
 
