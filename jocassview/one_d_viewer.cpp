@@ -129,7 +129,6 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
-  qDebug()<<"viewer created"<<windowTitle();
 }
 
 OneDViewer::~OneDViewer()
@@ -187,7 +186,6 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 
 void OneDViewer::replot()
 {
-  qDebug()<<"OneDViewer replot"<<windowTitle();
   /** check if grid should be enabled */
   _grid->enableX(static_cast<bool>(_gridLines & 0x1));
   _grid->enableY(static_cast<bool>(_gridLines & 0x2));
@@ -228,11 +226,14 @@ void OneDViewer::replot()
   /** display the axis titles */
   if (_axisTitleControl->isChecked())
   {
-    cass::HistogramBackend *hist(this->data().front()->result());
-    if (hist)
+    if (!this->data().isEmpty())
     {
-      QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
-      _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
+      cass::HistogramBackend *hist(this->data().front()->result());
+      if (hist)
+      {
+        QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+        _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
+      }
     }
   }
   else
@@ -250,8 +251,6 @@ void OneDViewer::replot()
   settings.setValue("GridEnabled",_gridLines);
   settings.setValue("LegendShown",_legendControl->isChecked());
   settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
-
-  qDebug()<<"OneDViewer done replot"<<windowTitle();
 }
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)

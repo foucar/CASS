@@ -102,20 +102,8 @@ TwoDViewer::~TwoDViewer()
 
 }
 
-//void TwoDViewer::setData(cass::HistogramBackend *hist)
-//{
-//  if (!hist)
-//    return;
-//
-//  cass::Histogram2DFloat *histogram(dynamic_cast<cass::Histogram2DFloat*>(hist));
-//  TwoDViewerData *data(dynamic_cast<TwoDViewerData*>(_spectrogram->data()));
-//  data->setData(histogram);
-//
-//}
-
 QList<Data*> TwoDViewer::data()
 {
-//  return dynamic_cast<TwoDViewerData*>(_spectrogram->data())->data();
   QList<Data*> list;
   list.append(dynamic_cast<TwoDViewerData*>(_spectrogram->data()));
   return list;
@@ -169,13 +157,16 @@ void TwoDViewer::replot()
   /** display the axis titles if requested */
   if (_axisTitleControl->isChecked())
   {
-    cass::HistogramBackend *hist(this->data().front()->result());
-    if (hist)
+    if (!this->data().isEmpty())
     {
-      QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
-      _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
-      QString ytitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::yAxis].title()));
-      _plot->axisWidget(QwtPlot::yLeft)->setTitle(ytitle);
+      cass::HistogramBackend *hist(this->data().front()->result());
+      if (hist)
+      {
+        QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+        _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
+        QString ytitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::yAxis].title()));
+        _plot->axisWidget(QwtPlot::yLeft)->setTitle(ytitle);
+      }
     }
   }
   else
