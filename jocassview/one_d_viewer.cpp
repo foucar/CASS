@@ -129,6 +129,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
+  qDebug()<<"viewer created"<<windowTitle();
 }
 
 OneDViewer::~OneDViewer()
@@ -186,6 +187,7 @@ void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 
 void OneDViewer::replot()
 {
+  qDebug()<<"OneDViewer replot"<<windowTitle();
   /** check if grid should be enabled */
   _grid->enableX(static_cast<bool>(_gridLines & 0x1));
   _grid->enableY(static_cast<bool>(_gridLines & 0x2));
@@ -248,6 +250,8 @@ void OneDViewer::replot()
   settings.setValue("GridEnabled",_gridLines);
   settings.setValue("LegendShown",_legendControl->isChecked());
   settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
+
+  qDebug()<<"OneDViewer done replot"<<windowTitle();
 }
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)
@@ -354,15 +358,15 @@ void OneDViewer::remove_curve(PlotCurve *curve)
 
 void OneDViewer::on_add_graph_triggered()
 {
-  QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Reference Data File"), QDir::currentPath(), filter);
-  if(fileName.isEmpty())
-    return;
-  cass::HistogramBackend *data(FileHandler::getData(fileName));
-  if (data->dimension() == 1)
-    addData(dynamic_cast<cass::Histogram1DFloat*>(data));
-  else
-    QMessageBox::critical(this,tr("Error"),tr("The requested data is not 1d data"));
+//  QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
+//  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Reference Data File"), QDir::currentPath(), filter);
+//  if(fileName.isEmpty())
+//    return;
+//  cass::HistogramBackend *data(FileHandler::getData(fileName));
+//  if (data->dimension() == 1)
+//    addData(dynamic_cast<cass::Histogram1DFloat*>(data));
+//  else
+//    QMessageBox::critical(this,tr("Error"),tr("The requested data is not 1d data"));
 }
 
 void OneDViewer::on_grid_triggered()

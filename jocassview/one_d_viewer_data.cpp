@@ -16,9 +16,12 @@ using namespace jocassview;
 using namespace cass;
 
 OneDViewerData::OneDViewerData()
-  : _hist(0)
+  : _logMinPos(QPointF(1,1)),
+    _xLog(false),
+    _yLog(false),
+    _hist(0)
 {
-
+  d_boundingRect = QRectF(1.0, 1.0, -2.0, -2.0); //invalid
 }
 
 OneDViewerData::~OneDViewerData()
@@ -28,11 +31,14 @@ OneDViewerData::~OneDViewerData()
 
 size_t OneDViewerData::size() const
 {
-  return result()->axis()[Histogram1DFloat::xAxis].nbrBins();
+  return result() ? result()->axis()[Histogram1DFloat::xAxis].nbrBins() : 0;
 }
 
 QPointF OneDViewerData::sample(size_t i) const
 {
+  if (!result())
+    return QPointF(0,0);
+
   const qreal xMin(d_boundingRect.left());
   const qreal xWidth(d_boundingRect.width());
   const qreal x(xMin + i*xWidth/(size()-1));

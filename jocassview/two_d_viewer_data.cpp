@@ -32,6 +32,7 @@ void TwoDViewerData::setResult(HistogramBackend *hist)
 {
   if (!hist || dynamic_cast<Histogram2DFloat*>(hist) == _hist)
     return;
+
   delete _hist;
   _hist = dynamic_cast<Histogram2DFloat*>(hist);
   const AxisProperty &xaxis(result()->axis()[Histogram2DFloat::xAxis]);
@@ -53,6 +54,9 @@ const HistogramBackend* TwoDViewerData::result()const
 
 QwtInterval TwoDViewerData::origZInterval()const
 {
+  if (!_hist)
+    return (QwtInterval(0,0));
+
   QwtInterval zRange(1e30,-1e30);
   Histogram2DFloat::storage_t::const_iterator it(_hist->memory().begin());
   Histogram2DFloat::storage_t::const_iterator End(_hist->memory().end());
@@ -70,6 +74,8 @@ QwtInterval TwoDViewerData::origZInterval()const
 
 double TwoDViewerData::value(double x, double y) const
 {
+  if(!_hist)
+    return 0;
 
   const int xSize(_hist->shape().first);
   const int xMin(interval(Qt::XAxis).minValue());
