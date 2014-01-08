@@ -14,6 +14,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+#include "data_source.h"
+
 namespace cass
 {
 class HistogramBackend;
@@ -29,7 +31,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class TCPClient : public QObject
+class TCPClient : public QObject, public DataSource
 {
   Q_OBJECT
 
