@@ -1,7 +1,7 @@
 // Copyright (C) 2014 Lutz Foucar
 
 /**
- * @file data.h contains the base class for add viewer data
+ * @file data.cpp contains the base class for add viewer data
  *
  * @author Lutz Foucar
  */
@@ -13,4 +13,14 @@ using namespace jocassview;
 Data::~Data()
 {
 
+}
+
+void Data::setSourceType(const QString &type)
+{
+  _sourceType = type;
+}
+
+QString Data::sourceType()const
+{
+  return _sourceType;
 }
