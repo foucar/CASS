@@ -31,6 +31,7 @@
 #include "status_led.h"
 #include "data_source.h"
 #include "data.h"
+#include "tcpclient.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -41,10 +42,23 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   : QObject(parent),
     _updateInProgress(false)
 {
+  /** use the timer as single shot */
   _updateTimer.setSingleShot(true);
 
+  /** generate the main window */
   _mw = new MainWindow();
 
+  /** create and initialize the data sources and add them to the container */
+  TCPClient *client(new TCPClient);
+  client->setServer(_mw->on_server_property_changed());
+  _sources[client->type()] = client;
+
+  FileHandler *fhandler(new FileHandler);
+  _sources[fhandler->type()] = fhandler;
+
+  _currentSourceType = client->type();
+
+  /** set up the connections and display it */
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
   connect(_mw,SIGNAL(save_triggered()),this,SLOT(on_autosave_triggered()));
   connect(_mw,SIGNAL(save_file_triggered(QString)),this,SLOT(saveFile(QString)));
@@ -52,22 +66,19 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
 
   connect(_mw,SIGNAL(refresh_list_triggered()),this,SLOT(on_refresh_list_triggered()));
   connect(_mw,SIGNAL(get_data_triggered()),this,SLOT(update_viewers()));
-  connect(_mw,SIGNAL(clear_histogram_triggered(QString)),&_client,SLOT(clearHistogram(QString)));
-  connect(_mw,SIGNAL(send_command_triggered(QString,QString)),&_client,SLOT(sendCommandTo(QString,QString)));
-  connect(_mw,SIGNAL(reload_ini_triggered()),&_client,SLOT(reloadIni()));
-  connect(_mw,SIGNAL(broadcast_triggered(QString)),&_client,SLOT(broadcastCommand(QString)));
-  connect(_mw,SIGNAL(quit_server_triggered()),&_client,SLOT(quitServer()));
+  connect(_mw,SIGNAL(clear_histogram_triggered(QString)),client,SLOT(clearHistogram(QString)));
+  connect(_mw,SIGNAL(send_command_triggered(QString,QString)),client,SLOT(sendCommandTo(QString,QString)));
+  connect(_mw,SIGNAL(reload_ini_triggered()),client,SLOT(reloadIni()));
+  connect(_mw,SIGNAL(broadcast_triggered(QString)),client,SLOT(broadcastCommand(QString)));
+  connect(_mw,SIGNAL(quit_server_triggered()),client,SLOT(quitServer()));
 
-  connect(_mw,SIGNAL(server_changed(QString)),&_client,SLOT(setServer(QString)));
+  connect(_mw,SIGNAL(server_changed(QString)),client,SLOT(setServer(QString)));
   connect(_mw,SIGNAL(autoupdate_changed()),this,SLOT(on_autoupdate_changed()));
   connect(_mw,SIGNAL(item_checked(QString,bool)),this,SLOT(on_displayitem_checked(QString,bool)));
 
   connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(update_viewers()));
 
   _mw->show();
-
-  _client.setServer(_mw->on_server_property_changed());
-  on_autoupdate_changed();
 }
 
 JoCASSViewer::~JoCASSViewer()
@@ -79,6 +90,8 @@ void JoCASSViewer::loadData(QString filename, QString key)
 {
   /** set the current source to file and set the filename to the source */
   _currentSourceType = "File";
+  if (!currentSource())
+    return;
   dynamic_cast<FileHandler*>(currentSource())->setFilename(filename);
 
   /** load the displayable items from the source and set the window title to
@@ -92,12 +105,16 @@ void JoCASSViewer::loadData(QString filename, QString key)
     _mw->setDisplayedItem(key,true);
 }
 
+void JoCASSViewer::startViewer()
+{
+  on_autoupdate_changed();
+}
+
 void JoCASSViewer::on_displayitem_checked(QString key, bool state)
 {
   qDebug()<<"on_displayable_checked"<<key<<state;
   if (state)
   {
-
     /** if the container already has a viewer with the requested name, exit here */
     if (_viewers.contains(key))
       return;
@@ -172,6 +189,17 @@ void JoCASSViewer::update_viewers()
         sucess = false;
         break;
       }
+      /** validate result.
+       *  If the viewer can't be initialzed, remove it from the list
+       */
+      if (!result)
+      {
+        qDebug()<<"result is empty "<<view.key();
+        _mw->setDisplayedItem(view.key(),false,false);
+        _viewers.remove(view.key());
+        break;
+      }
+
       createViewerForType(view,result);
       view.value()->data().front()->setResult(result);
       view.value()->data().front()->setSourceType(sourceType);
@@ -198,6 +226,8 @@ void JoCASSViewer::update_viewers()
         ++dataIt;
       }
     }
+    /** tell the viewer the data has changed */
+    view.value()->dataChanged();
     ++view;
   }
   /** set the report to sucess or failure */
@@ -293,12 +323,14 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 
 void JoCASSViewer::on_refresh_list_triggered()
 {
+  qDebug()<<"on_refresh_list_triggered";
   _mw->setDisplayableItems(currentSource()->resultNames());
 }
 
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
                                        cass::HistogramBackend *hist)
 {
+  qDebug()<<"create viewer"<<view.key()<<hist->dimension();
   switch (hist->dimension())
   {
   case 0:
@@ -338,5 +370,5 @@ void JoCASSViewer::on_print_triggered()
 
 DataSource* JoCASSViewer::currentSource()
 {
-  return _sources.value(_currentSourceType) ;
+  return _sources.contains(_currentSourceType) ? _sources.value(_currentSourceType) : 0;
 }

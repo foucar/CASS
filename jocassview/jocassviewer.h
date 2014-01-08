@@ -14,7 +14,11 @@
 #include <QtCore/QString>
 #include <QtCore/QTimer>
 
-#include "tcpclient.h"
+namespace cass
+{
+class HistogramBackend;
+}//end namespace cass
+
 
 namespace jocassview
 {
@@ -51,6 +55,12 @@ public slots:
    * @param key the key of the datafield in case its an h5 file
    */
   void loadData(QString filename, QString key="");
+
+  /** start the viewer
+   *
+   * uses on_autoupdate_changed() to initalize the autoupdate parameters.
+   */
+  void startViewer();
 
 private slots:
   /** react on when an item in the list has been checked
@@ -146,10 +156,6 @@ private:
 
   /** flag to tell whether an update is in progess */
   bool _updateInProgress;
-
-  /** the client to connect to the cass server */
-  TCPClient _client;
-
 };
 }//end namspace jocassview
 
