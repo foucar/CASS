@@ -11,14 +11,11 @@
 
 #include "data_viewer.h"
 
-namespace cass
-{
-class Histogram0DFloat;
-}//end namespace cass
 class QLabel;
 
 namespace jocassview
 {
+class ZeroDViewerData;
 
 /** a viewer that displays 0d data
  *
@@ -40,23 +37,11 @@ public:
   /** destructor */
   virtual ~ZeroDViewer();
 
-  /** set the data to display
-   *
-   * @param histogram The histogram that contains the data to display
-   */
-  void setData(cass::HistogramBackend *histogram);
-
   /** retrieve the displayed data
    *
    * @return The histogram that contains the displayed data
    */
-  cass::HistogramBackend* data();
-
-  /** set the data to display
-   *
-   * @param float The value to be displayed
-   */
-  void setData(float value);
+  QList<Data*> data();
 
   /** retrieve the type of the data viewer
    *
@@ -74,8 +59,8 @@ private:
   /** the label that displays the value */
   QLabel *_value;
 
-  /** pointer to the histogram conatining the 0d value */
-  cass::Histogram0DFloat *_hist;
+  /** pointer to the 0d data wrapper */
+  ZeroDViewerData *_data;
 
 };
 }//end namespace jocassview

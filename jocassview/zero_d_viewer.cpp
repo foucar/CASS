@@ -16,6 +16,7 @@
 #include "zero_d_viewer.h"
 
 #include "histogram.h"
+#include "zero_d_viewer_data.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -35,6 +36,9 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   _value->setFont(font);
   setCentralWidget(_value);
 
+  // generate the data that will handle the display//
+  _data(new ZeroDViewerData(_value));
+
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
@@ -45,19 +49,11 @@ ZeroDViewer::~ZeroDViewer()
   delete _hist;
 }
 
-void ZeroDViewer::setData(HistogramBackend *histogram)
+QList<Data*> ZeroDViewer::data()
 {
-  if (!histogram || histogram == _hist)
-    return;
-  delete _hist;
-
-  _hist = dynamic_cast<Histogram0DFloat*>(histogram);
-  _value->setText( QString::number(_hist->getValue()));
-}
-
-HistogramBackend* ZeroDViewer::data()
-{
-  return _hist;
+  QList<Data*> dlist;
+  dlist.append(ZeroDViewerData);
+  return dlist;
 }
 
 QString ZeroDViewer::type() const

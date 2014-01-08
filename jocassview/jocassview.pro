@@ -42,6 +42,7 @@ SOURCES       += \
                  main_window.cpp \
                  data.cpp \
                  data_viewer.cpp \
+                 zero_d_viewer_data.cpp \
                  zero_d_viewer.cpp \
                  minmax_control.cpp \
                  curve_plot.cpp \
@@ -66,6 +67,7 @@ HEADERS       += \
                  status_led.h \
                  data.h \
                  data_viewer.h \
+                 zero_d_viewer_data.h \
                  zero_d_viewer.h \
                  curve_plot.h \
                  one_d_viewer.h \
