@@ -22,6 +22,8 @@ class QwtPlot;
 
 namespace jocassview
 {
+class Data;
+
 /** base class for viewers
  *
  * @author Lutz Foucar
@@ -46,20 +48,11 @@ public:
    */
   virtual ~DataViewer();
 
-  /** set the data to be displayed by this viewer
-   *
-   * The viewer that this data is passed to should take control over it and
-   * delete it if necessary.
-   *
-   * @param data the data to be displayed
-   */
-  virtual void setData(cass::HistogramBackend *data) = 0;
-
   /** retrieve the data displayed by this viewer
    *
    * @param data the data to be displayed
    */
-  virtual cass::HistogramBackend * data() = 0;
+  virtual QList<Data*> data() = 0;
 
   /** retrieve the type of the data viewer
    *
@@ -69,6 +62,12 @@ public:
 
   /** print the plot */
   virtual void print()const;
+
+  /** save the data to file
+   *
+   * @param filename the name of the file to save the data to
+   */
+  virtual void saveData(const QString & filename)=0;
 
 signals:
   /** signal emitted when viewer is about to be destroyed
