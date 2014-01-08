@@ -22,8 +22,7 @@ using namespace jocassview;
 using namespace cass;
 
 ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
-  : DataViewer(title,parent),
-    _hist(0)
+  : DataViewer(title,parent)
 {
   QSettings settings;
   settings.beginGroup(windowTitle());
@@ -37,7 +36,7 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
   setCentralWidget(_value);
 
   // generate the data that will handle the display//
-  _data(new ZeroDViewerData(_value));
+  _data = new ZeroDViewerData(_value);
 
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
@@ -46,13 +45,13 @@ ZeroDViewer::ZeroDViewer(QString title, QWidget *parent)
 
 ZeroDViewer::~ZeroDViewer()
 {
-  delete _hist;
+
 }
 
 QList<Data*> ZeroDViewer::data()
 {
   QList<Data*> dlist;
-  dlist.append(ZeroDViewerData);
+  dlist.append(_data);
   return dlist;
 }
 

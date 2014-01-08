@@ -10,6 +10,8 @@
 
 #include "zero_d_viewer_data.h"
 
+#include "histogram.h"
+
 using namespace jocassview;
 using namespace cass;
 
@@ -27,7 +29,7 @@ ZeroDViewerData::~ZeroDViewerData()
 
 void ZeroDViewerData::setResult(HistogramBackend *result)
 {
-  if (!result || result == _hist)
+  if (!result || dynamic_cast<Histogram0DFloat*>(result) == _hist)
     return;
   delete _hist;
   _hist = dynamic_cast<Histogram0DFloat*>(result);
