@@ -15,6 +15,8 @@
 
 #include <qwt_series_data.h>
 
+#include "data.h"
+
 namespace cass
 {
 class Histogram1DFloat;
@@ -27,7 +29,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class OneDViewerData : public QwtSeriesData<QPointF>
+class OneDViewerData : public QwtSeriesData<QPointF>, public Data
 {
 public:
   /** default constructor

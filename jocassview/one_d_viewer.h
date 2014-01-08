@@ -59,7 +59,7 @@ public:
    *
    * @return pointer to the viewed data
    */
-  cass::HistogramBackend *data();
+  QList<Data*> data();
 
   /** retrieve the type of the data viewer
    *

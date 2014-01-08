@@ -35,6 +35,7 @@
 #include "one_d_viewer_data.h"
 #include "file_handler.h"
 #include "curve_plot.h"
+#include "data.h"
 
 using namespace jocassview;
 
@@ -147,9 +148,10 @@ void OneDViewer::setData(cass::HistogramBackend *hist)
   replot();
 }
 
-cass::HistogramBackend* OneDViewer::data()
+QList<Data *> OneDViewer::data()
 {
-  return dynamic_cast<OneDViewerData*>(_curves[0]->data())->data();
+//  return dynamic_cast<OneDViewerData*>(_curves[0]->data())->data();
+  return QList<Data*>();
 }
 
 QString OneDViewer::type() const
@@ -226,7 +228,7 @@ void OneDViewer::replot()
   /** display the axis titles */
   if (_axisTitleControl->isChecked())
   {
-    cass::HistogramBackend *hist(this->data());
+    cass::HistogramBackend *hist(this->data().front()->result());
     if (hist)
     {
       QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
