@@ -317,7 +317,7 @@ void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
 
 void JoCASSViewer::on_print_triggered()
 {
-  QStringList items(_mw->selectedDisplayableItems());
+  QStringList items(_mw->displayedItems());
   QWidget *focusWiget(QApplication::focusWidget());
   QString preselectItem;
   if (focusWiget)

@@ -150,6 +150,26 @@ void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBa
     instance.saveDataToH5(filename,data,"w");
 }
 
+HistogramBackend* FileHandler::result(const QString &key, quint64 id)
+{
+  return 0;
+}
+
+QStringList FileHandler::resultNames()
+{
+  return QStringList();
+}
+
+QString FileHandler::type()const
+{
+  return QString("File");
+}
+
+void FileHandler::setFilename(const QString &filename)
+{
+
+}
+
 QImage FileHandler::loadImage(const QString &filename)
 {
   QImageReader imageReader(filename);
