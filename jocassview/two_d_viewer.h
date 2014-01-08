@@ -48,19 +48,25 @@ public:
    *
    * @param histogram The histogram that contains the data to display
    */
-  QList<Data*> data();
+  virtual QList<Data*> data();
 
   /** retrieve the type of the data viewer
    *
    * @return the type as name
    */
-  QString type() const;
+  virtual QString type() const;
 
   /** save the data to file
    *
    * @param filename the file name to save the data to
    */
   virtual void saveData(const QString &filename);
+
+  /** update the plot
+   *
+   * check if the zoomer is still valid and replot the plot
+   */
+  virtual void dataChanged();
 
 private slots:
   /** replot the data */

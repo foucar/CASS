@@ -152,6 +152,11 @@ void OneDViewer::saveData(const QString &filename)
 
 }
 
+void OneDViewer::dataChanged()
+{
+  replot();
+}
+
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)
 {
   if (!histogram)

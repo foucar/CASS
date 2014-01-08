@@ -53,6 +53,11 @@ void DataViewer::print()const
   }
 }
 
+void DataViewer::dataChanged()
+{
+
+}
+
 void DataViewer::closeEvent(QCloseEvent *event)
 {
   emit viewerClosed(this);

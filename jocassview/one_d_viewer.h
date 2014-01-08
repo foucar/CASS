@@ -53,19 +53,22 @@ public:
    *
    * @return pointer to the viewed data
    */
-  QList<Data*> data();
+  virtual QList<Data*> data();
 
   /** retrieve the type of the data viewer
    *
    * @return the type as name
    */
-  QString type() const;
+  virtual QString type() const;
 
   /** save the data to file
    *
    * @param filename the filename to save the data to
    */
-  void saveData(const QString &filename);
+  virtual void saveData(const QString &filename);
+
+  /** update the plot */
+  virtual void dataChanged();
 
 private slots:
   /** add a curve with data to the plot

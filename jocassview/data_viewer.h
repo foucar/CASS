@@ -69,6 +69,9 @@ public:
    */
   virtual void saveData(const QString & filename)=0;
 
+  /** use this to tell that the data has changed */
+  virtual void dataChanged();
+
 signals:
   /** signal emitted when viewer is about to be destroyed
    *

@@ -111,21 +111,6 @@ TwoDViewer::~TwoDViewer()
 //  TwoDViewerData *data(dynamic_cast<TwoDViewerData*>(_spectrogram->data()));
 //  data->setData(histogram);
 //
-//  /** check if the data is different (the bounding box changed) in which case we
-//   *  reinitialize the zoomer
-//   *  @note the below will be done when zooming into the initial bounding rect
-//@code
-//  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
-//  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
-//@endcode
-//   */
-//  if (_zoomer->zoomBase() != _spectrogram->boundingRect())
-//  {
-//    _zoomer->setZoomBase(_spectrogram->boundingRect());
-//    _zoomer->zoom(_spectrogram->boundingRect());
-//    _zoomer->setZoomBase(true);
-//  }
-//  replot();
 //}
 
 QList<Data*> TwoDViewer::data()
@@ -144,6 +129,25 @@ QString TwoDViewer::type() const
 void TwoDViewer::saveData(const QString &filename)
 {
 
+}
+
+void TwoDViewer::dataChanged()
+{
+  /** check if the data is different (the bounding box changed) in which case we
+   *  reinitialize the zoomer
+   *  @note the below will be done when zooming into the initial bounding rect
+@code
+  _plot->setAxisScale(QwtPlot::yLeft,_data->boundingRect().top(),_data->boundingRect().bottom());
+  _plot->setAxisScale(QwtPlot::xBottom,_data->boundingRect().left(),_data->boundingRect().right());
+@endcode
+   */
+  if (_zoomer->zoomBase() != _spectrogram->boundingRect())
+  {
+    _zoomer->setZoomBase(_spectrogram->boundingRect());
+    _zoomer->zoom(_spectrogram->boundingRect());
+    _zoomer->setZoomBase(true);
+  }
+  replot();
 }
 
 void TwoDViewer::replot()
