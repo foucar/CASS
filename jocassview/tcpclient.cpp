@@ -36,7 +36,35 @@ TCPClient::~TCPClient()
   delete _client;
 }
 
-QStringList TCPClient::getIdList()const
+cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 id)
+{
+  bool ret(false);
+  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getHistogram,
+                                          histogramkey.toStdString(), id, &ret);
+  while (future.isRunning())
+  {
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    QTest::qSleep(10);
+  }
+  if( (future.result() != SOAP_OK) || !ret)
+    return 0;
+  soap_multipart::iterator attachment(_client->dime.begin());
+  if(_client->dime.end() == attachment)
+    return 0;
+  _transferredBytes += (*attachment).size;
+  string mimeType((*attachment).type);
+  cass::HistogramBackend* hist(0);
+  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+  if(mimeType == "application/cass2Dhistogram")
+    hist = new cass::Histogram2DFloat(serializer);
+  else if(mimeType == "application/cass1Dhistogram")
+    hist = new cass::Histogram1DFloat(serializer);
+  else if(mimeType == "application/cass0Dhistogram")
+    hist = new cass::Histogram0DFloat(serializer);
+  return hist;
+}
+
+QStringList TCPClient::resultNames()
 {
   bool ret(true);
   QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getPostprocessorIds, &ret);
@@ -72,32 +100,9 @@ QStringList TCPClient::getIdList()const
 //      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
 }
 
-cass::HistogramBackend* TCPClient::getData(const QString &histogramkey, quint64 id)const
+QString TCPClient::type()const
 {
-  bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getHistogram,
-                                          histogramkey.toStdString(), id, &ret);
-  while (future.isRunning())
-  {
-    QCoreApplication::processEvents(QEventLoop::AllEvents);
-    QTest::qSleep(10);
-  }
-  if( (future.result() != SOAP_OK) || !ret)
-    return 0;
-  soap_multipart::iterator attachment(_client->dime.begin());
-  if(_client->dime.end() == attachment)
-    return 0;
-  _transferredBytes += (*attachment).size;
-  string mimeType((*attachment).type);
-  cass::HistogramBackend* hist(0);
-  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-  if(mimeType == "application/cass2Dhistogram")
-    hist = new cass::Histogram2DFloat(serializer);
-  else if(mimeType == "application/cass1Dhistogram")
-    hist = new cass::Histogram1DFloat(serializer);
-  else if(mimeType == "application/cass0Dhistogram")
-    hist = new cass::Histogram0DFloat(serializer);
-  return hist;
+  return QString("TCPClient");
 }
 
 size_t TCPClient::receivedBytes()const

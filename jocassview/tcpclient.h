@@ -42,15 +42,24 @@ public:
   /** destructor */
   virtual ~TCPClient();
 
-  /** retrieve the list of available histograms */
-  QStringList getIdList()const;
-
   /** retrieve a specific histogram
    *
    * @return Histogram for requested key
    * @param histogramkey the key of the requested histogram
    */
-  cass::HistogramBackend *getData(const QString &histogramkey,quint64 id=0)const;
+  cass::HistogramBackend *result(const QString &histogramkey,quint64 id=0);
+
+  /** retrieve the list of available histograms
+   *
+   * @return the list of names of available histograms
+   */
+  QStringList resultNames();
+
+  /** return the type of source we are
+   *
+   * @return "TCPClient"
+   */
+  QString type() const;
 
   /** retrieve the transferred bytes */
   size_t receivedBytes()const;
