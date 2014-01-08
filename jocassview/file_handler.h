@@ -9,6 +9,8 @@
 #ifndef _FILE_HANDLER_
 #define _FILE_HANDLER_
 
+#include "data_source.h"
+
 namespace cass
 {
 class HistogramBackend;
@@ -25,7 +27,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class FileHandler
+class FileHandler : public DataSource
 {
 public:
   /** read data from a file

@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file file_handler.h contains a file handler
+ * @file file_handler.cpp contains a file handler
  *
  * @author Lutz Foucar
  */
