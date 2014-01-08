@@ -138,8 +138,14 @@ OneDViewer::~OneDViewer()
 
 QList<Data *> OneDViewer::data()
 {
-//  return dynamic_cast<OneDViewerData*>(_curves[0]->data())->data();
-  return QList<Data*>();
+  QList<Data*>list;
+  QwtPlotItemList plotlist(_plot->itemList(QwtPlotItem::Rtti_PlotCurve));
+  for (QwtPlotItemIterator it = plotlist.begin(); it != plotlist.end() ; ++it)
+  {
+    PlotCurve *curve(dynamic_cast<PlotCurve*>(*it));
+    list.append(dynamic_cast<OneDViewerData*>(curve->data()));
+  }
+  return list;
 }
 
 QString OneDViewer::type() const
