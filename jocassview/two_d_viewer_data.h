@@ -13,6 +13,8 @@
 
 #include <qwt_raster_data.h>
 
+#include "data.h"
+
 namespace cass
 {
 class Histogram2DFloat;
@@ -25,7 +27,7 @@ namespace jocassview
  *
  * @author Lutz Foucar
  */
-class TwoDViewerData : public QwtRasterData
+class TwoDViewerData : public QwtRasterData, public Data
 {
 public:
   /** define the shape of the data */

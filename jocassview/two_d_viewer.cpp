@@ -27,6 +27,7 @@
 #include "minmax_control.h"
 #include "track_zoomer_2d.h"
 #include "logcolor_map.h"
+#include "data.h"
 
 using namespace jocassview;
 
@@ -133,9 +134,10 @@ void TwoDViewer::setData(cass::HistogramBackend *hist)
   replot();
 }
 
-cass::HistogramBackend* TwoDViewer::data()
+QList<Data*> TwoDViewer::data()
 {
-  return dynamic_cast<TwoDViewerData*>(_spectrogram->data())->data();
+//  return dynamic_cast<TwoDViewerData*>(_spectrogram->data())->data();
+  return QList<Data*>();
 }
 
 QString TwoDViewer::type() const
@@ -162,7 +164,7 @@ void TwoDViewer::replot()
   /** display the axis titles if requested */
   if (_axisTitleControl->isChecked())
   {
-    cass::HistogramBackend *hist(this->data());
+    cass::HistogramBackend *hist(this->data().front()->result());
     if (hist)
     {
       QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));

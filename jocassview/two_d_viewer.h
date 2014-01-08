@@ -54,7 +54,7 @@ public:
    *
    * @param histogram The histogram that contains the data to display
    */
-  cass::HistogramBackend *data();
+  QList<Data*> data();
 
   /** retrieve the type of the data viewer
    *
