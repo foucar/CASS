@@ -212,8 +212,12 @@ void JoCASSViewer::update_viewers()
        *  source type it has been filled with
        */
       createViewerForType(view,result);
-      view.value()->data().front()->setResult(result);
-      view.value()->data().front()->setSourceType(sourceType);
+      /** validate data */
+      if (!view.value()->data().isEmpty())
+      {
+        view.value()->data().front()->setResult(result);
+        view.value()->data().front()->setSourceType(sourceType);
+      }
     }
     else
     {
