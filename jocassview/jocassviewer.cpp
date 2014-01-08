@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file jocassview.cpp contains the jocassviewer
+ * @file jocassviewer.cpp contains the jocassviewer
  *
  * @author Lutz Foucar
  */
@@ -29,8 +29,11 @@
 #include "one_d_viewer.h"
 #include "two_d_viewer.h"
 #include "status_led.h"
+#include "data_source.h"
+#include "data.h"
 
 using namespace jocassview;
+using namespace cass;
 using namespace std;
 
 
@@ -74,20 +77,19 @@ JoCASSViewer::~JoCASSViewer()
 
 void JoCASSViewer::loadData(QString filename, QString key)
 {
-  _filename = filename;
-  QStringList displayableitems(FileHandler::getKeyList(filename));
-  _mw->setDisplayableItems(displayableitems);
-  if (key == "" || key.isEmpty())
-  {
-    if (!FileHandler::isContainerFile(filename) && displayableitems.size() == 1)
-      _mw->setDisplayedItem(displayableitems.front(),true);
-  }
-  else
-  {
-    if (displayableitems.contains(key))
-      _mw->setDisplayedItem(key,true);
-  }
-  _mw->setWindowTitle(FileHandler::getBaseName(filename));
+  /** set the current source to file and set the filename to the source */
+  _currentSourceType = "File";
+  dynamic_cast<FileHandler*>(currentSource())->setFilename(filename);
+
+  /** load the displayable items from the source and set the window title to
+   *  to reflect the filename.
+   */
+  on_refresh_list_triggered();
+  _mw->setWindowTitle(QFileInfo(filename).baseName());
+
+  /** in case the key is on the list of displayable items, display it */
+  if (_mw->displayableItems().contains(key))
+    _mw->setDisplayedItem(key,true);
 }
 
 void JoCASSViewer::on_displayitem_checked(QString key, bool state)
@@ -95,20 +97,22 @@ void JoCASSViewer::on_displayitem_checked(QString key, bool state)
   qDebug()<<"on_displayable_checked"<<key<<state;
   if (state)
   {
+
+    /** if the container already has a viewer with the requested name, exit here */
+    if (_viewers.contains(key))
+      return;
+    /** create an entry in the viewers container with a 0 pointer and initialize
+     *  the viewer based upon the type of data
+     */
     _viewers[key] = 0;
-    if (!_filename.isEmpty())
-    {
-      cass::HistogramBackend *hist(FileHandler::getData(_filename,key));
-      if (!hist)
-        return;
-      createViewerForType(_viewers.find(key),hist);
-      _viewers[key]->setData(hist);
-    }
-    else
       update_viewers();
   }
   else
   {
+    /** if the key is on the list of viewers and the viewer has been created
+     *  close it (which will delete the window, because all dataviewer windows
+     *  have the delete on close flag set
+     */
     if (_viewers.contains(key) && _viewers[key])
       _viewers[key]->close();
   }
@@ -133,7 +137,8 @@ void JoCASSViewer::update_viewers()
   if (_updateInProgress)
     return;
 
-  if (_viewers.isEmpty() || !_filename.isEmpty())
+//  if (_viewers.isEmpty() || !_filename.isEmpty())
+  if (_viewers.isEmpty())
     return;
 
   qDebug()<<"update viewers";
@@ -144,7 +149,8 @@ void JoCASSViewer::update_viewers()
   /** get an iterator to go through the map and retrieve the first item where
    *  we get the id from. Then check whether all the other histograms should have
    *  the same id (if not then set the id to 0).
-   *  Remember how big the container is for error checking later on
+   *  Remember how big the container is for validating whether nothing has changed
+   *  while the data was retrieved from the source.
    */
   QMap<QString,DataViewer*>::iterator view(_viewers.begin());
 //  cass::HistogramBackend *hist(_client.getData(view.key()));
@@ -153,35 +159,52 @@ void JoCASSViewer::update_viewers()
   const int nbrWindows(_viewers.size());
   while( view != _viewers.end())
   {
-    cass::HistogramBackend * hist(_client.getData(view.key(),eventID));
-    /** if the size of the container changed (because the user closed or opened
-     *  another window) break out here, because the iterator has been invalidated
-     */
-    if(_viewers.size() != nbrWindows)
-    {
-      sucess = false;
-      break;
-    }
-    /** if there is nothing returned, there was an error. Just try the next one */
-    if (!hist)
-    {
-      sucess = false;
-      ++view;
-      continue;
-    }
-    /** if the viewer hasn't been initalized, initialize it now */
     if (!view.value())
-      createViewerForType(view,hist);
-    /** if everything was fine then set the data in the viewer */
-    view.value()->setData(hist);
+    {
+      /** if the viewer hasn't been initalized, initialize it with new result
+       *  from the current active source. Set the result to the data of the
+       *  viewer and let the data now what source type it has been filled with
+       */
+      QString sourceType(currentSource()->type());
+      HistogramBackend * result(currentSource()->result(view.key(),eventID));
+      /** validate container consistency */
+      if(_viewers.size() != nbrWindows)
+      {
+        sucess = false;
+        break;
+      }
+      createViewerForType(view,result);
+      view.value()->data().front()->setResult(result);
+      view.value()->data().front()->setSourceType(sourceType);
+    }
+    else
+    {
+      /** otherwise retrieve all the data containers from a viewer and update
+       *  them with the latest data
+       */
+      QList<Data*> data(view.value()->data());
+      const int nbrData(data.size());
+      QList<Data*>::iterator dataIt(data.begin());
+      while (dataIt != data.end())
+      {
+        const QString key(QString::fromStdString((*dataIt)->result()->key()));
+        HistogramBackend * result(_sources[(*dataIt)->sourceType()]->result(key,eventID));
+        /** validate container consistency */
+        if(_viewers.size() != nbrWindows || data.size() != nbrData)
+        {
+          sucess = false;
+          break;
+        }
+        (*dataIt)->setResult(result);
+        ++dataIt;
+      }
+    }
     ++view;
   }
-  /** set the to report sucess or faliure */
+  /** set the report to sucess or failure */
   sucess ? _mw->setLEDStatus(StatusLED::ok) : _mw->setLEDStatus(StatusLED::fail);
 
-  /** restart the updatetimer, if autoupdate is requested and reset the flag
-   *  that indicates that a update is in progress
-   */
+  /** restart the updatetimer when requested and reset the in progress flag */
   if (_mw->autoUpdate())
     _updateTimer.start();
   _updateInProgress = false;
@@ -201,7 +224,7 @@ void JoCASSViewer::on_autoupdate_changed()
 
 void JoCASSViewer::on_autosave_triggered() const
 {
-  if (_viewers.isEmpty() || !_filename.isEmpty())
+  if (_viewers.isEmpty())
     return;
 
   QString fileNameBase(QDir::currentPath() + "/" + QDateTime::currentDateTime().toString() + "_");
@@ -232,7 +255,7 @@ void JoCASSViewer::on_autosave_triggered() const
 
 void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
 {
-  if (_viewers.isEmpty() || !_filename.isEmpty())
+  if (_viewers.isEmpty())
     return;
 
   if (FileHandler::isContainerFile(filename))
@@ -241,7 +264,7 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
     while( view != _viewers.constEnd())
     {
       if (view.value())
-        FileHandler::saveDataToContainer(filename,view.value()->data());
+        view.value()->saveData(filename);
       ++view;
     }
   }
@@ -250,31 +273,28 @@ void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
     QString savekey(key);
     if (savekey.isEmpty() || savekey == "")
     {
-      QStringList items;
-      QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
-      while( view != _viewers.constEnd())
-      {
-        items.append(view.key());
-        ++view;
-      }
-
+      QStringList items(_mw->displayedItems());
+      QWidget *focusWiget(QApplication::focusWidget());
+      QString preselectItem;
+      if (focusWiget)
+        preselectItem=focusWiget->windowTitle();
       bool ok(false);
       QString item(QInputDialog::getItem(_mw, QObject::tr("Select Key"),
-                                         QObject::tr("Key:"), items, 0, false, &ok));
+                                         QObject::tr("Key:"), items,
+                                         item.indexOf(preselectItem), false, &ok));
       if (!ok)
         return;
       savekey = item;
     }
 
-    if(_viewers[savekey])
-      FileHandler::saveData(filename,_viewers[savekey]->data());
+    if(_viewers.value(savekey))
+      _viewers.value(savekey)->saveData(filename);
   }
 }
 
 void JoCASSViewer::on_refresh_list_triggered()
 {
-  _filename.clear();
-  _mw->setDisplayableItems(_client.getIdList());
+  _mw->setDisplayableItems(currentSource()->resultNames());
 }
 
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
@@ -315,4 +335,9 @@ void JoCASSViewer::on_print_triggered()
 
   _viewers.value(item)->print();
 
+}
+
+DataSource* JoCASSViewer::currentSource()
+{
+  return _sources.value(_currentSourceType) ;
 }

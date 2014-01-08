@@ -1,7 +1,7 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file jocassview.h contains the jocassviewer class
+ * @file jocassviewer.h contains the jocassviewer class
  *
  * @author Lutz Foucar
  */
@@ -20,6 +20,7 @@ namespace jocassview
 {
 class MainWindow;
 class DataViewer;
+class DataSource;
 
 /** the jocassview class
  *
@@ -65,13 +66,14 @@ private slots:
    */
   void on_viewer_destroyed(DataViewer *obj);
 
-  /** update the contents within the viewers */
+  /** update the contents within the viewers in the map */
   void update_viewers();
 
   /** react on the when something related to auto update changed
    *
-   * change the interval and start or stop the timer according to the checked
-   * stated
+   * change the interval. If the autoupdate button is checked, call
+   * on_refresh_list_triggered() and start the timer. Otherwise just stop the
+   * timer.
    */
   void on_autoupdate_changed();
 
@@ -97,7 +99,7 @@ private slots:
 
   /** react on when refresh list has been triggered
    *
-   * retrieve the list of possible displayable items from the server and update
+   * retrieve the list of possible displayable items from the current source and
    * the list.
    */
   void on_refresh_list_triggered();
@@ -119,24 +121,35 @@ private:
    */
   void createViewerForType(QMap<QString,DataViewer*>::iterator view,
                            cass::HistogramBackend *hist);
+
+  /** retrieve the current active source
+   *
+   * @return pointer to the current active source
+   */
+  DataSource* currentSource();
+
 private:
   /** the main window of the jocassviewer */
   MainWindow *_mw;
 
-  /** the current data filename */
-  QString _filename;
-
   /** the container for all opened viewers */
   QMap<QString,DataViewer*> _viewers;
 
-  /** timer for the auto update function */
+  /** container for all data sources */
+  QMap<QString,DataSource*> _sources;
+
+  /** key of the currently active data source */
+  QString _currentSourceType;
+
+  /** timer for the auto update function it is used as singleshot timer */
   QTimer _updateTimer;
+
+  /** flag to tell whether an update is in progess */
+  bool _updateInProgress;
 
   /** the client to connect to the cass server */
   TCPClient _client;
 
-  /** flag to tell whether an update is in progess */
-  bool _updateInProgress;
 };
 }//end namspace jocassview
 
