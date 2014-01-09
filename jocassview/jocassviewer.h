@@ -81,9 +81,8 @@ private slots:
 
   /** react on the when something related to auto update changed
    *
-   * change the interval. If the autoupdate button is checked, call
-   * on_refresh_list_triggered() and start the timer. Otherwise just stop the
-   * timer.
+   * change the interval. If the autoupdate button is checked, start the timer.
+   * Otherwise just stop the timer.
    */
   void on_autoupdate_changed();
 

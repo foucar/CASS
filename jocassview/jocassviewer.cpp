@@ -255,19 +255,16 @@ void JoCASSViewer::update_viewers()
   sucess ? _mw->setLEDStatus(StatusLED::ok) : _mw->setLEDStatus(StatusLED::fail);
 
   /** restart the updatetimer when requested and reset the in progress flag */
-  if (_mw->autoUpdate())
-    _updateTimer.start();
+  on_autoupdate_changed();
   _updateInProgress = false;
 }
 
 void JoCASSViewer::on_autoupdate_changed()
 {
+  qDebug()<<"on_autoupdate_changed"<<_mw->autoUpdate()<<_mw->interval();
   _updateTimer.setInterval(_mw->interval());
   if(_mw->autoUpdate())
-  {
-    on_refresh_list_triggered();
     _updateTimer.start();
-  }
   else
     _updateTimer.stop();
 }
