@@ -78,17 +78,23 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
   {
     instance.saveDataToCSV(filename,data);
   }
+  else if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
+           fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
+  {
+    instance.saveDataToH5(filename,data,"rw");
+  }
   return;
 }
 
-void FileHandler::saveDataToContainer(const QString &filename, cass::HistogramBackend *data)
+void FileHandler::createContainer(const QString &filename)
 {
   QFileInfo fileInfo(filename);
-  FileHandler instance;
   if (fileInfo.exists())
-    instance.saveDataToH5(filename,data,"rw");
-  else
-    instance.saveDataToH5(filename,data,"w");
+  {
+#ifdef HDF5
+    hdf5::Handler(filename.toStdString(),"w");
+#endif
+  }
 }
 
 HistogramBackend* FileHandler::result(const QString &key, quint64)

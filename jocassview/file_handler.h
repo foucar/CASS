@@ -51,12 +51,11 @@ public:
    */
   static void saveData(const QString &filename, cass::HistogramBackend* data);
 
-  /** save data to a given container file
+  /** create the container file
    *
    * @param filename The filename to save the data to
-   * @param data the data to save
    */
-  static void saveDataToContainer(const QString &filename, cass::HistogramBackend* data);
+  static void createContainer(const QString &filename);
 
   /** retrieve an result from the file
    *

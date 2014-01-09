@@ -17,6 +17,7 @@
 
 #include "histogram.h"
 #include "zero_d_viewer_data.h"
+#include "file_handler.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -67,5 +68,14 @@ void ZeroDViewer::print()const
 
 void ZeroDViewer::saveData(const QString &filename)
 {
+  if (data().isEmpty())
+    return;
+  FileHandler::saveData(filename,data().front()->result());
+}
 
+QStringList ZeroDViewer::dataFileSuffixes() const
+{
+  QStringList list;
+  list << "h5";
+  return list;
 }

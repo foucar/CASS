@@ -61,6 +61,13 @@ public:
    */
   void saveData(const QString &filename);
 
+  /** suffixes for the data of this viewer
+   *
+   * @return suffixes for the data of this viewer
+   */
+  virtual QStringList dataFileSuffixes() const;
+
+
 private:
   /** the label that displays the value */
   QLabel *_value;

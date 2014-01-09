@@ -72,6 +72,12 @@ public:
   /** use this to tell that the data has changed */
   virtual void dataChanged();
 
+  /** the list of file types that the data can be stored as by this viewer
+   *
+   * @return list or suffixes that the data by this viewer can be saveData
+   */
+  virtual QStringList dataFileSuffixes()const = 0;
+
 signals:
   /** signal emitted when viewer is about to be destroyed
    *

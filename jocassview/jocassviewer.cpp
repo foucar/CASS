@@ -273,69 +273,84 @@ void JoCASSViewer::on_autosave_triggered() const
 {
   if (_viewers.isEmpty())
     return;
-
+  /** generate the general automatic filename */
   QString fileNameBase(QDir::currentPath() + "/" + QDateTime::currentDateTime().toString() + "_");
 
-  saveFile(QString(fileNameBase + "autoSave.h5"));
+  /** save all open windows data to a single container file */
+  saveFile(QString(fileNameBase + "autoSave.h5"),_mw->displayedItems());
 
+  /** save the individual viewers to their specific savable file types
+   *  (exclude the container files type
+   */
   QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
   while( view != _viewers.constEnd())
   {
-    if (view.value()->type() == "0DViewer")
+    if (view.value())
     {
-
-    }
-    else if (view.value()->type() == "1DViewer")
-    {
-      saveFile(QString(fileNameBase + view.key() +".hst"),view.key());
-      saveFile(QString(fileNameBase + view.key() +".csv"),view.key());
-    }
-    else if (view.value()->type() == "2DViewer")
-    {
-      saveFile(QString(fileNameBase + view.key() +".hst"),view.key());
-      saveFile(QString(fileNameBase + view.key() +".csv"),view.key());
-      saveFile(QString(fileNameBase + view.key() +".png"),view.key());
+      QStringList filetypes(view.value()->dataFileSuffixes());
+      QStringList::const_iterator cIt;
+      for (cIt = filetypes.constBegin(); cIt != filetypes.constEnd(); ++cIt)
+      {
+        QString fname(fileNameBase + view.key() + "." + *cIt);
+        if (!FileHandler::isContainerFile(fname))
+          saveFile(fname,QStringList(view.key()));
+      }
     }
     ++view;
   }
 }
 
-void JoCASSViewer::saveFile(const QString &filename, const QString &key) const
+void JoCASSViewer::saveFile(const QString &filename, const QStringList &keys) const
 {
   if (_viewers.isEmpty())
     return;
 
-  if (FileHandler::isContainerFile(filename))
-  {
-    QMap<QString,DataViewer*>::const_iterator view(_viewers.constBegin());
-    while( view != _viewers.constEnd())
-    {
-      if (view.value())
-        view.value()->saveData(filename);
-      ++view;
-    }
-  }
-  else
-  {
-    QString savekey(key);
-    if (savekey.isEmpty() || savekey == "")
-    {
-      QStringList items(_mw->displayedItems());
-      QWidget *focusWiget(QApplication::focusWidget());
-      QString preselectItem;
-      if (focusWiget)
-        preselectItem=focusWiget->windowTitle();
-      bool ok(false);
-      QString item(QInputDialog::getItem(_mw, QObject::tr("Select Key"),
-                                         QObject::tr("Key:"), items,
-                                         item.indexOf(preselectItem), false, &ok));
-      if (!ok)
-        return;
-      savekey = item;
-    }
+  QStringList printKeys(keys);
 
-    if(_viewers.value(savekey))
-      _viewers.value(savekey)->saveData(filename);
+  /** if no keys are given, request at least one using the iteminput dialog
+   *  The preselected item in the dialog should be the currently highlighted
+   *  or, in case of a container file, "all"
+   */
+  if (printKeys.isEmpty())
+  {
+    QStringList items(_mw->displayedItems());
+    items.prepend("**ALL**");
+    QWidget *focusWiget(QApplication::focusWidget());
+    int preselectItemId(items.indexOf("**ALL**"));
+    if (!FileHandler::isContainerFile(filename) && (focusWiget))
+      preselectItemId = items.indexOf(focusWiget->windowTitle());
+    bool ok(false);
+    QString item(QInputDialog::getItem(_mw, QObject::tr("Select Key"),
+                                       QObject::tr("Key:"), items,
+                                       preselectItemId, false, &ok));
+    if (!ok)
+      return;
+    if (item.contains("***ALL***"))
+      printKeys = _mw->displayedItems();
+    else
+      printKeys.append(item);
+  }
+  /** if the file is a container file, create the container first before adding
+   *  data to it.
+   */
+  if (FileHandler::isContainerFile(filename))
+    FileHandler::createContainer(filename);
+
+  /** go through the list and tell the viewer to save the data
+   *  Append the name of the viewer to the filaname in case this is not a
+   *  container file and more that one file should be saved with data so that
+   *  the files are not overwritten.
+   */
+  QStringList::const_iterator cIt;
+  for (cIt = printKeys.constBegin(); cIt != printKeys.constEnd(); ++cIt)
+  {
+    if (_viewers.value(*cIt))
+    {
+      QString fname(filename);
+      if(!FileHandler::isContainerFile(filename) && printKeys.size() > 1)
+        fname.insert(fname.lastIndexOf("."),"_" + *cIt);
+      _viewers.value(*cIt)->saveData(fname);
+    }
   }
 }
 

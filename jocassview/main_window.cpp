@@ -236,6 +236,7 @@ void MainWindow::on_save_as_triggered()
 
 void MainWindow::on_listitem_clicked(QListWidgetItem *item)
 {
+  qDebug()<<"on_listitem_clicked"<<item->isSelected();
   bool state(item->isSelected());
   QString name(item->text());
   emit item_checked(name,state);

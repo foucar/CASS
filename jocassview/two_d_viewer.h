@@ -68,6 +68,12 @@ public:
    */
   virtual void dataChanged();
 
+  /** suffixes for the data of this viewer
+   *
+   * @return suffixes for the data of this viewer
+   */
+  virtual QStringList dataFileSuffixes() const;
+
 private slots:
   /** replot the data */
   void replot();

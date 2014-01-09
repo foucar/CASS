@@ -13,6 +13,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QTimer>
+#include <QtCore/QStringList>
 
 namespace cass
 {
@@ -102,9 +103,9 @@ private slots:
    * in the container type file.
    *
    * @param filename The name of the file
-   * @param key The key of the window whos contens should be written
+   * @param keys The list of keys of the window whos contens should be written
    */
-  void saveFile(const QString &filename, const QString &key="") const;
+  void saveFile(const QString &filename, const QStringList &keys=QStringList()) const;
 
   /** react on when refresh list has been triggered
    *

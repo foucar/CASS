@@ -38,6 +38,7 @@
 #include "data.h"
 
 using namespace jocassview;
+using namespace cass;
 
 OneDViewer::OneDViewer(QString title, QWidget *parent)
   : DataViewer(title,parent)
@@ -155,12 +156,28 @@ QString OneDViewer::type() const
 
 void OneDViewer::saveData(const QString &filename)
 {
-
+  QList<Data*> dataList(data());
+  QList<Data*>::iterator dataIt(dataList.begin());
+  while (dataIt != dataList.end())
+  {
+    QString fname(filename);
+    if(!FileHandler::isContainerFile(filename))
+      fname.insert(fname.lastIndexOf("."),"_" + QString::fromStdString((*dataIt)->result()->key()));
+    FileHandler::saveData(filename,(*dataIt)->result());
+    ++dataIt;
+  }
 }
 
 void OneDViewer::dataChanged()
 {
   replot();
+}
+
+QStringList OneDViewer::dataFileSuffixes() const
+{
+  QStringList list;
+  list << "h5"<<"hst"<<"csv";
+  return list;
 }
 
 void OneDViewer::addData(cass::Histogram1DFloat *histogram)

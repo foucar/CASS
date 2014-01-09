@@ -28,8 +28,10 @@
 #include "track_zoomer_2d.h"
 #include "logcolor_map.h"
 #include "data.h"
+#include "file_handler.h"
 
 using namespace jocassview;
+using namespace cass;
 
 TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   : DataViewer(title,parent)
@@ -116,7 +118,9 @@ QString TwoDViewer::type() const
 
 void TwoDViewer::saveData(const QString &filename)
 {
-
+  if (data().isEmpty())
+    return;
+  FileHandler::saveData(filename,data().front()->result());
 }
 
 void TwoDViewer::dataChanged()
@@ -136,6 +140,13 @@ void TwoDViewer::dataChanged()
     _zoomer->setZoomBase(true);
   }
   replot();
+}
+
+QStringList TwoDViewer::dataFileSuffixes() const
+{
+  QStringList list;
+  list << "h5"<<"hst"<<"csv"<<"png";
+  return list;
 }
 
 void TwoDViewer::replot()
