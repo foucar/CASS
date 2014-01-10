@@ -30,6 +30,12 @@ namespace jocassview
 class FileHandler : public DataSource
 {
 public:
+  /** constructor
+   *
+   * @param filename the filename that the handler handels
+   */
+  FileHandler(const QString &filename=QString());
+
   /** return the basename of the filename
    *
    * @return basename of filename

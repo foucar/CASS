@@ -31,6 +31,11 @@ using namespace jocassview;
 using namespace cass;
 using namespace std;
 
+FileHandler::FileHandler(const QString &filename)
+  : _filename(filename)
+{
+
+}
 
 QString FileHandler::getBaseName(const QString &filename)
 {

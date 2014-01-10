@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Lutz Foucar
+// Copyright (C) 2013, 2014 Lutz Foucar
 
 /**
  * @file one_d_viewer.h contains the viewer for 1d data

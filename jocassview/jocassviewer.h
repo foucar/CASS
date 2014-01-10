@@ -132,24 +132,12 @@ private:
   void createViewerForType(QMap<QString,DataViewer*>::iterator view,
                            cass::HistogramBackend *hist);
 
-  /** retrieve the current active source
-   *
-   * @return pointer to the current active source
-   */
-  DataSource* currentSource();
-
 private:
   /** the main window of the jocassviewer */
   MainWindow *_mw;
 
   /** the container for all opened viewers */
   QMap<QString,DataViewer*> _viewers;
-
-  /** container for all data sources */
-  QMap<QString,DataSource*> _sources;
-
-  /** key of the currently active data source */
-  QString _currentSourceType;
 
   /** timer for the auto update function it is used as singleshot timer */
   QTimer _updateTimer;

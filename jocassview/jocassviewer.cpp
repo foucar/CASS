@@ -32,6 +32,7 @@
 #include "data_source.h"
 #include "data.h"
 #include "tcpclient.h"
+#include "data_source_manager.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -48,15 +49,10 @@ JoCASSViewer::JoCASSViewer(QObject *parent)
   /** generate the main window */
   _mw = new MainWindow();
 
-  /** create and initialize the data sources and add them to the container */
+  /** create and initialize the server data sources and add them to the manager */
   TCPClient *client(new TCPClient);
   client->setServer(_mw->on_server_property_changed());
-  _sources[client->type()] = client;
-
-  FileHandler *fhandler(new FileHandler);
-  _sources[fhandler->type()] = fhandler;
-
-  _currentSourceType = client->type();
+  DataSourceManager::addSource("Server",client);
 
   /** set up the connections and display it */
   connect(_mw,SIGNAL(load_file_triggered(QString)),this,SLOT(loadData(QString)));
@@ -89,10 +85,7 @@ JoCASSViewer::~JoCASSViewer()
 void JoCASSViewer::loadData(QString filename, QString key)
 {
   /** set the current source to file and set the filename to the source */
-  _currentSourceType = "File";
-  if (!currentSource())
-    return;
-  dynamic_cast<FileHandler*>(currentSource())->setFilename(filename);
+  DataSourceManager::addSource(filename,new FileHandler(filename));
 
   /** load the displayable items from the source and set the window title to
    *  to reflect the filename.
@@ -180,7 +173,9 @@ void JoCASSViewer::update_viewers()
       /** check if current source is available, if remove the viewer from the
        *  list and quit updating
        */
-      if (!currentSource())
+      QString sourceName(DataSourceManager::currentSourceName());
+      DataSource *source(DataSourceManager::source());
+      if (!source)
       {
         _mw->setDisplayedItem(view.key(),false,false);
         _viewers.remove(view.key());
@@ -190,8 +185,7 @@ void JoCASSViewer::update_viewers()
       /** if the viewer hasn't been initalized, initialize it with new result
        *  from the current active source.
        */
-      QString sourceType(currentSource()->type());
-      HistogramBackend * result(currentSource()->result(view.key(),eventID));
+      HistogramBackend * result(source->result(view.key(),eventID));
       /** validate container consistency */
       if(_viewers.size() != nbrWindows)
       {
@@ -216,7 +210,7 @@ void JoCASSViewer::update_viewers()
       if (!view.value()->data().isEmpty())
       {
         view.value()->data().front()->setResult(result);
-        view.value()->data().front()->setSourceType(sourceType);
+        view.value()->data().front()->setSourceName(sourceName);
       }
     }
     else
@@ -230,13 +224,15 @@ void JoCASSViewer::update_viewers()
       while (dataIt != data.end())
       {
         /** validate source */
-        if(!_sources.contains((*dataIt)->sourceType()))
+        QString sourceName((*dataIt)->sourceName());
+        DataSource *source(DataSourceManager::source(sourceName));
+        if(!source)
           continue;
         /** validate result to update */
         if (!(*dataIt)->result())
           continue;
         const QString key(QString::fromStdString((*dataIt)->result()->key()));
-        HistogramBackend * result(_sources[(*dataIt)->sourceType()]->result(key,eventID));
+        HistogramBackend * result(source->result(key,eventID));
         /** validate container consistency */
         if(_viewers.size() != nbrWindows || data.size() != nbrData)
         {
@@ -357,7 +353,8 @@ void JoCASSViewer::saveFile(const QString &filename, const QStringList &keys) co
 void JoCASSViewer::on_refresh_list_triggered()
 {
   qDebug()<<"on_refresh_list_triggered";
-  _mw->setDisplayableItems(currentSource()->resultNames());
+  if (DataSourceManager::source())
+    _mw->setDisplayableItems(DataSourceManager::source()->resultNames());
 }
 
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
@@ -399,9 +396,4 @@ void JoCASSViewer::on_print_triggered()
 
   _viewers.value(item)->print();
 
-}
-
-DataSource* JoCASSViewer::currentSource()
-{
-  return _sources.contains(_currentSourceType) ? _sources.value(_currentSourceType) : 0;
 }

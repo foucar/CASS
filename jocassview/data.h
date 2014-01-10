@@ -40,21 +40,21 @@ public:
    */
   virtual cass::HistogramBackend* result() = 0;
 
-  /** set the source type
+  /** set the source name
    *
-   * @param type the sources type
+   * @param name the sources type
    */
-  virtual void setSourceType(const QString &type);
+  virtual void setSourceName(const QString &name);
 
-  /** retrieve the source type
+  /** retrieve the source name
    *
-   * @return the source type for this data
+   * @return the source name for this data
    */
-  virtual QString sourceType()const;
+  virtual QString sourceName()const;
 
 protected:
-  /** the source type */
-  QString _sourceType;
+  /** the name of the source */
+  QString _sourceName;
 };
 }//end namespace jocassview
 

@@ -15,12 +15,12 @@ Data::~Data()
 
 }
 
-void Data::setSourceType(const QString &type)
+void Data::setSourceName(const QString &name)
 {
-  _sourceType = type;
+  _sourceName = name;
 }
 
-QString Data::sourceType()const
+QString Data::sourceName()const
 {
-  return _sourceType;
+  return _sourceName;
 }
