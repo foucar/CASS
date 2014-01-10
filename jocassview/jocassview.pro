@@ -57,6 +57,7 @@ SOURCES       += \
                  file_handler.cpp \
                  id_list.cpp \
                  data_source.cpp \
+                 data_source_manager.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
 
@@ -85,6 +86,7 @@ HEADERS       += \
                  soapStub.h \
                  id_list.h \
                  data_source.h \
+                 data_source_manager.h \
                  tcpclient.h \
 
 INCLUDEPATH   += $$PWD/.. \
