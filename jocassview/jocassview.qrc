@@ -1,14 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/new.png</file>
         <file>images/print.png</file>
         <file>images/save.png</file>
-        <file>images/undo.png</file>
         <file>images/zoomin.png</file>
         <file>images/zoomout.png</file>
         <file>images/zoomreset.png</file>
         <file>images/grid.png</file>
-        <file>images/chart-Axis_Features.jpg</file>
         <file>images/log.png</file>
         <file>images/autoscale.png</file>
         <file>images/legend.png</file>
