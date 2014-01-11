@@ -217,7 +217,7 @@ void MainWindow::setDisplayedItem(QString item,bool state, bool simulateClickedS
     on_listitem_clicked(listwidgetitem);
 }
 
-QString MainWindow::on_server_property_changed()
+QString MainWindow::serverAddress()const
 {
   QString servername(_servername->text());
   QString serverport(QString::number(_serverport->value()));

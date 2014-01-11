@@ -39,7 +39,6 @@ SOURCES       += \
                  main.cpp \
                  led.cpp \
                  status_led.cpp \
-                 main_window.cpp \
                  data.cpp \
                  data_viewer.cpp \
                  zero_d_viewer_data.cpp \
@@ -63,7 +62,6 @@ SOURCES       += \
 
 HEADERS       += \
                  jocassviewer.h \
-                 main_window.h \
                  led.h \
                  status_led.h \
                  data.h \

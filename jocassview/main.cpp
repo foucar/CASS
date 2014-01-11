@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     /** @todo remove all non alphanumerical characters from the keystring before
      *        calling function
      */
-    jocassviewer.loadData(fname,keyname);
+    jocassviewer.openFile(fname,keyname);
   }
 
   return app.exec();

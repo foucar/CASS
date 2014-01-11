@@ -170,12 +170,14 @@ public slots:
    */
   void setDisplayedItem(QString itemName, bool state, bool simulateClickedSignal=true);
 
-  /** react when the server string or port has changed
+  /** retrieve the server address
    *
-   * assemble the server string and port to a server address and emit
-   * server_changed(); signal
+   * assemble the server string and port to a server address, save them in the
+   * ini file and return and emit serverChanged signal
+   *
+   * @return the serveraddress
    */
-  QString on_server_property_changed();
+  QString serverAddress()const;
 
   /** set the visibiltiy of the server toolbar
    *
