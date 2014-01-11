@@ -170,6 +170,19 @@ public slots:
    */
   void setDisplayedItem(QString itemName, bool state, bool simulateClickedSignal=true);
 
+  /** react when the server string or port has changed
+   *
+   * assemble the server string and port to a server address and emit
+   * server_changed(); signal
+   */
+  QString on_server_property_changed();
+
+  /** set the visibiltiy of the server toolbar
+   *
+   * @param show when true the toolbar will be visible and hidden othewise
+   */
+  void setServerToolBarVisiblity(bool visible);
+
 private slots:
   /** display about this box */
   void on_about_triggered();
@@ -189,15 +202,6 @@ private slots:
    */
   void on_listitem_clicked(QListWidgetItem *item);
 
-public slots:
-  /** react when the server string or port has changed
-   *
-   * assemble the server string and port to a server address and emit
-   * server_changed(); signal
-   */
-  QString on_server_property_changed();
-
-private slots:
   /** react when something related to auto updates has changed
    *
    * write the current settings to the ini file and emit the autoupdate_changed()
@@ -259,6 +263,9 @@ private:
 
   /** the auto update input */
   QAction *_autoUpdate;
+
+  /** the toolbar with the server options */
+  QToolBar *_serverToolBar;
 };
 
 }//end namspace jocassview

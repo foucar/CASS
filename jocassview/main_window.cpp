@@ -37,6 +37,7 @@
 #include "main_window.h"
 
 #include "status_led.h"
+#include "data_source_manager.h"
 
 using namespace jocassview;
 
@@ -69,20 +70,24 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   cmenu->addSeparator();
   cmenu->addAction(tr("Quit Server"),this,SIGNAL(quit_server_triggered()));
 
+  // Add the source menu
+  DataSourceManager::setMenu(menu->addMenu(tr("&Sources")));
+
   // Add help menu
   QMenu *hmenu = menu->addMenu(tr("&Help"));
   hmenu->addAction(tr("About"),this,SLOT(on_about_triggered()));
   hmenu->addAction(tr("About Qt"),qApp,SLOT(aboutQt()));
 
   // Add a toolbar where we can add the general tools
-  QToolBar *toolBar(addToolBar(tr("Display control")));
+  _serverToolBar = addToolBar(tr("Display control"));
+  _serverToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
 
   // Add servername and port to toolbar.
   _servername = new QLineEdit(settings.value("Servername", "server?").toString());
   _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
   _servername->setToolTip(tr("Name of the server to connect to."));
   connect(_servername,SIGNAL(textEdited(QString)),this,SLOT(on_server_property_changed()));
-  toolBar->addWidget(_servername);
+  _serverToolBar->addWidget(_servername);
 
   _serverport = new QSpinBox();
   _serverport->setKeyboardTracking(false);
@@ -90,34 +95,34 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   _serverport->setValue(settings.value("Serverport", 12321).toInt());
   _serverport->setToolTip(tr("Port of the server to connect to."));
   connect(_serverport,SIGNAL(valueChanged(int)),this,SLOT(on_server_property_changed()));
-  toolBar->addWidget(_serverport);
+  _serverToolBar->addWidget(_serverport);
 
   // Add spacer to toolbar.
   QWidget *spacer1(new QWidget());
   spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  toolBar->addWidget(spacer1);
+  _serverToolBar->addWidget(spacer1);
 
   // Add a separator
-  toolBar->addSeparator();
+  _serverToolBar->addSeparator();
 
   // Add spacer to toolbar.
   QWidget *spacer2(new QWidget());
   spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  toolBar->addWidget(spacer2);
+  _serverToolBar->addWidget(spacer2);
 
   // Add run control to toolbar.
-  _autoUpdate = new QAction(QIcon(":images/auto_update.png"),tr("Toggle auto update"),toolBar);
+  _autoUpdate = new QAction(QIcon(":images/auto_update.png"),tr("Toggle auto update"),_serverToolBar);
   _autoUpdate->setCheckable(true);
   _autoUpdate->setChecked(settings.value("AutoUpdateOn",false).toBool());
   _autoUpdate->setToolTip(tr("If checked, continuously retrieve and display images."));
   connect(_autoUpdate,SIGNAL(triggered()),this,SLOT(on_autoupdate_changed()));
-  toolBar->addAction(_autoUpdate);
+  _serverToolBar->addAction(_autoUpdate);
 
   // Add status LED to toolbar.
   _statusLED = new StatusLED();
-  _statusLED->setToolTip("Status indicator (green= , red= ).");
+  _statusLED->setToolTip("Status indicator (green = Data retrieved ok, red = communciation Problems, yellow = busy).");
   _statusLED->setStatus(StatusLED::off);
-  toolBar->addWidget(_statusLED);
+  _serverToolBar->addWidget(_statusLED);
 
   // Add rate to toolbar.
   _rate = new QDoubleSpinBox();
@@ -125,10 +130,10 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
   _rate->setValue(settings.value("Rate", 10.).toDouble());
   _rate->setToolTip(tr("Image update frequency."));
   connect(_rate,SIGNAL(valueChanged(double)),this,SLOT(on_autoupdate_changed()));
-  toolBar->addWidget(_rate);
+  _serverToolBar->addWidget(_rate);
   QLabel *punit = new QLabel;
   punit->setText("Hz");
-  toolBar->addWidget(punit);
+  _serverToolBar->addWidget(punit);
 
   // set up status bar
   statusBar()->setToolTip(tr("Actual frequency to get and display "
@@ -212,6 +217,23 @@ void MainWindow::setDisplayedItem(QString item,bool state, bool simulateClickedS
     on_listitem_clicked(listwidgetitem);
 }
 
+QString MainWindow::on_server_property_changed()
+{
+  QString servername(_servername->text());
+  QString serverport(QString::number(_serverport->value()));
+  QSettings settings;
+  settings.setValue("Servername",servername);
+  settings.setValue("Serverport",serverport);
+  QString serveraddress(servername + ":" + serverport);
+  emit server_changed(serveraddress);
+  return serveraddress;
+}
+
+void MainWindow::setServerToolBarVisiblity(bool visible)
+{
+  _serverToolBar->setVisible(visible);
+}
+
 void MainWindow::on_about_triggered()
 {
   QMessageBox::about(this, tr("About jocassview"),
@@ -240,18 +262,6 @@ void MainWindow::on_listitem_clicked(QListWidgetItem *item)
   bool state(item->isSelected());
   QString name(item->text());
   emit item_checked(name,state);
-}
-
-QString MainWindow::on_server_property_changed()
-{
-  QString servername(_servername->text());
-  QString serverport(QString::number(_serverport->value()));
-  QSettings settings;
-  settings.setValue("Servername",servername);
-  settings.setValue("Serverport",serverport);
-  QString serveraddress(servername + ":" + serverport);
-  emit server_changed(serveraddress);
-  return serveraddress;
 }
 
 void MainWindow::on_autoupdate_changed()
