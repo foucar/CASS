@@ -9,6 +9,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
+#include <QtCore/QTime>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
@@ -36,6 +37,8 @@
 #include "file_handler.h"
 #include "curve_plot.h"
 #include "data.h"
+#include "data_source_manager.h"
+#include "jocassviewer.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -127,6 +130,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   yControlAction->setDefaultWidget(_yControl);
   toolbar->addAction(yControlAction);
 
+  qsrand(QTime::currentTime().msec());
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
@@ -178,33 +182,6 @@ QStringList OneDViewer::dataFileSuffixes() const
   QStringList list;
   list << "h5"<<"hst"<<"csv";
   return list;
-}
-
-void OneDViewer::addData(cass::Histogram1DFloat *histogram)
-{
-  if (!histogram)
-    return;
-
-  _curves.push_back(new PlotCurve);
-  PlotCurve * curve(_curves.back());
-
-  QPen pen;
-  pen.setWidth(1);
-  pen.setColor(QColor::fromHsv(qrand() % 256, 255, 190));
-  curve->setPen(pen);
-  curve->setTitle(QString::fromStdString(histogram->key()));
-  curve->setStyle(QwtPlotCurve::Steps);
-  curve->attach(_plot);
-  QwtLegendLabel *curveWidget(qobject_cast<QwtLegendLabel*>(_legend->legendWidget(_plot->itemToInfo(curve))));
-  curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-  curveWidget->setChecked(true);
-  connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
-
-  OneDViewerData *data(new OneDViewerData);
-  data->setResult(histogram);
-  curve->setData(data);
-
-  replot();
 }
 
 void OneDViewer::replot()
@@ -380,15 +357,73 @@ void OneDViewer::remove_curve(PlotCurve *curve)
 
 void OneDViewer::on_add_graph_triggered()
 {
-//  QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
-//  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Reference Data File"), QDir::currentPath(), filter);
-//  if(fileName.isEmpty())
-//    return;
-//  cass::HistogramBackend *data(FileHandler::getData(fileName));
-//  if (data->dimension() == 1)
-//    addData(dynamic_cast<cass::Histogram1DFloat*>(data));
-//  else
-//    QMessageBox::critical(this,tr("Error"),tr("The requested data is not 1d data"));
+  /** ask the user from which source the added graph should come */
+  QStringList sourceNames(DataSourceManager::sourceNames());
+  sourceNames << "***New Source***";
+  int currentIdx(sourceNames.indexOf(DataSourceManager::currentSourceName()));
+  bool ok(false);
+  QString sourceName(QInputDialog::getItem(0, QObject::tr("Select Source"),
+                                     QObject::tr("Source:"), sourceNames,
+                                     currentIdx, false, &ok));
+  if (!ok || sourceName.isEmpty())
+    return;
+  /** if the source should be a new one, ask the user for the filename of the
+   *  new source and add it to the list of sources
+   */
+  if (sourceName == "***New Source***")
+  {
+    QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("Open Reference Data File"),
+                                                    QDir::currentPath(), filter);
+    if(fileName.isEmpty())
+      return;
+    DataSourceManager::addSource(fileName,new FileHandler(fileName),false);
+  }
+
+  /** retrieve the list of items that are available from the source, if more
+   *  than 1 ask the user which should be added
+   */
+  DataSource * source(DataSourceManager::source(sourceName));
+  QStringList items(source->resultNames());
+  QString item(QInputDialog::getItem(0, QObject::tr("Select Key"),
+                                     QObject::tr("Key:"), items, 0, false, &ok));
+  if (!ok || item.isEmpty())
+    return;
+
+  /** retrieve the result from the source and check if it is a 1d result */
+  HistogramBackend *result(source->result(item));
+  if (!(result && result->dimension() ==1))
+  {
+    QMessageBox::critical(this,tr("Error"),tr("The requested data doesn't exit or is not 1d data"));
+    return;
+  }
+
+  /** create a new data container and add the result to it */
+  OneDViewerData *data(new OneDViewerData);
+  data->setSourceName(sourceName);
+  data->setResult(result);
+
+  /** add a new curve to the plot and intialize it with the data and  a random
+   *  color then set up the legenditem and its context menu for the curve
+   */
+  _curves.push_back(new PlotCurve);
+  PlotCurve * curve(_curves.back());
+  QPen pen;
+  pen.setWidth(1);
+  pen.setColor(QColor::fromHsv(qrand() % 256, 255, 190));
+  curve->setPen(pen);
+  curve->setTitle(item);
+  curve->setStyle(QwtPlotCurve::Steps);
+  curve->attach(_plot);
+  curve->setData(data);
+  QwtLegendLabel *curveWidget(qobject_cast<QwtLegendLabel*>(_legend->legendWidget(_plot->itemToInfo(curve))));
+  curveWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  curveWidget->setChecked(true);
+  connect(curveWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_legend_right_clicked(QPoint)));
+
+  /** and replot the plot */
+  replot();
 }
 
 void OneDViewer::on_grid_triggered()

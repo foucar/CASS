@@ -77,12 +77,6 @@ public:
   virtual QStringList dataFileSuffixes() const;
 
 private slots:
-  /** add a curve with data to the plot
-   *
-   * @param histogram the additional curve to be plotted
-   */
-  void addData(cass::Histogram1DFloat *histogram);
-
   /** redraw the plot */
   void replot();
 
