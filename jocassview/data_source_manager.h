@@ -53,6 +53,12 @@ public:
    */
   static QString currentSourceName();
 
+  /** retrieve the names of all current active sources
+   *
+   * @return list of names of the sources
+   */
+  static QStringList sourceNames();
+
   /** set the Menu where the data sources will be displayed in
    *
    * @param menue the menu that displays the available data sources
@@ -65,8 +71,10 @@ public:
    *
    * @param sourcename the name of the data source that should be added
    * @param source the data source that should be added
+   * @param setActive Set added source as the current active one and emit the
+   *                  signal that a new source has been
    */
-  static void addSource(const QString &sourcename, DataSource * source);
+  static void addSource(const QString &sourcename, DataSource * source, bool setActive=true);
 
 signals:
   /** signal when a new source was chosen

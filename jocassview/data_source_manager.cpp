@@ -57,6 +57,11 @@ QString DataSourceManager::currentSourceName()
   return name;
 }
 
+QStringList DataSourceManager::sourceNames()
+{
+  return instance()->_sources.keys();
+}
+
 void DataSourceManager::setMenu(QMenu *menu)
 {
   qDebug()<<"add menu";
@@ -66,7 +71,8 @@ void DataSourceManager::setMenu(QMenu *menu)
   connect(instance()->_mapper,SIGNAL(mapped(QString)),instance(),SIGNAL(sourceChanged(QString)));
 }
 
-void DataSourceManager::addSource(const QString &sourcename, DataSource *source)
+void DataSourceManager::addSource(const QString &sourcename, DataSource *source,
+                                  bool setActive)
 {
   qDebug()<<"add Source"<< sourcename<<source;
   instance()->_sources[sourcename] = source;
@@ -75,5 +81,9 @@ void DataSourceManager::addSource(const QString &sourcename, DataSource *source)
   connect(act,SIGNAL(triggered()),instance()->_mapper,SLOT(map()));
   instance()->_mapper->setMapping(act,sourcename);
   instance()->_actionGroup->addAction(act);
-  act->setChecked(true);
+  if (setActive)
+  {
+    act->setChecked(true);
+    emit instance()->sourceChanged(sourcename);
+  }
 }
