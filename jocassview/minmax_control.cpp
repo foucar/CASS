@@ -93,7 +93,8 @@ MinMaxControl::MinMaxControl(QString title, QToolBar *parent)
 
 void MinMaxControl::on_changed()
 {
-  if(_maxinput->text().toDouble() < _mininput->text().toDouble())
+  if(max() <= min() || (log() && (!std::isfinite(std::log10(min())) ||
+                                 !std::isfinite(std::log10(max())))))
   {
     _mininput->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
     _maxinput->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
@@ -103,6 +104,7 @@ void MinMaxControl::on_changed()
     _mininput->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     _maxinput->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
   }
+
 
   // save the states
   QSettings settings;
