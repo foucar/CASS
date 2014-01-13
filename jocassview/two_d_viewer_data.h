@@ -69,8 +69,9 @@ public:
   /** return the min max values of the values in the data
    *
    * @return the interval of min to max values in the data
+   * @param log when true it will return the minimal positive value
    */
-  QwtInterval origZInterval()const;
+  QwtInterval origZInterval(bool log)const;
 
   /** return the value of the data at point x,y
    *

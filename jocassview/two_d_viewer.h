@@ -88,8 +88,9 @@ private:
    *
    * @return pointer to the requested colormap
    * @param mapId the key of the requested color id
+   * @param log if true a log scale color map will be returned
    */
-  QwtLinearColorMap* cmap(const int mapId) const;
+  QwtLinearColorMap* cmap(const int mapId, bool log) const;
 
   /** return the list of possible colormaps
    *

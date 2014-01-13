@@ -39,7 +39,7 @@ void TwoDViewerData::setResult(HistogramBackend *hist)
   setInterval(Qt::XAxis,QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
   const AxisProperty &yaxis(result()->axis()[Histogram2DFloat::yAxis]);
   setInterval(Qt::YAxis,QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
-  setInterval(Qt::ZAxis,origZInterval());
+  setInterval(Qt::ZAxis,origZInterval(false));
 }
 
 HistogramBackend* TwoDViewerData::result()
@@ -52,7 +52,7 @@ const HistogramBackend* TwoDViewerData::result()const
   return _hist;
 }
 
-QwtInterval TwoDViewerData::origZInterval()const
+QwtInterval TwoDViewerData::origZInterval(bool log)const
 {
   if (!_hist)
     return (QwtInterval(0,0));
@@ -63,6 +63,8 @@ QwtInterval TwoDViewerData::origZInterval()const
   for (;it != End;++it)
   {
     if (!std::isfinite(*it))
+      continue;
+    if (log && !std::isfinite(log10(*it)))
       continue;
     if (*it < zRange.minValue())
       zRange.setMinValue(*it);
