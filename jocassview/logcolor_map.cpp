@@ -8,6 +8,8 @@
 
 #include <cmath>
 
+#include <QtCore/QDebug>
+
 #include <QtGui/QColor>
 #include <QtGui/QRgb>
 
@@ -24,7 +26,7 @@ LogColorMap::LogColorMap(const QColor &from, const QColor &to)
 
 QRgb LogColorMap::rgb(const QwtInterval &interval, double value) const
 {
-  return QwtLinearColorMap::rgb(QwtInterval(std::log(interval.minValue()),
-                                            std::log(interval.maxValue())),
-                                std::log(value));
+  return QwtLinearColorMap::rgb(QwtInterval(std::log10(interval.minValue()),
+                                            std::log10(interval.maxValue())),
+                                std::log10(value));
 }
