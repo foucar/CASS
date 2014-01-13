@@ -21,20 +21,20 @@ TrackZoomer2D::TrackZoomer2D(QWidget *canvas)
   setTrackerMode(AlwaysOn);
 }
 
-QwtText TrackZoomer2D::trackerText(const QPoint &pos) const
+QwtText TrackZoomer2D::trackerTextF(const QPointF &pos) const
 {
-    QColor bg(Qt::white);
-    bg.setAlpha(200);
+  QString text_string;
+  if (_data)
+    text_string = "x:" + QString::number(pos.x()) + " , " +
+        "y:" + QString::number(pos.y()) + " , " +
+        "z:" + QString::number(_data->value(pos.x(),pos.y()));
 
-    QwtText text = QwtPlotZoomer::trackerText(pos);
-    QString text_string(text.text());
-    if (_data)
-      text_string = "x:" + QString::number(pos.x()) + " , " +
-          "y:" + QString::number(pos.y()) + " , " +
-          "z:" + QString::number(_data->value(pos.x(),pos.y()));
-    text.setText(text_string);
-    text.setBackgroundBrush( QBrush( bg ));
-    return text;
+  QColor bg(Qt::white);
+  bg.setAlpha(200);
+
+  QwtText text(text_string);
+  text.setBackgroundBrush( QBrush( bg ));
+  return text;
 }
 
 void TrackZoomer2D::setData(QwtRasterData *data)

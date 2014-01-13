@@ -39,7 +39,7 @@ public:
    * @return the text to be displayed
    * @param pos The position of the mouse
    */
-  virtual QwtText trackerText(const QPoint &pos) const;
+  virtual QwtText trackerTextF(const QPointF &pos) const;
 
   /** set the data to retrieve the values from
    *
