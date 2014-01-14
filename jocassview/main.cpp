@@ -9,6 +9,8 @@
  * @author Lutz Foucar
  */
 
+#include <iostream>
+
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
 
@@ -16,6 +18,7 @@
 
 #include "jocassviewer.h"
 #include "cl_parser.hpp"
+#include "jocassview_version.h"
 
 using namespace jocassview;
 
@@ -62,7 +65,27 @@ int main(int argc, char *argv[])
   parser.add("-f","filename of file that one wants to open",filename);
   std::string key("empty");
   parser.add("--h5key","key of the datafield in the hdf5 file",key);
+  bool showUsage(false);
+  parser.add("-h","show this help",showUsage);
+  bool showVersion(false);
+  parser.add("--version","display the version of jocassview",showVersion);
+
   parser(QCoreApplication::arguments());
+
+  /** show help and exit if requested */
+  if (showUsage)
+  {
+    parser.usage();
+    exit(0);
+  }
+
+  /** show version and exit if requested */
+  if (showVersion)
+  {
+    std::cout <<VERSION <<std::endl;
+    exit(0);
+  }
+
   if ( filename == "nofile")
     jocassviewer.startViewer();
   else

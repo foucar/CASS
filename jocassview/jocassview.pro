@@ -1,5 +1,5 @@
 # Copyright (C) 2010 Jochen Küpper
-# Copyright (C) 2010,2013 Lutz Foucar
+# Copyright (C) 2010,2013,2014 Lutz Foucar
 
 
 CASS_ROOT = ..
@@ -103,6 +103,11 @@ INSTALLS      += target
 
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
+# execute script that shows the current version derived from git
+#version.target      = cass_version.h
+version.commands    = $$PWD/update-version.sh
+QMAKE_EXTRA_TARGETS+= version
+PRE_TARGETDEPS     += version
 
 QMAKE_CLEAN   += $$SOAPFiles.files
 QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
