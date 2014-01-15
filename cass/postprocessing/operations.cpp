@@ -27,8 +27,39 @@ using tr1::placeholders::_1;
 using tr1::placeholders::_2;
 using tr1::placeholders::_3;
 
+namespace cass
+{
+/** temporarliy provide own copy of min_element to be able to compile
+ *
+ * This is just a copy from the cpp reference guide in the internet
+ */
+template <class ForwardIterator>
+ForwardIterator max_element ( ForwardIterator first, ForwardIterator last )
+{
+  if (first==last) return last;
+  ForwardIterator largest = first;
 
+  while (++first!=last)
+    if (*largest<*first)
+      largest=first;
+  return largest;
+}
+/** temporarliy provide own copy of min_element to be able to compile
+ *
+ * This is just a copy from the cpp reference guide in the internet
+ */
+template <class ForwardIterator>
+ForwardIterator min_element ( ForwardIterator first, ForwardIterator last )
+{
+  if (first==last) return last;
+  ForwardIterator smallest = first;
 
+  while (++first!=last)
+    if (*first<*smallest)
+      smallest=first;
+  return smallest;
+}
+}//end namespace cass
 
 
 // ************ Operation on two results *************
@@ -2040,9 +2071,9 @@ void pp85::process(const CASSEvent& evt, HistogramBackend &res)
   HistogramFloatBase::storage_t::const_iterator xRangeEnd
       (one.memory().begin()+_xRange.second);
   HistogramFloatBase::storage_t::const_iterator maxElementIt
-      (max_element(xRangeBegin, xRangeEnd));
+      (std::max_element(xRangeBegin, xRangeEnd));
   HistogramFloatBase::storage_t::const_iterator minElementIt
-      (min_element(xRangeBegin, xRangeEnd));
+      (std::min_element(xRangeBegin, xRangeEnd));
   const float fracMax((*maxElementIt-*minElementIt) * _fraction + *minElementIt);
 
   HistogramFloatBase::storage_t::const_iterator leftSide;
@@ -2153,7 +2184,7 @@ void pp86::process(const CASSEvent& evt, HistogramBackend &res)
       (one.memory().begin()+_xRangeStep.second);
 
   HistogramFloatBase::storage_t::const_iterator maxElementIt
-      (max_element(stepRangeBegin, stepRangeEnd));
+      (std::max_element(stepRangeBegin, stepRangeEnd));
   const float halfMax((*maxElementIt+baseline) * _userFraction);
 
   HistogramFloatBase::storage_t::const_iterator stepIt(stepRangeBegin+1);

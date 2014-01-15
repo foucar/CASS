@@ -201,6 +201,7 @@ include( $${CASS_ROOT}/cass_dependencies.pri )
 
 LIBS               += -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
+LIBS               += -lrt
 
 
 # Extra stuff for http Server
@@ -213,7 +214,7 @@ httpServer {
     DEFINES        += JPEG_CONVERSION
 }
 
-# Extra stuff if compiling pp1000,pp1001
+# Extra stuff if compiling postprocessors with hdf5 support
 hdf5 {
     LIBS           += -lhdf5
     SOURCES        += ./postprocessing/hdf5_converter.cpp
