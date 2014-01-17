@@ -161,6 +161,7 @@ JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WFlags flags)
 
   /** use the timer as single shot */
   _updateTimer.setSingleShot(true);
+  connect(&_updateTimer,SIGNAL(timeout()),this,SLOT(updateViewers()));
 
   /** initialize the server data source and add them to the manager */
   DataSourceManager::addSource("Server",client);
@@ -320,6 +321,7 @@ double JoCASSViewer::rate() const
 
 void JoCASSViewer::changeAutoUpdate()
 {
+  qDebug()<<"changeAutoUpdate: "<<interval()<<_autoUpdate->isChecked();
   _updateTimer.setInterval(interval());
   if(_autoUpdate->isChecked())
     _updateTimer.start();
