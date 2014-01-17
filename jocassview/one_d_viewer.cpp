@@ -379,6 +379,7 @@ void OneDViewer::on_add_graph_triggered()
     if(fileName.isEmpty())
       return;
     DataSourceManager::addSource(fileName,new FileHandler(fileName),false);
+    sourceName = fileName;
   }
 
   /** retrieve the list of items that are available from the source, if more
