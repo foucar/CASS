@@ -1589,7 +1589,7 @@ void pp70::loadSettings(size_t)
                            _pHist->name() + "'not supported");
 
   pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
-                                              s.value("XUp",1).toFloat()));
+                                         s.value("XUp",1).toFloat()));
   const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
   _inputOffset=(xaxis.bin(userXRange.first));
   const size_t binXUp (xaxis.bin(userXRange.second));
@@ -1624,7 +1624,7 @@ void pp70::loadSettings(size_t)
                                 nYBins,yLow,yUp)));
     output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
         "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
-        "), yNbrBins:"+ toString(nXBins) + ", linearized offset is now:" +
+        "), yNbrBins:"+ toString(nYBins) + ", linearized offset is now:" +
         toString(_inputOffset);
   }
 
