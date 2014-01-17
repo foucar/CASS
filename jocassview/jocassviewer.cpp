@@ -71,14 +71,21 @@ JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WFlags flags)
 
   // Add control menu
   QMenu *cmenu = menu->addMenu(tr("&Control"));
-  cmenu->addAction(tr("Refresh List"),this,SLOT(refreshDisplayableItemsList()),QKeySequence(tr("F5")))->setShortcutContext(Qt::ApplicationShortcut);
-  cmenu->addAction(tr("Get Data"),this,SLOT(updateViewers()),QKeySequence(tr("Ctrl+i")))->setShortcutContext(Qt::ApplicationShortcut);
-  cmenu->addAction(tr("Clear Histogram"),this,SLOT(clearHistogram()));
-  cmenu->addAction(tr("Send custom Command"),this,SLOT(sendCustomCommand()));
-  cmenu->addAction(tr("Reload ini File"),client,SLOT(reloadIni()),QKeySequence(tr("Ctrl+r")))->setShortcutContext(Qt::ApplicationShortcut);
-  cmenu->addAction(tr("Broadcast darkcal command"),this,SLOT(broadcastDarkcalCommand()),QKeySequence(tr("Ctrl+d")))->setShortcutContext(Qt::ApplicationShortcut);
-  cmenu->addAction(tr("Broadcast gaincal command"),this,SLOT(broadcastGaincalCommand()),QKeySequence(tr("Ctrl+g")))->setShortcutContext(Qt::ApplicationShortcut);
-  cmenu->addSeparator();
+  cmenu->addAction(tr("Refresh List"),this,
+                   SLOT(refreshDisplayableItemsList()),QKeySequence(tr("F5")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Get Data"),this,
+                   SLOT(updateViewers()),QKeySequence(tr("Ctrl+i")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Clear Histogram"),this,
+                   SLOT(clearHistogram()));
+  cmenu->addAction(tr("Send custom Command"),this,
+                   SLOT(sendCustomCommand()));
+  cmenu->addAction(tr("Broadcast darkcal command"),this,
+                   SLOT(broadcastDarkcalCommand()),QKeySequence(tr("Ctrl+d")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addAction(tr("Broadcast gaincal command"),this,
+                   SLOT(broadcastGaincalCommand()),QKeySequence(tr("Ctrl+g")))->setShortcutContext(Qt::ApplicationShortcut);
+  cmenu->addSeparator()->setText("Server Control");
+  cmenu->addAction(tr("Reload ini File"),client,
+                   SLOT(reloadIni()),QKeySequence(tr("Ctrl+r")))->setShortcutContext(Qt::ApplicationShortcut);
   cmenu->addAction(tr("Quit Server"),client,SLOT(quitServer()));
 
   // Add the source menu
