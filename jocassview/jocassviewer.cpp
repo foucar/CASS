@@ -576,6 +576,9 @@ void JoCASSViewer::on_source_changed(QString newSource)
   qDebug()<<"new source"<<newSource;
   _serverToolBar->setVisible(newSource == "Server");
   refreshDisplayableItemsList();
+  QString sourceDisplayName(newSource == "Server" ?
+                              newSource :  QFileInfo(newSource).baseName());
+  setWindowTitle(sourceDisplayName);
 }
 
 void JoCASSViewer::changeServerAddress()const
