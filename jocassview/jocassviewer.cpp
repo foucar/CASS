@@ -200,6 +200,10 @@ void JoCASSViewer::openFile(QString filename, QString key)
       return;
   }
 
+  /** if the file doesn't exist exit here */
+  if (!QFileInfo(filename).exists())
+    return;
+
   /** add a source with the requested file and set the window title to the
    *  filename
    */
