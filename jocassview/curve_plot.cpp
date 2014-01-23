@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <cmath>
+
 #include <QtCore/QDebug>
 
 #include <qwt_scale_map.h>

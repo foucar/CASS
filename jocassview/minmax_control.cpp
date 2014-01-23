@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <cmath>
+
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
