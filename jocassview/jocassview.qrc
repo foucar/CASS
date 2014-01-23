@@ -12,5 +12,6 @@
         <file>images/graph_add.png</file>
         <file>images/auto_update.png</file>
         <file>images/axistitle.png</file>
+        <file>images/mpg.svg</file>
     </qresource>
 </RCC>

@@ -697,7 +697,7 @@ void CommonData::loadSettings(CASSSettings &s)
     }
     if (hotpixfilename != _inputHotPixFilename)
     {
-      Log::add(Log::VERBOSEINFO, "CommonData::loadSettings(): Load gain data " +
+      Log::add(Log::VERBOSEINFO, "CommonData::loadSettings(): Load hotpix mask " +
                string(" for detector with name '") + detectorname + "' which has id '" +
                toString(detectorId) + "' from file '" + hotpixfilename +"'");
       _inputHotPixFilename = hotpixfilename;

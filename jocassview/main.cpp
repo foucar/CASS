@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("jocassview");
   QSettings::setDefaultFormat(QSettings::IniFormat);
-
+  QApplication::setWindowIcon(QIcon(":images/mpg.svg"));
 
 
 //  QDesktopWidget *my_desktop= app.desktop();
