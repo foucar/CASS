@@ -112,6 +112,8 @@ public:
    * find the next item in the list that has the eventid not set (e.g.: id is 0)
    * Set the id to the event id and return the iterator pointing to the entry.
    *
+   * Clear the item before return it
+   *
    * @return iterator to the entry that will be allocated for the id
    * @param id the id that the item will have in the list
    */
@@ -125,6 +127,8 @@ public:
         _current = _list.begin();
     }
     _current->first = id;
+    /** @note no need to lock the item, since calling clear locks the item */
+    _current->second->clear();
     return _current;
   }
 
@@ -154,7 +158,8 @@ public:
     iter_type End(_list.end());
     while (it != End)
     {
-      it->second->lock.lockForWrite();
+    /** @note no need to lock the item, since calling clear locks the item */
+//      it->second->lock.lockForWrite();
       it->second->clear();
     }
   }
