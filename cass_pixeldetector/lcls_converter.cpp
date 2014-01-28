@@ -527,6 +527,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       break;
     const config_t config(storeIt->second);
     Detector &det(retrieveDet(*evt,casskey));
+    det.id() = evt->id();
     switch (config.first)
     {
     case 1:
@@ -546,7 +547,8 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       break;
 
     default:
-      throw runtime_error("LCLSConverter:pnCCDFrame: this should not be happening");
+      throw runtime_error("LCLSConverter: Unknown PnCCD Version '" +
+                          toString(config.first) + "'");
     }
   }
     break;
@@ -559,6 +561,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       break;
     const config_t config(storeIt->second);
     Detector &det(retrieveDet(*evt,casskey));
+    det.id() = evt->id();
     switch (config.first)
     {
     case 1:
@@ -602,7 +605,8 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       break;
 
     default:
-      throw runtime_error("LCLSConverter:csPad: this should not be happening");
+      throw runtime_error("LCLSConverter: Unknown CsPad Configuration Version '" +
+                          toString(config.first) + "'");
     }
 
 
@@ -612,6 +616,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
   case (Pds::TypeId::Id_Cspad2x2Element):
   {
     Detector &det(retrieveDet(*evt,casskey));
+    det.id() = evt->id();
     const int asic_nx(Pds::CsPad::MaxRowsPerASIC);
     const int asic_ny(Pds::CsPad::ColumnsPerASIC);
     Pds::CsPad2x2::ElementHeader* head
@@ -636,6 +641,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
   case (Pds::TypeId::Id_Frame) :
   {
     Detector &det(retrieveDet(*evt,casskey));
+    det.id() = evt->id();
     const Camera::FrameV1 &frame
         (*reinterpret_cast<const Camera::FrameV1*>(xtc->payload()));
     det.columns() = frame.width();

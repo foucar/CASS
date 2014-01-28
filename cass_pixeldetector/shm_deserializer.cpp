@@ -52,6 +52,7 @@ size_t SHMStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
     throw runtime_error("SHMStreamer: There is no pixeldetector device within the CASSEvent");
   Device &dev(*dynamic_cast<Device*>(devIt->second));
   Detector &det(dev.dets()[frameHead.id]);
+  det.id() = evt.id();
 
   /** set the information of the frame to the detector */
   det.columns() = _width/2;

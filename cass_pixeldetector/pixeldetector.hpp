@@ -84,6 +84,7 @@ public:
   uint32_t       &camaxMagic()             {return _camaxMagic;}
   std::string    &info()                   {return _info;}
   std::string    &timingFilename()         {return _timingFilename;}
+  uint64_t       &id()                     {return _eventID;}
   //@}
   //@{
   /** getter */
@@ -94,6 +95,7 @@ public:
   uint32_t           camaxMagic()const     {return _camaxMagic;}
   const std::string &info()const           {return _info;}
   const std::string &timingFilename()const {return _timingFilename;}
+  uint64_t           id()const             {return _eventID;}
   //@}
 
 private:
@@ -117,6 +119,9 @@ private:
 
   /** filename of the file containing the timing info of the sequenzer  (pnCCD specific)*/
   std::string _timingFilename;
+
+  /** the eventid that this detector belongs to (can be used for crosschecks */
+  uint64_t _eventID;
 };
 
 /** the device containing pixel detector data
