@@ -10,7 +10,7 @@ BASEDIR=$1
 # the location where CASS should be installed to
 unset GIT_DIR
 unset GIT_WORK_TREE
-INSTLOC=/lfs/l3/asg/cass/v$(git describe --abbrev=4)
+INSTLOC=/lfs/l4/ullrch/foucar/cass/v$(git describe --abbrev=4)
 
 
 # set the environment variables
@@ -18,8 +18,9 @@ export ROOTSYS=/lfs/l3/asg/root_v5.32.00
 export QTDIR=/lfs/l3/asg/qt/4.8.2
 export HDF5DIR=/lfs/l3/asg
 export GSOAPDIR=/lfs/l3/asg
-export QWTDIR=/lfs/l3/asg
+export QWTDIR=/lfs/l4/ullrch/foucar/cass/dependencies/qwt/v6.0.1
 export VIGRADIR=/lfs/l3/asg
+export DOXYDIR=/lfs/l4/ullrch/foucar/cass/dependencies/doxygen/v1.8.4
 
 export PATH=$ROOTSYS/bin:$QTDIR/bin:$GSOAPDIR/bin:$PATH
 
@@ -53,10 +54,12 @@ echo "QMAKE_RPATHDIR += "${QWTDIR}"/lib"     >> ${BASEDIR}/cass_defaultconfig.pr
 
 echo "CONFIG += LuCASSView"                  >> ${BASEDIR}/cass_defaultconfig.pri
 
+echo "DOXYGEN = "${DOXYDIR}"/bin/doxygen"    >> ${BASEDIR}/cass_defaultconfig.pri
 
-#QMAKE_CXXFLAGS += -fopenmp
-#QMAKE_LFLAGS   += -fopenmp
-#DEFINES        += _GLIBCXX_PARALLEL   #enables openmp support for gcc stdlibc++
+echo "QMAKE_CXXFLAGS += -fopenmp"            >> ${BASEDIR}/cass_defaultconfig.pri
+echo "QMAKE_LFLAGS   += -fopenmp"            >> ${BASEDIR}/cass_defaultconfig.pri
+echo "DEFINES        += _GLIBCXX_PARALLEL"   >> ${BASEDIR}/cass_defaultconfig.pri
+
 
 
 
