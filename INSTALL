@@ -29,23 +29,21 @@ gSOAP (version 2.7.x and above):
  installed to (ie. /usr/local)
 
 
-QWT (version 5.2.x and above, but not 6.x or newer):
- To obtain qwt do the following:
-   svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.2
- to compile and install the libs to the following:
-   modify qwtconfig.pri and set INSTALLBASE to where the libraries should be
-   installed to (ie. /usr/local).
-   qmake
-   make
-   make install
-
-
-
 Optional Prerequisites
 ----------------------
 
 The following software packages are needed when enabeling optional components in
 CASS:
+
+QWT (version 6.1.0 and above):
+ Download the version of qwt from here:
+   http://sourceforge.net/projects/qwt/files/qwt/
+ to compile and install the libs to the following:
+   modify qwtconfig.pri and set QWT_INSTALL_PREFIX to where the libraries should be
+   installed to (eg. /usr/local).
+   qmake
+   make
+   make install
 
 HDF5 (version 1.8.5 and above):
  Download hdf5 library from here
@@ -73,6 +71,14 @@ ROOT (version 5.28.00c and above):
  to compile and install (without the need of setting LD_LIBRARY_PATH later on)
    ./configure --prefix=/somewhere --enable-rpath --etcdir=/somewhere
    make [-j]
+   make install
+
+DOXYGEN (version 1.8.4 and above):
+ Download doxygen sources from here:
+   http://www.stack.nl/~dimitri/doxygen/download.html
+ to compile and install do the following:
+   ./configure --prefix somewhere
+   make
    make install
 
 
