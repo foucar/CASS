@@ -52,7 +52,7 @@ make [-j]
 @endverbatim
 After it is done with compiling you have the choice to either leave the
 binary in the ./bin folder and start CASS from there or you might want to
-install it into the lockation that you requested with the optional INSTALLBASE
+install it into the lockation that you requested with the optional PREFIX
 parameter by typing
 @verbatim
 make install
