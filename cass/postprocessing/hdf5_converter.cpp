@@ -508,7 +508,7 @@ public:
    */
   void operator()(const pp1002::entry_t& entry)
   {
-    typedef pp1002::entry_t entry_t;
+//    typedef pp1002::entry_t entry_t;
     const uint32_t &options(entry.options);
     const string &gname(entry.groupname);
     const string &name(entry.name);

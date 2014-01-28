@@ -126,13 +126,18 @@ void getcfd(const Channel& c, const CFDParameters &param, SignalProducer::signal
 
         //--make a linear regression to find the slope of the leading edge--//
         double mslope,cslope;
-        const double xslope[3] = {i-delay,i+1-delay,i+2-delay};
+        const double xslope[3] = {static_cast<double>(i-delay),
+                                  static_cast<double>(i+1-delay),
+                                  static_cast<double>(i+2-delay)};
         const double yslope[3] = {fxd,fxd_1,fxd_2};
         linearRegression<T>(3,xslope,yslope,mslope,cslope);
 
         //--find x with a cubic polynomial interpolation between four points--//
         //--do this with the Newtons interpolation Polynomial--//
-        const double x[4] = {i-1,i,i+1,i+2};          //x vector
+        const double x[4] = {static_cast<double>(i-1),
+                             static_cast<double>(i),
+                             static_cast<double>(i+1),
+                             static_cast<double>(i+2)};          //x vector
         const double y[4] = {fsx_m1,fsx,fsx_1,fsx_2}; //y vector
         double coeff[4] = {0,0,0,0};                  //Newton coeff vector
         createNewtonPolynomial<T>(x,y,coeff);

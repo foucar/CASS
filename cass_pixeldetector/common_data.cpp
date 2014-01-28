@@ -128,9 +128,9 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
   hllDataTypes::DarkcalFileHeader header =
   {
     "HE pixel statistics map",
-    data.columns*2,
-    data.rows*0.5,
-    data.rows * data.columns,
+    static_cast<uint32_t>(data.columns*2),
+    static_cast<uint32_t>(data.rows*0.5),
+    static_cast<uint32_t>(data.rows * data.columns),
     ""
   };
 

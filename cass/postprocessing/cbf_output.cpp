@@ -41,7 +41,10 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
 {
   /** cbf parameters: */
   int IOBUFSIZ = 4096;
-  char MARKBYTE[4] = {0x0C,0x01A,0x004,0x0D5};
+  char MARKBYTE[4] = {static_cast<char>(0x0C),
+                      static_cast<char>(0x01A),
+                      static_cast<char>(0x004),
+                      static_cast<char>(0x0D5)};
 
   /** create the cbf file */
   std::ofstream cbf_file;

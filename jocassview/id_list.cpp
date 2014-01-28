@@ -38,7 +38,7 @@ const QStringList& IdList::getList()const
   return _list;
 }
 
-void IdList::serialize(cass::SerializerBackend &out) const
+void IdList::serialize(cass::SerializerBackend &/*out*/) const
 {
 
 }

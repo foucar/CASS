@@ -107,7 +107,7 @@ pair<sigIt_t,sigIt_t> getSignalRange(signals_t &sigs, const double mcp, const do
 
 detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits)
 {
-  typedef SignalProducer::signal_t signal_t;
+//  typedef SignalProducer::signal_t signal_t;
   typedef SignalProducer::signals_t signals_t;
   typedef signals_t::iterator sigIt_t;
   typedef std::pair<sigIt_t,sigIt_t> range_t;

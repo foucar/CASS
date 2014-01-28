@@ -504,7 +504,7 @@ void pp333::loadSettings(size_t)
                            "': Calculation type '" + calctype + "' is unkown.");
 
 
-  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+//  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
   createHistList(_image->result().copy_sptr());
   Log::add(Log::INFO,"Postprocessor " + name() +
            ": generates the common mode background level of  '" +

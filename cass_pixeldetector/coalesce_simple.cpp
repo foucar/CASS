@@ -100,7 +100,7 @@ void findNeighbours(uint16_t depth,
                     CoalescingBase::pixels_t &pixels,
                     CoalescingBase::pixels_t &splitpixelslist)
 {
-  typedef AdvancedDetector::pixels_t pixels_t;
+//  typedef AdvancedDetector::pixels_t pixels_t;
   typedef pair<uint16_t,uint16_t> position_t;
 
   if (depth > maxDepth)

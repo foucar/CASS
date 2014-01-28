@@ -346,7 +346,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
 
     _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<double>::difference_type(0,0), vigra::Matrix<double>::difference_type(_trainingSetsInserted,_nFeatures)) );
 
-    typedef matrixType::traverser ttt;
+//    typedef matrixType::traverser ttt;
 #ifdef VERBOSE
     std::cout << std::endl << "_cov= [";
     for (ttt it0 = _cov.traverser_begin(); it0!=_cov.traverser_end(); ++it0) {

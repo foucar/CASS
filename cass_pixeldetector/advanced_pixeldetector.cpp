@@ -17,6 +17,7 @@
 #include "common_data.h"
 #include "frame_processor_base.h"
 #include "pixel_finder_base.h"
+#include "cass_exceptions.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -68,18 +69,24 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
 
 void AdvancedDetector::associate(const CASSEvent &evt)
 {
+  /** validate the detector data */
   CASSEvent::devices_t::const_iterator devIt(
         evt.devices().find(CASSEvent::PixelDetectors));
   if (devIt == evt.devices().end())
-    throw invalid_argument("AdvancedDetector::associate(): Device " +
-                           string("'PixelDetectors' does not exist in CASSEvent"));
+    throw logic_error("AdvancedDetector::associate(): Device " +
+                           string("'PixelDetectors' isn't existing in CASSEvent"));
   const Device &dev (dynamic_cast<const Device&>(*(devIt->second)));
   Device::detectors_t::const_iterator detIt(dev.dets().find(_detector));
   if (detIt == dev.dets().end())
-    throw invalid_argument("AdvancedDetector::associate(): Detector '" +
-                           toString(_detector) + "' does not exist in Device " +
-                           "'PixelDetectors' within the CASSEvent");
+    throw InvalidData("AdvancedDetector::associate(): Detector '" +
+                      toString(_detector) + "' isn't present in Device " +
+                      "'PixelDetectors' within the CASSEvent");
   const Detector &det(detIt->second);
+  if (det.id() != evt.id())
+    throw InvalidData("AdvancedDetector::associate(): The dataId '" +
+                      toString(det.id()) + "' of detector '" + toString(_detector)+
+                      "' is inconsistent with the eventId '" + toString(evt.id()) + "'");
+
   _frame.columns = det.columns();
   _frame.rows = det.rows();
   _frame.data = det.frame();
