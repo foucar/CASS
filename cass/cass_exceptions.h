@@ -121,6 +121,25 @@ namespace cass
     virtual ~DataGenerationError() throw() {}
   };
 
+
+  /** Exception thrown when there is a problem with the data
+   *
+   * @author Lutz Foucar
+   */
+  class InvalidData : public std::logic_error
+  {
+  public:
+    /** explicit constructor
+     *
+     * @param message the error message
+     */
+    explicit InvalidData(const std::string & message)
+      : std::logic_error(message)
+    {}
+
+    virtual ~InvalidData() throw() {}
+  };
+
 }
 
 #endif

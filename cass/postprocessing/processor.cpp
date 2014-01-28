@@ -37,15 +37,21 @@ PostProcessor::~PostProcessor()
 
 void PostProcessor::processEvent(const CASSEvent& evt)
 {
-  CachedList::iter_type pointer(_resultList.newItem(evt.id()));
-  if (_condition->result(evt.id()).isTrue())
+  try
   {
-    HistogramBackend &result(*(pointer->second));
-    result.lock.lockForWrite();
-    result.id() = evt.id();
-    process(evt,result);
-    result.lock.unlock();
-    _resultList.latest(pointer);
+    CachedList::iter_type pointer(_resultList.newItem(evt.id()));
+    if (_condition->result(evt.id()).isTrue())
+    {
+      HistogramBackend &result(*(pointer->second));
+      QWriteLocker lock(&result.lock);
+      result.id() = evt.id();
+      process(evt,result);
+      _resultList.latest(pointer);
+    }
+  }
+  catch (const InvalidData& error)
+  {
+    Log::add(Log::ERROR,error.what());
   }
 }
 
