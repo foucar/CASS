@@ -73,7 +73,7 @@ CONFIG      += offline
 #QMAKE_RPATHDIR += /path/to/fftw/lib
 
 # Uncomment the following to also build the JoCASSViewer
-CONFIG          += JoCASSView
+#CONFIG          += JoCASSView
 #QMAKE_INCDIR   += /path/to/qwt/include
 #QMAKE_LIBDIR   += /path/to/qwt/lib
 #QMAKE_RPATHDIR += /path/to/qwt/lib
@@ -92,6 +92,8 @@ CONFIG          += JoCASSView
 #QMAKE_LIBDIR   += /path/to/gsoap/lib
 #QMAKE_RPATHDIR += /path/to/gsoap/lib
 
+# tell where to find doxygen for doc generation
+DOXYGEN = doxygen
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg
