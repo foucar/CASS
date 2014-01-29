@@ -13,6 +13,7 @@ DEFINES            += CASS_LIBRARY
 SOAP_INPUTFILE      = $$PWD/soapserver.h
 SOAP_OUTPUTFILE     = soapCASSsoapService.cpp
 SOAP_BIN            = $$GSOAP_BIN -S
+include( $$PWD/soapfile_generator.pri )
 
 SOURCES            += \
                       cass.cpp \
@@ -211,18 +212,13 @@ singleparticle_hit {
 
 #extra stuff for ROOT
 cernroot {
-    LIBS           += $$system(root-config --libs)
+    LIBS           += $$system($$ROOTCONFIG_BIN --libs)
     SOURCES        += ./postprocessing/root_converter.cpp
     SOURCES        += ./postprocessing/rootfile_helper.cpp
-    DEFINES        += CERNROOT
-    SOURCES	       *= ./postprocessing/tree_structure_dict.cpp
     SOURCES        += ./postprocessing/roottree_converter.cpp
-    rootcint.target       = ./postprocessing/tree_structure_dict.cpp
-    rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c ./postprocessing/tree_structure.h ./postprocessing/tree_structure_linkdef.h
-    rootcint.depends      = ./postprocessing/tree_structure.h
-    rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for tree_structure.h "
-    QMAKE_EXTRA_TARGETS  += rootcintecho rootcint
-    QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
+    DEFINES        += CERNROOT
+    DICTIONARYFILES = ./postprocessing/tree_structure.h
+    include( $$PWD/rootdict_generator.pri )
 }
 
 # Extra stuff for fftw

@@ -9,27 +9,21 @@ DESTDIR              = $${CASS_ROOT}/bin
 target.path          = $${PREFIX}/bin
 CONFIG              -= gui
 
-QMAKE_CLEAN        += lucassview
+QMAKE_CLEAN         += lucassview
 
 #soap creation
-SOAPFiles.target    = soapCASSsoapProxy.cpp
-SOAP_INPUTFILE   = $$PWD/../cass/soapserver.h
-SOAP_OUTPUTFILE  = soapCASSsoapProxy.cpp
-SOAP_BIN         = $$GSOAP_BIN -C
+SOAPFiles.target     = soapCASSsoapProxy.cpp
+SOAP_INPUTFILE       = $$PWD/../cass/soapserver.h
+SOAP_OUTPUTFILE      = soapCASSsoapProxy.cpp
+SOAP_BIN             = $$GSOAP_BIN -C
 include( $$PWD/../cass/soapfile_generator.pri )
 
 # dictionary creation
-rootcint.target       = histo_updater_dict.cpp
-rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c histo_updater.h histo_updater_linkdef.h
-rootcint.depends      = histo_updater.h
-rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for histo_updater.h "
-QMAKE_EXTRA_TARGETS  += rootcintecho rootcint
-QMAKE_CLEAN          +=  histo_updater_dict.cpp histo_updater_dict.h
-
+DICTIONARYFILES      = histo_updater.h
+include( $$PWD/../cass/rootdict_generator.pri )
 
 
 SOURCES       += \
-                 histo_updater_dict.cpp \
                  main.cpp \
                  tcpclient.cpp \
                  histo_updater.cpp \
@@ -44,7 +38,7 @@ HEADERS       += \
                  serializer.h \
                  tcpclient.h
 
-LIBS          += $$system(root-config --libs)
+LIBS          += $$system($$ROOTCONFIG_BIN --libs)
 LIBS          += -lgsoap++ -lgsoap
 
 INSTALLS      += target
