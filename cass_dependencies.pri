@@ -8,7 +8,7 @@
 SONAME=a
 
 for(dep, DEPENDENCY_LIBRARIES) {
-    message($$TARGET depends on $$dep ($${CASS_ROOT}/lib/lib$${dep}.$${SONAME}))
+#    message($$TARGET depends on $$dep ($${CASS_ROOT}/lib/lib$${dep}.$${SONAME}))
     LIBS += $${CASS_ROOT}/lib/lib$${dep}.$${SONAME}
     PRE_TARGETDEPS += $${CASS_ROOT}/lib/lib$${dep}.$${SONAME}
 }

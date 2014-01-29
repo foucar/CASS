@@ -14,28 +14,14 @@ CONFIG             += qtestlib
 
 QMAKE_CLEAN        += jocassview
 
-SOAPFiles.target    = soapCASSsoapProxy.cpp
-SOAPFiles.commands  = @soapcpp2 -C -i $$PWD/../cass/soapserver.h
-SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
-                      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
-                      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
-                      CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
-                      CASSsoap.clearHistogram.req.xml CASSsoap.clearHistogram.res.xml \
-                      CASSsoap.getPostprocessorIds.req.xml CASSsoap.getPostprocessorIds.res.xml \
-                      CASSsoap.writeini.req.xml CASSsoap.writeini.res.xml \
-                      ns.xsd CASSsoap.nsmap CASSsoap.wsdl CASSsoap.receiveCommand.req.xml \
-                      CASSsoap.controlDarkcal.req.xml
-SOAPFiles.depends   = $$PWD/../cass/soapserver.h
-
-SOAPFiles2.target   = soapC.cpp
-SOAPFiles2.depends  = soapCASSsoapProxy.cpp
-
-QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
+# generate the soap files
+SOAP_INPUTFILE   = $$PWD/../cass/soapserver.h
+SOAP_OUTPUTFILE  = soapCASSsoapProxy.cpp
+SOAP_BIN         = $$GSOAP_BIN -C
+include( $$PWD/../cass/soapfile_generator.pri )
 
 
 SOURCES       += \
-                 soapCASSsoapProxy.cpp \
-                 soapC.cpp \
                  main.cpp \
                  led.cpp \
                  status_led.cpp \
@@ -79,9 +65,6 @@ HEADERS       += \
                  qwt_scroll_zoomer.h \
                  qwt_scroll_bar.h \
                  file_handler.h \
-                 soapH.h \
-                 soapCASSsoapProxy.h \
-                 soapStub.h \
                  id_list.h \
                  data_source.h \
                  data_source_manager.h \
@@ -109,7 +92,6 @@ version.commands    = $$PWD/update-version.sh
 QMAKE_EXTRA_TARGETS+= version
 PRE_TARGETDEPS     += version
 
-QMAKE_CLEAN   += $$SOAPFiles.files
 QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN   += $$MOC_DIR/moc_*
 QMAKE_CLEAN   += $$TARGET

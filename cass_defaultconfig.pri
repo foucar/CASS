@@ -32,6 +32,11 @@ CONFIG      += offline
 # Uncomment this to build the cass_online version to read files
 #CONFIG      += online
 
+# Tell where to find gSoap
+QMAKE_INCDIR   += /path/to/gSoap/include
+QMAKE_LIBDIR   += /path/to/gSoap/lib
+QMAKE_RPATHDIR += /path/to/gSoap/lib
+GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 
 # Uncomment the following line to enable HDF5 output. If H5 is installed in a
 # non default location tell qmake where to find the hdf5 libraries and includes

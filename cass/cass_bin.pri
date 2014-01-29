@@ -2,35 +2,19 @@
 # Copyright (C) 2009 - 2013 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
-TEMPLATE             = app
-DESTDIR              = $${CASS_ROOT}/bin
-target.path          = $${PREFIX}/bin
-CONFIG              -= gui
-QT                  += network
-DEFINES             += CASS_LIBRARY
+TEMPLATE            = app
+DESTDIR             = $${CASS_ROOT}/bin
+target.path         = $${PREFIX}/bin
+CONFIG             -= gui
+QT                 += network
+DEFINES            += CASS_LIBRARY
 
 # create SOAP sources and descriptions
-SOAPFiles.target    = soapCASSsoapService.cpp
-SOAPFiles.commands  = @soapcpp2 -S -i $$PWD/soapserver.h
-SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
-                      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
-                      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
-                      CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
-                      CASSsoap.clearHistogram.req.xml CASSsoap.clearHistogram.res.xml \
-                      CASSsoap.getPostprocessorIds.req.xml CASSsoap.getPostprocessorIds.res.xml \
-                      CASSsoap.writeini.req.xml CASSsoap.writeini.res.xml \
-                      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
-SOAPFiles.depends   = soapserver.h
+SOAP_INPUTFILE      = $$PWD/soapserver.h
+SOAP_OUTPUTFILE     = soapCASSsoapService.cpp
+SOAP_BIN            = $$GSOAP_BIN -S
 
-SOAPFiles2.target   = soapC.cpp
-SOAPFiles2.depends  = soapCASSsoapService.cpp
-
-QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
-#PRE_TARGETDEPS     += SOAPFiles SOAPFiles2
-
-# our own stuff
-SOURCES            += soapCASSsoapService.cpp \
-                      soapC.cpp \
+SOURCES            += \
                       cass.cpp \
                       cass_event.cpp \
                       conversion_backend.cpp \
@@ -117,10 +101,6 @@ HEADERS            += cass.h \
                       data_generator.h \
                       waveform_generator.h \
                       image_generator.h \
-                      soapCASSsoapService.h \
-                      soapH.h \
-                      soapserver.h \
-                      soapStub.h \
                       tcpserver.h \
                       worker.h \
                       xtciterator.h \
@@ -252,11 +232,7 @@ fftw {
     HEADERS        += ./postprocessing/fft.h
     DEFINES        += FFTW
 }
-#bin_copy.path       = $$INSTALLBASE/bin
-#bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
-#headers.files       = $$HEADERS
 
-#INSTALLS           += target bin_copy
 INSTALLS           += target
 
 # execute script that shows the current version derived from git
@@ -265,7 +241,6 @@ version.commands    = $$PWD/update-version.sh
 QMAKE_EXTRA_TARGETS+= version
 PRE_TARGETDEPS     += version
 
-QMAKE_CLEAN += $$SOAPFiles.files
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
