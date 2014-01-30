@@ -130,6 +130,21 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
+### FFTW (version 3.3.3 or above)  {#fftw}
+Download the sources from
+
+    http://www.fftw.org/download
+
+to compile and install do
+
+    ./configure --enable-shared --prefix=/somewhere
+    make
+    make install
+
+where "somewhere" is the place that you want to install the libraries to be
+installed to (ie. /usr/local)
+
+
 
 Needed Environment Variables  {#env}
 ----------------------------
