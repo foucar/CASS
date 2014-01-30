@@ -72,8 +72,3 @@ cass_myconfig.pri. This will then compile the lucassview binary.
 */
 
 
-/**
-\page cassinstall INSTALL
-@include "INSTALL"
-*/
-
