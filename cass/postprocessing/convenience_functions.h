@@ -201,7 +201,7 @@ HistogramBackend::shared_pointer set2DHist(const PostProcessor::name_t &name);
 class AlphaCounter
 {
 public:
-  /** initialize the filename
+  /** initialize the directory
    *
    * add an alphabtically subdir to the dir of the filename
    *
@@ -219,6 +219,23 @@ public:
       dir.mkpath(".");
     const std::string newfilename(path.toStdString() + filename.toStdString());
     return newfilename;
+  }
+
+  /** initialize the filename
+   *
+   * add an alphabtically ending to the filename
+   *
+   * @return the filename containing the new counter ending
+   * @param fname the filenname with appended counter ending
+   */
+  static std::string intializeFile(const std::string &fname)
+  {
+    QFileInfo fInfo(QString::fromStdString(fname));
+    if (fInfo.suffix().isEmpty())
+      return (fname + "_aa.h5");
+    QString filename(fInfo.baseName() + "__aa");
+    QString newfilename(fInfo.path() + "/" + filename + "." + fInfo.suffix());
+    return newfilename.toStdString();
   }
 
   /** remove the alpha counter subdir from filename
@@ -245,7 +262,7 @@ public:
    * @return filename with alphabetically increased subdir
    * @param fname the Filename whos subdir should be increased
    */
-  static std::string increaseCounter(const std::string &fname)
+  static std::string increaseDirCounter(const std::string &fname)
   {
     QFileInfo fInfo(QString::fromStdString(fname));
     QString path(fInfo.path());
@@ -274,6 +291,33 @@ public:
       dir.mkpath(".");
     const std::string newfilename(newPath.toStdString() + filename.toStdString());
     return newfilename;
+  }
+
+  /** increase the alpha counter in the file name
+   *
+   * @return filename with alphabetically increased subdir
+   * @param fname the Filename whos subdir should be increased
+   */
+  static std::string increaseFileCounter(const std::string &fname)
+  {
+    QFileInfo fInfo(QString::fromStdString(fname));
+    QString filename(fInfo.baseName());
+    QStringList filenameparts(filename.split("__"));
+    QByteArray counter(filenameparts.last().toAscii());
+    if (counter[1] == 'z')
+    {
+      const char first(counter[0]);
+      counter[0] = first + 1;
+      counter[1] = 'a';
+    }
+    else
+    {
+      const char second(counter[1]);
+      counter[1] = second + 1;
+    }
+    filenameparts.last() = QString::fromAscii(counter);
+    QString newfilename(fInfo.path() + "/" + filenameparts.join("__") + "." + fInfo.suffix());
+    return newfilename.toStdString();
   }
 };
 

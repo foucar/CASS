@@ -276,7 +276,7 @@ void pp1500::processEvent(const CASSEvent &evt)
   if (_maxFilePerSubDir == _filecounter)
   {
     _filecounter = 0;
-    _basefilename = AlphaCounter::increaseCounter(_basefilename);
+    _basefilename = AlphaCounter::increaseDirCounter(_basefilename);
   }
   ++_filecounter;
 

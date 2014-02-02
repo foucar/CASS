@@ -17,6 +17,12 @@
 
 namespace cass
 {
+
+namespace hdf5
+{
+class WriteEntry;
+}//end namespace hdf5
+
 /** saves a selected 2d histogram to hdf5
  *
  * @PPList "1002": saves a selected 2d histogram to hdf5
@@ -28,11 +34,21 @@ namespace cass
  * @cassttng PostProcessor/\%name\%/{CompressLevel} \n
  *           The compression level. Default is 2
  * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
- *           Default name given by program parameter
+ *           Base Name of the Files to be written. In case of writing mutiple
+ *           Events to the same file an alpha counter will be added to the file
+ *           name. In case of writing an event to a single file the event id
+ *           Will be appended to the file name.
+ * @cassttng PostProcessor/\%name\%/{WriteMultipleEventsInOneFile} \n
+ *           Flag to tell whether to write multiple events to the same file
+ *           (true) or each event into a single file (false). Default is false.
  * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
- *           Distribute the files over subdirectories where each subdir contains
- *           this amount of files. If -1 it will not distribute the files.
- *           Default is -1.
+ *           In case of single files per event, distribute the files over
+ *           subdirectories where each subdir contains this amount of files.
+ *           If -1 it will not distribute the files. Default is -1.
+ * @cassttng PostProcessor/\%name\%/{MaximumFileSize_GB} \n
+ *           In case of multiple events per file, this is the maximum file size
+ *           before the alpha counter of the filename will be increased and a
+ *           the events will be written to the new file. Default is 200
  * @cassttng PostProcessor/\%name\%/PostProcessor/{size} \n
  *           How many PostProcessors should be written to the h5 file.
  * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
@@ -44,7 +60,7 @@ namespace cass
  * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{ValName} \n
  *           Name that the data should have in the h5 file. Default is the
  *           name of the PostProcessor.
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/size \n
+ * @cassttng PostProcessor/\%name\%/PostProcessorSummary/{size} \n
  *           How many PostProcessors should be written to the h5 file.
  * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
  *           Name of the PostProcessor that should be written into the h5 file.
@@ -115,6 +131,25 @@ public:
   virtual void releaseEvent(const CASSEvent &){}
 
 protected:
+  /** write the summary to a file that contains multiple events */
+  void writeSummaryToMultipleEventsFile();
+
+  /** function to write the events to a file that contains multiple events
+   *
+   * @param evt The event containg the data to write
+   */
+  void writeEventToMultipleEventsFile(const CASSEvent &evt);
+
+  /** function to write the summary to a single file */
+  void writeSummaryToSingleFile();
+
+  /** function to write the events to a single file
+   *
+   * @param evt The event containg the data to write
+   */
+  void writeEventToSingleFile(const CASSEvent &evt);
+
+protected:
   /** the filename that the data will be written to */
   std::string _basefilename;
 
@@ -129,6 +164,18 @@ protected:
 
   /** counter to count how many files have been written */
   int _filecounter;
+
+  /** the entry writer */
+  hdf5::WriteEntry *_entryWriter;
+
+  /** the maximum file size of the single file */
+  int _maxFileSize;
+
+  /** write summary to file */
+  std::tr1::function<void(void)> _writeSummary;
+
+  /** write event to file */
+  std::tr1::function<void(const CASSEvent&)> _writeEvent;
 
 private:
   /** a lock to make the process reentrant */
