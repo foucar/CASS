@@ -5,6 +5,7 @@
 # needs to contain the name of the output cpp file
 
 
+SOAPMaker.name         = Generator for SOAP files
 SOAPMaker.input        = SOAP_INPUTFILE
 SOAPMaker.output       = $$SOAP_OUTPUTFILE
 SOAPMaker.commands     = $$SOAP_BIN -i $$SOAP_INPUTFILE
@@ -15,6 +16,7 @@ SOAPMaker.clean       += *CASSsoap*
 SOAPMaker.clean       += ns.xsd soapStub.h
 QMAKE_EXTRA_COMPILERS += SOAPMaker
 
+SOAPMaker2.name         = Adder for SOAP files to Sources
 SOAPMaker2.input        = SOAP_INPUTFILE
 SOAPMaker2.output       = soapC.cpp
 SOAPMaker2.commands     = @true
