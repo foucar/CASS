@@ -218,12 +218,22 @@ public:
       throw runtime_error("writeArray(): Could not open the dataspace");
 
     /** set up the chunck size and the deflate options */
-    hsize_t chunk[1] = {40};
-    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-    H5Pset_deflate (dcpl, compressLevel);
-    H5Pset_chunk (dcpl, 1, chunk);
-    hid_t dataset_id(H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
-                               dataspace_id, H5P_DEFAULT, dcpl , H5P_DEFAULT));
+    hid_t dataset_id;
+    if(compressLevel != 0)
+    {
+      // Create dataset creation property list, set the gzip compression filter
+      // and chunck size
+      hsize_t chunk[1] = {40};
+      hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+      H5Pset_deflate (dcpl, compressLevel);
+      H5Pset_chunk (dcpl, 1, chunk);
+      dataset_id = (H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
+                              dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+    }
+    else
+      dataset_id = (H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
+                              dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
+
     if (dataset_id < 0)
       throw runtime_error("writeArray(): Could not open the dataset '"
                           + valname +"'");
@@ -295,8 +305,7 @@ public:
    *
    * @tparam type The type that should be written
    * @param matrix the matrix to be written
-   * @param cols the number of columns in the matrix
-   * @param rows the number of rows in the matrix
+   * @param shape the shape of the matrix (first is cols, second is rows)
    * @param valname the name of the value
    * @param compressLevel the compression level of the matrix
    */
@@ -309,25 +318,35 @@ public:
 
     ensureGroupExists(valname);
 
-    /** create space and dataset for storing the graph (1D hist) */
+    /** create space and dataset for storing the matrix */
     hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
-   if (dataspace_id < 0)
+    if (dataspace_id < 0)
       throw runtime_error("writeMatrix(): Could not open the dataspace");
 
-    hsize_t chunk[2] = {40,3};
-    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-    H5Pset_deflate (dcpl, compressLevel);
-    H5Pset_chunk (dcpl, 2, chunk);
-    hid_t dataset_id = (H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
-                                  dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+    hid_t dataset_id;
+    if(compressLevel != 0)
+    {
+      // Create dataset creation property list, set the gzip compression filter
+      // and chunck size
+      hsize_t chunk[2] = {40,3};
+      hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+      H5Pset_deflate (dcpl, compressLevel);
+      H5Pset_chunk (dcpl, 2, chunk);
+      dataset_id = H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
+                             dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT);
+    }
+    else
+      dataset_id = H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
+                             dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+
     if (dataset_id < 0)
       throw runtime_error("writeMatrix(): Could not open the dataset '"
-                          + valname +"'");
+                          + valname + "'");
 
     herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
                            H5P_DEFAULT, &matrix.front()));
     if (status < 0)
-      throw runtime_error("writeMatrix(): Could not write array");
+      throw runtime_error("writeMatrix(): Could not write data");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
@@ -341,10 +360,8 @@ public:
    *
    * @tparam type The type that should be written
    * @param matrix the matrix to be written
-   * @param cols the number of columns in the matrix
-   * @param rows the number of rows in the matrix
+   * @param shape the shape of the matrix
    * @param valname the name of the value
-   * @param compressLevel the compression level of the matrix
    */
   template<typename type>
   void readMatrix(std::vector<type> &matrix, std::pair<size_t,size_t> &shape,
@@ -380,6 +397,77 @@ public:
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
+  }
+
+  /** write a string dataset
+   *
+   * @param string the string to write
+   * @param dsetName the name of the string dataset
+   */
+  void writeString(const std::string &string, const std::string &dsetName)
+  {
+    using namespace std;
+
+    hid_t dataspace_id(H5Screate (H5S_SCALAR));
+    if (dataspace_id < 0 )
+      throw runtime_error("writeString(): Could not open the dataspace");
+
+    hid_t datatype_id(H5Tcopy(H5T_C_S1));
+    if (datatype_id < 0 )
+      throw runtime_error("writeString(): Could not open the datatype ");
+
+    hid_t status(H5Tset_size (datatype_id, H5T_VARIABLE));
+    if (status < 0 )
+      throw runtime_error("writeString(): Could not set the variable size to datatype");
+
+    hid_t dataset_id(H5Dcreate(_fileid, dsetName.c_str(), datatype_id,
+                               dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
+    if (dataset_id < 0 )
+      throw runtime_error("writeString(): Could not open the dataset '"
+                          + dsetName + "'");
+
+    const char *s(string.c_str());
+    status = H5Dwrite(dataset_id, datatype_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, &s);
+    if (status < 0 )
+      throw runtime_error("writeString(): Could not write data");
+
+    H5Sclose(dataspace_id);
+    H5Dclose(datatype_id);
+    H5Dclose(dataset_id);
+  }
+
+  /** read a string dataset
+   *
+   * @return the string
+   * @param dsetName the name of the dataset that contains the string
+   */
+  std::string readString(const std::string &dsetName)
+  {
+    using namespace std;
+
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    hid_t dataset_id(H5Dopen(_fileid, dsetName.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw invalid_argument("readString(): Could not open Dataset '"+ dsetName +
+                             "'");
+
+    hid_t datatype_id(H5Dget_type(dataset_id));
+    if (datatype_id < 0)
+      throw runtime_error("readString(): Error retrieving the data type");
+
+    hsize_t datasize(H5Dget_storage_size(dataset_id));
+    if (datasize == 0)
+      throw runtime_error("readString(): Error retrieving the data size");
+
+    vector<char> buf(static_cast<int>(datasize+1),0);
+    herr_t status(H5Dread(dataset_id,datatype_id,H5S_ALL,H5S_ALL,H5P_DEFAULT,
+                          &buf.front()));
+    if (status < 0 )
+      throw logic_error("readString: Something went wrong reading string data");
+
+    return string(buf.begin(),buf.end());
   }
 
   /** write an float scalar attribute with a given name as part of a given dataset
@@ -525,6 +613,20 @@ public:
       throw logic_error("datasets(): Error when iterating trough the h5 file");
 
     return dsetlist;
+  }
+
+  /** retrieve the size of the current file
+   *
+   * @return the size of the file
+   */
+  size_t currentFileSize() const
+  {
+    using namespace std;
+    hsize_t currentsize;
+    herr_t status(H5Fget_filesize(_fileid,&currentsize));
+    if (status < 0)
+      throw logic_error("currentFileSize(): Error when retrieving the file size");
+    return currentsize;
   }
 
 private:
