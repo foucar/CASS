@@ -432,7 +432,6 @@ public:
       throw runtime_error("writeString(): Could not write data");
 
     H5Sclose(dataspace_id);
-    H5Dclose(datatype_id);
     H5Dclose(dataset_id);
   }
 
