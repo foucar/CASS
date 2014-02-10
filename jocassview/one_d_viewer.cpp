@@ -66,6 +66,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // add a grid to show on the plot
   _grid = new QwtPlotGrid;
   _grid->setMajorPen(QPen(Qt::black, 0, Qt::DashLine));
+  _grid->setMinorPen(QPen(Qt::black, 0, Qt::DotLine));
   _grid->attach(_plot);
   _gridLines = settings.value("GridEnabled",0).toUInt();
   // add a legend to the plot
@@ -188,7 +189,9 @@ void OneDViewer::replot()
 {
   /** check if grid should be enabled */
   _grid->enableX(static_cast<bool>(_gridLines & 0x1));
+  _grid->enableXMin(static_cast<bool>(_gridLines & 0x4));
   _grid->enableY(static_cast<bool>(_gridLines & 0x2));
+  _grid->enableYMin(static_cast<bool>(_gridLines & 0x8));
 
   /** hide /show the legend (this is a hack, since legends can't be directly hidden)
    *  retrieve all curve plots from the plot and get theier corresponding
@@ -429,6 +432,6 @@ void OneDViewer::on_add_graph_triggered()
 
 void OneDViewer::on_grid_triggered()
 {
-  _gridLines = (_gridLines+1) & 0x3;
+  _gridLines = (_gridLines+1) & 0xF;
   replot();
 }
