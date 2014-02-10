@@ -120,7 +120,7 @@ public:
   iter_type newItem(const id_type &id)
   {
     QMutexLocker lock(&_mutex);
-    while(_current->first && _current != _latest)
+    while(_current->first || _current == _latest)
     {
       ++_current;
       if (_current == _list.end())
