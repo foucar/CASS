@@ -982,6 +982,17 @@ double pp90::ddFromProcessor(const CASSEvent::id_t& id)
   return detdist.getValue();
 }
 
+struct savedivides : std::binary_function<double,double,double>
+{
+  double operator()(const double x, const double y)const
+  {
+    double retval = x/y;
+    if (!std::isfinite(retval))
+      retval = 0;
+    return retval;
+  }
+};
+
 void pp90::process(const CASSEvent &evt,HistogramBackend& r)
 {
   using tr1::tuple;
@@ -1007,6 +1018,8 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   size_t ImageSize(_src2labradius.size());
   const double lambda(_getWavelength(evt.id()));
   const double D(_getDetectorDistance(evt.id()));
+  if (qFuzzyIsNull(lambda) || qFuzzyIsNull(D))
+    return;
   const double firstFactor(4.*3.1415/lambda);
   vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
 #pragma omp for
@@ -1034,7 +1047,7 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   }
 
   /** normalize by the number of fills for each bin */
-  transform(radave.begin(),radave.end(),normfactors.begin(),radave.begin(),divides<double>());
+  transform(radave.begin(),radave.end(),normfactors.begin(),radave.begin(),savedivides());
 
   /** relfect that only 1 event was processed and release resources */
   result.nbrOfFills()=1;
