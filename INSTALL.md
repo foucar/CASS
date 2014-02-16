@@ -1,7 +1,6 @@
-[TOC]
-
 Install instructions for CASS  {#cassinstall}
 =============================
+[TOC]
 
 Prerequisites {#pre}
 -------------
