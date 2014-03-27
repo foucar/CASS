@@ -184,6 +184,7 @@ the Class description for information about what parameters are user settable.
 
 01600: convert cass cspad to cheetah cspad
 01601: rearrange cspad to coarsly right orientation (looking from upstream)
+01602: rearrange cspad using a geom file
 
 00400: ToF to Energy conversion
 00402: Square average
