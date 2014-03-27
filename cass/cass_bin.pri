@@ -45,6 +45,7 @@ SOURCES            += \
                       cass_settings.cpp \
                       calibcycle.cpp \
                       tcpserver.cpp \
+                      geom_parser.cpp \
                       ./postprocessing/processor.cpp \
                       ./postprocessing/processor_manager.cpp \
                       ./postprocessing/convenience_functions.cpp \
@@ -111,6 +112,7 @@ HEADERS            += cass.h \
                       statistics_calculator.hpp \
                       generic_factory.hpp \
                       cached_list.hpp \
+                      geom_parser.h \
                       ./postprocessing/processor.h \
                       ./postprocessing/processor_manager.h \
                       ./postprocessing/convenience_functions.h \
