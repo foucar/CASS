@@ -24,7 +24,7 @@ using tr1::placeholders::_1;
 using tr1::placeholders::_2;
 
 
-struct GeometryInfo::asicInfo_t
+struct asicInfo_t
 {
   long int min_fs;
   long int min_ss;
@@ -40,14 +40,6 @@ struct GeometryInfo::asicInfo_t
   double x_ss;
   double y_fs;
   double y_ss;
-};
-
-struct GeometryInfo::pos_t
-{
-  typedef double x_t;
-  typedef double y_t;
-  x_t x;
-  y_t y;
 };
 
 GeometryInfo::pos_t GeometryInfo::minus(const GeometryInfo::pos_t& minuent, const GeometryInfo::pos_t &subtrahend )
@@ -226,36 +218,34 @@ GeometryInfo::lookupTable_t GeometryInfo::generateLookupTable(const std::string 
                                                               const bool convertFromCheetahToCASS)
 {
   lookupTable_t lookupTable;
-  lookupTable.resize(sizeOfSrc);
+  lookupTable.lut.resize(sizeOfSrc);
   GeometryInfo::conversion_t src2lab =
       generateConversionMap(filename, sizeOfSrc, nSrcCols, convertFromCheetahToCASS);
 
   /** get the minimum and maximum position in lab x and y */
-  pos_t min;
-  min.x = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::x_t>(),
-                           bind<pos_t::x_t>(&pos_t::x,_1),
-                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-  min.y = min_element(src2lab.begin(),src2lab.end(),
-                      bind(less<pos_t::y_t>(),
-                           bind<pos_t::y_t>(&pos_t::y,_1),
-                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
-//  pos_t max;
-//  max.x = max_element(src2lab.begin(),src2lab.end(),
-//                      bind(less<pos_t::x_t>(),
-//                           bind<pos_t::x_t>(&pos_t::x,_1),
-//                           bind<pos_t::x_t>(&pos_t::x,_2)))->x;
-//  max.y = max_element(src2lab.begin(),src2lab.end(),
-//                      bind(less<pos_t::y_t>(),
-//                           bind<pos_t::y_t>(&pos_t::y,_1),
-//                           bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+  lookupTable.min.x = min_element(src2lab.begin(),src2lab.end(),
+                                  bind(less<pos_t::x_t>(),
+                                       bind<pos_t::x_t>(&pos_t::x,_1),
+                                       bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+  lookupTable.min.y = min_element(src2lab.begin(),src2lab.end(),
+                                  bind(less<pos_t::y_t>(),
+                                       bind<pos_t::y_t>(&pos_t::y,_1),
+                                       bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+  lookupTable.max.x = max_element(src2lab.begin(),src2lab.end(),
+                                  bind(less<pos_t::x_t>(),
+                                       bind<pos_t::x_t>(&pos_t::x,_1),
+                                       bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+  lookupTable.max.y = max_element(src2lab.begin(),src2lab.end(),
+                                  bind(less<pos_t::y_t>(),
+                                       bind<pos_t::y_t>(&pos_t::y,_1),
+                                       bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
   /** move all values, such that they start at 0
    *  \f$ pos.x -= min_x \f$
    *  \f$ pos.y -= min_y \f$
    */
   transform(src2lab.begin(),src2lab.end(),src2lab.begin(),
-            bind(minus,_1,min));
+            bind(minus,_1,lookupTable.min));
 
   /** get the new maximum value of the shifted lab, which corresponds to the
    *  number of pixels that are required in the dest image, since all lab
@@ -271,22 +261,22 @@ GeometryInfo::lookupTable_t GeometryInfo::generateLookupTable(const std::string 
                                         bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
   /** determine the dimensions of the destination image */
-  const size_t nDestCols = static_cast<int>(max_x + 0.5)+1;
-  const size_t nDestRows = static_cast<int>(max_y + 0.5)+1;
+  lookupTable.nCols = static_cast<int>(max_x + 0.5)+1;
+  lookupTable.nRows = static_cast<int>(max_y + 0.5)+1;
 
   /** convert the positions in the lab space (pixel units) to linearized indizes
    *  in the destination image
    *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
    */
-  transform(src2lab.begin(),src2lab.end(),lookupTable.begin(),
-            bind(&linearizeComponents,_1,nDestCols));
+  transform(src2lab.begin(),src2lab.end(),lookupTable.lut.begin(),
+            bind(&linearizeComponents,_1,lookupTable.nCols));
 
   /** check if the boundaries are ok, @throw out of range if not. */
-  if(nDestCols*nDestRows <= *max_element(lookupTable.begin(),lookupTable.end()))
+  if(lookupTable.nCols*lookupTable.nRows <= *max_element(lookupTable.lut.begin(),lookupTable.lut.end()))
     throw out_of_range("generateLookupTable(): the maximum index in the lookup table '" +
-                       toString(*max_element(lookupTable.begin(),lookupTable.end())) +
+                       toString(*max_element(lookupTable.lut.begin(),lookupTable.lut.end())) +
                        "' does not fit with the destination size of '" +
-                       toString(nDestCols*nDestRows) + "'");
+                       toString(lookupTable.nCols*lookupTable.nRows) + "'");
 
   return lookupTable;
 }

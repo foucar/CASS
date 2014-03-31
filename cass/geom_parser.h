@@ -17,16 +17,26 @@ namespace cass
 namespace GeometryInfo
 {
 /** combine the position in the lab into a struct */
-struct pos_t;
+struct pos_t
+{
+  typedef double x_t;
+  typedef double y_t;
+  x_t x;
+  y_t y;
+};
 
 /** define the conversion table type */
 typedef std::vector<pos_t> conversion_t;
 
-/** define the lookuptable */
-typedef std::vector<size_t> lookupTable_t;
-
-/** combine info in the geomfile into a struct */
-struct asicInfo_t;
+/** combine info needed for the lookuptable */
+struct lookupTable_t
+{
+  std::vector<size_t> lut;
+  pos_t min;
+  pos_t max;
+  size_t nCols;
+  size_t nRows;
+};
 
 /** functor to substract one position from the other
  *
