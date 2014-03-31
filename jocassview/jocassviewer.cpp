@@ -67,7 +67,7 @@ JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WFlags flags)
                    SLOT(print()),QKeySequence(QKeySequence::Print))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addSeparator();
   fmenu->addAction(QIcon::fromTheme("application-exit"),tr("Quit"),qApp,
-                   SLOT(closeAllWindows()),QKeySequence(QKeySequence::Quit))->setShortcutContext(Qt::ApplicationShortcut);
+                   SLOT(closeAllWindows()),QKeySequence("Ctrl+q"))->setShortcutContext(Qt::ApplicationShortcut);
 
   // Add control menu
   QMenu *cmenu = menu->addMenu(tr("&Control"));
