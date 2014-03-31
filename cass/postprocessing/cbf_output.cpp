@@ -106,7 +106,8 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
   {
     uint32_t ii;
     char cc[4];
-  } bint = {0x01020304};
+  }
+  bint = {0x01020304};
   if (bint.cc[0] == 1)
   {
     // big endian
@@ -132,7 +133,6 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
   signed char fourbytes[4];
   int shortint;
 
-
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
     diff = ((int) data[iadr]) - pixvalue;
@@ -151,8 +151,6 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
       shortint = diff;
     *((char*)(&twobytes)+0) = *((char*)(&shortint)+0);
     *((char*)(&twobytes)+1) = *((char*)(&shortint)+1);
-    //twobytes[0] = (shortint & 0xff00)>>8;
-    //twobytes[1] = shortint & 0xff;
 
     for (int ii=first2; ii!=last2+step; ii+=step)
       cbf_file << twobytes[ii];
@@ -163,11 +161,6 @@ void write(const std::string &filename, const HistogramFloatBase::storage_t &dat
     *((char*)(&fourbytes)+1) = *((char*)(&diff)+1);
     *((char*)(&fourbytes)+2) = *((char*)(&diff)+2);
     *((char*)(&fourbytes)+3) = *((char*)(&diff)+3);
-
-    //fourbytes[0] = (diff & 0xff000000 ) >> (8*3);
-    //fourbytes[1] = (diff & 0x00ff0000 ) >> (8*2);
-    //fourbytes[2] = (diff & 0x0000ff00 ) >> (8*1);
-    //fourbytes[3] = (diff & 0x000000ff ) >> (8*0);
 
     for (int ii=first4; ii!=last4+step; ii+=step)
       cbf_file << fourbytes[ii];
