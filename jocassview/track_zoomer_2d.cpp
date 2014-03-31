@@ -8,9 +8,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QPoint>
 
-#include <qwt_raster_data.h>
-
 #include "track_zoomer_2d.h"
+
+#include "two_d_viewer_data.h"
 
 using namespace jocassview;
 
@@ -25,9 +25,24 @@ QwtText TrackZoomer2D::trackerTextF(const QPointF &pos) const
 {
   QString text_string;
   if (_data)
+  {
     text_string = "x:" + QString::number(pos.x()) + " , " +
         "y:" + QString::number(pos.y()) + " , " +
         "z:" + QString::number(_data->value(pos.x(),pos.y()));
+    if (!qFuzzyIsNull(_wavelength_A) &&
+        !qFuzzyIsNull(_cameraDistance_cm) &&
+        !qFuzzyIsNull(_pixelsize_um))
+    {
+      const double x_cm = _pixelsize_um * 1e-4 * pos.x();
+      const double y_cm = _pixelsize_um * 1e-4 * pos.y();
+      const double radius_cm = sqrt(x_cm*x_cm + y_cm*y_cm);
+      const double Q =
+          2. / _wavelength_A * sin(0.5*atan(radius_cm/_cameraDistance_cm));
+      const double d = 1. / Q;
+      text_string.append(" , D:" + QString::number(d) + "A");
+    }
+  }
+
 
   QColor bg(Qt::white);
   bg.setAlpha(200);
@@ -37,7 +52,23 @@ QwtText TrackZoomer2D::trackerTextF(const QPointF &pos) const
   return text;
 }
 
-void TrackZoomer2D::setData(QwtRasterData *data)
+void TrackZoomer2D::setData(TwoDViewerData *data)
 {
   _data = data;
+}
+
+void TrackZoomer2D::setWavelength_A(double wavelength_A)
+{
+  _wavelength_A = wavelength_A;
+}
+
+void TrackZoomer2D::setCameraDistance_cm(double cameradistance_cm)
+{
+  _cameraDistance_cm = cameradistance_cm;
+}
+
+
+void TrackZoomer2D::setPixelSize_um(double pixelsize_um)
+{
+  _pixelsize_um = pixelsize_um;
 }

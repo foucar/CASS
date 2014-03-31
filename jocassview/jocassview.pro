@@ -45,6 +45,7 @@ SOURCES       += \
                  data_source_manager.cpp \
                  tcpclient.cpp \
                  jocassviewer.cpp \
+                 ../cass/geom_parser.cpp \
 
 HEADERS       += \
                  jocassviewer.h \
@@ -69,9 +70,11 @@ HEADERS       += \
                  data_source.h \
                  data_source_manager.h \
                  tcpclient.h \
+                 ../cass/geom_parser.h \
 
 INCLUDEPATH   += $$PWD/.. \
-                 $$PWD/../cass
+                 $$PWD/../cass \
+                 $$PWD/../LCLS
 
 LIBS          += -lgsoap++ -lgsoap \
                  -lqwt

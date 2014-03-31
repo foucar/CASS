@@ -78,6 +78,9 @@ private slots:
   /** replot the data */
   void replot();
 
+  /** load the geom file */
+  void on_load_geomfile_triggered();
+
 private:
   /** retrieve a color id
    *
@@ -113,6 +116,9 @@ private:
 
   /** a zoomer for the 2d view */
   TrackZoomer2D *_zoomer;
+
+  /** the geom file to convert data to lab frame */
+  QString _geomFile;
 };
 }//end namespace jocassview
 

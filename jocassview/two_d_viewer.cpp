@@ -8,11 +8,14 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QFileInfo>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
 #include <QtGui/QSpinBox>
 #include <QtGui/QLabel>
+#include <QtGui/QFileDialog>
+#include <QtGui/QInputDialog>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -30,6 +33,7 @@
 #include "logcolor_map.h"
 #include "data.h"
 #include "file_handler.h"
+#include "geom_parser.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -40,6 +44,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // settings to read from the ini file
   QSettings settings;
   settings.beginGroup(windowTitle());
+  _geomFile = settings.value("GeomFile","").toString();
 
   // create the plot where the 2d data will be displayed in as central widget
   _plot = new QwtPlot(this);
@@ -62,6 +67,10 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
                            Qt::RightButton);
   _zoomer->setData(data);
+  _zoomer->setWavelength_A(settings.value("Wavelength_A",5).toDouble());
+  _zoomer->setCameraDistance_cm(settings.value("CameraDistance_cm",7).toDouble());
+  _zoomer->setPixelSize_um(settings.value("PixelSize_um",110).toDouble());
+
   setCentralWidget(_plot);
 
   // create the toolbar
@@ -75,6 +84,11 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   _axisTitleControl->setChecked(settings.value("DisplayTitles",true).toBool());
   connect(_axisTitleControl,SIGNAL(triggered()),this,SLOT(replot()));
   toolbar->addAction(_axisTitleControl);
+
+  // Add a button that allows to add a reference curve
+  toolbar->addAction(QIcon(":images/graph_add.png"),
+                     tr("Load geom file"),
+                     this,SLOT(on_load_geomfile_triggered()));
 
   // add the min/max control to the toolbar
   _zControl = new MinMaxControl(QString(windowTitle() + "/z-scale"),toolbar);
@@ -124,6 +138,33 @@ void TwoDViewer::saveData(const QString &filename)
 
 void TwoDViewer::dataChanged()
 {
+  /** check if the user wants to convert cheetah layout to lab frame */
+  if (!_geomFile.isEmpty())
+  {
+    Histogram2DFloat * hist(dynamic_cast<Histogram2DFloat*>(data().front()->result()));
+    GeometryInfo::lookupTable_t lut =
+        GeometryInfo::generateLookupTable(_geomFile.toStdString(),
+                                          hist->memory().size(),
+                                          hist->axis()[HistogramBackend::xAxis].size(),
+                                          false);
+
+    Histogram2DFloat *labHist(
+          new Histogram2DFloat(lut.nCols,lut.min.x,lut.max.x,
+                               lut.nRows,lut.min.y,lut.max.y,"cols","rows"));
+    labHist->key() = hist->key();
+    Histogram2DFloat::storage_t& destImage(labHist->memory());
+
+    Histogram2DFloat::storage_t::const_iterator srcpixel(hist->memory().begin());
+    Histogram2DFloat::storage_t::const_iterator srcImageEnd(hist->memory().end()-8);
+
+    std::vector<size_t>::const_iterator idx(lut.lut.begin());
+
+    for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
+      destImage[*idx] = *srcpixel;
+
+    data().front()->setResult(labHist);
+  }
+
   /** check if the data is different (the bounding box changed) in which case we
    *  reinitialize the zoomer
    *  @note the below will be done when zooming into the initial bounding rect
@@ -200,6 +241,66 @@ void TwoDViewer::replot()
   settings.beginGroup(windowTitle());
   settings.setValue("ColorTableID",colorid);
   settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
+}
+
+void TwoDViewer::on_load_geomfile_triggered()
+{
+  QSettings settings;
+  settings.beginGroup(windowTitle());
+
+  /** reset the parameters */
+  _geomFile.clear();
+  double wavelength_A = 0;
+  double cameraDistance_cm = 0;
+  double pixelsize_um = 0;
+
+  _zoomer->setWavelength_A(wavelength_A);
+  _zoomer->setCameraDistance_cm(cameraDistance_cm);
+  _zoomer->setPixelSize_um(pixelsize_um);
+
+
+  /** open file dialog and retrieve the requested file */
+  QString filter("Geom Files (*.geom)");
+  QString filename = QFileDialog::getOpenFileName(this, tr("Load Geom File"),
+                                                  QDir::currentPath(), filter);
+
+  /** only set the file and resolution parameters if the file exits */
+  if (!filename.isEmpty() && QFileInfo(filename).exists())
+  {
+    _geomFile = filename;
+
+    bool ok(false);
+    wavelength_A =
+        QInputDialog::getDouble(this, tr("Set Wavelength [Angstroem]"),
+                                tr("Wavelength [Angstroem]:"),
+                                settings.value("Wavelength_A",5).toDouble(),
+                                0, 20, 3, &ok);
+    if (ok)
+      _zoomer->setWavelength_A(wavelength_A);
+
+    cameraDistance_cm =
+        QInputDialog::getDouble(this, tr("Set Camera Distance [cm]"),
+                                tr("Camera Distance [cm]:"),
+                                settings.value("CameraDistance_cm",7).toDouble(),
+                                0, 20, 3, &ok);
+    if (ok)
+      _zoomer->setCameraDistance_cm(cameraDistance_cm);
+
+    pixelsize_um =
+        QInputDialog::getDouble(this, tr("Set PixelSize [um]"),
+                                tr("Pixel Size [um]:"),
+                                settings.value("PixelSize_um",110).toDouble(),
+                                0, 1000, 1, &ok);
+    if (ok)
+      _zoomer->setPixelSize_um(pixelsize_um);
+  }
+
+  settings.setValue("GeomFile",_geomFile);
+  settings.setValue("Wavelength_A",wavelength_A);
+  settings.setValue("CameraDistance_cm",cameraDistance_cm);
+  settings.setValue("PixelSize_um",pixelsize_um);
+
+  dataChanged();
 }
 
 QwtLinearColorMap* TwoDViewer::cmap(const int colorid,bool log) const

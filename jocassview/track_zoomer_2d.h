@@ -11,11 +11,12 @@
 
 #include "qwt_scroll_zoomer.h"
 
-class QwtRasterData;
 class QPoint;
 
 namespace jocassview
 {
+class TwoDViewerData;
+
 /** class that allows to zoom in a 2d view with tracking information
  *
  * tracks the data values and position
@@ -45,11 +46,38 @@ public:
    *
    * @param data the object containing the data
    */
-  void setData(QwtRasterData *data);
+  void setData(TwoDViewerData *data);
+
+  /** set the wavelength that is  needed of the optional resolution calculation
+   *
+   * @param wavelength_A the wavelength in Angstroem
+   */
+  void setWavelength_A(double wavelength_A);
+
+  /** set the camera distance that is  needed of the optional resolution calculation
+   *
+   * @param cameraDistance_cm the camera distance in centimeter
+   */
+  void setCameraDistance_cm(double cameradistance_cm);
+
+  /** set the size of a pixel in micro meters
+   *
+   * @param pixelsize_um the pixel size in micro meters
+   */
+  void setPixelSize_um(double pixelsize_um);
 
 private:
   /** the data */
-  QwtRasterData * _data;
+  TwoDViewerData * _data;
+
+  /** the wavelength in Angstroem (for resolution determination) */
+  double _wavelength_A;
+
+  /** the cameraDistance in cm (for resolution determination) */
+  double _cameraDistance_cm;
+
+  /** the pixel size in micro meters (for resolution determination) */
+  double _pixelsize_um;
 };
 
 }//end namespace jocassview
