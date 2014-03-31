@@ -19,6 +19,11 @@ class QwtPlotSpectrogram;
 class QSpinBox;
 class QStringList;
 
+namespace cass
+{
+class Histogram2DFloat;
+}
+
 namespace jocassview
 {
 class MinMaxControl;
@@ -119,6 +124,9 @@ private:
 
   /** the geom file to convert data to lab frame */
   QString _geomFile;
+
+  /** the original histogram */
+  cass::Histogram2DFloat *_origHist;
 };
 }//end namespace jocassview
 

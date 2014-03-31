@@ -142,6 +142,8 @@ void TwoDViewer::dataChanged()
   if (!_geomFile.isEmpty())
   {
     Histogram2DFloat * hist(dynamic_cast<Histogram2DFloat*>(data().front()->result()));
+//    _origHist = dynamic_cast<Histogram2DFloat*>(hist->copyclone());
+
     GeometryInfo::lookupTable_t lut =
         GeometryInfo::generateLookupTable(_geomFile.toStdString(),
                                           hist->memory().size(),
@@ -150,7 +152,7 @@ void TwoDViewer::dataChanged()
 
     Histogram2DFloat *labHist(
           new Histogram2DFloat(lut.nCols,lut.min.x,lut.max.x,
-                               lut.nRows,lut.min.y,lut.max.y,"cols","rows"));
+                               lut.nRows,lut.min.y,lut.max.y, "cols", "rows"));
     labHist->key() = hist->key();
     Histogram2DFloat::storage_t& destImage(labHist->memory());
 
@@ -294,6 +296,10 @@ void TwoDViewer::on_load_geomfile_triggered()
     if (ok)
       _zoomer->setPixelSize_um(pixelsize_um);
   }
+//  else
+//  {
+//    data().front()->setResult(_origHist);
+//  }
 
   settings.setValue("GeomFile",_geomFile);
   settings.setValue("Wavelength_A",wavelength_A);
