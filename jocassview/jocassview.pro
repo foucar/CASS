@@ -70,6 +70,7 @@ HEADERS       += \
                  data_source.h \
                  data_source_manager.h \
                  tcpclient.h \
+                 ../cass/cbf_handle.hpp \
                  ../cass/geom_parser.h \
 
 INCLUDEPATH   += $$PWD/.. \
