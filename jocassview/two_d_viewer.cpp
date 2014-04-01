@@ -67,9 +67,9 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
                            Qt::RightButton);
   _zoomer->setData(data);
-  _zoomer->setWavelength_A(settings.value("Wavelength_A",5).toDouble());
-  _zoomer->setCameraDistance_cm(settings.value("CameraDistance_cm",7).toDouble());
-  _zoomer->setPixelSize_um(settings.value("PixelSize_um",110).toDouble());
+  _zoomer->setWavelength_A(settings.value("Wavelength_A",0).toDouble());
+  _zoomer->setCameraDistance_cm(settings.value("CameraDistance_cm",0).toDouble());
+  _zoomer->setPixelSize_um(settings.value("PixelSize_um",0).toDouble());
 
   setCentralWidget(_plot);
 
@@ -261,45 +261,37 @@ void TwoDViewer::on_load_geomfile_triggered()
   _zoomer->setPixelSize_um(pixelsize_um);
 
 
-  /** open file dialog and retrieve the requested file */
+  /** open  dialogs and retrieve the requested info */
   QString filter("Geom Files (*.geom)");
   QString filename = QFileDialog::getOpenFileName(this, tr("Load Geom File"),
                                                   QDir::currentPath(), filter);
-
-  /** only set the file and resolution parameters if the file exits */
   if (!filename.isEmpty() && QFileInfo(filename).exists())
-  {
     _geomFile = filename;
 
-    bool ok(false);
-    wavelength_A =
-        QInputDialog::getDouble(this, tr("Set Wavelength [Angstroem]"),
-                                tr("Wavelength [Angstroem]:"),
-                                settings.value("Wavelength_A",5).toDouble(),
-                                0, 20, 3, &ok);
-    if (ok)
-      _zoomer->setWavelength_A(wavelength_A);
+  bool ok(false);
+  wavelength_A =
+      QInputDialog::getDouble(this, tr("Set Wavelength [Angstroem]"),
+                              tr("Wavelength [Angstroem]:"),
+                              settings.value("Wavelength_A",5).toDouble(),
+                              0, 20, 5, &ok);
+  if (ok)
+    _zoomer->setWavelength_A(wavelength_A);
 
-    cameraDistance_cm =
-        QInputDialog::getDouble(this, tr("Set Camera Distance [cm]"),
-                                tr("Camera Distance [cm]:"),
-                                settings.value("CameraDistance_cm",7).toDouble(),
-                                0, 20, 3, &ok);
-    if (ok)
-      _zoomer->setCameraDistance_cm(cameraDistance_cm);
+  cameraDistance_cm =
+      QInputDialog::getDouble(this, tr("Set Camera Distance [cm]"),
+                              tr("Camera Distance [cm]:"),
+                              settings.value("CameraDistance_cm",7).toDouble(),
+                              0, 200, 1, &ok);
+  if (ok)
+    _zoomer->setCameraDistance_cm(cameraDistance_cm);
 
-    pixelsize_um =
-        QInputDialog::getDouble(this, tr("Set PixelSize [um]"),
-                                tr("Pixel Size [um]:"),
-                                settings.value("PixelSize_um",110).toDouble(),
-                                0, 1000, 1, &ok);
-    if (ok)
-      _zoomer->setPixelSize_um(pixelsize_um);
-  }
-//  else
-//  {
-//    data().front()->setResult(_origHist);
-//  }
+  pixelsize_um =
+      QInputDialog::getDouble(this, tr("Set PixelSize [um]"),
+                              tr("Pixel Size [um]:"),
+                              settings.value("PixelSize_um",110).toDouble(),
+                              0, 1000, 1, &ok);
+  if (ok)
+    _zoomer->setPixelSize_um(pixelsize_um);
 
   settings.setValue("GeomFile",_geomFile);
   settings.setValue("Wavelength_A",wavelength_A);
