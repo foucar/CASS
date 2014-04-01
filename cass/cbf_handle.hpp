@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 namespace cass
 {
@@ -66,7 +67,7 @@ void write(const std::string &filename, const std::vector<float> &data,
   }
 
   QString fn(QString::fromStdString(filename));
-  QString bn(QFileInfo(fn).baseName());
+  QString bn(QFileInfo(fn).fileName());
   std::string fbn(bn.toStdString());
 
   // write image header:
@@ -89,9 +90,9 @@ void write(const std::string &filename, const std::vector<float> &data,
   cbf_file << "X-Binary-ID: 1" << "\r\n";
   cbf_file << "X-Binary-Element-Type: \"signed 32-bit integer\"" << "\r\n";
   cbf_file << "X-Binary-Element-Byte-Order: LITTLE_ENDIAN" << "\r\n";
-  cbf_file << "X-Binary-Number-of-Elements:" << nx*ny << "\r\n";
-  cbf_file << "X-Binary-Size-Fastest-Dimension:" << nx << "\r\n";
-  cbf_file << "X-Binary-Size-Second-Dimension:" << ny << "\r\n";
+  cbf_file << "X-Binary-Number-of-Elements: " << nx*ny << "\r\n";
+  cbf_file << "X-Binary-Size-Fastest-Dimension: " << nx << "\r\n";
+  cbf_file << "X-Binary-Size-Second-Dimension: " << ny << "\r\n";
   cbf_file << "" << "\r\n";
   cbf_file << MARKBYTE[0] << MARKBYTE[1] << MARKBYTE[2] << MARKBYTE[3];
 
