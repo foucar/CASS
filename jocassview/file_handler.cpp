@@ -456,8 +456,41 @@ cass::HistogramBackend* FileHandler::loadDataFromCBF()
   string header;
   CBF::read(_filename.toStdString(), header, matrix, shape);
 
+//  qDebug()<<QString::fromStdString(header);
+
+  /** try to retrieve the center from the header */
+  pair<double,double> center(0,0);
+  QString head(QString::fromStdString(header));
+  QTextStream headstream(&head);
+  QString line;
+  do
+  {
+    line = headstream.readLine();
+    if (line.contains("# Beam_xy"))
+    {
+      QStringList tokens(line.split(' '));
+      QString ccol = tokens[2];
+      ccol.remove('(');
+      ccol.remove(')');
+      ccol.remove(',');
+      QString crow = tokens[3];
+      crow.remove('(');
+      crow.remove(')');
+      crow.remove(',');
+      center.first = ccol.toDouble();
+      center.second = crow.toDouble();
+    }
+  } while(!line.isNull());
+  qDebug() << center.first<<center.second;
+
+  double xmin = -center.first;
+  double xmax = shape.first - center.first;
+  double ymin = -center.second;
+  double ymax = shape.second - center.second;
   cass::Histogram2DFloat *hist =
-      new cass::Histogram2DFloat(shape.first, shape.second);
+      new cass::Histogram2DFloat(shape.first, xmin, xmax,
+                                 shape.second, ymin, ymax,
+                                 "cols", "rows");
   copy(matrix.begin(), matrix.end(), hist->memory().begin());
   hist->key() = _filename.toStdString();
 
