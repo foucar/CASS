@@ -149,6 +149,12 @@ private:
    */
   void saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString& mode="w");
 
+  /** read the data from a cbf file
+   *
+   * @return pointer to the data
+   */
+  cass::HistogramBackend* loadDataFromCBF();
+
 private:
   /** the filename of the file to work on */
   QString _filename;

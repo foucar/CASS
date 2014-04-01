@@ -25,6 +25,7 @@
 #include "hdf5_handle.hpp"
 #endif
 #include "histogram.h"
+#include "cbf_handle.hpp"
 
 
 using namespace jocassview;
@@ -129,6 +130,10 @@ HistogramBackend* FileHandler::result(const QString &key, quint64)
       fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
   {
     return loadDataFromH5(key);
+  }
+  if (fileInfo.suffix().toUpper() == QString("cbf").toUpper())
+  {
+    return loadDataFromCBF();
   }
   return 0;
 }
@@ -442,4 +447,19 @@ void FileHandler::saveDataToH5(const QString &filename, cass::HistogramBackend *
                                                 filename + "'. Unknown error occured"));
   }
 #endif
+}
+
+cass::HistogramBackend* FileHandler::loadDataFromCBF()
+{
+  vector<float> matrix;
+  pair<int,int> shape(0,0);
+  string header;
+  CBF::read(_filename.toStdString(), header, matrix, shape);
+
+  cass::Histogram2DFloat *hist =
+      new cass::Histogram2DFloat(shape.first, shape.second);
+  copy(matrix.begin(), matrix.end(), hist->memory().begin());
+  hist->key() = _filename.toStdString();
+
+  return hist;
 }
