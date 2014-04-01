@@ -11,6 +11,7 @@
 #include <QtCore/QString>
 #include <QtCore/QDebug>
 
+#include <cstdlib>
 #include <vector>
 
 #include "cl_parser.hpp"
@@ -24,6 +25,8 @@ int main(int argc, char *argv[])
   cass::CommandlineArgumentParser parser;
   std::string filename("nofile");
   parser.add("-f","filename of file that needs to be converted",filename);
+  std::string outfile("nofile");
+  parser.add("-o","output filename of file that it will be converted to",filename);
   std::string key("empty");
   parser.add("--h5key","key of the datafield in the hdf5 that conains or should contain the detector data",key);
   bool showUsage(false);
@@ -39,9 +42,33 @@ int main(int argc, char *argv[])
   }
 
   QString fname(QString::fromStdString(filename));
+
+  /** convert from cbf to h5 */
   if (QFileInfo(fname).suffix() == "cbf")
   {
-    /** convert from cbf to h5 */
+    /** read the data from the cbf file */
+    std::vector<float> matrix;
+    std::pair<int,int> shape;
+    std::string head;
+    cass::CBF::read(filename, head, matrix, shape);
+
+    /** write the h5 file */
+    QString outfilename = QString::fromStdString(outfile);
+    if (outfilename == "nofile")
+    {
+      outfilename = QString(QFileInfo(fname).absolutePath() + '/' +
+                            QFileInfo(fname).baseName() + ".h5");
+    }
+    else if (!outfilename.contains("h5"))
+    {
+      qDebug()<< " the outputfile should be a hdf5 file";
+      exit(0);
+    }
+    if (key == "empty")
+      key = "detector_data";
+    hdf5::Handler h5handle(outfilename.toStdString(),"w");
+    h5handle.writeMatrix(matrix,shape,key,0);
+    h5handle.writeString(head,"cbf_header");
   }
   /** convert from h5 to cbf */
   else if (QFileInfo(fname).suffix() == "h5")
@@ -67,20 +94,6 @@ int main(int argc, char *argv[])
     case (2):
     {
       h5handle.readMatrix(matrix,shape,key);
-//      float xlow,xup,ylow,yup;
-//      try { xlow = h5handle.readScalarAttribute<float>("xLow",key.toStdString()); }
-//      catch(const invalid_argument & what) { xlow = 0; }
-//      try { xup = h5handle.readScalarAttribute<float>("xUp",key.toStdString()); }
-//      catch(const invalid_argument & what) { xup = shape.first; }
-//      try { ylow = h5handle.readScalarAttribute<float>("yLow",key.toStdString()); }
-//      catch(const invalid_argument & what) { ylow = 0; }
-//      try { yup = h5handle.readScalarAttribute<float>("yUp",key.toStdString()); }
-//      catch(const invalid_argument & what) { yup = shape.second; }
-//      cass::Histogram2DFloat * hist(new cass::Histogram2DFloat(shape.first,xlow,xup,
-//                                                               shape.second,ylow,yup));
-//      copy(matrix.begin(),matrix.end(),hist->memory().begin());
-//      hist->key() = key.toStdString();
-//      return hist;
       break;
     }
     default:
@@ -89,8 +102,18 @@ int main(int argc, char *argv[])
     }
 
     /** write data to cbf file */
-    QString outfilename = QString(QFileInfo(fname).absolutePath() + '/' +
-        QFileInfo(fname).baseName() + ".cbf");
+    QString outfilename = QString::fromStdString(outfile);
+    if (outfilename == "nofile")
+    {
+      outfilename = QString(QFileInfo(fname).absolutePath() + '/' +
+                            QFileInfo(fname).baseName() + ".cbf");
+    }
+    else if (!outfilename.contains("cbf"))
+    {
+      qDebug()<< " the outputfile should be a cbf file";
+      exit(0);
+    }
+
     cass::CBF::write(outfilename.toStdString(), matrix, shape);
   }
 
