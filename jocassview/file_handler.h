@@ -144,7 +144,7 @@ private:
    * @sa hdf5::Handler::open for options how the file will be opened
    *
    * @param filename the name of the file
-   * @param pointer to the data
+   * @param data pointer to the data
    * @param mode The mode in which the file will be opened. Default is "w".
    */
   void saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString& mode="w");
@@ -154,6 +154,13 @@ private:
    * @return pointer to the data
    */
   cass::HistogramBackend* loadDataFromCBF();
+
+  /** save the data to a cbf file
+   *
+   * @param filename the name of the file
+   * @param data pointer to the data
+   */
+   void saveDataToCBF(const QString &filename, cass::HistogramBackend *data);
 
 private:
   /** the filename of the file to work on */

@@ -187,7 +187,7 @@ void TwoDViewer::dataChanged()
 QStringList TwoDViewer::dataFileSuffixes() const
 {
   QStringList list;
-  list << "h5"<<"hst"<<"csv"<<"png";
+  list << "h5"<<"hst"<<"csv"<<"png"<<"cbf";
   return list;
 }
 

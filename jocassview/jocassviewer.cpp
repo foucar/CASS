@@ -193,7 +193,7 @@ void JoCASSViewer::openFile(QString filename, QString key)
   /** if no filename is given ask for a file */
   if (filename.isEmpty())
   {
-    QString filter("Data Files (*.csv *.hst *.h5 *.hdf5)");
+    QString filter("Data Files (*.csv *.hst *.h5 *.hdf5 *.cbf)");
     filename = QFileDialog::getOpenFileName(this, tr("Open File"),
                                             QDir::currentPath(), filter);
     if(filename.isEmpty())
@@ -254,7 +254,7 @@ void JoCASSViewer::saveFile(QString filename, QStringList keys) const
   /** if not filename was given ask for one */
   if (filename.isEmpty())
   {
-    QString filter("Data Files (*.png *.csv *.hst *.h5 *.hdf5)");
+    QString filter("Data Files (*.png *.csv *.hst *.h5 *.hdf5 *.cbf)");
     filename = QFileDialog::getSaveFileName(0, tr("Save Data to File"),
                                             QDir::currentPath(), filter);
     if(filename.isEmpty())

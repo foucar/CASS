@@ -89,6 +89,10 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
   {
     instance.saveDataToH5(filename,data,"rw");
   }
+  else if (fileInfo.suffix().toUpper() == QString("cbf").toUpper())
+  {
+    instance.saveDataToCBF(filename,data);
+  }
   return;
 }
 
@@ -495,4 +499,10 @@ cass::HistogramBackend* FileHandler::loadDataFromCBF()
   hist->key() = _filename.toStdString();
 
   return hist;
+}
+
+void FileHandler::saveDataToCBF(const QString &filename, HistogramBackend *data)
+{
+  cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
+  cass::CBF::write(filename.toStdString(), hist->memory(), hist->shape());
 }
