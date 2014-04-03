@@ -128,6 +128,7 @@ private slots:
    */
   void removeViewer(DataViewer *obj);
 
+public slots:
   /** refresh the items on the displayable list
    *
    * retrieve the list of possible displayable items from the current source and
@@ -149,6 +150,7 @@ private slots:
    */
   void setDisplayedItem(QString itemName, bool state, bool simulateClickedSignal=true);
 
+private slots:
   /** retrieve a list with all items
    *
    * @return list with all items

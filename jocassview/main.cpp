@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
   parser.add("-h","show this help",showUsage);
   bool showVersion(false);
   parser.add("--version","display the version of jocassview",showVersion);
+  bool restore(false);
+  parser.add("--restore","restore the previous session",restore);
 
   parser(QCoreApplication::arguments());
 
@@ -84,6 +86,17 @@ int main(int argc, char *argv[])
   {
     std::cout <<VERSION <<std::endl;
     exit(0);
+  }
+
+  if (restore)
+  {
+    jocassviewer.refreshDisplayableItemsList();
+    QSettings settings;
+    QStringList viewers(settings.value("OpenedViewers").toStringList());
+    for (QStringList::ConstIterator it = viewers.begin(); it != viewers.end(); ++it)
+    {
+      jocassviewer.setDisplayedItem(*it,true,false);
+    }
   }
 
   if ( filename == "nofile")
