@@ -83,13 +83,17 @@ double TwoDViewerData::value(double x, double y) const
   const int xMin(interval(Qt::XAxis).minValue());
   const int xWidth(interval(Qt::XAxis).width());
   const int binx(xSize  * (x - xMin) / xWidth);
+  if (binx < 0 || xSize <= binx)
+    return 0;
 
   const int ySize(_hist->shape().second);
   const int yMin(interval(Qt::YAxis).minValue());
   const int yWidth(interval(Qt::YAxis).width());
   const int biny(ySize  * (y - yMin) / yWidth);
+  if (biny < 0 || ySize <= biny)
+    return 0;
 
   const int globalbin(biny*xSize + binx);
   const Histogram2DFloat::storage_t &d(_hist->memory());
-  return (globalbin < 0 || static_cast<int>(d.size()) <= globalbin) ? 0. : d[globalbin];
+  return d[globalbin];
 }
