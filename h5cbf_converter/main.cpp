@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   std::string filename("nofile");
   parser.add("-f","filename of file that needs to be converted",filename);
   std::string outfile("nofile");
-  parser.add("-o","output filename of file that it will be converted to",filename);
+  parser.add("-o","output filename of file that it will be converted to",outfile);
   std::string key("empty");
   parser.add("--h5key","key of the datafield in the hdf5 that conains or should contain the detector data",key);
   bool showUsage(false);
