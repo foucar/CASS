@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
       exit(0);
     }
 
+    std::cout<<"converting "<< filename << " to "<<outfilename.toStdString()<<std::endl;
     cass::CBF::write(outfilename.toStdString(), matrix, shape);
   }
 
