@@ -365,6 +365,13 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
       return hist;
       break;
     }
+    case (3):
+    {
+      QString text(QString::fromStdString(h5handle.readString(key.toStdString())));
+      qDebug()<<text;
+      QMessageBox::information(0,key,text);
+      break;
+    }
     default:
       QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): Unknown dimension of dataset '" +
                                                     key + "' in file '" + _filename + "'"));

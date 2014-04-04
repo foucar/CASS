@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <utility>
+#include <iostream>
 
 #include <hdf5.h>
 
@@ -179,7 +180,7 @@ public:
     herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
                           &value));
     if (status < 0)
-      throw logic_error("readScalar()): Could read the value '" + valname + "'");
+      throw logic_error("readScalar(): Could not read the scalar value '" + valname + "'");
 
     H5Dclose(dataset_id);
 
@@ -572,8 +573,24 @@ public:
     switch(H5Sget_simple_extent_type(dataspace_id))
     {
     case H5S_SCALAR:
-      dimension = 0;
+    {
+      hid_t datatype_id(H5Dget_type(dataset_id));
+      int dtype = H5Tget_class(datatype_id);
+      switch(dtype)
+      {
+      case H5T_STRING:
+        dimension = 3;
+        break;
+      case H5T_INTEGER:
+      case H5T_FLOAT:
+        dimension = 0;
+        break;
+      default:
+        throw logic_error("dimension(): Datatype not supported");
+        break;
+      }
       break;
+    }
     case H5S_SIMPLE:
       switch(H5Sget_simple_extent_ndims(dataspace_id))
       {
