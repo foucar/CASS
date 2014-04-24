@@ -97,7 +97,7 @@ const char* TypeId::name(Type type)
     "EpixConfig",              // 74
     "EpixElement",             // 75
     "EpixSamplerConfig",       // 76
-    "EpixSamplerElement"       // 77
+    "EpixSamplerElement",      // 77
     "EvsConfig",               // 78
     "PartitionConfig",         // 79
     "PimaxConfig",             // 80
