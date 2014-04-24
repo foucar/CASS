@@ -286,6 +286,7 @@ void pp2000::aboutToQuit()
       string folder("/Summary/" + it->groupname);
       ROOT::changeDir(_rootfile,folder);
       ROOT::copyHistToRootFile(dynamic_cast<const HistogramFloatBase&>(it->pp->result()),it->name);
+      ++it;
     }
 
     /** go back to original directory and save file */
