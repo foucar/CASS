@@ -98,7 +98,10 @@ namespace Pds {
       Epix      = 29,
       Rayonix   = 30,
       EpixSampler=31,
-      NumDevice = 32
+      Pimax     = 32,
+      Fccd960   = 33,
+      Epix10k   = 34,
+      NumDevice = 35
     };
 
     DetInfo() {}
