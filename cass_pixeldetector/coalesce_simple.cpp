@@ -173,23 +173,25 @@ void findNeighbours(uint16_t depth,
  */
 Hit coalesce(const CoalescingBase::pixels_t &splitpixelslist)
 {
-
   Hit hit;
-  hit.x = splitpixelslist.front().x;
-  hit.y = splitpixelslist.front().y;
-  hit.z = splitpixelslist.front().z;
-  float weightX(hit.x*hit.z);
-  float weightY(hit.y*hit.z);
-  CoalescingBase::pixels_t::const_iterator pixel(splitpixelslist.begin()+1);
-  for (; pixel != splitpixelslist.end(); ++pixel)
+  if (!splitpixelslist.empty())
   {
-    weightX += (pixel->z*pixel->x);
-    weightY += (pixel->z*pixel->y);
-    hit.z += pixel->z;
+    hit.x = splitpixelslist.front().x;
+    hit.y = splitpixelslist.front().y;
+    hit.z = splitpixelslist.front().z;
+    float weightX(hit.x*hit.z);
+    float weightY(hit.y*hit.z);
+    CoalescingBase::pixels_t::const_iterator pixel(splitpixelslist.begin()+1);
+    for (; pixel != splitpixelslist.end(); ++pixel)
+    {
+      weightX += (pixel->z*pixel->x);
+      weightY += (pixel->z*pixel->y);
+      hit.z += pixel->z;
+    }
+    hit.x = weightX / hit.z;
+    hit.y = weightY / hit.z;
+    hit.nbrPixels = splitpixelslist.size();
   }
-  hit.x = weightX / hit.z;
-  hit.y = weightY / hit.z;
-  hit.nbrPixels = splitpixelslist.size();
   return hit;
 }
 
