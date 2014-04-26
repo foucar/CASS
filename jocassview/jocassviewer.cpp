@@ -466,6 +466,11 @@ void JoCASSViewer::updateViewers()
   sucess ? _statusLED->setStatus(StatusLED::ok) :
            _statusLED->setStatus(StatusLED::fail);
 
+  /** remember which viewers are active */
+  QSettings settings;
+  settings.setValue("OpenedViewers",displayedItems());
+
+
   /** restart the updatetimer when requested and reset the in progress flag */
   changeAutoUpdate();
   _updateInProgress = false;
