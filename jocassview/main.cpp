@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     QStringList viewers(settings.value("OpenedViewers").toStringList());
     for (QStringList::ConstIterator it = viewers.begin(); it != viewers.end(); ++it)
     {
-      jocassviewer.setDisplayedItem(*it,true,false);
+      jocassviewer.setDisplayedItem(*it,true,true);
     }
   }
 
