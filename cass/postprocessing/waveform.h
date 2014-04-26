@@ -61,6 +61,9 @@ protected:
 
   /** the Acqiris channel number of this processor */
   size_t _channel;
+
+  /** the sample interval */
+  double _sampleInterval;
 };
 }
 

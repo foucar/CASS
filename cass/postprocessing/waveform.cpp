@@ -49,13 +49,13 @@ void pp110::loadSettings(size_t)
   _instrument = static_cast<Instruments>(s.value("InstrumentId",8).toUInt());
   _channel    = s.value("ChannelNbr",0).toUInt();
   int wsize(s.value("NbrSamples",40000).toInt());
-  float sI(s.value("SampleInterval",1e-9).toFloat());
+  _sampleInterval = s.value("SampleInterval",1e-9).toDouble();
   setupGeneral();
   if (!setupCondition())
     return;
   createHistList(
         shared_ptr<Histogram1DFloat>
-        (new Histogram1DFloat(wsize,0,wsize*sI,"Time [s]")));
+        (new Histogram1DFloat(wsize,0,wsize*_sampleInterval,"Time [s]")));
   Log::add(Log::INFO,"PostProcessor '" + name() + "' is showing channel '" +
            toString(_channel) + "' of acqiris '" + toString(_instrument) +
            "'. Condition is '" + _condition->name() + "'");
@@ -81,11 +81,16 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
   if (result.axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     throw invalid_argument("Postprocessor '" + name() +
-                           "' incomming waveform '" + toString(waveform.size()) +
-                           "'. Result '" +
+                           "' incomming waveforms NbrSamples '" + toString(waveform.size()) +
+                           "'. User set NbrSamples '" +
                            toString(result.axis()[HistogramBackend::xAxis].nbrBins()) +
                            "'");
-
+  }
+  if (!qFuzzyCompare(channel.sampleInterval(), _sampleInterval))
+  {
+    throw invalid_argument("Postprocessor '" + name() +
+                           "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
+                           "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
   transform(waveform.begin(), waveform.end(),
             result.memory().begin(),
