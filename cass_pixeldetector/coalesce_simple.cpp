@@ -100,7 +100,6 @@ void findNeighbours(uint16_t depth,
                     CoalescingBase::pixels_t &pixels,
                     CoalescingBase::pixels_t &splitpixelslist)
 {
-//  typedef AdvancedDetector::pixels_t pixels_t;
   typedef pair<uint16_t,uint16_t> position_t;
 
   if (depth > maxDepth)
@@ -229,57 +228,56 @@ bool shouldCoalescePixel(const CoalescingBase::pixels_t &splitpixelslist,
       return false;
     }
     const size_t idx(pixel->y*framewidth + pixel->x);
+    // lower row
     if (pixel->y != 0)
     {
-      if (abs(data[idx-framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
+      if (qFuzzyIsNull(data[idx-framewidth]))  //lower middle
       {
         //          cout << "lower middle is " << frame[idx-framewidth]<<endl;
         return false;
       }
-      if (pixel->x != 0)
-        if (abs(data[idx-framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
-        {
-          //            cout << "lower left is " << frame[idx-framewidth-1]<<endl;
-          return false;
-        }
-      if (pixel->x < framewidth-1)
-        if (abs(data[idx-framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
-        {
-          //            cout << "lower right is " << frame[idx-framewidth+1]<<endl;
-          return false;
-        }
+      if (pixel->x != 0 && qFuzzyIsNull(data[idx-framewidth-1]))  //lower left
+      {
+        //            cout << "lower left is " << frame[idx-framewidth-1]<<endl;
+        return false;
+      }
+      if (pixel->x < framewidth-1 && qFuzzyIsNull(data[idx-framewidth+1]))  //lower right
+      {
+        //            cout << "lower right is " << frame[idx-framewidth+1]<<endl;
+        return false;
+      }
     }
-    if (pixel->x != 0)
-      if (abs(data[idx-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //left
-      {
-        //          cout << "left is " << frame[idx-1]<<endl;
-        return false;
-      }
-    if (pixel->x < framewidth-1)
-      if (abs(data[idx+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //right
-      {
-        //          cout << "right is " << frame[idx+1]<<endl;
-        return false;
-      }
+
+    // same row
+    if (pixel->x != 0 && qFuzzyIsNull(data[idx-1]))  //left
+    {
+      //          cout << "left is " << frame[idx-1]<<endl;
+      return false;
+    }
+    if (pixel->x < framewidth-1 && qFuzzyIsNull(data[idx+1]))  //right
+    {
+      //          cout << "right is " << frame[idx+1]<<endl;
+      return false;
+    }
+
+    // upper row
     if (pixel->y < frameheight-1)
     {
-      if (abs(data[idx+framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
+      if (qFuzzyIsNull(data[idx+framewidth]))  //lower middle
       {
         //          cout << "upper middle is " << frame[idx+framewidth]<<endl;
         return false;
       }
-      if (pixel->x != 0)
-        if (abs(data[idx+framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
-        {
-          //            cout << "upper left is " << frame[idx+framewidth-1]<<endl;
-          return false;
-        }
-      if (pixel->x < framewidth-1)
-        if (abs(data[idx+framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
-        {
-          //            cout << "uppper right is " << frame[idx+framewidth+1]<<endl;
-          return false;
-        }
+      if (pixel->x != 0 && qFuzzyIsNull(data[idx+framewidth-1]))  //upper left
+      {
+        //            cout << "upper left is " << frame[idx+framewidth-1]<<endl;
+        return false;
+      }
+      if (pixel->x < framewidth-1 && qFuzzyIsNull(data[idx+framewidth+1]))  //upper right
+      {
+        //            cout << "uppper right is " << frame[idx+framewidth+1]<<endl;
+        return false;
+      }
     }
   }
   return true;
@@ -305,13 +303,11 @@ SimpleCoalesce::hits_t& SimpleCoalesce::operator() (const Frame &frame,
                                                     pixels_t &pixels,
                                                     hits_t &hits)
 {
-  pixels_t::iterator pixel(pixels.begin());
   if (pixels.size() > _maxPixelListSize)
-  {
-//    cout << pixellist.size() <<" "<< hits.size()<<endl;
     return hits;
-  }
-  for(; pixel != pixels.end();++ pixel)
+
+  pixels_t::iterator pixel(pixels.begin());
+  for(; pixel != pixels.end(); ++pixel)
   {
     if (!pixel->used)
     {
@@ -324,6 +320,5 @@ SimpleCoalesce::hits_t& SimpleCoalesce::operator() (const Frame &frame,
       }
     }
   }
-//  cout <<pixellist.size()<<" "<< hits.size()<<endl;
   return hits;
 }
