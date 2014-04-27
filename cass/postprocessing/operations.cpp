@@ -380,16 +380,51 @@ void pp12::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _res = tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat());
-  _res->fill(s.value("Value",0).toFloat());
+  string type(s.value("ValueType","0D").toString().toStdString());
+  if (type == "OD")
+  {
+    _res = tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat());
+  }
+  else if (type == "1D")
+  {
+    _res = tr1::shared_ptr<Histogram1DFloat>
+        (new Histogram1DFloat(s.value("XNbrBins",1).toInt(),
+                              s.value("XLow",0).toFloat(),
+                              s.value("XUp",1).toFloat(),
+                              s.value("XTitle","x-axis").toString().toStdString()
+                              ));
+  }
+  else if (type == "2D")
+  {
+    _res = tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(s.value("XNbrBins",1).toInt(),
+                              s.value("XLow",0).toFloat(),
+                              s.value("XUp",1).toFloat(),
+                              s.value("YNbrBins",1).toInt(),
+                              s.value("YLow",0).toFloat(),
+                              s.value("YUp",1).toFloat(),
+                              s.value("XTitle","x-axis").toString().toStdString(),
+                              s.value("YTitle","y-axis").toString().toStdString()
+                              ));
+  }
+  else
+  {
+    throw invalid_argument("pp12::loadSettings(): '" + name() +
+                           "' unknown valuetype '" + type + "' provided");
+  }
+
+  fill(_res->memory().begin(),_res->memory().end(),s.value("Value",0).toFloat());
+
   if (name() == "DefaultTrueHist")
-    _res->fill(true);
+    _res->memory()[0] = true;
   if (name() == "DefaultFalseHist")
-    _res->fill(false);
+    _res->memory()[0] = false;
+
   _hide =true;
 
   Log::add(Log::INFO,"PostProcessor '" +  name() + "' has constant value of '" +
-           toString(dynamic_cast<Histogram0DFloat*>(_res.get())->getValue()) + "'");
+           toString(dynamic_cast<Histogram0DFloat*>(_res.get())->getValue()) +
+           "' and is of type '" + type + "'");
 }
 
 

@@ -288,6 +288,14 @@ protected:
  *
  * @cassttng PostProcessor/\%name\%/{Value} \n
  *           The value of the postprocessors 0d histogram Default is 0.
+ * @cassttng PostProcessor/\%name\%/{ValueType} \n
+ *           The type of constant that will we returned. Default is '0D'.
+ *           Possible values are:
+ *           - '0D': A 0d histogram  will be returned
+ *           - '1D': A 1d array histogram will be returned
+ *           - '2D': A 2d image histogram will be returned
+ * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ *           Optional settings, needed when selected 1D or 2D as type
  *
  * @author Lutz Foucar
  */
@@ -314,7 +322,7 @@ public:
 
 private:
   /** the constant result */
-  std::tr1::shared_ptr<Histogram0DFloat> _res;
+  std::tr1::shared_ptr<HistogramFloatBase> _res;
 };
 
 
