@@ -142,6 +142,7 @@ void PostProcessors::operator()(const CASSEvent& event)
   iter=_postprocessors.begin();
   while(iter != end)
     (*(iter++))->releaseEvent(event);
+  pixeldetector::DetectorHelper::releaseDetector(event.id());
 }
 
 void PostProcessors::aboutToQuit()
