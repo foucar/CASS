@@ -381,7 +381,7 @@ void pp12::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
   string type(s.value("ValueType","0D").toString().toStdString());
-  if (type == "OD")
+  if (type == "0D")
   {
     _res = tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat());
   }
