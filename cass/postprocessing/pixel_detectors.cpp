@@ -72,7 +72,7 @@ void pp105::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -128,7 +128,7 @@ void pp107::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   string mapType(s.value("MapType","offset").toString().toStdString());
   setupGeneral();
   if (!setupCondition())
@@ -261,7 +261,7 @@ void pp144::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -329,7 +329,7 @@ void pp145::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -371,7 +371,7 @@ void pp146::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -415,7 +415,7 @@ void pp148::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -476,7 +476,7 @@ void pp149::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -683,7 +683,7 @@ void pp242::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _detector = s.value("Detector","blubb").toString().toStdString();
+  _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   _value = s.value("Value",0.f).toFloat();
   setupGeneral();
   if (!setupCondition())
