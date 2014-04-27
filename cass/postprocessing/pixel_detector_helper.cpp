@@ -12,7 +12,6 @@
 #include "pixel_detector_helper.h"
 
 #include "cass_settings.h"
-#include "cass_event.h"
 #include "advanced_pixeldetector.h"
 
 using namespace cass;
@@ -38,30 +37,51 @@ DetectorHelper::shared_pointer DetectorHelper::instance(const instancesmap_t::ke
   return _instances[detector];
 }
 
+void DetectorHelper::releaseDetector(const id_type &id)
+{
+  QMutexLocker lock(&_mutex);
+  for (instancesmap_t::iterator it(_instances.begin()); it != _instances.end(); ++it)
+    it->second->release(id);
+}
+
 DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 {
-  for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(make_pair(0,new AdvancedDetector(detname)));
+  for (size_t i=0; i<NbrOfWorkers+2;++i)
+    _detectorList.push_back(make_pair(0,new AdvancedDetector(detname)));
+  _lastEntry = _detectorList.begin();
   Log::add(Log::VERBOSEINFO,string("DetectorHelper::constructor: we are ")+
            "we are responsible for pixel det '" + detname + "'");
 }
 
+DetectorHelper::iter_type DetectorHelper::findId(const id_type &id)
+{
+  return (find_if(_detectorList.begin(), _detectorList.end(),
+                  bind(equal_to<id_type>(),id,
+                       bind<id_type>(&KeyDetPair_t::first,_1))));
+}
+
+void DetectorHelper::release(const id_type &id)
+{
+  iter_type it(findId(id));
+  if (it != _detectorList.end())
+    it->first = 0;
+}
 
 DetectorHelper::AdvDet_sptr DetectorHelper::detector(const CASSEvent &evt)
 {
   QMutexLocker lock(&_helperMutex);
-  detectorList_t::iterator it
-    (find_if(_detectorList.begin(), _detectorList.end(),
-             bind<bool>(equal_to<uint64_t>(),evt.id(),
-                        bind<uint64_t>(&detectorList_t::value_type::first,_1))));
+  iter_type it(findId(evt.id()));
   if(_detectorList.end() == it)
   {
-    DetectorHelper::AdvDet_sptr det(_detectorList.back().second);
-    det->associate(evt);
-    detectorList_t::value_type newPair(make_pair(evt.id(),det));
-    _detectorList.push_front(newPair);
-    _detectorList.pop_back();
-    it = _detectorList.begin();
+    while(_lastEntry->first)
+    {
+      ++_lastEntry;
+      if (_lastEntry == _detectorList.end())
+        _lastEntry = _detectorList.begin();
+    }
+    it = _lastEntry;
+    it->first = evt.id();
+    it->second->associate(evt);
   }
   return it->second;
 }

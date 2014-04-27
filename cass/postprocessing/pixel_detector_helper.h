@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <utility>
 #include <algorithm>
-#include <list>
+#include <vector>
 #include <string>
 #include <map>
 #include <tr1/memory>
@@ -21,11 +21,10 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include "cass_acqiris.h"
+#include "cass_event.h"
 
 namespace cass
 {
-class CASSEvent;
 
 namespace pixeldetector
 {
@@ -52,25 +51,38 @@ public:
   /** typedef describing the instances of the helper */
   typedef std::map<std::string,shared_pointer> instancesmap_t;
 
+  /** define a shared pointer of the item to manage */
   typedef std::tr1::shared_ptr<AdvancedDetector> AdvDet_sptr;
 
+  /** define the type of the id used */
+  typedef CASSEvent::id_t id_type;
+
   /** defining a key - value pair for the list */
-  typedef std::pair<uint64_t,AdvDet_sptr> KeyDetPair_t;
+  typedef std::pair<id_type,AdvDet_sptr> KeyDetPair_t;
 
   /** typedef defining the list of detectors for more readable code*/
-  typedef std::list<KeyDetPair_t> detectorList_t;
+  typedef std::vector<KeyDetPair_t> detectorList_t;
+
+  /** define an iterator for the list */
+  typedef detectorList_t::iterator iter_type;
 
 public:
   /** static function creating instance of this.
-     *
-     * return the instance of the helper that is managing the detector. If the
-     * helper is not yet inside the _instances map the helper instance will be
-     * created and put into the _instances map.
-     *
-     * @return instance of the helper manaing the detector
-     * @param detector key (name) of the detector to find it in the _instances map
-     */
+   *
+   * return the instance of the helper that is managing the detector. If the
+   * helper is not yet inside the _instances map the helper instance will be
+   * created and put into the _instances map.
+   *
+   * @return instance of the helper manaing the detector
+   * @param detector key (name) of the detector to find it in the _instances map
+   */
   static shared_pointer instance(const instancesmap_t::key_type& detector);
+
+  /** release the detector of all helpers that is blocked for the event
+   *
+   * @param id the eventid that is assinged for the detector
+   */
+  static void releaseDetector(const id_type &id);
 
   /** retrieve detector for event
    *
@@ -132,6 +144,21 @@ private:
   /** prevent assingment */
   DetectorHelper& operator=(const DetectorHelper&);
 
+  /** find an element with a given id in the list
+   *
+   * @return iterator to the found element
+   * @param id the id of the element
+   */
+  iter_type findId(const id_type &id);
+
+  /** release the detector element in the list by settings its key (eventid) back
+   *  to 0
+   *
+   * @param id the detector event id that should be released
+   */
+  void release(const id_type & id);
+
+
   /** the helperclass instances.
    *
    * the instances of this class put into map
@@ -144,6 +171,9 @@ private:
 
   /** Mutex for each helper*/
   QMutex _helperMutex;
+
+  /** the iterator to the last element returned */
+  iter_type _lastEntry;
 };
 
 } //end namespace pixeldetector
