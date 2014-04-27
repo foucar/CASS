@@ -413,18 +413,17 @@ void pp12::loadSettings(size_t)
                            "' unknown valuetype '" + type + "' provided");
   }
 
-  fill(_res->memory().begin(),_res->memory().end(),s.value("Value",0).toFloat());
-
+  float value(s.value("Value",0).toFloat());
   if (name() == "DefaultTrueHist")
-    _res->memory()[0] = true;
+    value = true;
   if (name() == "DefaultFalseHist")
-    _res->memory()[0] = false;
+    value = false;
+  fill(_res->memory().begin(), _res->memory().end(), value);
 
   _hide =true;
 
   Log::add(Log::INFO,"PostProcessor '" +  name() + "' has constant value of '" +
-           toString(dynamic_cast<Histogram0DFloat*>(_res.get())->getValue()) +
-           "' and is of type '" + type + "'");
+           toString(value) + "' and is of type '" + type + "'");
 }
 
 
