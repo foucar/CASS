@@ -12,19 +12,15 @@
 #include "acqiris_detectors_helper.h"
 
 #include "cass_settings.h"
-#include "cass_event.h"
 #include "detector_backend.h"
 #include "detector_analyzer_backend.h"
 #include "convenience_functions.h"
 #include "log.h"
 
 using namespace cass::ACQIRIS;
-using std::cout;
-using std::endl;
-using std::make_pair;
+using namespace std;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
-using std::string;
 
 //initialize static members//
 HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
@@ -42,6 +38,13 @@ HelperAcqirisDetectors::shared_pointer HelperAcqirisDetectors::instance(const he
   return _instances[detector];
 }
 
+void HelperAcqirisDetectors::releaseDetector(const id_type &id)
+{
+  QMutexLocker lock(&_mutex);
+  for (helperinstancesmap_t::iterator it(_instances.begin()); it != _instances.end(); ++it)
+    it->second->release(id);
+}
+
 const HelperAcqirisDetectors::helperinstancesmap_t& HelperAcqirisDetectors::instances()
 {
   QMutexLocker lock(&_mutex);
@@ -56,28 +59,42 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
   _dettype = (static_cast<DetectorType>(s.value("DetectorType",ToF).toUInt()));
   s.endGroup();
   s.endGroup();
-  for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(make_pair(0,DetectorBackend::instance(_dettype,detname)));
+  for (size_t i=0; i<NbrOfWorkers+2;++i)
+    _detectorList.push_back(make_pair(0,DetectorBackend::instance(_dettype,detname)));
+  _lastEntry = _detectorList.begin();
   Log::add(Log::DEBUG0,string("AcqirisDetectorHelper::constructor: ") +
            "we are responsible for det '" + detname +  "', which is of type " + toString(_dettype));
 }
 
+HelperAcqirisDetectors::iter_type HelperAcqirisDetectors::findId(const id_type &id)
+{
+  return (find_if(_detectorList.begin(), _detectorList.end(),
+                  bind(equal_to<id_type>(),id,
+                       bind<id_type>(&KeyDetPair_t::first,_1))));
+}
+
+void HelperAcqirisDetectors::release(const id_type &id)
+{
+  iter_type it(findId(id));
+  if (it != _detectorList.end())
+    it->first = 0;
+}
+
 DetectorBackend& HelperAcqirisDetectors::validate(const CASSEvent &evt)
 {
-  using namespace std;
   QMutexLocker lock(&_helperMutex);
-  detectorList_t::iterator it
-    (find_if(_detectorList.begin(),_detectorList.end(),
-             bind<bool>(equal_to<uint64_t>(),evt.id(),
-                        bind<uint64_t>(&detectorList_t::value_type::first,_1))));
+  iter_type it(findId(evt.id()));
   if(_detectorList.end() == it)
   {
-    Det_sptr det(_detectorList.back().second);
-    det->associate(evt);
-    detectorList_t::value_type newPair(make_pair(evt.id(),det));
-    _detectorList.push_front(newPair);
-    _detectorList.pop_back();
-    it = _detectorList.begin();
+    while(_lastEntry->first)
+    {
+      ++_lastEntry;
+      if (_lastEntry == _detectorList.end())
+        _lastEntry = _detectorList.begin();
+    }
+    it = _lastEntry;
+    it->first = evt.id();
+    it->second->associate(evt);
   }
   return *it->second;
 }

@@ -143,6 +143,7 @@ void PostProcessors::operator()(const CASSEvent& event)
   while(iter != end)
     (*(iter++))->releaseEvent(event);
   pixeldetector::DetectorHelper::releaseDetector(event.id());
+  ACQIRIS::HelperAcqirisDetectors::releaseDetector(event.id());
 }
 
 void PostProcessors::aboutToQuit()

@@ -1,4 +1,4 @@
-//Copyright (C) 2011 Lutz Foucar
+//Copyright (C) 2011-2014 Lutz Foucar
 
 /**
  * @file pixel_detector_helper.h contains classes that extract and add
@@ -157,7 +157,6 @@ private:
    * @param id the detector event id that should be released
    */
   void release(const id_type & id);
-
 
   /** the helperclass instances.
    *

@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010 - 2014 Lutz Foucar
 
 /**
  * @file acqiris_detectors_helper.h file contains declaration of classes that
@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <utility>
 #include <algorithm>
-#include <list>
+#include <vector>
 #include <string>
 #include <map>
 #include <tr1/memory>
@@ -22,6 +22,7 @@
 #include <QtCore/QMutexLocker>
 
 #include "cass_acqiris.h"
+#include "cass_event.h"
 
 namespace cass
 {
@@ -60,11 +61,17 @@ public:
   /** a shared pointer of the detector backend */
   typedef std::tr1::shared_ptr<DetectorBackend> Det_sptr;
 
+  /** define the type of the id used */
+  typedef CASSEvent::id_t id_type;
+
   /** defining a key - value pair for the list */
-  typedef std::pair<uint64_t,Det_sptr> KeyDetPair_t;
+  typedef std::pair<id_type,Det_sptr> KeyDetPair_t;
 
   /** typedef defining the list of detectors for more readable code*/
-  typedef std::list<KeyDetPair_t> detectorList_t;
+  typedef std::vector<KeyDetPair_t> detectorList_t;
+
+  /** define an iterator for the list */
+  typedef detectorList_t::iterator iter_type;
 
 public:
   /** static function creating instance of this.
@@ -77,6 +84,12 @@ public:
    * @param detector key (name) of the detector to find it in the _instances map
    */
   static shared_pointer instance(const helperinstancesmap_t::key_type& detector);
+
+  /** release the detector of all helpers that is blocked for the event
+   *
+   * @param id the eventid that is assinged for the detector
+   */
+  static void releaseDetector(const id_type &id);
 
   /** return all known instances fo this */
   static const helperinstancesmap_t& instances();
@@ -163,6 +176,20 @@ private:
   /** prevent assingment */
   HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
 
+  /** find an element with a given id in the list
+   *
+   * @return iterator to the found element
+   * @param id the id of the element
+   */
+  iter_type findId(const id_type &id);
+
+  /** release the detector element in the list by settings its key (eventid) back
+   *  to 0
+   *
+   * @param id the detector event id that should be released
+   */
+  void release(const id_type & id);
+
   /** the helperclass instances.
    *
    * the instances of this class put into map
@@ -178,6 +205,9 @@ private:
 
   /** the type of detector that the individual helper is there for */
   DetectorType _dettype;
+
+  /** the iterator to the last element returned */
+  iter_type _lastEntry;
 };
 }//end namespace ACQIRIS
 }//end namespace cass

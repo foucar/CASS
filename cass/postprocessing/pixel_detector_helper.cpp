@@ -1,4 +1,4 @@
-//Copyright (C) 2011 Lutz Foucar
+//Copyright (C) 2011 -2014 Lutz Foucar
 
 /**
  * @file pixel_detector_helper.cpp contains classes that extract and add
