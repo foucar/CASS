@@ -420,7 +420,7 @@ void pp12::loadSettings(size_t)
     value = false;
   fill(_res->memory().begin(), _res->memory().end(), value);
 
-  _hide =true;
+  _hide = s.value("Hide",true).toBool();
 
   Log::add(Log::INFO,"PostProcessor '" +  name() + "' has constant value of '" +
            toString(value) + "' and is of type '" + type + "'");
