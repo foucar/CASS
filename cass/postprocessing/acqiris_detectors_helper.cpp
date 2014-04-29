@@ -75,6 +75,7 @@ HelperAcqirisDetectors::iter_type HelperAcqirisDetectors::findId(const id_type &
 
 void HelperAcqirisDetectors::release(const id_type &id)
 {
+  QMutexLocker lock(&_helperMutex);
   iter_type it(findId(id));
   if (it != _detectorList.end())
     it->first = 0;

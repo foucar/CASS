@@ -62,6 +62,7 @@ DetectorHelper::iter_type DetectorHelper::findId(const id_type &id)
 
 void DetectorHelper::release(const id_type &id)
 {
+  QMutexLocker lock(&_helperMutex);
   iter_type it(findId(id));
   if (it != _detectorList.end())
     it->first = 0;
