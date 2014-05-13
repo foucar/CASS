@@ -803,12 +803,21 @@ void pp244::loadSettings(size_t)
   if (!setupCondition())
     return;
 
+  _isPnCCD = s.value("IsPnCCD",false).toBool();
+
   if (_image->result().dimension() != 2)
     throw invalid_argument("pp244::loadSettings: '" + name() + "' input '" +
                            _image->name() + "' is not a 2d histogram");
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
-  const size_t nPixels(image.shape().first * image.shape().second);
+  if (_isPnCCD && (image.shape().first != 1024 || image.shape().second != 1024))
+    throw invalid_argument("pp244::loadSettings(): '" + name() +
+                           "' should be a pnCCD, but cols '" +
+                           toString(image.shape().first) + "' and rows '"
+                           + toString(image.shape().second) +
+                           "' don't indicate a pnCCD");
+  const size_t nPixels =
+      _isPnCCD ? 2048 : image.shape().first * image.shape().second;
 
   const size_t nbins(s.value("XNbrBins",1).toUInt());
   const float low(s.value("XLow",0).toFloat());
@@ -839,12 +848,14 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker imagelock(&image.lock);
 
 
-  const size_t nPixels(image.shape().first*image.shape().second);
+  const size_t cols(image.shape().first);
+  const size_t rows(image.shape().second);
+  const size_t nPixels(cols*rows);
   const AxisProperty &prop(result.axis()[Histogram2DFloat::xAxis]);
   const float up(prop.upperLimit());
   const float low(prop.lowerLimit());
   const size_t nBins(prop.nbrBins());
-  for (size_t i=0; i<nPixels;++i)
+  for (size_t i=0; i<nPixels; ++i)
   {
      /** find where in the histogram the pixel value would be put
       *  only if its within the range of the values
@@ -852,14 +863,20 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
     const float pixval(image.memory()[i]);
     if (!qFuzzyCompare(pixval,_maskval) && low <= pixval && pixval < up)
     {
+      const size_t col(i % cols);
+      const size_t row(i / cols);
+
       const size_t bin(
             static_cast<size_t>(nBins * ((pixval - low) / (up - low))));
 
       /** get the right row for the pixel from the result and add 1 at the bin
        *  of the pixel value
        */
-      Histogram2DFloat::storage_t::iterator row(result.memory().begin() + i*nBins);
-      row[bin] += _weight;
+      size_t rowidx(i);
+      if (_isPnCCD)
+        rowidx = (row < 512) ? col : col + cols;
+      Histogram2DFloat::storage_t::iterator rrow(result.memory().begin() + rowidx*nBins);
+      rrow[bin] += _weight;
     }
   }
   result.nbrOfFills() = 1;

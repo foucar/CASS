@@ -133,6 +133,10 @@ private:
  *           The number of frames after which the gain map will be calculated.
  *           Default is -1, which sais that it will never be calulated during
  *           running and only when the program ends.
+ * @cassttng PostProcessor/\%name\%/{PnCCDNoCTE}\n
+ *           If the detector is a pnCCD and one doesn't want to correct for the
+ *           CTE this option will calcultate the gain for a column of a quadrant
+ *           of the detector. Default is false
  *
  * @author Lutz Foucar
  */
@@ -214,6 +218,9 @@ private:
 
   /** the size of the input image */
   size_t _sizeOfImage;
+
+  /** flag to tell whether its a pnCCD we are not interested in correction the cte */
+  bool _isPnCCDNoCTE;
 };
 
 

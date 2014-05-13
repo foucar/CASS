@@ -657,6 +657,9 @@ protected:
  * @cassttng PostProcessor/\%name\%/{MaskVal}\n
  *           The value that the masked pixels have in the image. Masked pixels
  *           will not be added to the histogram. Default is 0
+ * @cassttng PostProcessor/\%name\%/{IsPnCCD}\n
+ *           Combine the columns of the pnCCD to lower the memory used.
+ *           Default is false
  *
  * @author Lutz Foucar
  */
@@ -681,6 +684,9 @@ protected:
 
   /** the value of masked pixels */
   float _maskval;
+
+  /** flag to tell whether its an pnCCD */
+  bool _isPnCCD;
 };
 
 

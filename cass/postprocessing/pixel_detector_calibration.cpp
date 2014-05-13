@@ -200,6 +200,12 @@ void pp331::loadSettings(size_t)
   if (!(_image && ret))
     return;
 
+  if (_image->result().dimension() != 2)
+    throw invalid_argument("pp331::loadSettings: '" + name() + "' input '" +
+                           _image->name() + "' is not a 2d histogram");
+
+  _isPnCCDNoCTE = s.value("PnCCDNoCTE",false).toBool();
+
   _counter = 0;
   _nFrames = s.value("NbrOfFrames",-1).toInt();
   _filename = s.value("Filename","out.cal").toString().toStdString();
@@ -211,6 +217,13 @@ void pp331::loadSettings(size_t)
 
   const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
   pair<size_t,size_t> shape(image.shape());
+  if (_isPnCCDNoCTE && (shape.first != 1024 || shape.second != 1024))
+    throw invalid_argument("pp331::loadSettings(): '" + name() +
+                           "' should be a pnCCD, but cols '" +
+                           toString(shape.first) + "' and rows '"
+                           + toString(shape.second) +
+                           "' don't indicate a pnCCD");
+
   _sizeOfImage = shape.first * shape.second;
   _gainOffset  = 0*_sizeOfImage;
   _countOffset = 1*_sizeOfImage;
@@ -297,6 +310,8 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   QReadLocker lock(&image.lock);
+  const size_t cols(image.shape().first);
+
   Histogram2DFloat::storage_t::const_iterator pixel(image.memory().begin());
   Histogram2DFloat::storage_t::const_iterator ImageEnd(image.memory().end());
 
@@ -305,7 +320,7 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
   Histogram2DFloat::storage_t::iterator ave(result.memory().begin()  + _aveOffset);
 
   /** go though all pixels of image*/
-  for (; pixel != ImageEnd; ++pixel, ++gain, ++count, ++ave)
+  for (size_t i(0); pixel != ImageEnd; ++i, ++pixel, ++gain, ++count, ++ave)
   {
     /** check if pixel is within the 1 photon adu range */
     if (_aduRange.first < *pixel && *pixel < _aduRange.second)
@@ -313,6 +328,44 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
       /** calculate the mean pixel value */
       *count += 1;
       *ave += ((*pixel - *ave) / *count);
+
+      /** set the same value as for the pixel for all pixels in the columns
+       *  in the quadrant
+       */
+      if (_isPnCCDNoCTE)
+      {
+        /** find out which which column and row we're currently working on */
+        const size_t col (i % cols);
+        const size_t row (i / cols);
+        /** get pointers to the corresponding starts of the maps */
+        Histogram2DFloat::storage_t::iterator gaincol(result.memory().begin() + _gainOffset + col);
+        Histogram2DFloat::storage_t::iterator countcol(result.memory().begin()+ _countOffset + col);
+        Histogram2DFloat::storage_t::iterator avecol(result.memory().begin()  + _aveOffset + col);
+        /** when the pixel is in the upper half of the detector advance the
+         *  pointer to the upper half
+         */
+        if (row >= 512)
+        {
+          gaincol  += 512*1024;
+          countcol += 512*1024;
+          avecol   += 512*1024;
+        }
+
+        const float currentgain(*gain);
+        const float currentcount(*count);
+        const float currentave(*ave);
+        for (int ii=0; ii<512; ++ii)
+        {
+          *gaincol = currentgain;
+          gaincol += 1024;
+
+          *countcol = currentcount;
+          countcol += 1024;
+
+          *avecol = currentave;
+          avecol += 1024;
+        }
+      }
     }
   }
 
