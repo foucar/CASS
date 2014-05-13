@@ -29,7 +29,8 @@ class CommonData;
  *           The number of mask elements that are part of the complete mask.
  *           Default is 0.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{MaskElementType}\n
- *           Name of the mask element. Default is "square". Possible values are:
+ *           Name of the mask element. Default is "Unknown", which let the code
+ *           ignore that element. Possible values are:
  *           - "square": a square region of the mask. See
  *                       cass::pixeldetector::addSquare for details
  *           - "circle" or "circ": a circular region of the mask. See

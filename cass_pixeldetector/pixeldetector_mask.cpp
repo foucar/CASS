@@ -525,7 +525,9 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    string type(s.value("MaskElementType","square").toString().toStdString());
+    string type(s.value("MaskElementType","Unknown").toString().toStdString());
+    if (type == "Unknown")
+      continue;
     if (functions.find(type) == functions.end())
       throw invalid_argument("createCASSMask(): Unknown Mask Element Type '" +type+ "'");
     Log::add(Log::DEBUG0,"createCASSMask: add mask element type '" + type +"'");
