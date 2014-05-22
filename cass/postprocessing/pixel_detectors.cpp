@@ -817,7 +817,7 @@ void pp244::loadSettings(size_t)
                            + toString(image.shape().second) +
                            "' don't indicate a pnCCD");
   const size_t nPixels =
-      _isPnCCD ? 2048 : image.shape().first * image.shape().second;
+      _isPnCCD ? 512 + 2048 : image.shape().first * image.shape().second;
 
   const size_t nbins(s.value("XNbrBins",1).toUInt());
   const float low(s.value("XLow",0).toFloat());
@@ -877,6 +877,15 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
         rowidx = (row < 512) ? col : col + cols;
       Histogram2DFloat::storage_t::iterator rrow(result.memory().begin() + rowidx*nBins);
       rrow[bin] += _weight;
+
+      /** if it is a pnCCD now add the row to see the cte */
+      if (_isPnCCD)
+      {
+        size_t cterow = (row < 512) ? row : 1023 - row;
+        Histogram2DFloat::storage_t::iterator cterowidx
+            (result.memory().begin() + (cterow + 2048)*nBins);
+        cterowidx[bin] += _weight;
+      }
     }
   }
   result.nbrOfFills() = 1;

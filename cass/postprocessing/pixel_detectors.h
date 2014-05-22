@@ -659,7 +659,9 @@ protected:
  *           will not be added to the histogram. Default is 0
  * @cassttng PostProcessor/\%name\%/{IsPnCCD}\n
  *           Combine the columns of the pnCCD to lower the memory used.
- *           Default is false
+ *           Default is false. In case of pnCCD the channels of the quadrants
+ *           will be displayed in rows 0 to 2047 and the rows, which indicate the
+ *           cte will be dispyed in rows 2048 to 2559
  *
  * @author Lutz Foucar
  */
