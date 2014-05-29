@@ -120,7 +120,7 @@ private:
  * @cassttng PostProcessor/\%name\%/{WriteCal} \n
  *           Flag to tell whether the calibration should be written. Default is
  *           true.
- * @cassttng PostProcessor/\%name\%/{ADURangeLow|ADURangeUp} \n
+ * @cassttng PostProcessor/\%name\%/{ADURangeLow|ADURangeHigh} \n
  *           The adu range that indicates that one photon has hit the pixel.
  *           Default is 0|0
  * @cassttng PostProcessor/\%name\%/{MinimumNbrPhotons} \n
@@ -133,7 +133,7 @@ private:
  *           The number of frames after which the gain map will be calculated.
  *           Default is -1, which sais that it will never be calulated during
  *           running and only when the program ends.
- * @cassttng PostProcessor/\%name\%/{PnCCDNoCTE}\n
+ * @cassttng PostProcessor/\%name\%/{IsPnCCDNoCTE}\n
  *           If the detector is a pnCCD and one doesn't want to correct for the
  *           CTE this option will calcultate the gain for a column of a quadrant
  *           of the detector. Default is false

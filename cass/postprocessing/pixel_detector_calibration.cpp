@@ -204,14 +204,14 @@ void pp331::loadSettings(size_t)
     throw invalid_argument("pp331::loadSettings: '" + name() + "' input '" +
                            _image->name() + "' is not a 2d histogram");
 
-  _isPnCCDNoCTE = s.value("PnCCDNoCTE",false).toBool();
+  _isPnCCDNoCTE = s.value("IsPnCCDNoCTE",false).toBool();
 
   _counter = 0;
   _nFrames = s.value("NbrOfFrames",-1).toInt();
   _filename = s.value("Filename","out.cal").toString().toStdString();
   _write = s.value("WriteCal",true).toBool();
   _aduRange = make_pair(s.value("ADURangeLow",0).toFloat(),
-                        s.value("ADURangeUp",0).toFloat());
+                        s.value("ADURangeHigh",0).toFloat());
   _minPhotonCount = s.value("MinimumNbrPhotons",200).toUInt();
   _constGain = s.value("DefaultGainValue",1).toFloat();
 
