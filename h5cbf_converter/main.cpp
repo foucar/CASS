@@ -13,10 +13,46 @@
 
 #include <cstdlib>
 #include <vector>
+#include <string>
+#include <map>
 
 #include "cl_parser.hpp"
 #include "hdf5_handle.hpp"
 #include "cbf_handle.hpp"
+
+std::map<std::string,float> parseCBFHeader(const std::string &header)
+{
+  using namespace std;
+
+  map<string,float> values;
+  istringstream s(header);
+  string line;
+  while(getline(s,line))
+  {
+//    cout << line<<endl;
+    sscanf(line.c_str(),"# Pixel_size %f m x %f m", &values["PixelsizeX_m"],
+                                                    &values["PixelsizeY_m"]);
+    sscanf(line.c_str(),"# Exposure_time %f s", &values["ExposureTime_s"]);
+    sscanf(line.c_str(),"# Exposure_period %f s", &values["ExposurePeriod_s"]);
+    sscanf(line.c_str(),"# Tau = %f s", &values["Tau_s"]);
+    sscanf(line.c_str(),"# Count_cutoff %f counts", &values["CountCutoff_counts"]);
+    sscanf(line.c_str(),"# Threshold_setting: %f eV", &values["ThresholdSettings_eV"]);
+    sscanf(line.c_str(),"# Wavelength %f", &values["Wavelength_A"]);
+    sscanf(line.c_str(),"# Detector_distance %f", &values["DetectorDistance_m"]);
+    sscanf(line.c_str(),"# Beam_xy (%f, %f) pixels", &values["BeamcenterX_pix"],
+                                                     &values["BeamcenterY_pix"]);
+    sscanf(line.c_str(),"# Flux %f", &values["Flux"]);
+    sscanf(line.c_str(),"# Filter_transmission %f", &values["FilterTransmission"]);
+    sscanf(line.c_str(),"# Start_angle %f deg.", &values["StartAngle_deg"]);
+    sscanf(line.c_str(),"# Angle_increment %f deg.", &values["AngleIncrement_deg"]);
+    sscanf(line.c_str(),"# Phi %f deg.", &values["Phi_deg"]);
+    sscanf(line.c_str(),"# Chi %f deg.", &values["Chi_deg"]);
+  }
+//  for (map<string,float>::const_iterator it(values.begin()); it != values.end(); ++it)
+//    cout << it->first << " = " << it->second<<endl;
+
+  return values;
+}
 
 int main(int argc, char *argv[])
 {
@@ -51,6 +87,7 @@ int main(int argc, char *argv[])
     std::pair<int,int> shape;
     std::string head;
     cass::CBF::read(filename, head, matrix, shape);
+    std::map<std::string,float> headervals(parseCBFHeader(head));
 
     /** write the h5 file */
     QString outfilename = QString::fromStdString(outfile);
@@ -69,6 +106,8 @@ int main(int argc, char *argv[])
     hdf5::Handler h5handle(outfilename.toStdString(),"w");
     h5handle.writeMatrix(matrix,shape,key,0);
     h5handle.writeString(head,"cbf_header");
+    for (std::map<std::string,float>::const_iterator it(headervals.begin()); it != headervals.end(); ++it)
+      h5handle.writeScalar(it->second, std::string("cbf_header_vals/" + it->first));
   }
   /** convert from h5 to cbf */
   else if (QFileInfo(fname).suffix() == "h5")
