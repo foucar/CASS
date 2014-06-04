@@ -169,6 +169,23 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
     switch (version)
     {
+    case (5):
+    {
+      if(!(Pds::BldDataEBeam::EbeamXTCAVAmplDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamXTCAVAmpl"]= beam.fEbeamXTCAVAmpl;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamXTCAVAmpl' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamXTCAVPhaseDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamXTCAVPhase"]= beam.fEbeamXTCAVPhase;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamXTCAVPhase' is damaged");
+
+      if(!(Pds::BldDataEBeam::EbeamDumpChargeDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamDumpCharge"]= beam.fEbeamDumpCharge;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamDumpCharge' is damaged");
+    }
     case (4):
     {
       if(!(Pds::BldDataEBeam::EbeamUndPosXDamage & beam.uDamageMask))
@@ -251,7 +268,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       break;
     }
     default:
-      Log::add(Log::VERBOSEINFO,"Unknown BLD version");
+      Log::add(Log::ERROR,"Unknown BLD version");
       break;
     }
     break;

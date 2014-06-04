@@ -191,8 +191,53 @@ public:
     int print() const;    
 };
 
+class BldDataEBeamV5
+{
+public:
+  enum { Version = 5 /**< XTC type version number */ };
 
-typedef BldDataEBeamV4 BldDataEBeam;
+  /** Constants defining bit mask for individual damage bits in value returned from damageMask() */
+  enum DamageMask {
+    EbeamChargeDamage = 0x001,
+    EbeamL3EnergyDamage = 0x002,
+    EbeamLTUPosXDamage = 0x004,
+    EbeamLTUPosYDamage = 0x008,
+    EbeamLTUAngXDamage = 0x010,
+    EbeamLTUAngYDamage = 0x020,
+    EbeamPkCurrBC2Damage = 0x040,
+    EbeamEnergyBC2Damage = 0x080,
+    EbeamPkCurrBC1Damage = 0x100,
+    EbeamEnergyBC1Damage = 0x200,
+    EbeamUndPosXDamage = 0x400,
+    EbeamUndPosYDamage = 0x800,
+    EbeamUndAngXDamage = 0x1000,
+    EbeamUndAngYDamage = 0x2000,
+    EbeamXTCAVAmplDamage = 0x4000,
+    EbeamXTCAVPhaseDamage = 0x8000,
+    EbeamDumpChargeDamage = 0x10000,
+  };
+
+  uint32_t  uDamageMask;   /**< Damage mask. */
+  double  fEbeamCharge;    /**< Beam charge in nC. */
+  double  fEbeamL3Energy;  /**< Beam energy in MeV. */
+  double  fEbeamLTUPosX;   /**< LTU beam position (BPMS:LTU1:720 through 750) in mm. */
+  double  fEbeamLTUPosY;   /**< LTU beam position in mm. */
+  double  fEbeamLTUAngX;   /**< LTU beam angle in mrad. */
+  double  fEbeamLTUAngY;   /**< LTU beam angle in mrad. */
+  double  fEbeamPkCurrBC2; /**< Beam current in Amps. */
+  double  fEbeamEnergyBC2; /**< Beam position in mm (related to beam energy). */
+  double  fEbeamPkCurrBC1; /**< Beam current in Amps. */
+  double  fEbeamEnergyBC1; /**< Beam position in mm (related to beam energy). */
+  double  fEbeamUndPosX;   /**< Undulator launch feedback (BPMs U4 through U10) beam x-position in mm. */
+  double  fEbeamUndPosY;   /**< Undulator launch feedback beam y-position in mm. */
+  double  fEbeamUndAngX;   /**< Undulator launch feedback beam x-angle in mrad. */
+  double  fEbeamUndAngY;   /**< Undulator launch feedback beam y-angle in mrad. */
+  double  fEbeamXTCAVAmpl; /**< XTCAV Amplitude in MVolt. */
+  double  fEbeamXTCAVPhase;/**< XTCAV Phase in degrees. */
+  double  fEbeamDumpCharge;/**< Bunch charge at Dump in num. electrons */
+};
+
+typedef BldDataEBeamV5 BldDataEBeam;
 
 class BldDataPhaseCavity
 {
@@ -282,6 +327,17 @@ public:
   int print() const;
 };
 
+class BldDataGMDV2
+{
+public:
+  enum { Version = 2 /**< XTC type version number */ };
+  double  fMilliJoulesPerPulse;  /**< Shot to shot pulse energy (mJ) */
+  double  fMilliJoulesAverage;   /**< Average pulse energy from ION cup current (mJ) */
+  double  fSumAllPeaksFiltBkgd;  /**< Sum of all peaks, normalized w/ filt bkgd level */
+  double  fRawAvgBkgd;   /**< Avg background value per waveform in raw A/D counts */
+  double  fRelativeEnergyPerPulse;       /**< Shot by shot pulse energy in arbitrary units */
+  double  fSumAllPeaksRawBkgd;   /**< Sum of all peaks, normalized w/ raw avg bkgd level */
+};
 
 typedef BldDataGMDV1 BldDataGMD;
 
