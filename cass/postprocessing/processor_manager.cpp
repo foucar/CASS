@@ -442,6 +442,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case AcqirisWaveform:
     processor = PostProcessor::shared_pointer(new pp110(key));
     break;
+  case CFDTraceFromWaveform:
+    processor = PostProcessor::shared_pointer(new pp111(key));
+    break;
   case BlData:
     processor = PostProcessor::shared_pointer(new pp120(key));
     break;

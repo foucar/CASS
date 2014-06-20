@@ -98,3 +98,68 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                  bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
   result.nbrOfFills()=1;
 }
+
+
+
+
+// ***cfd trace from waveform
+
+pp111::pp111(const name_t &name)
+  :PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp111::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  _waveform = setupDependency("Waveform");
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  if (_waveform->result().dimension() != 1)
+    throw invalid_argument("pp111 '" + name() + "' histogram '" + _waveform->name() +
+                           "' is not a 1D histogram");
+
+  _fraction = s.value("Fraction",0.6).toFloat();
+  _walk = s.value("Walk_V",0).toFloat();
+  const float delay(s.value("Delay_ns",5).toFloat());
+  const size_t nBins(_waveform->result().axis()[Histogram1DFloat::xAxis].nbrBins());
+  const float Up(_waveform->result().axis()[Histogram1DFloat::xAxis].upperLimit());
+  const float samplInter(Up/nBins);
+  _delay = static_cast<size_t>(delay/samplInter);
+
+  createHistList(_waveform->result().copy_sptr());
+
+  Log::add(Log::INFO,"PostProcessor '" + name() + "' is converting waveform '" +
+           _waveform->name() + "' to a CFD Trace using delay '" + toString(delay) +
+           "', Fraction '" + toString(_fraction) + "', Walk '" + toString(_walk) +
+           "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp111::process(const CASSEvent &evt, HistogramBackend &res)
+{
+  const Histogram1DFloat& waveform
+      (dynamic_cast<const Histogram1DFloat&>(_waveform->result(evt.id())));
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+
+  QReadLocker lock(&waveform.lock);
+
+  const Histogram1DFloat::storage_t &Data(waveform.memory());
+  Histogram1DFloat::storage_t &CFDTrace(result.memory());
+
+  const size_t wLength(waveform.size());
+  /** set all points before the delay to 0 */
+  fill(CFDTrace.begin(),CFDTrace.begin()+_delay,0);
+  for (size_t i=_delay; i<wLength; ++i)
+  {
+    const float fx  = Data[i];            //the original Point at i
+    const float fxd = Data[i-_delay];      //the delayed Point  at i
+    const float fsx = -fx*_fraction + fxd; //the calculated CFPoint at i
+    CFDTrace[i] = fsx - _walk;
+  }
+
+  result.nbrOfFills()=1;
+}

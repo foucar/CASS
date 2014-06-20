@@ -65,6 +65,53 @@ protected:
   /** the sample interval */
   double _sampleInterval;
 };
+
+
+
+/** cfd trace from waveform
+ *
+ * @PPList "111": convert wavefrom to cfd trace
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Waveform} \n
+ *           The name of the PostProcessor containing the waveform that should
+ *           be converted. Default is 'Unknown'
+ * @cassttng PostProcessor/\%name\%/{Delay_ns}\n
+ *           Delay in ns used. Default is 5.
+ * @cassttng PostProcessor/\%name\%/{Fraction}\n
+ *           Fraction used. Default is 0.6
+ * @cassttng PostProcessor/\%name\%/{Walk_V}\n
+ *           walk in V used. Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp111 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp111(const name_t &name);
+
+  /** copy the last waveform from the channel*/
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** the PostProcessor that contains the waveform to convert */
+  shared_pointer _waveform;
+
+  /** the delay in bins */
+  size_t _delay;
+
+  /** the fraction */
+  float _fraction;
+
+  /** the walk in volts */
+  float _walk;
+};
 }
 
 #endif

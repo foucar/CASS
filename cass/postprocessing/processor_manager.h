@@ -130,6 +130,7 @@ the Class description for information about what parameters are user settable.
 
 ## Waveform and detectors recorded via waveform
 00110: Acqiris Waveform
+00111: CFD Trace from Acqiris Waveform
 
 00150: TofDetector number of signals in MCP waveform
 00151: TofDetector all signals
@@ -421,6 +422,7 @@ public:
     RAWPixeldetectorFrame=109,
 
     AcqirisWaveform=110,
+    CFDTraceFromWaveform=111,
     BlData=120,
     EvrCode=121,
     EventID=122,
