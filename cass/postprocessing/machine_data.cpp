@@ -118,10 +118,15 @@ pp122::pp122(const name_t &name)
 
 void pp122::loadSettings(size_t)
 {
-  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(name().c_str());
+
   setupGeneral();
   if (!setupCondition())
     return;
+  _part = s.value("EventIDPart",0).toInt();
+
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
   Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve the event ID from events. Condition is '" +
@@ -131,7 +136,12 @@ void pp122::loadSettings(size_t)
 void pp122::process(const CASSEvent& evt, HistogramBackend &res)
 {
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result = evt.id();
+  if (_part == lower)
+    result = evt.id() & 0x00000000FFFFFFFF;
+  if (_part == upper)
+    result = (evt.id() & 0xFFFFFFFF00000000) >> 32;
+  else
+    result = evt.id();
 }
 
 

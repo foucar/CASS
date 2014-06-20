@@ -147,6 +147,15 @@ protected:
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
+ * @cassttng PostProcessor/\%name\%/{EventIDPart}
+ *           The part of the event id that is of interest.
+ *           The event id is a 64 bit value, but PostProcessors can only return
+ *           a float (32 bit) value. Therefore this allows to retrieve either the
+ *           upper or lower 32 bit of the 64 bit variable.
+ *           Default is 0, possible values are:
+ *           - 0: Unambiguous. historically the default, don't use.
+ *           - 1: the lower 32 bits of the id
+ *           - 2: the upper 32 bits of the id.
  * @author Lutz Foucar
  */
 class pp122 : public PostProcessor
@@ -160,6 +169,13 @@ public:
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
+
+private:
+  /** define the part name */
+  enum {both, lower, upper};
+
+  /** which part of the eventid should be retrieved */
+  int _part;
 };
 
 
