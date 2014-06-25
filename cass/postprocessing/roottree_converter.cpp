@@ -60,7 +60,7 @@ typedef list<particleskey_t> particleslist_t;
  *
  * @author Lutz Foucar
  */
-void loadAllDets()
+int loadAllDets()
 {
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
@@ -68,6 +68,7 @@ void loadAllDets()
   QStringList::const_iterator detName(detectorNamesList.begin());
   for (; detName != detectorNamesList.end(); ++detName)
     HelperAcqirisDetectors::instance(detName->toStdString())->loadSettings();
+  return detectorNamesList.size();
 }
 
 /** check whether the key points to a delayline detector
@@ -207,9 +208,13 @@ void pp2001::loadSettings(size_t)
   }
   if (!setupCondition())
     return;
-  loadAllDets();
+  size_t nDetsLoaded(loadAllDets());
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
+  if (_detectors.size() > nDetsLoaded)
+    throw invalid_argument("pp2001::loadSettings: '" + name() +
+                           "' not all of the requested delayline detectors "+
+                           "seem to be defined in the ini file.");
   transform(detectors.begin(),detectors.end(),_detectors.begin(),qstring2detector);
   QStringList particles(settings.value("Particles").toStringList());
   _particles.resize(particles.size());
