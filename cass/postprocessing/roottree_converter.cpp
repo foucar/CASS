@@ -60,7 +60,7 @@ typedef list<particleskey_t> particleslist_t;
  *
  * @author Lutz Foucar
  */
-int loadAllDets()
+void loadAllDets()
 {
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
@@ -68,7 +68,6 @@ int loadAllDets()
   QStringList::const_iterator detName(detectorNamesList.begin());
   for (; detName != detectorNamesList.end(); ++detName)
     HelperAcqirisDetectors::instance(detName->toStdString())->loadSettings();
-  return detectorNamesList.size();
 }
 
 /** check whether the key points to a delayline detector
@@ -88,7 +87,8 @@ bool isDLD(const detectorkey_t &detkey)
  *
  * will convert the requested delayline detector described in the qstring to the
  * delayline detector key. Before returning the key, check whether the requested
- * detector is realy a delayline detector. Then load the settings of the detector
+ * detector is realy a delayline detector and whether it is defined in the ini
+ * file.
  *
  * @return the key to the requested detector
  * @param qstr the QString to convert to the key
@@ -101,6 +101,12 @@ detectorkey_t qstring2detector(const QString & qstr)
   if (!isDLD(dld))
     throw invalid_argument("pp2001::loadSettings(): Error detector '" + dld +
                             "' is not a Delaylinedetector.");
+  CASSSettings s;
+  s.beginGroup("AcqirisDetectors");
+  QStringList detectorNamesList(s.childGroups());
+  if (!detectorNamesList.contains(qstr))
+    throw invalid_argument("pp2001::loadSettings(): Error detector '" + dld +
+                            "' is not defined.");
   return dld;
 }
 
@@ -208,13 +214,9 @@ void pp2001::loadSettings(size_t)
   }
   if (!setupCondition())
     return;
-  size_t nDetsLoaded(loadAllDets());
+  loadAllDets();
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
-  if (_detectors.size() > nDetsLoaded)
-    throw invalid_argument("pp2001::loadSettings: '" + name() +
-                           "' not all of the requested delayline detectors "+
-                           "seem to be defined in the ini file.");
   transform(detectors.begin(),detectors.end(),_detectors.begin(),qstring2detector);
   QStringList particles(settings.value("Particles").toStringList());
   _particles.resize(particles.size());
