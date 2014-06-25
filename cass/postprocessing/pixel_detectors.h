@@ -133,7 +133,7 @@ protected:
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng PostProcessor/\%name\%/{CASSID}\n
  *           The CASS ID of the detector device that one wants to extract. One
  *           can set up which CASS ID the detector has in the converter part.
  * @cassttng PostProcessor/\%name\%/{nRows}\n
