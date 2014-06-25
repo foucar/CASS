@@ -206,8 +206,9 @@ void pp109::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(cols,rows)));
   Log::add(Log::INFO,"Postprocessor '" + name() +
-           "' will display the raw frame of detector '" + toString(_detector) +
-           "'. It will use condition '" + _condition->name() +"'");
+           "' will display the raw frame of detector with CASSID '" +
+           toString(_detector) + "' which has shape '" + toString(cols) + "'x'" +
+           toString(rows) + "'. It will use condition '" + _condition->name() +"'");
 }
 
 void pp109::process(const CASSEvent& evt, HistogramBackend &res)

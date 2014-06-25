@@ -571,11 +571,12 @@ void CommonData::loadSettings(CASSSettings &s)
     shape_t shape(Frame::shapeFromName(detectorname));
     if (!shape.first || !shape.second)
     {
-      Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: Cannot deduce ") +
-               "the frame size from detectorname '" + detectorname +
-               "' read it from the settings file.");
       columns = s.value("nColumns",1024).toUInt();
       rows = s.value("nRows",1024).toUInt();
+      Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: Cannot deduce ") +
+               "the frame size from detectorname '" + detectorname +
+               "'. Use values from the settings file '" + toString(columns) +
+               "'x'" + toString(rows) + "'.");
     }
     else
     {
