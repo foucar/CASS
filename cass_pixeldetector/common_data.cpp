@@ -569,20 +569,11 @@ void CommonData::loadSettings(CASSSettings &s)
      *  deduced read it from the settings file and resize the maps accordingly.
      */
     shape_t shape(Frame::shapeFromName(detectorname));
-    if (!shape.first || !shape.second)
-    {
-      columns = s.value("nColumns",1024).toUInt();
-      rows = s.value("nRows",1024).toUInt();
-      Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: Cannot deduce ") +
-               "the frame size from detectorname '" + detectorname +
-               "'. Use values from the settings file '" + toString(columns) +
-               "'x'" + toString(rows) + "'.");
-    }
-    else
-    {
-      columns = shape.first;
-      rows = shape.second;
-    }
+    columns = s.value("nColumns",static_cast<unsigned>(shape.first)).toUInt();
+    rows = s.value("nRows",static_cast<unsigned>(shape.second)).toUInt();
+    Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: ") +
+             "The shape of detector '" + detectorname + "' is set to '" +
+             toString(columns) + "'x'" + toString(rows) + "'.");
     offsetMap.resize(columns*rows, 0);
     noiseMap.resize(columns*rows, 4000);
     mask.resize(columns*rows, 1);
