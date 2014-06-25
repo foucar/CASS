@@ -25,18 +25,33 @@ namespace Pds
     
 #pragma pack(4)
 
-class BldDataFEEGasDetEnergy
+class BldDataFEEGasDetEnergyV0
 {
     // PV names: GDET:FEE1:11:ENRC,GDET:FEE1:12:ENRC,GDET:FEE1:21:ENRC,GDET:FEE1:22:ENRC
 public:
   enum { version=0 };
-    double f_11_ENRC;   /* in mJ */ 
-    double f_12_ENRC;   /* in mJ */ 
+    double f_11_ENRC;   /* in mJ */
+    double f_12_ENRC;   /* in mJ */
     double f_21_ENRC;   /* in mJ */
     double f_22_ENRC;   /* in mJ */
-    
+
     int print() const;
 };
+
+
+class BldDataFEEGasDetEnergyV1
+{
+public:
+  enum { version=1 };
+  double	f_11_ENRC;	/**< Value of GDET:FEE1:241:ENRC, in mJ. */
+  double	f_12_ENRC;	/**< Value of GDET:FEE1:242:ENRC, in mJ. */
+  double	f_21_ENRC;	/**< Value of GDET:FEE1:361:ENRC, in mJ. */
+  double	f_22_ENRC;	/**< Value of GDET:FEE1:362:ENRC, in mJ. */
+  double	f_63_ENRC;	/**< Value of GDET:FEE1:363:ENRC, in mJ. */
+  double	f_64_ENRC;	/**< Value of GDET:FEE1:364:ENRC, in mJ. */
+};
+
+typedef BldDataFEEGasDetEnergyV1 BldDataFEEGasDetEnergy;
 
 class BldDataEBeamV0
 {

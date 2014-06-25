@@ -152,13 +152,24 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_FEEGasDetEnergy):
   {
+    uint32_t version (xtc->contains.version());
     const Pds::BldDataFEEGasDetEnergy &gasdet =
         *reinterpret_cast<const Pds::BldDataFEEGasDetEnergy*>(xtc->payload());
-    md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
-    md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
-    md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
-    md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
-    break;
+    switch (version)
+    {
+    case(1):
+      md->BeamlineData()["f_63_ENRC"] = gasdet.f_63_ENRC;
+      md->BeamlineData()["f_64_ENRC"] = gasdet.f_64_ENRC;
+    case(0):
+      md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
+      md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
+      md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
+      md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
+      break;
+    default:
+      Log::add(Log::ERROR,"Unknown FEEGasDet version");
+      break;
+    }
   }
 
 

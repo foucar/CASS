@@ -4,7 +4,7 @@
 
 using namespace Pds;
 
-int BldDataFEEGasDetEnergy::print() const
+int BldDataFEEGasDetEnergyV0::print() const
 {    
     printf("GDET:FEE:11:ENRC ( in mJ ): %lf\n", f_11_ENRC );    
     printf("GDET:FEE:12:ENRC ( in mJ ): %lf\n", f_12_ENRC );
