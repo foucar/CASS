@@ -29,24 +29,24 @@ void StatusLED::setStatus(int status)
   switch(status)
   {
   case ok:
-    qDebug()<<"LED Status ok";
+    //qDebug()<<"LED Status ok";
     _offTimer.start();
     setColor(Qt::green);
     setState(true);
     break;
   case fail:
-    qDebug()<<"LED Status fail";
+    //qDebug()<<"LED Status fail";
     _offTimer.start();
     setColor(Qt::red);
     setState(true);
     break;
   case off:
-    qDebug()<<"LED Status off";
+    //qDebug()<<"LED Status off";
     setColor(Qt::black);
     setState(false);
     break;
   case busy:
-    qDebug()<<"LED Status busy";
+    //qDebug()<<"LED Status busy";
     setColor(QColor("#b0b000"));
     setState(true);
     break;

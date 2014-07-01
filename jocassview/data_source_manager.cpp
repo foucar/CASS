@@ -32,7 +32,7 @@ DataSourceManager* DataSourceManager::instance()
 {
   if(!_instance)
   {
-    qDebug()<<"create instance";
+    //qDebug()<<"create instance";
     _instance = new DataSourceManager();
   }
   return _instance;
@@ -40,7 +40,7 @@ DataSourceManager* DataSourceManager::instance()
 
 DataSource* DataSourceManager::source(const QString &sourcename)
 {
-  qDebug()<<"get source"<<sourcename<<currentSourceName();
+  //qDebug()<<"get source"<<sourcename<<currentSourceName();
   if (sourcename.isEmpty())
     return instance()->_sources[currentSourceName()];
   else if(!instance()->_sources.contains(sourcename))
@@ -53,7 +53,7 @@ QString DataSourceManager::currentSourceName()
   QString name;
   if (instance()->_actionGroup && instance()->_actionGroup->checkedAction())
     name = instance()->_actionGroup->checkedAction()->text();
-  qDebug()<<"current source name "<<name;
+  //qDebug()<<"current source name "<<name;
   return name;
 }
 
@@ -64,7 +64,7 @@ QStringList DataSourceManager::sourceNames()
 
 void DataSourceManager::setMenu(QMenu *menu)
 {
-  qDebug()<<"add menu";
+  //qDebug()<<"add menu";
   instance()->_sourceMenu = menu;
   instance()->_actionGroup = new QActionGroup(menu);
   instance()->_mapper = new QSignalMapper(menu);
@@ -74,7 +74,7 @@ void DataSourceManager::setMenu(QMenu *menu)
 void DataSourceManager::addSource(const QString &sourcename, DataSource *source,
                                   bool setActive)
 {
-  qDebug()<<"add Source"<< sourcename<<source;
+  //qDebug()<<"add Source"<< sourcename<<source;
   instance()->_sources[sourcename] = source;
   QAction *act(instance()->_sourceMenu->addAction(sourcename));
   act->setCheckable(true);

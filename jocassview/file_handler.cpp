@@ -295,7 +295,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
      *  request one from the user
      */
     QString key(keyname);
-    qDebug()<<"loadDatafromH5"<<key<<key.isEmpty()<<(key =="")<< !items.contains(key);
+    //qDebug()<<"loadDatafromH5"<<key<<key.isEmpty()<<(key =="")<< !items.contains(key);
     if (key == "" || key.isEmpty() || !items.contains(key))
     {
       bool ok(false);
@@ -368,7 +368,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
     case (3):
     {
       QString text(QString::fromStdString(h5handle.readString(key.toStdString())));
-      qDebug()<<text;
+      //qDebug()<<text;
       QMessageBox::information(0,key,text);
       break;
     }
@@ -492,7 +492,7 @@ cass::HistogramBackend* FileHandler::loadDataFromCBF()
       center.second = crow.toDouble();
     }
   } while(!line.isNull());
-  qDebug() << center.first<<center.second;
+  //qDebug() << center.first<<center.second;
 
   double xmin = -center.first;
   double xmax = shape.first - center.first;

@@ -332,7 +332,7 @@ double JoCASSViewer::rate() const
 
 void JoCASSViewer::changeAutoUpdate()
 {
-  qDebug()<<"changeAutoUpdate: "<<interval()<<_autoUpdate->isChecked();
+  //qDebug()<<"changeAutoUpdate: "<<interval()<<_autoUpdate->isChecked();
   _updateTimer.setInterval(interval());
   if(_autoUpdate->isChecked())
     _updateTimer.start();
@@ -358,7 +358,7 @@ void JoCASSViewer::updateViewers()
   if (_viewers.isEmpty())
     return;
 
-  qDebug()<<"update viewers";
+  //qDebug()<<"update viewers";
   _updateInProgress = true;
   _statusLED->setStatus(StatusLED::busy);
   bool sucess(true);
@@ -405,7 +405,7 @@ void JoCASSViewer::updateViewers()
        */
       if (!result)
       {
-        qDebug()<<"result is empty "<<view.key();
+        //qDebug()<<"result is empty "<<view.key();
         setDisplayedItem(view.key(),false,false);
         _viewers.remove(view.key());
         break;
@@ -426,7 +426,7 @@ void JoCASSViewer::updateViewers()
       /** otherwise retrieve all the data containers from a viewer and update
        *  them with the latest data
        */
-      qDebug()<<"update existing viewer"<<view.key();
+      //qDebug()<<"update existing viewer"<<view.key();
       QList<Data*> data(view.value()->data());
       const int nbrData(data.size());
       QList<Data*>::iterator dataIt(data.begin());
@@ -437,18 +437,19 @@ void JoCASSViewer::updateViewers()
         DataSource *source(DataSourceManager::source(sourceName));
         if(!source)
         {
-          qDebug()<<"source doesnt exist"<<sourceName;
+          //qDebug()<<"source doesnt exist"<<sourceName;
           continue;
         }
         /** validate result to update */
         if (!(*dataIt)->result())
         {
-          qDebug()<<"result is empty"<<sourceName;
+          //qDebug()<<"result is empty"<<sourceName;
           continue;
         }
         const QString key(QString::fromStdString((*dataIt)->result()->key()));
         HistogramBackend * result(source->result(key,eventID));
         /** validate container consistency */
+        //qDebug()<<"validate viewer conistency"<<nbrWindows<<_viewers.size();
         if(_viewers.size() != nbrWindows || data.size() != nbrData)
         {
           sucess = false;
@@ -457,6 +458,8 @@ void JoCASSViewer::updateViewers()
         (*dataIt)->setResult(result);
         ++dataIt;
       }
+      if (sucess == false)
+        break;
     }
     /** tell the viewer the data has changed */
     view.value()->dataChanged();
@@ -516,7 +519,7 @@ void JoCASSViewer::removeViewer(DataViewer *obj)
 
 void JoCASSViewer::refreshDisplayableItemsList()
 {
-  qDebug()<<"on_refresh_list_triggered";
+  //qDebug()<<"on_refresh_list_triggered";
   DataSource *source(DataSourceManager::source());
   if (!source)
     return;
@@ -582,7 +585,7 @@ void JoCASSViewer::print()
 
 void JoCASSViewer::on_source_changed(QString newSource)
 {
-  qDebug()<<"new source"<<newSource;
+  //qDebug()<<"new source"<<newSource;
   _serverToolBar->setVisible(newSource == "Server");
   refreshDisplayableItemsList();
   QString sourceDisplayName(newSource == "Server" ?
@@ -656,7 +659,7 @@ void JoCASSViewer::clearHistogram()const
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
                                        cass::HistogramBackend *hist)
 {
-  qDebug()<<"create viewer"<<view.key()<<hist->dimension();
+  //qDebug()<<"create viewer"<<view.key()<<hist->dimension();
   switch (hist->dimension())
   {
   case 0:
