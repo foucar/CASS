@@ -110,6 +110,10 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
+
+  // set the original flag
+  _isOriginalData = true;
+  _origHist = 0;
 }
 
 TwoDViewer::~TwoDViewer()
@@ -138,26 +142,35 @@ void TwoDViewer::saveData(const QString &filename)
 
 void TwoDViewer::dataChanged()
 {
+  /** if the data is original, save the original histogram */
+  if (_isOriginalData)
+  {
+    Histogram2DFloat * hist(dynamic_cast<Histogram2DFloat*>(data().front()->result()));
+    delete _origHist;
+    _origHist = dynamic_cast<Histogram2DFloat*>(hist->copyclone());
+  }
+
+  /** reset flag */
+  _isOriginalData = true;
+
   /** check if the user wants to convert cheetah layout to lab frame */
   if (!_geomFile.isEmpty())
   {
-    Histogram2DFloat * hist(dynamic_cast<Histogram2DFloat*>(data().front()->result()));
-//    _origHist = dynamic_cast<Histogram2DFloat*>(hist->copyclone());
-
+    /** generate the lookup table from the geomfile */
     GeometryInfo::lookupTable_t lut =
         GeometryInfo::generateLookupTable(_geomFile.toStdString(),
-                                          hist->memory().size(),
-                                          hist->axis()[HistogramBackend::xAxis].size(),
+                                          _origHist->memory().size(),
+                                          _origHist->axis()[HistogramBackend::xAxis].size(),
                                           false);
 
     Histogram2DFloat *labHist(
           new Histogram2DFloat(lut.nCols,lut.min.x,lut.max.x,
                                lut.nRows,lut.min.y,lut.max.y, "cols", "rows"));
-    labHist->key() = hist->key();
+    labHist->key() = _origHist->key();
     Histogram2DFloat::storage_t& destImage(labHist->memory());
 
-    Histogram2DFloat::storage_t::const_iterator srcpixel(hist->memory().begin());
-    Histogram2DFloat::storage_t::const_iterator srcImageEnd(hist->memory().end()-8);
+    Histogram2DFloat::storage_t::const_iterator srcpixel(_origHist->memory().begin());
+    Histogram2DFloat::storage_t::const_iterator srcImageEnd(_origHist->memory().end()-8);
 
     std::vector<size_t>::const_iterator idx(lut.lut.begin());
 
@@ -165,6 +178,10 @@ void TwoDViewer::dataChanged()
       destImage[*idx] = *srcpixel;
 
     data().front()->setResult(labHist);
+  }
+  else
+  {
+    data().front()->setResult(_origHist->copyclone());
   }
 
   /** check if the data is different (the bounding box changed) in which case we
@@ -298,6 +315,7 @@ void TwoDViewer::on_load_geomfile_triggered()
   settings.setValue("CameraDistance_cm",cameraDistance_cm);
   settings.setValue("PixelSize_um",pixelsize_um);
 
+  _isOriginalData = false;
   dataChanged();
 }
 

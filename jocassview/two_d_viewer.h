@@ -127,6 +127,9 @@ private:
 
   /** the original histogram */
   cass::Histogram2DFloat *_origHist;
+
+  /** flag to tell whether the data is the original data */
+  bool _isOriginalData;
 };
 }//end namespace jocassview
 
