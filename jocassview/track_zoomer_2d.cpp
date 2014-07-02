@@ -8,6 +8,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QPoint>
 
+#include <QtGui/QStatusBar>
+
 #include "track_zoomer_2d.h"
 
 #include "two_d_viewer_data.h"
@@ -16,7 +18,8 @@ using namespace jocassview;
 
 TrackZoomer2D::TrackZoomer2D(QWidget *canvas)
   : ScrollZoomer(canvas),
-    _data(0)
+    _data(0),
+    _statusbar(0)
 {
   setTrackerMode(AlwaysOn);
 }
@@ -43,6 +46,8 @@ QwtText TrackZoomer2D::trackerTextF(const QPointF &pos) const
     }
   }
 
+  if (_statusbar)
+    _statusbar->showMessage(text_string);
 
   QColor bg(Qt::white);
   bg.setAlpha(200);
@@ -71,4 +76,9 @@ void TrackZoomer2D::setCameraDistance_cm(double cameradistance_cm)
 void TrackZoomer2D::setPixelSize_um(double pixelsize_um)
 {
   _pixelsize_um = pixelsize_um;
+}
+
+void TrackZoomer2D::setStatusBar(QStatusBar *statusbar)
+{
+  _statusbar = statusbar;
 }

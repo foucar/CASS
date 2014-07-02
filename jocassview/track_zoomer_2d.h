@@ -12,6 +12,7 @@
 #include "qwt_scroll_zoomer.h"
 
 class QPoint;
+class QStatusBar;
 
 namespace jocassview
 {
@@ -66,6 +67,12 @@ public:
    */
   void setPixelSize_um(double pixelsize_um);
 
+  /** set the statusbar pointer
+   *
+   * @param statusbar pointer to the statusbar to put the text to
+   */
+  void setStatusBar(QStatusBar *statusbar);
+
 private:
   /** the data */
   TwoDViewerData * _data;
@@ -78,6 +85,9 @@ private:
 
   /** the pixel size in micro meters (for resolution determination) */
   double _pixelsize_um;
+
+  /** pointer to the statusbar to put the text to */
+  QStatusBar *_statusbar;
 };
 
 }//end namespace jocassview

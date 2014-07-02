@@ -70,6 +70,7 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   _zoomer->setWavelength_A(settings.value("Wavelength_A",0).toDouble());
   _zoomer->setCameraDistance_cm(settings.value("CameraDistance_cm",0).toDouble());
   _zoomer->setPixelSize_um(settings.value("PixelSize_um",0).toDouble());
+  //_zoomer->setStatusBar(statusBar());
 
   setCentralWidget(_plot);
 
