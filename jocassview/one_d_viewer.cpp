@@ -433,5 +433,13 @@ void OneDViewer::on_add_graph_triggered()
 void OneDViewer::on_grid_triggered()
 {
   _gridLines = (_gridLines+1) & 0xF;
+  while (_gridLines == 4 ||
+         _gridLines == 6 ||
+         _gridLines == 8 ||
+         _gridLines == 9 ||
+         _gridLines == 12 ||
+         _gridLines == 13 ||
+         _gridLines == 14)
+    _gridLines = (_gridLines+1) & 0xF;
   replot();
 }
