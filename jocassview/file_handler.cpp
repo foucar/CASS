@@ -87,7 +87,7 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
   else if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
            fileInfo.suffix().toUpper() == QString("hdf5").toUpper() )
   {
-    instance.saveDataToH5(filename,data,"rw");
+    instance.saveDataToH5(filename,data,"w");
   }
   else if (fileInfo.suffix().toUpper() == QString("cbf").toUpper())
   {
