@@ -101,7 +101,7 @@ private:
   mutable size_t _transferredBytes;
 
   /** the interface to cass */
-  CASSsoapProxy *_client;
+  //CASSsoapProxy *_client;
 
   /** the server string
    *

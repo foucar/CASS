@@ -25,21 +25,24 @@ using namespace jocassview;
 using namespace std;
 
 TCPClient::TCPClient()
-  : _transferredBytes(0),
-    _client(new CASSsoapProxy)
+  : _transferredBytes(0)//,
+//    _client(new CASSsoapProxy)
 {
 
 }
 
 TCPClient::~TCPClient()
 {
-  delete _client;
+//  delete _client;
 }
 
 cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 id)
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getHistogram,
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::getHistogram,
                                           histogramkey.toStdString(), id, &ret);
   while (future.isRunning())
   {
@@ -48,8 +51,8 @@ cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 i
   }
   if( (future.result() != SOAP_OK) || !ret)
     return 0;
-  soap_multipart::iterator attachment(_client->dime.begin());
-  if(_client->dime.end() == attachment)
+  soap_multipart::iterator attachment(client.dime.begin());
+  if(client.dime.end() == attachment)
     return 0;
   _transferredBytes += (*attachment).size;
   string mimeType((*attachment).type);
@@ -66,8 +69,11 @@ cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 i
 
 QStringList TCPClient::resultNames()
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(true);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::getPostprocessorIds, &ret);
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::getPostprocessorIds, &ret);
   while (future.isRunning())
   {
     QCoreApplication::processEvents(QEventLoop::AllEvents);
@@ -80,8 +86,8 @@ QStringList TCPClient::resultNames()
                              QString::fromStdString(_server)+ tr("' possible."));
     return QStringList();
   }
-  soap_multipart::iterator attachment (_client->dime.begin());
-  if(_client->dime.end() == attachment)
+  soap_multipart::iterator attachment (client.dime.begin());
+  if(client.dime.end() == attachment)
   {
     QMessageBox::information(0, tr("TcpClient"),
                              tr("Error resultNames: Server '")+
@@ -112,8 +118,11 @@ size_t TCPClient::receivedBytes()const
 
 void TCPClient::reloadIni() const
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::readini,0,&ret);
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::readini,0,&ret);
   while (future.isRunning())
   {
     QCoreApplication::processEvents(QEventLoop::AllEvents);
@@ -126,8 +135,11 @@ void TCPClient::reloadIni() const
 
 void TCPClient::broadcastCommand(const QString &command) const
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::controlDarkcal,
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::controlDarkcal,
                                           command.toStdString(), &ret);
   while (future.isRunning())
   {
@@ -141,8 +153,11 @@ void TCPClient::broadcastCommand(const QString &command) const
 
 void TCPClient::sendCommandTo(const QString &key, const QString &command) const
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::receiveCommand,
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::receiveCommand,
                                           key.toStdString(), command.toStdString(),
                                           &ret);
   while (future.isRunning())
@@ -159,13 +174,15 @@ void TCPClient::sendCommandTo(const QString &key, const QString &command) const
 void TCPClient::setServer(const QString &serverstring)
 {
   _server = serverstring.toStdString();
-  _client->soap_endpoint = _server.c_str();
 }
 
 void TCPClient::quitServer() const
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::quit, &ret);
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::quit, &ret);
   while (future.isRunning())
   {
     QCoreApplication::processEvents(QEventLoop::AllEvents);
@@ -178,8 +195,11 @@ void TCPClient::quitServer() const
 
 void TCPClient::clearHistogram(QString key) const
 {
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+
   bool ret(false);
-  QFuture<int> future = QtConcurrent::run(_client,&CASSsoapProxy::clearHistogram, key.toStdString(), &ret);
+  QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::clearHistogram, key.toStdString(), &ret);
   while (future.isRunning())
   {
     QCoreApplication::processEvents(QEventLoop::AllEvents);
