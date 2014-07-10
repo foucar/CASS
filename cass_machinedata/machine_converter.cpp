@@ -180,6 +180,24 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
     switch (version)
     {
+    case (6):
+    {
+      if(!(Pds::BldDataEBeam::EbeamPhotonEnergyDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamPhotonEnergy"]= beam.fEbeamPhotonEnergy;
+      else
+        Log::add(Log::VERBOSEINFO,"'EbeamPhotonEnergy' is damaged");
+
+//      if(!(Pds::BldDataEBeam::EbeamXTCAVPhaseDamage & beam.uDamageMask))
+        md->BeamlineData()["fEbeamLTU250"]= beam.fEbeamLTU250;
+//      else
+//        Log::add(Log::VERBOSEINFO,"'EbeamXTCAVPhase' is damaged");
+
+//      if(!(Pds::BldDataEBeam::EbeamDumpChargeDamage & beam.uDamageMask))
+        md->BeamlineData()["EbeamLTU450"]= beam.fEbeamLTU450;
+//      else
+//        Log::add(Log::VERBOSEINFO,"'EbeamDumpCharge' is damaged");
+
+    }
     case (5):
     {
       if(!(Pds::BldDataEBeam::EbeamXTCAVAmplDamage & beam.uDamageMask))
