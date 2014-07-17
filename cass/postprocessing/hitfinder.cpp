@@ -992,9 +992,15 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
         const index_t ngbrIdx(pixpos + *ngbrOffset++);
         const index_t ngbrCol(ngbrIdx % _imageShape.first);
         const index_t ngbrRow(ngbrIdx / _imageShape.first);
-        if (checkedPixels[ngbrIdx] ||
-            box.first < abs(col - ngbrCol) ||   //pixel not inside box col
+        /** @note need to check if the pixel has been used after verifiying that
+         *  the pixel is within the box. Otherwise in rare occasions it will
+         *  happen that the pixelindex is not within the boolean array which
+         *  will cause a segfault.
+         */
+        if (box.first < abs(col - ngbrCol) ||   //pixel not inside box col
             box.second < abs(row - ngbrRow))    //pixel not inside box row
+          continue;
+        if (checkedPixels[ngbrIdx])  //pixel has been used
           continue;
         const pixelval_t ngbrPixel(image[ngbrIdx]);
         const pixelval_t ngbrPixelWOBckgnd(ngbrPixel - mean);
