@@ -180,6 +180,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
     switch (version)
     {
+    default:
+      Log::add(Log::WARNING,"Unknown BLD version '" + toString(version) +
+               "' using latest known version '6'");
     case (6):
     {
       if(!(Pds::BldDataEBeam::EbeamPhotonEnergyDamage & beam.uDamageMask))
@@ -296,9 +299,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         Log::add(Log::VERBOSEINFO,"'EbeamLTUPosY' is damaged");
       break;
     }
-    default:
-      Log::add(Log::ERROR,"Unknown BLD version");
-      break;
     }
     break;
   }
