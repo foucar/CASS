@@ -77,15 +77,6 @@ public:
    */
   static shared_pointer::element_type& reference();
 
-  /** load the parameters used for this input module
-   *
-   * pauses the thread then loads the settings of the MulitFileInput. Then
-   * calls the pure virtual function load. Then resumes the thread.
-   *
-   * @param what unused parameter
-   */
-//  void loadSettings(size_t/* what*/);
-
   /** a mutex so that external program can lock access to this */
   QMutex lock;
 
@@ -97,7 +88,7 @@ protected:
    * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
-  InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+  InputBase(RingBuffer<CASSEvent>& ringbuffer,
             Ratemeter & ratemeter,
             Ratemeter & loadmeter,
             QObject *parent=0)
@@ -108,7 +99,7 @@ protected:
   {}
 
   /** reference to the ringbuffer */
-  RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
+  RingBuffer<CASSEvent> &_ringbuffer;
 
   /** ratemeter to measure the rate */
   Ratemeter & _ratemeter;
@@ -119,6 +110,9 @@ protected:
   /** singelton instance */
   static shared_pointer _instance;
 
+  /** define an item in the ringbuffer */
+  typedef RingBuffer<CASSEvent>::iter_type rbItem_t;
+
 private:
   /** a mutex to lock operations */
   static QMutex _mutex;
@@ -127,13 +121,3 @@ private:
 }//end namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

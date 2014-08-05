@@ -35,10 +35,10 @@ SOURCES            += \
                       sharedmemory_input.cpp \
                       tcp_input.cpp \
                       tcp_streamer.cpp \
-                      test_input.cpp \
-                      data_generator.cpp \
-                      waveform_generator.cpp \
-                      image_generator.cpp \
+#                      test_input.cpp \
+#                      data_generator.cpp \
+#                      waveform_generator.cpp \
+#                      image_generator.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       rate_plotter.cpp \
@@ -99,10 +99,10 @@ HEADERS            += cass.h \
                       sharedmemory_input.h \
                       tcp_input.h \
                       tcp_streamer.h \
-                      test_input.h \
-                      data_generator.h \
-                      waveform_generator.h \
-                      image_generator.h \
+#                      test_input.h \
+#                      data_generator.h \
+#                      waveform_generator.h \
+#                      image_generator.h \
                       tcpserver.h \
                       worker.h \
                       xtciterator.h \

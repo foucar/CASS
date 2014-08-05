@@ -25,7 +25,7 @@ using namespace std;
 using namespace cass;
 
 void FileInput::instance(string filelistname,
-                         RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                         RingBuffer<CASSEvent> &ringbuffer,
                          Ratemeter &ratemeter, Ratemeter &loadmeter,
                          bool quitWhenDone,
                          QObject *parent)
@@ -36,13 +36,13 @@ void FileInput::instance(string filelistname,
 }
 
 FileInput::FileInput(string filelistname,
-                     RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                     RingBuffer<CASSEvent> &ringbuffer,
                      Ratemeter &ratemeter, Ratemeter &loadmeter,
                      bool quitWhenDone,
                      QObject *parent)
-  :InputBase(ringbuffer,ratemeter,loadmeter,parent),
-  _quitWhenDone(quitWhenDone),
-  _filelistname(filelistname)
+  : InputBase(ringbuffer,ratemeter,loadmeter,parent),
+    _quitWhenDone(quitWhenDone),
+    _filelistname(filelistname)
 {
   Log::add(Log::VERBOSEINFO, "FileInput::FileInput: constructed");
   load();
@@ -105,18 +105,18 @@ void FileInput::run()
           break;
         }
         /** retrieve a new element from the ringbuffer */
-        CASSEvent *cassevent(0);
-        _ringbuffer.nextToFill(cassevent);
+
+        rbItem_t rbItem(_ringbuffer.nextToFill());
         /** fill the cassevent object with the contents from the file */
-        bool isGood((*_read)(file,*cassevent));
+        bool isGood((*_read)(file,*rbItem->element));
         if (!isGood)
           Log::add(Log::WARNING,"FileInput: Event with id '"+
-                   toString(cassevent->id()) + "' is bad: skipping Event");
+                   toString(rbItem->element->id()) + "' is bad: skipping Event");
         else
           ++eventcounter;
-        cassevent->setFilename(filelistIt->c_str());
-        _ringbuffer.doneFilling(cassevent, isGood);
-        newEventAdded(cassevent->datagrambuffer().size());
+        rbItem->element->setFilename(filelistIt->c_str());
+        _ringbuffer.doneFilling(rbItem, isGood);
+        newEventAdded(rbItem->element->datagrambuffer().size());
       }
       file.close();
     }

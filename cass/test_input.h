@@ -44,7 +44,7 @@ public:
    * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
-  static void instance(RingBuffer<CASSEvent,RingBufferSize>&,
+  static void instance(RingBuffer<CASSEvent>&,
                        Ratemeter &ratemeter,
                        Ratemeter &loadmeter,
                        QObject *parent=0);
@@ -63,7 +63,7 @@ private:
    * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent The parent QT Object of this class
    */
-  TestInput(RingBuffer<CASSEvent,RingBufferSize>&,
+  TestInput(RingBuffer<CASSEvent> &,
             Ratemeter &ratemeter,
             Ratemeter &loadmeter,
             QObject *parent=0);

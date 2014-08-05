@@ -67,7 +67,7 @@ public:
    * @param parent The parent QT Object of this class
    */
   static void instance(const std::string& filelistname,
-                       RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                       RingBuffer<CASSEvent>& ringbuffer,
                        Ratemeter &ratemeter,
                        Ratemeter &loadmeter,
                        bool quitwhendone,
@@ -95,7 +95,7 @@ private:
    * @param parent The parent QT Object of this class
    */
   MultiFileInput(const std::string& filelistname,
-                 RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                 RingBuffer<CASSEvent>& ringbuffer,
                  Ratemeter &ratemeter,
                  Ratemeter &loadmeter,
                  bool quitwhendone,

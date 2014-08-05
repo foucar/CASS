@@ -22,7 +22,7 @@ using namespace cass;
 using namespace std;
 
 
-void TCPInput::instance(RingBuffer<CASSEvent, RingBufferSize> &buffer,
+void TCPInput::instance(RingBuffer<CASSEvent> &buffer,
                    Ratemeter &ratemeter,
                    Ratemeter &loadmeter,
                    QObject *parent)
@@ -32,7 +32,7 @@ void TCPInput::instance(RingBuffer<CASSEvent, RingBufferSize> &buffer,
   _instance = shared_pointer(new TCPInput(buffer,ratemeter,loadmeter,parent));
 }
 
-TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+TCPInput::TCPInput(RingBuffer<CASSEvent> &ringbuffer,
                    Ratemeter &ratemeter,
                    Ratemeter &loadmeter,
                    QObject *parent)
@@ -139,19 +139,18 @@ void TCPInput::run()
       deserialize(stream);
       while(!stream.atEnd())
       {
-        CASSEvent *cassevent(0);
-        _ringbuffer.nextToFill(cassevent);
+        rbItem_t rbItem(_ringbuffer.nextToFill());
         try
         {
-          deserialize(stream,*cassevent);
-          _ringbuffer.doneFilling(cassevent,true);
-          newEventAdded(cassevent->datagrambuffer().size());
+          deserialize(stream,*rbItem->element);
+          _ringbuffer.doneFilling(rbItem,true);
+          newEventAdded(rbItem->element->datagrambuffer().size());
         }
         catch(const DeserializeError& error)
         {
           Log::add(Log::ERROR,string(error.what()) +
                    ": skipping rest of data");
-          _ringbuffer.doneFilling(cassevent,false);
+          _ringbuffer.doneFilling(rbItem,false);
           break;
         }
       }

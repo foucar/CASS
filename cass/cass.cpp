@@ -26,7 +26,7 @@
 #include "ringbuffer.h"
 #include "sharedmemory_input.h"
 #include "tcp_input.h"
-#include "test_input.h"
+//#include "test_input.h"
 #include "tcpserver.h"
 #include "processor_manager.h"
 #ifdef HTTPSERVER
@@ -187,21 +187,21 @@ int main(int argc, char **argv)
      *  done processing the events. Also create the postprocessor singleton used
      *  by the worker to post process the events.
      */
-    RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
+    RingBuffer<CASSEvent> ringbuffer(RingBufferSize);
     PostProcessors::instance(outputfilename);
     Workers::instance(ringbuffer, workerrate);
 #ifdef OFFLINE
     if (multifile)
       MultiFileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
-    else if (useDatagenerator)
-      TestInput::instance(ringbuffer,inputrate, inputload);
+//    else if (useDatagenerator)
+//      TestInput::instance(ringbuffer,inputrate, inputload);
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 #else
     if (tcp)
       TCPInput::instance(ringbuffer,inputrate, inputload);
-    else if (useDatagenerator)
-      TestInput::instance(ringbuffer,inputrate, inputload);
+//    else if (useDatagenerator)
+//      TestInput::instance(ringbuffer,inputrate, inputload);
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate, inputload);
 #endif

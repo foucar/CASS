@@ -59,7 +59,7 @@ public:
    * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent the parent of this object
    */
-  static void instance(RingBuffer<CASSEvent,RingBufferSize>& buffer,
+  static void instance(RingBuffer<CASSEvent>& buffer,
                        Ratemeter &ratemeter, Ratemeter &loadmeter,
                        QObject *parent=0);
 
@@ -91,7 +91,7 @@ private:
    * @param loadmeter reference to the ratemeter to measure the load of the input
    * @param parent the parent of this object
    */
-  TCPInput(RingBuffer<CASSEvent,RingBufferSize>& buffer,
+  TCPInput(RingBuffer<CASSEvent>& buffer,
            Ratemeter &ratemeter, Ratemeter &loadmeter,
            QObject *parent=0);
 

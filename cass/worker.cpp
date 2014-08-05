@@ -19,10 +19,10 @@
 using namespace cass;
 using namespace std;
 
-Worker::Worker(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+Worker::Worker(RingBuffer<CASSEvent> &ringbuffer,
                Ratemeter &ratemeter,
                QObject *parent)
-  :PausableThread(lmf::PausableThread::_run,parent),
+  : PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
     _postprocess(*PostProcessors::instance()),
     _ratemeter(ratemeter)
@@ -34,13 +34,16 @@ void Worker::run()
   while(_control != _quit)
   {
     pausePoint();
-    CASSEvent *cassevent(0);
-    _ringbuffer.nextToProcess(cassevent, 1000);
-    if (cassevent)
+    try
     {
-      _postprocess(*cassevent);
-      _ringbuffer.doneProcessing(cassevent);
+      RingBuffer<CASSEvent>::iter_type rbItem(_ringbuffer.nextToProcess(1000));
+      _postprocess(*rbItem->element);
+      _ringbuffer.doneProcessing(rbItem);
       _ratemeter.count();
+    }
+    catch(ProcessableTimedout &e)
+    {
+
     }
   }
 }
@@ -56,7 +59,7 @@ void Worker::run()
 Workers::shared_pointer Workers::_instance;
 QMutex Workers::_mutex;
 
-Workers::shared_pointer Workers::instance(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+Workers::shared_pointer Workers::instance(RingBuffer<CASSEvent> &ringbuffer,
                                           Ratemeter &ratemeter,
                                           QObject *parent)
 {
@@ -77,10 +80,11 @@ Workers::shared_pointer::element_type& Workers::reference()
 
 
 //-----------------------the wrapper for more than 1 worker--------------------
-Workers::Workers(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+Workers::Workers(RingBuffer<CASSEvent> &ringbuffer,
                  Ratemeter &ratemeter,
                  QObject *parent)
-  :_workers(NbrOfWorkers)
+  : _workers(NbrOfWorkers),
+    _rb(ringbuffer)
 {
   for (size_t i=0;i<_workers.size();++i)
     _workers[i] = Worker::shared_pointer(new Worker(ringbuffer,ratemeter,parent));
@@ -108,6 +112,8 @@ void Workers::resume()
 
 void Workers::end()
 {
+  /** wait until the ringbuffer is empty */
+  _rb.waitUntilEmpty();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
   for (size_t i=0;i<_workers.size();++i)

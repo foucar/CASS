@@ -32,7 +32,7 @@ namespace cass
 }//end namespace cass
 
 void MultiFileInput::instance(const string& filelistname,
-                              RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                              RingBuffer<CASSEvent> &ringbuffer,
                               Ratemeter &ratemeter, Ratemeter &loadmeter,
                               bool quitWhenDone,
                               QObject *parent)
@@ -43,7 +43,7 @@ void MultiFileInput::instance(const string& filelistname,
 }
 
 MultiFileInput::MultiFileInput(const string& filelistname,
-                               RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                               RingBuffer<CASSEvent> &ringbuffer,
                                Ratemeter &ratemeter, Ratemeter &loadmeter,
                                bool quitWhenDone,
                                QObject *parent)
@@ -69,9 +69,8 @@ void MultiFileInput::load()
 
 void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
 {
-  CASSEvent *cassevent(0);
-  _ringbuffer.nextToFill(cassevent);
-  cassevent->id() = eventIt->first;
+  rbItem_t rbItem(_ringbuffer.nextToFill());
+  rbItem->element->id() = eventIt->first;
   bool isGood(true);
   positionreaders_t &posreaders(eventIt->second);
   positionreaders_t::iterator fileposread(posreaders.begin());
@@ -81,10 +80,10 @@ void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
     FilePointer &filepointer(fileposread->second);
     FileReader &read(*(fileposread->first));
     ifstream &filestream(filepointer.getStream());
-    isGood = read(filestream,*cassevent) && isGood;
+    isGood = read(filestream,*rbItem->element) && isGood;
   }
-  _ringbuffer.doneFilling(cassevent, isGood);
-  newEventAdded(cassevent->datagrambuffer().size());
+  _ringbuffer.doneFilling(rbItem, isGood);
+  newEventAdded(rbItem->element->datagrambuffer().size());
 }
 
 void MultiFileInput::run()

@@ -50,7 +50,7 @@ public:
    */
   static void instance(const std::string &PartitionTag,
                        int index,
-                       cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
+                       cass::RingBuffer<cass::CASSEvent>& buffer,
                        Ratemeter &ratemeter, Ratemeter &loadmeter,
                        QObject *parent=0);
 
@@ -99,7 +99,7 @@ private:
    */
   SharedMemoryInput(const std::string &PartitionTag,
                     int index,
-                    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
+                    RingBuffer<CASSEvent> &buffer,
                     Ratemeter &ratemeter,
                     Ratemeter &loadmeter,
                     QObject *parent=0);

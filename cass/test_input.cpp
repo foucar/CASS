@@ -28,7 +28,7 @@
 using namespace std;
 using namespace cass;
 
-void TestInput::instance(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+void TestInput::instance(RingBuffer<CASSEvent> &ringbuffer,
                          Ratemeter &ratemeter, Ratemeter &loadmeter,
                          QObject *parent)
 {
@@ -37,7 +37,7 @@ void TestInput::instance(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
   _instance = shared_pointer(new TestInput(ringbuffer,ratemeter,loadmeter,parent));
 }
 
-TestInput::TestInput(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+TestInput::TestInput(RingBuffer<CASSEvent> &ringbuffer,
                      Ratemeter &ratemeter, Ratemeter &loadmeter,
                      QObject *parent)
   :InputBase(ringbuffer,ratemeter,loadmeter,parent)

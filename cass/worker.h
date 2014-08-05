@@ -51,7 +51,7 @@ public:
    * @param ratemeter the ratemeter object to measure the rate
    * @param parent the qt parent of this object
    */
-  Worker(RingBuffer<CASSEvent,RingBufferSize>&rb,
+  Worker(RingBuffer<CASSEvent>&rb,
          Ratemeter &ratemeter,
          QObject *parent=0);
 
@@ -67,7 +67,7 @@ public:
 
 private:
   /** the ringbuffer */
-  RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
+  RingBuffer<CASSEvent>  &_ringbuffer;
 
   /** the postprocessors */
   PostProcessors &_postprocess;
@@ -105,7 +105,7 @@ public:
    * @param ratemeter the ratemeter object to measure the rate
    * @param parent the qt parent of this object
    */
-  static shared_pointer instance(RingBuffer<CASSEvent,RingBufferSize> &rb,
+  static shared_pointer instance(RingBuffer<CASSEvent> &rb,
                                  Ratemeter &ratemeter,
                                  QObject *parent=0);
 
@@ -159,7 +159,7 @@ private:
    * @param ratemeter the ratemeter object to measure the rate
    * @param parent the qt parent of this object
    */
-  Workers(RingBuffer<CASSEvent,RingBufferSize> &rb,
+  Workers(RingBuffer<CASSEvent> &rb,
           Ratemeter &ratemeter,
           QObject *parent=0);
 
@@ -171,6 +171,9 @@ private:
 
   /** mutex to protect the creation of the signelton */
   static QMutex _mutex;
+
+  /** the ringbuffer */
+  RingBuffer<CASSEvent>  &_rb;
 };
 
 }//end namespace cass

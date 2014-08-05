@@ -22,7 +22,7 @@ using namespace std;
 
 void SharedMemoryInput::instance(const string &partitionTag,
                                  int index,
-                                 RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                                 cass::RingBuffer<CASSEvent> &ringbuffer,
                                  Ratemeter &ratemeter,
                                  Ratemeter &loadmeter,
                                  QObject *parent)
@@ -39,16 +39,15 @@ void SharedMemoryInput::instance(const string &partitionTag,
 
 SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
                                      int index,
-                                     RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                                     RingBuffer<CASSEvent>& ringbuffer,
                                      Ratemeter &ratemeter,
                                      Ratemeter &loadmeter,
                                      QObject *parent)
-  :InputBase(ringbuffer,ratemeter,loadmeter,parent),
+  : InputBase(ringbuffer,ratemeter,loadmeter,parent),
     _partitionTag(partitionTag),
     _index(index),
     _convert(*FormatConverter::instance())
 {
-//  loadSettings(0);
   load();
 }
 
@@ -92,14 +91,11 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   if(!datagram)
     return (_control == _quit);
 
-  //make a pointer to a element in the ringbuffer//
-  CASSEvent *cassevent(0);
-
   //retrieve a new element from the ringbuffer//
-  _ringbuffer.nextToFill(cassevent);
+  rbItem_t rbItem(_ringbuffer.nextToFill());
 
   //read the datagram to the ringbuffer//
-  CASSEvent::buffer_t& buf(cassevent->datagrambuffer());
+  CASSEvent::buffer_t& buf(rbItem->element->datagrambuffer());
   buf.assign(reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram),
              reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram)+(sizeof(Pds::Dgram)+datagram->xtc.sizeofPayload()));
   if (datagram->xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
@@ -112,13 +108,13 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
 //  memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
   //now convert the datagram to a cassevent//
-  const bool isGood = _convert(cassevent);
+  const bool isGood = _convert(rbItem->element);
 
   //tell the buffer that we are done, but also let it know whether it is a good event//
-  _ringbuffer.doneFilling(cassevent,isGood);
+  _ringbuffer.doneFilling(rbItem,isGood);
 
   //for ratemeter purposes send a signal that we added a new event//
-  newEventAdded(cassevent->datagrambuffer().size());
+  newEventAdded(rbItem->element->datagrambuffer().size());
 
   //return the quit code//
   return  _control == _quit;
