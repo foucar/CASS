@@ -16,441 +16,387 @@
 #include <vector>
 #include <algorithm>
 
+#include "cass_exceptions.h"
+#include "cass.h"
+
 namespace cass
 {
-  /** A Ringbuffer, handles communication between Input and Worker Threads.
+/** A Ringbuffer, handles communication between Input and Worker Threads.
+ *
+ * The ringbuffer handles the main communication between the single producers
+ * (input derived from InputBase) and the multiple consumers (worker).
+ *
+ * The ringbuffer can be compiled or non blocking by defining RINGBUFFER_BLOCKING
+ * or not, respectively.
+ *
+ * It is designed in such a way, that in the nonblocking case, the consumers
+ * do not block the producer from putting new entries into the ringbuffer.
+ * If the producers velocity in filling the buffer varies, then this buffer
+ * will make sure, that it can be faster than the consumers. When the producer
+ * fills elements slower than the consumers consume them, then the consumers
+ * can consume the elements that have already been put into the buffer.
+ * They will do this by going backwards through the buffer from the last
+ * element that the producer has put into the buffer.
+ * The ringbuffers' elements will be created on the Heap.
+ *
+ * @tparam T Element typ
+ *
+ * @todo find out how one can use std::find to find the right element
+ * @todo maybe create a ReadWriteLock for each element to get rid of the mutexes
+ * @todo separeate declaration and definition to make class more readable
+ *
+ * @author Lutz Foucar
+ */
+template <typename T>
+class RingBuffer
+{
+private:
+  /** an element of the ringbuffer.
    *
-   * The ringbuffer handles the main communication between the single producer
-   * (shared memory input) and the multiple consumers (worker).
-   *
-   * The ringbuffer can be compiled or non blocking by defining RINGBUFFER_BLOCKING
-   * or not, respectively.
-   *
-   * It is designed in such a way, that in the nonblocking case, the consumers
-   * do not block the producer from putting new entries into the ringbuffer.
-   * If the producers velocity in filling the buffer varies, then this buffer
-   * will make sure, that it can be faster than the consumers. When the producer
-   * fills elements slower than the consumers consume them, then the consumers
-   * can consume the elements that have already been put into the buffer.
-   * They will do this by going backwards through the buffer from the last
-   * element that the producer has put into the buffer.
-   * The ringbuffers' elements will be created on the Heap.
-   *
-   * @tparam T Element typ
-   * @tparam cap Capacity of the ringbuffer
-   *
-   * @todo find out how one can use std::find to find the right element
-   * @todo maybe create a ReadWriteLock for each element to get rid of the mutexes
-   * @todo separeate declaration and definition to make class more readable
+   * contains the status of the element and a pointer
+   * to the actual element.
    *
    * @author Lutz Foucar
    */
-  template <typename T, size_t cap>
-  class RingBuffer
+  class Element
   {
   public:
-    /** type for references to the elements of the container*/
-    typedef T*& reference;
-
-    /** type for const references to the elements of the container*/
-    typedef const T*& const_reference;
-
-    /** type for pointers to the elements of the container*/
-    typedef T* value_t;
-
-  private:
-    /** an element of the ringbuffer.
-     *
-     * contains the status of the element and a pointer
-     * to the actual element.
-     *
-     * @author Lutz Foucar
-     */
-    class Element
-    {
-    public:
-      /** constructor.
-       * will initalize the status flags correcty.
-       */
-      Element()
-        :element(),
-        bearbeitet(true),
-        gefuellt(false),
-        inBearbeitung(false)
-      {}
-
-      /** Element equality.
-       *
-       * Two elements are equal when their addresses are equal.
-       * @param rhs Element to compare me to.
-       */
-      bool operator==(const_reference rhs) { return (element == rhs); }
-
-      /** the pointer to the element*/
-      T   *element;
-
-      /** status whether the element has been worked on*/
-      bool bearbeitet;
-
-      /** status whether the element has been filled*/
-      bool gefuellt;
-
-      /** status whether the element is workend on right now*/
-      bool inBearbeitung;
-    };
-
-  public:
-    /** type of the container of all elements*/
-    typedef std::vector<Element> buffer_t;
-
-    /** type of the interator over the elements of the container*/
-    typedef typename buffer_t::iterator iterator_t;
-
     /** constructor.
-     * This will create the buffer, fill it with the requested amount of elements,
-     * and initialize the iterators.
-     */
-    RingBuffer()
-      : _buffer(cap,Element()),
-        _nextToProcess(_buffer.begin()),
-        _nextToView(_buffer.begin()),
-        _nextToFill(_buffer.begin())
-    {
-      //create the elements in the ringbuffer//
-      for (size_t i=0; i<_buffer.size(); ++i)
-        _buffer[i].element = new T();
-    }
-
-    /** destructor.
-     * deletes all elements of the buffer
-     */
-    ~RingBuffer()
-    {
-      //delete all elements in the ringbuffer//
-      for (size_t i=0; i<_buffer.size(); ++i)
-        delete _buffer[i].element;
-    }
-
-  private:
-    /** finds the processable element.
-     * will go through the ringbuffer backwards starting at the
-     * position where we added the filled element. It will check
-     * whether the current element is not currently processed and has already
-     * been filled.
-     * @return true when a processable element has been found
-     */
-    bool findNextProcessable()
-    {
-      //remember where we should end our loop//
-      //we should end where the next fillable element is, because elements//
-      //before the next fillable are already processed or are in processing/
-      iterator_t letztesFreiesElement(_nextToFill);
-      //if the current element is currently processed or not filled yet//
-      //try the next one//
-      while (_nextToProcess->inBearbeitung || !_nextToProcess->gefuellt)
-      {
-        //if we are at the position where the next fillable is,//
-        //then there is nothing to work on anymore//
-        if (_nextToProcess == letztesFreiesElement)
-          return false;
-
-        //we go backwards through the buffer to have always the latestest element
-        //to process. If we come to the beginning of the vector, then we
-        //we have to jump to the back//
-        if (_nextToProcess == _buffer.begin())
-          _nextToProcess = _buffer.end()-1;
-        else
-          --_nextToProcess;
-      }
-      //we have found an element that we can work on
-      return true;
-    }
-
-    /** finds a viewable element for serialization
-     * will go through the buffer and find an element that
-     * can be retrieved by the client
-     * @note check whether this will work. It has just been implemented
-     *       to have the event_getter workable.
-     * @return true when a viewable element has been found
-     */
-    bool findNextViewable()
-    {
-      //remember where we should end our loop//
-      //we should end where the next fillable element is, because elements//
-      //before the next fillable are already processed or are in processing/
-      iterator_t letztesElement = _nextToView;
-      //if the current element is currently processed or not filled yet//
-      //try the next one//
-      while (_nextToView->inBearbeitung || !_nextToView->bearbeitet)
-      {
-
-        //if we are at the position where the next fillable is,//
-        //then there is nothing to retrieve on anymore//
-        if (_nextToView == letztesElement)
-          return false;
-
-        //we go backwards through the buffer to have always the latestest element
-        //to process. If we come to the beginning of the vector, then we
-        //we have to jump to the back//
-        if (_nextToView == _buffer.begin())
-          _nextToView = _buffer.end()-1;
-        else
-          --_nextToView;
-      }
-      //we have found an element that we can serialize
-      return true;
-    }
-
-    /** finds the next fillable element.
      *
-     * this function is used when the behaviour of the ringbuffer is blockable
-     * it will iterate through the buffer and checks the elements for the
-     * status in progress (inBearbeitung) and processed (bearbeitet)
-     * it will only return true when its not in progress and already processed.
-     *
-     * this function is used when the behaviour of the ringbuffer is nonblockable
-     * it will iterate through the buffer and checks the elements for
-     * only the status in progress (inBearbeitung).
-     * it will only return true when its not in progress.
-     * @return true when a fillable element has been found
+     * will initalize the status flags correcty.
      */
-    bool findNextFillable()
-    {
-      //remember where you are starting//
-      iterator_t start((_nextToFill == _buffer.begin()) ? _buffer.end()-1 : _nextToFill-1);
-      //if the current element is currently processed or has not been processed//
-      //try the next element//
-#ifdef RINGBUFFER_BLOCKING
-      while (_nextToFill->inBearbeitung || !_nextToFill->bearbeitet) {
-#else
-      while (_nextToFill->inBearbeitung) {
-#endif
-        //if we end up where we started, then the elements are not yet processed//
-        //or still in progress, so retrun that we have not found anything yet.//
-        if (_nextToFill == start)
-          return false;
+    Element()
+      : element(0),
+        processed(true),
+        filled(false),
+        inUse(false)
+    {}
 
-        //if we hit the end of the vector, then we will jump to the
-        //beginning of the vector//
-        if (_nextToFill == _buffer.end()-1)
-          _nextToFill = _buffer.begin();
-        else
-          ++_nextToFill;
-      }
-      return true;
-    }
+    /** the pointer to the element */
+    T *element;
 
-  public:
-    /** return the next filled but non processed element.
-     *
-     * This function will return the next filled element, which will
-     * either be the one just filled by the shared memory input or
-     * one or more before, depending on how fast elements are retrieved
-     * before they are filled again.
-     * When there are no Elements that we can work on, this function will wait
-     * until there is a new element that we can process.
-     *
-     * @note this can be the reason why only one of the threads is working at
-     *       a time.
-     * @return void
-     * @param[out] element reference to a pointer to an element,
-     *             we copy the to be processed element pointer to the reference.
-     * @param[in] timeout Time that we will wait that a new element is beeing put into
-     *            the buffer. It is defaulted to ULONG_MAX
+    /** status whether the element has been worked on*/
+    bool processed;
+
+    /** status whether the element has been filled*/
+    bool filled;
+
+    /** status whether the element is workend on right now*/
+    bool inUse;
+  };
+
+public:
+  /** type of the container of all elements*/
+  typedef std::vector<Element> buffer_t;
+
+  /** type of the interator over the elements of the container*/
+  typedef typename buffer_t::iterator iter_type;
+
+  /** constructor.
+   *
+   * This will create the buffer, fill it with the requested amount of elements,
+   * and initialize the iterators.
+   *
+   * @param size The size of the ringbuffer
+   */
+  RingBuffer(size_t size)
+    : _buffer(size),
+      _nextToProcess(_buffer.begin()),
+      _nextToFill(_buffer.begin())
+  {
+    for (size_t i=0; i<_buffer.size(); ++i)
+      _buffer[i].element = new T();
+  }
+
+  /** destructor.
+   *
+   * deletes all elements of the buffer
+   */
+  ~RingBuffer()
+  {
+    for (size_t i=0; i<_buffer.size(); ++i)
+      delete _buffer[i].element;
+  }
+
+private:
+  /** advances the _nextToProcess iterator to the next processable element.
+   *
+   * will go through the ringbuffer backwards starting at the
+   * position where we added the filled element. It will check
+   * whether the current element is not currently processed and has already
+   * been filled.
+   *
+   * @return true when a processable element has been found
+   */
+  bool findNextProcessable()
+  {
+    /** we should end where the next fillable element is, because elements
+     *  before the next fillable are already processed or are in processing
      */
-    void nextToProcess(reference element, unsigned long timeout=ULONG_MAX)
+    iter_type lastEmpty(_nextToFill);
+
+    /** search until the current element is not currently in use or
+     *  not filled yet
+     */
+    while (_nextToProcess->inUse || !_nextToProcess->filled)
     {
-      //create a lock//
-      QMutexLocker lock(&_mutex);
-      while (!findNextProcessable())
-      {
-        //if nothing was found, wait unitil we get noticed that
-        //a new element was added to the buffer//
-        if(!_processcondition.wait(lock.mutex(),timeout))
-        {
-          element = 0;
-          return;
-        }
-      }
-      //set the property flags of that element and assign the pointer//
-      _nextToProcess->inBearbeitung = true;
-      element = _nextToProcess->element;
-      //we expect that the next element that will be asked for is the previous
-      //one. Unless a new element to be processed has been added to the buffer//
-      //therefore let the iterator point to the previous element//
+      /** if we are at the position where the next fillable is,
+       *  then there is nothing to work on anymore
+       */
+      if (_nextToProcess == lastEmpty)
+        return false;
+
+      /** we go backwards through the buffer to have always the latest
+       *  element to process. If we come to the beginning of the vector, then
+       *  we have to jump to the back
+       */
       if (_nextToProcess == _buffer.begin())
         _nextToProcess = _buffer.end()-1;
       else
-      --_nextToProcess;
+        --_nextToProcess;
     }
+    return true;
+  }
 
-    /** putting the processed element back to the buffer.
-     *
-     * This function will put the element that we just processed back to the buffer.
-     * It will will search the buffer for the element and then set the
-     * flags of that element according to its current state.
-     *
-     * @return void
-     * @return[in] element reference to the pointer of the element
+  /** advances the _nextToFill itertor to the next fillable element.
+   *
+   * this function is used when the behaviour of the ringbuffer is blockable
+   * it will iterate through the buffer and checks the elements for the
+   * status in progress (inBearbeitung) and processed (bearbeitet)
+   * it will only return true when its not in progress and already processed.
+   *
+   * this function is used when the behaviour of the ringbuffer is nonblockable
+   * it will iterate through the buffer and checks the elements for
+   * only the status in progress (inBearbeitung).
+   * it will only return true when its not in progress.
+   *
+   * @return true when a fillable element has been found
+   */
+  bool findNextFillable()
+  {
+    /** the start point is one before the current point where we started */
+    iter_type start((_nextToFill == _buffer.begin()) ? _buffer.end()-1 : _nextToFill-1);
+
+#ifdef RINGBUFFER_BLOCKING
+    /** search until the current element is not currently in use or
+     *  has been processed
      */
-    void doneProcessing(reference element)
-    {
-      //create a lock//
-      QMutexLocker lock(&_mutex);
-      //find the iterator that points to the element that the user wants to submit//
-//      iterator_t iElement =
-//          std::find(_buffer.begin(),_buffer.end(),element);
+    while (_nextToFill->inUse || !_nextToFill->processed) {
+#else
+    /** search until the current element is not currently in use */
+    while (_nextToFill->inUse) {
+#endif
+      /** if we end up where we started, then the elements are not yet
+       *  processed or still in progress, so retrun that we have not found
+       *  anything yet.
+       */
+      if (_nextToFill == start)
+        return false;
 
-      iterator_t iElement = _buffer.begin();
-      for ( ; iElement != _buffer.end() ; ++iElement)
-        if (iElement->element == element)
-          break;
-//      *iElement == element;
-      //set its flags according to its state//
-      iElement->inBearbeitung = false;
-      iElement->bearbeitet    = true;
-      iElement->gefuellt      = false;
-      //notify the waiting condition that something new is in the buffer//
-      //we need to unlock the lock before//
-      lock.unlock();
-      _fillcondition.wakeOne();
-    }
-
-    /** retrieve the "to be filled" element.
-     *
-     * This function will retrieve the next element that we can fill.
-     * Depending on the behaviour of the ringbuffer, we check whether
-     * it has been processed or not. When the behaviour is blocking then
-     * we only retrieve elements that are processed, if not then we just
-     * return the next element that is not in process.
-     * In the blocking case this function will only return when a processed
-     * event was put into the buffer.
-     *
-     * @return void
-     * @param[out] element A reference to the pointer of the Element.
-     */
-    void nextToFill(reference element)
-    {
-      //create lock//
-      QMutexLocker lock(&_mutex);
-      while(!findNextFillable()) {
-        _fillcondition.wait(lock.mutex());
-      }
-      //we found an element. Set the flags accordingly//
-      _nextToFill->inBearbeitung = true;
-      element = _nextToFill->element;
-      //we expect that the next element is the one that we are going//
-      //to fill next. Therefore advance the iterator by one//
+      /** wrap to beginning if we hit the end  */
       if (_nextToFill == _buffer.end()-1)
         _nextToFill = _buffer.begin();
       else
         ++_nextToFill;
     }
+    return true;
+  }
 
-    /** putting the filled element back to the buffer.
-     *
-     * This function will put the element that we just filled back to the buffer.
-     * It will will search the buffer for the element and then set the
-     * flags of that element according to its current state and depending on the
-     * fillstatus. Using the fillstatus we can say that this element should be processed
-     * or not.
-     *
-     * @return void
-     * @return[in] element reference to the pointer of the element
-     * @return[in] fillstatus True when the element should be processed,
-     *             false if not.
+public:
+  /** return the next filled but non processed element.
+   *
+   * This function will return the next filled element, which will
+   * either be the one just filled by the shared memory input or
+   * one or more before, depending on how fast elements are retrieved
+   * before they are filled again.
+   * When there are no Elements that we can work on, this function will wait
+   * until there is a new element that we can process.
+   *
+   * @note this can be the reason why only one of the threads is working at
+   *       a time.
+   * @return iterator to the element of the ringbuffer that is processable
+   * @param[in] timeout Time that we will wait that a new element is beeing
+   *                    put into the buffer. It is defaulted to ULONG_MAX
+   */
+  iter_type nextToProcess(unsigned long timeout=ULONG_MAX)
+  {
+    QMutexLocker lock(&_mutex);
+
+    /** if nothing was found, wait until we get noticed that
+     *  a new element was added to the buffer and return 0 if
+     *  waited long enough
      */
-    void doneFilling(reference element, bool fillstatus=true)
-    {
-      //search for the element the user wants to put back.//
-      //Retrieve the iterator for the element//
-      iterator_t iElement = _buffer.begin();
-      for ( ; iElement != _buffer.end() ; ++iElement)
-        if (iElement->element == element)
-          break;
-      //create a lock//
-      QMutexLocker lock(&_mutex);
-      //now set the status properties according to the fillstatus//
-      iElement->inBearbeitung = false;
-      iElement->bearbeitet    = !fillstatus;
-      iElement->gefuellt      = fillstatus;
-      //set the next to process iterator to this element, since its
-      //the next element that we should process. This should shorten
-      //the time we are searching for the next processable element
-      _nextToProcess = iElement;
-      //notify the waiting condition that something new is in the buffer//
-      //we need to unlock the lock before//
-      lock.unlock();
-      _processcondition.wakeOne();
-    }
+    while (!findNextProcessable())
+      if(!_processcondition.wait(lock.mutex(),timeout))
+       throw ProcessableTimedout(std::string("RingBuffer::nextToProcess(): ") +
+                                 "couldn't retrieve a new element to process " +
+                                 "within '" + toString(timeout) + "' ms");
 
-    /** retrieve the "to be viewed" element.
-     * This function will retrieve the next element that we can serialize.
-     * @return void
-     * @param[out] element reference to a pointer to an element,
-     *             we copy the to be serialized element pointer to the reference.
-     * @param[in] timeout Time that we will wait that a new viewableelement is beeing
-     *            put into the buffer. It is defaulted to ULONG_MAX
+    /** set the flags of that element */
+    _nextToProcess->inUse = true;
+    iter_type iter(_nextToProcess);
+
+    /** The next element that will be asked for is the previous
+     *  one. Unless a new element to be processed has been added to the buffer
+     *  therefore let the iterator point to the previous element
      */
-    void nextToView(reference element, int timeout=ULONG_MAX)
-    {
-      //create a lock//
-      QMutexLocker lock(&_mutex);
-      while (!findNextViewable())
-      {
-        //if we did not find a serializable element, wait until a processed event//
-        //is put into the buffer//
-        if(!_viewcondition.wait(lock.mutex(),timeout))
-        {
-          element = 0;
-          return;
-        }
-      }
-      //assign the properties and the pointer//
-      _nextToView->inBearbeitung = true;
-      element = _nextToView->element;
-      //we expect that the next element that the user wants to serialize is the//
-      //previous one, so set the iterator to the previous one.//
-      if (_nextToView == _buffer.begin())
-        _nextToView = _buffer.end()-1;
-      else
-      --_nextToView;
-    }
+    if (_nextToProcess == _buffer.begin())
+      _nextToProcess = _buffer.end()-1;
+    else
+      --_nextToProcess;
 
-   /** putting the serialized element back to the buffer.
-    *
-    * This function will put the element that we just serialized back to the buffer.
-    * It will will search the buffer for the element and then set the
-    * flags of that element according to its current state.
-    * @return void
-    * @return[in] element reference to the pointer of the element
-    */
-    void doneViewing(reference element)
-    {
-      //create a lock//
-      QMutexLocker lock(&_mutex);
-      //retrieve iterator the the element that the user wants to put back to the buffer//
-      iterator_t iElement = _buffer.begin();
-      for ( ; iElement != _buffer.end() ; ++iElement)
-        if (iElement->element == element)
-          break;
-      //set the property flags accordingly//
-      iElement->inBearbeitung = false;
-      //notify the waiting condition that something new is in the buffer//
-      //we need to unlock the lock before//
-      lock.unlock();
-      _fillcondition.wakeOne();
-    }
+    return iter;
+  }
 
-  private:
-    QMutex            _mutex;             //!< sync the processing part
-    QWaitCondition    _fillcondition;     //!< sync the filling part
-    QWaitCondition    _processcondition;  //!< sync the processing part
-    QWaitCondition    _viewcondition;     //!< sync the viewing part
-    buffer_t          _buffer;            //!< the Container
-    iterator_t        _nextToProcess;     //!< the next processable element
-    iterator_t        _nextToView;        //!< the next viewable element
-    iterator_t        _nextToFill;        //!< the next fillable element
-  };
+  /** putting the processed element back to the buffer.
+   *
+   * This function will put the element that we just processed back to the buffer.
+   * It will will search the buffer for the element and then set the
+   * flags of that element according to its current state.
+   *
+   * @return void
+   * @return[in] iterator to the element in the buffer that is done processing
+   */
+  void doneProcessing(iter_type iter)
+  {
+    QMutexLocker lock(&_mutex);
+
+    /** set flags */
+    iter->inUse     = false;
+    iter->processed = true;
+    iter->filled    = false;
+
+    /** notify the waiting condition that something new is in the buffer
+     *
+     * @note we need to unlock the lock before
+     */
+    lock.unlock();
+    _fillcondition.wakeOne();
+  }
+
+  /** retrieve the "to be filled" element.
+   *
+   * This function will retrieve the next element that we can fill.
+   * Depending on the behaviour of the ringbuffer, we check whether
+   * it has been processed or not. When the behaviour is blocking then
+   * we only retrieve elements that are processed, if not then we just
+   * return the next element that is not in process.
+   * In the blocking case this function will only return when a processed
+   * event was put into the buffer.
+   *
+   * @return iterator to the element that can be filled
+   */
+  iter_type nextToFill()
+  {
+    QMutexLocker lock(&_mutex);
+
+    /** find an fillable element of the buffer, if there is no fillable, wait
+     *  until a new element has been processed
+     *
+     *  @note this is blocking until an element has been processed
+     */
+    while(!findNextFillable())
+      _fillcondition.wait(lock.mutex());
+
+    /** Set the flags accordingly */
+    _nextToFill->inUse = true;
+    iter_type iter(_nextToFill);
+
+    /** the next element should be one that we are going
+     *  to fill next. Therefore decrease the iterator by one
+     */
+    if (_nextToFill == _buffer.end()-1)
+      _nextToFill = _buffer.begin();
+    else
+      ++_nextToFill;
+
+    return iter;
+  }
+
+  /** putting the filled element back to the buffer.
+   *
+   * This function will put the element that we just filled back to the buffer.
+   * It will will search the buffer for the element and then set the
+   * flags of that element according to its current state and depending on the
+   * fillstatus. Using the fillstatus we can say that this element should be processed
+   * or not.
+   *
+   * @return void
+   * @return[in] element reference to the pointer of the element
+   * @return[in] fillstatus True when the element should be processed,
+   *             false if not.
+   */
+  void doneFilling(iter_type iter, bool fillstatus=true)
+  {
+    QMutexLocker lock(&_mutex);
+
+    /** set the status properties according to the fillstatus */
+    iter->inUse = false;
+    iter->processed = !fillstatus;
+    iter->filled    = fillstatus;
+
+    /** set the next to process iterator to this element, since its
+     *  the next element that we should process. This should shorten
+     *  the time we are searching for the next processable element
+     */
+    _nextToProcess = iter;
+
+    /** notify the waiting condition that something new is in the buffer
+     *
+     *  @note we need to unlock the lock before
+     */
+    lock.unlock();
+    _processcondition.wakeOne();
+  }
+
+  /** count how many elements of the buffer are not processed
+   *
+   * The number of elements in the buffer that are not processed tell how many
+   * are still beeing processed.
+   *
+   * @return number of elements that are in processing state
+   */
+  int countProcessing()
+  {
+    int count(0);
+    iter_type it(_buffer.begin());
+    iter_type end(_buffer.end());
+    for (; it != end; ++it)
+      if (!it->processed)
+        ++count;
+    return count;
+  }
+
+  /** wait until no element that needs processing is on the list
+   *
+   * this function is blocking until all elements in the buffer are in the
+   * processed state.
+   */
+  void waitUntilEmpty()
+  {
+    QMutexLocker lock(&_mutex);
+    while (countProcessing() != 0)
+      _fillcondition.wait(lock.mutex(),100);
+  }
+
+private:
+  /** mutex to protect the iterators and the buffer elements */
+  QMutex _mutex;
+
+  /** sync the filling part */
+  QWaitCondition _fillcondition;
+
+  /** sync the processing part */
+  QWaitCondition _processcondition;
+
+  /** the ringbuffer container */
+  buffer_t _buffer;
+
+  /** iterator to the next processable element */
+  iter_type _nextToProcess;
+
+  /** iterator to the next fillable element */
+  iter_type _nextToFill;
+};
 }
 #endif
