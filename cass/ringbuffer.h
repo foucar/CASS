@@ -362,7 +362,7 @@ public:
     iter_type it(_buffer.begin());
     iter_type end(_buffer.end());
     for (; it != end; ++it)
-      if (!it->processed)
+      if (!it->processed || it->inUse)
         ++count;
     return count;
   }
