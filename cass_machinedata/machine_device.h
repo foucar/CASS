@@ -92,6 +92,7 @@ public:
   double         &energy()        {return _energy;}
   double         &wavelength()    {return _wavelength;}
   spectrometer_t &spectrometers() {return _spectrometers;}
+  bool           &epicsFilled()   {return _epicsFilled;}
   //@}
 
 private:
