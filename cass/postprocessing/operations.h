@@ -1423,7 +1423,11 @@ public:
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           histogram name for which we count fills. Default is 0.
+ *           histogram name to retrieve the bin for
+ * @cassttng PostProcessor/\%name\%/{RetrieveType} \n
+ *           The type of bin to retrieve. Default is "max". Options are:
+ *           - max: the bin containing the maximum value
+ *           - min: the bin containing the minimum value
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
