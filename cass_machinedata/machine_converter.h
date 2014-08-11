@@ -50,6 +50,12 @@ public:
    */
   void operator()(const Pds::Xtc*xtc, cass::CASSEvent*evt);
 
+  /** called at the end of the conversion
+   *
+   * @param evt pointer to the event that needs to be finalized
+   */
+  void finalize(CASSEvent *evt);
+
 private:
   /** convenience typedef for easier readable code*/
   typedef std::map<EpicsKey,std::string> epicsKeyMap_t;
@@ -77,10 +83,10 @@ private:
   epicsKeyMap_t _index2name;
 
   /** a container for the epics values
-       *
-       * @note this is necessary, since not every shot there is info about the
-       *       epics values
-       */
+   *
+   * @note this is necessary, since not every shot there is info about the
+   *       epics values
+   */
   MachineDataDevice _store;
 
   /** storage for the pv control variables */

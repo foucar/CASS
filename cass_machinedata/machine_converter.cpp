@@ -141,10 +141,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
    */
   MachineDataDevice *md = 0;
   if (cassevent)
-  {
     md = dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
-    md->EpicsData() = _store.EpicsData();
-  }
 
   switch (xtc->contains.id())
   {
@@ -476,6 +473,11 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
       _pvStore[pvControlCur.name()] = pvControlCur.value();
     }
+    /** add variables to log */
+    string log("MachineData::Converter: Calibcylce: ");
+    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
+      log += it->first + " = " + toString(it->second) + "; ";
+    Log::add(Log::INFO,log);
     break;
   }
 
@@ -493,15 +495,23 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }
 
   default: break;
-  }
-  /** copy the epics values in the storedevent to the machineevent */
-  if (cassevent)
-  {
-    md->EpicsData() = _store.EpicsData();
-    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
-    {
-      md->BeamlineData()[it->first] = it->second;
-    }
-  }
+  }//end switch
+}
 
+void Converter::finalize(CASSEvent *evt)
+{
+  /** copy the epics values in the storedevent to the machineevent, if they
+   *  haven't been set during the conversion, or if they have then copy the
+   *  epics values from the event to the store
+   */
+  if (evt)
+  {
+    MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
+//    if (md->epicsFilled())
+//      _store.EpicsData() = md->EpicsData();
+//    else
+      md->EpicsData() = _store.EpicsData();
+    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
+      md->BeamlineData()[it->first] = it->second;
+  }
 }

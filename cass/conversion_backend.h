@@ -57,6 +57,12 @@ public:
    */
   virtual void operator()(const Pds::Xtc *xtc, cass::CASSEvent *evt);
 
+  /** finalize the event
+   *
+   * @param evt the event that should be finalized
+   */
+  virtual void finalize(cass::CASSEvent *evt) {}
+
   /** return the list of pds type ids the converter is responsible for */
   const pdstypelist_t &pdsTypeList()const {return _pdsTypeList;}
 

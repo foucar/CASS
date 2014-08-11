@@ -24,7 +24,7 @@
 #include "machine_device.h"
 #include "xtciterator.h"
 #include "pdsdata/xtc/Dgram.hh"
-#include "calibcycle.h"
+//#include "calibcycle.h"
 
 using namespace std;
 using namespace cass;
@@ -109,7 +109,7 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
       bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
       /** put the id into the cassevent */
       cassevent->id() = bunchId;
-      cassevent->pvControl = _pvSS.str();
+//      cassevent->pvControl = _pvSS.str();
 
       /** set the return value to true */
       retval = GoodData;
@@ -117,18 +117,18 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
       dynamic_cast<MachineData::MachineDataDevice*>
           (cassevent->devices()[CASSEvent::MachineData])->clear();
     }
-    else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle) 
-    {
-      CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
-      retval = iter.iterate() && retval;
-      _pvSS.str("");
-      for (unsigned int i=0; i < _pvNum; i++) 
-      {
-        _pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
-        if (!(i+1 == _pvNum)) _pvSS << ",";
-      }
-      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS.str());
-    }
+//    else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle)
+//    {
+//      CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
+//      retval = iter.iterate() && retval;
+//      _pvSS.str("");
+//      for (unsigned int i=0; i < _pvNum; i++)
+//      {
+//        _pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
+//        if (!(i+1 == _pvNum)) _pvSS << ",";
+//      }
+//      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS.str());
+//    }
 
     /** now iterate through the datagram and find the wanted information
      *  if the return value of the iterateor is false, then the transition
@@ -136,6 +136,13 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
      */
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
     retval = iter.iterate() && retval;
+    /** finalize the epics conversion, so get the epics converter and finalize
+     *
+     *  @note maybe, when more converters need finalizing the data, we will do it
+     *        for all loaded converters, which will need another list that
+     *        conatins the loaded converters
+     */
+    _usedConverters[Pds::TypeId::Id_Epics]->finalize(cassevent);
   }
   return retval;
 }

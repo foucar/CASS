@@ -115,18 +115,18 @@ protected:
   /** Singleton operation locker in a multi-threaded environment.*/
   static QMutex _mutex;
 
-private:
-  /** the number of pv in the calibcycle */
-  unsigned int _pvNum;
-
-  /** the values of the pv in the calibcycle */
-  double _pvControlValue[pvNumMax];
-
-  /** the names of the pv in the calibcyle */
-  std::string _pvControlName[pvNumMax];
-
-  /** the final name of the pv */
-  std::stringstream _pvSS;
+//private:
+//  /** the number of pv in the calibcycle */
+//  unsigned int _pvNum;
+//
+//  /** the values of the pv in the calibcycle */
+//  double _pvControlValue[pvNumMax];
+//
+//  /** the names of the pv in the calibcyle */
+//  std::string _pvControlName[pvNumMax];
+//
+//  /** the final name of the pv */
+//  std::stringstream _pvSS;
 };
 
 }//end namespace cass
