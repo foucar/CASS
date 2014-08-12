@@ -472,13 +472,13 @@ void pp313::loadSettings(size_t)
 
 void pp313::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  const HistogramFloatBase& hist
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  const Histogram1DFloat& hist
+      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
+  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
 
   QReadLocker lock(&hist.lock);
-  const HistogramFloatBase::storage_t &src(hist.memory());
-  HistogramFloatBase::storage_t &dest(result.memory());
+  const Histogram1DFloat::storage_t &src(hist.memory());
+  Histogram1DFloat::storage_t &dest(result.memory());
 
   typedef vigra::StandardAccessor<float> FAccessor;
   typedef vigra::StandardAccessor<float> KernelAccessor;
