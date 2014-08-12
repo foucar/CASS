@@ -171,6 +171,7 @@ the Class description for information about what parameters are user settable.
 00310: Autocorrelation of image in polar coordinates
 00311: Autocorrelation of image in kartesian coordinates
 00312: FFT of an histogram
+00313: Convolute a histogram with a kernel
 00240: Test Image
 
 00330: Generate Calibration data from raw images
@@ -494,6 +495,7 @@ public:
     Autocorrelation=310,
     Autocorrelation2=311,
     fft=312,
+    convoluteKernel=313,
 
     calibration=330,
     gaincalibration=331,

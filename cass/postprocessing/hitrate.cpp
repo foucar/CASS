@@ -9,6 +9,8 @@
 #include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
+
 
 using namespace cass;
 using namespace std;
@@ -418,3 +420,75 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.fill( mahal_dist );
 }
+
+
+
+
+
+
+
+// ***  pp 313 convolute histogram with kernel ***
+
+pp313::pp313(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp313::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+
+  /** read in kernel */
+  _kernel.clear();
+  QStringList kernel(s.value("Kernel").toStringList());
+  QStringList::const_iterator cIt(kernel.begin());
+  for (; cIt != kernel.end(); ++cIt)
+  {
+    bool ok(false);
+    _kernel.push_back(cIt->toFloat(&ok));
+    if (!ok)
+      throw invalid_argument("pp313::loadSettings: '" + name() +
+                             "' Kernel value '" + cIt->toStdString() +
+                             "' can't be converted to floating point number");
+  }
+  _kernelCenter = _kernel.begin() + static_cast<int>(_kernel.size()*0.5);
+  _kleft = distance(_kernelCenter,_kernel.begin());
+  _kright = distance(_kernelCenter, _kernel.end()-1);
+
+  createHistList(_pHist->result().copy_sptr());
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' convolutes '" + _pHist->name() + "' with kernel." +
+           "'. Condition on PostProcessor '" + _condition->name() + "'");
+}
+
+void pp313::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const HistogramFloatBase& hist
+      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
+  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+
+  QReadLocker lock(&hist.lock);
+  const HistogramFloatBase::storage_t &src(hist.memory());
+  HistogramFloatBase::storage_t &dest(result.memory());
+
+  typedef vigra::StandardAccessor<float> FAccessor;
+  typedef vigra::StandardAccessor<float> KernelAccessor;
+
+  vigra::convolveLine(src.begin(),src.end(),FAccessor(),
+                      dest.begin(),FAccessor(),
+                      _kernelCenter,KernelAccessor(),_kleft,_kright,
+                      vigra::BORDER_TREATMENT_REFLECT);
+  result.nbrOfFills()=1;
+}
+
+
+

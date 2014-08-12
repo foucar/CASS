@@ -593,6 +593,11 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostProcessor::shared_pointer(new pp312(key));
     break;
 #endif
+#ifdef SINGLEPARTICLE_HIT
+  case convoluteKernel:
+    processor = PostProcessor::shared_pointer(new pp313(key));
+    break;
+#endif
   case calibration:
     processor = PostProcessor::shared_pointer(new pp330(key));
     break;

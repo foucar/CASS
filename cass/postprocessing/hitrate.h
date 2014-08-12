@@ -7,6 +7,7 @@
 #include <vigra/linear_algebra.hxx>
 #include <vigra/inspectimage.hxx>
 #include <vigra/multi_pointoperators.hxx> 
+#include <vigra/separableconvolution.hxx>
 
 #include "processor.h"
 #include "cass_event.h"
@@ -135,6 +136,56 @@ protected:
   int _trainingSetsInserted; // counts how many training data items are already included in training set.
   int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
 };
+
+
+
+
+
+/** convolute histogram with kernel
+ *
+ * @PPList "313": convolute histogram with kernel
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           histogram name, that should be convoluted
+ * @cassttng PostProcessor/\%name\%/{Kernel} \n
+ *           Comma separated list of values for the Kernel that should be
+ *           convoluted to the histogram
+ *
+ * @author Lutz Foucar
+ */
+class pp313 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp313(const name_t &name);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing input histogram */
+  shared_pointer _pHist;
+
+  /** array containing the kernel */
+  std::vector<float> _kernel;
+
+  /** iterator to the center of the kernel */
+  std::vector<float>::iterator _kernelCenter;
+
+  /** element to the left of the kernel center */
+  int _kleft;
+
+  /** elements to the right of the kernel center */
+  int _kright;
+};
+
+
 
 
 }
