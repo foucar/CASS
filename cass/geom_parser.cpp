@@ -9,6 +9,8 @@
 #include <map>
 #include <fstream>
 #include <stdexcept>
+#include <cstdlib>
+#include <algorithm>
 #include <tr1/functional>
 
 #include "geom_parser.h"
