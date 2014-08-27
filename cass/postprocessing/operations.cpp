@@ -477,7 +477,9 @@ void pp15::process(const CASSEvent& evt, HistogramBackend &res)
 
   const float value(val.getValue());
 
-  result = !(qFuzzyCompare(value,_previousVal));
+  /** @note the fuzzycompare doesn't work when using big numbers */
+//  result = !(qFuzzyCompare(value,_previousVal));
+  result = fabs(value-_previousVal) < std::numeric_limits<float>::epsilon();
   result.nbrOfFills()=1;
   QMutexLocker lock(&_mutex);
   _previousVal = value;
