@@ -75,7 +75,7 @@ the Class description for information about what parameters are user settable.
 00064: 0d into 1d (append on right end, shifting old values to the left)
 00065: Histogram two 0D values to a 2D histogram
 00066: Histogram two 1D traces to a 2D histogram
-00067: Histogram two 0D values to a 1D histogram, with first=x, second=weight
+00067: Histogram values to a histogram, with first=x, second=weight, remembering nbr of fills
 00068: Histogram 0D and 1D histogram to 2D histogram
 00069: Use two 0D values for a scatter plot
 

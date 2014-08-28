@@ -1015,7 +1015,8 @@ protected:
 
 /** weighted 1D histogramming.
  *
- * @PPList "67": Histogram two values to a 1D histogram, with first=x, second=weight
+ * @PPList "67": Histogram two values  with first=x, second=weight to a histogram
+ *               that remembers how many times each bin has been filled.
  *
  * histograms two 0d, 1d or 2d values into a Histogram. The first of the two
  * Histogram defines the x axis bin and the second the weight. The resulting
