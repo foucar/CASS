@@ -1013,12 +1013,12 @@ protected:
 
 
 
-/** 0D to 1D histogramming.
+/** weighted 1D histogramming.
  *
- * @PPList "67": Histogram two 0D values to a 1D histogram, with first=x, second=weight
+ * @PPList "67": Histogram two values to a 1D histogram, with first=x, second=weight
  *
- * histograms two 0d values into one 1D Histogram where the first Histogram
- * defines the x axis bin and the second is the weight.
+ * histograms two 0d, 1d or 2d values into one 1D Histogram where the first
+ * Histogram defines the x axis bin and the second is the weight.
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
@@ -1026,7 +1026,7 @@ protected:
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1d histogram
  * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
- *           Postprocessor names containing the 0D values to histogram.
+ *           Postprocessor names containing the values and weights to histogram.
  *
  * @author Lutz Foucar
  */
@@ -1048,6 +1048,9 @@ protected:
 
   /** pp containing second 0D histogram to work on */
   shared_pointer _two;
+
+  /** the size of the statistics that should not be histogramed */
+  size_t _statsize;
 };
 
 

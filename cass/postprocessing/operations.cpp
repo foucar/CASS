@@ -1411,9 +1411,24 @@ void pp67::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  if (_one->result().dimension() != 0 || _two->result().dimension() != 0)
-    throw runtime_error("pp67::loadSettings() '" + name() + "': Either '" +
-                        _one->name() + "' or '" + _two->name() + "' is not a 0D Hist");
+  if (_one->result().dimension() != _two->result().dimension() )
+    throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
+                           _one->name() + "' and '" + _two->name() +
+                           "' are not of the same type");
+  if (dynamic_cast<const HistogramFloatBase&>(_one->result()).memory().size() !=
+      dynamic_cast<const HistogramFloatBase&>(_two->result()).memory().size())
+    throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
+                           _one->name() + "' and '" + _two->name() +
+                           "' are not of the same size");
+
+  switch (_one->result().dimension())
+  {
+  case 0: _statsize = 0; break;
+  case 1: _statsize = HistogramBackend::Underflow+1; break;
+  case 2: _statsize = HistogramBackend::LowerRight+1; break;
+  default:  break;
+  }
+
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"Postprocessor '" + name() +
       "' makes a 1D Histogram where '" + _one->name() +
@@ -1424,17 +1439,25 @@ void pp67::loadSettings(size_t)
 
 void pp67::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  const Histogram0DFloat &one
-      (dynamic_cast<const Histogram0DFloat&>(_one->result(evt.id())));
-  const Histogram0DFloat &two
-      (dynamic_cast<const Histogram0DFloat&>(_two->result(evt.id())));
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
+  const HistogramFloatBase &two
+      (dynamic_cast<const HistogramFloatBase&>(_two->result(evt.id())));
   Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
 
   QReadLocker lock1(&one.lock);
   QReadLocker lock2(&two.lock);
 
+  const HistogramFloatBase::storage_t &xmem(one.memory());
+  HistogramFloatBase::storage_t::const_iterator xx(xmem.begin());
+  HistogramFloatBase::storage_t::const_iterator xEnd(xmem.end()-_statsize);
+
+  const HistogramFloatBase::storage_t &ymem(two.memory());
+  HistogramFloatBase::storage_t::const_iterator yy(ymem.begin());
+
   result.clear();
-  result.fill(one.getValue(),two.getValue());
+  for (;xx != xEnd; ++xx, ++yy)
+    result.fill(*xx,*yy);
 }
 
 
