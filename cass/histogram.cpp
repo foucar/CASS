@@ -93,6 +93,7 @@ Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogr
   {
     size_t low(_axis[yAxis].bin(std::min(range.first,range.second)));
     size_t up (_axis[yAxis].bin(std::max(range.first,range.second)));
+    up = std::max(range.first,range.second) == rows ? rows : up;
     for(size_t row=low; row<up; ++row)
       for(size_t col=0; col<columns; ++col)
         hist.bin(col) += bin(row, col);
@@ -102,6 +103,7 @@ Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogr
   {
     size_t low(_axis[xAxis].bin(std::min(range.first,range.second)));
     size_t up (_axis[xAxis].bin(std::max(range.first,range.second)));
+    up = std::max(range.first,range.second) == columns ? columns : up;
     for(size_t row=0; row<rows; ++row)
       for(size_t col=low; col<up; ++col)
         hist.bin(row) += bin(row, col);
