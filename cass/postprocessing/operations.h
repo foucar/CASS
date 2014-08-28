@@ -1017,8 +1017,10 @@ protected:
  *
  * @PPList "67": Histogram two values to a 1D histogram, with first=x, second=weight
  *
- * histograms two 0d, 1d or 2d values into one 1D Histogram where the first
- * Histogram defines the x axis bin and the second is the weight.
+ * histograms two 0d, 1d or 2d values into a Histogram. The first of the two
+ * Histogram defines the x axis bin and the second the weight. The resulting
+ * Histogram is a 2d historam with 2 bins in y. The 0th bin contains the weighted
+ * Histogram and the 1st bin contains the number of entries in that bin.
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.

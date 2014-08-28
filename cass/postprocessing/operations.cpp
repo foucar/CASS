@@ -1405,6 +1405,9 @@ pp67::pp67(const name_t &name)
 
 void pp67::loadSettings(size_t)
 {
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistOne");
   _two = setupDependency("HistTwo");
@@ -1429,7 +1432,15 @@ void pp67::loadSettings(size_t)
   default:  break;
   }
 
-  createHistList(set1DHist(name()));
+  createHistList(
+        tr1::shared_ptr<Histogram2DFloat>
+        (new Histogram2DFloat(s.value("XNbrBins",1).toUInt(),
+                              s.value("XLow",0).toFloat(),
+                              s.value("XUp",0).toFloat(),
+                              2,0,2, /** @note this allows to address the y bin with 0.1 and 1.1 */
+                              s.value("XTitle","x-axis").toString().toStdString(),
+                              "bins")));
+
   Log::add(Log::INFO,"Postprocessor '" + name() +
       "' makes a 1D Histogram where '" + _one->name() +
       "' defines the x bin to fill and '" +  _two->name() +
@@ -1443,7 +1454,7 @@ void pp67::process(const CASSEvent& evt, HistogramBackend &res)
       (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
   const HistogramFloatBase &two
       (dynamic_cast<const HistogramFloatBase&>(_two->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   QReadLocker lock1(&one.lock);
   QReadLocker lock2(&two.lock);
@@ -1457,7 +1468,10 @@ void pp67::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.clear();
   for (;xx != xEnd; ++xx, ++yy)
-    result.fill(*xx,*yy);
+  {
+    result.fill(*xx,0.1,*yy);
+    result.fill(*xx,1.1);
+  }
 }
 
 
