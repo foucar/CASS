@@ -346,7 +346,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
           std::stringstream entryname;
           entryname << epicsVariableName << "[" << i << "]";
           _store.EpicsData()[entryname.str()] = 0.;
-          Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
+          Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() +
                    "' is available in Epics Data");;
         }
       }
@@ -363,17 +363,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
       if (!md)
         throw logic_error("MachineData::Converter: Epics data without a proper cassevent");
-      MachineDataDevice::epicsDataMap_t &epicsStore(md->EpicsData());
 
       /** now we need to find the variable name in the map, therefore we look up
        *  the name in the indexmap
        */
       epicsKeyMap_t::const_iterator eIt(_index2name.find(key));
       if (eIt == _index2name.end())
-      {
         Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
                  toString(epicsData.iPvId) + "' was not defined");
-      }
       else
       {
         string epicsVariableName(eIt->second);
@@ -393,7 +390,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         /** if the name is not in the map, ouput error message */
         if (it == _store.EpicsData().end())
           Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
-                   toString(epicsData.iPvId) + "' was not defined");
+                   toString(epicsData.iPvId) + "' was not found in store");
         /** otherwise extract the epicsData and write it into the map */
         else
         {
