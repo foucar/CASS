@@ -61,7 +61,7 @@ public:
    *
    * @param evt the event that should be finalized
    */
-  virtual void finalize(cass::CASSEvent *evt) {}
+  virtual void finalize(cass::CASSEvent *) {}
 
   /** return the list of pds type ids the converter is responsible for */
   const pdstypelist_t &pdsTypeList()const {return _pdsTypeList;}

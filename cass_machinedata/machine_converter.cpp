@@ -332,31 +332,31 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
        */
       string epicsVariableName(ctrl.sPvName);
       _index2name[key] = epicsVariableName;
-//      /** now we need to create the map which we will fill later with real values
-//       *  if this epics variable is an array we want an entry in the map for each entry in the array
-//       */
-//      if (ctrl.iNumElements > 1)
-//      {
-//        /** go through all entries of the array
-//         *  create an entry in the map with the the index in brackets
-//         *  and initialize it with 0
-//         */
-//        for (int i=0;i<ctrl.iNumElements;++i)
-//        {
-//          std::stringstream entryname;
-//          entryname << epicsVariableName << "[" << i << "]";
-//          _store.EpicsData()[entryname.str()] = 0.;
-//          Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
-//                   "' is available in Epics Data");;
-//        }
-//      }
-//      /** otherwise we just add the name to the map and initialze it with 0 */
-//      else
-//      {
-//        _store.EpicsData()[epicsVariableName] = 0.;
+      /** now we need to create the map which we will fill later with real values
+       *  if this epics variable is an array we want an entry in the map for each entry in the array
+       */
+      if (ctrl.iNumElements > 1)
+      {
+        /** go through all entries of the array
+         *  create an entry in the map with the the index in brackets
+         *  and initialize it with 0
+         */
+        for (int i=0;i<ctrl.iNumElements;++i)
+        {
+          std::stringstream entryname;
+          entryname << epicsVariableName << "[" << i << "]";
+          _store.EpicsData()[entryname.str()] = 0.;
+          Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
+                   "' is available in Epics Data");;
+        }
+      }
+      /** otherwise we just add the name to the map and initialze it with 0 */
+      else
+      {
+        _store.EpicsData()[epicsVariableName] = 0.;
         Log::add(Log::INFO,"MachineData::Converter: '" + epicsVariableName +
                  "' is available in Epics Data");
-//      }
+      }
     }
     /** time is the actual data, that will be send down the xtc with 1 Hz */
     else if(dbr_type_is_TIME(epicsData.iDbrType))
@@ -370,76 +370,58 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
        */
       epicsKeyMap_t::const_iterator eIt(_index2name.find(key));
       if (eIt == _index2name.end())
+      {
         Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
                  toString(epicsData.iPvId) + "' was not defined");
-      string epicsVariableName(eIt->second);
-
-      /** create an iterator to the first element in the epics store with the
-       *  variable name
-       */
-      MachineDataDevice::epicsDataMap_t::iterator it;
-
-      /** if it is an array go through all entries of the array create an entry
-       *  in the map with the the index in brackets and initialize it with 0
-       */
-      if (epicsData.iNumElements > 1)
-      {
-//        epicsVariableName.append("[0]");
-        for (int i=0; i<epicsData.iNumElements; ++i)
-        {
-          std::stringstream entryname;
-          entryname << epicsVariableName << "[" << i << "]";
-          epicsStore.insert(make_pair(entryname.str(),0.));
-        }
-        /** initialize the iterator to the element that was added first */
-        it = epicsStore.find(epicsVariableName + "[0]");
       }
       else
       {
-        /** otherwise just insert the variablename into the store and initialize
-         *  the iterator to point to the added element in the map
+        string epicsVariableName(eIt->second);
+
+        /** if it is an array go through all entries of the array create an entry
+         *  in the map with the the index in brackets and initialize it with 0
          */
-        pair<MachineDataDevice::epicsDataMap_t::iterator,bool> ret
-            (epicsStore.insert(make_pair(epicsVariableName,0)));
-        it = ret.first;
+        if (epicsData.iNumElements > 1)
+          epicsVariableName.append("[0]");
+
+        /** try to find the the name in the map
+         *  this returns an iterator to the first entry we found
+         *  if it was an array we can then use the iterator to the next values
+         */
+        MachineDataDevice::epicsDataMap_t::iterator it =
+            _store.EpicsData().find(epicsVariableName);
+        /** if the name is not in the map, ouput error message */
+        if (it == _store.EpicsData().end())
+          Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
+                   toString(epicsData.iPvId) + "' was not defined");
+        /** otherwise extract the epicsData and write it into the map */
+        else
+        {
+          /** now extract the value from the epics variable */
+          switch(epicsData.iDbrType)
+          {
+          case DBR_TIME_SHORT:
+            convertEpicsToDouble<DBR_SHORT>(epicsData,it);
+            break;
+          case DBR_TIME_FLOAT:
+            convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
+            break;
+          case DBR_TIME_ENUM:
+            convertEpicsToDouble<DBR_ENUM>(epicsData,it);
+            break;
+          case DBR_TIME_LONG:
+            convertEpicsToDouble<DBR_LONG>(epicsData,it);
+            break;
+          case DBR_TIME_DOUBLE:
+            convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
+            break;
+          default:
+            break;
+          }//end switch
+        }
+        /** set the variable that the epics store was filled */
+        md->epicsFilled() = true;
       }
-//      /** try to find the the name in the map
-//       *  this returns an iterator to the first entry we found
-//       *  if it was an array we can then use the iterator to the next values
-//       */
-//      MachineDataDevice::epicsDataMap_t::iterator it =
-//          _store.EpicsData().find(epicsVariableName);
-//      /** if the name is not in the map, ouput error message */
-//      if (it == _store.EpicsData().end())
-//        Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
-//                 toString(epicsData.iPvId) + "' was not defined");
-//      /** otherwise extract the epicsData and write it into the map */
-//      else
-//      {
-      /** now extract the value from the epics variable */
-      switch(epicsData.iDbrType)
-      {
-      case DBR_TIME_SHORT:
-        convertEpicsToDouble<DBR_SHORT>(epicsData,it);
-        break;
-      case DBR_TIME_FLOAT:
-        convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
-        break;
-      case DBR_TIME_ENUM:
-        convertEpicsToDouble<DBR_ENUM>(epicsData,it);
-        break;
-      case DBR_TIME_LONG:
-        convertEpicsToDouble<DBR_LONG>(epicsData,it);
-        break;
-      case DBR_TIME_DOUBLE:
-        convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
-        break;
-      default:
-        break;
-      }//end switch
-//      }
-      /** set the variable that the epics store was filled */
-      md->epicsFilled() = true;
     }
     break;
   }
@@ -543,10 +525,7 @@ void Converter::finalize(CASSEvent *evt)
   if (evt)
   {
     MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
-    if (md->epicsFilled())
-      _store.EpicsData() = md->EpicsData();
-    else
-      md->EpicsData() = _store.EpicsData();
+    md->EpicsData() = _store.EpicsData();
     for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
       md->BeamlineData()[it->first] = it->second;
   }

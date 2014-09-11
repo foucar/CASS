@@ -66,9 +66,9 @@ public:
     bldMap_t::iterator bi (_blddata.begin());
     for (; bi != _blddata.end();++bi)
       bi->second = 0;
-    epicsDataMap_t::iterator ei (_epicsdata.begin());
-    for (; ei != _epicsdata.end();++ei)
-      ei->second = 0;
+//    epicsDataMap_t::iterator ei (_epicsdata.begin());
+//    for (; ei != _epicsdata.end();++ei)
+//      ei->second = 0;
     _epicsFilled = false;
   }
 
