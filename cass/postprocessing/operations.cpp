@@ -459,11 +459,16 @@ void pp15::loadSettings(size_t)
   if (_hist->result().dimension() != 0 )
     throw runtime_error("pp15::loadSettings: Hist '" + _hist->name() +
                         "' is not a 0D Hist");
+  _difference = s.value("Difference",0.).toFloat();
+  if (fabs(_difference) < std::numeric_limits<float>::epsilon() )
+    _difference = std::numeric_limits<float>::epsilon();
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
   Log::add(Log::INFO,"Postprocessor '" + name() +
-           "' will check whether value of '" + _hist->name() +
-           "'has changed. It will use condition '" + _condition->name() +"'");
+           "' will check whether the difference between the current and the" +
+           " previous value of '" + _hist->name() +
+           "' is bigger than '"+ toString(_difference) +
+           "'. It will use condition '" + _condition->name() +"'");
 
 }
 
@@ -478,8 +483,7 @@ void pp15::process(const CASSEvent& evt, HistogramBackend &res)
   const float value(val.getValue());
 
   /** @note the fuzzycompare doesn't work when using big numbers */
-//  result = !(qFuzzyCompare(value,_previousVal));
-  result = fabs(value-_previousVal) < std::numeric_limits<float>::epsilon();
+  result = fabs(value-_previousVal) < _difference;
   result.nbrOfFills()=1;
   QMutexLocker lock(&_mutex);
   _previousVal = value;

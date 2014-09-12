@@ -338,8 +338,12 @@ private:
  * check whether a value has changed with respekt to the previous event.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
- *           is 0.
+ *           The PostProcessor name that contain the 0D Histogram that should be
+ *           monitored.
+ * @cassttng PostProcessor/\%name\%/{Difference} \n
+ *           The maximum allowed difference between the previous and the current
+ *           value of the 0D Histogram. Default is 0 which results in a value
+ *           given by std::numeric_limits<float>::epsilon().
  *
  * @author Lutz Foucar
  */
@@ -361,6 +365,9 @@ protected:
 
   /** the value of the previous event */
   float _previousVal;
+
+  /** the maximum difference to previous val that is accepted */
+  float _difference;
 
   /** mutex for locking the previous value variable */
   QMutex _mutex;
