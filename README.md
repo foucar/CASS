@@ -40,7 +40,7 @@ reasons.
 CASS is being developed using the distributed version control system 'git'.
 One can clone a copy from the server using the following command
 
-    git clone gitasg@lfs1.mpi-hd.mpg.de:diode
+    git clone gitasg@lfs1.mpi-hd.mpg.de:cass
 
 This requires that you have set up a ssh key pair and sent Lutz Foucar your
 public key.
