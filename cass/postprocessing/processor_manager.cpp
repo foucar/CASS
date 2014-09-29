@@ -403,6 +403,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case Counter:
     processor = PostProcessor::shared_pointer(new pp78(key));
     break;
+  case Table2TwoDHist:
+    processor = PostProcessor::shared_pointer(new pp79(key));
+    break;
   case maximumBin:
     processor = PostProcessor::shared_pointer(new pp81(key));
     break;

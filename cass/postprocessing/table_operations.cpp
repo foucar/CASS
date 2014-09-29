@@ -11,6 +11,7 @@
 
 #include "log.h"
 #include "cass_settings.h"
+#include "convenience_functions.h"
 
 using namespace cass;
 using namespace std;
@@ -200,3 +201,70 @@ void pp74::process(const CASSEvent& evt, HistogramBackend &res)
   result.fill(val);
   result.nbrOfFills()=1;
 }
+
+
+
+
+
+// ***  pp 79 generates a 2d histogram from 2 columns***
+
+pp79::pp79(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp79::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _table = setupDependency("TableName");
+  bool ret (setupCondition());
+  if (!(ret && _table))
+    return;
+  _xcolIdx = s.value("XColumnIndex",0).toUInt();
+  _ycolIdx = s.value("YColumnIndex",0).toUInt();
+
+  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
+  if (_xcolIdx >= maxIdx)
+    throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
+                        "x column index '" + toString(_xcolIdx) + " 'exeeds the " +
+                        "maximum possible index value '" + toString(maxIdx) + "'");
+  if (_ycolIdx >= maxIdx)
+    throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
+                        "y column index '" + toString(_ycolIdx) + " 'exeeds the " +
+                        "maximum possible index value '" + toString(maxIdx) + "'");
+
+  createHistList(set2DHist(name()));
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' X column index '" + toString(_xcolIdx) +
+           "' Y column index '" + toString(_ycolIdx) +
+           "' Table " + _table->name() + "' .Condition on postprocessor '" +
+           _condition->name() + "'");
+}
+
+void pp79::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const Histogram2DFloat& table
+      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
+  const HistogramFloatBase::storage_t &tableContents(table.memory());
+  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+
+  QReadLocker lock(&table.lock);
+
+  result.clear();
+
+  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+
+  for (size_t row=0; row < nRows; ++row)
+    result.fill(tableContents[row*nCols + _xcolIdx],
+                tableContents[row*nCols + _ycolIdx]);
+
+  result.nbrOfFills()=1;
+}
+
+
+

@@ -161,5 +161,55 @@ protected:
   size_t _rowIdx;
 };
 
+
+
+
+/** generate a 2d Histogram from values of 2 columns of a table
+ *
+ * @PPList "79": generate a 2d Histogram from values of 2 columns of a table
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{TableName} \n
+ *           name of postprocessor that contains the table like histogram
+ *           subset from. Default is "".
+ * @cassttng PostProcessor/\%name\%/{XColumnIndex|YColumnIndex} \n
+ *           The index of the column in the table that one wants to have
+ *           extracted and put on the x- and y-axis. Please refer to the
+ *           PostProcessor description of the PostProcessor that contains the
+ *           table to find out what column indizes are available.
+ *           Default is "0".
+ * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ *           properties of the 2d histogram
+ *
+ * @author Lutz Foucar
+ */
+class pp79 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp79(const name_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing input table */
+  shared_pointer _table;
+
+  /** index of the column that needs to be extracted */
+  size_t _xcolIdx;
+
+  /** index of the column that needs to be extracted */
+  size_t _ycolIdx;
+};
+
+
+
+
 }//end namespace cass
 #endif
