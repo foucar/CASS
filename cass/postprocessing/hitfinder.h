@@ -409,6 +409,20 @@ protected:
  *           background. The box is going from -BoxSizeX ... BoxSizeX in x and
  *           same in y. Default is determined by the BraggPeakRadius.
  *           \f$ size = sqrt{\pi} \times BraggPeakRadius \f$
+ * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
+ *           The geom file to use. Default is "wrong_file" in which case the
+ *           resolution will be calculated completely wrong
+ * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ *           Set this true if the geom file is for a cheetah layout of the data,
+ *           but the image in HistName is the image in CASS layout.
+ * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
+ *           The wavelength in Angstroem. Can also be the name of a PP that
+ *           contains the Wavelength. Default is 1.
+ * @cassttng PostProcessor/\%name\%/{DetectorDistance_m} \n
+ *           The detector distance in m. Can also be the name of a PP that
+ *           contains the detector distance. Default is 60e-2.
+ * @cassttng PostProcessor/\%name\%/{PixelSize_m} \n
+ *           The pixel size in m. Default is 109.92-6
  *
  * @author Lutz Foucar
  */
@@ -420,7 +434,6 @@ public:
 
   /** process event */
   virtual void process(const CASSEvent&, HistogramBackend &result);
-//  virtual void process(const CASSEvent&, HistogramBackend &);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -464,6 +477,7 @@ protected:
     MinRadius                 = 11,
     MaxADU                    = 12,
     nUpOutliers               = 13,
+    Resolution                = 14,
     nbrOf
   };
 
@@ -496,6 +510,31 @@ protected:
    */
   int isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
                    const index_t linIdx, shape_t box, stat_t &stat);
+
+  /** retrieve the constant wavelength
+   *
+   * @param id unused
+   */
+  double lambdaFromConstant(const CASSEvent::id_t&) {return _wavelength;}
+
+  /** retrieve the wavelength from the processor
+   *
+   * @param id the id of the event to get the wavelength from
+   */
+  double lambdaFromProcessor(const CASSEvent::id_t& id);
+
+  /** retrieve the constant detector distance
+   *
+   * @param id unused
+   */
+  double distanceFromConstant(const CASSEvent::id_t&) {return _detdist;}
+
+  /** retrieve the detector distance from the processor
+   *
+   * @param id the id of the event to get the detector distance from
+   */
+  double distanceFromProcessor(const CASSEvent::id_t& id);
+
 protected:
   /** the size of the box within which the peak should lie */
   shape_t _box;
@@ -520,6 +559,28 @@ protected:
 
   /** the list of offsets to next neighbours */
   neighbourList_t _neighbourOffsets;
+
+  /** the conversion table from raw to lab */
+  std::vector<double> _src2labradius;
+
+  /** the wavelength in case its fixed */
+  double _wavelength;
+
+  /** pp containing wavelength in case its not fixed */
+  shared_pointer _wavelengthPP;
+
+  /** function that gets the wavelength */
+  std::tr1::function<double(const CASSEvent::id_t&)> _getLambda;
+
+  /** the detector distance in case its fixed */
+  double _detdist;
+
+  /** pp containing detector distance in case its not fixed */
+  shared_pointer _detdistPP;
+
+  /** function that gets the detectordistance */
+  std::tr1::function<double(const CASSEvent::id_t&)> _getDistance;
+
 };
 
 

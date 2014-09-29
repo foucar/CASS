@@ -15,10 +15,13 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "geom_parser.h"
 
 using namespace std;
 using namespace cass;
 using tr1::bind;
+using tr1::placeholders::_1;
+using tr1::placeholders::_2;
 
 
 // ********** Postprocessor 203: subtract local background ************
@@ -791,12 +794,77 @@ void pp208::loadSettings(size_t)
   _minNbrPixels = s.value("MinNbrPixels",0.25*3.14159*square(peakDiameter)).toInt();
 
   setupGeneral();
+  bool ret (setupCondition());
+
+  /** use fixed value for wavelength if value can be converted to double,
+   *  otherwise use the wavelength from the postprocessor
+   */
+  bool isDouble(false);
+  QString wlkey("Wavelength_A");
+  QString wlparam(s.value(wlkey,"1").toString());
+  double wlval(wlparam.toDouble(&isDouble));
+  if (isDouble)
+  {
+    _wavelength = wlval;
+    _getLambda = bind(&pp208::lambdaFromConstant,this,_1);
+  }
+  else
+  {
+    _wavelengthPP = setupDependency(wlkey.toStdString());
+    ret = _wavelengthPP && ret;
+    _getLambda = bind(&pp208::lambdaFromProcessor,this,_1);
+  }
+  /** use fixed value for detector distance if value can be converted to double,
+   *  otherwise use the detector distance from the postprocessor
+   */
+  isDouble = false;
+  QString ddkey("DetectorDistance_m");
+  QString ddparam(s.value(ddkey,"60e-2").toString());
+  double ddval(ddparam.toDouble(&isDouble));
+  if (isDouble)
+  {
+    _detdist = ddval;
+    _getDistance = bind(&pp208::distanceFromConstant,this,_1);
+  }
+  else
+  {
+    _detdistPP = setupDependency(ddkey.toStdString());
+    ret = _detdistPP && ret;
+    _getDistance = bind(&pp208::distanceFromProcessor,this,_1);
+  }
 
   _imagePP = setupDependency("HistName");
 
-  bool ret (setupCondition());
   if (!(_imagePP && ret))
     return;
+
+  /** generate the lookuptable for the radia, if no geom file is provided,
+   *  set the radia to 0
+   */
+  const string filename = s.value("GeometryFilename","wrong_file").toString().toStdString();
+  const bool convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
+  const double pixsizeX_m = s.value("PixelSizeX_m",109.92e-6).toDouble();
+  const double pixsizeY_m = s.value("PixelSizeY_m",109.92e-6).toDouble();
+  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
+  if (filename != "wrong_file")
+  {
+    GeometryInfo::conversion_t src2lab =
+        GeometryInfo::generateConversionMap(filename,
+                                            srcImageHist.memory().size(),
+                                            srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                            convertCheetahToCASSLayout);
+    _src2labradius.resize(src2lab.size());
+    for (size_t i=0; i < src2lab.size(); ++i)
+    {
+      const double x_m(src2lab[i].x *pixsizeX_m);
+      const double y_m(src2lab[i].y *pixsizeY_m);
+      _src2labradius[i] = sqrt(x_m*x_m + y_m*y_m);
+    }
+  }
+  else
+  {
+    _src2labradius.resize(srcImageHist.memory().size(),0);
+  }
 
   /** set up the neighbouroffset list */
   _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->result()).shape();
@@ -822,10 +890,30 @@ void pp208::loadSettings(size_t)
                 "'. MinPixels '" + toString(_minNbrPixels) +
                 "'. MinFraction '" + toString(_minRatio) +
                 "'. Using input histogram :" + _imagePP->name() +
+                "'. Wavelength :" + wlparam.toStdString() +
+                "'. Detector Distance :" + ddparam.toStdString() +
+                "'. Geomfile :" + filename +
+                "'. Convert Cheetah to CASS :" + (convertCheetahToCASSLayout? "true":"false") +
+                "'. Pixelsize [m] :" + toString(pixsizeX_m) + "x" + toString(pixsizeY_m) +
                 "'. Condition is '" + _condition->name() + "'");
   Log::add(Log::INFO,output);
 }
 
+double pp208::lambdaFromProcessor(const CASSEvent::id_t& id)
+{
+  const Histogram0DFloat &wavelength
+      (dynamic_cast<const Histogram0DFloat&>(_wavelengthPP->result(id)));
+  QReadLocker lock(&wavelength.lock);
+  return wavelength.getValue();
+}
+
+double pp208::distanceFromProcessor(const CASSEvent::id_t& id)
+{
+  const Histogram0DFloat &detdist
+      (dynamic_cast<const Histogram0DFloat&>(_detdistPP->result(id)));
+  QReadLocker lock(&detdist.lock);
+  return detdist.getValue();
+}
 
 int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
                             const index_t linIdx, const shape_t &box, stat_t &stat)
@@ -1062,6 +1150,8 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     peak[LocalBackground] = mean;
     peak[LocalBackgroundDeviation] = stdv;
     peak[nUpOutliers] = stat.nbrUpperOutliers();
+    peak[Resolution] = 1.0 / ((2.0/_getLambda(evt.id())) *
+                              sin(0.5*atan(_src2labradius[idx]/_getDistance(evt.id()))));
 
     result.appendRows(peak);
   }
