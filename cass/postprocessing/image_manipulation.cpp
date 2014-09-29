@@ -933,7 +933,7 @@ void pp90::loadSettings(size_t)
   else
   {
     _detdistPP = setupDependency(ddkey.toStdString());
-    ret = _getDetectorDistance && ret;
+    ret = _detdistPP && ret;
     _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
   }
   if (!(_imagePP && ret)) return;
