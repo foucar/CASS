@@ -10,11 +10,14 @@
 
 #include <QtGui/QStatusBar>
 
+#include <cmath>
+
 #include "track_zoomer_2d.h"
 
 #include "two_d_viewer_data.h"
 
 using namespace jocassview;
+using namespace std;
 
 TrackZoomer2D::TrackZoomer2D(QWidget *canvas)
   : ScrollZoomer(canvas),
