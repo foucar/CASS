@@ -38,7 +38,7 @@ QMAKE_LIBDIR   *= /path/to/gSoap/lib
 QMAKE_RPATHDIR *= /path/to/gSoap/lib
 GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 
-# tell where to find doxygen for doc generation
+# Uncomment to generate and install the documentation with `make install`
 #CONFIG         *= DOCS
 #DOXYGEN_BIN     = /path/to/doxygen/bin/doxygen
 
