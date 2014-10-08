@@ -9,13 +9,16 @@ SUBDIRS        = LCLS \
                  cass_acqiris \
                  cass_pixeldetector \
                  cass_machinedata \
-                 cass \
-                 doc
+                 cass
 
 cass.depends = LCLS \
                cass_acqiris \
                cass_pixeldetector \
                cass_machinedata
+
+DOCS{
+SUBDIRS       += doc
+}
 
 JoCASSView{
 SUBDIRS       += jocassview

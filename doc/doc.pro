@@ -14,7 +14,7 @@ doc.path     = $$PREFIX/doc/
 doc.extra    = (cat Doxyfile && echo "PROJECT_NUMBER=`unset GIT_DIR; unset GIT_WORK_TREE; git describe --abbrev=4`") | $$DOXYGEN_BIN - && cp -r $$PWD/doxygen/html $$PREFIX/doc/.
 
 ## when one wants to create the docu with make doc
-doc.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`unset GIT_DIR; unset GIT_WORK_TREE;  git describe --abbrev=4`") | $$DOXYGEN_BIN -
+doc.commands = (cat Doxyfile && echo "PROJECT_NUMBER=`unset GIT_DIR; unset GIT_WORK_TREE; git describe --abbrev=4`") | $$DOXYGEN_BIN -
 
 QMAKE_EXTRA_TARGETS += doc
 INSTALLS            += doc

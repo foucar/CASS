@@ -39,7 +39,8 @@ QMAKE_RPATHDIR *= /path/to/gSoap/lib
 GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 
 # tell where to find doxygen for doc generation
-DOXYGEN_BIN     = /path/to/doxygen/bin/doxygen
+#CONFIG         *= DOCS
+#DOXYGEN_BIN     = /path/to/doxygen/bin/doxygen
 
 # Uncomment the following line to enable HDF5 output. If H5 is installed in a
 # non default location tell qmake where to find the hdf5 libraries and includes
@@ -95,12 +96,6 @@ DOXYGEN_BIN     = /path/to/doxygen/bin/doxygen
 #QMAKE_INCDIR   *= /path/to/root/include
 #QMAKE_LIBDIR   *= /path/to/root/lib
 #QMAKE_RPATHDIR *= /path/to/root/lib
-
-# if the lib / include path to gsoap is not default set it here. Make sure that
-# soapcpp2 binary is in your path and can be executed.
-#QMAKE_INCDIR   *= /path/to/gsoap/include
-#QMAKE_LIBDIR   *= /path/to/gsoap/lib
-#QMAKE_RPATHDIR *= /path/to/gsoap/lib
 
 
 # Uncomment the following to enable profiling with gprof
