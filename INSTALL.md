@@ -151,6 +151,20 @@ to compile and install do the following:
 where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
+### GRAPHVIZ used for doxgen {#graphviz}
+Download graphviz from
+
+    http://www.graphviz.org
+
+to compile and install do the following:
+
+    ./configure --prefix=/somewhere
+    make
+    make install
+
+where "somewhere" is the place that you want to install the libraries to be
+installed to (ie. /usr/local)
+
 
 ### FFTW (version 3.3.3 or above)  {#fftw}
 Download the sources from
