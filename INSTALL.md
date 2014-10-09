@@ -41,6 +41,29 @@ Optional Prerequisites {#optpre}
 The following software packages are needed when enabeling optional components in
 CASS:
 
+### gcc (version 4.6.4 and above) {#gcc}
+Download a recent version of gcc here:
+
+    https://gcc.gnu.org/
+
+after the tarball is extracted in order to compile and install one has to
+create a separate build dir.
+
+    mkdir gcc$VERSION-build
+
+download the prerequisites with the help of the script in contrib from within
+the src dir
+
+    contrib/download-prerequisites
+
+to compile and install run the follwing from the build dir
+
+    $srcdir/configure --prefix=somewhere
+    make
+    make install
+
+
+
 ### QWT (version 6.1.0 and above) {#qwt}
 Download the version of qwt from here:
 
