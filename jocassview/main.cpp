@@ -4,7 +4,7 @@
 // Copyright (C) 2013,2014 Lutz Foucar
 
 /**
- * @file main.cpp the main starter for jocassview
+ * @file jocassview/main.cpp the main starter for jocassview
  *
  * @author Lutz Foucar
  */

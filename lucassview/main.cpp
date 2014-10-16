@@ -1,7 +1,7 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file main.cpp file the main function of lucassview
+ * @file lucassview/main.cpp file the main function of lucassview
  *
  * @author Lutz Foucar
  */

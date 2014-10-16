@@ -1,7 +1,7 @@
 //Copyright (C) 2011, 2013 Lutz Foucar
 
 /**
- * @file tcpclient.h file contains the classes connect to cass
+ * @file jocassview/tcpclient.h file contains the classes connect to cass
  *
  * @author Lutz Foucar
  */
