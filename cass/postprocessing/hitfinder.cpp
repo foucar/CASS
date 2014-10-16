@@ -1140,7 +1140,8 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
     peak[centroidRow] = weightRow / integral;
     peak[Intensity] = integral;
     peak[nbrOfPixels] = peakIdxs.size();
-    peak[SignalToNoise] = (*pixel-mean)/stdv;
+    peak[SignalToNoiseHighestPixel] = (*pixel-mean)/stdv;
+    peak[SignalToNoiseSpot] = integral/stdv;
     peak[MaxRadius] = sqrt(max_radiussq);
     peak[MinRadius] = sqrt(min_radiussq);
     peak[Index] = idx;

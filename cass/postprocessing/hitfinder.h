@@ -467,7 +467,7 @@ protected:
     centroidColumn            =  1,
     centroidRow               =  2,
     nbrOfPixels               =  3,
-    SignalToNoise             =  4,
+    SignalToNoiseHighestPixel =  4,
     Index                     =  5,
     Column                    =  6,
     Row                       =  7,
@@ -478,6 +478,7 @@ protected:
     MaxADU                    = 12,
     nUpOutliers               = 13,
     Resolution                = 14,
+    SignalToNoiseSpot         = 15,
     nbrOf
   };
 
