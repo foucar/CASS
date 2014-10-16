@@ -17,7 +17,7 @@ Please find below the links to most important parts of the description
 Installation {#install}
 ============
 
-See INSTALL.md for short installation instructions.
+See [INSTALL.md](@ref cassinstall) for short installation instructions.
 
 
 Getting CASS source code {#get_source}
@@ -50,7 +50,7 @@ The recent stable version is contained in the 'master' branch.
 
 Building CASS {#Building}
 -------------
-See the INSTALL.md file for the prerequeries. Once you cloned / downloaded
+See the [INSTALL.md](@ref cassinstall) file for the prerequeries. Once you cloned / downloaded
 the version you want to compile you need to do the following steps:
 
     cd /path/to/cass/directory/
@@ -91,7 +91,7 @@ Documentation {#documentation}
 
 The Software Suite is documented using doxygen. One can create a html version
 of the documentation by running doxygen on the "doc" subfolder of the CASS
-directory. For this please install doxygen on your computer (see INSTALL.md
+directory. For this please install doxygen on your computer (see [INSTALL.md](@ref cassinstall)
 for details). Then cd into the doc directory and use doxygen there
 eg. if you are in the CASS base directory do:
 
@@ -417,7 +417,7 @@ Software repository {#repo_rules}
   - if you made changes to the project, so that it will probably
     not compile for the other users, write a detailed description
     what one has to do in order to compile again to the cass
-    mailinglist and into the INSTALL file.
+    mailinglist and into the [INSTALL.md](@ref cassinstall) file.
 
 * Please provide details on your changes in the commit message.
 
