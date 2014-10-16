@@ -116,7 +116,7 @@ Using CASS {#using}
 CASS multiple input modes allow running online (get the data from a live datastream) and
 offline (get the data from the written files).
 Depending on the settings in cass_myconfig.pri one can compile CASS for either
-online or offline mode. Please see @ref compiling for details.
+online or offline mode. Please see @ref cassinstall for details.
 
 A complete list of all available commandline parameters for the compiled mode
 can be found by starting CASS with the help switch:
@@ -179,7 +179,7 @@ The
 
     -f <path/to/.inifile>
 
-parameter lets you choose which .ini file to use. Please see @ref inifilesetup
+parameter lets you choose which .ini file to use. Please see @ref ini_file
 for details of the contents of the .ini file. If this parameter is not set CASS
 will by default load CASS.ini that resides in the UserScope path. On Unix or Mac
 OS X this is $HOME/.config or $HOME/Settings ie.
@@ -232,7 +232,7 @@ the program in a batched way on a cluster. You can suppress the output with
     -r
 
 Results of PostProcessors can optionally be saved to either a root or a hdf5 file.
-One has to enable these options in cass_myconfiq.pri Refer to @ref compiling
+One has to enable these options in cass_myconfiq.pri Refer to @ref cassinstall
 for more details. The filename has to be given in the PostProcessor setup in
 the ini file.
 
@@ -354,7 +354,7 @@ of cass::ACQIRIS::HitCorrector to see which parameters are available.
 
 
 ### The special Pixel-detector Parameters {#pix_param}
-This section has not been written yet. Please refer to the @plist and the examples
+This section has not been written yet. Please refer to the @ref pplist and the examples
 to find out how tho setup these.
 
 
@@ -485,7 +485,7 @@ told to quit:
 The cass::Analyzer singleton will pass the cass event to all user selected pre
 analyzers to pre process the data. The cass::PostProcessor will pass the event
 to all user defined postprocessors to be postprocessed. For further details on
-how to select what postprocessors should run please see section @ref inifilesetup.
+how to select what postprocessors should run please see section @ref ini_file.
 A list of analyzers can be found in cass::Analyzer in which you can also find
 links to specific documentation of each analyzer.
 
