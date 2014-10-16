@@ -3,12 +3,12 @@ Install instructions for CASS  {#cassinstall}
 [TOC]
 
 Prerequisites {#pre}
--------------
+=============
 
 The following software packages need to be installed and available for building
 and running CASS:
 
-### QT(version 4.6.x and above) {#qt}
+## QT(version 4.6.x and above) {#qt}
 Download source from
 
     http://download.qt-project.org/archive/qt
@@ -20,7 +20,7 @@ to compile and install
     make install
 
 
-### gSOAP (version 2.7.x and above) {#gsoap}
+## gSOAP (version 2.7.x and above) {#gsoap}
 Download gSOAP from
 
     http://sourceforge.net/projects/gsoap2/files/
@@ -36,12 +36,12 @@ installed to (ie. /usr/local)
 
 
 Optional Prerequisites {#optpre}
-----------------------
+======================
 
 The following software packages are needed when enabeling optional components in
 CASS:
 
-### gcc (version 4.6.4 and above) {#gcc}
+## gcc (version 4.6.4 and above) {#gcc}
 Download a recent version of gcc here:
 
     https://gcc.gnu.org/
@@ -64,7 +64,7 @@ to compile and install run the follwing from the build dir
 
 
 
-### QWT (version 6.1.0 and above) {#qwt}
+## QWT (version 6.1.0 and above) {#qwt}
 Download the version of qwt from here:
 
     http://sourceforge.net/projects/qwt/files/qwt/
@@ -78,7 +78,7 @@ Then one needs to run
     make install
 
 
-### ZLIB (version 1.2.7 or higher) {#zlib}
+## ZLIB (version 1.2.7 or higher) {#zlib}
 Download the latest version from
 
     http://www.zlib.net
@@ -93,7 +93,7 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
-### HDF5 (version 1.8.5 and above) {#hdf5}
+## HDF5 (version 1.8.5 and above) {#hdf5}
 Download hdf5 library from here
 
     http://www.hdfgroup.org/ftp/HDF5/current/src/
@@ -110,7 +110,7 @@ installed to (ie. /usr/local)
 
 
 
-### VIGRA (version 1.7.0 and above) {#vigra}
+## VIGRA (version 1.7.0 and above) {#vigra}
 Download vigra template library from here:
 
     http://hci.iwr.uni-heidelberg.de/vigra/
@@ -122,7 +122,7 @@ just install the headers by copying them
 where the above `/somewhere/.` is the location where to install the headers
 
 
-### ROOT (version 5.28.00c and above) {#root}
+## ROOT (version 5.28.00c and above) {#root}
 Download root sources using git from here
 
     http://root.cern.ch/drupal/content/downloading-root
@@ -137,7 +137,7 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
-### DOXYGEN (version 1.8.4 and above) {#doxygen}
+## DOXYGEN (version 1.8.4 and above) {#doxygen}
 Download doxygen sources from here:
 
     http://www.stack.nl/~dimitri/doxygen/download.html
@@ -151,7 +151,7 @@ to compile and install do the following:
 where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
-### GRAPHVIZ used for doxgen {#graphviz}
+## GRAPHVIZ used for doxgen {#graphviz}
 Download graphviz from
 
     http://www.graphviz.org
@@ -166,7 +166,7 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
-### FFTW (version 3.3.3 or above)  {#fftw}
+## FFTW (version 3.3.3 or above)  {#fftw}
 Download the sources from
 
     http://www.fftw.org/download
@@ -183,14 +183,14 @@ installed to (ie. /usr/local)
 
 
 Needed Environment Variables  {#env}
-----------------------------
+============================
 
 * QTDIR: needs to point to the Qt installation directory
-* PATH: points there where you installed the binaries (ie. /usr/local/bin)
+* PATH: points there where you installed the qt binaries (ie. /usr/local/bin)
 
 
 Building CASS   {#cass}
--------------
+=============
 
 To configure CASS for your needs please copy the default config as follows:
 
