@@ -565,15 +565,18 @@ use the locker facility that Qt provides. Eg:
 
 When you are done coding your postprocessor you need to make it available to
 the user. To do this you need to complete the following steps:
-- in cass/postprocessing/postprocessor.h add the number and a short description
+- in cass/postprocessing/processor_manager.h add the number and a short description
   in the description part.
-- in cass/postprocessing/postprocessor.h add an entry with your id in the
+- in cass/postprocessing/processor_manager.h add an entry with your id in the
   cass::PostProcessors::id_t enum.
-- in cass/postprocessing/postprocessor.cpp add your id in the
+- in cass/postprocessing/processor_manager.cpp add your id in the
   cass::PostProcessors::create() member to the switch statement. Just use the
   other entries as example.
 
-
+Please document what your postprocessor does so that other people now what it
+does. When documenting please use doxygen style as then your documentation will
+be available on the webserver. Documenting the parameters in cass.ini can be done
+using the custom doxygen tag cassttng.
 
 ### How to add a new Converter {#add_converter}
 Your converter has to inherit from cass::ConversionBackend and it should be a
