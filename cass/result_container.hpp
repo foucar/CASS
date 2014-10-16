@@ -1,7 +1,7 @@
 // Copyright (C) 2011, 2012 Lutz Foucar
 
 /**
- * @file result_container.h result container classes
+ * @file result_container.hpp result container classes
  *
  * @todo make sure it compiles / needs creating appropriate forward declaration
  *       and most likely moving the function definition after the class definition
