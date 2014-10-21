@@ -112,7 +112,7 @@ struct Tokenizer
 {
   /** the operator
    *
-   * @return vector of string  containing all non empty lines of the file
+   * @return vector of string containing all non empty lines of the file
    * @param file the filestream to tokenize
    */
   std::vector<std::string> operator()(std::ifstream &file)
