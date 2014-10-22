@@ -97,6 +97,16 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_LIBDIR   *= /path/to/root/lib
 #QMAKE_RPATHDIR *= /path/to/root/lib
 
+# Uncomment the following to enable the module that will interface with
+# the data provided at SACLA.
+#CONFIG         *= SACLA
+#QMAKE_INCDIR   *= /path/to/SaclaDataAcessUserAPI/include
+#SACLA_LIBDIR   *= /path/to/SaclaDataAcessUserAPI/lib
+#QMAKE_LIBDIR   *= /path/to/icc/lib
+#QMAKE_RPATHDIR *= /path/to/icc/lib
+#QMAKE_LIBDIR   *= /path/to/mysqlclient/lib
+#QMAKE_RPATHDIR *= /path/to/mysqlclient/lib
+
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg

@@ -29,12 +29,16 @@
 //#include "test_input.h"
 #include "tcpserver.h"
 #include "processor_manager.h"
-#ifdef HTTPSERVER
-#include "httpserver.h"
-#endif
 #include "worker.h"
 #include "cass_settings.h"
 #include "cl_parser.hpp"
+#ifdef HTTPSERVER
+#include "httpserver.h"
+#endif
+#ifdef SACLADATA
+#include "sacla_offline_input.h"
+#include "sacla_online_input.h"
+#endif
 
 
 using namespace std;
@@ -142,6 +146,8 @@ int main(int argc, char **argv)
     parser.add("-o","output filename passed to the postprocessor",outputfilename);
     string settingsfilename(settings.fileName().toStdString());
     parser.add("-f","complete path to the cass.ini to use",settingsfilename);
+    bool sacladata(false);
+    parser.add("--sacla","Enable SACLA Input",sacladata);
     bool showUsage(false);
     parser.add("-h","show this help",showUsage);
     bool showVersion(false);
@@ -195,6 +201,12 @@ int main(int argc, char **argv)
       MultiFileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 //    else if (useDatagenerator)
 //      TestInput::instance(ringbuffer,inputrate, inputload);
+    else if (sacladata)
+#ifdef SACLADATA
+      SACLAOfflineInput::instance(filelistname,ringbuffer,inputrate,inputload,quitwhendone);
+#else
+      throw runtime_error("SACLA support has not been compiled into this version of CASS");
+#endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 #else
@@ -202,6 +214,12 @@ int main(int argc, char **argv)
       TCPInput::instance(ringbuffer,inputrate, inputload);
 //    else if (useDatagenerator)
 //      TestInput::instance(ringbuffer,inputrate, inputload);
+    else if (sacladata)
+#ifdef SACLADATA
+      SACLAOnlineInput::instance(ringbuffer,inputrate,inputload);
+#else
+      throw runtime_error("SACLA support has not been compiled into this version of CASS");
+#endif
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate, inputload);
 #endif
