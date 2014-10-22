@@ -70,7 +70,7 @@ void FileInput::run()
 
   /** add an eventcounter */
   uint64_t eventcounter(0);
-  /** get a list of all filenames and go trhough that list */
+  /** get a list of all filenames and go through that list */
   vector<string> filelist(tokenize(filelistfile));
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
