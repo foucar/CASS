@@ -61,17 +61,20 @@ void FileInput::run()
   _status = lmf::PausableThread::running;
   Tokenizer tokenize;
 
+  /** retrieve all files in a list from the file */
   Log::add(Log::VERBOSEINFO,"FileInput::run(): try to open filelist '" +
            _filelistname + "'");
   ifstream filelistfile(_filelistname.c_str());
   if (!filelistfile.is_open())
     throw invalid_argument("FileInput::run(): filelist '" + _filelistname +
                            "' could not be opened");
+  vector<string> filelist(tokenize(filelistfile));
+  filelistfile.close();
 
   /** add an eventcounter */
   uint64_t eventcounter(0);
-  /** get a list of all filenames and go through that list */
-  vector<string> filelist(tokenize(filelistfile));
+
+  /** go through the list of files */
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
   while (filelistIt != filelistEnd)
