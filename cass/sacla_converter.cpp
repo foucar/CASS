@@ -28,6 +28,9 @@ void retrieveOctal(pixeldetector::Detector &det, string detName,
 {
 	vector<T> buffer;
 	det.frame().resize(512*1024*8);
+	det.columns() = 512;
+	det.rows() = 8*1024;
+
 	float gainRef=0;
 	for (int i=0; i<8 ; ++i)
 	{
