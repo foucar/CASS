@@ -94,8 +94,6 @@ void SACLAOfflineInput::run()
     vector<int> nbrs;
     while(getline(ss,str,','))
     {
-      if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
-        continue;
       stringstream ssvalue(str);
       int value;
       ssvalue >> value;
