@@ -168,19 +168,19 @@ void SACLAOfflineInput::run()
     {
       pausePoint();
 
-			/** retrieve a new element from the ringbuffer */
-			rbItem_t rbItem(_ringbuffer.nextToFill());
-			/** fill the cassevent object with the contents from the file */
-			bool isGood = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
-			if (!isGood)
-				Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
-								 toString(rbItem->element->id()) + "' is bad: skipping Event");
-			else
-				++eventcounter;
-			_ringbuffer.doneFilling(rbItem, isGood);
-			newEventAdded(rbItem->element->datagrambuffer().size());
-		}
-	}
+      /** retrieve a new element from the ringbuffer */
+      rbItem_t rbItem(_ringbuffer.nextToFill());
+      /** fill the cassevent object with the contents from the file */
+      bool isGood = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
+      if (!isGood)
+        Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
+                 toString(rbItem->element->id()) + "' is bad: skipping Event");
+      else
+        ++eventcounter;
+      _ringbuffer.doneFilling(rbItem, isGood);
+      newEventAdded(rbItem->element->datagrambuffer().size());
+    }
+  }
 
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Finished with all runs.");
   if(!_quitWhenDone)
