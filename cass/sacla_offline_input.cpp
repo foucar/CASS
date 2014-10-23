@@ -46,7 +46,7 @@ SACLAOfflineInput::SACLAOfflineInput(string runlistname,
           _quitWhenDone(quitWhenDone),
           _runlistname(runlistname)
 {
-  Log::add(Log::VERBOSEINFO, "SACLAOFflineInput::SACLAOFflineInput: constructed");
+  Log::add(Log::VERBOSEINFO, "SACLAOfflineInput::SACLAOFflineInput: constructed");
   load();
 }
 
