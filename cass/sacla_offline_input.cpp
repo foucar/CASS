@@ -171,14 +171,14 @@ void SACLAOfflineInput::run()
       /** retrieve a new element from the ringbuffer */
       rbItem_t rbItem(_ringbuffer.nextToFill());
       /** fill the cassevent object with the contents from the file */
-      bool isGood = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
-      if (!isGood)
+      uint64_t datasize = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
+      if (!datasize)
         Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
         ++eventcounter;
-      newEventAdded(rbItem->element->datagrambuffer().size());
-      _ringbuffer.doneFilling(rbItem, isGood);
+      newEventAdded(datasize);
+      _ringbuffer.doneFilling(rbItem, datasize);
 
       ++taglistIter;
     }
