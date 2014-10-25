@@ -22,8 +22,21 @@ using namespace cass;
 using namespace MachineData;
 using namespace std;
 
+/** retrieve an octal mpccd detector
+ *
+ *  details
+ *
+ * @tparam T the type of the detector data
+ *
+ * @return size of the retrieved data
+ * @param det
+ * @param detName
+ * @param blNbr
+ * @param highTagNbr
+ * @param tagNbr
+ */
 template <typename T>
-void retrieveOctal(pixeldetector::Detector &det, string detName,
+uint64_t retrieveOctal(pixeldetector::Detector &det, string detName,
                    int blNbr, int highTagNbr, int tagNbr)
 {
   vector<T> buffer;
@@ -40,27 +53,27 @@ void retrieveOctal(pixeldetector::Detector &det, string detName,
     {
       Log::add(Log::ERROR,"retrieve Octal: could not width of '" +
                detName + "' for tag '" + toString(tagNbr) + "'");
-      return;
+      return 0;
     }
     if (ReadYSizeOfDetData(height,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not height of '" +
                detName + "' for tag '" + toString(tagNbr) + "'");
-      return;
+      return 0;
     }
     buffer.resize(width*height);
     if (ReadDetData(&buffer.front(),detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not retrieve data of '" +
                detName + "' for tag '" + toString(tagNbr) + "'");
-      return;
+      return 0;
     }
     float gain(0);
     if (ReadAbsGain(gain,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not retrieve absolute gain of '" +
                detName + "' for tag '" + toString(tagNbr) + "'");
-      return;
+      return 0;
     }
 
     pixeldetector::frame_t::iterator tileStart(det.frame().begin() + i*512*1024);
@@ -74,9 +87,10 @@ void retrieveOctal(pixeldetector::Detector &det, string detName,
     }
     else
       gainRef = gain;
-
   }
+  return det.frame().size() * sizeof(float);
 }
+
 
 SACLAConverter::SACLAConverter()
 {}
@@ -120,11 +134,12 @@ void SACLAConverter::loadSettings()
   s.endGroup();
 }
 
-bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
-                                const int tagNbr, CASSEvent& event)
+uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
+                                    const int tagNbr, CASSEvent& event)
 {
   /** set the event id from the highTag and Tag number */
   event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
+  uint64_t datasize(0);
 
   /** check if the event contains the machine data container, if so get a
    *  reference to it. Otherwise throw an error.
@@ -168,6 +183,7 @@ bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
       Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
                + toString(tagNbr) +
                "' doesn't contain a string that can be converted to double");
+    datasize += sizeof(double);
   }
 
 
@@ -200,7 +216,8 @@ bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
     switch(type)
     {
       case Sacla_DATA_TYPE_FLOAT:
-        retrieveOctal<float>(det,octalDetsIter->second,blNbr,highTagNbr,tagNbr);
+        datasize += retrieveOctal<float>(det,octalDetsIter->second,
+                                         blNbr,highTagNbr,tagNbr);
         break;
       default:
         Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
@@ -208,6 +225,7 @@ bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
                  "' is unkown");
         break;
     }
+
   }
 
 

@@ -177,8 +177,8 @@ void SACLAOfflineInput::run()
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
         ++eventcounter;
-      _ringbuffer.doneFilling(rbItem, isGood);
       newEventAdded(rbItem->element->datagrambuffer().size());
+      _ringbuffer.doneFilling(rbItem, isGood);
 
       ++taglistIter;
     }

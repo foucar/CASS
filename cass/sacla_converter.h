@@ -40,15 +40,14 @@ public:
 
   /** read the frms6 file contents put them into cassevent
    *
-   * @return true when the workers should work on the filled cassevent,
-   *         false if not.
+   * @return size of the filled data in bytes
    * @param blNbr the beamline number
    * @param highTagNumber first part of the tag
    * @param tagNbr the acutal Tag
    * @param event the CASSEvent where the data will be put into
    */
-  bool operator()(const int blNbr, const int highTagNbr,
-                  const int tagNbr, CASSEvent& event);
+  uint64_t operator()(const int blNbr, const int highTagNbr,
+                      const int tagNbr, CASSEvent& event);
 
   /** load the settings of the reader */
   void loadSettings();
