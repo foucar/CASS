@@ -24,58 +24,58 @@ using namespace std;
 
 template <typename T>
 void retrieveOctal(pixeldetector::Detector &det, string detName,
-									 int blNbr, int highTagNbr, int tagNbr)
+                   int blNbr, int highTagNbr, int tagNbr)
 {
-	vector<T> buffer;
-	det.frame().resize(512*1024*8);
-	det.columns() = 512;
-	det.rows() = 8*1024;
+  vector<T> buffer;
+  det.frame().resize(512*1024*8);
+  det.columns() = 512;
+  det.rows() = 8*1024;
 
-	float gainRef=0;
-	for (int i=0; i<8 ; ++i)
-	{
-		string detTileName(detName + "-" + toString(i+1));
-		int width=0, height=0;
-		if (ReadXSizeOfDetData(width,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
-		{
-			Log::add(Log::ERROR,"retrieve Octal: could not width of '" +
-							 detName + "' for tag '" + toString(tagNbr) + "'");
-			return;
-		}
-		if (ReadYSizeOfDetData(height,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
-		{
-			Log::add(Log::ERROR,"retrieve Octal: could not height of '" +
-							 detName + "' for tag '" + toString(tagNbr) + "'");
-			return;
-		}
-		buffer.resize(width*height);
-		if (ReadDetData(&buffer.front(),detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
-		{
-			Log::add(Log::ERROR,"retrieve Octal: could not retrieve data of '" +
-							 detName + "' for tag '" + toString(tagNbr) + "'");
-			return;
-		}
-		float gain(0);
-		if (ReadAbsGain(gain,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
-		{
-			Log::add(Log::ERROR,"retrieve Octal: could not retrieve absolute gain of '" +
-							 detName + "' for tag '" + toString(tagNbr) + "'");
-			return;
-		}
+  float gainRef=0;
+  for (int i=0; i<8 ; ++i)
+  {
+    string detTileName(detName + "-" + toString(i+1));
+    int width=0, height=0;
+    if (ReadXSizeOfDetData(width,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    {
+      Log::add(Log::ERROR,"retrieve Octal: could not width of '" +
+               detName + "' for tag '" + toString(tagNbr) + "'");
+      return;
+    }
+    if (ReadYSizeOfDetData(height,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    {
+      Log::add(Log::ERROR,"retrieve Octal: could not height of '" +
+               detName + "' for tag '" + toString(tagNbr) + "'");
+      return;
+    }
+    buffer.resize(width*height);
+    if (ReadDetData(&buffer.front(),detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    {
+      Log::add(Log::ERROR,"retrieve Octal: could not retrieve data of '" +
+               detName + "' for tag '" + toString(tagNbr) + "'");
+      return;
+    }
+    float gain(0);
+    if (ReadAbsGain(gain,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    {
+      Log::add(Log::ERROR,"retrieve Octal: could not retrieve absolute gain of '" +
+               detName + "' for tag '" + toString(tagNbr) + "'");
+      return;
+    }
 
-		pixeldetector::frame_t::iterator tileStart(det.frame().begin() + i*512*1024);
-		copy(buffer.begin(),buffer.end(),tileStart);
+    pixeldetector::frame_t::iterator tileStart(det.frame().begin() + i*512*1024);
+    copy(buffer.begin(),buffer.end(),tileStart);
 
-		if (i)
-		{
-			const float relGain(gain / gainRef);
-			pixeldetector::frame_t::iterator tileEnd(det.frame().begin() + (i+1)*512*1024);
-			transform(tileStart,tileEnd, tileStart, bind1st(multiplies<float>(),relGain));
-		}
-		else
-			gainRef = gain;
+    if (i)
+    {
+      const float relGain(gain / gainRef);
+      pixeldetector::frame_t::iterator tileEnd(det.frame().begin() + (i+1)*512*1024);
+      transform(tileStart,tileEnd, tileStart, bind1st(multiplies<float>(),relGain));
+    }
+    else
+      gainRef = gain;
 
-	}
+  }
 }
 
 SACLAConverter::SACLAConverter()
@@ -121,10 +121,10 @@ void SACLAConverter::loadSettings()
 }
 
 bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
-																const int tagNbr, CASSEvent& event)
+                                const int tagNbr, CASSEvent& event)
 {
-	/** set the event id from the highTag and Tag number */
-	event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
+  /** set the event id from the highTag and Tag number */
+  event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
 
   /** check if the event contains the machine data container, if so get a
    *  reference to it. Otherwise throw an error.
@@ -156,63 +156,63 @@ bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
       continue;
     }
 
-		/** check if retrieved value can be converted to double, and if so add it
-		 *  to the machine data, otherwise issue an error and continue
-		 */
-		bool isDouble(false);
-		QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
-		double machineValue(machineValueQString.toDouble(&isDouble));
-		if (isDouble)
-			md.BeamlineData()[*machineValsIter] = machineValue;
-		else
-			Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
-							 + toString(tagNbr) +
-							 "' doesn't contain a string that can be converted to double");
-	}
+    /** check if retrieved value can be converted to double, and if so add it
+     *  to the machine data, otherwise issue an error and continue
+     */
+    bool isDouble(false);
+    QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
+    double machineValue(machineValueQString.toDouble(&isDouble));
+    if (isDouble)
+      md.BeamlineData()[*machineValsIter] = machineValue;
+    else
+      Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
+               + toString(tagNbr) +
+               "' doesn't contain a string that can be converted to double");
+  }
 
 
-	/** read the requested octal detector data */
-	/** retrieve the container for pixel detectors */
-	CASSEvent::devices_t &devices(event.devices());
-	CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
-	if(devIt == devices.end())
-		throw runtime_error("pixeldetector::retrieveDet: There is no  pixeldetector device within the CASSEvent");
-	pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+  /** read the requested octal detector data */
+  /** retrieve the container for pixel detectors */
+  CASSEvent::devices_t &devices(event.devices());
+  CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+  if(devIt == devices.end())
+    throw runtime_error("pixeldetector::retrieveDet: There is no  pixeldetector device within the CASSEvent");
+  pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
 
-	map<int32_t,string>::const_iterator octalDetsIter(_octalDetectors.begin());
-	map<int32_t,string>::const_iterator octalDetsEnd(_octalDetectors.end());
-	for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
-	{
-		/** determine the detector pixel data type */
-		Sacla_DetDataType type;
-		if (ReadDetDataType(type,octalDetsIter->second.c_str(), blNbr, highTagNbr, tagNbr) != 0)
-		{
-			Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
-							 octalDetsIter->second + "' for tag '" + toString(tagNbr) + "'");
-			continue;
-		}
+  map<int32_t,string>::const_iterator octalDetsIter(_octalDetectors.begin());
+  map<int32_t,string>::const_iterator octalDetsEnd(_octalDetectors.end());
+  for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
+  {
+    /** determine the detector pixel data type */
+    Sacla_DetDataType type;
+    if (ReadDetDataType(type,octalDetsIter->second.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    {
+      Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
+               octalDetsIter->second + "' for tag '" + toString(tagNbr) + "'");
+      continue;
+    }
 
-		/** retrieve the right detector from the cassevent */
-		pixeldetector::Detector &det(dev.dets()[octalDetsIter->first]);
-		det.id() = event.id();
+    /** retrieve the right detector from the cassevent */
+    pixeldetector::Detector &det(dev.dets()[octalDetsIter->first]);
+    det.id() = event.id();
 
-		/** retrieve the data with the right type */
-		switch(type)
-		{
-			case Sacla_DATA_TYPE_FLOAT:
-				retrieveOctal<float>(det,octalDetsIter->second,blNbr,highTagNbr,tagNbr);
-				break;
-			default:
-				Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
-								 octalDetsIter->second + "' for tag '" + toString(tagNbr) +
-								 "' is unkown");
-				break;
-		}
-	}
+    /** retrieve the data with the right type */
+    switch(type)
+    {
+      case Sacla_DATA_TYPE_FLOAT:
+        retrieveOctal<float>(det,octalDetsIter->second,blNbr,highTagNbr,tagNbr);
+        break;
+      default:
+        Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
+                 octalDetsIter->second + "' for tag '" + toString(tagNbr) +
+                 "' is unkown");
+        break;
+    }
+  }
 
 
 
-	return true;
+  return true;
 
 //  string line;
 //  vector<double> values;
