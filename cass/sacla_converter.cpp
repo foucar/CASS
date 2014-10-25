@@ -133,7 +133,7 @@ bool SACLAConverter::operator()(const int blNbr, const int highTagNbr,
     throw runtime_error("SACLAConverter():The CASSEvent does not contain a Machine Data Device");
   MachineDataDevice &md
     (*dynamic_cast<MachineDataDevice*>(event.devices()[CASSEvent::MachineData]));
- /** go through all requested machine data events and retrieve the corresponding *  values for the tag */
+  /** go through all requested machine data events and retrieve the corresponding *  values for the tag */
   vector<string>::const_iterator machineValsIter(_machineVals.begin());
   vector<string>::const_iterator machineValsEnd(_machineVals.end());
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
