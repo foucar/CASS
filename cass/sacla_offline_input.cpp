@@ -142,7 +142,7 @@ void SACLAOfflineInput::run()
     /** get the tag list */
     Log::add(Log::VERBOSEINFO,"SACLAOfflineInput: get Taglist for tags between '" +
              toString(startTagNbr) + "' and '" + toString(endTagNbr) + "' with highTag '" +
-             toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" + 
+             toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
              toString(blNbr) + "'");
     vector<int> taglist;
     if (ReadSyncTagList(&taglist,highTagNbr,startTagNbr,endTagNbr) != 0)
@@ -151,12 +151,12 @@ void SACLAOfflineInput::run()
                toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
       continue;
     }
-   
+
 
     /** read and convert the info for each of the tags */
     vector<int>::const_iterator taglistIter(taglist.begin());
     vector<int>::const_iterator taglistEnd(taglist.end());
-    string output("SACLAOfflineInput: The following tags will be processed for run '" + 
+    string output("SACLAOfflineInput: The following tags will be processed for run '" +
                   toString(runNbr) + "' at beamline '" + toString(blNbr) + "' (size is '" +
                   toString(taglist.size()) + "'):");
     for (; taglistIter != taglistEnd; ++ taglistIter)
@@ -179,6 +179,8 @@ void SACLAOfflineInput::run()
         ++eventcounter;
       _ringbuffer.doneFilling(rbItem, isGood);
       newEventAdded(rbItem->element->datagrambuffer().size());
+
+      ++taglistIter;
     }
   }
 
