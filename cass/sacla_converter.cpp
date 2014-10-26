@@ -228,9 +228,7 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
 
   }
 
-
-
-  return true;
+  return datasize;
 
 //  string line;
 //  vector<double> values;
