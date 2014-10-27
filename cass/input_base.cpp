@@ -39,3 +39,8 @@ void InputBase::newEventAdded(const size_t eventsize)
   _ratemeter.count();
   _loadmeter.count(eventsize);
 }
+
+RingBuffer<CASSEvent>& InputBase::ringbuffer()
+{
+  return _ringbuffer;
+}

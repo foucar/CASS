@@ -26,6 +26,81 @@
 using namespace std;
 using namespace cass;
 
+namespace cass
+{
+/** A processor for a tag list
+ *
+ * details
+ *
+ * @author Lutz Foucar
+ */
+class TagListProcessor : public QThread
+{
+public:
+  /** typedef the shared pointer of this */
+  typedef std::tr1::shared_ptr<TagListProcessor> shared_pointer;
+
+  /** constructor
+   *
+   * details
+   *
+   * @param liststart iterator to the start of the tag list
+   * @param listend iterator to the end of the tag list
+   */
+  TagListProcessor(vector<int>::const_iterator liststart,
+                   vector<int>::const_iterator listend,
+                   int blNbr, int highTagNbr)
+    : _liststart(liststart),
+      _listend(listend),
+      _blNbr(blNbr),
+      _highTagNbr(highTagNbr)
+  {
+  }
+
+  /** process the tags on the list */
+  void run()
+  {
+    /** load the right reader for the file type depending on its extension */
+    SACLAConverter convert;
+    convert.loadSettings();
+    /** read and convert the info for each of the tags */
+    vector<int>::const_iterator iter(_liststart);
+    string output("TagListProcessor: The following tags will be processed by '" +
+                  toString(this) + "' for beamline '" + toString(_blNbr) + "' (size is '" +
+                  toString(distance(_liststart,_listend)) + "'):");
+    for (; iter != _listend; ++iter)
+      output += " '" + toString(*iter) + "',";
+    Log::add(Log::VERBOSEINFO,output);
+
+    iter = _liststart;
+    for(;iter != _listend; ++iter)
+    {
+      /** retrieve a new element from the ringbuffer */
+      InputBase::rbItem_t rbItem(InputBase::reference().ringbuffer().nextToFill());
+      /** fill the cassevent object with the contents from the file */
+      uint64_t datasize = convert(_blNbr,_highTagNbr,*iter,*rbItem->element);
+      Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
+               toString(rbItem->element->id()) + "' is bad: skipping Event");
+      InputBase::reference().newEventAdded(datasize);
+      InputBase::reference().ringbuffer().doneFilling(rbItem, datasize);
+    }
+  }
+
+private:
+  /** iterator to the start of the list */
+  vector<int>::const_iterator _liststart;
+
+  /** iterator to the end of the list */
+  vector<int>::const_iterator _listend;
+
+  /** the beamline number for the experiment */
+  int _blNbr;
+
+  /** the first part of the tag (that doesn't change) */
+  int _highTagNbr;
+};
+}//end namespace cass
+
 void SACLAOfflineInput::instance(string runlistname,
                                  RingBuffer<CASSEvent> &ringbuffer,
                                  Ratemeter &ratemeter, Ratemeter &loadmeter,
@@ -55,15 +130,13 @@ void SACLAOfflineInput::load()
   CASSSettings s;
   s.beginGroup("SACLAOfflineInput");
   _rewind = s.value("Rewind",false).toBool();
+  _chunks = s.value("NbrChunks",15).toInt();
 }
 
 void SACLAOfflineInput::run()
 {
   _status = lmf::PausableThread::running;
 
-  /** load the right reader for the file type depending on its extension */
-  SACLAConverter convert;
-  convert.loadSettings();
 
   Tokenizer tokenize;
 
@@ -110,11 +183,14 @@ void SACLAOfflineInput::run()
 
     /** get the list of tags for the run */
     /** first check if the runstatus is set to 'run ended' */
-    int runstatus=0;
-    if (ReadRunStatus(runstatus,blNbr,runNbr) != 0)
+    int runstatus(0);
+    int funcstatus(0);
+    funcstatus = ReadRunStatus(runstatus,blNbr,runNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve run status of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
+               toString(runNbr) + "' at beamline '" + toString(blNbr) +
+               "'. Errorcode is '" + toString(funcstatus) + "'");
       continue;
     }
     if (runstatus != 0)
@@ -126,16 +202,20 @@ void SACLAOfflineInput::run()
 
     /** get the lowest and highest tag number for the run */
     int highTagNbr,startTagNbr,endTagNbr = 0;
-    if (ReadStartTagNumber(highTagNbr,startTagNbr,blNbr,runNbr) != 0)
+    funcstatus = ReadStartTagNumber(highTagNbr,startTagNbr,blNbr,runNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve start tag of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
+               toString(runNbr) + "' at beamline '" + toString(blNbr) +
+               "' Errorcode is '" + toString(funcstatus) + "'");
       continue;
     }
-    if (ReadEndTagNumber(highTagNbr,endTagNbr,blNbr,runNbr) != 0)
+    funcstatus = ReadEndTagNumber(highTagNbr,endTagNbr,blNbr,runNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve end tag of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
+               toString(runNbr) + "' at beamline '" + toString(blNbr) +
+               "' Errorcode is '" + toString(funcstatus) + "'");
       continue;
     }
 
@@ -145,43 +225,73 @@ void SACLAOfflineInput::run()
              toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
              toString(blNbr) + "'");
     vector<int> taglist;
-    if (ReadSyncTagList(&taglist,highTagNbr,startTagNbr,endTagNbr) != 0)
+    funcstatus = ReadSyncTagList(&taglist,highTagNbr,startTagNbr,endTagNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve taglist of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
+               toString(runNbr) + "' at beamline '" + toString(blNbr) +
+               "'Errorcode is '" + toString(funcstatus) + "'");
       continue;
     }
 
-
-    /** read and convert the info for each of the tags */
-    vector<int>::const_iterator taglistIter(taglist.begin());
-    vector<int>::const_iterator taglistEnd(taglist.end());
-    string output("SACLAOfflineInput: The following tags will be processed for run '" +
-                  toString(runNbr) + "' at beamline '" + toString(blNbr) + "' (size is '" +
-                  toString(taglist.size()) + "'):");
-    for (; taglistIter != taglistEnd; ++ taglistIter)
-      output += " '" + toString(*taglistIter) + "',";
-    Log::add(Log::VERBOSEINFO,output);
-
-    taglistIter = taglist.begin();
-    while(taglistIter != taglistEnd && _control != _quit)
+    /** split the taglist into the user requested amount of chunks
+     *  and process the splittet tag list in separate threads
+     */
+    int chunksize = taglist.size() / _chunks;
+    vector<TagListProcessor::shared_pointer> processors;
+    for (int chunk(0); chunk < _chunks-1; ++chunk)
     {
-      pausePoint();
-
-      /** retrieve a new element from the ringbuffer */
-      rbItem_t rbItem(_ringbuffer.nextToFill());
-      /** fill the cassevent object with the contents from the file */
-      uint64_t datasize = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
-      if (!datasize)
-        Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
-                 toString(rbItem->element->id()) + "' is bad: skipping Event");
-      else
-        ++eventcounter;
-      newEventAdded(datasize);
-      _ringbuffer.doneFilling(rbItem, datasize);
-
-      ++taglistIter;
+      vector<int>::const_iterator chunkstart(taglist.begin() + (chunk*chunksize));
+      vector<int>::const_iterator chunkend(taglist.begin() + (chunk+1)*chunksize);
+      TagListProcessor::shared_pointer
+          processor(new TagListProcessor(chunkstart,chunkend,blNbr,highTagNbr));
+      processor->start();
+      processors.push_back(processor);
     }
+    vector<int>::const_iterator chunkstart(taglist.begin() + ((_chunks-1)*chunksize));
+    TagListProcessor::shared_pointer
+        processor(new TagListProcessor(chunkstart,taglist.end(),blNbr,highTagNbr));
+    processor->start();
+    processors.push_back(processor);
+
+    /** wait until all threads are finished */
+    vector<TagListProcessor::shared_pointer>::iterator processorsIt(processors.begin());
+    vector<TagListProcessor::shared_pointer>::iterator processorsEnd(processors.end());
+    for (; processorsIt != processorsEnd; ++processorsIt)
+      (*processorsIt)->wait();
+
+//    /** load the right reader for the file type depending on its extension */
+//    SACLAConverter convert;
+//    convert.loadSettings();
+//    /** read and convert the info for each of the tags */
+//    vector<int>::const_iterator taglistIter(taglist.begin());
+//    vector<int>::const_iterator taglistEnd(taglist.end());
+//    string output("SACLAOfflineInput: The following tags will be processed for run '" +
+//                  toString(runNbr) + "' at beamline '" + toString(blNbr) + "' (size is '" +
+//                  toString(taglist.size()) + "'):");
+//    for (; taglistIter != taglistEnd; ++ taglistIter)
+//      output += " '" + toString(*taglistIter) + "',";
+//    Log::add(Log::VERBOSEINFO,output);
+//
+//    taglistIter = taglist.begin();
+//    while(taglistIter != taglistEnd && _control != _quit)
+//    {
+//      pausePoint();
+//
+//      /** retrieve a new element from the ringbuffer */
+//      rbItem_t rbItem(_ringbuffer.nextToFill());
+//      /** fill the cassevent object with the contents from the file */
+//      uint64_t datasize = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
+//      if (!datasize)
+//        Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
+//                 toString(rbItem->element->id()) + "' is bad: skipping Event");
+//      else
+//        ++eventcounter;
+//      newEventAdded(datasize);
+//      _ringbuffer.doneFilling(rbItem, datasize);
+//
+//      ++taglistIter;
+//    }
   }
 
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Finished with all runs.");

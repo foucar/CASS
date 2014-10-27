@@ -61,6 +61,12 @@ public:
    */
   void newEventAdded(const size_t eventsize);
 
+  /** retrieve a reference to the the ringbuffer
+   *
+   * @return reference to the ringbuffer
+   */
+  RingBuffer<CASSEvent>& ringbuffer();
+
   /** get the signelton instance
    *
    * throws logic error when instance does not exist yet
@@ -79,6 +85,9 @@ public:
 
   /** a mutex so that external program can lock access to this */
   QMutex lock;
+
+  /** define an item in the ringbuffer */
+  typedef RingBuffer<CASSEvent>::iter_type rbItem_t;
 
 protected:
   /** protected constructor since it should be a singelton
@@ -109,9 +118,6 @@ protected:
 
   /** singelton instance */
   static shared_pointer _instance;
-
-  /** define an item in the ringbuffer */
-  typedef RingBuffer<CASSEvent>::iter_type rbItem_t;
 
 private:
   /** a mutex to lock operations */
