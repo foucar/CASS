@@ -24,7 +24,7 @@ using namespace std;
 
 /** retrieve an octal mpccd detector
  *
- *  details
+ * details
  *
  * @tparam T the type of the detector data
  *
