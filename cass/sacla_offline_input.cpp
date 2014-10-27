@@ -79,8 +79,9 @@ public:
       InputBase::rbItem_t rbItem(InputBase::reference().ringbuffer().nextToFill());
       /** fill the cassevent object with the contents from the file */
       uint64_t datasize = convert(_blNbr,_highTagNbr,*iter,*rbItem->element);
-      Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
-               toString(rbItem->element->id()) + "' is bad: skipping Event");
+      if (!datasize)
+        Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
+                 toString(rbItem->element->id()) + "' is bad: skipping Event");
       InputBase::reference().newEventAdded(datasize);
       InputBase::reference().ringbuffer().doneFilling(rbItem, datasize);
     }
@@ -136,8 +137,6 @@ void SACLAOfflineInput::load()
 void SACLAOfflineInput::run()
 {
   _status = lmf::PausableThread::running;
-
-
   Tokenizer tokenize;
 
   /** get a list of all runs to process */
