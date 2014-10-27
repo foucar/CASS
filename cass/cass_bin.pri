@@ -235,8 +235,8 @@ fftw {
 SACLA {
     LIBS           += $$SACLA_LIBDIR/libSaclaDataAccessUserAPI.a
     LIBS           += -lmysqlclient
-    LIBS           += -lirc
-    LIBS           += -limf
+#    LIBS           += -lirc
+#    LIBS           += -limf
     SOURCES        += ./sacla_offline_input.cpp
     HEADERS        += ./sacla_offline_input.h
     SOURCES        += ./sacla_online_input.cpp
