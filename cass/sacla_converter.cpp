@@ -48,31 +48,39 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, string detName,
   for (int i=0; i<8 ; ++i)
   {
     string detTileName(detName + "-" + toString(i+1));
-    int width=0, height=0;
-    if (ReadXSizeOfDetData(width,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    int width=0, height=0, funcstatus=0;
+    funcstatus = ReadXSizeOfDetData(width,detTileName.c_str(), blNbr, highTagNbr, tagNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not width of '" +
-               detName + "' for tag '" + toString(tagNbr) + "'");
+               detName + "' for tag '" + toString(tagNbr)+
+               "' ErrorCode is '" + toString(funcstatus) + "'");
       return 0;
     }
-    if (ReadYSizeOfDetData(height,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    funcstatus = ReadYSizeOfDetData(height,detTileName.c_str(), blNbr, highTagNbr, tagNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not height of '" +
-               detName + "' for tag '" + toString(tagNbr) + "'");
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
       return 0;
     }
     buffer.resize(width*height);
-    if (ReadDetData(&buffer.front(),detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    funcstatus = ReadDetData(&buffer.front(),detTileName.c_str(), blNbr, highTagNbr, tagNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not retrieve data of '" +
-               detName + "' for tag '" + toString(tagNbr) + "'");
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
       return 0;
     }
     float gain(0);
-    if (ReadAbsGain(gain,detTileName.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    funcstatus = ReadAbsGain(gain,detTileName.c_str(), blNbr, highTagNbr, tagNbr);
+    if (funcstatus)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not retrieve absolute gain of '" +
-               detName + "' for tag '" + toString(tagNbr) + "'");
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
       return 0;
     }
 
@@ -83,12 +91,12 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, string detName,
     {
       const float relGain(gain / gainRef);
       pixeldetector::frame_t::iterator tileEnd(det.frame().begin() + (i+1)*512*1024);
-      transform(tileStart,tileEnd, tileStart, bind1st(multiplies<float>(),relGain));
+      transform(tileStart,tileEnd, tileStart, bind1st(multiplies<T>(),relGain));
     }
     else
       gainRef = gain;
   }
-  return det.frame().size() * sizeof(float);
+  return det.frame().size() * sizeof(T);
 }
 
 
