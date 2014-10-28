@@ -100,10 +100,8 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 # Uncomment the following to enable the module that will interface with
 # the data provided at SACLA.
 #CONFIG         *= SACLA
-#QMAKE_INCDIR   *= /path/to/SaclaDataAcessUserAPI/include
-#SACLA_LIBDIR   *= /path/to/SaclaDataAcessUserAPI/lib
-#QMAKE_LIBDIR   *= /path/to/icc/lib
-#QMAKE_RPATHDIR *= /path/to/icc/lib
+#QMAKE_INCDIR   *= /path/to/SaclaDataAccessUserAPI/include
+#SACLA_LIBDIR   *= /path/to/SaclaDataAccessUserAPI/lib
 #QMAKE_LIBDIR   *= /path/to/mysqlclient/lib
 #QMAKE_RPATHDIR *= /path/to/mysqlclient/lib
 
