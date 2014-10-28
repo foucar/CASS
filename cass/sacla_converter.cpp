@@ -237,9 +237,8 @@ void SACLAConverter::loadSettings()
     int32_t key(s.value("CASSID",0).toInt());
     bool normalize(s.value("NormalizeToAbsGain",true).toBool());
     /** skip if the detector name has not been set */
-    if (detID == "Invalid")
-      continue;
-    _octalDetectors[key] = make_pair(detID,normalize);
+    if (detID != "Invalid")
+      _octalDetectors[key] = make_pair(detID,normalize);
   }
   s.endArray();
 
@@ -250,9 +249,8 @@ void SACLAConverter::loadSettings()
     s.setArrayIndex(i);
     string machineValName(s.value("ValueName","Invalid").toString().toStdString());
     /** skip if the value name has not been set */
-    if (machineValName == "Invalid")
-      continue;
-    _machineVals.push_back(machineValName);
+    if (machineValName != "Invalid")
+      _machineVals.push_back(machineValName);
   }
   s.endArray();
 
