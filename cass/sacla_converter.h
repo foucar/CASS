@@ -39,7 +39,7 @@ class CASSEvent;
  * available in the machine data:
  * - "%ValueName%_SyncDataFrequency": The recorded frequency
  *
- * @cassttng OctalPixelDetectors/{RetrieveAcceleratorData}\n
+ * @cassttng SACLAConverter/{RetrieveAcceleratorData}\n
  *           Flag that tells whether the accelerator data should be retrieved.
  *           Default is true. When set to true the following data is available
  *           in the Machine Data:
@@ -48,26 +48,26 @@ class CASSEvent;
  *           - "Acc_PhotonEnergy"
  *           - "Acc_SACLAFrequency"
  *           - "Acc_MasterFrequency"
- * @cassttng OctalPixelDetectors/{size}\n
+ * @cassttng SACLAConverter/OctalPixelDetectors/{size}\n
  *           The number of octal MPCCD detectors one wants to retrieve. Be sure
  *           that for each detector there is a unique id in the list below.
- * @cassttng OctalPixelDetectors/\%index\%/{DetectorName}\n
+ * @cassttng SACLAConverter/OctalPixelDetectors/\%index\%/{DetectorName}\n
  *           The base name of the octal MPCCD. Unlike the API this name will be
  *           used to determine the names of the individual tiles of the MPCCD.
  *           Default is "Invalid" which will caus to skip this index.
- * @cassttng OctalPixelDetectors/\%index\%/{CASSID}\n
+ * @cassttng SACLAConverter/OctalPixelDetectors/\%index\%/{CASSID}\n
  *           The id of the detector that CASS will use internally.
- * @cassttng OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
+ * @cassttng SACLAConverter/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
  *           Using this option one can control whether the pixel values of the
  *           individual tiles will be normalized to the gain value of the first
  *           tile. When true, the pixel values of tiles 2 to 8 will modified
  *           using:
  *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{tile1}}*pixval_{tile}\f$
  *           Default is true.
- * @cassttng DatabaseValues/{size}\n
+ * @cassttng SACLAConverter/DatabaseValues/{size}\n
  *           The number of values one wants to retrieve from the database. Be sure
  *           that for each detector there is a unique id in the list below.
- * @cassttng DatabaseValues/\%index\%/{ValueName}\n
+ * @cassttng SACLAConverter/DatabaseValues/\%index\%/{ValueName}\n
  *           The name of the database value to retrieve. Default is "Invalid"
  *           which will cause to skip that index.
  *
