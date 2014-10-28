@@ -131,7 +131,7 @@ void SACLAOfflineInput::load()
   CASSSettings s;
   s.beginGroup("SACLAOfflineInput");
   _rewind = s.value("Rewind",false).toBool();
-  _chunks = s.value("NbrChunks",15).toInt();
+  _chunks = s.value("NbrThreads",1).toInt();
 }
 
 void SACLAOfflineInput::run()

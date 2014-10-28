@@ -22,18 +22,16 @@ namespace cass
  *
  * This class will be used in offline modus. I will take an string that
  * contains a filename. In the file that the filename points to has to be a
- * list with files, that one wants to analyze.
+ * list with runnumbers to analyse
  * The filename name must be passed to the program with the -i parameter.
  *
- * For each file in the filelist it will open the file, and call the readers
- * to extract the data from the file.
+ * For each run in the list it will retrieve the tagnumbers and extract the data
+ * associated with the tag number using the cass::SACLAConverter
  *
- * @cassttng FileInput/{useNewContainer}\n
- *           set to true if you want to use the new container for pixeldetector
- *           data that can make use of the new analysis chain. Default is false.
- * @cassttng FileInput/{Rewind}\n
- *           Tells the program to start over running over all files when true.
- *           Default is false.
+ * @cassttng SACLAOfflineInput/{NbrThreads}\n
+ *           Will tell CASS in how many chunks the tag list will be splitted.
+ *           Each chunk will be processed individually by a separate thread.
+ *           Default is 1.
  *
  * @author Lutz Foucar
  */
@@ -43,7 +41,7 @@ public:
   /** create instance of this
    *
    * @param runlistname name of the file containing all runs that should be
-   *                     processed
+   *                    processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
    * @param loadmeter reference to the ratemeter to measure the load of the input
@@ -68,7 +66,7 @@ private:
   /** constructor
    *
    * @param runlistname name of the file containing all runs that should be
-   *                     processed
+   *                    processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
    * @param ratemeter reference to the ratemeter to measure the rate of the input
    * @param loadmeter reference to the ratemeter to measure the load of the input
