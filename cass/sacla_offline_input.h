@@ -59,7 +59,7 @@ public:
   /** function with the main loop */
   void run();
 
-  /** load the parameters used for the multifile input */
+  /** load the parameters used for the input */
   void load();
 
 private:

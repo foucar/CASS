@@ -30,7 +30,8 @@ namespace cass
 {
 /** A processor for a tag list
  *
- * details
+ * processes a list of tags. The list is given by iterators to the first and one
+ * beyond the last element that should be processed.
  *
  * @author Lutz Foucar
  */
@@ -42,10 +43,12 @@ public:
 
   /** constructor
    *
-   * details
+   * inline set the provided parameters and intialize counter with 0
    *
    * @param liststart iterator to the start of the tag list
    * @param listend iterator to the end of the tag list
+   * @param blNbr the beamline number of the experiment
+   * @param highTagNbr the high tag number of the experiment
    */
   TagListProcessor(vector<int>::const_iterator liststart,
                    vector<int>::const_iterator listend,
@@ -92,7 +95,10 @@ public:
     }
   }
 
-  /** retrieve the number of events processed by this thread */
+  /** retrieve the number of events processed by this thread
+   *
+   *  @return the number of processed events
+   */
   uint64_t nEventsProcessed() {return _counter;}
 
 private:
