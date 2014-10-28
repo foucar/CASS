@@ -44,6 +44,8 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
                        int blNbr, int highTagNbr, int tagNbr)
 {
   det.frame().clear();
+  det.columns() = 0;
+  det.rows() =  0;
 
   vector<T> buffer;
   float gainRef(0);
@@ -188,6 +190,8 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
     }
 
     /** copy the data of the detector to the assembled image */
+    det.columns() = width;
+    det.rows() = det.rows() + height;
     int sizebefore(det.frame().size());
     det.frame().resize(sizebefore + width*height);
     pixeldetector::frame_t::iterator tileStart(det.frame().begin() + sizebefore);
@@ -208,6 +212,7 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
         gainRef = gain;
     }
   }
+
   return datasize;
 }
 
