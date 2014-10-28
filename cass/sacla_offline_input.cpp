@@ -73,6 +73,8 @@ public:
       output += " '" + toString(*iter) + "',";
     Log::add(Log::VERBOSEINFO,output);
 
+    InputBase::shared_pointer::element_type& input(InputBase::reference());
+
     iter = _liststart;
     for(;iter != _listend; ++iter)
     {
@@ -85,8 +87,8 @@ public:
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
         ++_counter;
-      InputBase::reference().newEventAdded(datasize);
-      InputBase::reference().ringbuffer().doneFilling(rbItem, datasize);
+      input.newEventAdded(datasize);
+      input.ringbuffer().doneFilling(rbItem, datasize);
     }
   }
 
