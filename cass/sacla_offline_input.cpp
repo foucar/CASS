@@ -278,39 +278,6 @@ void SACLAOfflineInput::run()
       (*processorsIt)->wait();
       eventcounter += (*processorsIt)->nEventsProcessed();
     }
-
-//    /** load the right reader for the file type depending on its extension */
-//    SACLAConverter convert;
-//    convert.loadSettings();
-//    /** read and convert the info for each of the tags */
-//    vector<int>::const_iterator taglistIter(taglist.begin());
-//    vector<int>::const_iterator taglistEnd(taglist.end());
-//    string output("SACLAOfflineInput: The following tags will be processed for run '" +
-//                  toString(runNbr) + "' at beamline '" + toString(blNbr) + "' (size is '" +
-//                  toString(taglist.size()) + "'):");
-//    for (; taglistIter != taglistEnd; ++ taglistIter)
-//      output += " '" + toString(*taglistIter) + "',";
-//    Log::add(Log::VERBOSEINFO,output);
-//
-//    taglistIter = taglist.begin();
-//    while(taglistIter != taglistEnd && _control != _quit)
-//    {
-//      pausePoint();
-//
-//      /** retrieve a new element from the ringbuffer */
-//      rbItem_t rbItem(_ringbuffer.nextToFill());
-//      /** fill the cassevent object with the contents from the file */
-//      uint64_t datasize = convert(blNbr,highTagNbr,*taglistIter,*rbItem->element);
-//      if (!datasize)
-//        Log::add(Log::WARNING,"SACLAOfflineInput: Event with id '"+
-//                 toString(rbItem->element->id()) + "' is bad: skipping Event");
-//      else
-//        ++eventcounter;
-//      newEventAdded(datasize);
-//      _ringbuffer.doneFilling(rbItem, datasize);
-//
-//      ++taglistIter;
-//    }
   }
 
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Finished with all runs.");
