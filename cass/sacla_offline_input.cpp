@@ -53,7 +53,8 @@ public:
     : _liststart(liststart),
       _listend(listend),
       _blNbr(blNbr),
-      _highTagNbr(highTagNbr)
+      _highTagNbr(highTagNbr),
+      _counter(0)
   {
   }
 
@@ -82,10 +83,15 @@ public:
       if (!datasize)
         Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
+      else
+        ++_counter;
       InputBase::reference().newEventAdded(datasize);
       InputBase::reference().ringbuffer().doneFilling(rbItem, datasize);
     }
   }
+
+  /** retrieve the number of events processed by this thread */
+  uint64_t nEventsProcessed() {return _counter;}
 
 private:
   /** iterator to the start of the list */
@@ -99,6 +105,9 @@ private:
 
   /** the first part of the tag (that doesn't change) */
   int _highTagNbr;
+
+  /** a counter to count how many events (tags) have been processed */
+  uint64_t _counter;
 };
 }//end namespace cass
 
@@ -253,11 +262,14 @@ void SACLAOfflineInput::run()
     processor->start();
     processors.push_back(processor);
 
-    /** wait until all threads are finished */
+    /** wait until all threads are finished and sum up the total events */
     vector<TagListProcessor::shared_pointer>::iterator processorsIt(processors.begin());
     vector<TagListProcessor::shared_pointer>::iterator processorsEnd(processors.end());
     for (; processorsIt != processorsEnd; ++processorsIt)
+    {
       (*processorsIt)->wait();
+      eventcounter += (*processorsIt)->nEventsProcessed();
+    }
 
 //    /** load the right reader for the file type depending on its extension */
 //    SACLAConverter convert;
