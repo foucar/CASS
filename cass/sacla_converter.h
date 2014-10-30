@@ -97,6 +97,9 @@ private:
   /** the list of requested machine values */
   std::vector<std::string> _machineVals;
 
+  /** the list of requested machine values */
+  std::map<int32_t,std::string> _pixelDetectors;
+
   /** define the octal detectors container type */
   typedef std::map<int32_t,std::pair<std::string,bool> > octalDets_t;
 
