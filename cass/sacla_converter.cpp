@@ -399,6 +399,19 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
                "' did not return the right size");
       continue;
     }
+    /** check if retrieved value can be converted to double, and if so add it
+     *  to the machine data, otherwise issue an error and continue
+     */
+    bool isDouble(false);
+    QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
+    double machineValue(machineValueQString.toDouble(&isDouble));
+    if (isDouble)
+      md.BeamlineData()[*machineValsIter] = machineValue;
+    else
+      Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
+               + toString(tagNbr) + "' string '" + machineValueStringList[0] +
+               "' cannot be converted to double");
+    datasize += sizeof(double);
     /** sync data frequency */
     int ibuf(0);
     funcstatus = ReadConfigOfSyncDataFreq(ibuf, const_cast<char*>(machineValsIter->c_str()),
@@ -411,19 +424,7 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
       return 0;
     }
     md.BeamlineData()[*machineValsIter + "_SyncDataFrequency"] = ibuf;
-    /** check if retrieved value can be converted to double, and if so add it
-     *  to the machine data, otherwise issue an error and continue
-     */
-    bool isDouble(false);
-    QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
-    double machineValue(machineValueQString.toDouble(&isDouble));
-    if (isDouble)
-      md.BeamlineData()[*machineValsIter] = machineValue;
-    else
-      Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
-               + toString(tagNbr) +
-               "' doesn't contain a string that can be converted to double");
-    datasize += sizeof(double);
+    datasize += sizeof(int);
   }
 
 
