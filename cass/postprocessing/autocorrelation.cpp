@@ -55,8 +55,8 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
   Histogram2DFloat::storage_t& resultdata( result.memory() );
 
-  QWriteLocker(&result.lock);
-  QReadLocker(&hist.lock);
+  QWriteLocker lock1(&result.lock);
+  QReadLocker lock2(&hist.lock);
 
   size_t nCols(hist.axis()[HistogramBackend::xAxis].size());
   size_t nRows(hist.axis()[HistogramBackend::yAxis].size());
@@ -247,8 +247,8 @@ void pp311::process(const CASSEvent &evt,HistogramBackend &res)
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
   Histogram2DFloat::storage_t& resultdata( result.memory() );
 
-  QReadLocker (&hist.lock);
-  QWriteLocker(&result.lock);
+  QReadLocker lock1(&hist.lock);
+  QWriteLocker lock2(&result.lock);
 
   const int nxx(hist.shape().first);
 

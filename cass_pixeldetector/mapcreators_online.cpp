@@ -14,7 +14,7 @@
 
 #include <QtCore/QTime>
 #include <QtCore/QtGlobal>
- 
+
 #include "mapcreators_online.h"
 
 #include "cass_settings.h"
@@ -39,7 +39,7 @@ void OnlineFixedCreator::controlCalibration(const string &)
 
 void OnlineFixedCreator::buildAndCalc(const Frame& frame)
 {
-  QWriteLocker (&_commondata->lock);
+  QWriteLocker lock(&_commondata->lock);
   /** as long as there are not enough frames collected build up the specail storage */
   if (_framecounter < _nbrFrames)
   {
@@ -160,7 +160,7 @@ void OnlineFixedCreatorCommonMode::controlCalibration(const string &)
 
 void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
 {
-  QWriteLocker (&_commondata->lock);
+  QWriteLocker lock(&_commondata->lock);
   /** as long as there are not enough frames collected build up the specail storage */
   if (_framecounter < _nbrFrames)
   {

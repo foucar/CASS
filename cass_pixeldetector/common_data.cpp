@@ -68,7 +68,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   {
     Log::add(Log::WARNING,"readHllOffsetFile: Could not open '" + filename +
              "'. Skip loading the offset and noise map.");
-    return; 
+    return;
   }
   hllDataTypes::DarkcalFileHeader header;
   hllfile >> header;
@@ -435,7 +435,7 @@ void saveCASSHotPixFile(const string &filename, const CommonData& data)
  */
 void isSameSize(const Frame& frame, CommonData& data)
 {
-  QWriteLocker(&data.lock);
+  QWriteLocker lock(&data.lock);
   bool changed(false);
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {

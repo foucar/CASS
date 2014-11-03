@@ -110,7 +110,7 @@ void pp312::fft1d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
     HistogramFloatBase::value_t v_imag = tmpdata[xx*2+1];
     out[xx-_Nx/2] = v_real*v_real + v_imag*v_imag;
   }
-    
+
 
 }
 
@@ -121,7 +121,7 @@ void pp312::fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
   // fftw_plan plan = fftw_plan_dft_r2c_2d(_Nx, _Ny, in, reinterpret_cast<pp312Traits<HistogramFloatBase::value_t>::fftw_complex_type*> (out), FFTW_MEASURE);
   // unfortunately though, fftw only supports one type of precision determined during compilation.
   // so we have to convert to double, the standard precision.
-  
+
 
   vector<double> fft_tmp;
   fft_tmp.resize(_Ny*(_Nx+_fft_tmp_padding));
@@ -187,7 +187,7 @@ void pp312::process(const CASSEvent &evt, HistogramBackend &res)
       (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
 
-  QReadLocker(&hist.lock);
+  QReadLocker lock(&hist.lock);
 
   _func(&(hist.memory().front()),&(result.memory().front()));
 }

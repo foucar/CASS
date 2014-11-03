@@ -303,7 +303,7 @@ void pp55::process(const CASSEvent &evt,HistogramBackend &res)
 
   const HistogramFloatBase::storage_t& src(hist.memory()) ;
 
-  QReadLocker(&hist.lock);
+  QReadLocker lock(&hist.lock);
 
   HistogramFloatBase::storage_t::iterator dest(result.memory().begin());
 
@@ -359,7 +359,7 @@ void pp1600::process(const CASSEvent &evt,HistogramBackend &res)
   HistogramFloatBase::storage_t& dest(
         dynamic_cast<HistogramFloatBase&>(result).memory());
 
-  QReadLocker (&hist.lock);
+  QReadLocker lock(&hist.lock);
 
   result.nbrOfFills()=1;
   const size_t pix_per_quad(8*_ny*2*_nx);
@@ -428,7 +428,7 @@ void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 
   HistogramFloatBase::storage_t& dest(dynamic_cast<HistogramFloatBase&>(result).memory());
 
-  QReadLocker(&hist.lock);
+  QReadLocker lock(&hist.lock);
 
   result.nbrOfFills()=1;
 
@@ -855,7 +855,7 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
   Histogram2DFloat::storage_t& destImage(result.memory());
 
   /** lock resources */
-  QReadLocker(&imageHist.lock);
+  QReadLocker lock(&imageHist.lock);
 
   /** fill the result with the background value */
   fill(destImage.begin(),destImage.end(),_backgroundValue);
@@ -1009,7 +1009,7 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   result.clear();
 
   /** lock resources */
-  QReadLocker(&imageHist.lock);
+  QReadLocker lock(&imageHist.lock);
 
   /** iterate through the src image and put its pixels at the correct position
    *  in the vector containing the radial average only when they are not masked

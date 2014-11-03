@@ -1744,7 +1744,7 @@ void pp70::loadSettings(size_t)
     const AxisProperty &yaxis (hist.axis()[HistogramBackend::yAxis]);
     const size_t binYLow(yaxis.bin(userYRange.first));
     const size_t binYUp (yaxis.bin(userYRange.second));
-    const size_t nYBins = (binYUp - binYLow);
+    const size_t nYBins = (binYUp - binYLow + 1);
     const float yLow (yaxis.position(binYLow));
     const float yUp (yaxis.position(binYUp));
     _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow +0.1);

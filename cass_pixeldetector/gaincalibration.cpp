@@ -28,7 +28,7 @@ using tr1::placeholders::_2;
 
 void GainCalibration::generateCalibration(const Frame &frame)
 {
-  QWriteLocker (&_commondata->lock);
+  QWriteLocker lock (&_commondata->lock);
 
   ++_counter;
   _statistics.resize(frame.data.size(),make_pair(0,0.));
@@ -61,7 +61,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
     }
   }
 
-  /** check the median nbr of photons per pixel. Use this or the number of 
+  /** check the median nbr of photons per pixel. Use this or the number of
    *  frames processed so far as criteria whether to generate the gain map.
    */
   vector<statistics_t> statcpy(_statistics);
