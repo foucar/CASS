@@ -19,7 +19,7 @@ using namespace cass;
 CASSEvent::CASSEvent()
   : cass::Serializable(1),
     _id(0),
-    _datagrambuffer(cass::DatagramBufferSize,0)
+    _datagrambuffer()
 {
   //add all devices that are available
   _devices[MachineData]    = new cass::MachineData::MachineDataDevice();
