@@ -71,6 +71,13 @@ public:
   /** write the calibrations before quitting */
   virtual void aboutToQuit();
 
+  /** react on when the gui clients tell this to start the calibration
+   *
+   * @param command The command that was issued by the gui clients
+   */
+
+  virtual void processCommand(std::string command);
+
 protected:
   /** write the calibration data to file */
   void loadCalibration();

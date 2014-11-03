@@ -115,6 +115,12 @@ void pp330::aboutToQuit()
     writeCalibration();
 }
 
+void pp330::processCommand(string command)\
+{
+  if(command == "startDarkcal")
+    _train = true;
+}
+
 void pp330::process(const CASSEvent &evt, HistogramBackend &res)
 {
   const Histogram2DFloat &image
