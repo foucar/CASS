@@ -34,23 +34,49 @@ void pp330::loadSettings(size_t)
   if (!(_image && ret))
     return;
 
-  _filename = s.value("Filename","out.cal").toString().toStdString();
+  /** load parameters from the ini file */
+  _autoSNR = s.value("SNRAutoBoundaries",4).toFloat();
+  _lowerBound = s.value("LowerBoundary",1).toFloat();
+  _upperBound = s.value("UpperBoundary",3).toFloat();
+  _minNbrPixels = s.value("MinNbrPixels",190).toFloat();
+  _filename = s.value("OutputFilename","out.cal").toString().toStdString();
   _write = s.value("WriteCal",true).toBool();
   _train = s.value("Train",true).toBool();
   _minTrainImages = s.value("NbrTrainingImages",200).toUInt();
   _snr = s.value("SNR",4).toFloat();
 
+  /** reset the training variables */
   _nTrainImages = 0;
   _trainstorage.clear();
 
+  /** determine the offset of the output arrays from the size of the input image */
   pair<size_t,size_t> shape(dynamic_cast<const Histogram2DFloat&>(_image->result()).shape());
+  const size_t imagesize(shape.first*shape.second);
+  _meanBeginOffset = MEAN * imagesize;
+  _meanEndOffset = (MEAN + 1) * imagesize;
+  _stdvBeginOffset = STDV * imagesize;
+  _stdvEndOffset = (STDV + 1) * imagesize;
+  _bPixBeginOffset = BADPIX * imagesize;
+  _bPixEndOffset = (BADPIX + 1) * imagesize;
+  _nValBeginOffset = NVALS * imagesize;
+
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(shape.first,3*shape.second)));
+        (new Histogram2DFloat(shape.first,nbrOfOutputs*shape.second)));
   loadCalibration();
   Log::add(Log::INFO,"Postprocessor " + name() +
            ": generates the calibration data from images contained in '" +
-           _image->name() + "'. Condition is '" + _condition->name() + "'");
+           _image->name() +
+           "' autoSNR '" + toString(_autoSNR) +
+           "' lowerBound '" + toString(_lowerBound) +
+           "' upperBound '" + toString(_upperBound) +
+           "' minNbrPixels '" + toString(_minNbrPixels) +
+           "' outputfilename '" + toString(_filename) +
+           "' write '" + (_write?"true":"false") +
+           "' train '" + (_train?"true":"false") +
+           "' nbrTrainImages '" + toString(_minTrainImages) +
+           "' SNR '" + toString(_snr) +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
 void pp330::loadCalibration()
@@ -68,17 +94,17 @@ void pp330::writeCalibration()
   const Histogram2DFloat::storage_t &result
       (dynamic_cast<const Histogram2DFloat*>(_result.get())->memory());
   const Histogram2DFloat &res(dynamic_cast<const Histogram2DFloat&>(*_result));
-  const size_t sizeOfImage(res.shape().first*res.shape().second/3.);
+  const size_t sizeOfImage(res.shape().first*res.shape().second/nbrOfOutputs);
 
   vector<double> offsets(sizeOfImage);
-  Histogram2DFloat::storage_t::const_iterator meanbegin(result.begin());
-  Histogram2DFloat::storage_t::const_iterator meanend(result.begin()+sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator meanbegin(result.begin() + _meanBeginOffset);
+  Histogram2DFloat::storage_t::const_iterator meanend(result.begin() + _meanEndOffset);
   copy(meanbegin,meanend,offsets.begin());
   out.write(reinterpret_cast<char*>(&offsets[0]), offsets.size()*sizeof(double));
 
   vector<double> noises(sizeOfImage);
-  Histogram2DFloat::storage_t::const_iterator stdvbegin(result.begin() + sizeOfImage);
-  Histogram2DFloat::storage_t::const_iterator stdvend(result.begin() + 2*sizeOfImage);
+  Histogram2DFloat::storage_t::const_iterator stdvbegin(result.begin() + _stdvBeginOffset);
+  Histogram2DFloat::storage_t::const_iterator stdvend(result.begin() + _stdvEndOffset);
   copy(stdvbegin,stdvend,noises.begin());
   out.write(reinterpret_cast<char*>(&noises[0]), noises.size()*sizeof(double));
 }
@@ -96,9 +122,11 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
   const size_t sizeOfImage = image.shape().first * image.shape().second;
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-  Histogram2DFloat::storage_t::iterator meanAr(result.memory().begin());
-  Histogram2DFloat::storage_t::iterator stdvAr(result.memory().begin()+sizeOfImage);
-  Histogram2DFloat::storage_t::iterator nValsAr(result.memory().begin()+2*sizeOfImage);
+  Histogram2DFloat::storage_t::iterator meanAr(result.memory().begin()  + _meanBeginOffset);
+  Histogram2DFloat::storage_t::iterator stdvAr(result.memory().begin()  + _stdvBeginOffset);
+  Histogram2DFloat::storage_t::iterator stdvEnd(result.memory().begin() + _stdvEndOffset);
+  Histogram2DFloat::storage_t::iterator nValsAr(result.memory().begin() + _nValBeginOffset);
+  Histogram2DFloat::storage_t::iterator badPixAr(result.memory().begin()+ _bPixBeginOffset);
 
   QReadLocker lock(&image.lock);
 
@@ -146,6 +174,34 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
         stdvAr[iPix] = stat.stdv();
         nValsAr[iPix] = distance(lowPos,upPos);
       }
+      /** mask bad pixels based upon the calibration */
+      float lowerBound(_lowerBound);
+      float upperBound(_upperBound);
+      if (_autoSNR > 0.f)
+      {
+        /** calculate the value boundaries for bad pixels from the statistics of
+         *  the stdv values */
+        CummulativeStatisticsCalculator<float> stat;
+        stat.addDistribution(stdvAr,stdvEnd);
+        lowerBound = stat.mean() - _autoSNR * stat.stdv();
+        upperBound = stat.mean() + _autoSNR * stat.stdv();
+        Log::add(Log::INFO,"pp330:process: '" + name() +
+                 "' The automatically determined boundaries for bad pixels are: up '" +
+                 toString(upperBound) + "' lower '" + toString(lowerBound) + "'");
+      }
+      /** set all pixels as bad, whos noise value is an outlier of the statistics
+       *  of the noise values
+       */
+      for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
+      {
+       if (stdvAr[iPix] < lowerBound ||
+           stdvAr[iPix] > upperBound ||
+           nValsAr[iPix] < _minNbrPixels)
+         badPixAr[iPix] = 1;
+      }
+      /** write the calibration */
+      writeCalibration();
+      /** reset the training variables */
       _train = false;
       _nTrainImages = 0;
       _trainstorage.clear();
@@ -153,7 +209,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
   }
   else
   {
-    //add current image to statistics of the calibration
+    /** add current image to statistics of the calibration */
     for(size_t iPix=0; iPix < sizeOfImage; ++iPix)
     {
       const float mean(meanAr[iPix]);

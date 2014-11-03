@@ -23,7 +23,7 @@ class CASSEvent;
  *
  * @cassttng PostProcessor/\%name\%/{RawImage} \n
  *           the raw image of the pixel detector
- * @cassttng PostProcessor/\%name\%/{Filename} \n
+ * @cassttng PostProcessor/\%name\%/{OutputFilename} \n
  *           the name of the file where the calibration will be written to.
  *           Default is out.cal
  * @cassttng PostProcessor/\%name\%/{WriteCal} \n
@@ -35,8 +35,24 @@ class CASSEvent;
  *           The Number of images used for the training. Default is 200
  * @cassttng PostProcessor/\%name\%/{SNR} \n
  *           The signal to noise value that indicates whether a pixel is an
- *           outlier of the distribution and should not be considered. Default
- *           is 4.
+ *           outlier of the distribution of pixels in the trainingset and
+ *           should not be considered. Default is 4.
+ * @cassttng PostProcessor/\%name\%/{SNRAutoBoundaries} \n
+ *           The signal to noise ratio for determining the boundary values of
+ *           bad pixels from the noise map. If this value is negative the manual
+ *           set values will be taken from the values below. Otherwise the mean
+ *           value and the standart deviation of all noise values will be
+ *           calculated and boundaries are set to
+ *           \f$ bound_{upper} = mean + SNRAutoBoundaries * stdv \f$
+ *           \f$ bound_{lower} = mean - SNRAutoBoundaries * stdv \f$
+ *           Default is 4.
+ * @cassttng PostProcessor/\%name\%/{LowerBoundary|UpperBoundary} \n
+ *           In case the SNRAutoBoundaries is negative these values will be taken
+ *           to determine the bad pixels. Default is 0|3.
+ * @cassttng PostProcessor/\%name\%/{MinNbrPixels} \n
+ *           The minimum amount of pixels of the trainingset that are required
+ *           for the indivdiual pixel. If the amount is lower than this value,
+ *           the pixel will be marked as bad. Default is 190
  *
  * @author Lutz Foucar
  */
@@ -67,6 +83,44 @@ private:
   typedef MovingStatisticsCalculator<std::valarray<float> > stat_t;
 
 private:
+  /** define the position of the beginning of the different maps */
+  enum {MEAN,STDV,NVALS,BADPIX,nbrOfOutputs};
+
+  /** the offset to the first point of the mean array in the result */
+  size_t _meanBeginOffset;
+
+  /** the offset to one beyond the last point of the mean array in the result */
+  size_t _meanEndOffset;
+
+  /** the offset to the first point of the stdv array in the result */
+  size_t _stdvBeginOffset;
+
+  /** the offset to one beyond the last point of the stdv array in the result */
+  size_t _stdvEndOffset;
+
+  /** the offset to the first point of the bad pixels array in the result */
+  size_t _bPixBeginOffset;
+
+  /** the offset to one beyond the last point of the bad pixels array in the result */
+  size_t _bPixEndOffset;
+
+  /** the offset to the first point of the counts array in the result */
+  size_t _nValBeginOffset;
+
+  /** the lower boundary when determining bad pixels */
+  float _lowerBound;
+
+  /** the upper boundary when determining bad pixels */
+  float _upperBound;
+
+  /** the signal to noise ratio that determines the boundaries in case of
+   *  automatically determining the boundaries from the noise values statistics
+   */
+  float _autoSNR;
+
+  /** minimum number of pixels in the trainig set that are part of the distribution */
+  float _minNbrPixels;
+
   /** the raw image */
   shared_pointer _image;
 
