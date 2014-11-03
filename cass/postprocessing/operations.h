@@ -428,20 +428,26 @@ protected:
  *
  * @PPList "41": Threshold histogram with another histogram
  *
- * does the same as PostProcessor 40, but does it with another image. Checks
- * wether the pixel value of the threshold image is bigger than the pxiel
- * value of the image, if so the result will be the the image pixel value and
- * 0 otherwise.
+ * set the bin of a histogram to a user requested value when the value of the
+ * threshold is within a user requested range.
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with histogram that should be thresholded. Default is 0.
- * @cassttng PostProcessor/\%name\%/{ThresholdHist} \n
- *           Image with which the hist will be thresholded.  Default is 0.
+ *           Postprocessor name with histogram that should be thresholded.
+ *           Default is 0.
+ * @cassttng PostProcessor/\%name\%/{ThresholdName} \n
+ *           Histogram with which the histogram will be thresholded.
+ *           Default is 0.
+ * @cassttng PostProcessor/\%name\%/{UserVal} \n
+ *           The value that will be set when the value of the ThresholdHist is
+ *           within the boundaries. Default is 0
+ * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ *           The boundaries within which the value of the ThresholdHist has to
+ *           be in order to set the value of the histogram to UserVal.
+ *           Default is 0.5|1.5
  *
- * @author Thomas White
  * @author Lutz Foucar
  */
 class pp41 : public PostProcessor
@@ -457,11 +463,29 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** check if value is in range and return another value
+   *
+   * @return user set value if value is in range
+   * @param val the value that will be returned if checkval is not in range
+   * @param checkval the value to check if it is in range
+   */
+  float checkrange(float val, float checkval);
+
+protected:
   /** pp containing input histogram */
   shared_pointer _one;
 
   /** pp containing threshold histogram */
   shared_pointer _threshold;
+
+  /** the value that will be set */
+  float _userVal;
+
+  /** the lower boundary of the range */
+  float _lowerBound;
+
+  /** the upper boundary of the range */
+  float _upperBound;
 };
 
 

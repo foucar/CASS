@@ -552,12 +552,20 @@ pp41::pp41(const name_t &name)
 
 void pp41::loadSettings(size_t)
 {
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
-  _threshold = setupDependency("Threshold");
+  _threshold = setupDependency("ThresholdName");
   bool ret (setupCondition());
   if (!(_one && _threshold && ret))
     return;
+
+  _userVal = s.value("UserVal",0.f).toFloat();
+  _lowerBound = s.value("LowerBound",0.5).toFloat();
+  _upperBound = s.value("UpperBound",1.5).toFloat();
+
   if (_one->result().dimension() != _threshold->result().dimension())
     throw invalid_argument("pp41:loadSettings() '" + name() + "' Hist to threshold '" +
                            _one->name() + "' and theshold histo '" + _threshold->name() +
@@ -592,6 +600,11 @@ void pp41::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
+float pp41::checkrange(float val, float checkval)
+{
+  return (_lowerBound < checkval && checkval < _upperBound) ? _userVal : val;
+}
+
 void pp41::process(const CASSEvent& evt, HistogramBackend &res)
 {
   const HistogramFloatBase &image
@@ -606,7 +619,7 @@ void pp41::process(const CASSEvent& evt, HistogramBackend &res)
   transform(image.memory().begin(), image.memory().end(),
             threshimage.memory().begin(),
             result.memory().begin(),
-            threshold());
+            bind(&pp41::checkrange,this,_1,_2));
   result.nbrOfFills()=1;
 }
 
