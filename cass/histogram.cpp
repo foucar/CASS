@@ -46,7 +46,6 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
 void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
 {
   using namespace std;
-  QWriteLocker wlock(&lock);
   _memory.clear();
   string xaxisTitle (_axis[HistogramBackend::xAxis].title());
   _axis.clear();
@@ -56,7 +55,6 @@ void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
 
 void Histogram1DFloat::append(const storage_t::value_type &value)
 {
-  QWriteLocker wlock(&lock);
   _memory.push_back(value);
   _axis[xAxis].setSize(_memory.size(),true);
 
@@ -64,7 +62,6 @@ void Histogram1DFloat::append(const storage_t::value_type &value)
 
 void Histogram1DFloat::clearline()
 {
-  QWriteLocker wlock(&lock);
   _memory.clear();
   _axis[xAxis].setSize(0,true);
 }
@@ -73,7 +70,6 @@ void Histogram2DFloat::resize(size_t nbrXBins, float xLow, float xUp,
                               size_t nbrYBins, float yLow, float yUp)
 {
   using namespace std;
-  QWriteLocker wlock(&lock);
   _memory.clear();
   string xaxisTitle (_axis[HistogramBackend::xAxis].title());
   string yaxisTitle (_axis[HistogramBackend::yAxis].title());

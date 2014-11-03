@@ -127,7 +127,7 @@ public:
         _current = _list.begin();
     }
     _current->first = id;
-    /** @note no need to lock the item, since calling clear locks the item */
+    QWriteLocker wlock(&(_current->second->lock));
     _current->second->clear();
     return _current;
   }
@@ -158,8 +158,7 @@ public:
     iter_type End(_list.end());
     while (it != End)
     {
-    /** @note no need to lock the item, since calling clear locks the item */
-//      it->second->lock.lockForWrite();
+      QWriteLocker lock(&(it->second->lock));
       it->second->clear();
     }
   }
