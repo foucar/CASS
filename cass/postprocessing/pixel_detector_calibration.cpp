@@ -1,5 +1,9 @@
 // Copyright (C) 2013 Lutz Foucar
 
+#include <QtCore/QDateTime>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+
 #include "pixel_detector_calibration.h"
 
 #include "histogram.h"
@@ -39,7 +43,7 @@ void pp330::loadSettings(size_t)
   _lowerBound = s.value("LowerBoundary",1).toFloat();
   _upperBound = s.value("UpperBoundary",3).toFloat();
   _minNbrPixels = s.value("MinNbrPixels",190).toFloat();
-  _filename = s.value("OutputFilename","out.cal").toString().toStdString();
+  _filename = s.value("OutputFilename","NotSet").toString().toStdString();
   _write = s.value("WriteCal",true).toBool();
   _train = s.value("Train",true).toBool();
   _minTrainImages = s.value("NbrTrainingImages",200).toUInt();
@@ -86,10 +90,22 @@ void pp330::loadCalibration()
 
 void pp330::writeCalibration()
 {
-  ofstream out(_filename.c_str(), ios::binary);
+  /** check if a proper name is given otherwise autogenerate a name from the
+   *  name of the postprocessor and the current time
+   */
+  string outname;
+  if (_filename == "NotSet")
+    outname = name() + "_" +
+              QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
+              ".cal";
+  else
+    outname = _filename;
+
+  /** write the calibration to the file */
+  ofstream out(outname.c_str(), ios::binary);
   if (!out.is_open())
     throw invalid_argument("pp330::writeCalibration(): Error opening file '" +
-                           _filename + "'");
+                           outname + "'");
 
   const Histogram2DFloat::storage_t &result
       (dynamic_cast<const Histogram2DFloat*>(_result.get())->memory());
@@ -107,6 +123,23 @@ void pp330::writeCalibration()
   Histogram2DFloat::storage_t::const_iterator stdvend(result.begin() + _stdvEndOffset);
   copy(stdvbegin,stdvend,noises.begin());
   out.write(reinterpret_cast<char*>(&noises[0]), noises.size()*sizeof(double));
+
+  /** if no proper filename was given, create a link to the current file
+   *  with a more general filename
+   */
+  if (_filename == "NotSet")
+  {
+    string linkname(name() +".lnk");
+    if (QFile::exists(QString::fromStdString(linkname)))
+      if(!QFile::remove(QString::fromStdString(linkname)))
+        throw runtime_error("pp330::writeCalibration: '" + name() +
+                            "' could not remove already existing link '" +
+                            linkname + "'");
+    if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
+      throw runtime_error("pp330::writeCalibration: '" + name() +
+                          "' could not create a link named '"+ linkname +
+                          "' that points to the outputfile '" + outname + "'");
+  }
 }
 
 void pp330::aboutToQuit()
