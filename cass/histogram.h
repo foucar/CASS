@@ -165,7 +165,7 @@ protected:
      * @param ver The version for de / serializing.
      */
     explicit HistogramBackend(size_t dim, uint16_t ver)
-        : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
+        : Serializable(ver), _dimension(dim), _nbrOfFills(0)
     {}
 
     /** copy constructor.
@@ -174,7 +174,6 @@ protected:
      */
     HistogramBackend(const cass::HistogramBackend& in)
       : Serializable(in),
-        lock(QReadWriteLock::Recursive),
         _dimension(in._dimension),
         _axis(in._axis),
         _nbrOfFills(in._nbrOfFills),
