@@ -140,9 +140,6 @@ private:
   /** the storage for the training images */
   std::vector< std::vector<float> > _trainstorage;
 
-  /** the number of training images acquired */
-  size_t _nTrainImages;
-
   /** the minimum nbr of images necessary for training */
   size_t _minTrainImages;
 

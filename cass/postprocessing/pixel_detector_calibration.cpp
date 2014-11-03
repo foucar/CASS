@@ -50,7 +50,6 @@ void pp330::loadSettings(size_t)
   _snr = s.value("SNR",4).toFloat();
 
   /** reset the training variables */
-  _nTrainImages = 0;
   _trainstorage.clear();
 
   /** determine the offset of the output arrays from the size of the input image */
@@ -171,12 +170,12 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
 
   if (_train)
   {
-    if (_nTrainImages < _minTrainImages)
-    {
+    if (_trainstorage.size() < _minTrainImages)
       _trainstorage.push_back(image.memory());
-      ++_nTrainImages;
-    }
-    else
+    /** @note we shouldn't use else here, because in this case we need one more,
+     *        but unused image to start the calibration
+     */
+    if (_trainstorage.size() == _minTrainImages)
     {
       //generate the initial calibration
       for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
@@ -239,10 +238,10 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
          badPixAr[iPix] = 1;
       }
       /** write the calibration */
-      writeCalibration();
+      if (_write)
+        writeCalibration();
       /** reset the training variables */
       _train = false;
-      _nTrainImages = 0;
       _trainstorage.clear();
     }
   }
