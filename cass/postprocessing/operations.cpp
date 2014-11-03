@@ -434,6 +434,46 @@ void pp12::loadSettings(size_t)
 
 
 
+// ************ Postprocessor 13: return the result (identity operation) *****
+
+pp13::pp13(const name_t &name)
+  : PostProcessor(name)
+{
+  loadSettings(0);
+}
+
+void pp13::loadSettings(size_t)
+{
+  setupGeneral();
+  _one = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_one && ret))
+    return;
+  createHistList(_one->result().copy_sptr());
+
+  Log::add(Log::INFO,"PostProcessor '" + name() +
+           "' will return a copy of PostProcessor '" + _one->name() +
+           "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp13::process(const CASSEvent& evt, HistogramBackend &res)
+{
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
+  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+
+  QReadLocker lock(&one.lock);
+  /** @note the below one has to be implemented otherwise one can't copy a table */
+  //result.axis() = one.axis();
+  result.nbrOfFills() = one.nbrOfFills();
+  copy(one.memory().begin(),one.memory().end(),result.memory().begin());
+}
+
+
+
+
+
+
 
 
 

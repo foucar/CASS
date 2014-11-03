@@ -322,6 +322,9 @@ PostProcessor::shared_pointer PostProcessors::create(const key_t &key)
   case ConstantValue:
     processor = PostProcessor::shared_pointer(new pp12(key));
     break;
+  case Identity:
+    processor = PostProcessor::shared_pointer(new pp13(key));
+    break;
   case CheckChange:
     processor = PostProcessor::shared_pointer(new pp15(key));
     break;

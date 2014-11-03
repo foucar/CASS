@@ -331,6 +331,47 @@ private:
 
 
 
+
+
+
+
+/** return the input
+ *
+ * @PPList "13": return the input (identiy operation)
+ *
+ * @see PostProcessor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is "".
+ *
+ * @author Lutz Foucar
+ */
+class pp13 : public PostProcessor
+{
+public:
+  /** constructor */
+  pp13(const name_t &name);
+
+  /** process event */
+  virtual void process(const CASSEvent&, HistogramBackend &);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing histogram */
+  shared_pointer _one;
+};
+
+
+
+
+
+
+
+
 /** Check whether value has changed.
  *
  * @PPList "15": Check whether value of 0d histogram has changed

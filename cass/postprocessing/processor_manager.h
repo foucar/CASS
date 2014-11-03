@@ -55,6 +55,8 @@ the Class description for information about what parameters are user settable.
 00009: Check whether histogram is in a range
 00012: Constant Value
 
+00013: Identity Operation (returns the input) (doesn't work with tables currently)
+
 00015: Check whether value of 0d histogram has changed
 
 00040: Threshold histogram
@@ -280,6 +282,7 @@ public:
     ConstantTrue=10,
     ConstantFalse=11,
     ConstantValue=12,
+    Identity=13,
 
     CheckChange=15,
 
