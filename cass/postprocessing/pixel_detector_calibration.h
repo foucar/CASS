@@ -56,6 +56,7 @@ class CASSEvent;
  *           The minimum amount of pixels of the trainingset that are required
  *           for the indivdiual pixel. If the amount is lower than this value,
  *           the pixel will be marked as bad. Default is 190
+ * @cassttng PostProcessor/\%name\%/{InputFilename} \n
  *
  * @author Lutz Foucar
  */
@@ -87,6 +88,24 @@ protected:
 
   /** write the calibration data to file */
   void writeCalibration();
+
+  /** set up the bad pixel map
+   *
+   * @param sizeOfImage the datasize of the input image
+   * @param stdvBegin iterator to the beginning of the noise part in the result
+   *                  container
+   * @param stdvEnd iterator to one point beyond the last of the noise part in
+   *                the result container
+   * @param nValsBegin iterator to the beginning of the number of vals part in
+   *                   the result container
+   * @param badPixBegin iterator to the beginning of the bad pixels part in
+   *                   the result container
+   */
+  void setBadPixMap(size_t sizeOfImage,
+                    Histogram2DFloat::storage_t::const_iterator stdvBegin,
+                    Histogram2DFloat::storage_t::const_iterator stdvEnd,
+                    Histogram2DFloat::storage_t::const_iterator nValsBegin,
+                    Histogram2DFloat::storage_t::iterator badPixBegin);
 
 private:
   /** define the statistics type */
@@ -151,6 +170,9 @@ private:
 
   /** the filename that is used to save the calibration */
   std::string _filename;
+
+  /** the filename that is used to load the calibration */
+  std::string _infilename;
 };
 
 
