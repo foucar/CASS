@@ -42,7 +42,7 @@ void pp330::loadSettings(size_t)
   _autoSNR = s.value("SNRAutoBoundaries",4).toFloat();
   _lowerBound = s.value("LowerBoundary",1).toFloat();
   _upperBound = s.value("UpperBoundary",3).toFloat();
-  _minNbrPixels = s.value("MinNbrPixels",190).toFloat();
+  _minNbrPixels = s.value("MinNbrPixels",90).toFloat()/100.f;
   _filename = s.value("OutputFilename","NotSet").toString().toStdString();
   _infilename = s.value("InputFilename","NotSet").toString().toStdString();
   _write = s.value("WriteCal",true).toBool();
@@ -50,9 +50,11 @@ void pp330::loadSettings(size_t)
   _minTrainImages = s.value("NbrTrainingImages",200).toUInt();
   _snr = s.value("SNR",4).toFloat();
   _resetBadPixel = s.value("ResetBadPixels",false).toBool();
+  _update = s.value("UpdateCalibration",true).toBool();
 
-  /** reset the training variables */
+  /** reset the variables */
   _trainstorage.clear();
+  _counter = 0;
 
   /** determine the offset of the output arrays from the size of the input image */
   pair<size_t,size_t> shape(dynamic_cast<const Histogram2DFloat&>(_image->result()).shape());
@@ -230,11 +232,12 @@ void pp330::setBadPixMap(size_t sizeOfImage,
   /** set all pixels as bad, whos noise value is an outlier of the statistics
    *  of the noise values
    */
+  float minpixels(_minNbrPixels*_counter);
   for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
   {
     if (stdvBegin[iPix] < lowerBound ||
         stdvBegin[iPix] > upperBound ||
-        nValsBegin[iPix] < _minNbrPixels)
+        nValsBegin[iPix] < minpixels)
       badPixBegin[iPix] = 1;
     else if (_resetBadPixel)
       badPixBegin[iPix] = 0;
@@ -265,6 +268,9 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
   Histogram2DFloat::storage_t::iterator nValsAr(result.memory().begin() + _nValBeginOffset);
 
   QReadLocker lock(&image.lock);
+
+  if (_train || _update)
+    ++_counter;
 
   if (_train)
   {
@@ -324,7 +330,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       _trainstorage.clear();
     }
   }
-  else
+  else if (_update)
   {
     /** add current image to statistics of the calibration */
     for(size_t iPix=0; iPix < sizeOfImage; ++iPix)

@@ -54,8 +54,9 @@ class CASSEvent;
  *           to determine the bad pixels. Default is 0|3.
  * @cassttng PostProcessor/\%name\%/{MinNbrPixels} \n
  *           The minimum amount of pixels of the trainingset that are required
- *           for the indivdiual pixel. If the amount is lower than this value,
- *           the pixel will be marked as bad. Default is 190
+ *           for the individual pixel. The value is given in percent of the total
+ *           amount of pixels available. If the amount is lower than this value,
+ *           the pixel will be marked as bad. Default is 90
  * @cassttng PostProcessor/\%name\%/{InputFilename} \n
  *           The input filname of the calibration file. If it is "NotSet" it
  *           assumes a filename of "\%name\%.lnk" and tries to find the link
@@ -68,6 +69,9 @@ class CASSEvent;
  *           When set to true, it will reset a bad pixel to good if the pixel is
  *           within the checks for beeing good (with in the Noise range and enough
  *           good values). Default is false, which keeps it marked as bad.
+ * @cassttng PostProcessor/\%name\%/{UpdateCalibration} \n
+ *           Flag to tell whether after the training has completed that the
+ *           calibration should be updated with more images. Default is true.
  *
  * @author Lutz Foucar
  */
@@ -187,6 +191,14 @@ private:
 
   /** flag to tell when the bad pixel should be reset */
   bool _resetBadPixel;
+
+  /** counter to count the total amount of images */
+  size_t _counter;
+
+  /** flag to tell whether the calibration should be updated after the training
+   *  has completed.
+   */
+  bool _update;
 };
 
 
