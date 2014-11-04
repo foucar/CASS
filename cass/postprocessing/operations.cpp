@@ -1723,7 +1723,8 @@ void pp70::loadSettings(size_t)
   const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
   _inputOffset=(xaxis.bin(userXRange.first));
   const size_t binXUp (xaxis.bin(userXRange.second));
-  const size_t nXBins (binXUp-_inputOffset);
+  /** @note the total number of bin between low and up is up-low +1 */
+  const size_t nXBins (binXUp-_inputOffset+1);
   const float xLow (xaxis.position(_inputOffset));
   const float xUp (xaxis.position(binXUp));
   string output("PostProcessor '" + name() +
@@ -1744,6 +1745,7 @@ void pp70::loadSettings(size_t)
     const AxisProperty &yaxis (hist.axis()[HistogramBackend::yAxis]);
     const size_t binYLow(yaxis.bin(userYRange.first));
     const size_t binYUp (yaxis.bin(userYRange.second));
+    /** @note the total number of bin between low and up is up-low +1 */
     const size_t nYBins = (binYUp - binYLow + 1);
     const float yLow (yaxis.position(binYLow));
     const float yUp (yaxis.position(binYUp));
