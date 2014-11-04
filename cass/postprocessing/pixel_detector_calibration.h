@@ -72,6 +72,10 @@ class CASSEvent;
  * @cassttng PostProcessor/\%name\%/{UpdateCalibration} \n
  *           Flag to tell whether after the training has completed that the
  *           calibration should be updated with more images. Default is true.
+ * @cassttng PostProcessor/\%name\%/{UpdateBadPixAndSavePeriod} \n
+ *           After how many received images should the bad pixel map be updated
+ *           and the data be saved to the requested file. If negative, no
+ *           updates will be made. Default is -1.
  *
  * @author Lutz Foucar
  */
@@ -199,6 +203,9 @@ private:
    *  has completed.
    */
   bool _update;
+
+  /** the period after which the data should be autosaved */
+  int _updatePeriod;
 };
 
 

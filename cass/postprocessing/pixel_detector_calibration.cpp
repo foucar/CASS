@@ -51,6 +51,7 @@ void pp330::loadSettings(size_t)
   _snr = s.value("SNR",4).toFloat();
   _resetBadPixel = s.value("ResetBadPixels",false).toBool();
   _update = s.value("UpdateCalibration",true).toBool();
+  _updatePeriod = s.value("UpdateBadPixAndSavePeriod",-1).toInt();
 
   /** reset the variables */
   _trainstorage.clear();
@@ -352,6 +353,18 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       meanAr[iPix] = newmean;
       stdvAr[iPix] = newstdv;
       nValsAr[iPix] = nVals;
+
+    }
+    /** update the bad pix map and the file if requested */
+    if ((_counter % _updatePeriod) == 0)
+    {
+      setBadPixMap(sizeOfImage,
+                   result.memory().begin()+_stdvBeginOffset,
+                   result.memory().begin()+_stdvEndOffset,
+                   result.memory().begin()+_nValBeginOffset,
+                   result.memory().begin()+_bPixBeginOffset);
+      if (_write)
+        writeCalibration();
     }
   }
 }
