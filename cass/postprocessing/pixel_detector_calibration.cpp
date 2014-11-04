@@ -49,6 +49,7 @@ void pp330::loadSettings(size_t)
   _train = s.value("Train",true).toBool();
   _minTrainImages = s.value("NbrTrainingImages",200).toUInt();
   _snr = s.value("SNR",4).toFloat();
+  _resetBadPixel = s.value("ResetBadPixels",false).toBool();
 
   /** reset the training variables */
   _trainstorage.clear();
@@ -235,6 +236,8 @@ void pp330::setBadPixMap(size_t sizeOfImage,
         stdvBegin[iPix] > upperBound ||
         nValsBegin[iPix] < _minNbrPixels)
       badPixBegin[iPix] = 1;
+    else if (_resetBadPixel)
+      badPixBegin[iPix] = 0;
   }
 }
 

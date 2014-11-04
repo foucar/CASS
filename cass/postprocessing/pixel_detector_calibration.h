@@ -57,6 +57,17 @@ class CASSEvent;
  *           for the indivdiual pixel. If the amount is lower than this value,
  *           the pixel will be marked as bad. Default is 190
  * @cassttng PostProcessor/\%name\%/{InputFilename} \n
+ *           The input filname of the calibration file. If it is "NotSet" it
+ *           assumes a filename of "\%name\%.lnk" and tries to find the link
+ *           target. If it can't find it, it will skip loading of the calibration
+ *           file. This also happens if another filename is given, but the file
+ *           can't be opened or the size of the images in the file and the
+ *           Rawimages differ. Program execution won't be stopped only an error
+ *           is written into the log file. Default is "NotSet"
+ * @cassttng PostProcessor/\%name\%/{ResetBadPixels} \n
+ *           When set to true, it will reset a bad pixel to good if the pixel is
+ *           within the checks for beeing good (with in the Noise range and enough
+ *           good values). Default is false, which keeps it marked as bad.
  *
  * @author Lutz Foucar
  */
@@ -173,6 +184,9 @@ private:
 
   /** the filename that is used to load the calibration */
   std::string _infilename;
+
+  /** flag to tell when the bad pixel should be reset */
+  bool _resetBadPixel;
 };
 
 
