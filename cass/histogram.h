@@ -248,7 +248,7 @@ public:
     /** evaluate whether value is non zero
      * @note this should only be implemented by Histogram0DFloat
      */
-    virtual bool isTrue() const {assert(false);return false;}
+    virtual bool isTrue() const {throw std::logic_error("HistogramBackend::isTrue() should never be called");return false;}
 
 
     //@{
