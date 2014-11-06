@@ -285,7 +285,7 @@ namespace cass
     const storage_t& memory()const {return _memory;}
 
     /** return reference to histogram data, so that one can manipulate the data */
-    storage_t& memory() { return _memory; };
+    storage_t& memory() { return _memory; }
 
   protected:
     /** histogram storage
@@ -327,7 +327,7 @@ namespace cass
     {}
 
     /** getter for the 0d value */
-    value_t getValue()const { return _memory[0]; };
+    value_t getValue()const { return _memory[0]; }
   };
 
 
@@ -371,7 +371,7 @@ namespace cass
     size_t size() const {return _axis[0].nbrBins();}
 
     /** Return histogram bin */
-    value_t& bin(size_t bin) { return _memory[bin]; };
+    value_t& bin(size_t bin) { return _memory[bin]; }
   };
 
   /** 2D Histogram
@@ -473,13 +473,3 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 }
 
 #endif // HISTOGRAM_H
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "gnu"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:
