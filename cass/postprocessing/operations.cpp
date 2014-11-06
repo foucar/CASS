@@ -463,8 +463,8 @@ void pp13::process(const CASSEvent& evt, HistogramBackend &res)
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
 
   QReadLocker lock(&one.lock);
-  /** @note the below one has to be implemented otherwise one can't copy a table */
-  //result.axis() = one.axis();
+
+  result.axis() = one.axis();
   result.nbrOfFills() = one.nbrOfFills();
   copy(one.memory().begin(),one.memory().end(),result.memory().begin());
 }

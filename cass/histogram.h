@@ -254,6 +254,7 @@ public:
     //@{
     /** setter */
     size_t      &nbrOfFills()         {return _nbrOfFills;}
+    axis_t      &axis()               {return _axis;}
     std::string &MimeType()           {return _mime;}
     std::string &key()                {return _key;}
     uint64_t    &id()                 {return _id;}
