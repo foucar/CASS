@@ -625,7 +625,7 @@ protected:
   shared_pointer _pHist;
 
   /** range we want to have the integral over in histogram bins */
-  std::pair<float,float> _area;
+  std::pair<size_t,size_t> _area;
 };
 
 

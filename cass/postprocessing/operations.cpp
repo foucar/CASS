@@ -766,9 +766,9 @@ void pp51::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(name().c_str());
-  _area = make_pair(s.value("LowerBound",-1e6).toFloat(),
-                    s.value("UpperBound", 1e6).toFloat());
+  s.beginGroup(QString::fromStdString(name()));
+  pair<float,float> userarea(make_pair(s.value("LowerBound",-1e6).toFloat(),
+                                       s.value("UpperBound", 1e6).toFloat()));
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
@@ -779,15 +779,41 @@ void pp51::loadSettings(size_t)
                            "': hist '" + _pHist->name() + "' is not a 1d hist.");
   const Histogram1DFloat &one
       (dynamic_cast<const Histogram1DFloat&>(_pHist->result()));
-  _area.first  = max(_area.first, one.axis()[HistogramBackend::xAxis].lowerLimit());
-  _area.second = min(_area.second,one.axis()[HistogramBackend::xAxis].upperLimit());
+  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
+  if (userarea.first < xaxis.lowerLimit())
+    throw invalid_argument("pp51::loadSettings: '" + name() +
+                           "': LowerBound '" + toString(userarea.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.lowerLimit()) + "'");
+  if (userarea.first > xaxis.upperLimit())
+    throw invalid_argument("pp51::loadSettings: '" + name() +
+                           "': LowerBound '" + toString(userarea.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.upperLimit()) + "'");
+  if (userarea.second < xaxis.lowerLimit())
+    throw invalid_argument("pp51::loadSettings: '" + name() +
+                           "': UpperBound '" + toString(userarea.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.lowerLimit()) + "'");
+  if (userarea.second > xaxis.upperLimit())
+    throw invalid_argument("pp51::loadSettings: '" + name() +
+                           "': UpperBound '" + toString(userarea.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.upperLimit()) + "'");
+
+  _area.first  = xaxis.nbrBins() * ((userarea.first - xaxis.lowerLimit() /
+                                     (xaxis.upperLimit() - xaxis.lowerLimit())));
+  _area.second = xaxis.nbrBins() * ((userarea.second - xaxis.lowerLimit() /
+                                     (xaxis.upperLimit() - xaxis.lowerLimit())));
+
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
   Log::add(Log::INFO, "PostProcessor '" + name() +
       "' will create integral of 1d histogram in PostProcessor '" + _pHist->name() +
-      "' from '" + toString(_area.first) + "' to '" + toString(_area.second) +
-      "'. Condition is '" + _condition->name() + "'");
+      "' from '" + toString(userarea.first) +  "(" + toString(_area.first) +
+      ")' to '" + toString(userarea.second) + "(" + toString(_area.second) +
+      ")'. Condition is '" + _condition->name() + "'");
 }
 
 void pp51::process(const CASSEvent& evt, HistogramBackend &res)
@@ -798,7 +824,10 @@ void pp51::process(const CASSEvent& evt, HistogramBackend &res)
 
   QReadLocker lock(&one.lock);
 
-  result = one.integral(_area);
+  Histogram1DFloat::storage_t::const_iterator begin(one.memory().begin()+_area.first);
+  Histogram1DFloat::storage_t::const_iterator end(one.memory().begin()+_area.second);
+
+  result =  accumulate(begin, end, 0.f);
   result.nbrOfFills()=1;
 }
 
