@@ -150,7 +150,7 @@ void pp111::process(const CASSEvent &evt, HistogramBackend &res)
   const Histogram1DFloat::storage_t &Data(waveform.memory());
   Histogram1DFloat::storage_t &CFDTrace(result.memory());
 
-  const size_t wLength(waveform.size());
+  const size_t wLength(waveform.axis()[Histogram1DFloat::xAxis].size());
   /** set all points before the delay to 0 */
   fill(CFDTrace.begin(),CFDTrace.begin()+_delay,0);
   for (size_t i=_delay; i<wLength; ++i)
