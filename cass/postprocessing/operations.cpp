@@ -687,47 +687,121 @@ void pp50::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
-  _userRange = make_pair(s.value("LowerBound",-1e6).toFloat(),
-                         s.value("UpperBound", 1e6).toFloat());
-  _axis = static_cast<HistogramBackend::Axis>(s.value("Axis",HistogramBackend::xAxis).toUInt());
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   if (_pHist->result().dimension() != 2)
-    throw invalid_argument("pp50::setupParameters()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
+    throw invalid_argument("pp50::loadSettings()'" + name() +
+                           "': Histogram '" + _pHist->name() +
                            "' is not a 2D Histogram.");
   const Histogram2DFloat &hist
       (dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
 
-  switch (_axis)
+  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
+  const AxisProperty &yAxis(hist.axis()[HistogramBackend::yAxis]);
+  _nX = xAxis.nbrBins();
+
+  pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
+                                        s.value("UpperBound", 1e6).toFloat()));
+  int axis(s.value("Axis",HistogramBackend::xAxis).toInt());
+
+  switch(axis)
   {
   case (HistogramBackend::xAxis):
-    _otherAxis = HistogramBackend::yAxis;
+    _xRange = make_pair(0,xAxis.nbrBins());
+    if (userRange.first < yAxis.lowerLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.lowerLimit()) + "'");
+    if (userRange.first > yAxis.upperLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.upperLimit()) + "'");
+    if (userRange.second < yAxis.lowerLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.lowerLimit()) + "'");
+    if (userRange.second > yAxis.upperLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.upperLimit()) + "'");
+    _yRange.first  = yAxis.nbrBins() * ((userRange.first - yAxis.lowerLimit() /
+                                       (yAxis.upperLimit() - yAxis.lowerLimit())));
+    _yRange.second = yAxis.nbrBins() * ((userRange.second - yAxis.lowerLimit() /
+                                       (yAxis.upperLimit() - yAxis.lowerLimit())));
+    _project = bind(&pp50::projectToX,this,_1,_2);
+    createHistList(
+          tr1::shared_ptr<Histogram1DFloat>
+          (new Histogram1DFloat(xAxis.nbrBins(),
+                                xAxis.lowerLimit(), xAxis.upperLimit())));
     break;
+
   case (HistogramBackend::yAxis):
-    _otherAxis = HistogramBackend::xAxis;
+    if (userRange.first < xAxis.lowerLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.lowerLimit()) + "'");
+    if (userRange.first > xAxis.upperLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.upperLimit()) + "'");
+    if (userRange.second < xAxis.lowerLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.lowerLimit()) + "'");
+    if (userRange.second > xAxis.upperLimit())
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.upperLimit()) + "'");
+    _xRange.first  = xAxis.nbrBins() * ((userRange.first - xAxis.lowerLimit() /
+                                       (xAxis.upperLimit() - xAxis.lowerLimit())));
+    _xRange.second = xAxis.nbrBins() * ((userRange.second - xAxis.lowerLimit() /
+                                       (xAxis.upperLimit() - xAxis.lowerLimit())));
+    _yRange = make_pair(0,yAxis.nbrBins());
+    _project = bind(&pp50::projectToY,this,_1,_2);
+    createHistList(
+          tr1::shared_ptr<Histogram1DFloat>
+          (new Histogram1DFloat(yAxis.nbrBins(),
+                                yAxis.lowerLimit(), yAxis.upperLimit())));
     break;
+
   default:
     throw invalid_argument("pp50::loadSettings() '" + name() +
-                           "': requested _axis '" + toString(_axis) +
+                           "': requested axis '" + toString(axis) +
                            "' does not exist.");
     break;
   }
-  const AxisProperty &projAxis(hist.axis()[_axis]);
-  const AxisProperty &otherAxis(hist.axis()[_otherAxis]);
-  _range = make_pair(max(_userRange.first, otherAxis.lowerLimit()),
-                     min(_userRange.second, otherAxis.upperLimit()));
-  createHistList(
-        tr1::shared_ptr<Histogram1DFloat>
-        (new Histogram1DFloat(projAxis.nbrBins(),
-                              projAxis.lowerLimit(), projAxis.upperLimit())));
+
   Log::add(Log::INFO,"PostProcessor '" + name() +
       "' will project histogram of PostProcessor '" + _pHist->name() + "' from '" +
-      toString(_range.first) + "' to '" + toString(_range.second) + "' on axis '" +
-      toString(_axis) + "'. Condition is '" + _condition->name() + "'");
+      toString(userRange.first) + "' to '" + toString(userRange.second) + "' to axis '" +
+      toString(axis) + "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp50::projectToX(const Histogram2DFloat::storage_t &src,
+                      Histogram1DFloat::storage_t &result)
+{
+  for(size_t y(_yRange.first); y<_yRange.second; ++y)
+    for(size_t x(_xRange.first); x<_xRange.second; ++x)
+      result[x] += src[y*_nX + x];
+}
+
+void pp50::projectToY(const Histogram2DFloat::storage_t &src,
+                      Histogram1DFloat::storage_t &result)
+{
+  for(size_t y(_yRange.first); y<_yRange.second; ++y)
+    for(size_t x(_xRange.first); x<_xRange.second; ++x)
+      result[y] += src[y*_nX + x];
 }
 
 void pp50::process(const CASSEvent& evt, HistogramBackend &res)
@@ -738,7 +812,7 @@ void pp50::process(const CASSEvent& evt, HistogramBackend &res)
 
   QReadLocker lock(&one.lock);
 
-  result = one.project(_range,_axis);
+  _project(one.memory(),result.memory());
   result.nbrOfFills()=1;
 }
 
@@ -942,7 +1016,7 @@ void pp57::loadSettings(size_t)
   case (HistogramBackend::yAxis):
     _Xrange = make_pair(xAxis.bin(userRange.first),
                         xAxis.bin(userRange.second));
-    _Yrange = make_pair(0,xAxis.nbrBins());
+    _Yrange = make_pair(0,yAxis.nbrBins());
     _project = bind(&pp57::projectToY,this,_1,_2,_3);
     createHistList(
           tr1::shared_ptr<Histogram1DFloat>

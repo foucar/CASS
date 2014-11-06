@@ -568,21 +568,39 @@ public:
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
 
-protected:
+private:
+  /** project 2d histogram to x axis
+   *
+   * @param src the 2d histogram that one wants to project
+   * @param result histogram to store the resulting projection
+   */
+   void projectToX(const Histogram2DFloat::storage_t &src,
+                   Histogram1DFloat::storage_t &result);
+
+  /** project 2d histogram to y axis
+   *
+   * @param src the 2d histogram that one wants to project
+   * @param result histogram to store the resulting projection
+   */
+   void projectToY(const Histogram2DFloat::storage_t &src,
+                   Histogram1DFloat::storage_t &result);
+
+private:
   /** pp containing the 2d hist we want to project */
   shared_pointer _pHist;
 
   /** range we want to project */
-  std::pair<float,float> _userRange;
+  std::pair<size_t,size_t> _xRange;
 
   /** range we want to project */
-  std::pair<float,float> _range;
+  std::pair<size_t,size_t> _yRange;
 
-  /** axis we want to project on */
-  HistogramBackend::Axis _axis;
+  /** the nbr of bins in the original image */
+  size_t _nX;
 
-  /** axis we want to put the range on */
-  HistogramBackend::Axis _otherAxis;
+  /** function that will do the projection */
+  std::tr1::function<void(const Histogram2DFloat::storage_t&,
+                          Histogram1DFloat::storage_t&)> _project;
 };
 
 
@@ -620,7 +638,7 @@ public:
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
 
-protected:
+private:
   /** pp containing the 1d hist we want to integrate */
   shared_pointer _pHist;
 
