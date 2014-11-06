@@ -130,7 +130,7 @@ public:
     float hist2user(size_t hist)const {return hist*(_up-_low)/_size;}
 
     /** get the possible rebinfactors for this nbr of bins */
-    std::vector<size_t> rebinfactors()const;
+//    std::vector<size_t> rebinfactors()const;
 
 protected:
     size_t _size;       //!< the number of bins in this axis
@@ -228,7 +228,7 @@ public:
      * the data in memory but rather set it to 0.
      * Needs to be implemented by the different flavors of histograms.
      */
-    virtual HistogramBackend* clone()const=0;
+//    virtual HistogramBackend* clone()const=0;
 
     /** create a copy of the histogram
      *
@@ -335,10 +335,10 @@ public:
      * This function will create a new copy of this on the heap. It will not copy
      * the data in memory but rather set it to 0.
      */
-    virtual HistogramBackend* clone()const
-    {
-      return new HistogramFloatBase(dimension(),memory().size());
-    }
+//    virtual HistogramBackend* clone()const
+//    {
+//      return new HistogramFloatBase(dimension(),memory().size());
+//    }
 
     /** clone the histogram completly
      *
@@ -405,7 +405,7 @@ public:
     }
 
     /** assignment operator. will copy axis properties and memory */
-    void operator=(const HistogramFloatBase& rhs);
+//    void operator=(const HistogramFloatBase& rhs);
 
 
 protected:
@@ -448,10 +448,10 @@ public:
      * This function will create a new copy of this on the heap. It will not copy
      * the data in memory but rather set it to 0.
      */
-    virtual HistogramBackend* clone()const
-    {
-      return new Histogram0DFloat();
-    }
+//    virtual HistogramBackend* clone()const
+//    {
+//      return new Histogram0DFloat();
+//    }
 
     /** clone the histogram completly
      *
@@ -563,13 +563,13 @@ public:
      * This function will create a new copy of this on the heap. It will not copy
      * the data in memory but rather set it to 0.
      */
-    virtual HistogramBackend* clone()const
-    {
-      return new Histogram1DFloat(_axis[xAxis].nbrBins(),
-                                  _axis[xAxis].lowerLimit(),
-                                  _axis[xAxis].upperLimit(),
-                                  _axis[xAxis].title());
-    }
+//    virtual HistogramBackend* clone()const
+//    {
+//      return new Histogram1DFloat(_axis[xAxis].nbrBins(),
+//                                  _axis[xAxis].lowerLimit(),
+//                                  _axis[xAxis].upperLimit(),
+//                                  _axis[xAxis].title());
+//    }
 
     /** clone the histogram completly
      *
@@ -607,7 +607,7 @@ public:
     /** resize histogram.
      * will drop all memory and resize axis and memory to the newly requsted size
      */
-    void resize(size_t nbrXBins, float xLow, float xUp);
+//    void resize(size_t nbrXBins, float xLow, float xUp);
 
     /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
@@ -620,29 +620,29 @@ public:
     void fill(float x, value_t weight=1.);
 
     /** return number of bins. */
-    size_t size() const {return _axis[0].size();}
+//    size_t size() const {return _axis[0].size();}
 
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); }
+//    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); }
 
     /** Maximum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); }
+//    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); }
 
     /** Return histogram bin that contains x */
-    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; }
+//    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; }
 
     /** Return histogram bin that contains x */
-    const value_t& operator()(float x) const { return _memory[_axis[0].bin(x)]; }
+//    const value_t& operator()(float x) const { return _memory[_axis[0].bin(x)]; }
 
     /** Return histogram bin */
-    value_t& bin(size_t bin) { return _memory[bin]; }
+//    value_t& bin(size_t bin) { return _memory[bin]; }
 
     /** Return histogram bin */
-    const value_t& bin(size_t bin) const { return _memory[bin]; }
+//    const value_t& bin(size_t bin) const { return _memory[bin]; }
 
     /** return the bin that the value would be placed into */
     size_t binForVal(float val)const
@@ -663,31 +663,31 @@ public:
         throw std::logic_error("Histogram1DFloat::binforval(): This should not happen");
     }
 
-    /** center of histogram */
-    float center() const
-    {
-        using namespace std;
-        storage_t partial(_memory.size());
-        partial_sum(_memory.begin(), _memory.end(), partial.begin());
-        storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
-        return _axis[0].position((center - partial.begin()));
-    }
+//    /** center of histogram */
+//    float center() const
+//    {
+//        using namespace std;
+//        storage_t partial(_memory.size());
+//        partial_sum(_memory.begin(), _memory.end(), partial.begin());
+//        storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
+//        return _axis[0].position((center - partial.begin()));
+//    }
 
     /** Sum of all values */
-    value_t sum() const {return std::accumulate(_memory.begin(), _memory.end(), 0.f);}
+//    value_t sum() const {return std::accumulate(_memory.begin(), _memory.end(), 0.f);}
 
     /** Reduce the 1D histogram to a scalar (integrate/sum all values).
      * @see sum()
      */
-    value_t reduce() const { return sum(); }
+//    value_t reduce() const { return sum(); }
 
-    /** integral of a region in the trace */
-    value_t integral(const std::pair<float,float> &area) const
-    {
-      return std::accumulate(_memory.begin()+_axis[0].bin(std::min(area.first,area.second)),
-                             _memory.begin()+_axis[0].bin(std::max(area.first,area.second)),
-                             0.f);
-    }
+//    /** integral of a region in the trace */
+//    value_t integral(const std::pair<float,float> &area) const
+//    {
+//      return std::accumulate(_memory.begin()+_axis[0].bin(std::min(area.first,area.second)),
+//                             _memory.begin()+_axis[0].bin(std::max(area.first,area.second)),
+//                             0.f);
+//    }
 
     /** append a value to the vector
      *
@@ -847,8 +847,8 @@ public:
     /** resize histogram.
      * will drop all memory and resize axis and memory to the newly requsted size
      */
-    void resize(size_t nbrXBins, float xLow, float xUp,
-                size_t nbrYBins, float yLow, float yUp);
+//    void resize(size_t nbrXBins, float xLow, float xUp,
+//                size_t nbrYBins, float yLow, float yUp);
 
     /** @return shape of histogram (rows, columns) */
     std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); }
@@ -862,12 +862,12 @@ public:
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-8)); }
+//    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-8)); }
 
     /** Maximum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); }
+//    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); }
 
     /** Return histogram bin (row,col).
      * @overload
@@ -877,7 +877,7 @@ public:
     /** center of histogram.
      * @todo check and improve
      */
-    std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); }
+//    std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); }
 
     /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
@@ -890,7 +890,7 @@ public:
      * @deprecated use project instead
      * @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
      */
-    Histogram1DFloat reduce(Axis axis) const;
+//    Histogram1DFloat reduce(Axis axis) const;
 
     /** Reduce the 2D histogram to a 1D integral along a specified axis.
      * @param[in] range the range on the other axis that you want to project
@@ -945,7 +945,7 @@ public:
      * @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
      * @return QImage of this histogram
      */
-    QImage qimage();
+//    QImage qimage();
 
 #ifdef JPEG_CONVERSION
     /** render 2d histogram into jpeg image
@@ -1131,44 +1131,44 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
 
 
 
-/** Convert Histogram2DFloat::value_t to uint8_t
-*
-* @author Jochen Küpper
-*/
-class value2pixel
-{
-public:
+///** Convert Histogram2DFloat::value_t to uint8_t
+//*
+//* @author Jochen Küpper
+//*/
+//class value2pixel
+//{
+//public:
+//
+//    value2pixel(Histogram2DFloat::value_t min, Histogram2DFloat::value_t max)
+//        : _min(min), _max(max)
+//        {};
+//
+//    uint8_t operator()(Histogram2DFloat::value_t val) {
+//        return uint8_t((val - _min) / (_max - _min) * 0xff);
+//    };
+//
+//protected:
+//
+//    Histogram2DFloat::value_t _min, _max;
+//};
 
-    value2pixel(Histogram2DFloat::value_t min, Histogram2DFloat::value_t max)
-        : _min(min), _max(max)
-        {};
-
-    uint8_t operator()(Histogram2DFloat::value_t val) {
-        return uint8_t((val - _min) / (_max - _min) * 0xff);
-    };
-
-protected:
-
-    Histogram2DFloat::value_t _min, _max;
-};
 
 
-
-inline QImage Histogram2DFloat::qimage() {
-    QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
-    qi.setColorCount(256);
-    for(unsigned i=0; i<256; ++i)
-        qi.setColor(i, QColor(i, i, i).rgb());
-    qi.fill(0);
-    uint8_t *data(qi.bits());
-    //    value2pixel converter(0,1);
-    value2pixel converter(min(), max());
-    lock.lockForRead();
-    // Subtract 8 to get the size of the buffer excluding over/underflow flags
-    std::transform(_memory.begin(), _memory.end()-8, data, converter);
-    lock.unlock();
-    return qi;
-};
+//inline QImage Histogram2DFloat::qimage() {
+//    QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+//    qi.setColorCount(256);
+//    for(unsigned i=0; i<256; ++i)
+//        qi.setColor(i, QColor(i, i, i).rgb());
+//    qi.fill(0);
+//    uint8_t *data(qi.bits());
+//    //    value2pixel converter(0,1);
+//    value2pixel converter(min(), max());
+//    lock.lockForRead();
+//    // Subtract 8 to get the size of the buffer excluding over/underflow flags
+//    std::transform(_memory.begin(), _memory.end()-8, data, converter);
+//    lock.unlock();
+//    return qi;
+//}
 
 
 } //end namespace cass
