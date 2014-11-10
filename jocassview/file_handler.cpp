@@ -74,7 +74,7 @@ void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data
       fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
       fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
   {
-    instance.saveImage(filename,dynamic_cast<cass::Histogram2DFloat*>(data)->qimage());
+    //instance.saveImage(filename,dynamic_cast<cass::Histogram2DFloat*>(data)->qimage());
   }
   else if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
   {
@@ -261,7 +261,7 @@ void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend 
     const cass::AxisProperty &xaxis(hist->axis()[cass::Histogram1DFloat::xAxis]);
     out<<"x-axis value, y-axis value"<<endl;
     for (size_t i(0); i < xaxis.nbrBins(); ++i)
-      out <<xaxis.position(i)<<";"<< hist->bin(i) << endl;
+      out <<xaxis.position(i)<<";"<< hist->memory()[i] << endl;
     break;
   }
   case 2:
