@@ -116,7 +116,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** retrieve the pixelsize of the detector tile */
   float pixsize_um(0);
-  funcstatus = ReadPixelSizeInMicroMeter(pixsize_um,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadPixelSize(pixsize_um,detName.c_str(), blNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pixelsize of '" +
@@ -137,31 +137,6 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
     return 0;
   }
   md.BeamlineData()[detName+"_AbsGain"] = gain;
-
-  /** detector recording frequency */
-  int ibuf(0);
-  funcstatus = ReadConfigOfDetRecordFreq(ibuf, const_cast<char*>(detName.c_str()),
-                                         blNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve det recording frequency of det '" +
-             detName + "' for tag '" + toString(tagNbr) + "' ErrorCode is '" +
-             toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName+"_DetectorRecordingFrequency"] = ibuf;
-
-  /** detector frequency */
-  funcstatus = ReadConfigOfDetFreq(ibuf, const_cast<char*>(detName.c_str()),
-                                   blNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve detector frequency of det '" +
-             detName + "' for tag '" + toString(tagNbr) + "' ErrorCode is '" +
-             toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName + "_DetectorFrequency"] = ibuf;
 
   /** retrieve the detector data */
   buffer.resize(width*height);
@@ -351,26 +326,6 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
       return 0;
     }
     md.BeamlineData()["Acc_PhotonEnergy"] = fbuf;
-
-    /** sacla frequency */
-    funcstatus = ReadConfigOfSACLAFreq(ibuf, blNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve sacla frequency for tag '" +
-               toString(tagNbr) + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()["Acc_SACLAFrequency"] = ibuf;
-
-    /** master frequency */
-    funcstatus = ReadConfigOfMasterFreq(ibuf, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve master frequency for tag '" +
-               toString(tagNbr) + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()["Acc_MasterFrequency"] = ibuf;
   }
 
 
@@ -412,19 +367,6 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
                + toString(tagNbr) + "' string '" + machineValueStringList[0] +
                "' cannot be converted to double");
     datasize += sizeof(double);
-    /** sync data frequency */
-    int ibuf(0);
-    funcstatus = ReadConfigOfSyncDataFreq(ibuf, const_cast<char*>(machineValsIter->c_str()),
-                                          highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve sync data frequency of '" +
-               *machineValsIter + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()[*machineValsIter + "_SyncDataFrequency"] = ibuf;
-    datasize += sizeof(int);
   }
 
 
@@ -457,37 +399,13 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
     /** retrieve the data with the right type */
     switch(type)
     {
-      case Sacla_DATA_TYPE_CHAR:
-        datasize += retrievePixelDet<int8_t>(det,md,pixelDetsIter->second,
-                                             blNbr,highTagNbr,tagNbr);
-        break;
-      case Sacla_DATA_TYPE_UNSIGNED_CHAR:
-        datasize += retrievePixelDet<uint8_t>(det,md,pixelDetsIter->second,
-                                              blNbr,highTagNbr,tagNbr);
-        break;
-      case Sacla_DATA_TYPE_SHORT:
-        datasize += retrievePixelDet<int16_t>(det,md,pixelDetsIter->second,
-                                              blNbr,highTagNbr,tagNbr);
-        break;
       case Sacla_DATA_TYPE_UNSIGNED_SHORT:
         datasize += retrievePixelDet<uint16_t>(det,md,pixelDetsIter->second,
-                                               blNbr,highTagNbr,tagNbr);
-        break;
-      case Sacla_DATA_TYPE_INT:
-        datasize += retrievePixelDet<int32_t>(det,md,pixelDetsIter->second,
-                                              blNbr,highTagNbr,tagNbr);
-        break;
-      case Sacla_DATA_TYPE_UNSIGNED_INT:
-        datasize += retrievePixelDet<uint32_t>(det,md,pixelDetsIter->second,
                                                blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_FLOAT:
         datasize += retrievePixelDet<float>(det,md,pixelDetsIter->second,
                                             blNbr,highTagNbr,tagNbr);
-        break;
-      case Sacla_DATA_TYPE_DOUBLE:
-        datasize += retrievePixelDet<double>(det,md,pixelDetsIter->second,
-                                             blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_INVALID:
       default:

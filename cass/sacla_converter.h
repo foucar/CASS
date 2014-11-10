@@ -32,12 +32,6 @@ class CASSEvent;
  * - "%tilename%_Angle_deg": The angle of the tile in deg
  * - "%tilename%_PixSize_um": The pixel size in um
  * - "%tilename%_AbsGain": The absolute gain of the tile
- * - "%tilename%_DetectorRecordingFrequency": The detector recording frequency
- * - "%tilename%_DetectorFrequency": The detector frequency
- *
- * For each requested Database Parameter the following additional information is
- * available in the machine data:
- * - "%ValueName%_SyncDataFrequency": The recorded frequency
  *
  * @cassttng SACLAConverter/{RetrieveAcceleratorData}\n
  *           Flag that tells whether the accelerator data should be retrieved.
@@ -46,8 +40,6 @@ class CASSEvent;
  *           - "Acc_electronEnergy_eV"
  *           - "Acc_KParams"
  *           - "Acc_PhotonEnergy"
- *           - "Acc_SACLAFrequency"
- *           - "Acc_MasterFrequency"
  * @cassttng SACLAConverter/OctalPixelDetectors/{size}\n
  *           The number of octal MPCCD detectors one wants to retrieve. Be sure
  *           that for each detector there is a unique id in the list below.

@@ -241,7 +241,7 @@ void SACLAOfflineInput::run()
              toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
              toString(blNbr) + "'");
     vector<int> taglist;
-    funcstatus = ReadSyncTagList(&taglist,highTagNbr,startTagNbr,endTagNbr);
+    funcstatus = ReadTagListInRange(&taglist,highTagNbr,startTagNbr,endTagNbr);
     if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve taglist of run '" +
