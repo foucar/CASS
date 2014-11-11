@@ -45,10 +45,14 @@ template <> inline hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
 
 /** function for the iterator of the h5 file
  *
- * @param
+ * @param unused not used
+ * @param name  name the name name to be added
+ * @param info the info of the object
+ * @param dlist pointer to the list that should be filled with the objects
  */
 inline
-herr_t iterator_func(hid_t, const char * name, const H5O_info_t *info, void *dlist)
+herr_t iterator_func(hid_t /*unused*/, const char * name, const H5O_info_t *info,
+                     void *dlist)
 {
   using namespace std;
   list<string>& dsetlist(*reinterpret_cast<list<string>*>(dlist));
@@ -158,7 +162,6 @@ public:
    * the given group. Then write the value and close all resources later on.
    *
    * @tparam type The scalar type that should be written
-   * @param value the value to be written
    * @param valname the name of the value
    */
   template <typename type>

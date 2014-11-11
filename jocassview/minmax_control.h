@@ -32,6 +32,7 @@ class MinMaxControl : public QWidget
 public:
   /** constructor
    *
+   * @param title the title of the widget
    * @param parent the parent of this
    */
   MinMaxControl(QString title, QToolBar *parent);

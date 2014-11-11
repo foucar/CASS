@@ -61,7 +61,7 @@ public:
 
   /** set the Menu where the data sources will be displayed in
    *
-   * @param menue the menu that displays the available data sources
+   * @param menu the menu that displays the available data sources
    */
   static void setMenu(QMenu* menu);
 

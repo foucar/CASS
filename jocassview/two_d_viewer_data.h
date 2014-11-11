@@ -76,7 +76,7 @@ public:
   /** return the value of the data at point x,y
    *
    * @param x the x coordinate of the requested data
-   * @param x the x coordinate of the requested data
+   * @param y the y coordinate of the requested data
    */
   virtual double value(double x, double y) const;
 

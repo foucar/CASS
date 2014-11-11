@@ -63,7 +63,8 @@ string eventIdToDirectoryName(uint64_t eventid)
 
 /** create a directory if it does not exist and cd into it
  *
- * @param the directory name that is realtiv to the current directory
+ * @param file the file in which the directory should be created
+ * @param dirname the directory name that is realtiv to the current directory
  *
  * @author Lutz Foucar
  */

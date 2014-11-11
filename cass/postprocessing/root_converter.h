@@ -66,7 +66,6 @@ public:
      *
      * @param _name the name of the value in the file
      * @param _groupname the group where the data will be written to
-     * @param _options the options for writing
      * @param _pp the postprocessor holding the data to be written
      */
     entry_t(const std::string &_name,

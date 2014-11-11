@@ -50,7 +50,7 @@ public:
 
   /** retrieve the data displayed by this viewer
    *
-   * @param data the data to be displayed
+   * @return the list of data displayed by this viewer
    */
   virtual QList<Data*> data() = 0;
 

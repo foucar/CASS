@@ -170,22 +170,23 @@ public:
 
 
   /** create the correction map
-   * 
+   *
    * will create the correction map from the mask, noise and cte/gain values
    * with the help of the cass::pixeldetector::createCorrectionMap function
    *
    * the correction value for a pixel is calculated using the following formular:
    *
    * \f[
-   *  corval = ctegain \times corval \times maskval \times (
-   *     0, & \text{if} noise < noisethreshold ;
-   *     1, & \text{otherwise})
+   *  corval = ctegain \times corval \times maskval \times  \begin{cases}
+   *     0, & \text{if } noise < noisethreshold \\
+   *     1, & \text{otherwise} \\
+   *     \end{cases}
    * \f]
    *
-   * @note we do not need to lock this function since, it will be called by 
+   * @note we do not need to lock this function since, it will be called by
    *       the map creators only. And their operators are still locked by
    *       this classes createMaps function that will envoke the functors.
-   * @todo make this a friend and protected so only functions that we allow 
+   * @todo make this a friend and protected so only functions that we allow
    *       can call it.
    */
   void createCorMap();

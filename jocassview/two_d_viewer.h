@@ -51,7 +51,7 @@ public:
 
   /** set the data to display
    *
-   * @param histogram The histogram that contains the data to display
+   * @return list of data that is viewed by this viewer
    */
   virtual QList<Data*> data();
 

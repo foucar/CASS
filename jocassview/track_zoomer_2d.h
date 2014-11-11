@@ -57,7 +57,7 @@ public:
 
   /** set the camera distance that is  needed of the optional resolution calculation
    *
-   * @param cameraDistance_cm the camera distance in centimeter
+   * @param cameradistance_cm the camera distance in centimeter
    */
   void setCameraDistance_cm(double cameradistance_cm);
 

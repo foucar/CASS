@@ -60,8 +60,7 @@ class pp312 : public PostProcessor
 public:
   /** constructor
    *
-   * @param pp referPostProcessorence to the postprocessor manager
-   * @param key the name of this PostProce
+   * @param name the name of this PostProcessor
    */
   pp312(const name_t &name);
 

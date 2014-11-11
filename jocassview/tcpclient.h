@@ -46,6 +46,7 @@ public:
    *
    * @return Histogram for requested key
    * @param histogramkey the key of the requested histogram
+   * @param id the event id of the histogram to be returned
    */
   cass::HistogramBackend *result(const QString &histogramkey,quint64 id=0);
 

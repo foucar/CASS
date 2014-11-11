@@ -75,7 +75,7 @@ public:
    *
    * @return size of the filled data in bytes
    * @param blNbr the beamline number
-   * @param highTagNumber first part of the tag
+   * @param highTagNbr first part of the tag
    * @param tagNbr the acutal Tag
    * @param event the CASSEvent where the data will be put into
    */

@@ -146,7 +146,7 @@ public slots:
    *
    * @param itemName the name of the item
    * @param state the state of the item
-   * @param emit Emit the clicked signal
+   * @param simulateClickedSignal if set to true emit the clicked signal
    */
   void setDisplayedItem(QString itemName, bool state, bool simulateClickedSignal=true);
 

@@ -408,7 +408,7 @@ protected:
  *           col (x) and rows (y) of the box that is used for determining the
  *           background. The box is going from -BoxSizeX ... BoxSizeX in x and
  *           same in y. Default is determined by the BraggPeakRadius.
- *           \f$ size = sqrt{\pi} \times BraggPeakRadius \f$
+ *           \f$ size = \sqrt{\pi} \times BraggPeakRadius \f$
  * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "wrong_file" in which case the
  *           resolution will be calculated completely wrong
@@ -516,7 +516,7 @@ protected:
    *
    * @param id unused
    */
-  double lambdaFromConstant(const CASSEvent::id_t&) {return _wavelength;}
+  double lambdaFromConstant(const CASSEvent::id_t& /*id*/) {return _wavelength;}
 
   /** retrieve the wavelength from the processor
    *
@@ -528,7 +528,7 @@ protected:
    *
    * @param id unused
    */
-  double distanceFromConstant(const CASSEvent::id_t&) {return _detdist;}
+  double distanceFromConstant(const CASSEvent::id_t& /*id*/) {return _detdist;}
 
   /** retrieve the detector distance from the processor
    *
