@@ -117,6 +117,53 @@ private:
   /** a counter to count how many events (tags) have been processed */
   uint64_t _counter;
 };
+
+/** retrieve the list of tags and the assiciated high tag number
+ *
+ * @return false in case of an error, true otherwise
+ * @param[out] taglist the taglist for the run and beamline
+ * @param[out] highTagNbr the high tag number for the run at beamline
+ * @param[in] blNbr the beamline number where the run was taken
+ * @param[in] runNbr the run number for which the tags should be returned
+ *
+ * @author Lutz Foucar
+ */
+bool getCompleteTagList(vector<int> &taglist, int &highTagNbr, int blNbr, int runNbr)
+{
+  /** get the lowest and highest tag number for the run */
+  int funcstatus,startTagNbr,endTagNbr = 0;
+  funcstatus = ReadStartTagNumber(highTagNbr,startTagNbr,blNbr,runNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"getCompleteTagList: could not retrieve start tag of run '" +
+             toString(runNbr) + "' at beamline '" + toString(blNbr) +
+             "' Errorcode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  funcstatus = ReadEndTagNumber(highTagNbr,endTagNbr,blNbr,runNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"getCompleteTagList: could not retrieve end tag of run '" +
+             toString(runNbr) + "' at beamline '" + toString(blNbr) +
+             "' Errorcode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+
+  /** get the tag list */
+  Log::add(Log::VERBOSEINFO,"getCompleteTagList: get Taglist for tags between '" +
+           toString(startTagNbr) + "' and '" + toString(endTagNbr) + "' with highTag '" +
+           toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
+           toString(blNbr) + "'");
+  funcstatus = ReadTagListInRange(&taglist,highTagNbr,startTagNbr,endTagNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"getCompleteTagList: could not retrieve taglist of run '" +
+             toString(runNbr) + "' at beamline '" + toString(blNbr) +
+             "'Errorcode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  return true;
+}
 }//end namespace cass
 
 void SACLAOfflineInput::instance(string runlistname,
@@ -188,7 +235,7 @@ void SACLAOfflineInput::run()
       ssvalue >> value;
       nbrs.push_back(value);
     }
-    if (nbrs.size() != 2)
+    if (nbrs.size() < 2)
     {
       Log::add(Log::ERROR,"SACLAOfflineInput: Could not split information '" +
                runname + "' into a beamline number and runname");
@@ -197,8 +244,8 @@ void SACLAOfflineInput::run()
     int blNbr(nbrs[0]);
     int runNbr(nbrs[1]);
 
-    /** get the list of tags for the run */
-    /** first check if the runstatus is set to 'run ended' */
+    /** check if the runstatus is set to 'run ended' and thus the
+     *  data is available to read */
     int runstatus(0);
     int funcstatus(0);
     funcstatus = ReadRunStatus(runstatus,blNbr,runNbr);
@@ -216,38 +263,40 @@ void SACLAOfflineInput::run()
       continue;
     }
 
-    /** get the lowest and highest tag number for the run */
-    int highTagNbr,startTagNbr,endTagNbr = 0;
-    funcstatus = ReadStartTagNumber(highTagNbr,startTagNbr,blNbr,runNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve start tag of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) +
-               "' Errorcode is '" + toString(funcstatus) + "'");
-      continue;
-    }
-    funcstatus = ReadEndTagNumber(highTagNbr,endTagNbr,blNbr,runNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve end tag of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) +
-               "' Errorcode is '" + toString(funcstatus) + "'");
-      continue;
-    }
+    /** the rest of the line is a separated list of tags, add them to the id list */
+    vector<int> taglist(nbrs.begin()+2,nbrs.end());
+    int highTagNbr(0);
 
-    /** get the tag list */
-    Log::add(Log::VERBOSEINFO,"SACLAOfflineInput: get Taglist for tags between '" +
-             toString(startTagNbr) + "' and '" + toString(endTagNbr) + "' with highTag '" +
-             toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
-             toString(blNbr) + "'");
-    vector<int> taglist;
-    funcstatus = ReadTagListInRange(&taglist,highTagNbr,startTagNbr,endTagNbr);
-    if (funcstatus)
+    /** if the user did not provide a tag list, get the tag list from the API */
+    if (taglist.empty())
     {
-      Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve taglist of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) +
-               "'Errorcode is '" + toString(funcstatus) + "'");
-      continue;
+      if (!getCompleteTagList(taglist,highTagNbr,blNbr,runNbr))
+        continue;
+    }
+    /** otherwise check if the provided tags are part of the provided run */
+    else
+    {
+      vector<int> completeTagList;
+      if (!getCompleteTagList(completeTagList,highTagNbr,blNbr,runNbr))
+        continue;
+      vector<int>::const_iterator tagIter(taglist.begin());
+      vector<int>::const_iterator taglistEnd(taglist.end());
+      bool didnotfind(false);
+      for (;tagIter != taglistEnd; ++tagIter)
+      {
+        if (find(completeTagList.begin(),completeTagList.end(),*tagIter) == completeTagList.end())
+        {
+          didnotfind = true;
+          break;
+        }
+      }
+      if (didnotfind)
+      {
+        Log::add(Log::ERROR,"SACLAOfflineInput: the provided tag '" +
+                 toString(*tagIter) + "' is not part of run '" + toString(runNbr) +
+                 "' at beamline '" + toString(blNbr) + "'");
+        continue;
+      }
     }
 
     /** split the taglist into the user requested amount of chunks

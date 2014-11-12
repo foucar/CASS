@@ -22,7 +22,12 @@ namespace cass
  *
  * This class will be used in offline modus. I will take an string that
  * contains a filename. In the file that the filename points to has to be a
- * list with runnumbers to analyse
+ * list with beamline number and runnumbers to analyse. These need to be given
+ * as a comma separated list. If only these two numbers are provided the list
+ * of tags will be retrieved for the given run. Optionally one can also provide
+ * a list of tags to be analysed for that given run / beamline number
+ * combination. This has to be provided as comma separated list immediatly
+ * following the beamline / runnumber combination.
  * The filename name must be passed to the program with the -i parameter.
  *
  * For each run in the list it will retrieve the tagnumbers and extract the data
