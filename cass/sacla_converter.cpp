@@ -296,7 +296,6 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
   {
     int funcstatus(0);
     double fbuf(0);
-    int ibuf(0);
     /** electron energy */
     funcstatus = ReadConfigOfElectronEnergy(fbuf, blNbr, highTagNbr, tagNbr);
     if (funcstatus)
