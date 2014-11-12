@@ -71,7 +71,7 @@ public:
   /** constructor */
   SACLAConverter();
 
-  /** read the frms6 file contents put them into cassevent
+  /** read data from SaclaDataAccessUserAPI
    *
    * @return size of the filled data in bytes
    * @param blNbr the beamline number
