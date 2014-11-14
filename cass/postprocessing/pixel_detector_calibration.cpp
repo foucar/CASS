@@ -39,9 +39,12 @@ void pp330::loadSettings(size_t)
     return;
 
   /** load parameters from the ini file */
-  _autoSNR = s.value("SNRAutoBoundaries",4).toFloat();
-  _lowerBound = s.value("LowerBoundary",1).toFloat();
-  _upperBound = s.value("UpperBoundary",3).toFloat();
+  _autoNoiseSNR = s.value("SNRNoiseAutoBoundaries",4).toFloat();
+  _NoiseLowerBound = s.value("NoiseLowerBoundary",1).toFloat();
+  _NoiseUpperBound = s.value("NoiseUpperBoundary",3).toFloat();
+  _autoOffsetSNR = s.value("SNROffsetAutoBoundaries",-1).toFloat();
+  _OffsetLowerBound = s.value("OffsetLowerBoundary",-1e20).toFloat();
+  _OffsetUpperBound = s.value("OffsetUpperBoundary",1e20).toFloat();
   _minNbrPixels = s.value("MinNbrPixels",90).toFloat()/100.f;
   _filename = s.value("OutputFilename","NotSet").toString().toStdString();
   _infilename = s.value("InputFilename","NotSet").toString().toStdString();
@@ -75,9 +78,12 @@ void pp330::loadSettings(size_t)
   Log::add(Log::INFO,"Postprocessor " + name() +
            ": generates the calibration data from images contained in '" +
            _image->name() +
-           "' autoSNR '" + toString(_autoSNR) +
-           "' lowerBound '" + toString(_lowerBound) +
-           "' upperBound '" + toString(_upperBound) +
+           "' autoNoiseSNR '" + toString(_autoNoiseSNR) +
+           "' NoiselowerBound '" + toString(_NoiseLowerBound) +
+           "' NoiseupperBound '" + toString(_NoiseUpperBound) +
+           "' autoOffsetSNR '" + toString(_autoOffsetSNR) +
+           "' OffsetLowerBound '" + toString(_OffsetLowerBound) +
+           "' OffsetUpperBound '" + toString(_OffsetUpperBound) +
            "' minNbrPixels '" + toString(_minNbrPixels) +
            "' outputfilename '" + toString(_filename) +
            "' write '" + (_write?"true":"false") +
@@ -149,10 +155,7 @@ void pp330::loadCalibration()
   Histogram2DFloat::storage_t::iterator stdvbegin(result.begin() + _stdvBeginOffset);
   copy(noises.begin(),noises.end(),stdvbegin);
   /** set up the bad pixel map */
-  setBadPixMap(sizeOfImage,
-               result.begin()+_stdvBeginOffset,result.begin()+_stdvEndOffset,
-               result.begin()+_nValBeginOffset,
-               result.begin()+_bPixBeginOffset);
+  setBadPixMap();
 }
 
 void pp330::writeCalibration()
@@ -209,36 +212,70 @@ void pp330::writeCalibration()
   }
 }
 
-void pp330::setBadPixMap(size_t sizeOfImage,
-                         Histogram2DFloat::storage_t::const_iterator stdvBegin,
-                         Histogram2DFloat::storage_t::const_iterator stdvEnd,
-                         Histogram2DFloat::storage_t::const_iterator nValsBegin,
-                         Histogram2DFloat::storage_t::iterator badPixBegin)
+void pp330::setBadPixMap()
 {
-  /** mask bad pixels based upon the calibration */
-  float lowerBound(_lowerBound);
-  float upperBound(_upperBound);
-  if (_autoSNR > 0.f)
+  /** get iterators to the mean, mask, nVals and stdv values */
+  Histogram2DFloat::storage_t &store
+      (dynamic_cast<Histogram2DFloat*>(_result.get())->memory());
+  Histogram2DFloat &res(dynamic_cast<Histogram2DFloat&>(*_result));
+  const size_t sizeOfImage(res.shape().first*res.shape().second/nbrOfOutputs);
+
+  Histogram2DFloat::storage_t::const_iterator meanBegin(store.begin() + _meanBeginOffset);
+  Histogram2DFloat::storage_t::const_iterator meanEnd(store.begin() + _meanEndOffset);
+  Histogram2DFloat::storage_t::const_iterator stdvBegin(store.begin() + _stdvBeginOffset);
+  Histogram2DFloat::storage_t::const_iterator stdvEnd(store.begin() + _stdvEndOffset);
+  Histogram2DFloat::storage_t::const_iterator nValsBegin(store.begin() + _nValBeginOffset);
+  Histogram2DFloat::storage_t::iterator badPixBegin(store.begin() + _stdvBeginOffset);
+
+  /** boundaries for bad pixels based upon the noise map */
+  float stdvLowerBound(_NoiseLowerBound);
+  float stdvUpperBound(_NoiseUpperBound);
+  if (_autoNoiseSNR > 0.f)
   {
     /** calculate the value boundaries for bad pixels from the statistics of
      *  the stdv values */
     CummulativeStatisticsCalculator<float> stat;
     stat.addDistribution(stdvBegin,stdvEnd);
-    lowerBound = stat.mean() - _autoSNR * stat.stdv();
-    upperBound = stat.mean() + _autoSNR * stat.stdv();
+    stdvLowerBound = stat.mean() - _autoNoiseSNR * stat.stdv();
+    stdvUpperBound = stat.mean() + _autoNoiseSNR * stat.stdv();
     Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
-             "': The automatically determined boundaries for bad pixels are: up '" +
-             toString(upperBound) + "' lower '" + toString(lowerBound) + "'");
+             "': The automatically determined boundaries for bad pixels based " +
+             "upon Noisemap are: up '" + toString(stdvUpperBound) + "' lower '" +
+             toString(stdvLowerBound) + "'");
   }
-  /** set all pixels as bad, whos noise value is an outlier of the statistics
-   *  of the noise values
+  /** boundaries for bad pixels based upon the offset map */
+  float meanLowerBound(_OffsetLowerBound);
+  float meanUpperBound(_OffsetUpperBound);
+  if (_autoOffsetSNR > 0.f)
+  {
+    /** calculate the value boundaries for bad pixels from the statistics of
+     *  the stdv values */
+    CummulativeStatisticsCalculator<float> stat;
+    stat.addDistribution(meanBegin,meanEnd);
+    meanLowerBound = stat.mean() - _autoOffsetSNR * stat.stdv();
+    meanUpperBound = stat.mean() + _autoOffsetSNR * stat.stdv();
+    Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
+             "': The automatically determined boundaries for bad pixels  based "+
+             "upon Offsetmap are: up '" + toString(meanUpperBound) + "' lower '" +
+             toString(meanLowerBound) + "'");
+  }
+  /** set all pixels as bad, whos noise or offset value is an outlier of the
+   *  statistics of the noise values, or offset values.
    */
   float minpixels(_minNbrPixels*_counter);
   for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
   {
-    if (stdvBegin[iPix] < lowerBound ||
-        stdvBegin[iPix] > upperBound ||
-        nValsBegin[iPix] < minpixels)
+    bool badpix(false);
+    if (stdvBegin[iPix] < stdvLowerBound ||
+        stdvBegin[iPix] > stdvUpperBound)
+      badpix = true;
+    if (meanBegin[iPix] < meanLowerBound ||
+        meanBegin[iPix] > meanUpperBound)
+      badpix = true;
+    if (nValsBegin[iPix] < minpixels)
+      badpix = true;
+    /** set bad pixel or reset if requested */
+    if (badpix)
       badPixBegin[iPix] = 1;
     else if (_resetBadPixel)
       badPixBegin[iPix] = 0;
@@ -318,11 +355,8 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
         nValsAr[iPix] = distance(lowPos,upPos);
       }
       /** mask bad pixels based upon the calibration */
-      setBadPixMap(sizeOfImage,
-                   result.memory().begin()+_stdvBeginOffset,
-                   result.memory().begin()+_stdvEndOffset,
-                   result.memory().begin()+_nValBeginOffset,
-                   result.memory().begin()+_bPixBeginOffset);
+      setBadPixMap();
+
       /** write the calibration */
       if (_write)
         writeCalibration();
@@ -358,11 +392,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
     /** update the bad pix map and the file if requested */
     if ((_counter % _updatePeriod) == 0)
     {
-      setBadPixMap(sizeOfImage,
-                   result.memory().begin()+_stdvBeginOffset,
-                   result.memory().begin()+_stdvEndOffset,
-                   result.memory().begin()+_nValBeginOffset,
-                   result.memory().begin()+_bPixBeginOffset);
+      setBadPixMap();
       if (_write)
         writeCalibration();
     }

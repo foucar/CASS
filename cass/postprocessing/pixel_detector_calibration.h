@@ -40,18 +40,32 @@ class CASSEvent;
  *           The signal to noise value that indicates whether a pixel is an
  *           outlier of the distribution of pixels in the trainingset and
  *           should not be considered. Default is 4.
- * @cassttng PostProcessor/\%name\%/{SNRAutoBoundaries} \n
+ * @cassttng PostProcessor/\%name\%/{SNRNoiseAutoBoundaries} \n
  *           The signal to noise ratio for determining the boundary values of
  *           bad pixels from the noise map. If this value is negative the manual
  *           set values will be taken from the values below. Otherwise the mean
  *           value and the standart deviation of all noise values will be
  *           calculated and boundaries are set to
- *           \f$ bound_{upper} = mean + SNRAutoBoundaries * stdv \f$
- *           \f$ bound_{lower} = mean - SNRAutoBoundaries * stdv \f$
+ *           \f$ bound_{upper} = mean + SNRNoiseAutoBoundaries * stdv \f$
+ *           \f$ bound_{lower} = mean - SNRNoiseAutoBoundaries * stdv \f$
  *           Default is 4.
- * @cassttng PostProcessor/\%name\%/{LowerBoundary|UpperBoundary} \n
- *           In case the SNRAutoBoundaries is negative these values will be taken
- *           to determine the bad pixels. Default is 0|3.
+ * @cassttng PostProcessor/\%name\%/{NoiseLowerBoundary|NoiseUpperBoundary} \n
+ *           In case the SNRNoiseAutoBoundaries is negative these values will be
+ *           taken to determine the bad pixels from the noise map.
+ *           Default is 0|3.
+ * @cassttng PostProcessor/\%name\%/{SNROffsetAutoBoundaries} \n
+ *           The signal to noise ratio for determining the boundary values of
+ *           bad pixels from the offset map. If this value is negative the manual
+ *           set values will be taken from the values below. Otherwise the mean
+ *           value and the standart deviation of all noise values will be
+ *           calculated and boundaries are set to
+ *           \f$ bound_{upper} = mean + SNROffsetAutoBoundaries * stdv \f$
+ *           \f$ bound_{lower} = mean - SNROffsetAutoBoundaries * stdv \f$
+ *           Default is -1.
+ * @cassttng PostProcessor/\%name\%/{OffsetLowerBoundary|OffsetUpperBoundary} \n
+ *           In case the SNROffsetAutoBoundaries is negative these values will
+ *           be taken to determine the bad pixels from the offset map.
+ *           Default is -1e20|1e20.
  * @cassttng PostProcessor/\%name\%/{MinNbrPixels} \n
  *           The minimum amount of pixels of the trainingset that are required
  *           for the individual pixel. The value is given in percent of the total
@@ -108,23 +122,8 @@ protected:
   /** write the calibration data to file */
   void writeCalibration();
 
-  /** set up the bad pixel map
-   *
-   * @param sizeOfImage the datasize of the input image
-   * @param stdvBegin iterator to the beginning of the noise part in the result
-   *                  container
-   * @param stdvEnd iterator to one point beyond the last of the noise part in
-   *                the result container
-   * @param nValsBegin iterator to the beginning of the number of vals part in
-   *                   the result container
-   * @param badPixBegin iterator to the beginning of the bad pixels part in
-   *                   the result container
-   */
-  void setBadPixMap(size_t sizeOfImage,
-                    Histogram2DFloat::storage_t::const_iterator stdvBegin,
-                    Histogram2DFloat::storage_t::const_iterator stdvEnd,
-                    Histogram2DFloat::storage_t::const_iterator nValsBegin,
-                    Histogram2DFloat::storage_t::iterator badPixBegin);
+  /** set up the bad pixel map */
+  void setBadPixMap();
 
 private:
   /** define the statistics type */
@@ -155,16 +154,27 @@ private:
   /** the offset to the first point of the counts array in the result */
   size_t _nValBeginOffset;
 
-  /** the lower boundary when determining bad pixels */
-  float _lowerBound;
+  /** the lower noise boundary when determining bad pixels */
+  float _NoiseLowerBound;
 
-  /** the upper boundary when determining bad pixels */
-  float _upperBound;
+  /** the upper noise boundary when determining bad pixels */
+  float _NoiseUpperBound;
 
-  /** the signal to noise ratio that determines the boundaries in case of
+  /** the signal to noise ratio that determines the noise boundaries in case of
    *  automatically determining the boundaries from the noise values statistics
    */
-  float _autoSNR;
+  float _autoNoiseSNR;
+
+  /** the lower offset boundary when determining bad pixels */
+  float _OffsetLowerBound;
+
+  /** the upper offset boundary when determining bad pixels */
+  float _OffsetUpperBound;
+
+  /** the signal to noise ratio that determines the offset boundaries in case of
+   *  automatically determining the boundaries from the noise values statistics
+   */
+  float _autoOffsetSNR;
 
   /** minimum number of pixels in the trainig set that are part of the distribution */
   float _minNbrPixels;
