@@ -95,6 +95,7 @@ void write(const std::string &filename, const std::vector<float> &data,
   cbf_file << "X-Binary-Number-of-Elements: " << nx*ny << "\r\n";
   cbf_file << "X-Binary-Size-Fastest-Dimension: " << nx << "\r\n";
   cbf_file << "X-Binary-Size-Second-Dimension: " << ny << "\r\n";
+  cbf_file << "X-Binary-Size-Padding: " << IOBUFSIZ-1 << "\r\n";
   cbf_file << "" << "\r\n";
   cbf_file << MARKBYTE[0] << MARKBYTE[1] << MARKBYTE[2] << MARKBYTE[3];
 
