@@ -225,7 +225,7 @@ void pp330::setBadPixMap()
   Histogram2DFloat::storage_t::const_iterator stdvBegin(store.begin() + _stdvBeginOffset);
   Histogram2DFloat::storage_t::const_iterator stdvEnd(store.begin() + _stdvEndOffset);
   Histogram2DFloat::storage_t::const_iterator nValsBegin(store.begin() + _nValBeginOffset);
-  Histogram2DFloat::storage_t::iterator badPixBegin(store.begin() + _stdvBeginOffset);
+  Histogram2DFloat::storage_t::iterator badPixBegin(store.begin() + _bPixBeginOffset);
 
   /** boundaries for bad pixels based upon the noise map */
   float stdvLowerBound(_NoiseLowerBound);
