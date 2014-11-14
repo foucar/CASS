@@ -467,7 +467,7 @@ cass::HistogramBackend* FileHandler::loadDataFromCBF()
   string header;
   CBF::read(_filename.toStdString(), header, matrix, shape);
 
-//  qDebug()<<QString::fromStdString(header);
+//  qDebug()<<QString::fromStdString(header)<<shape.first<<"x"<<shape.second;
 
   /** try to retrieve the center from the header */
   pair<double,double> center(0,0);
