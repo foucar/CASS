@@ -49,6 +49,10 @@ class CASSEvent;
  *           \f$ bound_{upper} = mean + SNRNoiseAutoBoundaries * stdv \f$
  *           \f$ bound_{lower} = mean - SNRNoiseAutoBoundaries * stdv \f$
  *           Default is 4.
+ * @cassttng PostProcessor/\%name\%/{SNRNoiseAutoBoundariesStat} \n
+ *           In case of using auto generation of the boundaries this signal to \
+ *           noise ratio determines which values will be taken when calculating
+ *           the mean and stdv of the distribution. Default is 4.
  * @cassttng PostProcessor/\%name\%/{NoiseLowerBoundary|NoiseUpperBoundary} \n
  *           In case the SNRNoiseAutoBoundaries is negative these values will be
  *           taken to determine the bad pixels from the noise map.
@@ -62,6 +66,10 @@ class CASSEvent;
  *           \f$ bound_{upper} = mean + SNROffsetAutoBoundaries * stdv \f$
  *           \f$ bound_{lower} = mean - SNROffsetAutoBoundaries * stdv \f$
  *           Default is -1.
+ * @cassttng PostProcessor/\%name\%/{SNROffsetAutoBoundariesStat} \n
+ *           In case of using auto generation of the boundaries this signal to \
+ *           noise ratio determines which values will be taken when calculating
+ *           the mean and stdv of the distribution. Default is 4.
  * @cassttng PostProcessor/\%name\%/{OffsetLowerBoundary|OffsetUpperBoundary} \n
  *           In case the SNROffsetAutoBoundaries is negative these values will
  *           be taken to determine the bad pixels from the offset map.
@@ -165,6 +173,12 @@ private:
    */
   float _autoNoiseSNR;
 
+  /** the signal to noise ratio that determines which values will be taken into
+   *  account when automatically determining the boundaries from the noise
+   *  values statistics
+   */
+  float _autoNoiseSNRStat;
+
   /** the lower offset boundary when determining bad pixels */
   float _OffsetLowerBound;
 
@@ -175,6 +189,12 @@ private:
    *  automatically determining the boundaries from the noise values statistics
    */
   float _autoOffsetSNR;
+
+  /** the signal to noise ratio that determines which values will be taken into
+   *  account when automatically determining the boundaries from the offset
+   *  values statistics
+   */
+  float _autoOffsetSNRStat;
 
   /** minimum number of pixels in the trainig set that are part of the distribution */
   float _minNbrPixels;

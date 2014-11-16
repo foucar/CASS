@@ -40,9 +40,11 @@ void pp330::loadSettings(size_t)
 
   /** load parameters from the ini file */
   _autoNoiseSNR = s.value("SNRNoiseAutoBoundaries",4).toFloat();
+  _autoNoiseSNRStat = s.value("SNRNoiseAutoBoundariesStat",4).toFloat();
   _NoiseLowerBound = s.value("NoiseLowerBoundary",1).toFloat();
   _NoiseUpperBound = s.value("NoiseUpperBoundary",3).toFloat();
   _autoOffsetSNR = s.value("SNROffsetAutoBoundaries",-1).toFloat();
+  _autoOffsetSNRStat = s.value("SNROffsetAutoBoundariesStat",4).toFloat();
   _OffsetLowerBound = s.value("OffsetLowerBoundary",-1e20).toFloat();
   _OffsetUpperBound = s.value("OffsetUpperBoundary",1e20).toFloat();
   _minNbrPixels = s.value("MinNbrPixels",90).toFloat()/100.f;
@@ -79,9 +81,11 @@ void pp330::loadSettings(size_t)
            ": generates the calibration data from images contained in '" +
            _image->name() +
            "' autoNoiseSNR '" + toString(_autoNoiseSNR) +
+           "' autoNoiseSNRStat '" + toString(_autoNoiseSNRStat) +
            "' NoiselowerBound '" + toString(_NoiseLowerBound) +
            "' NoiseupperBound '" + toString(_NoiseUpperBound) +
            "' autoOffsetSNR '" + toString(_autoOffsetSNR) +
+           "' autoOffsetSNRStat '" + toString(_autoOffsetSNRStat) +
            "' OffsetLowerBound '" + toString(_OffsetLowerBound) +
            "' OffsetUpperBound '" + toString(_OffsetUpperBound) +
            "' minNbrPixels '" + toString(_minNbrPixels) +
@@ -233,8 +237,8 @@ void pp330::setBadPixMap()
   if (_autoNoiseSNR > 0.f)
   {
     /** calculate the value boundaries for bad pixels from the statistics of
-     *  the stdv values */
-    CummulativeStatisticsCalculator<float> stat;
+     *  the stdv values remove outliers when calculating the mean and stdv */
+    CummulativeStatisticsNoOutlier<float> stat(_autoNoiseSNRStat);
     stat.addDistribution(stdvBegin,stdvEnd);
     stdvLowerBound = stat.mean() - _autoNoiseSNR * stat.stdv();
     stdvUpperBound = stat.mean() + _autoNoiseSNR * stat.stdv();
@@ -243,6 +247,7 @@ void pp330::setBadPixMap()
              "upon Noisemap are: up '" + toString(stdvUpperBound) + "' lower '" +
              toString(stdvLowerBound) + "'");
   }
+
   /** boundaries for bad pixels based upon the offset map */
   float meanLowerBound(_OffsetLowerBound);
   float meanUpperBound(_OffsetUpperBound);
@@ -250,7 +255,7 @@ void pp330::setBadPixMap()
   {
     /** calculate the value boundaries for bad pixels from the statistics of
      *  the stdv values */
-    CummulativeStatisticsCalculator<float> stat;
+    CummulativeStatisticsNoOutlier<float> stat(_autoOffsetSNRStat);
     stat.addDistribution(meanBegin,meanEnd);
     meanLowerBound = stat.mean() - _autoOffsetSNR * stat.stdv();
     meanUpperBound = stat.mean() + _autoOffsetSNR * stat.stdv();
@@ -322,37 +327,13 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       //generate the initial calibration
       for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
       {
-        vector<float> pixdistribution;
+        CummulativeStatisticsNoOutlier<float> stat(_snr);
         for (size_t iStore=0; iStore < _trainstorage.size(); ++iStore)
-          pixdistribution.push_back(_trainstorage[iStore][iPix]);
-        sort(pixdistribution.begin(),pixdistribution.end());
-
-        vector<float>::iterator lowPos(pixdistribution.begin());
-        vector<float>::iterator upPos(pixdistribution.end());
-
-        CummulativeStatisticsCalculator<float> stat;
-        bool outliersdetected(false);
-        do
-        {
-          stat.reset();
-          stat.addDistribution(lowPos,upPos);
-
-          const float lowBound(stat.mean() - _snr * stat.stdv());
-          const float upBound(stat.mean() + _snr * stat.stdv());
-          vector<float>::iterator newLowPos(lower_bound(pixdistribution.begin(), pixdistribution.end(), lowBound));
-          vector<float>::iterator newUpPos(upper_bound (pixdistribution.begin(), pixdistribution.end(), upBound));
-
-          /** outliers have been detected when the low and up iterators have changed */
-          outliersdetected = ( newLowPos != lowPos || newUpPos != upPos);
-
-          lowPos = newLowPos;
-          upPos = newUpPos;
-        }
-        while (outliersdetected);
+          stat.addDatum(_trainstorage[iStore][iPix]);
 
         meanAr[iPix] = stat.mean();
         stdvAr[iPix] = stat.stdv();
-        nValsAr[iPix] = distance(lowPos,upPos);
+        nValsAr[iPix] = stat.nbrPointsUsed();
       }
       /** mask bad pixels based upon the calibration */
       setBadPixMap();
