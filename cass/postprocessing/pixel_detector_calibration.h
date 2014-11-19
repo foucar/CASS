@@ -46,8 +46,8 @@ class CASSEvent;
  *           set values will be taken from the values below. Otherwise the mean
  *           value and the standart deviation of all noise values will be
  *           calculated and boundaries are set to
- *           \f$ bound_{upper} = mean + SNRNoiseAutoBoundaries * stdv \f$
- *           \f$ bound_{lower} = mean - SNRNoiseAutoBoundaries * stdv \f$
+ *           \f$ bound_{upper} = mean + (SNRNoiseAutoBoundaries * stdv) \f$
+ *           \f$ bound_{lower} = mean - (SNRNoiseAutoBoundaries * stdv) \f$
  *           Default is 4.
  * @cassttng PostProcessor/\%name\%/{SNRNoiseAutoBoundariesStat} \n
  *           In case of using auto generation of the boundaries this signal to \
@@ -63,8 +63,8 @@ class CASSEvent;
  *           set values will be taken from the values below. Otherwise the mean
  *           value and the standart deviation of all noise values will be
  *           calculated and boundaries are set to
- *           \f$ bound_{upper} = mean + SNROffsetAutoBoundaries * stdv \f$
- *           \f$ bound_{lower} = mean - SNROffsetAutoBoundaries * stdv \f$
+ *           \f$ bound_{upper} = mean + (SNROffsetAutoBoundaries * stdv) \f$
+ *           \f$ bound_{lower} = mean - (SNROffsetAutoBoundaries * stdv) \f$
  *           Default is -1.
  * @cassttng PostProcessor/\%name\%/{SNROffsetAutoBoundariesStat} \n
  *           In case of using auto generation of the boundaries this signal to \

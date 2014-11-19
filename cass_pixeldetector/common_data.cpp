@@ -814,8 +814,8 @@ void CommonData::createCorMap()
     frame_t::const_iterator End(noiseMap.end());
     while  (val != End)
       stat.addDatum(*val++);
-    _noiseRange.first = stat.mean() - _autoMultiplier * stat.stdv();
-    _noiseRange.second = stat.mean() + _autoMultiplier * stat.stdv();
+    _noiseRange.first = stat.mean() - (_autoMultiplier * stat.stdv());
+    _noiseRange.second = stat.mean() + (_autoMultiplier * stat.stdv());
     Log::add(Log::INFO, "CommonData::createCorMap(): only noisevalues between '"+
              toString(_noiseRange.first) + "' and '" + toString(_noiseRange.second) +
              "' are taken for detector with id '" + toString(detectorId) + "'");

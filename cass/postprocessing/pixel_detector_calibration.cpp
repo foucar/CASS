@@ -240,8 +240,8 @@ void pp330::setBadPixMap()
      *  the stdv values remove outliers when calculating the mean and stdv */
     CummulativeStatisticsNoOutlier<float> stat(_autoNoiseSNRStat);
     stat.addDistribution(stdvBegin,stdvEnd);
-    stdvLowerBound = stat.mean() - _autoNoiseSNR * stat.stdv();
-    stdvUpperBound = stat.mean() + _autoNoiseSNR * stat.stdv();
+    stdvLowerBound = stat.mean() - (_autoNoiseSNR * stat.stdv());
+    stdvUpperBound = stat.mean() + (_autoNoiseSNR * stat.stdv());
     Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
              "': The automatically determined boundaries for bad pixels based " +
              "upon Noisemap are: low '" + toString(stdvLowerBound) + "' up '" +
@@ -258,8 +258,8 @@ void pp330::setBadPixMap()
      *  the stdv values */
     CummulativeStatisticsNoOutlier<float> stat(_autoOffsetSNRStat);
     stat.addDistribution(meanBegin,meanEnd);
-    meanLowerBound = stat.mean() - _autoOffsetSNR * stat.stdv();
-    meanUpperBound = stat.mean() + _autoOffsetSNR * stat.stdv();
+    meanLowerBound = stat.mean() - (_autoOffsetSNR * stat.stdv());
+    meanUpperBound = stat.mean() + (_autoOffsetSNR * stat.stdv());
     Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
              "': The automatically determined boundaries for bad pixels  based "+
              "upon Offsetmap are: low '" + toString(meanLowerBound) + "' up '" +
