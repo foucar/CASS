@@ -244,8 +244,9 @@ void pp330::setBadPixMap()
     stdvUpperBound = stat.mean() + _autoNoiseSNR * stat.stdv();
     Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
              "': The automatically determined boundaries for bad pixels based " +
-             "upon Noisemap are: up '" + toString(stdvUpperBound) + "' lower '" +
-             toString(stdvLowerBound) + "'");
+             "upon Noisemap are: low '" + toString(stdvLowerBound) + "' up '" +
+             toString(stdvUpperBound) + "'. (Center '" + toString(stat.mean()) +
+             "', Width '" + toString(stat.stdv()) + "')");
   }
 
   /** boundaries for bad pixels based upon the offset map */
@@ -261,8 +262,9 @@ void pp330::setBadPixMap()
     meanUpperBound = stat.mean() + _autoOffsetSNR * stat.stdv();
     Log::add(Log::INFO,"pp330::setBadPixMap '" + name() +
              "': The automatically determined boundaries for bad pixels  based "+
-             "upon Offsetmap are: up '" + toString(meanUpperBound) + "' lower '" +
-             toString(meanLowerBound) + "'");
+             "upon Offsetmap are: low '" + toString(meanLowerBound) + "' up '" +
+             toString(meanUpperBound) + "'. (Center '" + toString(stat.mean()) +
+             "', Width '" + toString(stat.stdv()) + "')");
   }
   /** set all pixels as bad, whos noise or offset value is an outlier of the
    *  statistics of the noise values, or offset values.
