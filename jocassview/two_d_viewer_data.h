@@ -60,12 +60,6 @@ public:
    */
   cass::HistogramBackend* result();
 
-  /** retrieve the const pointer to the data
-   *
-   * @return const pointer to the data
-   */
-  const cass::HistogramBackend* result()const;
-
   /** return the min max values of the values in the data
    *
    * @return the interval of min to max values in the data

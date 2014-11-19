@@ -40,15 +40,12 @@ void TwoDViewerData::setResult(HistogramBackend *hist)
   const AxisProperty &yaxis(result()->axis()[Histogram2DFloat::yAxis]);
   setInterval(Qt::YAxis,QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
   setInterval(Qt::ZAxis,origZInterval(false));
+  _wasUpdated = true;
 }
 
 HistogramBackend* TwoDViewerData::result()
 {
-  return _hist;
-}
-
-const HistogramBackend* TwoDViewerData::result()const
-{
+  _wasUpdated = false;
   return _hist;
 }
 

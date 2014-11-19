@@ -143,6 +143,10 @@ void TwoDViewer::saveData(const QString &filename)
 
 void TwoDViewer::dataChanged()
 {
+  /** check if the data has really been updated */
+  if (!(data().front()->wasUpdated()))
+    return;
+
   /** if the data is original, save the original histogram */
   if (_isOriginalData)
   {
