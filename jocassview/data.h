@@ -25,6 +25,12 @@ namespace jocassview
 class Data
 {
 public:
+  /** constructor
+   *
+   * will set the _wasUpdated flag to false
+   */
+  Data();
+
   /** virtual destrutor */
   virtual ~Data();
 
@@ -52,9 +58,19 @@ public:
    */
   virtual QString sourceName()const;
 
+  /** retrieve was upDated flag
+   *
+   * @return true when the data was updated since the last call to result(),
+   *         false otherwise
+   */
+  virtual bool wasUpdated() const;
+
 protected:
   /** the name of the source */
   QString _sourceName;
+
+  /** flag to tell whether the data was updated */
+  bool _wasUpdated;
 };
 }//end namespace jocassview
 

@@ -10,6 +10,12 @@
 
 using namespace jocassview;
 
+Data::Data()
+  : _wasUpdated(false)
+{
+
+}
+
 Data::~Data()
 {
 
@@ -23,4 +29,9 @@ void Data::setSourceName(const QString &name)
 QString Data::sourceName()const
 {
   return _sourceName;
+}
+
+bool Data::wasUpdated()const
+{
+  return _wasUpdated;
 }
