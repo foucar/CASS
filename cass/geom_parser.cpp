@@ -68,7 +68,7 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
   /** open file @throw invalid_argument when it could not be opened */
   ifstream geomFile (filename.c_str());
   if (!geomFile.is_open())
-    throw invalid_argument("pp1602::generateLookupTable(): could not open file '" +
+    throw invalid_argument("GeometryInfo::generateLookupTable(): could not open file '" +
                            filename +"'");
 
   /** read the file line by line */
@@ -130,7 +130,7 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
         else if (pEnd[0] == 'y')
           geomInfos[asic].y_fs = number;
         else
-          throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
+          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") + pEnd[0] + "' to x or y");
         ++pEnd;
       }
     }
@@ -145,7 +145,7 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
         else if (pEnd[0] == 'y')
           geomInfos[asic].y_ss = number;
         else
-          throw runtime_error(string("pp1602: Cannot assign '") + pEnd[0] + "' to x or y");
+          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") + pEnd[0] + "' to x or y");
         ++pEnd;
       }
     }
