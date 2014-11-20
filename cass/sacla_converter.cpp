@@ -32,6 +32,7 @@ using namespace std;
  * @param det reference to the detector that should be filled with data
  * @param md reference to the machine data. Needed for additional det information
  * @param detName Name of the ocatal detector (tile names will be deferred from it)
+ * @param runNbr the run number of the experiment
  * @param blNbr the Beamline number of the experiment
  * @param highTagNbr the high tag number for the experiment
  * @param tagNbr the tag number that is associated with the requested data
@@ -40,7 +41,7 @@ using namespace std;
  */
 template <typename T>
 uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
-                          string detName, int blNbr, int highTagNbr, int tagNbr)
+                          string detName, int runNbr, int blNbr, int highTagNbr, int tagNbr)
 {
   vector<T> buffer;
 
@@ -140,7 +141,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** retrieve the detector data */
   buffer.resize(width*height);
-  funcstatus = ReadDetData(&buffer.front(),detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadDetData(&buffer.front(),detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve data of '" +
@@ -172,6 +173,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
  * @param detName Name of the ocatal detector (tile names will be deferred from it)
  * @param normalize flag to tell whether individual tiles should be normalized
  *                  to the first tile
+ * @param runNbr the run number of the experiment
  * @param blNbr the Beamline number of the experiment
  * @param highTagNbr the high tag number for the experiment
  * @param tagNbr the tag number that is associated with the requested data
@@ -181,7 +183,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 template <typename T>
 uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
                        string detName, bool normalize,
-                       int blNbr, int highTagNbr, int tagNbr)
+                       int runNbr, int blNbr, int highTagNbr, int tagNbr)
 {
   float gainRef(0);
   uint64_t datasize(0);
@@ -198,7 +200,7 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
     int sizebefore(det.frame().size());
 
     /** get all the info and the data of the tile */
-    datasize += retrievePixelDet<T>(det,md,detTileName,blNbr,highTagNbr,tagNbr);
+    datasize += retrievePixelDet<T>(det,md,detTileName,runNbr,blNbr,highTagNbr,tagNbr);
 
     /** in an octal MPCCD one needs to leverage the different tiles by its gain,
      *  taking the gain of the first tile as a reference
@@ -275,8 +277,9 @@ void SACLAConverter::loadSettings()
   s.endGroup();
 }
 
-uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
-                                    const int tagNbr, CASSEvent& event)
+uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
+                                    const int highTagNbr, const int tagNbr,
+                                    CASSEvent& event)
 {
   /** set the event id from the highTag and Tag number */
   event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
@@ -400,11 +403,11 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
     {
       case Sacla_DATA_TYPE_UNSIGNED_SHORT:
         datasize += retrievePixelDet<uint16_t>(det,md,pixelDetsIter->second,
-                                               blNbr,highTagNbr,tagNbr);
+                                               runNbr,blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_FLOAT:
         datasize += retrievePixelDet<float>(det,md,pixelDetsIter->second,
-                                            blNbr,highTagNbr,tagNbr);
+                                            runNbr,blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_INVALID:
       default:
@@ -440,7 +443,7 @@ uint64_t SACLAConverter::operator()(const int blNbr, const int highTagNbr,
       case Sacla_DATA_TYPE_FLOAT:
         datasize += retrieveOctal<float>(det,md,octalDetsIter->second.first,
                                          octalDetsIter->second.second,
-                                         blNbr,highTagNbr,tagNbr);
+                                         runNbr,blNbr,highTagNbr,tagNbr);
         break;
       default:
         Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +

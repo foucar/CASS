@@ -52,9 +52,10 @@ public:
    */
   TagListProcessor(vector<int>::const_iterator liststart,
                    vector<int>::const_iterator listend,
-                   int blNbr, int highTagNbr)
+                   int runNbr, int blNbr, int highTagNbr)
     : _liststart(liststart),
       _listend(listend),
+      _runNbr(runNbr),
       _blNbr(blNbr),
       _highTagNbr(highTagNbr),
       _counter(0)
@@ -84,7 +85,7 @@ public:
       /** retrieve a new element from the ringbuffer */
       InputBase::rbItem_t rbItem(InputBase::reference().ringbuffer().nextToFill());
       /** fill the cassevent object with the contents from the file */
-      uint64_t datasize = convert(_blNbr,_highTagNbr,*iter,*rbItem->element);
+      uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*iter,*rbItem->element);
       if (!datasize)
         Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
@@ -107,6 +108,9 @@ private:
 
   /** iterator to the end of the list */
   vector<int>::const_iterator _listend;
+
+  /** the run number for the experiment */
+  int _runNbr;
 
   /** the beamline number for the experiment */
   int _blNbr;
@@ -309,13 +313,13 @@ void SACLAOfflineInput::run()
       vector<int>::const_iterator chunkstart(taglist.begin() + (chunk*chunksize));
       vector<int>::const_iterator chunkend(taglist.begin() + (chunk+1)*chunksize);
       TagListProcessor::shared_pointer
-          processor(new TagListProcessor(chunkstart,chunkend,blNbr,highTagNbr));
+          processor(new TagListProcessor(chunkstart,chunkend,runNbr,blNbr,highTagNbr));
       processor->start();
       processors.push_back(processor);
     }
     vector<int>::const_iterator chunkstart(taglist.begin() + ((_chunks-1)*chunksize));
     TagListProcessor::shared_pointer
-        processor(new TagListProcessor(chunkstart,taglist.end(),blNbr,highTagNbr));
+        processor(new TagListProcessor(chunkstart,taglist.end(),runNbr,blNbr,highTagNbr));
     processor->start();
     processors.push_back(processor);
 
