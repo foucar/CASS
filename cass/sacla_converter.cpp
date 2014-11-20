@@ -364,7 +364,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
      *        string, therefore one has to remove all characters from the string
      */
     QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
-    machineValueQString.remove(QRegExp("[^a-zA-Z\\d\\s]"));
+    machineValueQString.remove(QRegExp("[V|C]|pulse|a\\.u\\."));
     bool isDouble(false);
     double machineValue(machineValueQString.toDouble(&isDouble));
     if (isDouble)
