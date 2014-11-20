@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <SaclaDataAccessUserAPI.h>
 
+#include <QtCore/QRegExp>
+
 #include "sacla_converter.h"
 
 #include "cass_event.h"
@@ -361,6 +363,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
      */
     bool isDouble(false);
     QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
+    machineValueQString.remove(QRegExp("[^a-zA-Z\\d\\s]"));
     double machineValue(machineValueQString.toDouble(&isDouble));
     if (isDouble)
       md.BeamlineData()[*machineValsIter] = machineValue;
