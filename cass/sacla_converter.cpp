@@ -360,10 +360,12 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     }
     /** check if retrieved value can be converted to double, and if so add it
      *  to the machine data, otherwise issue an error and continue
+     *  @note the retrieved values mgith contain the unit of the value in the
+     *        string, therefore one has to remove all characters from the string
      */
-    bool isDouble(false);
     QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
     machineValueQString.remove(QRegExp("[^a-zA-Z\\d\\s]"));
+    bool isDouble(false);
     double machineValue(machineValueQString.toDouble(&isDouble));
     if (isDouble)
       md.BeamlineData()[*machineValsIter] = machineValue;
