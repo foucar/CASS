@@ -430,7 +430,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   {
     /** determine the detector pixel data type */
     Sacla_DetDataType type;
-    if (ReadDetDataType(type,octalDetsIter->second.first.c_str(), runNbr, blNbr, highTagNbr, tagNbr) != 0)
+    if (ReadDetDataType(type,octalDetsIter->second.first.c_str(), blNbr, runNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
                octalDetsIter->second.first + "' for tag '" + toString(tagNbr) + "'");
