@@ -49,14 +49,14 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** get the height and the width of the detector */
   int width(0), height(0), funcstatus(0);
-  funcstatus = ReadXSizeOfDetData(width,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadXSizeOfDetData(width,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not width of '" + detName + "' for tag '" + toString(tagNbr)+
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return 0;
   }
-  funcstatus = ReadYSizeOfDetData(height,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadYSizeOfDetData(height,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not widt Octal: could not height of '" +
@@ -69,7 +69,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** retrieve the datasize of the detector tile in bytes */
   int datasize(0);
-  funcstatus = ReadSizeOfDetData(datasize,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadSizeOfDetData(datasize,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve datasize of '" +
@@ -80,7 +80,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** retrieve the position and tilt of the tile */
   float posx(0), posy(0), posz(0), tilt_deg(0);
-  funcstatus = ReadDetPosX(posx,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadDetPosX(posx,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pos X of '" +
@@ -88,7 +88,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return 0;
   }
-  funcstatus = ReadDetPosY(posy,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadDetPosY(posy,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet Octal: could not retrieve pos Y of '" +
@@ -96,7 +96,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return 0;
   }
-  funcstatus = ReadDetPosZ(posz,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadDetPosZ(posz,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pos Z of '" +
@@ -104,7 +104,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return 0;
   }
-  funcstatus = ReadDetRotationAngle(tilt_deg,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadDetRotationAngle(tilt_deg,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve tilt of '" +
@@ -119,7 +119,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** retrieve the pixelsize of the detector tile */
   float pixsize_um(0);
-  funcstatus = ReadPixelSize(pixsize_um,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadPixelSize(pixsize_um,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pixelsize of '" +
@@ -131,7 +131,7 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
 
   /** get the gain of the detector tile */
   float gain(0);
-  funcstatus = ReadAbsGain(gain,detName.c_str(), blNbr, highTagNbr, tagNbr);
+  funcstatus = ReadAbsGain(gain,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve absolute gain of '" +
@@ -391,7 +391,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   {
     /** determine the detector pixel data type */
     Sacla_DetDataType type;
-    if (ReadDetDataType(type,pixelDetsIter->second.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    if (ReadDetDataType(type,pixelDetsIter->second.c_str(), blNbr, runNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
                pixelDetsIter->second + "' for tag '" + toString(tagNbr) + "'");
@@ -430,7 +430,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   {
     /** determine the detector pixel data type */
     Sacla_DetDataType type;
-    if (ReadDetDataType(type,octalDetsIter->second.first.c_str(), blNbr, highTagNbr, tagNbr) != 0)
+    if (ReadDetDataType(type,octalDetsIter->second.first.c_str(), runNbr, blNbr, highTagNbr, tagNbr) != 0)
     {
       Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
                octalDetsIter->second.first + "' for tag '" + toString(tagNbr) + "'");
