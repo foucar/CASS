@@ -78,45 +78,6 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
     return 0;
   }
 
-  /** retrieve the position and tilt of the tile */
-  float posx(0), posy(0), posz(0), tilt_deg(0);
-  funcstatus = ReadDetPosX(posx,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pos X of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  funcstatus = ReadDetPosY(posy,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet Octal: could not retrieve pos Y of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  funcstatus = ReadDetPosZ(posz,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pos Z of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  funcstatus = ReadDetRotationAngle(tilt_deg,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve tilt of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName+"_PosX_um"] = posx;
-  md.BeamlineData()[detName+"_PosY_um"] = posy;
-  md.BeamlineData()[detName+"_PosZ_um"] = posz;
-  md.BeamlineData()[detName+"_Angle_deg"] = tilt_deg;
-
   /** retrieve the pixelsize of the detector tile */
   float pixsize_um(0);
   funcstatus = ReadPixelSize(pixsize_um,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
@@ -128,18 +89,6 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
     return 0;
   }
   md.BeamlineData()[detName+"_PixSize_um"] = pixsize_um;
-
-  /** get the gain of the detector tile */
-  float gain(0);
-  funcstatus = ReadAbsGain(gain,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve absolute gain of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName+"_AbsGain"] = gain;
 
   /** retrieve the detector data */
   buffer.resize(width*height);
@@ -203,6 +152,59 @@ uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
 
     /** get all the info and the data of the tile */
     datasize += retrievePixelDet<T>(det,md,detTileName,runNbr,blNbr,highTagNbr,tagNbr);
+
+    /** retrieve the position and tilt of the tile */
+    int funcstatus(0);
+    float posx(0), posy(0), posz(0), tilt_deg(0);
+    funcstatus = ReadDetPosX(posx,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos X of '" +
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
+      return 0;
+    }
+    funcstatus = ReadDetPosY(posy,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos Y of '" +
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
+      return 0;
+    }
+    funcstatus = ReadDetPosZ(posz,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos Z of '" +
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
+      return 0;
+    }
+    funcstatus = ReadDetRotationAngle(tilt_deg,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"retrieveOctal: could not retrieve tilt of '" +
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
+      return 0;
+    }
+    md.BeamlineData()[detTileName+"_PosX_um"] = posx;
+    md.BeamlineData()[detTileName+"_PosY_um"] = posy;
+    md.BeamlineData()[detTileName+"_PosZ_um"] = posz;
+    md.BeamlineData()[detTileName+"_Angle_deg"] = tilt_deg;
+
+    /** get the gain of the detector tile */
+    float gain(0);
+    funcstatus = ReadAbsGain(gain,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"retrieveOctal: could not retrieve absolute gain of '" +
+               detName + "' for tag '" + toString(tagNbr) +
+               "' ErrorCode is '" + toString(funcstatus) + "'");
+      return 0;
+    }
+    md.BeamlineData()[detTileName+"_AbsGain"] = gain;
+
 
     /** in an octal MPCCD one needs to leverage the different tiles by its gain,
      *  taking the gain of the first tile as a reference
