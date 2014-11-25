@@ -274,11 +274,46 @@ void SACLAConverter::loadSettings()
     string machineValName(s.value("ValueName","Invalid").toString().toStdString());
     /** skip if the value name has not been set */
     if (machineValName != "Invalid")
-      _machineVals.push_back(machineValName);
+      _machineVals.insert(make_pair(machineValName,machineVals_t::mapped_type()));
   }
   s.endArray();
 
   s.endGroup();
+}
+
+void SACLAConverter::cacheBeamlineParameters(vector<int>::const_iterator first,
+                                             vector<int>::const_iterator last,
+                                             int highTagNbr)
+{
+  vector<int> tagList(first,last);
+  int funcstatus(0);
+  machineVals_t::iterator machineValsIter(_machineVals.begin());
+  machineVals_t::const_iterator machineValsEnd(_machineVals.end());
+  for (; machineValsIter != machineValsEnd; ++machineValsIter)
+  {
+    vector<string> machineValueStringList;
+    funcstatus = ReadSyncDataList(&machineValueStringList,
+                                  const_cast<char*>(machineValsIter->first.c_str()),
+                                  highTagNbr,tagList);
+    if (funcstatus)
+    {
+      Log::add(Log::ERROR,"SACLAConverter::cacheBeamlineParameters could not cache values of '" +
+               machineValsIter->first + "' ErrorCode is '" + toString(funcstatus) + "'");
+      continue;
+    }
+    if (machineValueStringList.size() != tagList.size())
+    {
+      Log::add(Log::ERROR,"SACLAConverter:cacheBeamlineParameters caching '" +
+               machineValsIter->first + "' did not return the right size");
+      continue;
+    }
+    /** put the retrieved values into the cache */
+    vector<int>::const_iterator tag(tagList.begin());
+    vector<int>::const_iterator tagListEnd(tagList.end());
+    vector<string>::const_iterator machine(machineValueStringList.begin());
+    for (; tag != tagListEnd; ++tag, ++machine)
+      (machineValsIter->second)[*tag] = *machine;
+  }
 }
 
 uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
@@ -335,46 +370,40 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   }
 
 
-  /** go through all requested machine data events and retrieve the corresponding *  values for the tag */
-  vector<string>::const_iterator machineValsIter(_machineVals.begin());
-  vector<string>::const_iterator machineValsEnd(_machineVals.end());
+  /** go through all requested machine data events and retrieve the corresponding
+   *  values for the tag */
+  machineVals_t::const_iterator machineValsIter(_machineVals.begin());
+  machineVals_t::const_iterator machineValsEnd(_machineVals.end());
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
   {
-    /** retrieve the machine data value as string */
-    vector<string> machineValueStringList;
-    vector<int>tagNbrList(1,tagNbr);
-    int funcstatus(0);
-    funcstatus = ReadSyncDataList(&machineValueStringList,const_cast<char*>(machineValsIter->c_str()),
-                                  highTagNbr,tagNbrList);
-    if (funcstatus)
+    /** check if the cache contains the machine value for the requested tag */
+    map<int,string>::const_iterator entry(machineValsIter->second.find(tagNbr));
+    if (entry == machineValsIter->second.end())
     {
-      Log::add(Log::ERROR,"SACLAConverter: could not retrieve value of '" +
-               *machineValsIter + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      continue;
-    }
-    if (machineValueStringList.size() != 1)
-    {
-      Log::add(Log::ERROR,"SACLAConverter: retrieval of value of '" +
-               *machineValsIter + "' for tag '" + toString(tagNbr) +
-               "' did not return the right size");
+      Log::add(Log::ERROR,"SACLAConverter: cannot find beamline value '" +
+               machineValsIter->first + "' for tag '" + toString(tagNbr) +
+               "' in cache.");
       continue;
     }
     /** check if retrieved value can be converted to double, and if so add it
      *  to the machine data, otherwise issue an error and continue
-     *  @note the retrieved values mgith contain the unit of the value in the
+     *  @note the retrieved values might contain the unit of the value in the
      *        string, therefore one has to remove all characters from the string
      */
-    QString machineValueQString(QString::fromStdString(machineValueStringList[0]));
-    machineValueQString.remove(QRegExp("[V|C]|pulse|a\\.u\\."));
+    QString machineValueQString(QString::fromStdString(entry->second));
+    machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
     bool isDouble(false);
     double machineValue(machineValueQString.toDouble(&isDouble));
     if (isDouble)
-      md.BeamlineData()[*machineValsIter] = machineValue;
+      md.BeamlineData()[machineValsIter->first] = machineValue;
     else
-      Log::add(Log::ERROR,"SACLAConverter: '" + *machineValsIter + "' for tag '"
-               + toString(tagNbr) + "' string '" + machineValueStringList[0] +
-               "' cannot be converted to double");
+    {
+      Log::add(Log::ERROR,"SACLAConverter: '" + machineValsIter->first +
+               "' for tag '" + toString(tagNbr) + "': String '" + entry->second +
+               "' which is altered to '" + machineValueQString.toStdString() +
+               "' to remove units, cannot be converted to double");
+      continue;
+    }
     datasize += sizeof(double);
   }
 

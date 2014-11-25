@@ -86,9 +86,25 @@ public:
   /** load the settings of the reader */
   void loadSettings();
 
+  /** retrieve requested beamline parameters in one go
+   *
+   * this is a hack to improve speed, as requesting parameters for each tag
+   * individually seems to be a bottleneck
+   *
+   * @param first iterator to the first tag in the list
+   * @param last iterator to one beyond the last tag in the list
+   * @param highTagNbr the high tagnumber for the tag list
+   */
+  void cacheBeamlineParameters(std::vector<int>::const_iterator first,
+                               std::vector<int>::const_iterator last,
+                               int highTagNbr);
+
 private:
+  /** define the machine values */
+  typedef std::map<std::string, std::map<int,std::string> > machineVals_t;
+
   /** the list of requested machine values */
-  std::vector<std::string> _machineVals;
+  machineVals_t _machineVals;
 
   /** the list of requested machine values */
   std::map<int32_t,std::string> _pixelDetectors;
