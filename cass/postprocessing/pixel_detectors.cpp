@@ -16,6 +16,7 @@
 #include "histogram.h"
 #include "common_data.h"
 #include "log.h"
+#include "cass_exceptions.h"
 
 using namespace cass;
 using namespace std;
@@ -216,15 +217,19 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
   CASSEvent::devices_t::const_iterator devIt(
         evt.devices().find(CASSEvent::PixelDetectors));
   if (devIt == evt.devices().end())
-    throw invalid_argument("pp109::process(): Device " +
-                           string("'PixelDetectors' does not exist in CASSEvent"));
+    throw logic_error("pp109::process(): Device " +
+                      string("'PixelDetectors' does not exist in CASSEvent"));
   const Device &dev (dynamic_cast<const Device&>(*(devIt->second)));
   Device::detectors_t::const_iterator detIt(dev.dets().find(_detector));
   if (detIt == dev.dets().end())
-    throw invalid_argument("pp109::process(): Detector '" +
+    throw InvalidData("pp109::process(): Detector '" +
                            toString(_detector) + "' does not exist in Device " +
                            "'PixelDetectors' within the CASSEvent");
   const Detector &det(detIt->second);
+  if (det.id() != evt.id())
+    throw InvalidData("pp109::process(): The dataId '" +
+                      toString(det.id()) + "' of detector '" + toString(_detector)+
+                      "' is inconsistent with the eventId '" + toString(evt.id()) + "'");
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
