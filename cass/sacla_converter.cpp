@@ -439,8 +439,12 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     float gainRef(0);
 
     for (size_t i(0); i<octalDetsIter->tiles.size(); ++i)
+    {
       det.frame().resize(det.frame().size() +
                          octalDetsIter->tiles[i].xsize*octalDetsIter->tiles[i].ysize);
+      det.columns() = octalDetsIter->tiles[i].xsize;
+      det.rows() +=  octalDetsIter->tiles[i].ysize;
+    }
 
     size_t currentsize(0);
     for (size_t i(0); i<octalDetsIter->tiles.size(); ++i)
@@ -457,7 +461,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
       pixeldetector::frame_t::iterator tileStart(det.frame().begin() + currentsize);
       const size_t npixels(octalDetsIter->tiles[i].xsize*octalDetsIter->tiles[i].ysize);
       currentsize += npixels;
-      pixeldetector::frame_t::iterator tileEnd(det.frame().end() + currentsize);
+      pixeldetector::frame_t::iterator tileEnd(det.frame().begin() + currentsize);
       /** retrieve the data with the right type */
       switch(octalDetsIter->tiles[i].type)
       {
