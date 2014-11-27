@@ -133,6 +133,7 @@ public:
     std::vector<detTileParams> tiles;
     bool normalize;
     int CASSID;
+    bool notLoaded;
   };
 
   /** define the pixel detectors container type */

@@ -68,6 +68,7 @@ uint64_t retrievePixelDet(pixeldetector::frame_t::iterator frameStart,
 
 /** cache pixel detector parameters
  *
+ * @return true in case all parameters were loaded correctly, false otherwise
  * @param tileParams the tile whos parameters should be cached.
  * @param runNbr the tile whos parameters should be cached.
  * @param blNbr the tile whos parameters should be cached.
@@ -76,7 +77,7 @@ uint64_t retrievePixelDet(pixeldetector::frame_t::iterator frameStart,
  *
  * @author Lutz Foucar
  */
-void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
+bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
                     int blNbr, int highTagNbr, int tagNbr)
 {
   int funcstatus(0);
@@ -87,6 +88,7 @@ void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: width of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
   }
   funcstatus = ReadYSizeOfDetData(tileParams.ysize,tileParams.name.c_str(),
                                   blNbr, runNbr, highTagNbr, tagNbr);
@@ -95,6 +97,7 @@ void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: height of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
   }
   funcstatus = ReadSizeOfDetData(tileParams.datasize_bytes,tileParams.name.c_str(),
                                  blNbr, runNbr, highTagNbr, tagNbr);
@@ -103,6 +106,7 @@ void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: datasize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
   }
   funcstatus = ReadPixelSize(tileParams.pixsize_um,tileParams.name.c_str(),
                              blNbr, runNbr, highTagNbr, tagNbr);
@@ -111,6 +115,7 @@ void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParamss: pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
   }
   funcstatus = ReadDetDataType(tileParams.type,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, tagNbr);
@@ -119,7 +124,9 @@ void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: datatype of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
   }
+  return true;
 }
 
 SACLAConverter::SACLAConverter()
@@ -145,6 +152,7 @@ void SACLAConverter::loadSettings()
     _octalDetectors.push_back(pixDets_t::value_type());
     _octalDetectors.back().CASSID = s.value("CASSID",0).toInt();
     _octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
+    _octalDetectors.back().notLoaded = true;
     _octalDetectors.back().tiles.resize(8);
     for (size_t i(0); i<_octalDetectors.back().tiles.size(); ++i)
       _octalDetectors.back().tiles[i].name = (detID + "-" + toString(i+1));
@@ -162,6 +170,8 @@ void SACLAConverter::loadSettings()
       continue;
     _pixelDetectors.push_back(pixDets_t::value_type());
     _pixelDetectors.back().CASSID = s.value("CASSID",0).toInt();
+    _pixelDetectors.back().normalize = false;
+    _pixelDetectors.back().notLoaded = true;
     _pixelDetectors.back().tiles.resize(1);
     _pixelDetectors.back().tiles[0].name = detID;
   }
@@ -227,7 +237,8 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   pixDets_t::iterator pixelDetsIter(_pixelDetectors.begin());
   pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
   for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
-    cacheDetParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first);
+    if (cacheDetParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first))
+      pixelDetsIter->notLoaded = false;
 
   /** for all octal dets retrieve the non changing parameters from the first
    *  image
@@ -238,7 +249,8 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   {
     for (size_t i(0); i< octalDetsIter->tiles.size(); ++i)
     {
-      cacheDetParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first);
+      if (cacheDetParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first))
+        octalDetsIter->notLoaded = false;
       detTileParams &tileParams(octalDetsIter->tiles[i]);
       /** retrieve the position and tilt of the tile */
       int funcstatus(0);
@@ -249,6 +261,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         Log::add(Log::ERROR,"retrieveOctal: pos X of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
+        octalDetsIter->notLoaded = true;
       }
       funcstatus = ReadDetPosY(tileParams.posy_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
@@ -257,6 +270,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         Log::add(Log::ERROR,"retrieveOctal: pos Y of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
+        octalDetsIter->notLoaded = true;
       }
       funcstatus = ReadDetPosZ(tileParams.posz_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
@@ -265,6 +279,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         Log::add(Log::ERROR,"retrieveOctal: pos Z of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
+        octalDetsIter->notLoaded = true;
       }
       funcstatus = ReadDetRotationAngle(tileParams.angle_deg,tileParams.name.c_str(),
                                         blNbr, runNbr, highTagNbr, *first);
@@ -273,6 +288,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         Log::add(Log::ERROR,"retrieveOctal: angle of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
+        octalDetsIter->notLoaded = true;
       }
       /** get the gain of the detector tile */
       funcstatus = ReadAbsGain(tileParams.gain,tileParams.name.c_str(),
@@ -282,6 +298,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         Log::add(Log::ERROR,"retrieveOctal: absolute gain of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
+        octalDetsIter->notLoaded = true;
       }
     }
   }
@@ -391,6 +408,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
   for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
   {
+    if (pixelDetsIter->notLoaded)
+      continue;
     /** retrieve the right detector from the cassevent */
     pixeldetector::Detector &det(dev.dets()[pixelDetsIter->CASSID]);
     det.frame().clear();
@@ -430,6 +449,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   pixDets_t::const_iterator octalDetsEnd(_octalDetectors.end());
   for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
   {
+    if (octalDetsIter->notLoaded)
+      continue;
     /** retrieve the right detector from the cassevent */
     pixeldetector::Detector &det(dev.dets()[octalDetsIter->CASSID]);
     det.frame().clear();
