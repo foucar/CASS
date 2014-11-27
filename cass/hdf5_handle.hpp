@@ -227,7 +227,7 @@ public:
     {
       // Create dataset creation property list, set the gzip compression filter
       // and chunck size
-      hsize_t chunk[1] = {40};
+      hsize_t chunk[1] = {arrayLength};
       hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
       H5Pset_deflate (dcpl, compressLevel);
       H5Pset_chunk (dcpl, 1, chunk);
@@ -332,7 +332,7 @@ public:
     {
       // Create dataset creation property list, set the gzip compression filter
       // and chunck size
-      hsize_t chunk[2] = {40,3};
+      hsize_t chunk[2] = {shape.second,shape.first};
       hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
       H5Pset_deflate (dcpl, compressLevel);
       H5Pset_chunk (dcpl, 2, chunk);
