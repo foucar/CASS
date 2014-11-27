@@ -396,6 +396,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     det.frame().clear();
     det.columns() = pixelDetsIter->tiles[0].xsize;
     det.rows() =  pixelDetsIter->tiles[0].ysize;
+    det.frame().resize(det.rows()*det.columns());
     det.id() = event.id();
     md.BeamlineData()[pixelDetsIter->tiles[0].name+"_Width"] = det.columns();
     md.BeamlineData()[pixelDetsIter->tiles[0].name+"_Height"] = det.rows();
