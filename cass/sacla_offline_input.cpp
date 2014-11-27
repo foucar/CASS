@@ -68,7 +68,7 @@ public:
     /** load the right reader for the file type depending on its extension */
     SACLAConverter convert;
     convert.loadSettings();
-    convert.cacheBeamlineParameters(_liststart,_listend,_highTagNbr);
+    convert.cacheParameters(_liststart,_listend,_blNbr,_runNbr,_highTagNbr);
     /** read and convert the info for each of the tags */
     vector<int>::const_iterator iter(_liststart);
     string output("TagListProcessor: The following tags will be processed by '" +

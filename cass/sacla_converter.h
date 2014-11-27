@@ -9,6 +9,8 @@
 #ifndef _SACLACONVERTER_
 #define _SACLACONVERTER_
 
+#include <SaclaDataAccessUserAPI.h>
+
 #include "cass.h"
 
 namespace cass
@@ -93,11 +95,13 @@ public:
    *
    * @param first iterator to the first tag in the list
    * @param last iterator to one beyond the last tag in the list
+   * @param blNbr the beamline number for the experiment
+   * @param runNbr the run number for the experiment
    * @param highTagNbr the high tagnumber for the tag list
    */
-  void cacheBeamlineParameters(std::vector<int>::const_iterator first,
-                               std::vector<int>::const_iterator last,
-                               int highTagNbr);
+  void cacheParameters(std::vector<int>::const_iterator first,
+                       std::vector<int>::const_iterator last,
+                       int blNbr, int runNbr, int highTagNbr);
 
 private:
   /** define the machine values */
@@ -106,14 +110,40 @@ private:
   /** the list of requested machine values */
   machineVals_t _machineVals;
 
-  /** the list of requested machine values */
-  std::map<int32_t,std::string> _pixelDetectors;
+public:
+  /** non changeing parameters of a pixel detector tile */
+  struct detTileParams
+  {
+    std::string name;
+    int xsize;
+    int ysize;
+    int datasize_bytes;
+    float pixsize_um;
+    float posx_um;
+    float posy_um;
+    float posz_um;
+    float angle_deg;
+    float gain;
+    Sacla_DetDataType type;
+  };
 
-  /** define the octal detectors container type */
-  typedef std::map<int32_t,std::pair<std::string,bool> > octalDets_t;
+  /** detector consists of tiles */
+  struct detParams
+  {
+    std::vector<detTileParams> tiles;
+    bool normalize;
+    int CASSID;
+  };
+
+  /** define the pixel detectors container type */
+  typedef std::vector<detParams> pixDets_t;
+
+private:
+  /** the list of requested machine values */
+  pixDets_t _pixelDetectors;
 
   /** the list of requested octal detectors */
-  octalDets_t _octalDetectors;
+  pixDets_t _octalDetectors;
 
   /** flag to tell whether to retrieve the accelerator data */
   bool _retrieveAcceleratorData;

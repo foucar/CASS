@@ -7,7 +7,6 @@
  */
 
 #include <algorithm>
-#include <SaclaDataAccessUserAPI.h>
 
 #include <QtCore/QRegExp>
 
@@ -31,9 +30,9 @@ using namespace std;
  * @tparam T the type of the detector data
  *
  * @return size of the retrieved data
- * @param det reference to the detector that should be filled with data
- * @param md reference to the machine data. Needed for additional det information
+ * @param frameStart iterator to the first element of the frame
  * @param detName Name of the ocatal detector (tile names will be deferred from it)
+ * @param size the number of pixels in the frame
  * @param runNbr the run number of the experiment
  * @param blNbr the Beamline number of the experiment
  * @param highTagNbr the high tag number for the experiment
@@ -42,57 +41,16 @@ using namespace std;
  * @author Lutz Foucar
  */
 template <typename T>
-uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
-                          string detName, int runNbr, int blNbr, int highTagNbr, int tagNbr)
+uint64_t retrievePixelDet(pixeldetector::frame_t::iterator frameStart,
+                          const string &detName, const size_t size,
+                          const int runNbr, const int blNbr,
+                          const int highTagNbr, const int tagNbr)
 {
-  vector<T> buffer;
-
-  /** get the height and the width of the detector */
-  int width(0), height(0), funcstatus(0);
-  funcstatus = ReadXSizeOfDetData(width,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not width of '" + detName + "' for tag '" + toString(tagNbr)+
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  funcstatus = ReadYSizeOfDetData(height,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not widt Octal: could not height of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName+"_Width"] = width;
-  md.BeamlineData()[detName+"_Height"] = height;
-
-  /** retrieve the datasize of the detector tile in bytes */
-  int datasize(0);
-  funcstatus = ReadSizeOfDetData(datasize,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve datasize of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-
-  /** retrieve the pixelsize of the detector tile */
-  float pixsize_um(0);
-  funcstatus = ReadPixelSize(pixsize_um,detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve pixelsize of '" +
-             detName + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return 0;
-  }
-  md.BeamlineData()[detName+"_PixSize_um"] = pixsize_um;
-
   /** retrieve the detector data */
-  buffer.resize(width*height);
-  funcstatus = ReadDetData(&buffer.front(),detName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
+  vector<T> buffer(size);
+  int funcstatus(0);
+  funcstatus = ReadDetData(&buffer.front(),detName.c_str(),
+                           blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve data of '" +
@@ -102,131 +60,67 @@ uint64_t retrievePixelDet(pixeldetector::Detector &det, MachineDataDevice & md,
   }
 
   /** copy the data of the detector to the cassevent */
-  det.columns() = width;
-  det.rows() = det.rows() + height;
-  int sizebefore(det.frame().size());
-  det.frame().resize(sizebefore + width*height);
-  pixeldetector::frame_t::iterator tileStart(det.frame().begin() + sizebefore);
-  copy(buffer.begin(),buffer.end(),tileStart);
+  copy(buffer.begin(),buffer.end(),frameStart);
 
-  return datasize;
+  return size*sizeof(T);
 }
 
-/** retrieve an octal mpccd detector
+
+/** cache pixel detector parameters
  *
- * details
- *
- * @tparam T the type of the detector data
- *
- * @return size of the retrieved data
- * @param det reference to the detector that should be filled with data
- * @param md reference to the machine data. Needed for additional det information
- * @param detName Name of the ocatal detector (tile names will be deferred from it)
- * @param normalize flag to tell whether individual tiles should be normalized
- *                  to the first tile
- * @param runNbr the run number of the experiment
- * @param blNbr the Beamline number of the experiment
- * @param highTagNbr the high tag number for the experiment
- * @param tagNbr the tag number that is associated with the requested data
+ * @param tileParams the tile whos parameters should be cached.
+ * @param runNbr the tile whos parameters should be cached.
+ * @param blNbr the tile whos parameters should be cached.
+ * @param highTagNbr the tile whos parameters should be cached.
+ * @param tagNbr the tile whos parameters should be cached.
  *
  * @author Lutz Foucar
  */
-template <typename T>
-uint64_t retrieveOctal(pixeldetector::Detector &det, MachineDataDevice &md,
-                       string detName, bool normalize,
-                       int runNbr, int blNbr, int highTagNbr, int tagNbr)
+void cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
+                    int blNbr, int highTagNbr, int tagNbr)
 {
-  float gainRef(0);
-  uint64_t datasize(0);
-
-  /** go through all 8 detector tiles of the octal MPCCD */
-  for (int i=0; i<8 ; ++i)
+  int funcstatus(0);
+  funcstatus = ReadXSizeOfDetData(tileParams.xsize,tileParams.name.c_str(),
+                                  blNbr, runNbr, highTagNbr, tagNbr);
+  if (funcstatus)
   {
-    /** generate the name of the current detector tile */
-    string detTileName(detName + "-" + toString(i+1));
-    /** remember the size of the frame before the current tile is added to the
-     *  cassevent, to be able to determin just that next tile of the assembled
-     *  image.
-     */
-    int sizebefore(det.frame().size());
-
-    /** get all the info and the data of the tile */
-    datasize += retrievePixelDet<T>(det,md,detTileName,runNbr,blNbr,highTagNbr,tagNbr);
-
-    /** retrieve the position and tilt of the tile */
-    int funcstatus(0);
-    float posx(0), posy(0), posz(0), tilt_deg(0);
-    funcstatus = ReadDetPosX(posx,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos X of '" +
-               detName + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    funcstatus = ReadDetPosY(posy,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos Y of '" +
-               detName + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    funcstatus = ReadDetPosZ(posz,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieveOctal: could not retrieve pos Z of '" +
-               detName + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    funcstatus = ReadDetRotationAngle(tilt_deg,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieveOctal: could not retrieve tilt of '" +
-               detName + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()[detTileName+"_PosX_um"] = posx;
-    md.BeamlineData()[detTileName+"_PosY_um"] = posy;
-    md.BeamlineData()[detTileName+"_PosZ_um"] = posz;
-    md.BeamlineData()[detTileName+"_Angle_deg"] = tilt_deg;
-
-    /** get the gain of the detector tile */
-    float gain(0);
-    funcstatus = ReadAbsGain(gain,detTileName.c_str(), blNbr, runNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieveOctal: could not retrieve absolute gain of '" +
-               detName + "' for tag '" + toString(tagNbr) +
-               "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()[detTileName+"_AbsGain"] = gain;
-
-
-    /** in an octal MPCCD one needs to leverage the different tiles by its gain,
-     *  taking the gain of the first tile as a reference
-     */
-    if (normalize)
-    {
-      if (i)
-      {
-        const float gain(md.BeamlineData()[detTileName + "_AbsGain"]);
-        const float relGain(gain / gainRef);
-        pixeldetector::frame_t::iterator tileStart(det.frame().begin() + sizebefore);
-        pixeldetector::frame_t::iterator tileEnd(det.frame().end());
-        transform(tileStart,tileEnd, tileStart, bind1st(multiplies<T>(),relGain));
-      }
-      else
-        gainRef = md.BeamlineData()[detTileName + "_AbsGain"];
-    }
+    Log::add(Log::ERROR,"cacheDetParams: width of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
   }
-
-  return datasize;
+  funcstatus = ReadYSizeOfDetData(tileParams.ysize,tileParams.name.c_str(),
+                                  blNbr, runNbr, highTagNbr, tagNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParams: height of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+  }
+  funcstatus = ReadSizeOfDetData(tileParams.datasize_bytes,tileParams.name.c_str(),
+                                 blNbr, runNbr, highTagNbr, tagNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParams: datasize of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+  }
+  funcstatus = ReadPixelSize(tileParams.pixsize_um,tileParams.name.c_str(),
+                             blNbr, runNbr, highTagNbr, tagNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParamss: pixelsize of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+  }
+  funcstatus = ReadDetDataType(tileParams.type,tileParams.name.c_str(),
+                               blNbr, runNbr, highTagNbr, tagNbr);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParams: datatype of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+  }
 }
-
 
 SACLAConverter::SACLAConverter()
 {}
@@ -245,11 +139,15 @@ void SACLAConverter::loadSettings()
   {
     s.setArrayIndex(i);
     string detID(s.value("DetectorIDName","Invalid").toString().toStdString());
-    int32_t key(s.value("CASSID",0).toInt());
-    bool normalize(s.value("NormalizeToAbsGain",true).toBool());
     /** skip if the detector name has not been set */
-    if (detID != "Invalid")
-      _octalDetectors[key] = make_pair(detID,normalize);
+    if (detID == "Invalid")
+      continue;
+    _octalDetectors.push_back(pixDets_t::value_type());
+    _octalDetectors.back().CASSID = s.value("CASSID",0).toInt();
+    _octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
+    _octalDetectors.back().tiles.resize(8);
+    for (size_t i(0); i<_octalDetectors.back().tiles.size(); ++i)
+      _octalDetectors.back().tiles[i].name = (detID + "-" + toString(i+1));
   }
   s.endArray();
 
@@ -259,10 +157,13 @@ void SACLAConverter::loadSettings()
   {
     s.setArrayIndex(i);
     string detID(s.value("DetectorIDName","Invalid").toString().toStdString());
-    int32_t key(s.value("CASSID",0).toInt());
     /** skip if the detector name has not been set */
-    if (detID != "Invalid")
-      _pixelDetectors[key] = detID;
+    if (detID == "Invalid")
+      continue;
+    _pixelDetectors.push_back(pixDets_t::value_type());
+    _pixelDetectors.back().CASSID = s.value("CASSID",0).toInt();
+    _pixelDetectors.back().tiles.resize(1);
+    _pixelDetectors.back().tiles[0].name = detID;
   }
   s.endArray();
 
@@ -281,12 +182,17 @@ void SACLAConverter::loadSettings()
   s.endGroup();
 }
 
-void SACLAConverter::cacheBeamlineParameters(vector<int>::const_iterator first,
-                                             vector<int>::const_iterator last,
-                                             int highTagNbr)
+void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
+                                     vector<int>::const_iterator last,
+                                     int blNbr, int runNbr, int highTagNbr)
 {
+  /** create the tag list from the iterators */
   vector<int> tagList(first,last);
+
   int funcstatus(0);
+  /** for all requested beamline parameters retrieve the values for all tags in
+   *  one go
+   */
   machineVals_t::iterator machineValsIter(_machineVals.begin());
   machineVals_t::const_iterator machineValsEnd(_machineVals.end());
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
@@ -297,13 +203,13 @@ void SACLAConverter::cacheBeamlineParameters(vector<int>::const_iterator first,
                                   highTagNbr,tagList);
     if (funcstatus)
     {
-      Log::add(Log::ERROR,"SACLAConverter::cacheBeamlineParameters could not cache values of '" +
+      Log::add(Log::ERROR,"SACLAConverter::cacheParameters could not cache values of '" +
                machineValsIter->first + "' ErrorCode is '" + toString(funcstatus) + "'");
       continue;
     }
     if (machineValueStringList.size() != tagList.size())
     {
-      Log::add(Log::ERROR,"SACLAConverter:cacheBeamlineParameters caching '" +
+      Log::add(Log::ERROR,"SACLAConverter:cacheParameters caching '" +
                machineValsIter->first + "' did not return the right size");
       continue;
     }
@@ -313,6 +219,71 @@ void SACLAConverter::cacheBeamlineParameters(vector<int>::const_iterator first,
     vector<string>::const_iterator machine(machineValueStringList.begin());
     for (; tag != tagListEnd; ++tag, ++machine)
       (machineValsIter->second)[*tag] = *machine;
+  }
+
+  /** for all pixel dets retrieve the non changing parameters from the first
+   *  image
+   */
+  pixDets_t::iterator pixelDetsIter(_pixelDetectors.begin());
+  pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
+  for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
+    cacheDetParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first);
+
+  /** for all octal dets retrieve the non changing parameters from the first
+   *  image
+   */
+  pixDets_t::iterator octalDetsIter(_octalDetectors.begin());
+  pixDets_t::const_iterator octalDetsEnd(_octalDetectors.end());
+  for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
+  {
+    for (size_t i(0); i< octalDetsIter->tiles.size(); ++i)
+    {
+      cacheDetParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first);
+      detTileParams &tileParams(octalDetsIter->tiles[i]);
+      /** retrieve the position and tilt of the tile */
+      int funcstatus(0);
+      funcstatus = ReadDetPosX(tileParams.posx_um,tileParams.name.c_str(),
+                               blNbr, runNbr, highTagNbr, *first);
+      if (funcstatus)
+      {
+        Log::add(Log::ERROR,"retrieveOctal: pos X of '" +
+                 tileParams.name + "' for tag '" + toString(*first) +
+                 "' ErrorCode is '" + toString(funcstatus) + "'");
+      }
+      funcstatus = ReadDetPosY(tileParams.posy_um,tileParams.name.c_str(),
+                               blNbr, runNbr, highTagNbr, *first);
+      if (funcstatus)
+      {
+        Log::add(Log::ERROR,"retrieveOctal: pos Y of '" +
+                 tileParams.name + "' for tag '" + toString(*first) +
+                 "' ErrorCode is '" + toString(funcstatus) + "'");
+      }
+      funcstatus = ReadDetPosZ(tileParams.posz_um,tileParams.name.c_str(),
+                               blNbr, runNbr, highTagNbr, *first);
+      if (funcstatus)
+      {
+        Log::add(Log::ERROR,"retrieveOctal: pos Z of '" +
+                 tileParams.name + "' for tag '" + toString(*first) +
+                 "' ErrorCode is '" + toString(funcstatus) + "'");
+      }
+      funcstatus = ReadDetRotationAngle(tileParams.angle_deg,tileParams.name.c_str(),
+                                        blNbr, runNbr, highTagNbr, *first);
+      if (funcstatus)
+      {
+        Log::add(Log::ERROR,"retrieveOctal: angle of '" +
+                 tileParams.name + "' for tag '" + toString(*first) +
+                 "' ErrorCode is '" + toString(funcstatus) + "'");
+      }
+      /** get the gain of the detector tile */
+      funcstatus = ReadAbsGain(tileParams.gain,tileParams.name.c_str(),
+                               blNbr, runNbr, highTagNbr, *first);
+      if (funcstatus)
+      {
+        Log::add(Log::ERROR,"retrieveOctal: absolute gain of '" +
+                 tileParams.name + "' for tag '" + toString(*first) +
+                 "' ErrorCode is '" + toString(funcstatus) + "'");
+      }
+    }
   }
 }
 
@@ -412,80 +383,110 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   CASSEvent::devices_t &devices(event.devices());
   CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
   if(devIt == devices.end())
-    throw runtime_error("pixeldetector::retrieveDet: There is no  pixeldetector device within the CASSEvent");
+    throw runtime_error("SACLAConverter: CASSEvent does not contains a pixeldetector device");
   pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
 
   /** read the requested pixel detector data */
-  map<int32_t,string>::const_iterator pixelDetsIter(_pixelDetectors.begin());
-  map<int32_t,string>::const_iterator pixelDetsEnd(_pixelDetectors.end());
+  pixDets_t::const_iterator pixelDetsIter(_pixelDetectors.begin());
+  pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
   for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
   {
-    /** determine the detector pixel data type */
-    Sacla_DetDataType type;
-    if (ReadDetDataType(type,pixelDetsIter->second.c_str(), blNbr, runNbr, highTagNbr, tagNbr) != 0)
-    {
-      Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
-               pixelDetsIter->second + "' for tag '" + toString(tagNbr) + "'");
-      continue;
-    }
     /** retrieve the right detector from the cassevent */
-    pixeldetector::Detector &det(dev.dets()[pixelDetsIter->first]);
+    pixeldetector::Detector &det(dev.dets()[pixelDetsIter->CASSID]);
     det.frame().clear();
-    det.columns() = 0;
-    det.rows() =  0;
+    det.columns() = pixelDetsIter->tiles[0].xsize;
+    det.rows() =  pixelDetsIter->tiles[0].ysize;
     det.id() = event.id();
+    md.BeamlineData()[pixelDetsIter->tiles[0].name+"_Width"] = det.columns();
+    md.BeamlineData()[pixelDetsIter->tiles[0].name+"_Height"] = det.rows();
+    md.BeamlineData()[pixelDetsIter->tiles[0].name+"_PixSize_um"] = pixelDetsIter->tiles[0].pixsize_um;
     /** retrieve the data with the right type */
-    switch(type)
+    switch(pixelDetsIter->tiles[0].type)
     {
       case Sacla_DATA_TYPE_UNSIGNED_SHORT:
-        datasize += retrievePixelDet<uint16_t>(det,md,pixelDetsIter->second,
+        datasize += retrievePixelDet<uint16_t>(det.frame().begin(),
+                                               pixelDetsIter->tiles[0].name,
+                                               det.columns()*det.rows(),
                                                runNbr,blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_FLOAT:
-        datasize += retrievePixelDet<float>(det,md,pixelDetsIter->second,
+        datasize += retrievePixelDet<float>(det.frame().begin(),
+                                            pixelDetsIter->tiles[0].name,
+                                            det.columns()*det.rows(),
                                             runNbr,blNbr,highTagNbr,tagNbr);
         break;
       case Sacla_DATA_TYPE_INVALID:
       default:
         Log::add(Log::ERROR,"SACLAConverter: Data type of pixel detector '" +
-                 pixelDetsIter->second + "' for tag '" + toString(tagNbr) +
+                 pixelDetsIter->tiles[0].name + "' for tag '" + toString(tagNbr) +
                  "' is unkown");
         break;
     }
   }
 
-  /** read the requested octal detector data */
-  octalDets_t::const_iterator octalDetsIter(_octalDetectors.begin());
-  octalDets_t::const_iterator octalDetsEnd(_octalDetectors.end());
+  /** read the requested octal detectors */
+  pixDets_t::const_iterator octalDetsIter(_octalDetectors.begin());
+  pixDets_t::const_iterator octalDetsEnd(_octalDetectors.end());
   for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
   {
-    /** determine the detector pixel data type */
-    Sacla_DetDataType type;
-    if (ReadDetDataType(type,octalDetsIter->second.first.c_str(), blNbr, runNbr, highTagNbr, tagNbr) != 0)
-    {
-      Log::add(Log::ERROR,"SACLAConverter: could not retrieve data type of '" +
-               octalDetsIter->second.first + "' for tag '" + toString(tagNbr) + "'");
-      continue;
-    }
     /** retrieve the right detector from the cassevent */
-    pixeldetector::Detector &det(dev.dets()[octalDetsIter->first]);
+    pixeldetector::Detector &det(dev.dets()[octalDetsIter->CASSID]);
     det.frame().clear();
     det.columns() = 0;
     det.rows() =  0;
     det.id() = event.id();
-    /** retrieve the data with the right type */
-    switch(type)
+    float gainRef(0);
+
+    for (size_t i(0); i<octalDetsIter->tiles.size(); ++i)
+      det.frame().resize(det.frame().size() +
+                         octalDetsIter->tiles[i].xsize*octalDetsIter->tiles[i].ysize);
+
+    size_t currentsize(0);
+    for (size_t i(0); i<octalDetsIter->tiles.size(); ++i)
     {
-      case Sacla_DATA_TYPE_FLOAT:
-        datasize += retrieveOctal<float>(det,md,octalDetsIter->second.first,
-                                         octalDetsIter->second.second,
-                                         runNbr,blNbr,highTagNbr,tagNbr);
-        break;
-      default:
-        Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
-                 octalDetsIter->second.first + "' for tag '" + toString(tagNbr) +
-                 "' is unkown");
-        break;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_Width"] = octalDetsIter->tiles[i].xsize;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_Height"] = octalDetsIter->tiles[i].ysize;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_PixSize_um"] = octalDetsIter->tiles[i].pixsize_um;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_PosX_um"] = octalDetsIter->tiles[i].posx_um;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_PosY_um"] = octalDetsIter->tiles[i].posy_um;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_PosZ_um"] = octalDetsIter->tiles[i].posz_um;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_Angle_deg"] = octalDetsIter->tiles[i].angle_deg;
+      md.BeamlineData()[octalDetsIter->tiles[i].name+"_AbsGain"] = octalDetsIter->tiles[i].gain;
+
+      pixeldetector::frame_t::iterator tileStart(det.frame().begin() + currentsize);
+      const size_t npixels(octalDetsIter->tiles[i].xsize*octalDetsIter->tiles[i].ysize);
+      currentsize += npixels;
+      pixeldetector::frame_t::iterator tileEnd(det.frame().end() + currentsize);
+      /** retrieve the data with the right type */
+      switch(octalDetsIter->tiles[i].type)
+      {
+        case Sacla_DATA_TYPE_FLOAT:
+          datasize += retrievePixelDet<float>(tileStart,
+                                              octalDetsIter->tiles[i].name,
+                                              npixels, runNbr,blNbr,highTagNbr,
+                                              tagNbr);
+          break;
+        case Sacla_DATA_TYPE_INVALID:
+        default:
+          Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
+                   octalDetsIter->tiles[i].name + "' for tag '" + toString(tagNbr) +
+                   "' is unkown");
+          break;
+      }
+      /** in an octal MPCCD one needs to leverage the different tiles by its gain,
+       *  taking the gain of the first tile as a reference
+       */
+      if (octalDetsIter->normalize)
+      {
+        if (i)
+        {
+          const float gain(octalDetsIter->tiles[i].gain);
+          const float relGain(gain / gainRef);
+          transform(tileStart,tileEnd, tileStart, bind1st(multiplies<float>(),relGain));
+        }
+        else
+          gainRef = octalDetsIter->tiles[i].gain;
+      }
     }
   }
 
