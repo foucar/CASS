@@ -499,14 +499,38 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_Spectrometer):
   {
-    const Pds::BldDataSpectrometer &spec
-        (*reinterpret_cast<const Pds::BldDataSpectrometer*>(xtc->payload()));
-    string specname(Pds::BldInfo::name(reinterpret_cast<const Pds::BldInfo&>(xtc->src)));
-    MachineDataDevice::spectrometer_t::mapped_type &horiz(md->spectrometers()[specname +"_horiz"]);
-    horiz.assign(spec._hproj,spec._hproj+1024);
-    MachineDataDevice::spectrometer_t::mapped_type &vert(md->spectrometers()[specname +"_vert"]);
-    vert.assign(spec._vproj,spec._vproj+256);
-    break;
+    uint32_t version(xtc->contains.version());
+    string specname
+        (Pds::BldInfo::name(reinterpret_cast<const Pds::BldInfo&>(xtc->src)));
+    MachineDataDevice::spectrometer_t::mapped_type &horiz
+        (md->spectrometers()[specname +"_horiz"]);
+    MachineDataDevice::spectrometer_t::mapped_type &vert
+        (md->spectrometers()[specname +"_vert"]);
+    switch (version)
+    {
+    case (0):
+    {
+      const Pds::BldDataSpectrometerV0 &spec
+          (*reinterpret_cast<const Pds::BldDataSpectrometerV0*>(xtc->payload()));
+      horiz.assign(spec._hproj,spec._hproj+1024);
+      vert.assign(spec._vproj,spec._vproj+256);
+      break;
+    }
+    case (1):
+    {
+      const Pds::BldDataSpectrometerV1 *spec
+          (reinterpret_cast<const Pds::BldDataSpectrometerV1*>(xtc->payload()));
+      const uint32_t* first(reinterpret_cast<const uint32_t*>(reinterpret_cast<const char*>(spec)+48));
+      const uint32_t* last(first + spec->_width);
+      horiz.assign(first,last);
+      break;
+    }
+    default:
+      Log::add(Log::ERROR,"Unknown Spectrometer Version '" + toString(version) +
+               "'. Skipping reading of Spectrometer data.");
+      break;
+    }
+      break;
   }
 
   default: break;
