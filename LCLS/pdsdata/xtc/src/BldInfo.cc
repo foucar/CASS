@@ -11,7 +11,7 @@ BldInfo::BldInfo(uint32_t processId, Type type) : Src(Level::Reporter) {
   _phy = type;
 }
 
-BldInfo::BldInfo(const char* sname) : Src(Level::Reporter) 
+BldInfo::BldInfo(const char* sname) : Src(Level::Reporter)
 {
   for(unsigned i=0; i<NumberOf; i++) {
     _phy = i;
@@ -88,6 +88,12 @@ const char* BldInfo::name(const BldInfo& src){
     "XCS-USR-IPM-02",
     "XCS-USR-IPM-03",
     "XCS-USR-IPM-04",
+    "XCS-IPM-04",
+    "XCS-DIO-04",
+    "XCS-IPM-05",
+    "XCS-DIO-05",
+    "XCS-IPM-gon",
+    "XCS-IPM-ladm"
   };
   return (src.type() < NumberOf ? _typeNames[src.type()] : "-Invalid-");
 }

@@ -1,9 +1,29 @@
 #include "pdsdata/xtc/TypeId.hh"
 
+#include <stdlib.h>
+#include <string.h>
+
 using namespace Pds;
 
 TypeId::TypeId(Type type, uint32_t version, bool cmp) :
   _value((version<<16 )| type | (cmp ? 0x80000000:0)) {}
+
+TypeId::TypeId(const char* s) :
+  _value(NumberOf)
+{
+  const char* token = strrchr(s,'_');
+  if (!(token && *(token+1)=='v')) return;
+
+  char* e;
+  unsigned vsn = strtoul(token+2,&e,10);
+  if (e==token+2 || *e!=0) return;
+
+  char* p = strndup(s,token-s);
+  for(unsigned i=0; i<NumberOf; i++)
+    if (strcmp(p,name((Type)i))==0)
+      _value = (vsn<<16) | i;
+  free(p);
+}
 
 TypeId::TypeId(const TypeId& v) : _value(v._value) {}
 
@@ -17,8 +37,63 @@ bool     TypeId::compressed() const { return _value&0x80000000; }
 
 unsigned TypeId::compressed_version() const { return (_value&0x7fff0000)>>16; }
 
+bool     TypeId::is_configuration() const
+{
+  static Type _configuration_types[] = 
+    { Id_AcqConfig,
+      Id_Opal1kConfig,
+      Id_FrameFexConfig,
+      Id_TM6740Config,
+      Id_ControlConfig,
+      Id_pnCCDconfig,
+      Id_PrincetonConfig,
+      Id_FrameFccdConfig,
+      Id_FccdConfig,
+      Id_IpimbConfig,
+      Id_EncoderConfig,
+      Id_EvrIOConfig,
+      Id_CspadConfig,
+      Id_IpmFexConfig,  // LUSI Diagnostics
+      Id_DiodeFexConfig,
+      Id_PimImageConfig,
+      Id_AcqTdcConfig,
+      Id_XampsConfig,
+      Id_Cspad2x2Config,
+      Id_FexampConfig,
+      Id_Gsc16aiConfig,
+      Id_PhasicsConfig,
+      Id_TimepixConfig,
+      Id_OceanOpticsConfig,
+      Id_FliConfig,
+      Id_QuartzConfig,
+      Id_AndorConfig,
+      Id_UsdUsbConfig,
+      Id_OrcaConfig,
+      Id_ImpConfig,
+      Id_AliasConfig,
+      Id_L3TConfig,
+      Id_RayonixConfig,
+      Id_EpixConfig,
+      Id_EpixSamplerConfig,
+      Id_Epix10kConfig,
+      Id_Epix100aConfig,
+      Id_EvsConfig,
+      Id_PartitionConfig,
+      Id_PimaxConfig, 
+      Id_GenericPgpConfig,
+      Id_TimeToolConfig,
+      Id_EpixSConfig,
+    };
+  const unsigned nconfigtypes = sizeof(_configuration_types)/sizeof(Type);
+  Type t = id();
+  for(unsigned i=0; i<nconfigtypes; i++)
+    if (t == _configuration_types[i])
+      return true;
+  return false;
+}
+
 const char* TypeId::name(Type type)
-{ 
+{
    static const char* _names[NumberOf] = {
     "Any",                     // 0
     "Xtc",                     // 1
@@ -103,7 +178,12 @@ const char* TypeId::name(Type type)
     "PimaxConfig",             // 80
     "PimaxFrame",              // 81
     "Arraychar",               // 82
-    "Epix10kConfig"            // 83
+    "Epix10kConfig",           // 83
+    "Epix100aConfig",          // 84
+    "GenericPgpConfig",        // 85
+    "TimeToolConfig",          // 86
+    "TimeToolData",            // 87
+    "EpixSConfig",             // 88
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

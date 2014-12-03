@@ -15,14 +15,14 @@
 #include "pdsdata/xtc/DetInfo.hh"
 
 typedef Pds::Ipimb::DataV1   IpimbDataV1;
-typedef Pds::Ipimb::ConfigV1 IpimbConfigV1; 
+typedef Pds::Ipimb::ConfigV1 IpimbConfigV1;
 typedef Pds::Ipimb::DataV2   IpimbDataV2;
-typedef Pds::Ipimb::ConfigV2 IpimbConfigV2; 
+typedef Pds::Ipimb::ConfigV2 IpimbConfigV2;
 typedef Pds::Lusi::IpmFexV1  IpmFexDataV1;
 
-namespace Pds 
+namespace Pds
 {
-    
+
 #pragma pack(4)
 
 class BldDataFEEGasDetEnergyV0
@@ -67,14 +67,14 @@ public:
          EbeamLTUAngYDamage  = 0x020 };
 
     uint32_t    uDamageMask;
-    double      fEbeamCharge;    /* in nC */ 
-    double      fEbeamL3Energy;  /* in MeV */ 
-    double      fEbeamLTUPosX;   /* in mm */ 
-    double      fEbeamLTUPosY;   /* in mm */ 
-    double      fEbeamLTUAngX;   /* in mrad */ 
-    double      fEbeamLTUAngY;   /* in mrad */  
-    
-    int print() const;    
+    double      fEbeamCharge;    /* in nC */
+    double      fEbeamL3Energy;  /* in MeV */
+    double      fEbeamLTUPosX;   /* in mm */
+    double      fEbeamLTUPosY;   /* in mm */
+    double      fEbeamLTUAngX;   /* in mrad */
+    double      fEbeamLTUAngY;   /* in mrad */
+
+    int print() const;
 };
 
 
@@ -93,15 +93,15 @@ public:
          EbeamPkCurrBC2Damage = 0x040 };
 
     uint32_t    uDamageMask;
-    double      fEbeamCharge;    /* in nC */ 
-    double      fEbeamL3Energy;  /* in MeV */ 
-    double      fEbeamLTUPosX;   /* in mm */ 
-    double      fEbeamLTUPosY;   /* in mm */ 
-    double      fEbeamLTUAngX;   /* in mrad */ 
-    double      fEbeamLTUAngY;   /* in mrad */  
-    double      fEbeamPkCurrBC2; /* in Amps */  
-    
-    int print() const;    
+    double      fEbeamCharge;    /* in nC */
+    double      fEbeamL3Energy;  /* in MeV */
+    double      fEbeamLTUPosX;   /* in mm */
+    double      fEbeamLTUPosY;   /* in mm */
+    double      fEbeamLTUAngX;   /* in mrad */
+    double      fEbeamLTUAngY;   /* in mrad */
+    double      fEbeamPkCurrBC2; /* in Amps */
+
+    int print() const;
 };
 
 
@@ -121,16 +121,16 @@ public:
          EbeamEnergyBC2Damage = 0x080 };
 
     uint32_t    uDamageMask;
-    double      fEbeamCharge;    /* in nC */ 
-    double      fEbeamL3Energy;  /* in MeV */ 
-    double      fEbeamLTUPosX;   /* in mm */ 
-    double      fEbeamLTUPosY;   /* in mm */ 
-    double      fEbeamLTUAngX;   /* in mrad */ 
-    double      fEbeamLTUAngY;   /* in mrad */  
-    double      fEbeamPkCurrBC2; /* in Amps */  
-    double      fEbeamEnergyBC2; /* in MeV */  
-    
-    int print() const;    
+    double      fEbeamCharge;    /* in nC */
+    double      fEbeamL3Energy;  /* in MeV */
+    double      fEbeamLTUPosX;   /* in mm */
+    double      fEbeamLTUPosY;   /* in mm */
+    double      fEbeamLTUAngX;   /* in mrad */
+    double      fEbeamLTUAngY;   /* in mrad */
+    double      fEbeamPkCurrBC2; /* in Amps */
+    double      fEbeamEnergyBC2; /* in MeV */
+
+    int print() const;
 };
 
 class BldDataEBeamV3
@@ -189,13 +189,13 @@ public:
        };
 
     uint32_t    uDamageMask;
-    double      fEbeamCharge;     /* in nC */ 
-    double      fEbeamL3Energy;   /* in MeV */ 
-    double      fEbeamLTUPosX;    /* in mm */ 
-    double      fEbeamLTUPosY;    /* in mm */ 
-    double      fEbeamLTUAngX;    /* in mrad */ 
-    double      fEbeamLTUAngY;    /* in mrad */  
-    double      fEbeamPkCurrBC2;  /* in Amps */ 
+    double      fEbeamCharge;     /* in nC */
+    double      fEbeamL3Energy;   /* in MeV */
+    double      fEbeamLTUPosX;    /* in mm */
+    double      fEbeamLTUPosY;    /* in mm */
+    double      fEbeamLTUAngX;    /* in mrad */
+    double      fEbeamLTUAngY;    /* in mrad */
+    double      fEbeamPkCurrBC2;  /* in Amps */
     double      fEbeamEnergyBC2;  /* in mm */
     double      fEbeamPkCurrBC1; /* Amps */
     double      fEbeamEnergyBC1;  /* in mm */
@@ -203,7 +203,7 @@ public:
     double      fEbeamUndPosY; /**< Undulator launch feedback beam y-position in mm. */
     double      fEbeamUndAngX; /**< Undulator launch feedback beam x-angle in mrad. */
     double      fEbeamUndAngY; /**< Undulator launch feedback beam y-angle in mrad. */
-    int print() const;    
+    int print() const;
 };
 
 class BldDataEBeamV5
@@ -309,15 +309,15 @@ typedef BldDataEBeamV6 BldDataEBeam;
 
 class BldDataPhaseCavity
 {
-    // PV names: UND:R02:IOC:16:BAT:FitTime1, UND:R02:IOC:16:BAT:FitTime2, 
+    // PV names: UND:R02:IOC:16:BAT:FitTime1, UND:R02:IOC:16:BAT:FitTime2,
     //           UND:R02:IOC:16:BAT:Charge1,  UND:R02:IOC:16:BAT:Charge2
 public:
   enum { version=0 };
-    double fFitTime1;   /* in pico-seconds */ 
-    double fFitTime2;   /* in pico-seconds */ 
-    double fCharge1;    /* in pico-columbs */ 
-    double fCharge2;    /* in pico-columbs */ 
-    
+    double fFitTime1;   /* in pico-seconds */
+    double fFitTime2;   /* in pico-seconds */
+    double fCharge1;    /* in pico-columbs */
+    double fCharge2;    /* in pico-columbs */
+
     int print() const;
 };
 
@@ -325,24 +325,24 @@ public:
 class BldDataIpimbV0
 {
 public:
-  enum { version=0 }; 
+  enum { version=0 };
     IpimbDataV1    ipimbData;
     IpimbConfigV1  ipimbConfig;
     IpmFexDataV1   ipmFexData;
-    
-    int print() const;    
+
+    int print() const;
 };
 
 
 class BldDataIpimbV1
 {
 public:
-  enum { version=1 }; 
+  enum { version=1 };
     IpimbDataV2    ipimbData;
     IpimbConfigV2  ipimbConfig;
     IpmFexDataV1   ipmFexData;
-    
-    int print() const;    
+
+    int print() const;
 };
 
 typedef BldDataIpimbV1 BldDataIpimb;
@@ -391,7 +391,7 @@ public:
   double  fBgValuePerSample;       // Avg background value per sample in raw A/D counts
   double  fRelativeEnergyPerPulse; // Shot by shot pulse energy in arbitrary units
   double  fSpare1;                 // Spare value for use as needed
- 
+
   int print() const;
 };
 
@@ -428,7 +428,33 @@ public:
   uint32_t      _hproj[1024];
   uint32_t      _vproj[256];
 };
-typedef BldDataSpectrometerV0 BldDataSpectrometer;
+
+class BldDataSpectrometerV1
+{
+public:
+  enum { TypeId = Pds::TypeId::Id_Spectrometer /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 1 /**< XTC type version number */ };
+  uint32_t	_width;	/**< Width of camera frame and thus size of hproj array
+     PV TBD */
+  uint32_t	_hproj_y1;	/**< First row of pixels used in projection ROI
+     PV TBD */
+  uint32_t	_hproj_y2;	/**< Last row of pixels used in projection ROI
+    PV: TBD */
+  double	_fComRaw;	/**< Raw center of mass, no baseline subtraction
+     PV: TBD */
+  double	_fBaseline;	/**< Baseline level for calculated values
+     PV: TBD */
+  double	_fCom;	/**< Baseline-subtracted center of mass
+     PV: TBD */
+  double	_fIntegral;	/**< Integrated area under spectrum (no baseline subtraction)
+     PV: TBD */
+  uint32_t	_nPeaks;	/**< Number of peak fits performed
+    PV: TBD */
+  //uint32_t	_hproj[this->_width];
+  //double	_peakPos[this->_nPeaks];
+  //double	_peakHeight[this->_nPeaks];
+  //double	_Fwhm[this->_nPeaks];
+};
 
 #pragma pack()
 }

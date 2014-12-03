@@ -111,7 +111,7 @@ namespace Pds {
       unsigned ioq = _ev_index;
 
       XtcMonitorMsg myMsg;
-      unsigned priority;
+      unsigned priority(0);
       if (mq_receive(iq, (char*)&myMsg, sizeof(myMsg), &priority) < 0) {
 	perror("mq_receive buffer");
 	return Return;

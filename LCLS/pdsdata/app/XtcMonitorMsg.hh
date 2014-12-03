@@ -8,8 +8,14 @@ namespace Pds {
     enum { SizeMask   = 0x0fffffff };
     enum { SerialShift = 28 };
   public:
-    XtcMonitorMsg() : _reserved(0) {}
-    XtcMonitorMsg(int bufferIndex) : _bufferIndex(bufferIndex), _reserved(0) {}
+    XtcMonitorMsg() : _bufferIndex(0), 
+                      _numberOfBuffers(0),
+                      _sizeOfBuffers(0),
+                      _reserved(0) {}
+    XtcMonitorMsg(int bufferIndex) : _bufferIndex(bufferIndex), 
+                                     _numberOfBuffers(0),
+                                     _sizeOfBuffers(0),
+                                     _reserved(0) {}
     ~XtcMonitorMsg() {}; 
   public:
     int bufferIndex     () const {return _bufferIndex;}

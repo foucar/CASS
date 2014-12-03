@@ -16,6 +16,7 @@
 #include <sys/mman.h>
 #include <sys/prctl.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -23,6 +24,7 @@
 #include <list>
 
 //#define DBUG
+//#define NO_STEAL
 
 using std::queue;
 using std::stack;
@@ -53,6 +55,10 @@ namespace Pds {
     Dgram*        _dg;
   };
 
+  //
+  //  TransitionCache class - the purpose of this class is to cache transitions for
+  //    clients and track the transitions which are still to be served to latent clients
+  //
   class TransitionCache {
   public:
     TransitionCache(char* p, size_t sz) : _pShm(p), _szShm(sz), _not_ready(0) 
@@ -60,11 +66,41 @@ namespace Pds {
       sem_init(&_sem, 0, 1);
       memset(&_allocated, 0, numberofTrBuffers*sizeof(unsigned)); 
 
-      for(unsigned i=0; i<numberofTrBuffers; i++)
+      for(unsigned i=0; i<numberofTrBuffers; i++) {
+        Dgram* dg = new (p + _szShm*i) Dgram;
+        dg->seq = Sequence(Sequence::Event, TransitionId::Reset,
+                           ClockTime(0),
+                           TimeStamp(0,0,0));
+        dg->env = 0;
 	_freeTr.push_back(i);
+      }
     }    
     ~TransitionCache() { sem_destroy(&_sem); }
   public:
+    void dump() const {
+      printf("---TransitionCache---\n");
+      printf("\tBuffers:\n");
+      for(unsigned i=0; i<numberofTrBuffers; i++) {
+        const Dgram& odg = *reinterpret_cast<const Dgram*>(_pShm + _szShm*i);
+        time_t t=odg.seq.clock().seconds();
+        char cbuf[64]; ctime_r(&t,cbuf); strtok(cbuf,"\n");
+        printf ("%15.15s : %s : %08x\n", 
+                TransitionId::name(odg.seq.service()),
+                cbuf,
+                _allocated[i]);
+      }
+      std::stack<int> cached(_cachedTr);
+      printf("\tCached: ");
+      while(!cached.empty()) {
+        printf("%d ",cached.top());
+        cached.pop();
+      }
+      printf("\n\tFree: ");
+      for(std::list<int>::const_iterator it=_freeTr.begin();
+          it!=_freeTr.end(); it++)
+        printf("%d ",*it);
+      printf("\n");
+    }
     std::stack<int> current() {
       sem_wait(&_sem);
       std::stack<int> cached(_cachedTr);
@@ -76,13 +112,18 @@ namespace Pds {
       sem_post(&_sem);
       return tr;
     }
+    //
+    //  Find a free buffer for the next transition
+    //
     int  allocate  (TransitionId::Value id) {
+      int result = -1;
 #ifdef DBUG
       printf("allocate(%s)\n",TransitionId::name(id));
       for(unsigned i=0; i<numberofTrBuffers; i++)
 	printf("%08x ",_allocated[i]);
       printf("\n");
 #endif
+      bool lbegin = ((id&1)==0);
       sem_wait(&_sem);
 
       for(std::list<int>::iterator it=_freeTr.begin();
@@ -99,24 +140,63 @@ namespace Pds {
 	      _freeTr.remove(ibuffer);
 	      _cachedTr.push(ibuffer);
 	    }
+            else {
+              printf("Unexpected state for TransitionCache: _cachedTr empty but tr[%s]!=Map\n",
+                     TransitionId::name(id));
+              dump();
+              abort();
+            }
 	  }
 	  else {
 	    const Dgram& odg = *reinterpret_cast<const Dgram*>(_pShm + _szShm*_cachedTr.top());
 	    TransitionId::Value oid = odg.seq.service();
-	    if (id == oid+2) {
+	    if (id == oid+2) {       // Next begin transition
 	      _freeTr.remove(ibuffer);
 	      _cachedTr.push(ibuffer);
 	    }
-	    else if (id == oid+1) {
+	    else if (id == oid+1) {  // Matching end transition
 	      int ib=_cachedTr.top();
 	      _cachedTr.pop();
 	      _freeTr.push_back(ib);
 	    }
 	    else {  // unexpected transition
+              printf("Unexpected transition for TransitionCache: tr[%s]!=[%s] or [%s]\n",
+                     TransitionId::name(id), 
+                     TransitionId::name(TransitionId::Value(oid+2)),
+                     TransitionId::name(TransitionId::Value(oid+1)));
+              if (lbegin) { // Begin transition
+                if (id > oid) {  // Missed a begin transition leading up to it
+                  printf("Irrecoverable.\n");
+                  dump();
+                  abort();
+                }
+                else {
+                  printf("Recover by rolling back.\n");
+                  do {
+                    int ib=_cachedTr.top();
+                    _freeTr.push_back(ib);
+                    oid = reinterpret_cast<const Dgram*>(_pShm + _szShm*ib)->seq.service();
+                    _cachedTr.pop();
+                  } while(oid > id);
+                  _freeTr.remove(ibuffer);
+                  _cachedTr.push(ibuffer);
+                }
+              }
+              else { // End transition
+                printf("Recover by rolling back.\n");
+                while( id < oid+3 ) {
+                  int ib=_cachedTr.top();
+                  _freeTr.push_back(ib);
+                  _cachedTr.pop();
+                  if (_cachedTr.empty()) break;
+                  oid = reinterpret_cast<const Dgram*>(_pShm + _szShm*_cachedTr.top())
+                    ->seq.service();
+                }
+              }
 	    }
 	  }
 
-	  if ((id&1)==0) {
+	  if (lbegin) {
 	    unsigned not_ready=0;
 	    for(unsigned itr=0; itr<numberofTrBuffers; itr++) {
 	      if (itr==ibuffer) continue;
@@ -132,16 +212,23 @@ namespace Pds {
 	    _not_ready |= not_ready;
 	  }
 
-	  sem_post(&_sem);
-
 #ifdef DBUG
 	  printf("not_ready %08x\n",_not_ready);
 #endif
-	  return ibuffer;
+          result = ibuffer;
+          break;
 	}
-      return -1;
+
+      sem_post(&_sem);
+      
+      return result;
     }
+    //
+    //  Queue this transition for a client
+    //
     bool allocate  (int ibuffer, unsigned client) {
+
+      bool result = true;
 #ifdef DBUG
       printf("allocate[%d,%d] not_ready %08x\n",ibuffer,client,_not_ready);
 #endif
@@ -159,23 +246,27 @@ namespace Pds {
 	
 	TransitionId::Value id = 
 	  reinterpret_cast<const Dgram*>(_pShm + _szShm*ibuffer)->seq.service();
-	if (!((id&1)==1 && id<last)) {
-	  sem_post(&_sem);
-	  return false;
-	}
+	if (!((id&1)==1 && id<last))
+          result=false;
       }
-      _allocated[ibuffer] |= (1<<client);
+
+      if (result)
+        _allocated[ibuffer] |= (1<<client);
 
       sem_post(&_sem);
 
 #ifdef DBUG
       printf("_allocated[%d] = %08x\n",ibuffer,_allocated[ibuffer]);
 #endif 
-      return true;
+      return result;
     }
+    //
+    //  Client has completed this transition.
+    //  Remove client from _allocated list for this buffer.
+    //  Return true if client was previously "not ready" but now is "ready"
     bool deallocate(int ibuffer, unsigned client) {
-      sem_wait(&_sem);
       bool result=false;
+      sem_wait(&_sem);
       { unsigned v = _allocated[ibuffer] & ~(1<<client);
 #ifdef DBUG
 	printf("_deallocate[%d,%d] %08x -> %08x\n",ibuffer,client,
@@ -199,6 +290,10 @@ namespace Pds {
       sem_post(&_sem);
       return result;
     }
+    //
+    //  Retire this client.
+    //  Remove the client from the _allocated list for all buffers.
+    //
     void deallocate(unsigned client) {
       sem_wait(&_sem);
       for(unsigned itr=0; itr<numberofTrBuffers; itr++)
@@ -216,12 +311,35 @@ namespace Pds {
     sem_t            _sem;
     const char*      _pShm;
     size_t           _szShm;
-    unsigned         _not_ready;
-    unsigned         _allocated[numberofTrBuffers];
-    std::stack <int> _cachedTr;
-    std::list  <int> _freeTr;
+    unsigned         _not_ready; // bitmask of clients that are behind in processing
+    unsigned         _allocated[numberofTrBuffers];  // bitmask of clients that are processing
+    std::stack <int> _cachedTr;  // set of transitions for the current DAQ state
+    std::list  <int> _freeTr;    // complement of _cachedTr
   };
 };
+
+static Pds::XtcMonitorServer* apps;
+
+static struct sigaction old_actions[64];
+
+void sigfunc(int sig_no) {
+  static bool _handled=false;
+  if (!_handled) {
+    _handled = true;
+    printf("handling signal %d app %p\n",sig_no,apps);
+    if (apps) {
+      apps->unlink();
+      apps = 0;
+    }
+    else
+      printf("nothing to do\n");
+
+    printf("done with signal %d\n",sig_no);
+    
+    sigaction(sig_no,&old_actions[sig_no],NULL);
+    raise(sig_no);
+  }
+}
 
 using namespace Pds;
 
@@ -251,6 +369,28 @@ XtcMonitorServer::XtcMonitorServer(const char* tag,
   _tmo.tv_nsec = 0;
 
   _init();
+
+  apps = this;
+
+  struct sigaction int_action;
+
+  int_action.sa_handler = sigfunc;
+  sigemptyset(&int_action.sa_mask);
+  int_action.sa_flags = 0;
+  int_action.sa_flags |= SA_RESTART;
+
+#define REGISTER(t) {                                               \
+    if (sigaction(t, &int_action, &old_actions[t]) > 0)             \
+      printf("Couldn't set up #t handler\n");                       \
+  }
+
+  REGISTER(SIGINT);
+  REGISTER(SIGSEGV);
+  REGISTER(SIGABRT);
+  REGISTER(SIGTERM);
+  REGISTER(SIGPIPE);
+
+#undef REGISTER
 }
 
 XtcMonitorServer::~XtcMonitorServer() 
@@ -271,7 +411,8 @@ void XtcMonitorServer::distribute(bool l)
   _flushQueue(_myInputEvQueue);
   for(unsigned i=0; i<_numberOfEvBuffers; i++) {
     _myMsg.bufferIndex(i);
-    mq_send(_myInputEvQueue, (const char*)&_myMsg, sizeof(_myMsg), 0);
+    if (mq_timedsend(_myInputEvQueue, (const char*)&_myMsg, sizeof(_myMsg), 0, &_tmo)<0)
+      perror("XtcMonitorServer distribute failed to queue buffers to input");
   }
 }
 
@@ -282,31 +423,35 @@ bool XtcMonitorServer::_send(Dgram* dg)
   //  are opened in blocking mode.  So, I use mq_timedreceive 
   //  with a 0 timeout to avoid blocking.
   //
+  XtcMonitorMsg msg;
   const timespec no_wait={0,0};
-  int r = mq_timedreceive(_myInputEvQueue, (char*)&_myMsg, sizeof(_myMsg), NULL,
+  int r = mq_timedreceive(_myInputEvQueue, (char*)&msg, sizeof(msg), NULL,
                           &no_wait); 
+
+#ifdef NO_STEAL
   if (r>0)
     ;
   else {
     if (r<0) ; // perror("Error reading input event queue");
     for(unsigned i=0; i<_numberOfEvQueues; i++) {
-      r=mq_timedreceive(_myOutputEvQueue[i], (char*)&_myMsg, sizeof(_myMsg), NULL,
+      r=mq_timedreceive(_myOutputEvQueue[i], (char*)&msg, sizeof(msg), NULL,
                         &no_wait);
       if (r>0) break;
       if (r<0) ; // perror("Error reading output event queue");
     }
   }
+#endif
 
   if (r>0) {
-    _msgDest[_myMsg.bufferIndex()]=-1;
-    ShMsg m(_myMsg, dg);
+    _msgDest[msg.bufferIndex()]=-1;
+    ShMsg m(msg, dg);
     if (mq_timedsend(_shuffleQueue, (const char*)&m, sizeof(m), 0, &_tmo)) {
       printf("ShuffleQ timedout\n");
       _deleteDatagram(dg);
     }
   }
   else {
-    printf("No shared memory buffer found.  Dropping new event.\n");
+    // No shared memory buffer found.  Dropping new event.
     _deleteDatagram(dg);
   }
   return true;
@@ -334,6 +479,7 @@ XtcMonitorServer::Result XtcMonitorServer::events(Dgram* dg)
 
     if (itr < 0) {
       printf("No buffers available for transition !\n");
+      _transitionCache->dump();
       abort();
     }
 
@@ -404,13 +550,15 @@ void XtcMonitorServer::discover()
   q_attr.mq_flags   = O_NONBLOCK;
   _discoveryQueue  = _openQueue(fromQname,q_attr);
   delete[] fromQname;
+  _flushQueue(_discoveryQueue);
 
   if (::listen(fd,10)<0)
     printf("ConnectionManager listen failed\n");
   else {
     while(1) {
+      timespec tv; tv.tv_sec=tv.tv_nsec=0;
       XtcMonitorMsg m(port);
-      if (mq_send(_discoveryQueue,(const char*)&m,sizeof(m),0)<0) {
+      if (mq_timedsend(_discoveryQueue,(const char*)&m,sizeof(m),0,&_tmo)<0) {
 	perror("Error advertising discovery port");
 	abort();
       }
@@ -496,7 +644,7 @@ void XtcMonitorServer::routine()
 	    }
 	  }
 	  if (!lsent)
-	    if (mq_send(_myInputEvQueue, (const char*)&m.msg(), sizeof(m.msg()), 0))
+	    if (mq_timedsend(_myInputEvQueue, (const char*)&m.msg(), sizeof(m.msg()), 0, &_tmo))
 	      perror("Unable to distribute or reclaim event");
 	}
       }
@@ -508,36 +656,49 @@ void XtcMonitorServer::routine()
       for(int i=2; i<_nfd; i++) {
 	if (_pfd[i].revents & POLLIN) {
 	  int r;
-	  while((r=::recv(_pfd[i].fd, (char*)&_myMsg, sizeof(_myMsg), MSG_DONTWAIT))>=0) {
+          XtcMonitorMsg msg;
+	  while((r=::recv(_pfd[i].fd, (char*)&msg, sizeof(msg), MSG_DONTWAIT))>=0) {
 	    for(unsigned q=0; q<_myTrFd.size(); q++)
 	      if (_myTrFd[q]==_pfd[i].fd) {
 		if (r > 0) {
-		  int itr=_myMsg.bufferIndex()-_numberOfEvBuffers;
+		  int itr=msg.bufferIndex()-_numberOfEvBuffers;
 		  if (_transitionCache->deallocate(itr,q))
-		    _update(q,reinterpret_cast<Dgram*>(_myShm+_sizeOfBuffers*_myMsg.bufferIndex())->seq.service());
+		    _update(q,reinterpret_cast<Dgram*>(_myShm+_sizeOfBuffers*msg.bufferIndex())->seq.service());
 		}
 		else { // retire client
 		  printf("Retiring client %d [%d]\n",q,_pfd[i].fd);
                   //  Recover buffers last sent to this client
                   //  First, account for the ones waiting in our input queue
                   const timespec no_wait={0,0};
-                  while(mq_timedreceive(_myInputEvQueue, (char*)&_myMsg, 
-                                        sizeof(_myMsg), NULL, &no_wait)>0) {
-                    mq_send(_myInputEvQueue, (char*)&_myMsg,sizeof(_myMsg),0);
-                    if (_msgDest[_myMsg.bufferIndex()]>=0)
-                      _msgDest[_myMsg.bufferIndex()]=-1;
-                    else
-                      break;
+                  std::list<int> indices;
+                  while(mq_timedreceive(_myInputEvQueue, (char*)&msg, 
+                                        sizeof(msg), NULL, &no_wait)>0)
+                    indices.push_back(msg.bufferIndex());
+
+                  for(std::list<int>::iterator it=indices.begin();
+                      it!=indices.end(); it++) {
+                    _msgDest[*it]=-1;
+                    msg.bufferIndex(*it);
+                    if (mq_timedsend(_myInputEvQueue, (char*)&msg,sizeof(msg),0,&no_wait)<0) {
+                      perror("Accounting input queue buffers");
+                      printf("May have lost buffer %d\n",*it);
+                    }
                   }
+
                   //  Recover the buffers still queued to the retired client
                   _moveQueue(_myOutputEvQueue[q], _myInputEvQueue);
+
                   //  Force recovery of those still outstanding to the retired client
-                  for(int j=0; j<_msgDest.size(); j++)
-                    if (_msgDest[j]==q) {
+                  for(int j=0; j<int(_msgDest.size()); j++)
+                    if (_msgDest[j]==int(q)) {
                       printf("Recovering buffer %d\n",j);
-                      _myMsg.bufferIndex(j);
-                      mq_send(_myInputEvQueue, (const char*)&_myMsg, sizeof(_myMsg), 0);
+                      msg.bufferIndex(j);
+                      if (mq_timedsend(_myInputEvQueue, (const char*)&msg, sizeof(msg), 0, &_tmo)<0)
+                        perror("Failed to recover buffer queued to retired client");
+                      else
+                        _msgDest[j]=-1;
                     }
+
 		  _myTrFd[q]=-1;
                   //  Clear the transition tracking for this client
 		  _transitionCache->deallocate(q);
@@ -607,7 +768,8 @@ int XtcMonitorServer::_init()
   for(unsigned i=0; i<_numberOfEvBuffers; i++) {
     _myMsg.bufferIndex(i);
     _msgDest[i]=-1;
-    mq_send(_myInputEvQueue, (const char*)&_myMsg, sizeof(_myMsg), 0);
+    if (mq_timedsend(_myInputEvQueue, (const char*)&_myMsg, sizeof(_myMsg), 0, &_tmo)<0)
+      perror("Failed to queue buffer to input queue (initialize)");
   }
 
   q_attr.mq_maxmsg  = _numberOfEvBuffers / _numberOfEvQueues;
@@ -698,6 +860,9 @@ void XtcMonitorServer::_initialize_client()
   _update(iclient,TransitionId::Unmap);
 }
 
+//
+//  Send the cached transitions to update the client's state to the current DAQ state
+//
 void XtcMonitorServer::_update(int iclient,
 			       TransitionId::Value last)
 {
@@ -709,9 +874,11 @@ void XtcMonitorServer::_update(int iclient,
     if (reinterpret_cast<const Dgram*>(_myShm+_sizeOfBuffers*ib)->seq.service()>=next) {
       _myMsg.bufferIndex(ib);
 
-      _transitionCache->allocate(itr,iclient);
-      if (::send(_myTrFd[iclient], (const char*)&_myMsg, sizeof(_myMsg), 0)<0) 
-	perror("Error sending current");
+      if (_transitionCache->allocate(itr,iclient))
+        if (::send(_myTrFd[iclient], (const char*)&_myMsg, sizeof(_myMsg), 0)<0) {
+          perror("Error sending current");
+          _transitionCache->deallocate(itr,iclient);
+        }
     }
   }
 }
@@ -786,9 +953,11 @@ void XtcMonitorServer::_moveQueue(mqd_t iq, mqd_t oq)
   do {
     mq_getattr(iq, &attr);
     if (attr.mq_curmsgs) {
-      if (mq_timedreceive(iq, (char*)&m, sizeof(m), NULL, &_tmo) == -1)
+      if (mq_timedreceive(iq, (char*)&m, sizeof(m), NULL, &_tmo) == -1) {
         perror("moveQueue: mq_timedreceive");
-      else if (mq_send   (oq, (char*)&m, sizeof(m), 0) == -1) {
+        break;
+      }
+      else if (mq_timedsend   (oq, (char*)&m, sizeof(m), 0, &_tmo) == -1) {
         printf("Failed to reclaim buffer %i : %s\n",
 	       m.bufferIndex(), strerror(errno));
       }
