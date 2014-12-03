@@ -9,10 +9,10 @@ namespace Pds {
   public:
     /*
      * Notice: New enum values should be appended to the end of the enum list, since
-     *   the old values have already been recorded in the existing xtc files. 
+     *   the old values have already been recorded in the existing xtc files.
      */
     enum Type {
-      Any, 
+      Any,
       Id_Xtc,          // generic hierarchical container
       Id_Frame,        // raw image
       Id_AcqWaveform,
@@ -96,12 +96,18 @@ namespace Pds {
       Id_PimaxFrame,
       Id_Arraychar,
       Id_Epix10kConfig,
+      Id_Epix100aConfig,
+      Id_GenericPgpConfig,
+      Id_TimeToolConfig,
+      Id_TimeToolData,
+      Id_EpixSConfig,
       NumberOf};
     enum { VCompressed = 0x8000 };
 
     TypeId() {}
     TypeId(const TypeId& v);
     TypeId(Type type, uint32_t version, bool compressed=false);
+    TypeId(const char*);
 
     Type     id()      const;
     uint32_t version() const;
@@ -110,8 +116,10 @@ namespace Pds {
     bool     compressed() const;
     unsigned compressed_version() const;
 
+    bool     is_configuration() const;
+
     static const char* name(Type type);
-    
+
   private:
     uint32_t _value;
   };

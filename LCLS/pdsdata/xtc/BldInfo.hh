@@ -64,6 +64,12 @@ namespace Pds {
                 XcsUsrIpm02      = 50,
                 XcsUsrIpm03      = 51,
                 XcsUsrIpm04      = 52,
+                XcsSb1Ipm01      = 53,
+                XcsSb1Ipm02      = 54,
+                XcsSb2Ipm01      = 55,
+                XcsSb2Ipm02      = 56,
+                XcsGonIpm01      = 57,
+                XcsLamIpm01      = 58,
                 NumberOf };
 
     BldInfo() {}
