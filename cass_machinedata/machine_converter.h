@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2013 Lutz Foucar
+// Copyright (C) 2009 - 2014 Lutz Foucar
 
 /**
  * @file machine_converter.h contains xtc converter for machine data
@@ -50,6 +50,12 @@ public:
    */
   void operator()(const Pds::Xtc*xtc, cass::CASSEvent*evt);
 
+  /** called before the conversion
+   *
+   * @param evt pointer to the event that needs to be finalized
+   */
+  void prepare(CASSEvent *evt);
+
   /** called at the end of the conversion
    *
    * @param evt pointer to the event that needs to be finalized
@@ -85,14 +91,9 @@ private:
   /** a container for the epics values
    *
    * @note this is necessary, since not every shot there is info about the
-   *       epics values
+   *       epics values and calibcycle
    */
   MachineDataDevice _store;
-
-  /** storage for the pv control variables */
-  MachineDataDevice::bldMap_t _pvStore;
-  //      double _pvControl;
-  //      std::string _pvControlName;
 };
 }//end namespace MachineData
 }//end namespace cass

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2013 Lutz Foucar
+// Copyright (C) 2009 - 2014 Lutz Foucar
 
 /**
  * @file machine_converter.cpp contains xtc converter for machine data
@@ -315,6 +315,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_Epics):
   {
+    /** need to lock this operation as it involves the store used by all */
+    QMutexLocker lock(&_mutex);
+
     /** get the epics header and the epics id for this epics variable */
     const Pds::EpicsPvHeader& epicsData =
         *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
@@ -482,17 +485,18 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_ControlConfig):
   {
+    QMutexLocker lock(&_mutex);
+    /** add variables to store and to log */
+    string log("MachineData::Converter: Calibcylce: ");
     const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
     for (unsigned int i = 0; i < config.npvControls(); i++)
     {
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
-      _pvStore[pvControlCur.name()] = pvControlCur.value();
+      _store.BeamlineData()[pvControlCur.name()] = pvControlCur.value();
+      log += pvControlCur.name() + " = " + pvControlCur.value() + "; ";
     }
-    /** add variables to log */
-    string log("MachineData::Converter: Calibcylce: ");
-    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
-      log += it->first + " = " + toString(it->second) + "; ";
-    Log::add(Log::INFO,log);
+    if (config.npvControls())
+      Log::add(Log::INFO,log);
     break;
   }
 
@@ -537,17 +541,19 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }//end switch
 }
 
+void Converter::prepare(cass::CASSEvent *evt)
+{
+
+}
+
 void Converter::finalize(CASSEvent *evt)
 {
-  /** copy the epics values in the storedevent to the machineevent, if they
-   *  haven't been set during the conversion, or if they have then copy the
-   *  epics values from the event to the store
-   */
+  /** copy the epics and calibcyle values in the storedevent to the machineevent */
   if (evt)
   {
+    QMutexLocker lock(&_mutex);
     MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
     md->EpicsData() = _store.EpicsData();
-    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
-      md->BeamlineData()[it->first] = it->second;
+    md->BeamlineData() = _store.BeamlineData();
   }
 }
