@@ -48,6 +48,12 @@ public:
   /** virtual destructor to make clear this is a base class */
   virtual ~ConversionBackend() {}
 
+  /** prepare the cassevent
+   *
+   * @param evt the event shat shoul be prepared
+   */
+  virtual void prepare(cass::CASSEvent * /** evt*/) {}
+
   /** pure virtual operator.
    *
    * call this to convert the xtc to the cass event
@@ -61,7 +67,7 @@ public:
    *
    * @param evt the event that should be finalized
    */
-  virtual void finalize(cass::CASSEvent *) {}
+  virtual void finalize(cass::CASSEvent * /** evt */) {}
 
   /** return the list of pds type ids the converter is responsible for */
   const pdstypelist_t &pdsTypeList()const {return _pdsTypeList;}
