@@ -81,7 +81,13 @@ namespace lmf
     void resume();
 
     /** return the current status of the thread */
-    status_t status()   {return _status;}
+    status_t status()const   {return _status;}
+
+    /** query whether this thread is told to quit
+     *
+     * @return true when it should quit, false otherwise
+     */
+    bool shouldQuit()const {return (_control == _quit);}
 
   public slots:
     /** tell the thread to quit */

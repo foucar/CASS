@@ -83,6 +83,9 @@ public:
     iter = _liststart;
     for(;iter != _listend; ++iter)
     {
+      /** check if the input should quit, if so break from this loop here */
+      if (input.shouldQuit())
+        break;
       /** retrieve a new element from the ringbuffer */
       InputBase::rbItem_t rbItem(InputBase::reference().ringbuffer().nextToFill());
       /** fill the cassevent object with the contents from the file */
@@ -226,7 +229,7 @@ void SACLAOfflineInput::run()
   vector<string>::const_iterator runlistEnd(runlist.end());
   while (runlistIt != runlistEnd)
   {
-    if (_control == _quit)
+    if (shouldQuit())
       break;
     /** split the runname into the run and beamline combination */
     string runname(*runlistIt++);
@@ -336,7 +339,7 @@ void SACLAOfflineInput::run()
 
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Finished with all runs.");
   if(!_quitWhenDone)
-    while(_control != _quit)
+    while(!shouldQuit())
       this->sleep(1);
   Log::add(Log::VERBOSEINFO, "SACLAOfflineInput::run(): closing the input");
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Analysed '" + toString(eventcounter) +
