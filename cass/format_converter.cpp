@@ -116,19 +116,15 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
       /** clear the beamline data */
       dynamic_cast<MachineData::MachineDataDevice*>
           (cassevent->devices()[CASSEvent::MachineData])->clear();
+
+      /** prepare the cassevent
+       *
+       *  @note maybe, when more converters need preparing the data, we will do
+       *        it for all loaded converters, which will need another list that
+       *        conatins the loaded converters
+       */
+      _usedConverters[Pds::TypeId::Id_Epics]->prepare(cassevent);
     }
-//    else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle)
-//    {
-//      CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
-//      retval = iter.iterate() && retval;
-//      _pvSS.str("");
-//      for (unsigned int i=0; i < _pvNum; i++)
-//      {
-//        _pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
-//        if (!(i+1 == _pvNum)) _pvSS << ",";
-//      }
-//      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS.str());
-//    }
 
     /** now iterate through the datagram and find the wanted information
      *  if the return value of the iterateor is false, then the transition
