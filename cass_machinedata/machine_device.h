@@ -60,12 +60,6 @@ public:
   /** deserialize the device from the serializer*/
   bool deserialize(cass::SerializerBackend&);
 
-  /** clear the machine data by setting every value to 0 */
-  void clear()
-  {
-    _epicsFilled = false;
-  }
-
 public:
   //@{
   /** getter */

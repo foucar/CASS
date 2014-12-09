@@ -487,16 +487,16 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   {
     QMutexLocker lock(&_mutex);
     /** add variables to store and to log */
-    string log("MachineData::Converter: Calibcylce: ");
     const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
+    string log("MachineData::Converter: Calibcylce: [" +
+               toString(config.npvControls())+ " values]: ");
     for (unsigned int i = 0; i < config.npvControls(); i++)
     {
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
       _store.BeamlineData()[pvControlCur.name()] = pvControlCur.value();
-      log += pvControlCur.name() + " = " + pvControlCur.value() + "; ";
+      log += string(pvControlCur.name()) + " = " + toString(pvControlCur.value()) + "; ";
     }
-    if (config.npvControls())
-      Log::add(Log::INFO,log);
+    Log::add(Log::INFO,log);
     break;
   }
 
@@ -543,7 +543,23 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
 void Converter::prepare(cass::CASSEvent *evt)
 {
-
+  if (evt)
+  {
+    /** clear the beamline data by setting every value to 0
+     *  and reset the filled flag
+     *
+     *  @note clearing is needed to be done at this point, because the map will
+     *        be updated multiple times during the conversion process and
+     *        therefore clearing it during the conversion will erase variables
+     *        that have already been set.
+     */
+    MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
+    MachineDataDevice::bldMap_t::iterator bi (md->BeamlineData().begin());
+    MachineDataDevice::bldMap_t::const_iterator bEnd (md->BeamlineData().end());
+    for (; bi != bEnd ;++bi)
+      bi->second = 0;
+    md->epicsFilled() = false;
+  }
 }
 
 void Converter::finalize(CASSEvent *evt)
@@ -554,6 +570,14 @@ void Converter::finalize(CASSEvent *evt)
     QMutexLocker lock(&_mutex);
     MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
     md->EpicsData() = _store.EpicsData();
-    md->BeamlineData() = _store.BeamlineData();
+    /** @note we want to add the addional values that are in the store to
+     *        the beamline data of the event therefore we should not use the
+     *        assignment operator here
+     */
+    MachineDataDevice::bldMap_t::const_iterator it (_store.BeamlineData().begin());
+    MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
+    for(; it != End; ++it)
+      md->BeamlineData()[it->first] = it->second;
+
   }
 }

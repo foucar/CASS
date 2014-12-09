@@ -109,13 +109,9 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
       bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
       /** put the id into the cassevent */
       cassevent->id() = bunchId;
-//      cassevent->pvControl = _pvSS.str();
 
       /** set the return value to true */
       retval = GoodData;
-      /** clear the beamline data */
-      dynamic_cast<MachineData::MachineDataDevice*>
-          (cassevent->devices()[CASSEvent::MachineData])->clear();
 
       /** prepare the cassevent
        *
