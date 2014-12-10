@@ -105,7 +105,7 @@ HEADERS            += cass.h \
 #                      image_generator.h \
                       tcpserver.h \
                       worker.h \
-                      xtciterator.h \
+                      xtciterator.hpp \
                       cass_exceptions.h \
                       cass_settings.h \
                       calibcycle.h \

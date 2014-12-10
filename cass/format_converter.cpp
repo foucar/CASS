@@ -22,7 +22,7 @@
 
 #include "cass_event.h"
 #include "machine_device.h"
-#include "xtciterator.h"
+#include "xtciterator.hpp"
 #include "pdsdata/xtc/Dgram.hh"
 //#include "calibcycle.h"
 
