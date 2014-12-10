@@ -103,6 +103,25 @@ void epicsValToCassVal(const Pds::EpicsPvHeader& epicsData,
   }
 }
 
+/** convert epics variable to nothing
+ *
+ * don't do anything. This function is needed, because string types can't be
+ * converted, therefore this is used as dummy for epics string types.
+ *
+ * @tparam valtype the value type of the epics variable
+ * @param epicsData the object that contains the epics data
+ * @param storefirst iterator to the first entry in the epics part of store
+ * @param cassfirst iterator to the first entry in the epics part of cassevent
+ *
+ * @author Lutz Foucar
+ */
+void epicsValToNothing(const Pds::EpicsPvHeader& epicsData,
+                       MachineDataDevice::epicsDataMap_t::iterator storefirst,
+                       MachineDataDevice::epicsDataMap_t::iterator cassfirst)
+
+{
+
+}
 
 /** Key for the epics lookup map
  *
@@ -167,6 +186,7 @@ Converter::Converter()
   _epicsType2convFunc[DBR_TIME_ENUM] = &epicsValToCassVal<DBR_ENUM>;
   _epicsType2convFunc[DBR_TIME_LONG] = &epicsValToCassVal<DBR_LONG>;
   _epicsType2convFunc[DBR_TIME_DOUBLE] = &epicsValToCassVal<DBR_DOUBLE>;
+  _epicsType2convFunc[DBR_TIME_STRING] = &epicsValToNothing;
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
