@@ -731,10 +731,10 @@ void pp50::loadSettings(size_t)
                              "': UpperBound '" + toString(userRange.first) +
                              "' is higher than the highest possible value '" +
                              toString(yAxis.upperLimit()) + "'");
-    _yRange.first  = yAxis.nbrBins() * ((userRange.first - yAxis.lowerLimit() /
-                                       (yAxis.upperLimit() - yAxis.lowerLimit())));
-    _yRange.second = yAxis.nbrBins() * ((userRange.second - yAxis.lowerLimit() /
-                                       (yAxis.upperLimit() - yAxis.lowerLimit())));
+    _yRange.first  = yAxis.nbrBins() * ((userRange.first - yAxis.lowerLimit()) /
+                                       (yAxis.upperLimit() - yAxis.lowerLimit()));
+    _yRange.second = yAxis.nbrBins() * ((userRange.second - yAxis.lowerLimit()) /
+                                       (yAxis.upperLimit() - yAxis.lowerLimit()));
     _project = bind(&pp50::projectToX,this,_1,_2);
     createHistList(
           tr1::shared_ptr<Histogram1DFloat>
@@ -763,10 +763,10 @@ void pp50::loadSettings(size_t)
                              "': UpperBound '" + toString(userRange.first) +
                              "' is higher than the highest possible value '" +
                              toString(xAxis.upperLimit()) + "'");
-    _xRange.first  = xAxis.nbrBins() * ((userRange.first - xAxis.lowerLimit() /
-                                       (xAxis.upperLimit() - xAxis.lowerLimit())));
-    _xRange.second = xAxis.nbrBins() * ((userRange.second - xAxis.lowerLimit() /
-                                       (xAxis.upperLimit() - xAxis.lowerLimit())));
+    _xRange.first  = xAxis.nbrBins() * ((userRange.first - xAxis.lowerLimit()) /
+                                       (xAxis.upperLimit() - xAxis.lowerLimit()));
+    _xRange.second = xAxis.nbrBins() * ((userRange.second - xAxis.lowerLimit()) /
+                                       (xAxis.upperLimit() - xAxis.lowerLimit()));
     _yRange = make_pair(0,yAxis.nbrBins());
     _project = bind(&pp50::projectToY,this,_1,_2);
     createHistList(
@@ -880,10 +880,10 @@ void pp51::loadSettings(size_t)
                            "' is higher than the highest possible value '" +
                            toString(xaxis.upperLimit()) + "'");
 
-  _area.first  = xaxis.nbrBins() * ((userarea.first - xaxis.lowerLimit() /
-                                     (xaxis.upperLimit() - xaxis.lowerLimit())));
-  _area.second = xaxis.nbrBins() * ((userarea.second - xaxis.lowerLimit() /
-                                     (xaxis.upperLimit() - xaxis.lowerLimit())));
+  _area.first  = xaxis.nbrBins() * ((userarea.first - xaxis.lowerLimit()) /
+                                     (xaxis.upperLimit() - xaxis.lowerLimit()));
+  _area.second = xaxis.nbrBins() * ((userarea.second - xaxis.lowerLimit()) /
+                                     (xaxis.upperLimit() - xaxis.lowerLimit()));
 
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
