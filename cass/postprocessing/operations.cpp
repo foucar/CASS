@@ -783,9 +783,14 @@ void pp50::loadSettings(size_t)
   }
 
   Log::add(Log::INFO,"PostProcessor '" + name() +
-      "' will project histogram of PostProcessor '" + _pHist->name() + "' from '" +
-      toString(userRange.first) + "' to '" + toString(userRange.second) + "' to axis '" +
-      toString(axis) + "'. Condition is '" + _condition->name() + "'");
+           "' will project histogram of PostProcessor '" + _pHist->name() +
+           "' from '" + toString(userRange.first) + "' to '" +
+           toString(userRange.second) + "' to axis '" + toString(axis) +
+           "' The area in histogram coordinates lower left '" +
+           toString(_xRange.first) + "x" + toString(_yRange.first) +
+           "'; upper right '" + toString(_xRange.second) + "x" +
+           toString(_yRange.second) +"'. Condition is '" + _condition->name() +
+           "'");
 }
 
 void pp50::projectToX(const Histogram2DFloat::storage_t &src,
