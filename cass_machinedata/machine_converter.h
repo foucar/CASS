@@ -11,12 +11,18 @@
 #define MACHINEDATACONVERTER_H
 
 #include <map>
+#include <tr1/functional>
 
 #include <QtCore/QMutex>
 
 #include "cass_machine.h"
 #include "conversion_backend.h"
 #include "machine_device.h"
+
+namespace Pds
+{
+class EpicsPvHeader;
+}
 
 namespace cass
 {
@@ -63,8 +69,6 @@ public:
   void finalize(CASSEvent *evt);
 
 private:
-  /** convenience typedef for easier readable code*/
-  typedef std::map<EpicsKey,std::string> epicsKeyMap_t;
 
 private:
   /** constructor
@@ -85,8 +89,22 @@ private:
   /** singleton locker for mutithreaded requests */
   static QMutex _mutex;
 
+  /** define the conversion map from keys to strings */
+  typedef std::map<EpicsKey,std::string> epicsKeyMap_t;
+
   /** map Epics Keys to strings */
   epicsKeyMap_t _index2name;
+
+  /** define the function to convert epics to cass */
+  typedef std::tr1::function<void(const Pds::EpicsPvHeader&,
+                                  MachineDataDevice::epicsDataMap_t::iterator,
+                                  MachineDataDevice::epicsDataMap_t::iterator)> epicsType2val_t;
+
+  /** define a map to map epics type to function for retrieval of the value */
+  typedef std::map<int16_t, epicsType2val_t > epicsType2convFunc_t;
+
+  /** map containing fucntions that convert epics values to cass values */
+  epicsType2convFunc_t _epicsType2convFunc;
 
   /** a container for the epics values
    *

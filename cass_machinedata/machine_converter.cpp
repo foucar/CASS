@@ -74,6 +74,35 @@ void convertEpicsToDouble(const Pds::EpicsPvHeader& epicsData,
     first++->second = *value++;
 }
 
+/** convert epics variable to double and fill store and cassevent
+ *
+ * convert the value contained in the Epics variable to a double and fill it
+ * into the map. One has to define beforehand where to add it and pass the right
+ * iterator to the function
+ *
+ * @tparam valtype the value type of the epics variable
+ * @param epicsData the object that contains the epics data
+ * @param storefirst iterator to the first entry in the epics part of store
+ * @param cassfirst iterator to the first entry in the epics part of cassevent
+ *
+ * @author Lutz Foucar
+ */
+template <int valtype>
+void epicsValToCassVal(const Pds::EpicsPvHeader& epicsData,
+                       MachineDataDevice::epicsDataMap_t::iterator storefirst,
+                       MachineDataDevice::epicsDataMap_t::iterator cassfirst)
+{
+  const Pds::EpicsPvTime<valtype> &p
+      (reinterpret_cast<const Pds::EpicsPvTime<valtype>&>(epicsData));
+  const typename Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value(&p.value);
+  for(int i=0; i<epicsData.iNumElements; ++i)
+  {
+    const double val(*value++);
+    storefirst++->second = val;
+    cassfirst++->second = val;
+  }
+}
+
 
 /** Key for the epics lookup map
  *
@@ -132,6 +161,12 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
   _pdsTypeList.push_back(Pds::TypeId::Id_ControlConfig);
   _pdsTypeList.push_back(Pds::TypeId::Id_Spectrometer);
+
+  _epicsType2convFunc[DBR_TIME_SHORT] = &epicsValToCassVal<DBR_SHORT>;
+  _epicsType2convFunc[DBR_TIME_FLOAT] = &epicsValToCassVal<DBR_FLOAT>;
+  _epicsType2convFunc[DBR_TIME_ENUM] = &epicsValToCassVal<DBR_ENUM>;
+  _epicsType2convFunc[DBR_TIME_LONG] = &epicsValToCassVal<DBR_LONG>;
+  _epicsType2convFunc[DBR_TIME_DOUBLE] = &epicsValToCassVal<DBR_DOUBLE>;
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
@@ -388,36 +423,39 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
          *  this returns an iterator to the first entry we found
          *  if it was an array we can then use the iterator to the next values
          */
-        MachineDataDevice::epicsDataMap_t::iterator it =
+        MachineDataDevice::epicsDataMap_t::iterator storeIt =
             _store.EpicsData().find(epicsVariableName);
+        MachineDataDevice::epicsDataMap_t::iterator cassIt =
+            md->EpicsData().find(epicsVariableName);
         /** if the name is not in the map, ouput error message */
-        if (it == _store.EpicsData().end())
+        if (storeIt == _store.EpicsData().end() || cassIt == md->EpicsData().end())
           Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
-                   toString(epicsData.iPvId) + "' was not found in store");
+                   toString(epicsData.iPvId) + "' was not found in store or cassevent");
         /** otherwise extract the epicsData and write it into the map */
         else
         {
-          /** now extract the value from the epics variable */
-          switch(epicsData.iDbrType)
-          {
-          case DBR_TIME_SHORT:
-            convertEpicsToDouble<DBR_SHORT>(epicsData,it);
-            break;
-          case DBR_TIME_FLOAT:
-            convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
-            break;
-          case DBR_TIME_ENUM:
-            convertEpicsToDouble<DBR_ENUM>(epicsData,it);
-            break;
-          case DBR_TIME_LONG:
-            convertEpicsToDouble<DBR_LONG>(epicsData,it);
-            break;
-          case DBR_TIME_DOUBLE:
-            convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
-            break;
-          default:
-            break;
-          }//end switch
+          _epicsType2convFunc[epicsData.iDbrType](epicsData,storeIt,cassIt);
+//          /** now extract the value from the epics variable */
+//            switch(epicsData.iDbrType)
+//            {
+//            case DBR_TIME_SHORT:
+//              convertEpicsToDouble<DBR_SHORT>(epicsData,it);
+//              break;
+//            case DBR_TIME_FLOAT:
+//              convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
+//              break;
+//            case DBR_TIME_ENUM:
+//              convertEpicsToDouble<DBR_ENUM>(epicsData,it);
+//              break;
+//            case DBR_TIME_LONG:
+//              convertEpicsToDouble<DBR_LONG>(epicsData,it);
+//              break;
+//            case DBR_TIME_DOUBLE:
+//              convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
+//              break;
+//            default:
+//              break;
+//            }//end switch
         }
         /** set the variable that the epics store was filled */
         md->epicsFilled() = true;
@@ -486,7 +524,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   case(Pds::TypeId::Id_ControlConfig):
   {
     QMutexLocker lock(&_mutex);
-    /** add variables to store and to log */
+    /** add variables to store, cassevent and to log */
     const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
     string log("MachineData::Converter: Calibcylce: [" +
                toString(config.npvControls())+ " values]: ");
@@ -494,6 +532,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
       _store.BeamlineData()[pvControlCur.name()] = pvControlCur.value();
+      if(cassevent)
+        md->BeamlineData()[pvControlCur.name()] = pvControlCur.value();
       log += string(pvControlCur.name()) + " = " + toString(pvControlCur.value()) + "; ";
     }
     Log::add(Log::INFO,log);
@@ -543,32 +583,24 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
 void Converter::prepare(cass::CASSEvent *evt)
 {
+  /** clear the beamline data by setting every value to 0
+   *  and reset the filled flag
+   *
+   *  @note clearing is needed to be done at this point, because the map will
+   *        be updated multiple times during the conversion process and
+   *        therefore clearing it during the conversion will erase variables
+   *        that have already been set.
+   */
   if (evt)
   {
-    /** clear the beamline data by setting every value to 0
-     *  and reset the filled flag
-     *
-     *  @note clearing is needed to be done at this point, because the map will
-     *        be updated multiple times during the conversion process and
-     *        therefore clearing it during the conversion will erase variables
-     *        that have already been set.
-     */
+    QMutexLocker lock(&_mutex);
     MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
     MachineDataDevice::bldMap_t::iterator bi (md->BeamlineData().begin());
     MachineDataDevice::bldMap_t::const_iterator bEnd (md->BeamlineData().end());
     for (; bi != bEnd ;++bi)
       bi->second = 0;
     md->epicsFilled() = false;
-  }
-}
-
-void Converter::finalize(CASSEvent *evt)
-{
-  /** copy the epics and calibcyle values in the storedevent to the machineevent */
-  if (evt)
-  {
-    QMutexLocker lock(&_mutex);
-    MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
+    /** copy values in the store to the event */
     md->EpicsData() = _store.EpicsData();
     /** @note we want to add the addional values that are in the store to
      *        the beamline data of the event therefore we should not use the
@@ -578,6 +610,24 @@ void Converter::finalize(CASSEvent *evt)
     MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
     for(; it != End; ++it)
       md->BeamlineData()[it->first] = it->second;
-
   }
+}
+
+void Converter::finalize(CASSEvent *evt)
+{
+//  /** copy the epics and calibcyle values in the storedevent to the machineevent */
+//    if (evt)
+//    {
+//      QMutexLocker lock(&_mutex);
+//      MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
+//      md->EpicsData() = _store.EpicsData();
+//      /** @note we want to add the addional values that are in the store to
+//       *        the beamline data of the event therefore we should not use the
+//       *        assignment operator here
+//       */
+//      MachineDataDevice::bldMap_t::const_iterator it (_store.BeamlineData().begin());
+//      MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
+//      for(; it != End; ++it)
+//        md->BeamlineData()[it->first] = it->second;
+//    }
 }
