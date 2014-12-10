@@ -84,7 +84,6 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
   /** get the datagram from the cassevent */
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(&cassevent->datagrambuffer().front());
 
-
   Log::add(Log::DEBUG4,"Dgram Transition '"+ string(Pds::TransitionId::name(datagram->seq.service()))+ "'");
   Log::add(Log::DEBUG4,"DGram Payload size '" + toString(datagram->xtc.sizeofPayload()) + "'");
   Log::add(Log::DEBUG4,"Dgram Damage value '" + toString(datagram->xtc.damage.value()) + "'");
@@ -112,18 +111,16 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
 
       /** set the return value to true */
       retval = GoodData;
-
-      /** prepare the cassevent
-       *
-       *  @note maybe, when more converters need preparing the data, we will do
-       *        it for all loaded converters, which will need another list that
-       *        conatins the loaded converters
-       */
-      _usedConverters[Pds::TypeId::Id_Epics]->prepare(cassevent);
     }
-
+    /** prepare the cassevent
+     *
+     *  @note maybe, when more converters need preparing the data, we will do
+     *        it for all loaded converters, which will need another list that
+     *        conatins the loaded converters
+     */
+    _usedConverters[Pds::TypeId::Id_Epics]->prepare(cassevent);
     /** now iterate through the datagram and find the wanted information
-     *  if the return value of the iterateor is false, then the transition
+     *  if the return value of the iterator is false, then the transition
      *  did not contain all information
      */
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
