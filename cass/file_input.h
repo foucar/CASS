@@ -29,11 +29,8 @@ namespace cass
  * For each file in the filelist it will open the file, and call the readers
  * to extract the data from the file.
  *
- * @cassttng FileInput/{useNewContainer}\n
- *           set to true if you want to use the new container for pixeldetector
- *           data that can make use of the new analysis chain. Default is false.
- * @cassttng FileInput/{Rewind}\n
- *           Tells the program to start over running over all files when true.
+ * @cassttng FileInput/{Parallelize}\n
+ *           When true, it will read the files on the fileinput list in parallel.
  *           Default is false.
  *
  * @author Lutz Foucar
