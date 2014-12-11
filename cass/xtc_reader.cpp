@@ -36,7 +36,8 @@ void readDgramPayloadToBuf(ifstream &file, CASSEvent::buffer_t &buf)
 }
 
 XtcReader::XtcReader()
-  :_convert(*FormatConverter::instance())
+  : FileReader("xtc"),
+    _convert(*FormatConverter::instance())
 {}
 
 void XtcReader::loadSettings()

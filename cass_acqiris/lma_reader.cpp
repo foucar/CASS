@@ -23,6 +23,7 @@ using namespace std;
 using Streaming::operator >>;
 
 LmaReader::LmaReader()
+  : FileReader("lma")
 {}
 
 void LmaReader::loadSettings()

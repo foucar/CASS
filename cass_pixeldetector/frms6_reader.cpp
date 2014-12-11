@@ -21,6 +21,7 @@ using namespace std;
 using Streaming::operator >>;
 
 Frms6Reader::Frms6Reader()
+  : FileReader("frms6")
 {}
 
 void Frms6Reader::loadSettings()

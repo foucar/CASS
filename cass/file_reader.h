@@ -72,12 +72,27 @@ public:
    */
   const std::string& filename()const {return _filename;}
 
+  /** return the type of file that this is for
+   *
+   * @return the type of reader
+   */
+  std::string type()const {return _type;}
+
 protected:
   /** only inheritants can create this */
   FileReader() {}
 
+  /** set the readers type
+   *
+   * @param type The type of the reader
+   */
+  FileReader(const std::string &type) :_type(type) {}
+
   /** the name of the file that we read the values from */
   std::string _filename;
+
+  /** the reader type as string */
+  std::string _type;
 };
 } //end namespace cass
 #endif

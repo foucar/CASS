@@ -29,15 +29,15 @@ FileReader::shared_pointer FileReader::instance(const string &filename)
   QFileInfo info(QString::fromStdString(filename));
   string type = info.suffix().toStdString();
   shared_pointer ptr;
-  if ((type == "xtc") || (type == "xtc_new"))
+  if (type == "xtc")
     ptr = shared_pointer(new XtcReader());
-  else if ((type == "lma") || (type == "lma_new"))
+  else if (type == "lma")
     ptr = shared_pointer(new ACQIRIS::LmaReader());
-  else if ((type == "txt") || (type == "txt_new"))
+  else if (type == "txt")
     ptr = shared_pointer(new TxtReader());
-  else if (type == "sss_new")
+  else if (type == "sss")
     ptr = shared_pointer(new pixeldetector::RAWSSSReader());
-  else if (type == "frms6_new")
+  else if (type == "frms6")
     ptr = shared_pointer(new pixeldetector::Frms6Reader());
   else
     throw invalid_argument("FileReader::instance: file reader type '" + type +

@@ -21,7 +21,8 @@ using namespace std;
 using Streaming::operator >>;
 
 RAWSSSReader::RAWSSSReader()
-  : _imagecounter(0)
+  : FileReader("sss"),
+    _imagecounter(0)
 {}
 
 void RAWSSSReader::loadSettings()

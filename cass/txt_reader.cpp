@@ -23,6 +23,7 @@ using namespace MachineData;
 using namespace std;
 
 TxtReader::TxtReader()
+  : FileReader("txt")
 {}
 
 void TxtReader::loadSettings()
