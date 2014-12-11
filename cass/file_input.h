@@ -84,20 +84,14 @@ private:
             bool quitwhendone,
             QObject *parent=0);
 
-  /** flag that tells the input to rewind to the beginning of the eventlist */
-  bool _rewind;
+  /** flag that tells the input should analyze the files in parallel */
+  bool _parallelize;
 
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
 
   /** name of the file containing all files that we need to process */
   std::string _filelistname;
-
-  /** shared pointer to the actual reader */
-  FileReader::shared_pointer _read;
-
-  /** string that indicates that one wants to use the new container */
-  std::string _new;
 };
 
 }//end namespace cass
