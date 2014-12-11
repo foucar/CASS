@@ -228,7 +228,7 @@ void FileInput::run()
    *       events have been analyzed so far.
    */
   vector<FileProcessor::shared_pointer>::iterator pIt(fProcs.begin());
-  vector<FileProcessor::shared_pointer>::iterator pEnd(fProcs.begin());
+  vector<FileProcessor::shared_pointer>::iterator pEnd(fProcs.end());
   for (; pIt != pEnd; ++pIt)
   {
     (*pIt)->start();
