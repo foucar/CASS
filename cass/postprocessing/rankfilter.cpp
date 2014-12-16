@@ -101,6 +101,8 @@ void pp302::loadSettings(size_t)
   s.beginGroup("PostProcessor");
   s.beginGroup(QString::fromStdString(name()));
 
+  setupGeneral();
+
   string filename(s.value("BinaryFile", "").toString().toStdString());
   size_t sizeX(s.value("SizeX",0).toInt());
   size_t sizeY(s.value("SizeY",0).toInt());
