@@ -205,8 +205,7 @@ private:
  *           "vert" it is set to 256. Only set this when the default values are
  *           not working.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
- *      settings.
+ * @see PostProcessor for a list of all commonly available cass.ini settings.
  *
  * @author Lutz Foucar
  */
