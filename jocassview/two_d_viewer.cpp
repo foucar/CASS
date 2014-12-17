@@ -303,7 +303,7 @@ void TwoDViewer::on_load_geomfile_triggered()
       QInputDialog::getDouble(this, tr("Set Camera Distance [cm]"),
                               tr("Camera Distance [cm]:"),
                               settings.value("CameraDistance_cm",7).toDouble(),
-                              0, 200, 1, &ok);
+                              0, 200, 5, &ok);
   if (ok)
     _zoomer->setCameraDistance_cm(cameraDistance_cm);
 
@@ -311,7 +311,7 @@ void TwoDViewer::on_load_geomfile_triggered()
       QInputDialog::getDouble(this, tr("Set PixelSize [um]"),
                               tr("Pixel Size [um]:"),
                               settings.value("PixelSize_um",110).toDouble(),
-                              0, 1000, 1, &ok);
+                              0, 1000, 5, &ok);
   if (ok)
     _zoomer->setPixelSize_um(pixelsize_um);
 
