@@ -162,6 +162,9 @@ private:
   /** the offset to the first point of the counts array in the result */
   size_t _nValBeginOffset;
 
+  /** the offset to the first point of the counts array in the result */
+  size_t _nValEndOffset;
+
   /** the lower noise boundary when determining bad pixels */
   float _NoiseLowerBound;
 

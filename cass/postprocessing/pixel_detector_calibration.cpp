@@ -72,6 +72,7 @@ void pp330::loadSettings(size_t)
   _bPixBeginOffset = BADPIX * imagesize;
   _bPixEndOffset = (BADPIX + 1) * imagesize;
   _nValBeginOffset = NVALS * imagesize;
+  _nValEndOffset = (NVALS + 1) * imagesize;
 
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
@@ -158,6 +159,10 @@ void pp330::loadCalibration()
   copy(offsets.begin(),offsets.end(),meanbegin);
   Histogram2DFloat::storage_t::iterator stdvbegin(result.begin() + _stdvBeginOffset);
   copy(noises.begin(),noises.end(),stdvbegin);
+  /** set the number of fills to the number of training images */
+  Histogram2DFloat::storage_t::iterator nValsBegin(result.begin() + _nValBeginOffset);
+  Histogram2DFloat::storage_t::iterator nValsEnd(result.begin() + _nValEndOffset);
+  fill(nValsBegin,nValsEnd,_minTrainImages);
   /** set up the bad pixel map */
   setBadPixMap();
 }
@@ -360,12 +365,11 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       if(_snr * stdv < pix - mean)
         continue;
       const float nVals(nValsAr[iPix] + 1);
-      const float alpha (1./nVals);
       const float delta(pix - mean);
-      const float newmean(mean + (delta * alpha));
-      const float tmp(stdv*stdv / alpha);
-      const float newtmp(tmp + delta * (pix - mean) );
-      const float newstdv(sqrt(newtmp*alpha));
+      const float newmean(mean + (delta / nVals));
+      const float M2(stdv*stdv * (nVals-2));
+      const float newM2(M2 + delta * (pix - mean) );
+      const float newstdv((nVals < 2) ? 0 : sqrt(newM2/(nVals-1)));
 
       meanAr[iPix] = newmean;
       stdvAr[iPix] = newstdv;
