@@ -94,6 +94,15 @@ class CASSEvent;
  * @cassttng PostProcessor/\%name\%/{UpdateCalibration} \n
  *           Flag to tell whether after the training has completed that the
  *           calibration should be updated with more images. Default is true.
+ * @cassttng PostProcessor/\%name\%/{UpdateCalibrationType} \n
+ *           The type of update used. Default value is "cummulative". Possible
+ *           values are:
+ *           - "cummulative": A cummulative update
+ *           - "moving": A exponential moving update
+ * @cassttng PostProcessor/\%name\%/{NbrOfImages} \n
+ *           In case of using the moving update type, this tells how many images
+ *           should be considered in the exponential moving average and standart
+ *           deviation estimation.
  * @cassttng PostProcessor/\%name\%/{UpdateBadPixAndSavePeriod} \n
  *           After how many received images should the bad pixel map be updated
  *           and the data be saved to the requested file. If negative, no
@@ -133,9 +142,50 @@ protected:
   /** set up the bad pixel map */
   void setBadPixMap();
 
+  /** a cummulative average and variance calculation
+   *
+   * @param[in] image reference to the image array
+   * @param[in/out] meanAr iterator to the beginning of the mean part of the output
+   * @param[in/out] stdvAr iterator to the beginning of the stdv part of the output
+   * @param[in/out] nValsAr iterator to the beginning of the counter part of the output
+   * @param[in] sizeOfImage the number of pixels in the image
+   */
+  void cummulativeUpdate(const Histogram2DFloat::storage_t &image,
+                         Histogram2DFloat::storage_t::iterator meanAr,
+                         Histogram2DFloat::storage_t::iterator stdvAr,
+                         Histogram2DFloat::storage_t::iterator nValsAr,
+                         const size_t sizeOfImage);
+
+  /** a moving exponential average and variance calculation
+   *
+   * taken from
+   * https://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
+   *
+   * @param[in] image reference to the image array
+   * @param[in/out] meanAr iterator to the beginning of the mean part of the output
+   * @param[in/out] stdvAr iterator to the beginning of the stdv part of the output
+   * @param[in/out] nValsAr iterator to the beginning of the counter part of the output
+   * @param[in] sizeOfImage the number of pixels in the image
+   */
+  void movingUpdate(const Histogram2DFloat::storage_t &image,
+                    Histogram2DFloat::storage_t::iterator meanAr,
+                    Histogram2DFloat::storage_t::iterator stdvAr,
+                    Histogram2DFloat::storage_t::iterator nValsAr,
+                    const size_t sizeOfImage);
+
 private:
   /** define the statistics type */
   typedef MovingStatisticsCalculator<std::valarray<float> > stat_t;
+
+  /** define the function */
+  typedef std::tr1::function<void(const Histogram2DFloat::storage_t&,
+                                  Histogram2DFloat::storage_t::iterator,
+                                  Histogram2DFloat::storage_t::iterator,
+                                  Histogram2DFloat::storage_t::iterator,
+                                  const size_t)> updateFunc_t;
+
+  /** the function that will update the statistics */
+  updateFunc_t _updateStatistics;
 
 private:
   /** define the position of the beginning of the different maps */
@@ -239,6 +289,9 @@ private:
 
   /** the period after which the data should be autosaved */
   int _updatePeriod;
+
+  /** the alpha value for the moving average and stdv */
+  float _alpha;
 };
 
 

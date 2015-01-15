@@ -17,6 +17,9 @@ using namespace std;
 using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
+using tr1::placeholders::_3;
+using tr1::placeholders::_4;
+using tr1::placeholders::_5;
 
 
 //********** offset/noise calibrations ******************
@@ -56,7 +59,19 @@ void pp330::loadSettings(size_t)
   _snr = s.value("SNR",4).toFloat();
   _resetBadPixel = s.value("ResetBadPixels",false).toBool();
   _update = s.value("UpdateCalibration",true).toBool();
+  string updateType = s.value("UpdateCalibrationType","cummulative").toString().toStdString();
   _updatePeriod = s.value("UpdateBadPixAndSavePeriod",-1).toInt();
+  _alpha = (2./(s.value("NbrOfImages",200).toFloat()+1.));
+
+  /** set up the type of update */
+  if (updateType == "cummulative")
+    _updateStatistics = bind(&pp330::cummulativeUpdate,this,_1,_2,_3,_4,_5);
+  else if (updateType == "moving")
+    _updateStatistics = bind(&pp330::movingUpdate,this,_1,_2,_3,_4,_5);
+  else
+    throw invalid_argument("pp330::loadSettings(): '" + name() +"' updateType '" +
+                           updateType + "' is unknown.");
+
 
   /** reset the variables */
   _trainstorage.clear();
@@ -95,6 +110,8 @@ void pp330::loadSettings(size_t)
            "' train '" + (_train?"true":"false") +
            "' nbrTrainImages '" + toString(_minTrainImages) +
            "' SNR '" + toString(_snr) +
+           "' alpha '" + toString(_alpha) +
+           "' updateType '" + updateType +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -306,6 +323,70 @@ void pp330::processCommand(string command)\
     _train = true;
 }
 
+void pp330::cummulativeUpdate(const Histogram2DFloat::storage_t &image,
+                              Histogram2DFloat::storage_t::iterator meanAr,
+                              Histogram2DFloat::storage_t::iterator stdvAr,
+                              Histogram2DFloat::storage_t::iterator nValsAr,
+                              const size_t sizeOfImage)
+{
+  for(size_t iPix(0); iPix < sizeOfImage; ++iPix)
+  {
+    const float mean(meanAr[iPix]);
+    const float stdv(stdvAr[iPix]);
+    const float pix(image[iPix]);
+
+    /** if pixel is outlier skip pixel */
+    if(_snr * stdv < pix - mean)
+      return;
+
+    const float nVals(nValsAr[iPix] + 1);
+    const float delta(pix - mean);
+    const float newmean(mean + (delta / nVals));
+    const float M2(stdv*stdv * (nVals-2));
+    const float newM2(M2 + delta * (pix - mean) );
+    const float newstdv((nVals < 2) ? 0 : sqrt(newM2/(nVals-1)));
+
+    meanAr[iPix] = newmean;
+    stdvAr[iPix] = newstdv;
+    nValsAr[iPix] = nVals;
+  }
+}
+
+void pp330::movingUpdate(const Histogram2DFloat::storage_t &image,
+                         Histogram2DFloat::storage_t::iterator meanAr,
+                         Histogram2DFloat::storage_t::iterator stdvAr,
+                         Histogram2DFloat::storage_t::iterator nValsAr,
+                         const size_t sizeOfImage)
+{
+  for(size_t iPix(0); iPix < sizeOfImage; ++iPix)
+  {
+    const float mean(meanAr[iPix]);
+    const float stdv(stdvAr[iPix]);
+    const float pix(image[iPix]);
+
+    /** if pixel is outlier skip pixel */
+    if(_snr * stdv < pix - mean)
+      continue;
+
+    /** calculate the meansq from the stdv (invert formula for the estimate
+   *  of the variance
+   */
+    const float meansq(stdv*stdv + mean*mean);
+
+    /** update the estimate of the mean and the mean square */
+    const float newmean((1-_alpha)*mean + _alpha*pix);
+    const float newmeansq((1-_alpha)*meansq + _alpha*(pix*pix));
+
+    /** calculate the estimate of the variance */
+    const float newvariance = newmeansq - newmean*newmean;
+    const float newstdv = sqrt(newvariance);
+
+    meanAr[iPix] = newmean;
+    stdvAr[iPix] = newstdv;
+    //nValsAr[iPix] = nVals;
+  }
+}
+
 void pp330::process(const CASSEvent &evt, HistogramBackend &res)
 {
   const Histogram2DFloat &image
@@ -356,26 +437,8 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
   else if (_update)
   {
     /** add current image to statistics of the calibration */
-    for(size_t iPix=0; iPix < sizeOfImage; ++iPix)
-    {
-      const float mean(meanAr[iPix]);
-      const float stdv(stdvAr[iPix]);
-      const float pix(image.memory()[iPix]);
-      /** if pixel is outlier skip pixel */
-      if(_snr * stdv < pix - mean)
-        continue;
-      const float nVals(nValsAr[iPix] + 1);
-      const float delta(pix - mean);
-      const float newmean(mean + (delta / nVals));
-      const float M2(stdv*stdv * (nVals-2));
-      const float newM2(M2 + delta * (pix - mean) );
-      const float newstdv((nVals < 2) ? 0 : sqrt(newM2/(nVals-1)));
+    _updateStatistics(image.memory(),meanAr,stdvAr,nValsAr,sizeOfImage);
 
-      meanAr[iPix] = newmean;
-      stdvAr[iPix] = newstdv;
-      nValsAr[iPix] = nVals;
-
-    }
     /** update the bad pix map and the file if requested */
     if ((_counter % _updatePeriod) == 0)
     {
