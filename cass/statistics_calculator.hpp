@@ -373,6 +373,9 @@ private:
  * Instead of taking 1/N one uses a fixed value. This will weigh the last N
  * values higher than the values preceeding them.
  *
+ *  @note this is not a moving statistics calculator. It is actually calculating
+ *        the stdv for all the datii that are put into the distribution
+ *
  * @tparam type of the values for the average, defines the precision
  *
  * @author Lutz Foucar
