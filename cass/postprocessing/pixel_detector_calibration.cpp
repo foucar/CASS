@@ -112,6 +112,7 @@ void pp330::loadSettings(size_t)
            "' SNR '" + toString(_snr) +
            "' alpha '" + toString(_alpha) +
            "' updateType '" + updateType +
+           "' writeupdateperiode '" + toString(_updatePeriod) +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -363,6 +364,7 @@ void pp330::movingUpdate(const Histogram2DFloat::storage_t &image,
     const float mean(meanAr[iPix]);
     const float stdv(stdvAr[iPix]);
     const float pix(image[iPix]);
+    const float nVals(nValsAr[iPix] + 1);
 
     /** if pixel is outlier skip pixel */
     if(_snr * stdv < pix - mean)
@@ -383,7 +385,7 @@ void pp330::movingUpdate(const Histogram2DFloat::storage_t &image,
 
     meanAr[iPix] = newmean;
     stdvAr[iPix] = newstdv;
-    //nValsAr[iPix] = nVals;
+    nValsAr[iPix] = nVals;
   }
 }
 
