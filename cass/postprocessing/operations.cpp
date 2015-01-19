@@ -760,7 +760,7 @@ void pp50::loadSettings(size_t)
                              toString(xAxis.lowerLimit()) + "'");
     if (userRange.second > xAxis.upperLimit())
       throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.first) +
+                             "': UpperBound '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
                              toString(xAxis.upperLimit()) + "'");
     _xRange.first  = xAxis.nbrBins() * ((userRange.first - xAxis.lowerLimit()) /
@@ -876,7 +876,7 @@ void pp51::loadSettings(size_t)
                            toString(xaxis.lowerLimit()) + "'");
   if (userarea.second > xaxis.upperLimit())
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': UpperBound '" + toString(userarea.first) +
+                           "': UpperBound '" + toString(userarea.second) +
                            "' is higher than the highest possible value '" +
                            toString(xaxis.upperLimit()) + "'");
 
