@@ -728,7 +728,7 @@ void pp50::loadSettings(size_t)
                              toString(yAxis.lowerLimit()) + "'");
     if (userRange.second > yAxis.upperLimit())
       throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.first) +
+                             "': UpperBound '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
                              toString(yAxis.upperLimit()) + "'");
     _yRange.first  = yAxis.nbrBins() * ((userRange.first - yAxis.lowerLimit()) /
