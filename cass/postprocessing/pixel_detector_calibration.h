@@ -174,9 +174,6 @@ protected:
                     const size_t sizeOfImage);
 
 private:
-  /** define the statistics type */
-  typedef MovingStatisticsCalculator<std::valarray<float> > stat_t;
-
   /** define the function */
   typedef std::tr1::function<void(const Histogram2DFloat::storage_t&,
                                   Histogram2DFloat::storage_t::iterator,
