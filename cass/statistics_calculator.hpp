@@ -362,19 +362,8 @@ private:
 
 /** statistics calculator for a exponential moving statistics
  *
- * This class is based on Knuths algorithm
- *
- * Donald E. Knuth (1998).
- * The Art of Computer Programming,
- * volume 2: Seminumerical Algorithms,
- * 3rd edn., p. 232.
- * Boston: Addison-Wesley.
- *
- * Instead of taking 1/N one uses a fixed value. This will weigh the last N
- * values higher than the values preceeding them.
- *
- *  @note this is not a moving statistics calculator. It is actually calculating
- *        the stdv for all the datii that are put into the distribution
+ * The algorithms used by this class are based on a discussion found here:
+ * jttp://mathforum.org/kb/message.jspa?messageID=1637905
  *
  * @tparam type of the values for the average, defines the precision
  *
@@ -411,9 +400,8 @@ public:
     }
     else
     {
-      const value_type delta(datum - _mean);
-      _mean += (delta * _alpha);
-      _tmp += (delta * (datum - _mean));
+      _mean = (1.f - _alpha)*mean + _alpha*datum;
+      _stdv = std::sqrt(_alpha*(datum - _mean)*(datum - _mean) + (1.f - _alpha)*_stdv*_stdv);
     }
   }
 
@@ -432,7 +420,7 @@ public:
    */
   value_type variance() const
   {
-    return (_tmp * _alpha);
+    return (_stdv*_stdv);
   }
 
   /** retrieve the standart deviation of the distribution
@@ -441,13 +429,13 @@ public:
    */
   value_type stdv() const
   {
-    return sqrt(variance());
+    return stdv;
   }
 
   /** reset the statistics */
   void reset()
   {
-    _mean = _tmp = 0.;
+    _mean = _stdv = 0.;
     _firstdatum = true;
   }
 
@@ -467,8 +455,8 @@ private:
   /** the current mean value */
   value_type _mean;
 
-  /** the current intermediate value that one calcs the stdv from */
-  value_type _tmp;
+  /** the stdv value */
+  value_type _stdv;
 
   /** how much should the current datum be weighted */
   value_type _alpha;
