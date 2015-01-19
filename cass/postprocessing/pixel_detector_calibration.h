@@ -159,7 +159,7 @@ protected:
   /** a moving exponential average and variance calculation
    *
    * taken from
-   * https://dsp.stackexchange.com/questions/811/determining-the-mean-and-standard-deviation-in-real-time
+   * http://mathforum.org/kb/message.jspa?messageID=1637905
    *
    * @param[in] image reference to the image array
    * @param[in/out] meanAr iterator to the beginning of the mean part of the output

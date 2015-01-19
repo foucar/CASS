@@ -370,18 +370,9 @@ void pp330::movingUpdate(const Histogram2DFloat::storage_t &image,
     if(_snr * stdv < pix - mean)
       continue;
 
-    /** calculate the meansq from the stdv (invert formula for the estimate
-   *  of the variance
-   */
-    const float meansq(stdv*stdv + mean*mean);
-
-    /** update the estimate of the mean and the mean square */
+    /** update the estimate of the mean and stdv */
     const float newmean((1-_alpha)*mean + _alpha*pix);
-    const float newmeansq((1-_alpha)*meansq + _alpha*(pix*pix));
-
-    /** calculate the estimate of the variance */
-    const float newvariance(newmeansq - newmean*newmean);
-    const float newstdv(sqrt(newvariance));
+    const float newstdv(sqrt(_alpha*(pix - mean)*(pix - mean) + (1.f - _alpha)*stdv*stdv));
 
     meanAr[iPix] = newmean;
     stdvAr[iPix] = newstdv;
