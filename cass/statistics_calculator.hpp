@@ -393,16 +393,8 @@ public:
    */
   void addDatum(const value_type &datum)
   {
-    if (_firstdatum)
-    {
-      _mean = datum;
-      _firstdatum = false;
-    }
-    else
-    {
-      _mean = (1.f - _alpha)*mean + _alpha*datum;
-      _stdv = std::sqrt(_alpha*(datum - _mean)*(datum - _mean) + (1.f - _alpha)*_stdv*_stdv);
-    }
+    _mean = (1.f - _alpha)*mean + _alpha*datum;
+    _stdv = std::sqrt(_alpha*(datum - _mean)*(datum - _mean) + (1.f - _alpha)*_stdv*_stdv);
   }
 
   /** retrieve the mean of the distribution
