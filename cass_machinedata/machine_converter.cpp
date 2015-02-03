@@ -234,7 +234,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
     default:
       Log::add(Log::WARNING,"Unknown BLD version '" + toString(version) +
-               "' using latest known version '6'");
+               "' using latest known version '7'");
+    case (7):
     case (6):
     {
       if(!(Pds::BldDataEBeam::EbeamPhotonEnergyDamage & beam.uDamageMask))
