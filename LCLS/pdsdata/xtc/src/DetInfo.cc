@@ -113,7 +113,8 @@ const char* DetInfo::name(Device dev) {
     "Fccd960",
     "Epix10k",
     "Epix100a",
-    "EpixS"
+    "EpixS",
+    "Gotthard",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

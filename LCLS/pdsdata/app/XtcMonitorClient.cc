@@ -101,6 +101,8 @@ namespace Pds {
       }
       else {
 	fprintf(stderr, "ILLEGAL BUFFER INDEX %d\n", i);
+        uint32_t* p = reinterpret_cast<uint32_t*>(&myMsg);
+        fprintf(stderr, "XtcMonitorMsg: %x/%x/%x/%x [%d]\n",p[0],p[1],p[2],p[3],nb);
 	return Return;
       }
       return Continue;
@@ -112,7 +114,8 @@ namespace Pds {
 
       XtcMonitorMsg myMsg;
       unsigned priority(0);
-      if (mq_receive(iq, (char*)&myMsg, sizeof(myMsg), &priority) < 0) {
+      int nb;
+      if ((nb=mq_receive(iq, (char*)&myMsg, sizeof(myMsg), &priority)) < 0) {
 	perror("mq_receive buffer");
 	return Return;
       } 
@@ -145,6 +148,8 @@ namespace Pds {
 	}
 	else {
 	  fprintf(stderr, "ILLEGAL BUFFER INDEX %d\n", i);
+          uint32_t* p = reinterpret_cast<uint32_t*>(&myMsg);
+          fprintf(stderr, "XtcMonitorMsg: %x/%x/%x/%x [%d]\n",p[0],p[1],p[2],p[3],nb);
 	  return Return;
 	}
       }
