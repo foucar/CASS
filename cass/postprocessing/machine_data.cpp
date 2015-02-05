@@ -205,7 +205,9 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
   if (result.memory().size() < spec.size())
     throw logic_error("pp123:process (" + name() +
-                      "): Result is not large enough to handle spectrometer data");
+                      "): Result with size '" + toString(result.memory().size()) +
+                      "'is not large enough to handle spectrometer data with size" +
+                      toString(spec.size()) + "'");
   copy(spec.begin(),spec.end(),result.memory().begin());
   result.nbrOfFills() = 1;
 }
