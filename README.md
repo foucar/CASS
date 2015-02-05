@@ -595,6 +595,43 @@ converter. Please document in cass/format_converter.h which string will return
 your the singleton of your converter.
 
 
+Update the LCLS library {#update_lcls_library}
+-----------------------
+The LCLS library is needed if one wants to parse the xtc files or the xtc file
+stream. This library get updated very often by LCLS. Historically this library
+was provided as a regular shared or static library that was generated from c++
+source code. And updating it was just a matter of finding out which files have
+been changed and then copy them into the local copy of the LCLS library.
+Unfortunately in the beginning of 2013 a decision was made to provide the library
+in a metalanguage that allows to export it to different computer languages. The
+c++ version of parts of the library is completely different to what was used
+before and it would require extensive effort to rewrite CASS to work with this
+new implementation. Luckily however, if one wants to only update the already
+existing parts, it can be done fairly easy, as the whole xtc part of the library
+has not been converted to the new metalanguage.
+
+## Find out which files have changed {#find_changed_files}
+The LCLS library is kept within a svn repository. One can get the latest version
+of the library as described [here](https://confluence.slac.stanford.edu/display/PSDM/Analysis+Setup)
+Once one has a checkout version of the library one can see whether there have
+been any changes by doing run the `svn up` command.
+
+## How to update the files {#upate_changed_files}
+Typically files that have changed in the xtc subfolder can just be copied. The
+same is true for the XtcMonitorClient/Server/Msg files. The tricky part is the
+BLD. Here one has to update the file
+
+    LCLS/pdsdata/bld/bldData.hh
+
+by comparing the contents with the contents of
+
+    psddl/bld.ddl.h
+
+In the latter everything is implemented completely in the header, so one has to
+extract essential of a new class from this file and add it to the files in the
+LCLS library.
+
+
 How to add a feature to cass using git {#add_to_git}
 --------------------------------------
 The master branch should be linear, to be able to create a changelog from the
