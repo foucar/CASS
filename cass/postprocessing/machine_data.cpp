@@ -14,6 +14,7 @@
 #include "machine_device.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "cass_exceptions.h"
 
 
 using namespace cass;
@@ -198,8 +199,8 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
   const MachineDataDevice::spectrometer_t &spectros(mdev.spectrometers());
   MachineDataDevice::spectrometer_t::const_iterator specIt(spectros.find(_specname));
   if (specIt == spectros.end())
-    throw invalid_argument("pp123::process (" + name() + "): Spectrometer with name '" +
-                           _specname +"' is unknown.");
+    throw InvalidData("pp123::process (" + name() + "): Spectrometer with name '" +
+                      _specname +"' is unknown.");
   const MachineDataDevice::spectrometer_t::mapped_type &spec(specIt->second);
 
   Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
