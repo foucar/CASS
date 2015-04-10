@@ -129,7 +129,8 @@ void pp150::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _detector = loadDelayDet(s,150,name());
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' retrieves the nbr of mcp signals of detector '" + _detector +
@@ -171,7 +172,8 @@ void pp151::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _detector = loadDelayDet(s,151,name());
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms times of the found mcp signals of detector '" + _detector +
@@ -217,7 +219,8 @@ void pp152::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _detector = loadDelayDet(s,152,name());
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' histograms the FWHM vs the height of the found mcp signals" +
@@ -262,7 +265,8 @@ void pp153::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _detector = loadDelayDet(s,153,name());
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"PostProcessor '" + name() +
            "' creates a histogram of the deatime between two consecutive " +
