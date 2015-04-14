@@ -29,7 +29,7 @@
 using std::queue;
 using std::stack;
 
-static const unsigned numberofTrBuffers=16;
+static const unsigned numberofTrBuffers=18;
 
 //
 //  Recover any shared memory buffer older than 10 seconds
@@ -143,8 +143,8 @@ namespace Pds {
             else {
               printf("Unexpected state for TransitionCache: _cachedTr empty but tr[%s]!=Map\n",
                      TransitionId::name(id));
-              dump();
-              abort();
+              //dump();
+              //abort();
             }
 	  }
 	  else {
@@ -296,6 +296,7 @@ namespace Pds {
     //
     void deallocate(unsigned client) {
       sem_wait(&_sem);
+      _not_ready &= ~(1<<client);
       for(unsigned itr=0; itr<numberofTrBuffers; itr++)
 	_allocated[itr] &= ~(1<<client);
       sem_post(&_sem);
@@ -692,6 +693,7 @@ void XtcMonitorServer::routine()
                   for(int j=0; j<int(_msgDest.size()); j++)
                     if (_msgDest[j]==int(q)) {
                       printf("Recovering buffer %d\n",j);
+                      msg = _myMsg;
                       msg.bufferIndex(j);
                       if (mq_timedsend(_myInputEvQueue, (const char*)&msg, sizeof(msg), 0, &_tmo)<0)
                         perror("Failed to recover buffer queued to retired client");
@@ -830,11 +832,6 @@ void XtcMonitorServer::_initialize_client()
   printf("initialize client socket %d [%d]\n",s,_nfd);
 #endif
 
-  _pfd[_nfd].fd = s;
-  _pfd[_nfd].events  = POLLIN;
-  _pfd[_nfd].revents = 0;
-  _nfd++;
-
   int iclient=-1;
   for(unsigned i=0; i<_myTrFd.size(); i++) {
     if (_myTrFd[i] == -1) {
@@ -844,8 +841,19 @@ void XtcMonitorServer::_initialize_client()
   }
   if (iclient == -1) {
     iclient = _myTrFd.size();
+    if (iclient == _numberOfEvQueues) {
+      printf("Rejecting client %d : Number of EvQueues = %d\n",
+             iclient, _numberOfEvQueues);
+      ::close(s);
+      return;
+    }
     _myTrFd.push_back(-1);
   }
+
+  _pfd[_nfd].fd = s;
+  _pfd[_nfd].events  = POLLIN;
+  _pfd[_nfd].revents = 0;
+  _nfd++;
 
   _myTrFd[iclient] = s;
   printf("_initialize_client %d [socket %d]\n",iclient,s);
@@ -857,6 +865,7 @@ void XtcMonitorServer::_initialize_client()
     abort();
   }
 
+  _transitionCache->deallocate(iclient);
   _update(iclient,TransitionId::Unmap);
 }
 

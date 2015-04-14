@@ -226,14 +226,19 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
       }
       else {
 #ifdef DBUG
-	printf("Connected to %08x.%d [%d]\n", ntohl(saddr.sin_addr.s_addr),ntohs(saddr.sin_port),myTrFd);
+        socklen_t addrlen = sizeof(sockaddr_in);
+        sockaddr_in name;
+        ::getsockname(myTrFd, (sockaddr*)&name, &addrlen);
+	printf("Connected to %08x.%d [%d] from %08x.%d\n", 
+               ntohl(saddr.sin_addr.s_addr),ntohs(saddr.sin_port),myTrFd,
+               ntohl(name.sin_addr.s_addr),ntohs(name.sin_port));
 #endif
 	break;
       }
     }
 
     if (::read(myTrFd,&myMsg,sizeof(myMsg))!=sizeof(myMsg)) {
-      perror("Reading initial message");
+      printf("Connection rejected by shmem server [too many clients]\n");
       return 1;
     }
 
@@ -294,7 +299,7 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
 	int i = myMsg.bufferIndex();
 	if ( (i>=0) && (i<myMsg.numberOfBuffers())) {
 	  Dgram* dg = (Dgram*) (myShm + (myMsg.sizeOfBuffers() * i));
-	  if (dg->seq.service()==TransitionId::Map)
+	  if (dg->seq.service()==TransitionId::Map) {
 	    if (!processDgram(dg)) {
 	      if (::send(myTrFd,(char*)&myMsg,sizeof(myMsg),0)<0) {
 		perror("transition send");
@@ -302,7 +307,12 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
 	      }
 	      break;
 	    }
+          } 
+          else
+            printf("Unexpected transition %s != Map\n",TransitionId::name(dg->seq.service()));
 	}
+        else
+          printf("Illegal transition buffer index %d\n",i);
       }
     } while(1);
 
