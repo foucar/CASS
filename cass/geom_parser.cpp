@@ -124,13 +124,21 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
       pEnd = &valueString[0];
       for (int i(0); i < 2 ; ++i)
       {
-        const double number = strtod(pEnd,&pEnd);
+        const double number = std::strtod(pEnd,&pEnd);
         if (pEnd[0] == 'x')
           geomInfos[asic].x_fs = number;
         else if (pEnd[0] == 'y')
           geomInfos[asic].y_fs = number;
         else
-          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") + pEnd[0] + "' to x or y");
+          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") +
+                              pEnd[0] + "' to x or y, in line with contents'" +
+                              line + "'. Parsed info so far: " +
+                              "asic '" + asic + "', "
+                              "value Name and Value '" + valueNameAndValue + "', "
+                              "value Name '" + valueName + "', "
+                              "value as String '" + valueString + "', "
+                              "number extracted so far '" + toString(number) + "', "
+                              "parsing iteration '" + toString(i) +  "'");
         ++pEnd;
       }
     }
@@ -139,13 +147,21 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
       pEnd = &valueString[0];
       for (int i(0); i < 2 ; ++i)
       {
-        const double number = strtod(pEnd,&pEnd);
+        const double number = std::strtod(pEnd,&pEnd);
         if (pEnd[0] == 'x')
           geomInfos[asic].x_ss = number;
         else if (pEnd[0] == 'y')
           geomInfos[asic].y_ss = number;
         else
-          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") + pEnd[0] + "' to x or y");
+          throw runtime_error(string("GeometryInfo::generateConversionMap: Cannot assign '") +
+                              pEnd[0] + "' to x or y, in line with contents'" +
+                              line + "'. Parsed info so far: " +
+                              "asic '" + asic + "', "
+                              "value Name and Value '" + valueNameAndValue + "', "
+                              "value Name '" + valueName + "', "
+                              "value as String '" + valueString + "', "
+                              "number extracted so far '" + toString(number) + "', "
+                              "parsing iteration '" + toString(i) +  "'");
         ++pEnd;
       }
     }
@@ -201,7 +217,14 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
         if  (idxInSrc >= static_cast<int>(sizeOfSrc))
           throw out_of_range("generateConversionMap(): The generated index '" +
                              toString(idxInSrc) + "' is too big for the src with size '"+
-                             toString(sizeOfSrc) +"'");
+                             toString(sizeOfSrc) + "' in position in asic '" +
+                             it->first + "', row '" + toString(rowInAsic) +
+                             ", col '" + toString(colInAsic) +
+                             ", resulting position in lab would be x '" +
+                             toString(xInLab) + ", y '" + toString(yInLab) +
+                             "'. With position in source col '" +
+                             toString(colInSrc) + "', row '" +
+                             toString(rowInSrc) + "'");
 
         /** remember what x,y position in the lab does this position in the
            *  asic correspond to
