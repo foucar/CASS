@@ -198,22 +198,22 @@ void pp2001::loadSettings(size_t)
   setupGeneral();
   QStringList pps(settings.value("PostProcessors").toStringList());
   QStringList::const_iterator ppname(pps.begin());
-  for (; ppname != pps.constEnd(); ++ppname)
-    _dependencies.push_back((*ppname).toStdString());
-  _pps.clear();
+  bool allDepsAreThere(true);
   for (ppname = pps.begin(); ppname != pps.constEnd(); ++ppname)
   {
-    ///XXX Will fail!!! XXX
-    PostProcessor *pp(&(PostProcessors::reference().getPostProcessor((*ppname).toStdString())));
-    if (!pp)
-      return;
-    if (pp->result().dimension() != 0)
+    shared_pointer pp(setupDependency("",ppname->toStdString()));
+    allDepsAreThere = pp && allDepsAreThere;
+    if (pp && pp->result().dimension() != 0)
       throw invalid_argument("pp2001 (" + name() + "): PostProcessor '" + pp->name() +
-                             "' does not handle a non 0d histogram.");
+                             "' is not a 0d histogram.");
     _pps.push_back(pp);
   }
-  if (!setupCondition())
+  bool ret (setupCondition());
+  if (!(ret && allDepsAreThere))
+  {
+    _pps.clear();
     return;
+  }
   loadAllDets();
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
@@ -333,17 +333,16 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
   copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
 
   /** copy the values of each 0d PostProcessor into the postprocessor structure */
-  std::list<PostProcessor*>::const_iterator pp(_pps.begin());
-  std::list<PostProcessor*>::const_iterator ppEnd(_pps.end());
-  for (;pp != ppEnd;++pp)
+  std::list<shared_pointer>::const_iterator PostProcessorsIt(_pps.begin());
+  std::list<shared_pointer>::const_iterator PostProcessorsEnd(_pps.end());
+  for (;PostProcessorsIt != PostProcessorsEnd;++PostProcessorsIt)
   {
-    PostProcessor *postprocessor(*pp);
+    PostProcessor &pp(*(*PostProcessorsIt));
     const Histogram0DFloat &val
-        (dynamic_cast<const Histogram0DFloat&>(postprocessor->result(_eventid)));
-    val.lock.lockForRead();
+        (dynamic_cast<const Histogram0DFloat&>(pp.result(_eventid)));
+    QReadLocker lock(&val.lock);
     float value(val.getValue());
-    val.lock.unlock();
-    _ppstructure[postprocessor->name()] = value;
+    _ppstructure[pp.name()] = value;
   }
   _tree->Fill();
 }

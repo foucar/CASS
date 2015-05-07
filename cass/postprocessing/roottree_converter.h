@@ -106,7 +106,7 @@ protected:
   eventStatus_t *_eventstatusstructure_ptr;
 
   /** container for all 0d PostProcessors that should be added to the tree */
-  std::list<PostProcessor*> _pps;
+  std::list<shared_pointer> _pps;
 
   /** 0d postprocessor structure */
   ppstructure_t _ppstructure;
