@@ -21,6 +21,7 @@ SOURCES            += \
                       conversion_backend.cpp \
                       log.cpp \
                       input_base.cpp \
+                      hdf5_file_input.cpp \
                       file_input.cpp \
                       file_reader.cpp \
                       file_parser.cpp \
@@ -78,6 +79,7 @@ HEADERS            += cass.h \
                       conversion_backend.h \
                       log.h \
                       input_base.h \
+                      hdf5_file_input.h \
                       file_input.h \
                       file_parser.h \
                       file_reader.h \

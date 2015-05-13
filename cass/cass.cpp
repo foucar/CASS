@@ -39,6 +39,9 @@
 #include "sacla_offline_input.h"
 #include "sacla_online_input.h"
 #endif
+#ifdef HDF5
+#include "hdf5_file_input.h"
+#endif
 
 
 using namespace std;
@@ -126,6 +129,8 @@ int main(int argc, char **argv)
     parser.add("-m","enable the multifile input",multifile);
     bool quitwhendone(false);
     parser.add("-q","quit after finished with all files",quitwhendone);
+    bool hdf5file(false);
+    parser.add("--hdf5","use the special hdf5 file parser",hdf5file);
 #else
     bool tcp(false);
     parser.add("-t","enable the tcp input",tcp);
@@ -206,6 +211,12 @@ int main(int argc, char **argv)
       SACLAOfflineInput::instance(filelistname,ringbuffer,inputrate,inputload,quitwhendone);
 #else
       throw runtime_error("SACLA support has not been compiled into this version of CASS");
+#endif
+    else if (hdf5file)
+#ifdef HDF5
+      HDF5FileInput::instance(filelistname,ringbuffer,inputrate, inputload,quitwhendone);
+#else
+      throw runtime_error("HDF5 support has not been compiled into this version of CASS");
 #endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
