@@ -43,7 +43,7 @@ template <> inline hid_t H5Type<int>() {return H5T_NATIVE_INT;}
 /** trait implementation for float */
 template <> inline hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
 
-/** function for the iterator of the h5 file
+/** function to gather all datasets of the h5 file
  *
  * @param unused not used
  * @param name  name the name name to be added
@@ -51,13 +51,35 @@ template <> inline hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
  * @param dlist pointer to the list that should be filled with the objects
  */
 inline
-herr_t iterator_func(hid_t /*unused*/, const char * name, const H5O_info_t *info,
-                     void *dlist)
+herr_t dataset_iterator_func(hid_t /*unused*/, const char * name,
+                             const H5O_info_t *info, void *dlist)
 {
   using namespace std;
   list<string>& dsetlist(*reinterpret_cast<list<string>*>(dlist));
   if (info->type == H5O_TYPE_DATASET)
     dsetlist.push_back(name);
+  return 0;
+}
+
+/** function to gather groups of h5 file
+ *
+ * @param loc_id the location of the object
+ * @param name  name the name to be added
+ * @param unused parameter not used
+ * @param slist pointer to the list that should be filled with groupnames
+ */
+inline
+herr_t group_iterator_func(hid_t loc_id, const char * name,
+                           const H5L_info_t */*unused*/, void *slist)
+{
+  using namespace std;
+  list<string>& stringlist(*reinterpret_cast<list<string>*>(slist));
+  H5O_info_t infobuf;
+  herr_t status = H5Oget_info_by_name (loc_id, name, &infobuf, H5P_DEFAULT);
+  if (status != 0)
+    return status;
+  if (infobuf.type == H5O_TYPE_GROUP)
+    stringlist.push_back(name);
   return 0;
 }
 
@@ -627,11 +649,28 @@ public:
   {
     using namespace std;
     list<string> dsetlist;
-    hid_t status(H5Ovisit(_fileid,H5_INDEX_NAME,H5_ITER_NATIVE,iterator_func,&dsetlist));
+    hid_t status(H5Ovisit(_fileid,H5_INDEX_NAME,H5_ITER_NATIVE,
+                          dataset_iterator_func,&dsetlist));
     if (status < 0)
-      throw logic_error("datasets(): Error when iterating trough the h5 file");
+      throw logic_error("datasets(): Error when iterating through the h5 file");
 
     return dsetlist;
+  }
+
+  /** get the list of groups of the root group in the file
+   *
+   * @return list of strings that point to groups
+   */
+  std::list<std::string> rootGroups() const
+  {
+    using namespace std;
+    list<string> grouplist;
+    hid_t status(H5Literate(_fileid,H5_INDEX_NAME,H5_ITER_INC,NULL,
+                            group_iterator_func,&grouplist));
+    if (status < 0)
+      throw logic_error("rootGroups(): Error when iterating through the h5 file");
+
+    return grouplist;
   }
 
   /** retrieve the size of the current file
