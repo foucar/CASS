@@ -98,10 +98,13 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_RPATHDIR *= /path/to/root/lib
 
 # Uncomment the following to enable the module that will interface with
-# the data provided at SACLA.
+# the data provided at SACLA. The online part is only needed when compiling
+# CASS in online option
 #CONFIG         *= SACLA
 #QMAKE_INCDIR   *= /path/to/SaclaDataAccessUserAPI/include
-#SACLA_LIBDIR   *= /path/to/SaclaDataAccessUserAPI/lib
+#QMAKE_INCDIR   *= /path/to/OnlineUserAPI/include
+#SACLA_OFFLINE_LIBDIR   *= /path/to/SaclaDataAccessUserAPI/lib
+#SACLA_ONLINE_LIBDIR    *= /path/to/OnlineUserAPI/lib
 #QMAKE_LIBDIR   *= /path/to/mysqlclient/lib
 #QMAKE_RPATHDIR *= /path/to/mysqlclient/lib
 

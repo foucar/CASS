@@ -1,5 +1,5 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
-# Copyright (C) 2009 - 2013 Lutz Foucar
+# Copyright (C) 2009 - 2015 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
 TEMPLATE            = app
@@ -233,17 +233,20 @@ fftw {
 
 # Extra stuff for SACLA DATA
 SACLA {
-    LIBS           += $$SACLA_LIBDIR/libSaclaDataAccessUserAPI.a
+    LIBS           += $$SACLA_OFFLINE_LIBDIR/libSaclaDataAccessUserAPI.a
     LIBS           += -lmysqlclient
 #    LIBS           += -lirc
 #    LIBS           += -limf
     SOURCES        += ./sacla_offline_input.cpp
     HEADERS        += ./sacla_offline_input.h
-    SOURCES        += ./sacla_online_input.cpp
-    HEADERS        += ./sacla_online_input.h
     SOURCES        += ./sacla_converter.cpp
     HEADERS        += ./sacla_converter.h
     DEFINES        += SACLADATA
+    online {
+           LIBS    += $$SACLA_ONLINE_LIBDIR/libOnlineUserAPI.a
+           SOURCES += ./sacla_online_input.cpp
+           HEADERS += ./sacla_online_input.h
+    }
 }
 
 INSTALLS           += target
