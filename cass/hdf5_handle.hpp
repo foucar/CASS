@@ -623,7 +623,15 @@ public:
         dimension = 1;
         break;
       case 2:
-        dimension = 2;
+        hsize_t dims[2];
+        H5Sget_simple_extent_dims(dataspace_id,dims,NULL);
+        //cout << dims[0]<<"x"<<dims[1]<<endl;
+        if (dims[0] == 1 && dims[1] ==1)
+          dimension = 0;
+        else if (dims[1] == 1)
+          dimension = 1;
+        else
+          dimension = 2;
         break;
       default:
         throw logic_error("dimension(): Unkown dataspace dimension");
