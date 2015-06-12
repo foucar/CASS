@@ -21,10 +21,12 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "cass_exceptions.h"
 
 using namespace cass;
 using namespace ACQIRIS;
 using std::runtime_error;
+using std::logic_error;
 using std::minus;
 using std::multiplies;
 using std::cout;
@@ -68,12 +70,12 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
       (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
   Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
   if (dev->instruments().end() == instrIt)
-    throw runtime_error("pp110::process() '" + name() +
+    throw logic_error("pp110::process() '" + name() +
                         "': Data doesn't contain Instrument '"+toString(_instrument)
-                        +"'");
+                        + "'");
   const Instrument &instr(instrIt->second);
   if (instr.channels().size() <= _channel)
-    throw runtime_error("pp110::process() '" + name() + "Instrument '"+
+    throw runtime_error("pp110::process() '" + name() + "': Instrument '"+
                         toString(_instrument) + "' doesn't contain channel '" +
                         toString(_channel)+ "'");
   const Channel &channel (instr.channels()[_channel]);
@@ -86,12 +88,31 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                            toString(result.axis()[HistogramBackend::xAxis].nbrBins()) +
                            "'");
   }
-  if (!qFuzzyCompare(channel.sampleInterval(), _sampleInterval))
+  if (!std::isfinite(channel.gain()))
+  {
+    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+                      "': The provided gain '" + toString(channel.gain()) +
+                      "' is not a number");
+  }
+  if (!std::isfinite(channel.sampleInterval()))
+  {
+    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+                      "': The provided sampleInterval '" +
+                      toString(channel.sampleInterval()) + "' is not a number");
+  }
+  if (!std::isfinite(channel.offset()))
+  {
+    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+                      "': The provided vertical offset '" +
+                      toString(channel.offset()) + "' is not a number");
+  }
+  if (!(std::abs(channel.sampleInterval()-_sampleInterval) < sqrt(std::numeric_limits<double>::epsilon())))
   {
     throw invalid_argument("Postprocessor '" + name() +
                            "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
+  cout << waveform.back()<<endl;
   transform(waveform.begin(), waveform.end(),
             result.memory().begin(),
             bind(minus<float>(),
