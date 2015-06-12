@@ -51,7 +51,7 @@ void PostProcessor::processEvent(const CASSEvent& evt)
   }
   catch (const InvalidData& error)
   {
-    Log::add(Log::ERROR,error.what());
+    Log::add(Log::ERROR,"EventID '"+ toString(evt.id()) +"': "+ error.what());
   }
 }
 
