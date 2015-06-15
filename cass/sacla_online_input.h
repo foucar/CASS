@@ -19,28 +19,46 @@
 
 namespace cass
 {
-/** TCP Input for receiving data
+/** Online Input to be used at SACLA
  *
- * This class is a thread that to a TCP Server and retrieves the data from it.
- * it expects that before the payload conatining the data arrives the size of
- * the payload is transmitted.
+ * Makes use of the "OnlineUserAPI" to retrieve the detector data online. All
+ * data that is stored in the database is retrieved using the
+ * SACLADataAccessUserAPI.
  *
- * @cassttng TCPInput/{Server}\n
- *           The name or ip address of the machine that the server is running on.
- *           Default is "localhost"
- * @cassttng TCPInput/{Port}\n
- *           The port that the TCP Server is listening for connections on.
- *           Default is "9090"
- * @cassttng TCPInput/{DataType}\n
- *           The type of data that is streamed from the tcp server. Default is
- *           "agat". Possible values are:
- *           - "agat": The type of data that is streamed from a normal version
- *                     of AGAT3.
- *           - "shmToOld": The type of data that is streamed from the RACOON
- *                         shm2tcp server. The output is written to the old
- *                         pnCCD container to be used with the old analysis chain.
- *           - "shm": Type of data that is streamed from RACOON shm2tcp server.
- *                    is to be used with the new ccd analysis chain.
+ * @note At least one pixel detector is needed in order to be able to retrieve
+ *       data using the SACLADataAccessUserAPI, since the runnumber is needed to
+ *       retrieve the needed hightag number.
+ *
+ * @cassttng SACLAOnlineInput/{BeamlineNumber}\n
+ *           The Beamline at which the experiment is running. Default is 3
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/{size}\n
+ *           The number of octal pixeldetectors that one wants to
+ *           retrieve. Ensure that each parameter has a unique id in the list.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{DetectorIDName}\n
+ *           The base name of the octal MPCCD. This name will be used to
+ *           determine the names of the individual tiles of the MPCCD.
+ *           Default is "Invalid" which will caus to skip this index.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NbrOfTiles}\n
+ *           This option gives the user control over how many tiles the detector
+ *           has. Default is 8.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
+ *           Using this option one can control whether the pixel values of the
+ *           individual tiles will be normalized to the gain value of the first
+ *           tile. When true, the pixel values of tiles 2 to 8 will modified
+ *           using:
+ *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{tile1}}*pixval_{tile}\f$
+ *           Default is true.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{CASSID}\n
+ *           The id of the detector that CASS will use internally. Default is "0".
+ * @cassttng SACLAOnlineInput/DatabaseValues/{size}\n
+ *           The number of values one wants to retrieve from the database. Be sure
+ *           that for each detector there is a unique id in the list below.
+ *           At least one pixel detector is needed in order to be able to
+ *           retrieve data using the SACLADataAccessUserAPI, since the runnumber
+ *           is needed to retrieve the needed hightag number.
+ * @cassttng SACLAOnlineInput/DatabaseValues/\%index\%/{ValueName}\n
+ *           The name of the database value to retrieve. Default is "Invalid"
+ *           which will cause to skip that index.
  *
  * @author Lutz Foucar
  */
@@ -69,7 +87,7 @@ public:
    */
   void run();
 
-  /** do not load anything */
+  /** do not load anything after it is started */
   void load() {}
 
 private:
