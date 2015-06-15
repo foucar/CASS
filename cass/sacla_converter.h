@@ -50,7 +50,7 @@ class CASSEvent;
  *           used to determine the names of the individual tiles of the MPCCD.
  *           Default is "Invalid" which will caus to skip this index.
  * @cassttng SACLAConverter/OctalPixelDetectors/\%index\%/{CASSID}\n
- *           The id of the detector that CASS will use internally.
+ *           The id of the detector that CASS will use internally. Default is "0".
  * @cassttng SACLAConverter/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
  *           Using this option one can control whether the pixel values of the
  *           individual tiles will be normalized to the gain value of the first
