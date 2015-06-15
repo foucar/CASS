@@ -290,7 +290,8 @@ struct MachineValue
    * @param blNbr The beamline number used to retrieve the right high tag number
    */
   MachineValue(const string &name, int runNbr, int blNbr)
-    : _name(name),
+    : cassname(name),
+      _name(name),
       _highTagNbr(0)
   {
     int funcstatus,startTagNbr = 0;
@@ -339,7 +340,7 @@ struct MachineValue
     bool isDouble(false);
     double machineValue(machineValueQString.toDouble(&isDouble));
     if (isDouble)
-      md.BeamlineData()[_name] = machineValue;
+      md.BeamlineData()[cassname] = machineValue;
     else
     {
       Log::add(Log::ERROR,"MachineValue::copyData '" + _name + "' for tag '" +
@@ -350,6 +351,9 @@ struct MachineValue
     }
     return sizeof(double);
   }
+
+  /** the name of the machine value within the cassevent */
+  string cassname;
 
 private:
   /** the name of the Machine value */
@@ -416,7 +420,7 @@ void SACLAOnlineInput::run()
   {
     s.setArrayIndex(i);
     string machineValName(s.value("ValueName","Invalid").toString().toStdString());
-
+    string cassValName(s.value("CASSName","Invalid").toString().toStdString());
     /** skip if the value name has not been set and not at least one octal detector exitst
      *  @note the octal detector is needed in order to get the run number with
      *        which one can get the high tag number, needed to retrieve the
@@ -427,6 +431,9 @@ void SACLAOnlineInput::run()
       machineValues.push_back(MachineValue(machineValName,
                                            octalDetectors.back().latestRun(),
                                            BeamlineNbr));
+    /** if the cass name is set then overwrite it withing the machinevalue */
+    if (cassValName != "Invalid")
+      machineValues.back().cassname = cassValName;
   }
   s.endArray();
 

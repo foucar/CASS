@@ -59,6 +59,9 @@ namespace cass
  * @cassttng SACLAOnlineInput/DatabaseValues/\%index\%/{ValueName}\n
  *           The name of the database value to retrieve. Default is "Invalid"
  *           which will cause to skip that index.
+ * @cassttng SACLAOnlineInput/DatabaseValues/\%index\%/{CASSName}\n
+ *           The name that the value should have within the CASSEvent. Default is
+ *           "Invalid" in which case the name of the value will be chosen.
  *
  * @author Lutz Foucar
  */
