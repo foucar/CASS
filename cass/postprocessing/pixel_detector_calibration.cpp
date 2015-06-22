@@ -318,10 +318,19 @@ void pp330::aboutToQuit()
     writeCalibration();
 }
 
-void pp330::processCommand(string command)\
+void pp330::processCommand(string command)
 {
+  /** if the command orders us to start the darkcal, 
+   *  clear all variables and start the calibration
+   */
   if(command == "startDarkcal")
+  {
+    Log::add(Log::INFO,"pp330::processCommand: '" + name() + 
+             "'starts collecting data for dark calibration");
+    _trainstorage.clear();
+    _counter = 0;
     _train = true;
+  }
 }
 
 void pp330::cummulativeUpdate(const Histogram2DFloat::storage_t &image,
@@ -405,6 +414,8 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
      */
     if (_trainstorage.size() == _minTrainImages)
     {
+      Log::add(Log::INFO,"pp330::process: '" + name() + 
+               "'done collecting images for darkcalibration. Calculating maps");
       //generate the initial calibration
       for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
       {
@@ -425,6 +436,8 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       /** reset the training variables */
       _train = false;
       _trainstorage.clear();
+      Log::add(Log::INFO,"pp330::process: '" + name() + 
+               "'done calculating maps");
     }
   }
   else if (_update)
