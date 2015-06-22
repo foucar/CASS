@@ -7,5 +7,6 @@ message("Create online version")
 
 TARGET           = cass_online
 OBJECTS_DIR      = $${OBJECTS_DIR}_online
+CONFIG          *= is_online
 
 include( cass_bin.pri )

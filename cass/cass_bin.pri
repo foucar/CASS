@@ -244,7 +244,7 @@ SACLA {
     SOURCES        += ./sacla_converter.cpp
     HEADERS        += ./sacla_converter.h
     DEFINES        += SACLADATA
-    online {
+    is_online {
            LIBS    += $$SACLA_ONLINE_LIBDIR/libOnlineUserAPI.a
            SOURCES += ./sacla_online_input.cpp
            HEADERS += ./sacla_online_input.h
