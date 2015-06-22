@@ -21,7 +21,6 @@ SOURCES            += \
                       conversion_backend.cpp \
                       log.cpp \
                       input_base.cpp \
-                      hdf5_file_input.cpp \
                       file_input.cpp \
                       file_reader.cpp \
                       file_parser.cpp \
@@ -74,12 +73,10 @@ SOURCES            += \
 
 HEADERS            += cass.h \
                       cl_parser.hpp \
-                      hdf5_handle.hpp \
                       cass_event.h \
                       conversion_backend.h \
                       log.h \
                       input_base.h \
-                      hdf5_file_input.h \
                       file_input.h \
                       file_parser.h \
                       file_reader.h \
@@ -133,7 +130,6 @@ HEADERS            += cass.h \
                       ./postprocessing/rootfile_helper.h \
                       ./postprocessing/roottree_converter.h \
                       ./postprocessing/tree_structure.h \
-                      ./postprocessing/hdf5_converter.h \
                       ./postprocessing/coltrims_analysis.h \
                       ./postprocessing/achimcalibrator_hex.h \
                       ./postprocessing/image_manipulation.h \
@@ -203,7 +199,13 @@ httpServer {
 hdf5 {
     LIBS           += -lhdf5
     SOURCES        += ./postprocessing/hdf5_converter.cpp
+    HEADERS        += ./postprocessing/hdf5_converter.h
+    HEADERS        += hdf5_handle.hpp
     DEFINES        += HDF5
+    is_offline {
+        HEADERS    += hdf5_file_input.h 
+        SOURCES    += hdf5_file_input.cpp 
+    } 
 }
 
 # extra files if compiling single particle detector.
