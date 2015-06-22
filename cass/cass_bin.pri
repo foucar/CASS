@@ -241,15 +241,17 @@ SACLA {
     LIBS           += -lmysqlclient
 #    LIBS           += -lirc
 #    LIBS           += -limf
-    SOURCES        += ./sacla_offline_input.cpp
-    HEADERS        += ./sacla_offline_input.h
-    SOURCES        += ./sacla_converter.cpp
-    HEADERS        += ./sacla_converter.h
     DEFINES        += SACLADATA
+    is_offline {
+        SOURCES    += ./sacla_offline_input.cpp
+        HEADERS    += ./sacla_offline_input.h
+        SOURCES    += ./sacla_converter.cpp
+        HEADERS    += ./sacla_converter.h
+    }
     is_online {
-           LIBS    += $$SACLA_ONLINE_LIBDIR/libOnlineUserAPI.a
-           SOURCES += ./sacla_online_input.cpp
-           HEADERS += ./sacla_online_input.h
+        LIBS       += $$SACLA_ONLINE_LIBDIR/libOnlineUserAPI.a
+        SOURCES    += ./sacla_online_input.cpp
+        HEADERS    += ./sacla_online_input.h
     }
 }
 
