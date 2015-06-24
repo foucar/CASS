@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Lutz Foucar
+// Copyright (C) 2015 Lutz Foucar
 
 /**
  * @file sacla_online_input.cpp contains input that uses sacla as interface
@@ -7,6 +7,7 @@
  */
 
 #include <iostream>
+#include <tr1/functional>
 
 #include "sacla_online_input.h"
 
@@ -18,14 +19,17 @@
 #include "sacla_converter.h"
 #include "pixeldetector.hpp"
 #include "machine_device.h"
+#include "cass_exceptions.h"
 
 using namespace cass;
 using namespace std;
+using tr1::bind;
+using tr1::placeholders::_1;
 
 namespace cass
 {
 
-/** A Tile of an octal Detector
+/** A Tile of a Detector
  *
  * @author Lutz Foucar
  */
@@ -38,29 +42,29 @@ struct DetectorTile
    * @param name The name of the detector tile
    */
   DetectorTile(const string &name)
-    : _name(name)
+    : name(name),
+      gain(0.f),
+      xsize(0),
+      ysize(0),
+      datasize(0)
   {
     int funcstatus(0);
     /** get the socketID of the requested detector */
-    funcstatus = ol_connect(_name.c_str(), &_sockID);
+    funcstatus = ol_connect(name.c_str(), &_sockID);
     if (funcstatus < 0)
-    {
-      Log::add(Log::ERROR,"DetectorTile: could not retrieve socket id of '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return;
-    }
+      throw runtime_error("DetectorTile: could not retrieve socket id of '" +
+                          name + "' ErrorCode is '" + toString(funcstatus) + 
+                          "'");
 
     /** get the size of the data and the needed worksize */
     int datasize = 0, worksize = 0;
     funcstatus = ol_getDataSize(_sockID, &datasize, &worksize);
     if (funcstatus < 0)
-    {
-      Log::add(Log::ERROR,"DetectorTile: could not retrieve datasize'" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return;
-    }
-    _databuffer.resize(datasize);
-    _workbuffer.resize(worksize);
+      throw runtime_error("DetectorTile: could not retrieve datasize'" +
+                          name + "' ErrorCode is '" + toString(funcstatus) +
+                           "'");
+    _databuffer.resize(datasize,0);
+    _workbuffer.resize(worksize,0);
 
     /** retrieve detector data once to retrieve all non changing parameters */
     retrieveData();
@@ -68,19 +72,15 @@ struct DetectorTile
     /** read the width and height of the detector */
     funcstatus = ol_readDetSize(&_databuffer.front(), &xsize, &ysize);
     if (funcstatus < 0)
-    {
-      Log::add(Log::ERROR,"DetectorTile: could not extract width and height of detector '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return;
-    }
+      throw runtime_error("DetectorTile: could not extract shape of tile '" +
+                          name + "' ErrorCode is '" + toString(funcstatus) + "'");
+
     /** read the gain of the detector tile */
     funcstatus = ol_readAbsGain(&_databuffer.front(), &gain);
     if (funcstatus < 0)
-    {
-      Log::add(Log::ERROR,"DetectorTile: could not extract the gain of detector '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return;
-    }
+      throw runtime_error("DetectorTile: could not extract gain of tile '" +
+                          name + "' ErrorCode is '" + toString(funcstatus) +
+                          "'");
   }
 
   /** read the data
@@ -88,72 +88,93 @@ struct DetectorTile
    * defaulty read the latest tag (tag == -1). If tag is given, it will read
    * data associated with the requested tag.
    *
+   * @throws TagOutdated when the funcstatus is indicating an outdated tag
+   * @throws runtime_error when the funcstatus is an error other than outdated
+   *         tag
+   *
+   * @return the funcstatus when it says outdated tag or no error
    * @param tag the tag that the data should be read for
    */
   void retrieveData(int tag=-1)
   {
-    int outputTag = 0;
+    int outputTag(0);
     int funcstatus = ol_collectDetData(_sockID, tag, &_databuffer.front(),
                                        _databuffer.size(), &_workbuffer.front(),
                                        _workbuffer.size(), &outputTag);
+    if (funcstatus == -10000)
+      throw TagOutdated("DetectorTile: tile '" + name + "': tag '" + toString(tag) + 
+                          "' on socket '" + toString(_sockID) +
+                          "' isn't available anymore");
     if (funcstatus < 0)
-      Log::add(Log::ERROR,"DetectorTile: could not retrieve data of detector '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
+      throw runtime_error("DetectorTile: could not retrieve data of tile '" +
+                          name + "' for tag '" + toString(tag) + 
+                          "' using socket '" + toString(_sockID) +
+                          "'. ErrorCode is '" + toString(funcstatus) + "'");
   }
 
   /** copy the tile data to the frame
    *
-   * @return the size of the data copied in bytes
-   * @param frameStart iterator that points to the first point of the tile in
-   *                   the frame
+   * Collect the data from the server to the buffer and copy the tile's data
+   * to the frame.
+   * 
+   * @param tag the tag for which to copy the tile data.
    */
-  uint64_t copyData(pixeldetector::frame_t::iterator frameStart)
+  void copyData(int tag)
   {
-    /** retrieve the data from the databuffer */
+    /** reset the datasize */
+    datasize = 0;
+
+    /** if the data for the tag has not been retrieved, retrieve it at this point */
+    if (this->tag() != tag)
+      retrieveData(tag);
+
+    /** retrieve pointer to the tile data from the databuffer */
     float *data_org(0);
     int funcstatus = ol_readDetData(&_databuffer.front(), &data_org);
     if (funcstatus < 0 || !data_org)
     {
       Log::add(Log::ERROR,"SACLAOnlineInput: could not extract data of detector '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
+               name + "' ErrorCode is '" + toString(funcstatus) + "'");
+      return;
     }
-    /** copy the tile data to the frame */
-    copy(data_org, data_org+xsize*ysize, frameStart);
 
-    return xsize*ysize*sizeof(float);
+    /** copy the tile data to the frame */
+    copy(data_org, data_org+xsize*ysize, start);
+
+    /** set the datasize to the right size */
+    datasize = xsize * ysize * sizeof(uint16_t);
   }
 
-  /** the latest Tag read from the current databuffer
+  /** the current Tag read from the current databuffer
    *
-   * @return the latest Tag
+   * @return the current Tag
    */
-  int latestTag()
+  int tag()
   {
     int tag(0);
     int funcstatus = ol_readTagNum(&_databuffer.front(), &tag);
     if (funcstatus < 0)
       Log::add(Log::ERROR,"DetectorTile::latestTag could not extract the tag from '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
+               name + "' ErrorCode is '" + toString(funcstatus) + "'");
     return tag;
   }
 
-  /** the latest Run Number read from the current databuffer
+  /** the current Run Number read from the current databuffer
    *
    * @return latest run number
    */
-  int latestRun()
+  int runNumber()
   {
     int run(0);
     int funcstatus = ol_readRunNum(&_databuffer.front(), &run);
     if (funcstatus < 0)
       Log::add(Log::ERROR,"DetectorTile::latestRun could not extract the run from '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
+               name + "' ErrorCode is '" + toString(funcstatus) + "'");
     return run;
   }
 
   /** the name of the detector tile */
-  std::string _name;
+  std::string name;
 
   /** the gain of the tile */
   float gain;
@@ -164,13 +185,22 @@ struct DetectorTile
   /** the height of the tile */
   int ysize;
 
+  /** the size of the retrieved data */
+  uint64_t datasize;
+
+  /** start position of the tile within the frame */
+  pixeldetector::frame_t::iterator start;
+
+  /** end position of the tile within the frame */
+  pixeldetector::frame_t::iterator end;
+
 //  int datasize_bytes;
-//    float pixsize_um;
-//    float posx_um;
-//    float posy_um;
-//    float posz_um;
-//    float angle_deg;
-  Sacla_DetDataType type;
+//  float pixsize_um;
+//  float posx_um;
+//  float posy_um;
+//  float posz_um;
+//  float angle_deg;
+//  Sacla_DetDataType type;
 
 private:
   /** the socket ID to connect to the online API */
@@ -184,7 +214,9 @@ private:
 };// end class DetectorTile
 
 
-/** An Octal Detector (with 8 Detector Tiles)
+/** An Octal Detector 
+ * 
+ * A detector with a user chosen amount of equal tiles
  *
  * @author Lutz Foucar
  */
@@ -192,14 +224,26 @@ struct OctalDetector
 {
   /** get the latest Tag
    *
-   * get the latest tag from the first tile
+   * if the last Tag is set return the next tag that should be there
+   * otherwise retrieve the latest tag and return it
+   * @note this hack is needed as trying to retrieve the latest tag
+   *       is currently very slow. Once this issue is fixed one can
+   *       think of just using the function to retrieve the latest tag.
    *
    * @return the latest available tag
+   * @param lastTag the last tag that was valid. If 0 the latest tag will
+   *                retrieved otherwise this number will be increased
+   *                by tagAdvance
    */
-  int latestTag()
+  int latestTag(int lastTag)
   {
-    tiles.front().retrieveData();
-    return tiles.front().latestTag();
+    if (lastTag)
+      return lastTag + tagAdvance;
+    else
+    {
+      tiles.front().retrieveData();
+      return tiles.front().tag();
+    }
   }
 
   /** get the latest Run Number
@@ -208,9 +252,9 @@ struct OctalDetector
    *
    * @return the latest runnumber
    */
-  int latestRun()
+  int runNumber()
   {
-    return tiles.front().latestRun();
+    return tiles.front().runNumber();
   }
 
   /** copy data associtated with the tag to the device of the cassevent
@@ -228,7 +272,7 @@ struct OctalDetector
     det.rows() =  0;
     det.id() = tag;
 
-    /** set the sizes of the frame to fit the whole detector into it */
+    /** resize the frame to fit all tiles into it */
     for (size_t i(0); i < tiles.size(); ++i)
     {
       det.frame().resize(det.frame().size() +
@@ -237,43 +281,89 @@ struct OctalDetector
       det.rows() +=  tiles[i].ysize;
     }
 
-    /** initialize some parameters */
-    uint64_t datasize(0);
-    uint64_t currentsize(0);
-
-    /** copy the data of the tiles to the detector */
+    /** set where the individual tiles will start and end within the frame */
+    size_t currentsize(0);
     for (size_t i(0); i < tiles.size(); ++i)
     {
-      /** if the data for the tag has not been retrieved, retrieve it at this point */
-      if (tiles[i].latestTag() != tag)
-        tiles[i].retrieveData(tag);
-
-      /** determine where the tile will be copied to in the frame */
-      pixeldetector::frame_t::iterator tileStart(det.frame().begin() + currentsize);
+      tiles[i].start = det.frame().begin() + currentsize;
       const size_t npixels(tiles[i].xsize*tiles[i].ysize);
       currentsize += npixels;
-      pixeldetector::frame_t::iterator tileEnd(det.frame().begin() + currentsize);
+      tiles[i].end = det.frame().begin() + currentsize;
+    }
 
-      /** copy the data in the tile to the frame */
-      datasize += tiles[i].copyData(tileStart);
+    /** copy the data in the tile to the frame
+     *  @note need to use open mp to parallelize since, the tiles vector is too small
+     *        to be parallelized automatically by __gnu_parallelize
+     *  @note when compiling with openmp one needs to take special care with the
+     *        exceptions. They need to be catched within the thread they have been
+     *        thrown. To work around this a global exception exists that will be
+     *        filled with the exception thrown. After the execution of the 
+     *        threads it will be checked if the global exeption has been set and
+     *        if so, it will be thrown in the main thread. To be catched at a 
+     *        convenient time.
+     */
+//    for_each(tiles.begin(), tiles.end(), bind(&DetectorTile::copyData,_1,tag));
+#ifdef _OPENMP
+    TagOutdated error("",false);
+    #pragma omp parallel for shared(error)
+#endif
+    for (size_t i = 0; i < tiles.size(); ++i)
+    {
+#ifdef _OPENMP
+      try
+      {
+#endif
+        tiles[i].copyData(tag);
+#ifdef _OPENMP
+      }
+      catch (const TagOutdated &err)
+      {
+        #pragma omp critical
+        error = err;
+      }
+#endif
+    }
+#ifdef _OPENMP
+    if (error)
+      throw error;
+#endif
 
-      /** in an octal MPCCD one needs to leverage the different tiles by its gain,
-       *  taking the gain of the first tile as a reference
-       */
-      if (normalize && i)
+    /** gather the size of the copied data */
+    uint64_t datasize(0);
+    for (size_t i(0); i < tiles.size(); ++i)
+      datasize += tiles[i].datasize;
+
+    /** in an octal MPCCD one needs to leverage the different tiles by its gain,
+     *  taking the gain of the first tile as a reference
+     */
+    if (normalize)
+    {
+      for (size_t i(1); i < tiles.size(); ++i)
       {
         const float relGain(tiles[i].gain / tiles[0].gain);
-        transform(tileStart, tileEnd, tileStart, bind1st(multiplies<float>(),relGain));
+        transform(tiles[i].start, tiles[i].end, tiles[i].start, bind1st(multiplies<float>(),relGain));
       }
     }
 
     return datasize;
   }
 
+  /** vector containing the tiles of the detector */
   vector<DetectorTile> tiles;
+
+  /** flag whether the tiles should be normalized to one another */
   bool normalize;
+
+  /** the id that the detector should have within the pixeldetector part of
+   *  the CASSEvent
+   */
   int CASSID;
+
+  /** how much the last tag should be advanced */
+  int tagAdvance;
+
 }; // end struct octal detector
+
 
 /** a Machine value
  *
@@ -283,7 +373,8 @@ struct MachineValue
 {
   /** constructor
    *
-   * retrieve the hightag using the provided runnumber
+   * retrieve the hightag with the offline version of the API  using the 
+   * provided runnumber
    *
    * @param name The name of this Machine Value
    * @param runNbr The run number with which we can retrieve the high tag
@@ -291,7 +382,7 @@ struct MachineValue
    */
   MachineValue(const string &name, int runNbr, int blNbr)
     : cassname(name),
-      _name(name),
+      name(name),
       _highTagNbr(0)
   {
     int funcstatus,startTagNbr = 0;
@@ -316,20 +407,21 @@ struct MachineValue
     vector<string> machineValueStringList;
     vector<int> tagList(1,tag);
     int funcstatus = ReadSyncDataList(&machineValueStringList,
-                                      const_cast<char*>(_name.c_str()),
+                                      const_cast<char*>(name.c_str()),
                                       _highTagNbr,tagList);
     if (funcstatus)
     {
       Log::add(Log::ERROR,"MachineValue::copyData could not extract machine values of '" +
-               _name + "' ErrorCode is '" + toString(funcstatus) + "'");
+               name + "' ErrorCode is '" + toString(funcstatus) + "'");
       return 0;
     }
     if (machineValueStringList.size() != tagList.size())
     {
       Log::add(Log::ERROR,"MachineValue:copyData '" +
-               _name + "' did not return the right size");
+               name + "' did not return the right size");
       return 0;
     }
+
     /** check if retrieved value can be converted to double, and if so add it
      *  to the machine data, otherwise issue an error and continue
      *  @note the retrieved values might contain the unit of the value in the
@@ -343,7 +435,7 @@ struct MachineValue
       md.BeamlineData()[cassname] = machineValue;
     else
     {
-      Log::add(Log::ERROR,"MachineValue::copyData '" + _name + "' for tag '" +
+      Log::add(Log::ERROR,"MachineValue::copyData '" + name + "' for tag '" +
                toString(tag) + "': String '" + machineValueStringList.back() +
                "' which is altered to '" + machineValueQString.toStdString() +
                "' to remove units, cannot be converted to double");
@@ -355,15 +447,19 @@ struct MachineValue
   /** the name of the machine value within the cassevent */
   string cassname;
 
-private:
   /** the name of the Machine value */
-  string _name;
+  string name;
 
+private:
   /** the high tag number */
   int _highTagNbr;
+
 };//end struct MachineValue
 
 } //end namespace cass
+
+
+
 
 void SACLAOnlineInput::instance(RingBuffer<CASSEvent> &buffer,
                                 Ratemeter &ratemeter,
@@ -379,19 +475,16 @@ SACLAOnlineInput::SACLAOnlineInput(RingBuffer<CASSEvent> &ringbuffer,
                                    Ratemeter &ratemeter,
                                    Ratemeter &loadmeter,
                                    QObject *parent)
-  :InputBase(ringbuffer,ratemeter,loadmeter,parent)
+  : InputBase(ringbuffer,ratemeter,loadmeter,parent)
 {
   Log::add(Log::VERBOSEINFO, "SACLAOnlineInput:: constructed");
 }
 
 void SACLAOnlineInput::run()
 {
-  /** load info about what the user is interested in */
+  /** load settings from the ini file */
   CASSSettings s;
   s.beginGroup("SACLAOnlineInput");
-
-  /** get the beamline number of the beamline we're running on */
-  int BeamlineNbr = s.value("BeamlineNumber",3).toInt();
 
   /** load requested octal detectors */
   vector<OctalDetector> octalDetectors;
@@ -399,21 +492,59 @@ void SACLAOnlineInput::run()
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    string detID(s.value("DetectorIDName","Invalid").toString().toStdString());
-    /** skip if the detector name has not been set */
-    if (detID == "Invalid")
+    int cassid(s.value("CASSID",-1).toInt());
+    /** skip if the detector cass id  has not been set */
+    if (cassid == -1)
       continue;
     /** load the infos for the detector */
     octalDetectors.push_back(OctalDetector());
-    octalDetectors.back().CASSID = s.value("CASSID",0).toInt();
+    octalDetectors.back().CASSID = cassid;
     octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
+    octalDetectors.back().tagAdvance = s.value("NextTagNumberAdvancedBy",2).toInt();
+    Log::add(Log::INFO, "SACLAOnlineInput: Setting up octal detector with cassid '" + 
+             toString(cassid) +  "' and" + 
+             (octalDetectors.back().normalize?"":" don't") +
+             " normalize the tiles of the detector to one another." +
+             " The next tag number is guessed by advancing the current one by '" +
+             toString(octalDetectors.back().tagAdvance) + "'");
     /** setup the individual tiles of the detector */
-    for (size_t i(0); i<s.value("NbrOfTiles",8).toUInt(); ++i)
-      octalDetectors.back().tiles.push_back(DetectorTile(detID + "-" + toString(i+1)));
+    int nTiles = s.beginReadArray("Tiles");
+    for (int j(0); j<nTiles; ++j)
+    {
+      s.setArrayIndex(j);
+      const string tilename(s.value("TileName","Invalid").toString().toStdString());
+      octalDetectors.back().tiles.push_back(DetectorTile(tilename));
+      /** @note in online mode one gets the raw tile shape therefore one needs
+       *        to remove the last 6 lines, which are used for calibration.
+       *        Allow the user to choose how many rows need to be removed to 
+       *        prevent the necessity to recompile when the API changes with that
+       *        respect.
+       */
+      const int nLinesOmitted(s.value("NbrCalibrationRows",6).toUInt());
+      octalDetectors.back().tiles.back().ysize -= nLinesOmitted;
+      Log::add(Log::INFO, "SACLAOnlineInput: Octal detector with cassid '"+ 
+              toString(cassid) + "' has tile '" + 
+              octalDetectors.back().tiles.back().name + "'. The last '" + 
+              toString(nLinesOmitted) + "' rows are ignored.");
+    }
+    s.endArray();
   }
   s.endArray();
 
-  /** set the requested octal detectors */
+  /** quit if not at least one octal detector has been defined */
+  if (octalDetectors.empty())
+    throw invalid_argument("SACLAOnlineInput: Need to have at least one octal detector defined");
+
+
+  /** load the beamline number of the beamline we're running on 
+   *  (needed to retieve database values)
+   */
+  int BeamlineNbr = s.value("BeamlineNumber",3).toInt();
+  Log::add(Log::INFO, "SACLAOnlineInput: Using BeamlineNumber '" + 
+           toString(BeamlineNbr) + "'");
+
+
+  /** load the requested database values */
   size = s.beginReadArray("DatabaseValues");
   vector<MachineValue> machineValues;
   for (int i = 0; i < size; ++i)
@@ -427,19 +558,24 @@ void SACLAOnlineInput::run()
      *        machine data. Since the machine data needs to be retrieved using
      *        the offline api.
      */
-    if (machineValName != "Invalid")
-      machineValues.push_back(MachineValue(machineValName,
-                                           octalDetectors.back().latestRun(),
-                                           BeamlineNbr));
+    if (machineValName == "Invalid")
+      continue;
+    /** add the machine value */
+    machineValues.push_back(MachineValue(machineValName,
+                                         octalDetectors.back().runNumber(),
+                                         BeamlineNbr));
     /** if the cass name is set then overwrite it withing the machinevalue */
     if (cassValName != "Invalid")
       machineValues.back().cassname = cassValName;
+    Log::add(Log::INFO, "SACLAOnlineInput: Setting up Database value '" + 
+             machineValues.back().name + "' with CASSName '" + 
+             machineValues.back().cassname + "'");
   }
   s.endArray();
 
   s.endGroup();
 
-  /** run until it is quitted */
+  /** run until the thread is told to quit */
   Log::add(Log::DEBUG0,"SACLAOnlineInput::run(): starting loop");
   int lastTag(0);
   while(_control != _quit)
@@ -450,51 +586,77 @@ void SACLAOnlineInput::run()
     /** retrieve a new element from the ringbuffer */
     rbItem_t rbItem(_ringbuffer.nextToFill());
     CASSEvent &evt(*rbItem->element);
+
+    /** generate and set variable to keep the size of the retrieved data */
     uint64_t datasize(0);
 
-    /** get the part where the detector will be store in from the event */
-    CASSEvent::devices_t &devices(evt.devices());
-    CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
-    if(devIt == devices.end())
-      throw runtime_error("SACLAOnlineInput: CASSEvent does not contains a pixeldetector device");
-    pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
-
-    /** get the latest tag from one of the octal detectors */
-    int latestTag(octalDetectors.front().latestTag());
-    if (latestTag > lastTag)
+    /** use try...catch to get notified when the requested tag data is not
+     *  available anymore 
+     */
+    try
     {
-      /** set the event id */
-      evt.id() = latestTag;
+      /** get the part where the detector will be store in from the event */
+      CASSEvent::devices_t &devices(evt.devices());
+      CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+      if(devIt == devices.end())
+        throw runtime_error("SACLAOnlineInput: CASSEvent does not contains a pixeldetector device");
+      pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+  
+      /** get the latest tag from the first defined octal detector */
+      int latestTag(octalDetectors.front().latestTag(lastTag));
 
-      /** copy octal detector data to cassevent */
-      vector<OctalDetector>::iterator octIter(octalDetectors.begin());
-      vector<OctalDetector>::iterator octEnd(octalDetectors.end());
-      for(; octIter != octEnd; ++octIter)
+      /** only do something when the tag has advanced
+       *  @note currently this not really necessary as the tag will always be
+       *        advanced by the latestTag call. But this might be needed in 
+       *        future when it is possible to use the API function to retrieve
+       *        the latest tag.
+       */
+      if (latestTag > lastTag)
       {
-        datasize += octIter->copyData(dev,latestTag);
+        /** set the event id */
+        evt.id() = latestTag;
+  
+        /** copy octal detector data to cassevent and 
+         *  add the size in bytes copied to the total size retrieved
+         */
+        vector<OctalDetector>::iterator octIter(octalDetectors.begin());
+        vector<OctalDetector>::iterator octEnd(octalDetectors.end());
+        for(; octIter != octEnd; ++octIter)
+        {
+          datasize += octIter->copyData(dev,latestTag);
+        }
+  
+
+        /** get refrence to the machine device of the CASSEvent */
+        CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
+        if (mdIt == devices.end())
+          throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
+        MachineData::MachineDataDevice &md(*dynamic_cast<MachineData::MachineDataDevice*>(mdIt->second));
+  
+        /** retrieve requested machinedata, copy it to the CASSEvent and add 
+         *  the size in bytes to the total size retrieved
+         */
+        vector<MachineValue>::iterator machIter(machineValues.begin());
+        vector<MachineValue>::iterator machEnd(machineValues.end());
+        for(; machIter != machEnd; ++machIter)
+        {
+          datasize += machIter->copyData(md,latestTag);
+        }
+  
+  
+        /** remember the latest tag */
+        lastTag = latestTag;
       }
-
-
-      /** get refrence to the machine device of the CASSEvent */
-      CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
-      if (mdIt == devices.end())
-        throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
-      MachineData::MachineDataDevice &md(*dynamic_cast<MachineData::MachineDataDevice*>(mdIt->second));
-
-      /** retrieve requested machinedata and copy it to the CASSEvent*/
-      vector<MachineValue>::iterator machIter(machineValues.begin());
-      vector<MachineValue>::iterator machEnd(machineValues.end());
-      for(; machIter != machEnd; ++machIter)
-      {
-        datasize += machIter->copyData(md,latestTag);
-      }
-
-
-      /** remember the latest tag */
-      latestTag = lastTag;
+    }
+    /** if the data for the tag wasn't available, reset the last tag and the datasize */
+    catch (const TagOutdated &error)
+    {
+      Log::add(Log::ERROR,error.what());
+      datasize = 0;
+      lastTag = 0;
     }
 
-    /** let the ratemeter know that we're done with another event of with size
+    /** let the ratemeter know that we're done with this event with size
      *  datasize and return the element to the ringbuffer, telling it whether it contains
      *  valuable information (datasize is non zero)
      */
@@ -505,84 +667,5 @@ void SACLAOnlineInput::run()
     _ringbuffer.doneFilling(rbItem, datasize);
   }
   Log::add(Log::DEBUG0,"SACLAOnlineInput::run(): quitting loop");
-
-
-
-  int funcstatus(0);
-  string detName("");
-
-  /** get the socketID of the requested detector */
-  int sockID = 0;
-  funcstatus = ol_connect(detName.c_str(), &sockID);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not retrieve socket id of '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** get the size of the data and the needed worksize */
-  int datasize = 0, worksize = 0;
-  funcstatus = ol_getDataSize(sockID, &datasize, &worksize);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not retrieve datasize'" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-  vector<char> pDataStBuf(datasize);
-  vector<char> pWorkBuf(worksize);
-
-  /** retrieve data of detector */
-  int tag = 0;
-  funcstatus = ol_collectDetData(sockID, -1, &pDataStBuf.front(), datasize,
-                                 &pWorkBuf.front(), worksize, &tag);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not data of detector '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** retrieve the data from the workspace */
-  float *data_org(0);
-  funcstatus = ol_readDetData(&pDataStBuf.front(), &data_org);
-  if (funcstatus < 0 || !data_org)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not extract data of detector '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** read the width and height of the detector */
-  int orgW = 0, orgH = 0;
-  funcstatus = ol_readDetSize(&pDataStBuf.front(), &orgW, &orgH);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not extract width and height of detector '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** read the run number */
-  int run(0);
-  funcstatus = ol_readRunNum(&pDataStBuf.front(), &run);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not extract the runnumber '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** read the gain of the detector tile */
-  float gain(0.f);
-  funcstatus = ol_readAbsGain(&pDataStBuf.front(), &gain);
-  if (funcstatus < 0)
-  {
-    Log::add(Log::ERROR,"SACLAOnlineInput: could not extract the gain of detector '" +
-             detName + "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
 }
 

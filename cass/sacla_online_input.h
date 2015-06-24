@@ -1,7 +1,7 @@
-// Copyright (C) 2014 Lutz Foucar
+// Copyright (C) 2015 Lutz Foucar
 
 /**
- * @file sacla_online_input.h contains input that uses tcp as interface
+ * @file sacla_online_input.h contains input that uses the sacla online interface
  *
  * @author Lutz Foucar
  */
@@ -34,13 +34,9 @@ namespace cass
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/{size}\n
  *           The number of octal pixeldetectors that one wants to
  *           retrieve. Ensure that each parameter has a unique id in the list.
- * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{DetectorIDName}\n
- *           The base name of the octal MPCCD. This name will be used to
- *           determine the names of the individual tiles of the MPCCD.
- *           Default is "Invalid" which will caus to skip this index.
- * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NbrOfTiles}\n
- *           This option gives the user control over how many tiles the detector
- *           has. Default is 8.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{CASSID}\n
+ *           The id of the detector that CASS will use internally. 
+             Default is "-1" which will cause to skip this index.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
  *           Using this option one can control whether the pixel values of the
  *           individual tiles will be normalized to the gain value of the first
@@ -48,8 +44,19 @@ namespace cass
  *           using:
  *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{tile1}}*pixval_{tile}\f$
  *           Default is true.
- * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{CASSID}\n
- *           The id of the detector that CASS will use internally. Default is "0".
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NextTagNumberAdvancedBy}\n
+ *           It is needed to guess the next tag number therefore one has to 
+ *           tell how much the tag number advanced from one shot to the next.
+ *           The tag number is increased with 60 Hz. Therefore at 30 Hz this 
+ *           number should be 2. Default is 2.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/{size}\n
+ *           The number of tiles contained within the octal pixeldetectors 
+ *           Ensure that each parameter has a unique id in the list.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/\%index\%/{TileName}\n
+ *           Name of the tile in the SACLA DAQ. Default is "Invalid".
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/\%index\%{NbrCalibrationRows}\n
+ *           Number of additional rows that are not part of the image but used for
+ *           calibrating the image. Default is 6.
  * @cassttng SACLAOnlineInput/DatabaseValues/{size}\n
  *           The number of values one wants to retrieve from the database. Be sure
  *           that for each detector there is a unique id in the list below.
@@ -85,8 +92,8 @@ public:
 
   /** starts the thread
    *
-   * Starts the thread and the loop that waits for data. When an timout occured
-   * it will just restart the loop until the quit flag is set.
+   * this is the main while loop collecting the requested data and making it 
+   * available using the ringbuffer.
    */
   void run();
 
@@ -96,14 +103,7 @@ public:
 private:
   /** constructor
    *
-   * creates the thread. Connects to the tcp server and then retrieves the
-   * data streams. The data within the stream will be deserialized with the
-   * help of deserialization functions, where the user has to choose which
-   * one is appropriate via the .ini file parameters. The thread runs as long
-   * as noone calls the end() member of the base class.
-   * In case a timeout occurs when waiting for a new event, it will just continue
-   * and wait for the next timeout. In case that a timeout occurred when waiting
-   * for the data of an event it throws an runtime error.
+   * creates the thread. 
    *
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information
