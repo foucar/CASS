@@ -160,6 +160,31 @@ public:
 
 };
 
+/** Exception thrown when SACLA tag is outdated
+ *
+ * In the online version of SACLA input this should be thrown when
+ * the requested tag is outdated and not available anymore
+ */
+class TagOutdated : public std::runtime_error
+{
+public:
+  /** explicit constructor
+   *
+   * @param message the error message
+   */
+  explicit TagOutdated(const std::string & message, bool thrown=true)
+    : std::runtime_error(message),
+      _wasThrown(thrown)
+  {}
+
+  virtual ~TagOutdated() throw() {}
+ 
+  operator bool()const {return _wasThrown;}
+ 
+private:
+  bool _wasThrown;
+};
+
 }//end namespace cass
 
 #endif
