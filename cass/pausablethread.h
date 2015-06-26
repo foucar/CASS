@@ -13,113 +13,114 @@
 
 namespace lmf
 {
-  /** A QThread that has the ability to be paused and resumed
+/** A QThread that has the ability to be paused and resumed
+ *
+ * This class inherits from QThread and enhances the QThread class to be able
+ * to be paused and resumed
+ *
+ * @todo check the logic whether this is threadsafe (maybe need to add some
+ *       more mutexlockers.)
+ *
+ * @author Lutz Foucar
+ */
+class PausableThread : public QThread
+{
+  Q_OBJECT
+public:
+  /** enum describing the internal status of the thread */
+  enum status_t {running, paused, notstarted};
+
+  /** enum describing the control status of the thread */
+  enum control_t {_run, _quit, _pause};
+
+public:
+  /** constructor
    *
-   * This class inherits from QThread and enhances the QThread class to be able
-   * to be paused and resumed
+   * You can construct this thread to be either paused or running when you
+   * call the start() member of the created object.
    *
-   * @todo check the logic whether this is threadsafe (maybe need to add some
-   *       more mutexlockers.)
-   *
-   * @author Lutz Foucar
+   * @param control the initial state of the thread
+   * @param parent pointer to the parent object
    */
-  class PausableThread : public QThread
-  {
-    Q_OBJECT
-  public:
-    /** enum describing the internal status of the thread */
-    enum status_t {running, paused, notstarted};
+  PausableThread(control_t control=_run, QObject *parent = 0)
+    : QThread(parent),
+      _status(notstarted),
+      _control(control),
+      _pausecount((control==_run?0:1))
+  {}
 
-    /** enum describing the control status of the thread */
-    enum control_t {_run, _quit, _pause};
+/** destructor
+   *
+   * stops the threads execution before deleting the thread. Make sure that
+   * all waitconditions are properly shut down.
+   */
+  virtual ~PausableThread();
 
-  public:
-    /** constructor
-     *
-     * You can construct this thread to be either paused or running when you
-     * call the start() member of the created object.
-     *
-     * @param control the initial state of the thread
-     * @param parent pointer to the parent object
-     */
-    PausableThread(control_t control=_run, QObject *parent = 0)
-      :QThread(parent),
-       _status(notstarted),
-       _control(control),
-       _pausecount((control==_run?0:1))
-    {}
+  /** pause the thread
+   *
+   * Will tell the thread to pause. The function can be told to block until
+   * the thread is paused. It does that by waiting internaly on
+   * waitUntilPaused() to return. If one does not want this function to block,
+   * just call it with the default argument (false).
+   *
+   * @param block if true this function call will block until the thread is
+   *        paused. If false this will return immidiatly (default).
+   */
+  void pause(bool block=false);
 
-    /** destructor
-     *
-     * stops the threads execution before deleting the thread. Make sure that
-     * all waitconditions are properly shut down.
-     */
-    virtual ~PausableThread();
+  /** waits until thread is paused
+   *
+   * Waits until the thread is paused by using the wait condition.
+   */
+  void waitUntilPaused();
 
-    /** pause the thread
-     *
-     * Will tell the thread to pause. The function can be told to block until
-     * the thread is paused. It does that by waiting internaly on
-     * waitUntilPaused() to return. If one does not want this function to block,
-     * just call it with the default argument (false).
-     *
-     * @param block if true this function call will block until the thread is
-     *        paused. If false this will return immidiatly (default).
-     */
-    void pause(bool block=false);
+  /** resume the thread
+   *
+   * Will tell the thread to resume by waking up the Condition
+   */
+  void resume();
 
-    /** waits until thread is paused
-     *
-     * Waits until the thread is paused by using the wait condition.
-     */
-    void waitUntilPaused();
+  /** return the current status of the thread */
+  status_t status()const   {return _status;}
 
-    /** resume the thread
-     *
-     * Will tell the thread to resume by waking up the Condition
-     */
-    void resume();
+  /** query whether this thread is told to quit
+   *
+   * @return true when it should quit, false otherwise
+   */
+  bool shouldQuit()const {return (_control == _quit);}
 
-    /** return the current status of the thread */
-    status_t status()const   {return _status;}
+public slots:
+  /** tell the thread to quit */
+  virtual void end() {_control = _quit;}
 
-    /** query whether this thread is told to quit
-     *
-     * @return true when it should quit, false otherwise
-     */
-    bool shouldQuit()const {return (_control == _quit);}
+protected:
+  /** point where the thread will be paused
+   *
+   * Call this function from within your run() at the point where you can
+   * pause the thread whithout leaving it in an undefined state. It will check
+   * whether the thread is requested to pause, if so it will pause the thread.
+   */
+  void pausePoint();
 
-  public slots:
-    /** tell the thread to quit */
-    virtual void end() {_control = _quit;}
+protected:
+  /** mutex to wait on until thread is paused */
+  QMutex _pauseMutex;
 
-  protected:
-    /** point where the thread will be paused
-     *
-     * Call this function from within your run() at the point where you can
-     * pause the thread whithout leaving it in an undefined state. It will check
-     * whether the thread is requested to pause, if so it will pause the thread.
-     */
-    void pausePoint();
+  /** wait condition to wait on until thread is resumed */
+  QWaitCondition _pauseCondition;
 
-  protected:
-    /** mutex to wait on until thread is paused */
-    QMutex _pauseMutex;
+  /** wait condition to wait unitl thread is paused */
+  QWaitCondition _waitUntilPausedCondition;
 
-    /** wait condition to wait on until thread is resumed */
-    QWaitCondition _pauseCondition;
+  /** the internal status of the thread */
+  status_t _status;
 
-    /** wait condition to wait unitl thread is paused */
-    QWaitCondition _waitUntilPausedCondition;
+  /** the internal control status of the thread */
+  control_t _control;
 
-    /** the internal status of the thread */
-    status_t _status;
+  /** a counter how many threads have pause this thread */
+  size_t _pausecount;
+};
 
-    /** the internal control status of the thread */
-    control_t _control;
-
-    /** a counter how many threads have pause this thread */
-    size_t _pausecount;
-  };
-}
+}//end namespace lmf
 #endif // PAUSABLETHREAD_H

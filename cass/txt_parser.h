@@ -33,7 +33,7 @@ public:
   TxtParser(const filereaderpointerpair_t readerpointerpair,
             event2positionreaders_t &event2posreader,
             QReadWriteLock &lock)
-    :FileParser(readerpointerpair,event2posreader,lock)
+    : FileParser(readerpointerpair,event2posreader,lock)
   {}
 
   /** parse the frms6 file
