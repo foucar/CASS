@@ -21,20 +21,9 @@ SOURCES            += \
                       conversion_backend.cpp \
                       log.cpp \
                       input_base.cpp \
-                      file_input.cpp \
-                      file_reader.cpp \
-                      file_parser.cpp \
-                      xtc_reader.cpp \
-                      xtc_parser.cpp \
-                      txt_reader.cpp \
-                      txt_parser.cpp \
-                      multifile_input.cpp \
                       pausablethread.cpp \
                       format_converter.cpp \
                       histogram.cpp \
-                      sharedmemory_input.cpp \
-                      tcp_input.cpp \
-                      tcp_streamer.cpp \
 #                      test_input.cpp \
 #                      data_generator.cpp \
 #                      waveform_generator.cpp \
@@ -77,16 +66,8 @@ HEADERS            += cass.h \
                       conversion_backend.h \
                       log.h \
                       input_base.h \
-                      file_input.h \
-                      file_parser.h \
-                      file_reader.h \
-                      xtc_reader.h \
-                      xtc_parser.h \
                       hlltypes.h \
                       raw_sss_file_header.h \
-                      txt_reader.h \
-                      txt_parser.h \
-                      multifile_input.h \
                       pausablethread.h \
                       format_converter.h \
                       histogram.h \
@@ -95,9 +76,6 @@ HEADERS            += cass.h \
                       rate_plotter.h \
                       serializable.h \
                       serializer.h \
-                      sharedmemory_input.h \
-                      tcp_input.h \
-                      tcp_streamer.h \
 #                      test_input.h \
 #                      data_generator.h \
 #                      waveform_generator.h \
@@ -109,7 +87,7 @@ HEADERS            += cass.h \
                       cass_settings.h \
                       calibcycle.h \
                       statistics_calculator.hpp \
-                      generic_factory.hpp \
+#                      generic_factory.hpp \
                       cached_list.hpp \
                       geom_parser.h \
                       ./postprocessing/processor.h \
@@ -154,10 +132,12 @@ INCLUDEPATH        += postprocessing \
 
 DEPENDPATH         += ./postprocessing
 
+# the dependencies of other libraries of cass
 DEPENDENCY_LIBRARIES  = cass_acqiris \
                         cass_machinedata \
                         cass_pixeldetector
 
+# the dependencies of the lcls libraries
 DEPENDENCY_LIBRARIES += acqdata \
                         appdata \
                         bld \
@@ -180,10 +160,36 @@ DEPENDENCY_LIBRARIES += acqdata \
 
 include( $${CASS_ROOT}/cass_dependencies.pri )
 
-LIBS               += -lgsoap++ -lgsoap
-LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
-LIBS               += -lrt
 
+# Stuff needed offline for offline version
+is_offline {
+    SOURCES        += file_input.cpp
+    HEADERS        += file_input.h
+    SOURCES        += multifile_input.cpp
+    HEADERS        += multifile_input.h
+    SOURCES        += file_reader.cpp
+    HEADERS        += file_reader.h
+    SOURCES        += file_parser.cpp
+    HEADERS        += file_parser.h
+    SOURCES        += xtc_reader.cpp
+    HEADERS        += xtc_reader.h
+    SOURCES        += xtc_parser.cpp
+    HEADERS        += xtc_parser.h
+    SOURCES        += txt_reader.cpp
+    HEADERS        += txt_reader.h
+    SOURCES        += txt_parser.cpp
+    HEADERS        += txt_parser.h
+}
+
+# Stuff needed online for online version
+is_online {
+    SOURCES        += sharedmemory_input.cpp
+    HEADERS        += sharedmemory_input.h
+    SOURCES        += tcp_input.cpp
+    HEADERS        += tcp_input.h
+    SOURCES        += tcp_streamer.cpp
+    HEADERS        += tcp_streamer.h
+}
 
 # Extra stuff for http Server
 httpServer {
@@ -203,9 +209,9 @@ hdf5 {
     HEADERS        += hdf5_handle.hpp
     DEFINES        += HDF5
     is_offline {
-        HEADERS    += hdf5_file_input.h 
-        SOURCES    += hdf5_file_input.cpp 
-    } 
+        HEADERS    += hdf5_file_input.h
+        SOURCES    += hdf5_file_input.cpp
+    }
 }
 
 # extra files if compiling single particle detector.
@@ -218,10 +224,10 @@ singleparticle_hit {
 
 #extra stuff for ROOT
 cernroot {
-    LIBS           += $$system($$ROOTCONFIG_BIN --libs)
     SOURCES        += ./postprocessing/root_converter.cpp
     SOURCES        += ./postprocessing/rootfile_helper.cpp
     SOURCES        += ./postprocessing/roottree_converter.cpp
+    LIBS           += $$system($$ROOTCONFIG_BIN --libs)
     DEFINES        += CERNROOT
     DICTIONARYFILES = ./postprocessing/tree_structure.h
     include( $$PWD/rootdict_generator.pri )
@@ -229,19 +235,14 @@ cernroot {
 
 # Extra stuff for fftw
 fftw {
-    LIBS           += -lfftw3
     SOURCES        += ./postprocessing/fft.cpp
     HEADERS        += ./postprocessing/fft.h
+    LIBS           += -lfftw3
     DEFINES        += FFTW
 }
 
 # Extra stuff for SACLA DATA
 SACLA {
-    LIBS           += $$SACLA_OFFLINE_LIBDIR/libSaclaDataAccessUserAPI.a
-    LIBS           += -lmysqlclient
-#    LIBS           += -lirc
-#    LIBS           += -limf
-    DEFINES        += SACLADATA
     is_offline {
         SOURCES    += ./sacla_offline_input.cpp
         HEADERS    += ./sacla_offline_input.h
@@ -253,7 +254,18 @@ SACLA {
         SOURCES    += ./sacla_online_input.cpp
         HEADERS    += ./sacla_online_input.h
     }
+    LIBS           += $$SACLA_OFFLINE_LIBDIR/libSaclaDataAccessUserAPI.a
+    LIBS           += -lmysqlclient
+#    LIBS           += -lirc
+#    LIBS           += -limf
+    DEFINES        += SACLADATA
 }
+
+# other libraries needed
+LIBS               += -lgsoap++ -lgsoap
+LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
+LIBS               += -lrt
+
 
 INSTALLS           += target
 
