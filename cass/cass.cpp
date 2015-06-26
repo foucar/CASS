@@ -18,29 +18,37 @@
 #include "cass_version.h"
 #include "log.h"
 #include "input_base.h"
-#include "file_input.h"
-#include "multifile_input.h"
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
 #include "ringbuffer.h"
-#include "sharedmemory_input.h"
-#include "tcp_input.h"
 //#include "test_input.h"
 #include "tcpserver.h"
 #include "processor_manager.h"
 #include "worker.h"
 #include "cass_settings.h"
 #include "cl_parser.hpp"
+#ifdef OFFLINE
+#include "multifile_input.h"
+#include "file_input.h"
+#else
+#include "sharedmemory_input.h"
+#include "tcp_input.h"
+#endif
 #ifdef HTTPSERVER
 #include "httpserver.h"
 #endif
 #ifdef SACLADATA
+#ifdef OFFLINE
 #include "sacla_offline_input.h"
+#else
 #include "sacla_online_input.h"
 #endif
+#endif
 #ifdef HDF5
+#ifdef OFFLINE
 #include "hdf5_file_input.h"
+#endif
 #endif
 
 
