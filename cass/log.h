@@ -64,6 +64,12 @@ public:
    */
   static void loadSettings();
 
+  /** return the name of the log file
+   *
+   * if the instance has not yet been created create the logging instance.
+   */
+  static std::string filename();
+
 private:
   /** constructor
    *
