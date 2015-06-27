@@ -46,6 +46,14 @@ void Log::loadSettings()
   _instance->load();
 }
 
+string Log::filename()
+{
+  QMutexLocker locker(&_lock);
+  if (!_instance)
+    _instance = std::tr1::shared_ptr<Log>(new Log());
+  return _instance->_filename;
+}
+
 Log::Log()
 {
   load();
