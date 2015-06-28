@@ -377,6 +377,9 @@ protected:
  * increased and the process to determine the local background and std is
  * repeated.
  *
+ * This algorithm was inspired by an algorithm described in
+ * Zhang et al. J. Appl. Cryst. (2006). 39, 112-119
+ * [ doi:10.1107/S0021889805040677 ]
  *
  * @see PostProcessor for a list of all commonly available cass.ini
  *      settings.
