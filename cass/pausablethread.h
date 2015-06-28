@@ -7,6 +7,8 @@
 #ifndef PAUSABLETHREAD_H
 #define PAUSABLETHREAD_H
 
+#include <stdexcept>
+
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
@@ -46,15 +48,38 @@ public:
     : QThread(parent),
       _status(notstarted),
       _control(control),
-      _pausecount((control==_run?0:1))
+      _pausecount((control==_run?0:1)),
+      _exception_thrown(NO_EXCEPTION),
+      _invarg_excep(""),
+      _runt_excep(""),
+      _outrange_excep("")
   {}
 
-/** destructor
+  /** destructor
    *
    * stops the threads execution before deleting the thread. Make sure that
    * all waitconditions are properly shut down.
    */
   virtual ~PausableThread();
+
+  /** run the thread
+   *
+   * this will call the pure virtual function runthis that needs to be
+   * implemented with the code that the thread should execute.
+   * It will handle all exceptions and ensures that they are not leaving the
+   * thread. One can check after exectution of the thread which exceptions have
+   * been thrown. Supported are
+   * std::invalid_argument
+   * std::runtime_error
+   * std::out_of_range
+   */
+  void run();
+
+  /** contains the code to run in the thread
+   *
+   * needs to be implemented by the derived threads
+   */
+  virtual void runthis()=0;
 
   /** pause the thread
    *
@@ -89,6 +114,22 @@ public:
    */
   bool shouldQuit()const {return (_control == _quit);}
 
+  /** enum describing which exception was thrown */
+  enum exception_t
+  {
+    NO_EXCEPTION,
+    INVALID_ARGUMENT_EXCEPTION,
+    RUNTIME_ERROR_EXCEPTION,
+    OUT_OF_RANGE_EXCEPTION,
+    UNKNOWN_EXCEPTION
+  };
+
+  /** rethrow the thrown exception
+   *
+   * this should only be called when the thread has quitted
+   */
+  void rethrowException()const;
+
 public slots:
   /** tell the thread to quit */
   virtual void end() {_control = _quit;}
@@ -120,6 +161,18 @@ protected:
 
   /** a counter how many threads have pause this thread */
   size_t _pausecount;
+
+  /** flag to show that general exception was thrown */
+  exception_t _exception_thrown;
+
+  /** the invalid arguemnt exception thrown */
+  std::invalid_argument _invarg_excep;
+
+  /** the invalid arguemnt exception thrown */
+  std::runtime_error _runt_excep;
+
+  /** the invalid arguemnt exception thrown */
+  std::out_of_range _outrange_excep;
 };
 
 }//end namespace lmf

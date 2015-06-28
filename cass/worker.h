@@ -63,7 +63,7 @@ public:
    * then into the postanalysis chain. Then put it back to the ringbuffer for
    * new refilling and increase the counter of the ratemeter.
    */
-  void run();
+  void runthis();
 
 private:
   /** the ringbuffer */
@@ -145,6 +145,12 @@ public:
    * simultanious calling of this function.
    */
   void end();
+
+  /** check if all workers are still running
+   *
+   * @return false if one of the workers is not running anymore
+   */
+  bool running()const;
 
   /** a lock to be used by functions that are using this worker */
   QMutex lock;

@@ -206,7 +206,7 @@ void SACLAOfflineInput::load()
   _chunks = s.value("NbrThreads",1).toInt();
 }
 
-void SACLAOfflineInput::run()
+void SACLAOfflineInput::runthis()
 {
   _status = lmf::PausableThread::running;
   Tokenizer tokenize;

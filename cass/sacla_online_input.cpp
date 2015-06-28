@@ -53,7 +53,7 @@ struct DetectorTile
     funcstatus = ol_connect(name.c_str(), &_sockID);
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not retrieve socket id of '" +
-                          name + "' ErrorCode is '" + toString(funcstatus) + 
+                          name + "' ErrorCode is '" + toString(funcstatus) +
                           "'");
 
     /** get the size of the data and the needed worksize */
@@ -102,12 +102,12 @@ struct DetectorTile
                                        _databuffer.size(), &_workbuffer.front(),
                                        _workbuffer.size(), &outputTag);
     if (funcstatus == -10000)
-      throw TagOutdated("DetectorTile: tile '" + name + "': tag '" + toString(tag) + 
+      throw TagOutdated("DetectorTile: tile '" + name + "': tag '" + toString(tag) +
                           "' on socket '" + toString(_sockID) +
                           "' isn't available anymore");
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not retrieve data of tile '" +
-                          name + "' for tag '" + toString(tag) + 
+                          name + "' for tag '" + toString(tag) +
                           "' using socket '" + toString(_sockID) +
                           "'. ErrorCode is '" + toString(funcstatus) + "'");
   }
@@ -116,7 +116,7 @@ struct DetectorTile
    *
    * Collect the data from the server to the buffer and copy the tile's data
    * to the frame.
-   * 
+   *
    * @param tag the tag for which to copy the tile data.
    */
   void copyData(int tag)
@@ -214,8 +214,8 @@ private:
 };// end class DetectorTile
 
 
-/** An Octal Detector 
- * 
+/** An Octal Detector
+ *
  * A detector with a user chosen amount of equal tiles
  *
  * @author Lutz Foucar
@@ -297,9 +297,9 @@ struct OctalDetector
      *  @note when compiling with openmp one needs to take special care with the
      *        exceptions. They need to be catched within the thread they have been
      *        thrown. To work around this a global exception exists that will be
-     *        filled with the exception thrown. After the execution of the 
+     *        filled with the exception thrown. After the execution of the
      *        threads it will be checked if the global exeption has been set and
-     *        if so, it will be thrown in the main thread. To be catched at a 
+     *        if so, it will be thrown in the main thread. To be catched at a
      *        convenient time.
      */
 //    for_each(tiles.begin(), tiles.end(), bind(&DetectorTile::copyData,_1,tag));
@@ -373,7 +373,7 @@ struct MachineValue
 {
   /** constructor
    *
-   * retrieve the hightag with the offline version of the API  using the 
+   * retrieve the hightag with the offline version of the API  using the
    * provided runnumber
    *
    * @param name The name of this Machine Value
@@ -480,7 +480,7 @@ SACLAOnlineInput::SACLAOnlineInput(RingBuffer<CASSEvent> &ringbuffer,
   Log::add(Log::VERBOSEINFO, "SACLAOnlineInput:: constructed");
 }
 
-void SACLAOnlineInput::run()
+void SACLAOnlineInput::runthis()
 {
   /** load settings from the ini file */
   CASSSettings s;
@@ -501,8 +501,8 @@ void SACLAOnlineInput::run()
     octalDetectors.back().CASSID = cassid;
     octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
     octalDetectors.back().tagAdvance = s.value("NextTagNumberAdvancedBy",2).toInt();
-    Log::add(Log::INFO, "SACLAOnlineInput: Setting up octal detector with cassid '" + 
-             toString(cassid) +  "' and" + 
+    Log::add(Log::INFO, "SACLAOnlineInput: Setting up octal detector with cassid '" +
+             toString(cassid) +  "' and" +
              (octalDetectors.back().normalize?"":" don't") +
              " normalize the tiles of the detector to one another." +
              " The next tag number is guessed by advancing the current one by '" +
@@ -516,15 +516,15 @@ void SACLAOnlineInput::run()
       octalDetectors.back().tiles.push_back(DetectorTile(tilename));
       /** @note in online mode one gets the raw tile shape therefore one needs
        *        to remove the last 6 lines, which are used for calibration.
-       *        Allow the user to choose how many rows need to be removed to 
+       *        Allow the user to choose how many rows need to be removed to
        *        prevent the necessity to recompile when the API changes with that
        *        respect.
        */
       const int nLinesOmitted(s.value("NbrCalibrationRows",6).toUInt());
       octalDetectors.back().tiles.back().ysize -= nLinesOmitted;
-      Log::add(Log::INFO, "SACLAOnlineInput: Octal detector with cassid '"+ 
-              toString(cassid) + "' has tile '" + 
-              octalDetectors.back().tiles.back().name + "'. The last '" + 
+      Log::add(Log::INFO, "SACLAOnlineInput: Octal detector with cassid '"+
+              toString(cassid) + "' has tile '" +
+              octalDetectors.back().tiles.back().name + "'. The last '" +
               toString(nLinesOmitted) + "' rows are ignored.");
     }
     s.endArray();
@@ -536,11 +536,11 @@ void SACLAOnlineInput::run()
     throw invalid_argument("SACLAOnlineInput: Need to have at least one octal detector defined");
 
 
-  /** load the beamline number of the beamline we're running on 
+  /** load the beamline number of the beamline we're running on
    *  (needed to retieve database values)
    */
   int BeamlineNbr = s.value("BeamlineNumber",3).toInt();
-  Log::add(Log::INFO, "SACLAOnlineInput: Using BeamlineNumber '" + 
+  Log::add(Log::INFO, "SACLAOnlineInput: Using BeamlineNumber '" +
            toString(BeamlineNbr) + "'");
 
 
@@ -567,8 +567,8 @@ void SACLAOnlineInput::run()
     /** if the cass name is set then overwrite it withing the machinevalue */
     if (cassValName != "Invalid")
       machineValues.back().cassname = cassValName;
-    Log::add(Log::INFO, "SACLAOnlineInput: Setting up Database value '" + 
-             machineValues.back().name + "' with CASSName '" + 
+    Log::add(Log::INFO, "SACLAOnlineInput: Setting up Database value '" +
+             machineValues.back().name + "' with CASSName '" +
              machineValues.back().cassname + "'");
   }
   s.endArray();
@@ -591,7 +591,7 @@ void SACLAOnlineInput::run()
     uint64_t datasize(0);
 
     /** use try...catch to get notified when the requested tag data is not
-     *  available anymore 
+     *  available anymore
      */
     try
     {
@@ -601,13 +601,13 @@ void SACLAOnlineInput::run()
       if(devIt == devices.end())
         throw runtime_error("SACLAOnlineInput: CASSEvent does not contains a pixeldetector device");
       pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
-  
+
       /** get the latest tag from the first defined octal detector */
       int latestTag(octalDetectors.front().latestTag(lastTag));
 
       /** only do something when the tag has advanced
        *  @note currently this not really necessary as the tag will always be
-       *        advanced by the latestTag call. But this might be needed in 
+       *        advanced by the latestTag call. But this might be needed in
        *        future when it is possible to use the API function to retrieve
        *        the latest tag.
        */
@@ -615,8 +615,8 @@ void SACLAOnlineInput::run()
       {
         /** set the event id */
         evt.id() = latestTag;
-  
-        /** copy octal detector data to cassevent and 
+
+        /** copy octal detector data to cassevent and
          *  add the size in bytes copied to the total size retrieved
          */
         vector<OctalDetector>::iterator octIter(octalDetectors.begin());
@@ -625,15 +625,15 @@ void SACLAOnlineInput::run()
         {
           datasize += octIter->copyData(dev,latestTag);
         }
-  
+
 
         /** get refrence to the machine device of the CASSEvent */
         CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
         if (mdIt == devices.end())
           throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
         MachineData::MachineDataDevice &md(*dynamic_cast<MachineData::MachineDataDevice*>(mdIt->second));
-  
-        /** retrieve requested machinedata, copy it to the CASSEvent and add 
+
+        /** retrieve requested machinedata, copy it to the CASSEvent and add
          *  the size in bytes to the total size retrieved
          */
         vector<MachineValue>::iterator machIter(machineValues.begin());
@@ -642,8 +642,8 @@ void SACLAOnlineInput::run()
         {
           datasize += machIter->copyData(md,latestTag);
         }
-  
-  
+
+
         /** remember the latest tag */
         lastTag = latestTag;
       }

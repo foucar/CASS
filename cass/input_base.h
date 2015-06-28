@@ -43,7 +43,7 @@ public:
    * variable of the PausableThread to running.like follows:
    * _status = lmf::PausableThread::running;
    */
-  virtual void run()=0;
+  virtual void runthis()=0;
 
   /** load the settings of the input module from ini file
    *

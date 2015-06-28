@@ -5,7 +5,6 @@
  */
 
 #include <iostream>
-#include <stdexcept>
 
 #include "pausablethread.h"
 
@@ -19,6 +18,33 @@ PausableThread::~PausableThread()
     terminate();
   }
   wait();
+}
+
+void PausableThread::run()
+{
+  try
+  {
+    runthis();
+  }
+  catch (const invalid_argument &error)
+  {
+    _exception_thrown = INVALID_ARGUMENT_EXCEPTION;
+    _invarg_excep = error;
+  }
+  catch (const runtime_error &error)
+  {
+    _exception_thrown = RUNTIME_ERROR_EXCEPTION;
+    _runt_excep = error;
+  }
+  catch (const out_of_range &error)
+  {
+    _exception_thrown = OUT_OF_RANGE_EXCEPTION;
+    _outrange_excep = error;
+  }
+  catch (...)
+  {
+    _exception_thrown = UNKNOWN_EXCEPTION;
+  }
 }
 
 void PausableThread::pause(bool wait)
@@ -66,5 +92,27 @@ void PausableThread::pausePoint()
     _waitUntilPausedCondition.wakeOne();
     _pauseCondition.wait(&_pauseMutex);
     _status = running;
+  }
+}
+
+void PausableThread::rethrowException()const
+{
+  switch (_exception_thrown)
+  {
+  case INVALID_ARGUMENT_EXCEPTION:
+    throw _invarg_excep;
+    break;
+  case lmf::PausableThread::RUNTIME_ERROR_EXCEPTION:
+    throw _runt_excep;
+    break;
+  case lmf::PausableThread::OUT_OF_RANGE_EXCEPTION:
+    throw _outrange_excep;
+    break;
+  case lmf::PausableThread::UNKNOWN_EXCEPTION:
+    throw 0;
+    break;
+  case lmf::PausableThread::NO_EXCEPTION:
+  default:
+    break;
   }
 }

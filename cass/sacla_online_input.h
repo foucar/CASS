@@ -35,7 +35,7 @@ namespace cass
  *           The number of octal pixeldetectors that one wants to
  *           retrieve. Ensure that each parameter has a unique id in the list.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{CASSID}\n
- *           The id of the detector that CASS will use internally. 
+ *           The id of the detector that CASS will use internally.
              Default is "-1" which will cause to skip this index.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
  *           Using this option one can control whether the pixel values of the
@@ -45,12 +45,12 @@ namespace cass
  *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{tile1}}*pixval_{tile}\f$
  *           Default is true.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NextTagNumberAdvancedBy}\n
- *           It is needed to guess the next tag number therefore one has to 
+ *           It is needed to guess the next tag number therefore one has to
  *           tell how much the tag number advanced from one shot to the next.
- *           The tag number is increased with 60 Hz. Therefore at 30 Hz this 
+ *           The tag number is increased with 60 Hz. Therefore at 30 Hz this
  *           number should be 2. Default is 2.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/{size}\n
- *           The number of tiles contained within the octal pixeldetectors 
+ *           The number of tiles contained within the octal pixeldetectors
  *           Ensure that each parameter has a unique id in the list.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/\%index\%/{TileName}\n
  *           Name of the tile in the SACLA DAQ. Default is "Invalid".
@@ -92,10 +92,10 @@ public:
 
   /** starts the thread
    *
-   * this is the main while loop collecting the requested data and making it 
+   * this is the main while loop collecting the requested data and making it
    * available using the ringbuffer.
    */
-  void run();
+  void runthis();
 
   /** do not load anything after it is started */
   void load() {}
@@ -103,7 +103,7 @@ public:
 private:
   /** constructor
    *
-   * creates the thread. 
+   * creates the thread.
    *
    * @param buffer the ringbuffer, that we take events out and fill it
    *        with the incomming information

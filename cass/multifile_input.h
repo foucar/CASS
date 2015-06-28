@@ -77,7 +77,7 @@ public:
   ~MultiFileInput();
 
   /** function with the main loop */
-  void run();
+  void runthis();
 
   /** load the parameters used for the multifile input */
   void load();

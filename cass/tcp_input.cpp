@@ -77,7 +77,7 @@ void TCPInput::checkSocket(QTcpSocket &socket)
     connectToServer(socket);
 }
 
-void TCPInput::run()
+void TCPInput::runthis()
 {
   _status = lmf::PausableThread::running;
   const int Timeout = 2 * 1000;

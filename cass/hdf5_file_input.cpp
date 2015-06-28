@@ -55,7 +55,7 @@ void HDF5FileInput::load()
 {
 }
 
-void HDF5FileInput::run()
+void HDF5FileInput::runthis()
 {
   /** load the settings from the ini file */
   CASSSettings s;

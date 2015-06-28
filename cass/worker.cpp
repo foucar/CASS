@@ -28,7 +28,7 @@ Worker::Worker(RingBuffer<CASSEvent> &ringbuffer,
     _ratemeter(ratemeter)
 {}
 
-void Worker::run()
+void Worker::runthis()
 {
   _status = lmf::PausableThread::running;
   while(_control != _quit)
@@ -119,4 +119,16 @@ void Workers::end()
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
   PostProcessors::instance()->aboutToQuit();
+
+  /** rethrow the exception thrown by the workers */
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->rethrowException();
+}
+
+bool Workers::running()const
+{
+  bool running(true);
+  for (size_t i=0;i<_workers.size();++i)
+    running = running && _workers[i]->isRunning();
+  return running;
 }

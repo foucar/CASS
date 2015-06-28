@@ -86,7 +86,7 @@ void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
   newEventAdded(rbItem->element->datagrambuffer().size());
 }
 
-void MultiFileInput::run()
+void MultiFileInput::runthis()
 {
   _status = lmf::PausableThread::running;
 

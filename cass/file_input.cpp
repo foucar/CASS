@@ -112,7 +112,7 @@ private:
 
   /** a counter for the events */
   uint64_t _counter;
-};
+};//end class FileProcessor
 
 }//end namespace cass
 
@@ -147,7 +147,7 @@ void FileInput::load()
   _parallelize = s.value("Parallelize",false).toBool();
 }
 
-void FileInput::run()
+void FileInput::runthis()
 {
   _status = lmf::PausableThread::running;
   Tokenizer tokenize;

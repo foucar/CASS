@@ -68,7 +68,7 @@ public:
    * Starts the thread and the loop that waits for data. When an timout occured
    * it will just restart the loop until the quit flag is set.
    */
-  void run();
+  void runthis();
 
   /** do not load anything */
   void load() {}

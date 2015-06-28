@@ -60,7 +60,7 @@ public:
    * from. The loop will be notified when there are new events available in
    * the shared memory.
    */
-  void run();
+  void runthis();
 
   /** overwrite the base class function with our code
    *

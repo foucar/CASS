@@ -248,14 +248,10 @@ int main(int argc, char **argv)
      */
     setSignalHandler();
 
-    /** set up the TCP/SOAP server and connect its provided signals to the
-     *  appropriate slots fo the input and the workers
-     */
+    /** set up the TCP/SOAP server */
     SoapServer::shared_pointer server;
     if(!noSoap)
-    {
       server = SoapServer::instance(soap_port);
-    }
 
     /** set up the optional http server */
 #ifdef HTTPSERVER
@@ -274,10 +270,23 @@ int main(int argc, char **argv)
     if(!suppressrate)
       plotter.start();
     InputBase::reference().start();
-    InputBase::reference().wait();
 
-    /** now stop the other threads */
+    /** periodically check if the Workers are still running, while the input
+     *  is still running. If not all workers are still running quit the input
+     *  at this point
+     *  @note wait will return false if the input is still running
+     */
+    while (!InputBase::reference().wait(500))
+    {
+      if (!Workers::reference().running())
+        InputBase::reference().end();
+    }
+
+    /** now stop the worker threads */
     Workers::reference().end();
+
+    /** rethrow the exceptions if any where thrown inside the Input threads */
+    InputBase::reference().rethrowException();
 
     /** @todo find out how to stop the other threads */
   }

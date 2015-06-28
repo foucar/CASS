@@ -56,7 +56,7 @@ void SharedMemoryInput::load()
   _convert.loadSettings(0);
 }
 
-void SharedMemoryInput::run()
+void SharedMemoryInput::runthis()
 {
   _status = lmf::PausableThread::running;
   Log::add(Log::DEBUG0,"SharedMemoryInput::run(): starting shared memory in put with partition Tag: '" +
