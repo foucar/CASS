@@ -214,6 +214,7 @@ public:
    *
    * @note this can be the reason why only one of the threads is working at
    *       a time.
+   *
    * @return iterator to the element of the ringbuffer that is processable
    * @param[in] timeout Time that we will wait that a new element is beeing
    *                    put into the buffer. It is defaulted to ULONG_MAX
@@ -285,8 +286,10 @@ public:
    * event was put into the buffer.
    *
    * @return iterator to the element that can be filled
+   * @param[in] timeout Time that we will wait that a new fillable element is
+   *                    beeing made available. It is defaulted to ULONG_MAX
    */
-  iter_type nextToFill()
+  iter_type nextToFill(unsigned long timeout=ULONG_MAX)
   {
     QMutexLocker lock(&_mutex);
 
@@ -296,7 +299,12 @@ public:
      *  @note this is blocking until an element has been processed
      */
     while(!findNextFillable())
-      _fillcondition.wait(lock.mutex());
+    {
+      if (!_fillcondition.wait(lock.mutex(),timeout))
+       throw ProcessableTimedout(std::string("RingBuffer::nextToFill(): ") +
+                                 "couldn't retrieve a new element to fill " +
+                                 "within '" + toString(timeout) + "' ms");
+    }
 
     /** Set the flags accordingly */
     _nextToFill->inUse = true;
