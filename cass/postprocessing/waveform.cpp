@@ -112,7 +112,6 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                            "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
-  cout << waveform.back()<<endl;
   transform(waveform.begin(), waveform.end(),
             result.memory().begin(),
             bind(minus<float>(),
