@@ -14,6 +14,7 @@
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "processor_manager.h"
+#include "log.h"
 
 
 using namespace cass;
@@ -31,19 +32,15 @@ Worker::Worker(RingBuffer<CASSEvent> &ringbuffer,
 void Worker::runthis()
 {
   _status = lmf::PausableThread::running;
+  RingBuffer<CASSEvent>::iter_type rbItem;
   while(_control != _quit)
   {
     pausePoint();
-    try
+    if ((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end())
     {
-      RingBuffer<CASSEvent>::iter_type rbItem(_ringbuffer.nextToProcess(1000));
       _postprocess(*rbItem->element);
       _ringbuffer.doneProcessing(rbItem);
       _ratemeter.count();
-    }
-    catch(ProcessableTimedout &e)
-    {
-
     }
   }
 }

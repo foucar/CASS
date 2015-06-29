@@ -215,7 +215,8 @@ public:
    * @note this can be the reason why only one of the threads is working at
    *       a time.
    *
-   * @return iterator to the element of the ringbuffer that is processable
+   * @return iterator to the element of the ringbuffer that is processable and
+   *         in case a timeout occured, return the end iterator of the buffer.
    * @param[in] timeout Time that we will wait that a new element is beeing
    *                    put into the buffer. It is defaulted to ULONG_MAX
    */
@@ -229,9 +230,7 @@ public:
      */
     while (!findNextProcessable())
       if(!_processcondition.wait(lock.mutex(),timeout))
-       throw ProcessableTimedout(std::string("RingBuffer::nextToProcess(): ") +
-                                 "couldn't retrieve a new element to process " +
-                                 "within '" + toString(timeout) + "' ms");
+        return _buffer.end();
 
     /** set the flags of that element */
     _nextToProcess->inUse = true;
@@ -285,7 +284,8 @@ public:
    * In the blocking case this function will only return when a processed
    * event was put into the buffer.
    *
-   * @return iterator to the element that can be filled
+   * @return iterator to the element that can be filled and in case a timeout
+   *         occured, return the end iterator of the buffer.
    * @param[in] timeout Time that we will wait that a new fillable element is
    *                    beeing made available. It is defaulted to ULONG_MAX
    */
@@ -299,12 +299,8 @@ public:
      *  @note this is blocking until an element has been processed
      */
     while(!findNextFillable())
-    {
       if (!_fillcondition.wait(lock.mutex(),timeout))
-       throw ProcessableTimedout(std::string("RingBuffer::nextToFill(): ") +
-                                 "couldn't retrieve a new element to fill " +
-                                 "within '" + toString(timeout) + "' ms");
-    }
+        return _buffer.end();
 
     /** Set the flags accordingly */
     _nextToFill->inUse = true;
@@ -386,6 +382,9 @@ public:
     while (countProcessing() != 0)
       _fillcondition.wait(lock.mutex(),100);
   }
+
+  /** @return the end element of the buffer (which is not good) */
+  iter_type end() {return _buffer.end();}
 
 private:
   /** mutex to protect the iterators and the buffer elements */
