@@ -152,6 +152,9 @@ public:
    */
   bool running()const;
 
+  /** rethrow the exceptions thrown in the workers */
+  void rethrowException();
+
   /** a lock to be used by functions that are using this worker */
   QMutex lock;
 

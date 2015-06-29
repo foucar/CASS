@@ -116,8 +116,10 @@ void Workers::end()
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
   PostProcessors::instance()->aboutToQuit();
+}
 
-  /** rethrow the exception thrown by the workers */
+void Workers::rethrowException()
+{
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->rethrowException();
 }
