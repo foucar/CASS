@@ -103,8 +103,8 @@ struct DetectorTile
                                        _workbuffer.size(), &outputTag);
     if (funcstatus == -10000)
       throw TagOutdated("DetectorTile: tile '" + name + "': tag '" + toString(tag) +
-                          "' on socket '" + toString(_sockID) +
-                          "' isn't available anymore");
+                         "' on socket '" + toString(_sockID) +
+                         "' isn't available anymore");
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not retrieve data of tile '" +
                           name + "' for tag '" + toString(tag) +
