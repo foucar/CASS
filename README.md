@@ -28,13 +28,13 @@ You can download a recent tarball version of CASS from the following location
 
     http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads/cass.latest.tar.gz
 
-Older versions of CASS are also available for download from the same location:
+Older versions of CASS are also available for download from:
 
     http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads/
 
-Note that version without numeric version name were created when CASS was still
-developed in svn and are therefore outdated and only availabe for historic
-reasons.
+Note that versions without a numeric version name were created when CASS was
+still developed in svn and are therefore outdated. They area only availabe for
+historic reasons.
 
 ### Retrieving the version controlled source code (git) {#get_git}
 CASS is being developed using the distributed version control system 'git'.
@@ -47,6 +47,11 @@ public key.
 
 The recent stable version is contained in the 'master' branch.
 
+#### Anonymous retrieval via GitHub {#get_github}
+An anonymous clone of the latest master branch of the repository is accessable
+via GitHub
+
+    https://github.com/foucar/CASS
 
 Building CASS {#Building}
 -------------
