@@ -8,8 +8,11 @@
 
 #include "pausablethread.h"
 
+#include "log.h"
+
 using namespace lmf;
 using namespace std;
+using namespace cass;
 
 PausableThread::~PausableThread()
 {
@@ -28,21 +31,28 @@ void PausableThread::run()
   }
   catch (const invalid_argument &error)
   {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch invalid argument exception '") +
+             error.what() + "'");
     _exception_thrown = INVALID_ARGUMENT_EXCEPTION;
     _invarg_excep = error;
   }
   catch (const runtime_error &error)
   {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch runtime erro exception '") +
+             error.what() + "'");
     _exception_thrown = RUNTIME_ERROR_EXCEPTION;
     _runt_excep = error;
   }
   catch (const out_of_range &error)
   {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch out of range exception '") +
+             error.what() + "'");
     _exception_thrown = OUT_OF_RANGE_EXCEPTION;
     _outrange_excep = error;
   }
   catch (...)
   {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch unknown exception '"));
     _exception_thrown = UNKNOWN_EXCEPTION;
   }
 }
