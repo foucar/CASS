@@ -144,11 +144,11 @@ void HDF5FileInput::runthis()
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
   uint64_t eventcounter(0);
-  for (;filelistIt != filelistEnd; ++filelistIt)
+  for (;(!shouldQuit()) && (filelistIt != filelistEnd); ++filelistIt)
   {
+    /** check if file exists, then load it */
     string filename(*filelistIt);
     QFileInfo info(QString::fromStdString(filename));
-    /** if there was such a file then we want to load it */
     if (info.exists())
     {
       /** open the hdf5 file */
@@ -160,11 +160,28 @@ void HDF5FileInput::runthis()
       list<string> events(h5handle.rootGroups());
 
       /** iterate through the list and extract the requested informations */
-      for (list<string>::const_iterator it=events.begin(); it != events.end(); ++it)
+      list<string>::const_iterator it(events.begin());
+      list<string>::const_iterator EventsEnd(events.end());
+      for (; (!shouldQuit()) && (it != EventsEnd); ++it)
       {
-        /** retrieve a new element from the ringbuffer */
-        InputBase::rbItem_t rbItem(_ringbuffer.nextToFill());
+
+        /** retrieve a new element from the ringbuffer. If one didn't get a
+         *  an element (when the end iterator of the buffer is returned).
+         *  Continue to the next iteration, where it is checked if the thread
+         *  should quit.
+         */
+        InputBase::rbItem_t rbItem(getNextFillable());
+        if (rbItem == _ringbuffer.end())
+          continue;
         CASSEvent& evt(*rbItem->element);
+
+        /** quit here if requested */
+        if (_control == _quit)
+        {
+          Log::add(Log::DEBUG4,"hdf5fileinput:run(): Told to quit. Now quitting");
+          break;
+        }
+
 
         /** fill the cassevent object with the contents from the file */
         bool isGood(true);
@@ -174,6 +191,7 @@ void HDF5FileInput::runthis()
           throw invalid_argument("HDF5FileInput:run(): EventID from '"+
                                  *it + "/" + EventIDName + "' is not a scalar number");
         evt.id() = h5handle.readScalar<int>(*it + "/" + EventIDName);
+
 
         /** get reference to all devices of the CASSEvent and an iterator*/
         CASSEvent::devices_t &devices(evt.devices());
@@ -187,7 +205,7 @@ void HDF5FileInput::runthis()
         devIt = devices.find(CASSEvent::MachineData);
         if (devIt == devices.end())
           throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Machine Data Device");
-         MachineData::MachineDataDevice &md (*dynamic_cast<MachineData::MachineDataDevice*>(devIt->second));
+        MachineData::MachineDataDevice &md (*dynamic_cast<MachineData::MachineDataDevice*>(devIt->second));
 
         /** go through all requested machine data events and retrieve the corresponding
          *  values for the tag */
@@ -320,6 +338,6 @@ void HDF5FileInput::runthis()
     while(!shouldQuit())
       this->sleep(1);
   Log::add(Log::VERBOSEINFO, "HDF5FileInput::run(): closing the input");
-  Log::add(Log::INFO,"HDF5FileInput::run(): Analysed '" + toString(eventcounter) +
+  Log::add(Log::INFO,"HDF5FileInput::run(): Extracted '" + toString(eventcounter) +
            "' events.");
 }
