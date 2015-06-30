@@ -273,13 +273,19 @@ int main(int argc, char **argv)
 
     /** periodically check if the Workers are still running, while the input
      *  is still running. If not all workers are still running quit the input
-     *  at this point
+     *  at this point and wait until it is quitted. Then rethrow the reason
+     *  why the worker have quitted running.
      *  @note wait will return false if the input is still running
      */
     while (!InputBase::reference().wait(500))
     {
       if (!Workers::reference().running())
+      {
+        Log::add(Log::DEBUG4,"main(): One of the workers seem to not be working, quit the input");
         InputBase::reference().end();
+        InputBase::reference().wait();
+        Workers::reference().rethrowException();
+      }
     }
 
     /** now stop the worker threads */
@@ -293,25 +299,25 @@ int main(int argc, char **argv)
   catch (const invalid_argument &error)
   {
     Log::add(Log::ERROR,string("User input is wrong: ") + error.what());
-    cout << "User input is wrong: Please review the log file '"
+    cout <<endl<<endl<< "User input is wrong: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
   catch (const runtime_error &error)
   {
     Log::add(Log::ERROR,string("Runtime error: ") + error.what());
-    cout << "Bad error: Please review the log file '"
+    cout <<endl<<endl<< "Bad error: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
   catch (const out_of_range &error)
   {
     Log::add(Log::ERROR,string("Out of range error: ") + error.what());
-    cout << "Bad error: Please review the log file '"
+    cout <<endl<<endl<< "Bad error: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
   catch (...)
   {
     Log::add(Log::ERROR,"main(): something bad happend, quitting the program.");
-    cout << "Bad error: Please review the log file '"
+    cout <<endl<<endl<< "Bad error: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
   Log::add(Log::INFO,"Quitting CASS");
