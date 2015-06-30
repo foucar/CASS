@@ -42,6 +42,16 @@ namespace cass
  *                         pnCCD container to be used with the old analysis chain.
  *           - "shm": Type of data that is streamed from RACOON shm2tcp server.
  *                    is to be used with the new ccd analysis chain.
+ * @cassttng TCPInput/{SocketDataTimeout_ms}\n
+ *           Time in ms to wait until the data should be available. If time was
+ *           exeeded it will check if the connection on the socket to the server
+ *           was lost. Default is 2000 ms.
+ * @cassttng TCPInput/{SocketConnectionTimout_ms}\n
+ *           Time in ms to wait until the socket is connected to the server.
+ *           Default is 1000 ms.
+ * @cassttng TCPInput/{WaitUntilReconnectionTry_s}\n
+ *           Time in s to wait until another attempt is made to reconnect the
+ *           socket to the server. Default is 5.
  *
  * @author Lutz Foucar
  */
@@ -95,23 +105,32 @@ private:
            Ratemeter &ratemeter, Ratemeter &loadmeter,
            QObject *parent=0);
 
-  /** check the socket
-   *
-   * if the socket is connected then just return otherwise try connecting it to
-   * the server
-   *
-   * @param socket the socket to check
-   */
-  void checkSocket(QTcpSocket &socket);
 
   /** connect the socket to server
    *
    * tries to connect the socket to the server as long as user did not finish
    * the program or the socket has connected to the server
    *
+   * @return true when connection is established. False otherwise
    * @param socket the socket that one should connect to the server
    */
-  void connectToServer(QTcpSocket &socket);
+  bool connectToServer(QTcpSocket &socket);
+
+  /** wait until the data is available
+   *
+   * waits until the requested datasize is available on the socket. In case there
+   * is a timeout, check if the connection was lost. If this is the case,
+   * reconnect. And return false.
+   *
+   * @return true when requested datasize is available on the socket for reading
+   *         false otherwise.
+   * @param socket the socket for which to wait for data for
+   * @param datasize the amount of data to wait for.
+   */
+  bool dataAvailable(QTcpSocket &socket, qint64 datasize);
+
+  /** the timeout of the socket */
+  int _timeout;
 };
 
 }//end namespace cass
