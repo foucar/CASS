@@ -30,7 +30,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class FileProcessor : public QThread
+class FileProcessor : public lmf::PausableThread
 {
 public:
   /** define the shared pointer of this */
@@ -60,22 +60,18 @@ public:
   }
 
   /** process the file */
-  void run()
+  void runthis()
   {
     /** get a pointer to the calling thread */
     InputBase::shared_pointer::element_type& input(InputBase::reference());
 
     /** iterate through the file until we've reached the filesize */
-    while(_file.tellg() < _filesize)
+    while((!input.shouldQuit()) && (_file.tellg() < _filesize))
     {
-      /** check if the calling thread is told to quit, then quit processing the
-       *  file at this point
-       */
-      if (input.shouldQuit())
-        break;
-
       /** retrieve a new element from the ringbuffer */
-      InputBase::rbItem_t rbItem(input.ringbuffer().nextToFill());
+      InputBase::rbItem_t rbItem(input.getNextFillable());
+      if (rbItem == input.ringbuffer().end())
+        continue;
 
       /** fill the cassevent object with the contents from the file */
       bool isGood((*_read)(_file,*rbItem->element));
@@ -177,42 +173,6 @@ void FileInput::runthis()
     {
       FileProcessor::shared_pointer fProc(new FileProcessor(filename));
       fProcs.push_back(fProc);
-//      ifstream file(filename.c_str(), ios::binary | ios::in);
-//        /** load the right reader for the file type depending on its extension */
-//        _read = FileReader::instance(filename + _new);
-//        _read->loadSettings();
-//        Log::add(Log::INFO,"FileInput::run(): processing file '" + filename +
-//                 "' with file reader type '" + info.suffix().toStdString() + "'");
-//        file.seekg (0, ios::end);
-//        const streampos filesize(file.tellg());
-//        file.seekg (0, ios::beg);
-//        _read->readHeaderInfo(file);
-//        while(file.tellg() < filesize && _control != _quit)
-//        {
-//          pausePoint();
-//          /** rewind if requested */
-//          if (_rewind)
-//          {
-//            /** reset the rewind flag */
-//            _rewind = false;
-//            filelistIt = filelist.begin();
-//            break;
-//          }
-//          /** retrieve a new element from the ringbuffer */
-//
-//          rbItem_t rbItem(_ringbuffer.nextToFill());
-//          /** fill the cassevent object with the contents from the file */
-//          bool isGood((*_read)(file,*rbItem->element));
-//          if (!isGood)
-//            Log::add(Log::WARNING,"FileInput: Event with id '"+
-//                     toString(rbItem->element->id()) + "' is bad: skipping Event");
-//          else
-//            ++eventcounter;
-//          rbItem->element->setFilename(filelistIt->c_str());
-//          _ringbuffer.doneFilling(rbItem, isGood);
-//          newEventAdded(rbItem->element->datagrambuffer().size());
-//        }
-//        file.close();
     }
     else
       Log::add(Log::ERROR,"FileInput::run(): could not open '" + filename + "'");
@@ -229,7 +189,7 @@ void FileInput::runthis()
    */
   vector<FileProcessor::shared_pointer>::iterator pIt(fProcs.begin());
   vector<FileProcessor::shared_pointer>::iterator pEnd(fProcs.end());
-  for (; pIt != pEnd; ++pIt)
+  for (;(!shouldQuit()) && (pIt != pEnd); ++pIt)
   {
     (*pIt)->start();
     if (!_parallelize)
@@ -244,6 +204,7 @@ void FileInput::runthis()
   for (; pIt != pEnd; ++pIt)
   {
     (*pIt)->wait();
+    (*pIt)->rethrowException();
     eventcounter += (*pIt)->nEventsProcessed();
   }
 
