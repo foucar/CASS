@@ -89,6 +89,16 @@ public:
   /** define an item in the ringbuffer */
   typedef RingBuffer<CASSEvent>::iter_type rbItem_t;
 
+  /** retrieve an iterator to the next fillable event
+   *
+   * try to get an event to be filled from the buffer. Do this until either an
+   * event could be retrieved or the thread has been told to quit.
+   *
+   * @return iterator to the next fillable event, when the end of the ringbuffer
+   *         has been returned, the thread should quit
+   */
+  rbItem_t getNextFillable(unsigned timeout=500);
+
 protected:
   /** protected constructor since it should be a singelton
    *

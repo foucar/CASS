@@ -44,3 +44,12 @@ RingBuffer<CASSEvent>& InputBase::ringbuffer()
 {
   return _ringbuffer;
 }
+
+InputBase::rbItem_t InputBase::getNextFillable(unsigned timeout)
+{
+  InputBase::rbItem_t rbItem(_ringbuffer.end());
+  while ((rbItem = _ringbuffer.nextToFill(timeout)) == _ringbuffer.end())
+    if (_control == _quit)
+      break;
+  return rbItem;
+}
