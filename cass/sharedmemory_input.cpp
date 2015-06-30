@@ -87,35 +87,29 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
 {
   pausePoint();
 
-  //check if it just timed out, if so return
+  /** check if it just timed out, if so return */
   if(!datagram)
-    return (_control == _quit);
+    return (shouldQuit());
 
-  //retrieve a new element from the ringbuffer//
-  rbItem_t rbItem(_ringbuffer.nextToFill());
+  /** retrieve a new element from the ringbuffer */
+  rbItem_t rbItem(getNextFillable());
+  if (rbItem == _ringbuffer.end())
+    return (shouldQuit());
 
-  //read the datagram to the ringbuffer//
+  /** read the datagram to the ringbuffer element */
   CASSEvent::buffer_t& buf(rbItem->element->datagrambuffer());
   buf.assign(reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram),
              reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram)+(sizeof(Pds::Dgram)+datagram->xtc.sizeofPayload()));
-  if (datagram->xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
-  {
-    Log::add(Log::WARNING,string("SharedMemoryInput::processDgram(): Datagram size is bigger ") +
-             "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
-             " MB. Something is wrong. Skipping the datagram");
-    return  _control == _quit;
-  }
-//  memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
-  //now convert the datagram to a cassevent//
+  /** now convert the datagram to a cassevent */
   const bool isGood = _convert(rbItem->element);
 
-  //tell the buffer that we are done, but also let it know whether it is a good event//
+  /** tell the buffer that we are done, but also let it know whether it is a good event */
   _ringbuffer.doneFilling(rbItem,isGood);
 
-  //for ratemeter purposes send a signal that we added a new event//
+  /** for ratemeter purposes send a signal that we added a new event */
   newEventAdded(rbItem->element->datagrambuffer().size());
 
-  //return the quit code//
-  return  _control == _quit;
+  /** return the quit code */
+  return shouldQuit();
 }
