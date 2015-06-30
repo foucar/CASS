@@ -35,7 +35,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class TagListProcessor : public QThread
+class TagListProcessor : public lmf::PausableThread
 {
 public:
   /** typedef the shared pointer of this */
@@ -63,7 +63,7 @@ public:
   }
 
   /** process the tags on the list */
-  void run()
+  void runthis()
   {
     /** load the right reader for the file type depending on its extension */
     SACLAConverter convert;
@@ -81,13 +81,15 @@ public:
     InputBase::shared_pointer::element_type& input(InputBase::reference());
 
     iter = _liststart;
-    for(;iter != _listend; ++iter)
+    for(;(!input.shouldQuit()) && (iter != _listend); ++iter)
     {
-      /** check if the input should quit, if so break from this loop here */
-      if (input.shouldQuit())
-        break;
-      /** retrieve a new element from the ringbuffer */
-      InputBase::rbItem_t rbItem(InputBase::reference().ringbuffer().nextToFill());
+      /** retrieve a new element from the ringbuffer, in case it is an iterator
+       *  to the end of the buffer, continue to the next iterator of this list
+       */
+      InputBase::rbItem_t rbItem(input.getNextFillable());
+      if (rbItem == input.ringbuffer().end())
+        continue;
+
       /** fill the cassevent object with the contents from the file */
       uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*iter,*rbItem->element);
       if (!datasize)
@@ -227,10 +229,8 @@ void SACLAOfflineInput::runthis()
   /** iterate through the list of runs */
   vector<string>::const_iterator runlistIt(runlist.begin());
   vector<string>::const_iterator runlistEnd(runlist.end());
-  while (runlistIt != runlistEnd)
+  while ((!shouldQuit()) && (runlistIt != runlistEnd))
   {
-    if (shouldQuit())
-      break;
     /** split the runname into the run and beamline combination */
     string runname(*runlistIt++);
     stringstream ss(runname);
@@ -333,6 +333,7 @@ void SACLAOfflineInput::runthis()
     for (; processorsIt != processorsEnd; ++processorsIt)
     {
       (*processorsIt)->wait();
+      (*processorsIt)->rethrowException();
       eventcounter += (*processorsIt)->nEventsProcessed();
     }
   }
