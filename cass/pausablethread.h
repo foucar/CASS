@@ -9,9 +9,9 @@
 
 #include <stdexcept>
 
-#include <QThread>
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
 
 namespace lmf
 {

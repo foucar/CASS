@@ -9,8 +9,9 @@
 #ifndef _RINGBUFFER_H
 #define _RINGBUFFER_H
 
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
