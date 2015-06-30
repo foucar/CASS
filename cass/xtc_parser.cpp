@@ -10,17 +10,18 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
+#include "input_base.h"
 
 #include "pdsdata/xtc/Dgram.hh"
 
 using namespace cass;
 using namespace std;
 
-void XtcParser::run()
+void XtcParser::runthis()
 {
   ifstream &file(*(_readerpointerpair.second._filestream));
   Pds::Dgram datagram;
-  while(!file.eof())
+  while((!InputBase::reference().shouldQuit()) && (!file.eof()))
   {
     const streampos eventstartpos(file.tellg());
     file.read(reinterpret_cast<char*>(&datagram), sizeof(Pds::Dgram));

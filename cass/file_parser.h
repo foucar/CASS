@@ -18,6 +18,7 @@
 #include <string>
 
 #include "cass.h"
+#include "pausablethread.h"
 
 namespace cass
 {
@@ -25,7 +26,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class FileParser : public QThread
+class FileParser : public lmf::PausableThread
 {
   Q_OBJECT
 public:

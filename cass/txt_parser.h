@@ -40,7 +40,7 @@ public:
    *
    * detailed description
    */
-  void run();
+  void runthis();
 
   /** @return the type of file parser */
   virtual const std::string type() {return "txt";}

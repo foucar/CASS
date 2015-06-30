@@ -14,13 +14,14 @@
 #include "lma_parser.h"
 #include "agattypes.h"
 #include "log.h"
+#include "input_base.h"
 
 using namespace cass;
 using namespace ACQIRIS;
 using namespace std;
 using Streaming::operator >>;
 
-void LMAParser::run()
+void LMAParser::runthis()
 {
   ifstream &file(*(_readerpointerpair.second._filestream));
 
@@ -43,7 +44,7 @@ void LMAParser::run()
   }
 
   lmaHeader::Event evtHead;
-  while(!file.eof())
+  while((!InputBase::reference().shouldQuit()) && (!file.eof()))
   {
     const streampos eventStartPos(file.tellg());
     file >> evtHead;

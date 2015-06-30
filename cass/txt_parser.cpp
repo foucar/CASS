@@ -15,12 +15,13 @@
 #include "cass_settings.h"
 #include "file_reader.h"
 #include "cass_event.h"
+#include "input_base.h"
 
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
 
-void TxtParser::run()
+void TxtParser::runthis()
 {
   ifstream &file(*(_readerpointerpair.second._filestream));
   file.seekg (0, ios::end);
@@ -32,7 +33,7 @@ void TxtParser::run()
 
   shared_ptr<CASSEvent> event(new CASSEvent);
   streampos eventstartpos;
-  while(file.tellg()<filesize)
+  while((!InputBase::reference().shouldQuit()) && (file.tellg()<filesize))
   {
     eventstartpos = file.tellg();
     read(file,*event);

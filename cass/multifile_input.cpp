@@ -69,13 +69,15 @@ void MultiFileInput::load()
 
 void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
 {
-  rbItem_t rbItem(_ringbuffer.nextToFill());
+  rbItem_t rbItem(getNextFillable());
+  if (rbItem == _ringbuffer.end())
+    return;
   rbItem->element->id() = eventIt->first;
   bool isGood(true);
   positionreaders_t &posreaders(eventIt->second);
   positionreaders_t::iterator fileposread(posreaders.begin());
   positionreaders_t::const_iterator posreadEnd(posreaders.end());
-  for (; fileposread != posreadEnd; ++fileposread)
+  for (; (!shouldQuit()) && (fileposread != posreadEnd); ++fileposread)
   {
     FilePointer &filepointer(fileposread->second);
     FileReader &read(*(fileposread->first));
@@ -117,10 +119,8 @@ void MultiFileInput::runthis()
   vector<string> filelist(tokenize(filelistfile));
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
-  while (filelistIt != filelistEnd)
+  while ((!shouldQuit()) && (filelistIt != filelistEnd))
   {
-    if (_control == _quit)
-      break;
     string filename(*filelistIt++);
     QFileInfo info(QString::fromStdString(filename));
     Log::add(Log::INFO,"MultiFileInput::run(): parsing file '" + filename + "'");
@@ -151,7 +151,10 @@ void MultiFileInput::runthis()
   vector<FileParser::shared_pointer>::iterator fileparseIt(parsercontainer.begin());
   vector<FileParser::shared_pointer>::const_iterator fileparseEnd(parsercontainer.end());
   for (;fileparseIt!=fileparseEnd;++fileparseIt)
+  {
     (*fileparseIt)->wait();
+    (*fileparseIt)->rethrowException();
+  }
 
   /** Then iterate through the eventlist, read the contents of each file and
    *  put it into the cassvent. For each entry in the eventlist, check whether
@@ -162,7 +165,7 @@ void MultiFileInput::runthis()
    */
   event2positionreaders_t::iterator eventIt(event2posreaders.begin());
   event2positionreaders_t::const_iterator eventEnd(event2posreaders.end());
-  while (eventIt != eventEnd)
+  while ((!shouldQuit()) && (eventIt != eventEnd))
   {
     pausePoint();
     if (_rewind)

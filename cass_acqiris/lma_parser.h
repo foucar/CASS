@@ -45,7 +45,7 @@ public:
    * iterate through the waveform sinpplets called pulses and find out how
    * long they are to be able to jump to the next event.
    */
-  void run();
+  void runthis();
 
   /** @return the type of file parser */
   virtual const std::string type() {return "lma";}

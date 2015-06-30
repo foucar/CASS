@@ -27,7 +27,7 @@ using namespace std::tr1;
 FileParser::FileParser(const filereaderpointerpair_t readerpointerpair,
                        event2positionreaders_t &event2posreader,
                        QReadWriteLock &lock)
-  :QThread(),
+  : lmf::PausableThread(),
     _readerpointerpair(readerpointerpair),
     _event2posreader(event2posreader),
     _lock(lock)

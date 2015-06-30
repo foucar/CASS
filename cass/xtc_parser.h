@@ -44,7 +44,7 @@ namespace cass
      *
      * detailed description
      */
-    void run();
+    void runthis();
 
   };
 }
