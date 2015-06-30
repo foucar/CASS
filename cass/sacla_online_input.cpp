@@ -578,13 +578,18 @@ void SACLAOnlineInput::runthis()
   /** run until the thread is told to quit */
   Log::add(Log::DEBUG0,"SACLAOnlineInput::run(): starting loop");
   int lastTag(0);
-  while(_control != _quit)
+  while(!shouldQuit())
   {
     /** here we can safely pause the execution */
     pausePoint();
 
-    /** retrieve a new element from the ringbuffer */
-    rbItem_t rbItem(_ringbuffer.nextToFill());
+    /** retrieve a new element from the ringbuffer, continue with next iteration
+     *  in case the retrieved element is the iterator to the last element of the
+     *  buffer.
+     */
+    rbItem_t rbItem(getNextFillable());
+    if (rbItem == _ringbuffer.end())
+      continue;
     CASSEvent &evt(*rbItem->element);
 
     /** generate and set variable to keep the size of the retrieved data */
