@@ -46,7 +46,9 @@ struct DetectorTile
       gain(0.f),
       xsize(0),
       ysize(0),
-      datasize(0)
+      datasize(0),
+      normalizeID(-1),
+      relativeGain(1.f)
   {
     int funcstatus(0);
     /** get the socketID of the requested detector */
@@ -138,8 +140,14 @@ struct DetectorTile
       return;
     }
 
-    /** copy the tile data to the frame */
-    copy(data_org, data_org+xsize*ysize, start);
+    /** if tile should be normalized, use transform to copy the data, otherwise
+     *  just copy the tile data to the frame
+     */
+    if (normalizeID != -1)
+      transform(data_org, data_org+xsize*ysize, start,
+                bind1st(multiplies<float>(),relativeGain));
+    else
+      copy(data_org, data_org+xsize*ysize, start);
 
     /** set the datasize to the right size */
     datasize = xsize * ysize * sizeof(uint16_t);
@@ -193,6 +201,12 @@ struct DetectorTile
 
   /** end position of the tile within the frame */
   pixeldetector::frame_t::iterator end;
+
+  /** id of tile to normalize to */
+  int normalizeID;
+
+  /** the relative gain to normalize for */
+  float relativeGain;
 
 //  int datasize_bytes;
 //  float pixsize_um;
@@ -333,17 +347,17 @@ struct OctalDetector
     for (size_t i(0); i < tiles.size(); ++i)
       datasize += tiles[i].datasize;
 
-    /** in an octal MPCCD one needs to leverage the different tiles by its gain,
-     *  taking the gain of the first tile as a reference
-     */
-    if (normalize)
-    {
-      for (size_t i(1); i < tiles.size(); ++i)
-      {
-        const float relGain(tiles[i].gain / tiles[0].gain);
-        transform(tiles[i].start, tiles[i].end, tiles[i].start, bind1st(multiplies<float>(),relGain));
-      }
-    }
+//    /** in an octal MPCCD one needs to leverage the different tiles by its gain,
+//       *  taking the gain of the first tile as a reference
+//       */
+//      if (normalize)
+//      {
+//        for (size_t i(1); i < tiles.size(); ++i)
+//        {
+//          const float relGain(tiles[i].gain / tiles[0].gain);
+//          transform(tiles[i].start, tiles[i].end, tiles[i].start, bind1st(multiplies<float>(),relGain));
+//        }
+//      }
 
     return datasize;
   }
@@ -498,15 +512,15 @@ void SACLAOnlineInput::runthis()
       continue;
     /** load the infos for the detector */
     octalDetectors.push_back(OctalDetector());
-    octalDetectors.back().CASSID = cassid;
-    octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
-    octalDetectors.back().tagAdvance = s.value("NextTagNumberAdvancedBy",2).toInt();
+    OctalDetector &det(octalDetectors.back());
+    det.CASSID = cassid;
+    det.normalize = s.value("NormalizeToAbsGain",true).toBool();
+    det.tagAdvance = s.value("NextTagNumberAdvancedBy",2).toInt();
     Log::add(Log::INFO, "SACLAOnlineInput: Setting up octal detector with cassid '" +
-             toString(cassid) +  "' and" +
-             (octalDetectors.back().normalize?"":" don't") +
+             toString(cassid) +  "' and" + (det.normalize?"":" don't") +
              " normalize the tiles of the detector to one another." +
              " The next tag number is guessed by advancing the current one by '" +
-             toString(octalDetectors.back().tagAdvance) + "'");
+             toString(det.tagAdvance) + "'");
     /** setup the individual tiles of the detector */
     int nTiles = s.beginReadArray("Tiles");
     for (int j(0); j<nTiles; ++j)
@@ -514,18 +528,32 @@ void SACLAOnlineInput::runthis()
       s.setArrayIndex(j);
       const string tilename(s.value("TileName","Invalid").toString().toStdString());
       octalDetectors.back().tiles.push_back(DetectorTile(tilename));
+      DetectorTile &tile(octalDetectors.back().tiles.back());
       /** @note in online mode one gets the raw tile shape therefore one needs
        *        to remove the last 6 lines, which are used for calibration.
        *        Allow the user to choose how many rows need to be removed to
        *        prevent the necessity to recompile when the API changes with that
        *        respect.
        */
-      const int nLinesOmitted(s.value("NbrCalibrationRows",6).toUInt());
-      octalDetectors.back().tiles.back().ysize -= nLinesOmitted;
+      tile.ysize -= s.value("NbrCalibrationRows",6).toUInt();
+      tile.normalizeID = s.value("NormalizeTo",0).toInt()-1;
+    }
+    for (size_t j(0); j<det.tiles.size(); ++j)
+    {
+      DetectorTile &tile(det.tiles[j]);
+      if (tile.normalizeID != -1)
+        tile.relativeGain = tile.gain / det.tiles[tile.normalizeID].gain;
       Log::add(Log::INFO, "SACLAOnlineInput: Octal detector with cassid '"+
-              toString(cassid) + "' has tile '" +
-              octalDetectors.back().tiles.back().name + "'. The last '" +
-              toString(nLinesOmitted) + "' rows are ignored.");
+               toString(cassid) + "' has tile '" +
+               octalDetectors.back().tiles.back().name + "'."+
+               (tile.normalizeID == -1 ?"":" The tile will be normalized to tile " +
+                                        toString(tile.normalizeID + 1) + "' (" +
+                                        det.tiles[tile.normalizeID].name + "). " +
+                                        " with relative gain '" +
+                                        toString(tile.relativeGain) + "'") +
+               "  Tile Gain '" + toString(tile.gain) +
+               "' Tile shape '" + toString(tile.xsize) + "x" + toString(tile.ysize) +
+               "' Tile Gain '" + toString(tile.gain) + "'");
     }
     s.endArray();
   }
