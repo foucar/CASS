@@ -175,14 +175,6 @@ void HDF5FileInput::runthis()
           continue;
         CASSEvent& evt(*rbItem->element);
 
-        /** quit here if requested */
-        if (_control == _quit)
-        {
-          Log::add(Log::DEBUG4,"hdf5fileinput:run(): Told to quit. Now quitting");
-          break;
-        }
-
-
         /** fill the cassevent object with the contents from the file */
         bool isGood(true);
 
