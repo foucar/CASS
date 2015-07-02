@@ -601,13 +601,17 @@ public:
     {
       hid_t datatype_id(H5Dget_type(dataset_id));
       int dtype = H5Tget_class(datatype_id);
+      //cout<<"SCALAR type"<<endl;
       switch(dtype)
       {
       case H5T_STRING:
+        //cout<<"string type"<<endl;
         dimension = 3;
         break;
       case H5T_INTEGER:
+        //cout<<"integer type"<<endl;
       case H5T_FLOAT:
+        //cout<<"float type"<<endl;
         dimension = 0;
         break;
       default:
@@ -617,15 +621,25 @@ public:
       break;
     }
     case H5S_SIMPLE:
+      //cout<<"SIMPLE type"<<endl;
       switch(H5Sget_simple_extent_ndims(dataspace_id))
       {
       case 1:
-        dimension = 1;
+      {
+        hsize_t dims[1];
+        H5Sget_simple_extent_dims(dataspace_id,dims,NULL);
+        //cout<<"dimension 1: " <<dims[0]<<endl;
+        if (dims[0] == 1)
+          dimension = 0;
+        else
+          dimension = 1;
         break;
+      }
       case 2:
+      {
         hsize_t dims[2];
         H5Sget_simple_extent_dims(dataspace_id,dims,NULL);
-        //cout << dims[0]<<"x"<<dims[1]<<endl;
+        //cout<<"dimension 2: "<< dims[0]<<"x"<<dims[1]<<endl;
         if (dims[0] == 1 && dims[1] ==1)
           dimension = 0;
         else if (dims[1] == 1)
@@ -633,6 +647,7 @@ public:
         else
           dimension = 2;
         break;
+      }
       default:
         throw logic_error("dimension(): Unkown dataspace dimension");
         break;
