@@ -109,8 +109,6 @@ void Workers::resume()
 
 void Workers::end()
 {
-  /** wait until the ringbuffer is empty */
-  _rb.waitUntilEmpty();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
   for (size_t i=0;i<_workers.size();++i)
