@@ -35,6 +35,16 @@ public:
   /** enum describing the control status of the thread */
   enum control_t {_run, _quit, _pause};
 
+  /** enum describing which exception was thrown */
+  enum exception_t
+  {
+    NO_EXCEPTION,
+    INVALID_ARGUMENT_EXCEPTION,
+    RUNTIME_ERROR_EXCEPTION,
+    OUT_OF_RANGE_EXCEPTION,
+    UNKNOWN_EXCEPTION
+  };
+
 public:
   /** constructor
    *
@@ -114,21 +124,14 @@ public:
    */
   bool shouldQuit()const {return (_control == _quit);}
 
-  /** enum describing which exception was thrown */
-  enum exception_t
-  {
-    NO_EXCEPTION,
-    INVALID_ARGUMENT_EXCEPTION,
-    RUNTIME_ERROR_EXCEPTION,
-    OUT_OF_RANGE_EXCEPTION,
-    UNKNOWN_EXCEPTION
-  };
-
   /** rethrow the thrown exception
    *
    * this should only be called when the thread has quitted
    */
   void rethrowException()const;
+
+  /** @return the exception thrown */
+  exception_t exceptionThrown()const  {return _exception_thrown;}
 
 public slots:
   /** tell the thread to quit */
