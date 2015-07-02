@@ -288,6 +288,12 @@ int main(int argc, char **argv)
       }
     }
 
+    /** when the input was shut down gratiously, wait until the ringbuffer is
+     *  empty (thus all events have been processed by the workers)
+     */
+    if (InputBase::reference().exceptionThrown() == InputBase::NO_EXCEPTION)
+      InputBase::reference().ringbuffer().waitUntilEmpty();
+
     /** now stop the worker threads */
     Workers::reference().end();
 
