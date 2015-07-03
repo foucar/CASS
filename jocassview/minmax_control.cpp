@@ -86,6 +86,8 @@ MinMaxControl::MinMaxControl(QString title, QToolBar *parent)
   connect(_maxinput,SIGNAL(textChanged(QString)),this,SLOT(on_changed()));
   layout->addWidget(_maxinput);
 
+  settings.endGroup();
+
   // set up the control
   on_changed();
 
@@ -115,6 +117,8 @@ void MinMaxControl::on_changed()
   settings.setValue("AutoScale",autoscale());
   settings.setValue("MinValue",min());
   settings.setValue("MaxValue",max());
+
+  settings.endGroup();
 
   // tell others that something has changed
   emit controls_changed();

@@ -135,6 +135,8 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   // Set the size and position of the window
   resize(settings.value("WindowSize",size()).toSize());
   move(settings.value("WindowPosition",pos()).toPoint());
+
+  settings.endGroup();
 }
 
 OneDViewer::~OneDViewer()
@@ -254,6 +256,7 @@ void OneDViewer::replot()
   settings.setValue("GridEnabled",_gridLines);
   settings.setValue("LegendShown",_legendControl->isChecked());
   settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
+  settings.endGroup();
 }
 
 void OneDViewer::on_legend_right_clicked(QPoint pos)

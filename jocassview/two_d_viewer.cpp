@@ -115,6 +115,8 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // set the original flag
   _isOriginalData = true;
   _origHist = 0;
+
+  settings.endGroup();
 }
 
 TwoDViewer::~TwoDViewer()
@@ -265,6 +267,7 @@ void TwoDViewer::replot()
   settings.beginGroup(windowTitle());
   settings.setValue("ColorTableID",colorid);
   settings.setValue("DisplayTitles",_axisTitleControl->isChecked());
+  settings.endGroup();
 }
 
 void TwoDViewer::on_load_geomfile_triggered()
@@ -319,6 +322,7 @@ void TwoDViewer::on_load_geomfile_triggered()
   settings.setValue("Wavelength_A",wavelength_A);
   settings.setValue("CameraDistance_cm",cameraDistance_cm);
   settings.setValue("PixelSize_um",pixelsize_um);
+  settings.endGroup();
 
   _isOriginalData = false;
   dataChanged();

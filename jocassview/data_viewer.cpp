@@ -69,6 +69,7 @@ void DataViewer::moveEvent(QMoveEvent *event)
   QSettings settings;
   settings.beginGroup(windowTitle());
   settings.setValue("WindowPosition",event->pos());
+  settings.endGroup();
 }
 
 void DataViewer::resizeEvent(QResizeEvent *event)
@@ -76,4 +77,5 @@ void DataViewer::resizeEvent(QResizeEvent *event)
   QSettings settings;
   settings.beginGroup(windowTitle());
   settings.setValue("WindowSize",event->size());
+  settings.endGroup();
 }
