@@ -115,9 +115,9 @@ void epicsValToCassVal(const Pds::EpicsPvHeader& epicsData,
  *
  * @author Lutz Foucar
  */
-void epicsValToNothing(const Pds::EpicsPvHeader& epicsData,
-                       MachineDataDevice::epicsDataMap_t::iterator storefirst,
-                       MachineDataDevice::epicsDataMap_t::iterator cassfirst)
+void epicsValToNothing(const Pds::EpicsPvHeader& /*epicsData*/,
+                       MachineDataDevice::epicsDataMap_t::iterator /*storefirst*/,
+                       MachineDataDevice::epicsDataMap_t::iterator /*cassfirst*/)
 
 {
 
@@ -634,7 +634,7 @@ void Converter::prepare(cass::CASSEvent *evt)
   }
 }
 
-void Converter::finalize(CASSEvent *evt)
+void Converter::finalize(CASSEvent* /*evt*/)
 {
 //  /** copy the epics and calibcyle values in the storedevent to the machineevent */
 //    if (evt)
