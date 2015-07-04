@@ -12,7 +12,7 @@
 
 
 #include <QtCore/QStringList>
-#include <QtGui/QApplication>
+#include <QtCore/QCoreApplication>
 
 #include "cass.h"
 #include "cass_version.h"
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
   try
   {
      /** construct Qt application object to hold the run loop */
-    QApplication app(argc, argv,false);
+    QCoreApplication app(argc, argv);
 
     /** register used types as Qt meta type */
     qRegisterMetaType< std::string >("std::string");
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
     bool showVersion(false);
     parser.add("--version","display the version of cass",showVersion);
 
-    parser(QCoreApplication::arguments());
+    parser(app.arguments());
 
 
     /** show help and exit if requested */
