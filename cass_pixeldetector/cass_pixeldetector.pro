@@ -9,7 +9,7 @@ TEMPLATE       = lib
 DESTDIR        = $${CASS_ROOT}/lib
 target.path    = $${PREFIX}/lib
 
-QT            -= core
+QT            -= gui
 
 INCLUDEPATH   += ../cass ../LCLS
 DEPENDPATH    += ../cass
