@@ -57,7 +57,7 @@ DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
 {
   HelperAcqirisDetectors::shared_pointer dethelp (HelperAcqirisDetectors::instance(detector));
   DelaylineDetector::anodelayers_t::key_type layer
-      (s.value(layerKey.c_str(),"U").toString()[0].toAscii());
+      (s.value(layerKey.c_str(),"U").toString()[0].toLatin1());
   if (layer != 'U' && layer != 'V' && layer != 'W' &&
       layer != 'X' && layer != 'Y')
   {
@@ -102,7 +102,7 @@ AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
                                              const string& key)
 {
   AnodeLayer::wireends_t::key_type wireend
-      (s.value(wireendKey.c_str(),"1").toString()[0].toAscii());
+      (s.value(wireendKey.c_str(),"1").toString()[0].toLatin1());
   if (wireend != '1' && wireend != '2')
     throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
                            "': The loaded value of '" + wireendKey +

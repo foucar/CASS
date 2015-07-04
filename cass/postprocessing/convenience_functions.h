@@ -13,6 +13,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QString>
 
 #include "cass.h"
 #include "histogram.h"
@@ -269,7 +270,7 @@ public:
     QString filename(fInfo.fileName());
     QStringList dirs = path.split("/");
     QString subdir = dirs.last();
-    QByteArray alphaCounter = subdir.toAscii();
+    QByteArray alphaCounter = subdir.toLatin1();
     if (alphaCounter[1] == 'z')
     {
       const char first(alphaCounter[0]);
@@ -281,7 +282,7 @@ public:
       const char second(alphaCounter[1]);
       alphaCounter[1] = second + 1;
     }
-    QString newSubdir(QString::fromAscii(alphaCounter));
+    QString newSubdir(QString::fromLatin1(alphaCounter));
     dirs.removeLast();
     dirs.append(newSubdir);
     QString newPath(dirs.join("/"));
@@ -303,7 +304,7 @@ public:
     QFileInfo fInfo(QString::fromStdString(fname));
     QString filename(fInfo.baseName());
     QStringList filenameparts(filename.split("__"));
-    QByteArray counter(filenameparts.last().toAscii());
+    QByteArray counter(filenameparts.last().toLatin1());
     if (counter[1] == 'z')
     {
       const char first(counter[0]);
@@ -315,7 +316,7 @@ public:
       const char second(counter[1]);
       counter[1] = second + 1;
     }
-    filenameparts.last() = QString::fromAscii(counter);
+    filenameparts.last() = QString::fromLatin1(counter);
     QString newfilename(fInfo.path() + "/" + filenameparts.join("__") + "." + fInfo.suffix());
     return newfilename.toStdString();
   }
