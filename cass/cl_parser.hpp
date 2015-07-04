@@ -1,7 +1,7 @@
-//Copyright (C) 2013 Lutz Foucar
+//Copyright (C) 2013-2015 Lutz Foucar
 
 /**
- * @file statistics_calculator.hpp contains declarations of statistic calculators
+ * @file cl_parser.hpp contains a parser for command line parameters
  *
  * @author Lutz Foucar
  */
