@@ -11,15 +11,26 @@
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QWidgetAction>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+#else
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
-#include <QtGui/QAction>
-#include <QtGui/QIcon>
+#include <QtGui/QWidgetAction>
 #include <QtGui/QMenu>
 #include <QtGui/QColorDialog>
 #include <QtGui/QInputDialog>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#endif
+#include <QtGui/QIcon>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -58,7 +69,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   OneDViewerData *data(new OneDViewerData);
   _curves[0]->setData(data);
   QPen pen;
-  pen.setColor(settings.value("CurveColor",Qt::blue).value<QColor>());
+  pen.setColor(settings.value("CurveColor",QColor(Qt::blue)).value<QColor>());
   pen.setWidth(settings.value("CurveWidth",1).toInt());
   _curves[0]->setStyle(QwtPlotCurve::Steps);
   _curves[0]->setPen(pen);

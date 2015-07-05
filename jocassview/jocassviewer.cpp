@@ -11,8 +11,22 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
-#include <QApplication>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QStatusBar>
+#include <QtWidgets/QListWidget>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QApplication>
+#else
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenuBar>
@@ -25,6 +39,10 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QListWidget>
 #include <QtGui/QFileDialog>
+#include <QtGui/QApplication>
+#endif
+#include <QtGui/QMoveEvent>
+#include <QtGui/QResizeEvent>
 
 #include "jocassviewer.h"
 
@@ -44,7 +62,7 @@ using namespace cass;
 using namespace std;
 
 
-JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WFlags flags)
+JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WindowFlags flags)
   : QMainWindow(parent,flags),
     _updateInProgress(false)
 {

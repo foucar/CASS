@@ -6,10 +6,24 @@
  * @author Lutz Foucar
  */
 
+#include <stdexcept>
+#include <iostream>
+
 #include <QtCore/QDebug>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QRadioButton>
+#include <QtWidgets/QPushButton>
+#else
 #include <QtGui/QMessageBox>
+#include <QtGui/QRadioButton>
+#include <QtGui/QPushButton>
+#endif
+
 #include <QtGui/QColor>
+#include <QtGui/QBrush>
+#include <QtGui/QPalette>
 
 #include "status_led.h"
 

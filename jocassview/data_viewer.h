@@ -9,9 +9,15 @@
 #ifndef _DATAVIEWER_
 #define _DATAVIEWER_
 
+#include <QtGlobal>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMainWindow>
+#else
 #include <QtGui/QMainWindow>
-#include <QtGui/QCloseEvent>
+#endif
+
+class QCloseEvent;
 
 namespace cass
 {

@@ -7,9 +7,14 @@
  * @author Lutz Foucar
  */
 
-#include <QtGui/QMessageBox>
-
 #include "id_list.h"
+
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMessageBox>
+#else
+#include <QtGui/QMessageBox>
+#endif
+
 
 using namespace jocassview;
 using namespace std;

@@ -8,7 +8,11 @@
 #include <QtCore/QDebug>
 #include <QtCore/QPoint>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QStatusBar>
+#else
 #include <QtGui/QStatusBar>
+#endif
 
 #include <cmath>
 

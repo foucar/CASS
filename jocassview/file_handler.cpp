@@ -14,10 +14,15 @@
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 
-#include <QtGui/QImage>
-#include <QtGui/QImageReader>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QInputDialog>
+#else
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
+#endif
+#include <QtGui/QImage>
+#include <QtGui/QImageReader>
 
 #include "file_handler.h"
 

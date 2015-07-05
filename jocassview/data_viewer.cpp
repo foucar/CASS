@@ -8,8 +8,14 @@
 
 #include <QtCore/QSettings>
 
+#if QT_VERSION >= 0x050000
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
+#else
 #include <QtGui/QPrintDialog>
 #include <QtGui/QPrinter>
+#endif
+#include <QtGui/QCloseEvent>
 
 #include <qwt_plot_renderer.h>
 #include <qwt_plot.h>

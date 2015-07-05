@@ -14,7 +14,11 @@
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QApplication>
+#else
 #include <QtGui/QApplication>
+#endif
 
 #include "jocassviewer.h"
 #include "cl_parser.hpp"
@@ -30,31 +34,6 @@ int main(int argc, char *argv[])
   QCoreApplication::setApplicationName("jocassview");
   QSettings::setDefaultFormat(QSettings::IniFormat);
   QApplication::setWindowIcon(QIcon(":images/mpg.svg"));
-
-
-//  QDesktopWidget *my_desktop= app.desktop();
-//  const QRect displ(my_desktop->availableGeometry(-1));
-//  int displ_height= displ.height();
-//  int displ_width= displ.width();
-//  //trick to fake the number of screens
-//  if(displ_height>2000)displ_height /=2;
-//  if(displ_width>2000)displ_width /=2;
-//  const int min_size = std::min(displ_height,displ_width);
-//#ifdef VERBOSE
-//  const int nscreens= my_desktop->screenCount();
-//  const QRect screen(my_desktop->screenGeometry(-1));
-//  const int screen_height= screen.height();
-//  const int screen_width= screen.width();
-//  std::cout<<"main():: Display dimensions: "<< displ_height << " x "
-//      << displ_width << " " << nscreens
-//      << " "
-//      << screen_height << " x "
-//      << screen_width << " " <<  my_desktop->isVirtualDesktop()
-//      << " " <<  my_desktop->primaryScreen() <<std::endl;
-//#endif
-//  QSettings s;
-//  QSize winsize(s.value("WindowSize",QSize(min_size,min_size)).toSize());
-//  window.resize(winsize);
 
   /** open an instance of the jocassviwer */
   JoCASSViewer jocassviewer;

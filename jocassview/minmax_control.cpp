@@ -11,13 +11,22 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QToolBar>
+#else
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QCheckBox>
-#include <QtGui/QDoubleValidator>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
+#endif
+#include <QtGui/QDoubleValidator>
 
 #include "minmax_control.h"
 

@@ -1,12 +1,18 @@
 // Copyright (C) 2014 Lutz Foucar
 
 /**
- * @file zero_d_viewer_data.h contains the wrapper of the data for the 0d viewer
+ * @file zero_d_viewer_data.cpp contains the wrapper of the data for the 0d viewer
  *
  * @author Lutz Foucar
  */
 
+#include <QtGlobal>
+
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QLabel>
+#else
 #include <QtGui/QLabel>
+#endif
 
 #include "zero_d_viewer_data.h"
 

@@ -15,7 +15,11 @@
 #include <QtCore/QTimer>
 #include <QtCore/QStringList>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMainWindow>
+#else
 #include <QtGui/QMainWindow>
+#endif
 
 namespace cass
 {
@@ -49,7 +53,7 @@ public:
    * @param parent the parent widget. Default is 0
    * @param flags the flags
    */
-  JoCASSViewer(QWidget *parent=0, Qt::WFlags flags=0);
+  JoCASSViewer(QWidget *parent=0, Qt::WindowFlags flags=0);
 
   /** destructor
    *

@@ -10,12 +10,23 @@
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QAction>
+#else
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolBar>
 #include <QtGui/QSpinBox>
 #include <QtGui/QLabel>
 #include <QtGui/QFileDialog>
 #include <QtGui/QInputDialog>
+#include <QtGui/QAction>
+#endif
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>

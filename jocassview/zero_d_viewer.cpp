@@ -8,10 +8,17 @@
 
 #include <QtCore/QSettings>
 
-#include <QtGui/QBoxLayout>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QBoxLayout>
+#else
 #include <QtGui/QLabel>
-#include <QtGui/QFont>
 #include <QtGui/QMessageBox>
+#include <QtGui/QBoxLayout>
+#endif
+
+#include <QtGui/QFont>
 
 #include "zero_d_viewer.h"
 

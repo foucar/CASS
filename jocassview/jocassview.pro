@@ -1,5 +1,5 @@
 # Copyright (C) 2010 Jochen Küpper
-# Copyright (C) 2010,2013,2014 Lutz Foucar
+# Copyright (C) 2010,2013,2014,2015 Lutz Foucar
 
 
 CASS_ROOT = ..
@@ -10,7 +10,14 @@ TEMPLATE            = app
 DESTDIR             = $${CASS_ROOT}/bin
 target.path         = $${PREFIX}/bin
 
-CONFIG             += qtestlib
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG         += qtestlib
+} else {
+    QT             += widgets
+    QT             += printsupport
+    QT             += concurrent
+    QT             += testlib
+}
 
 QMAKE_CLEAN        += jocassview
 

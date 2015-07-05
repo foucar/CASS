@@ -9,15 +9,6 @@
 #ifndef _STATUS_LED_H_
 #define _STATUS_LED_H_
 
-#include <QtGui/QRadioButton>
-#include <QtGui/QPushButton>
-#include <QtGui/QBrush>
-#include <QtGui/QColor>
-#include <QtGui/QPalette>
-
-#include <stdexcept>
-#include <iostream>
-
 #include "led.h"
 
 namespace jocassview

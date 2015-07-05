@@ -7,12 +7,17 @@
  */
 
 #include <QtCore/QDebug>
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QFuture>
 
+#if QT_VERSION >= 0x050000
+#include <QtConcurrent/QtConcurrent>
+#include <QtWidgets/QMessageBox>
+#else
+#include <QtCore/QtConcurrentRun>
 #include <QtGui/QMessageBox>
+#endif
 
-#include <QTest>
+#include <QtTest/QTest>
 
 #include "tcpclient.h"
 

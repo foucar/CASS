@@ -9,8 +9,13 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSignalMapper>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QActionGroup>
+#else
 #include <QtGui/QMenu>
 #include <QtGui/QActionGroup>
+#endif
 
 #include "data_source_manager.h"
 
