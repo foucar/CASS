@@ -721,6 +721,7 @@ Lutz Foucar
 - all acqiris related postprocessors
 - new jocassviewer
 - new implementation of processing units
+- inputs for usage at SACLA
 
 Nicola Coppola
 --------------

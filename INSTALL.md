@@ -64,7 +64,7 @@ to compile and install run the follwing from the build dir
 
 
 
-## QWT (version 6.1.0 and above) {#qwt}
+## QWT (version 6.1.0 and above / 6.1.2 (in case version qt5.4.x is used)) {#qwt}
 Download the version of qwt from here:
 
     http://sourceforge.net/projects/qwt/files/qwt/
