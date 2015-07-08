@@ -1,8 +1,9 @@
 # Copyright (C) 2010 Stephan Kassemeyer
 
-# this file points to configuration that will be read by all .pro files, 
+# this file points to configuration that will be read by all .pro files,
 # which contains all commonly used config parameters
 
+message ("Compiling with QT version: $$[QT_VERSION]")
 exists ( cass_myconfig.pri ) {
     message ("Using cass_myconfig.pri")
     include(cass_myconfig.pri)
