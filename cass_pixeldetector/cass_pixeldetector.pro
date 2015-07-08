@@ -71,4 +71,4 @@ HEADERS       += \
                  frms6_parser.h \
                  gaincalibration.h
 
-INSTALLS      += target
+#INSTALLS      += target

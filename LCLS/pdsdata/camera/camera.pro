@@ -15,13 +15,13 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += ./src/*.cc 
+SOURCES += ./src/*.cc
 
-HEADERS += ./*.hh 
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 
-INSTALLS += target
+#INSTALLS += target
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*

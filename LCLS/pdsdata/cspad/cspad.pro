@@ -48,7 +48,7 @@ HEADERS += \
 
 headers.files = $$HEADERS
 
-INSTALLS += target
+#INSTALLS += target
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*

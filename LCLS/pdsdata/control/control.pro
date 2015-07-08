@@ -18,17 +18,17 @@ INCLUDEPATH += ../../
 SOURCES += \
     ./src/ConfigV1.cc \
     ./src/PVMonitor.cc \
-    ./src/PVControl.cc 
+    ./src/PVControl.cc
 
 HEADERS += \
     ./ConfigV1.hh \
     ./PVMonitor.hh \
-    ./PVControl.hh 
+    ./PVControl.hh
 
 
 headers.files = $$HEADERS
 
-INSTALLS += target
+#INSTALLS += target
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*

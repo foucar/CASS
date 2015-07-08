@@ -26,7 +26,7 @@ HEADERS       += ../cass/conversion_backend.h \
                  machine_device.h
 
 
-INSTALLS      += target
+#INSTALLS      += target
 
 QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN   += $$MOC_DIR/moc_*

@@ -83,7 +83,7 @@ HEADERS += ./acqiris_converter.h \
     ./classes/momenta_calculators/spectrometer.h \
     ./classes/momenta_calculators/momenta_calculator.h
 
-INSTALLS += target
+#INSTALLS += target
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
