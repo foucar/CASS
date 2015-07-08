@@ -88,6 +88,9 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_INCDIR   *= /path/to/qwt/include
 #QMAKE_LIBDIR   *= /path/to/qwt/lib
 #QMAKE_RPATHDIR *= /path/to/qwt/lib
+#the below is only needed when qt5 is used and couldn't be compiled without
+#installing the xcb dependency (e.g. because the server is running an outdated os)
+#QMAKE_RPATHDIR *= /path/to/xcb/lib
 
 # Uncomment the following to also build the LuCASSViewer. If root is not
 # installed in default location and has variables have not been set in cernroot
