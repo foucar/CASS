@@ -2,12 +2,12 @@
 
 ### set parameters
 
-# set the base directory of CASS (given by first commandline parameter
+# set the base directory of CASS (given by first commandline parameter)
 # or set by hand
 BASEDIR=$1
 #BASEDIR=/path/to/CASS/base/directory
 
-# tell where the download loacation is
+# tell where the download location is
 DOWNLOAD=${HOME}/public_html/Downloads
 
 # the location where the html files should be copied to
@@ -27,8 +27,7 @@ unset GIT_DIR
 unset GIT_WORK_TREE
 git archive master | gzip > ${DOWNLOAD}/cass.latest.tar.gz
 
-# go through all tags and create a zip file for them and put their download
-# location into the text file
+# go through all tags and create a zip file for them
 for tag in $(env -i git tag)
 do
   git archive ${tag} | gzip > ${DOWNLOAD}/cass.${tag}.tar.gz
