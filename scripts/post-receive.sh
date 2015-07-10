@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # where to find the cass bare repo
-GIT_REPO=/lfs/l3/asg/repos/diode.git
+GIT_REPO=$HOME/repositories/cass.git
 
 # where the tmp repo should be created
-TMP_REPO=$HOME/tmp/diode
+TMP_REPO=$HOME/tmp/cass
 
 
 
@@ -14,7 +14,7 @@ do
     if [ "${refname}" = "refs/heads/master" ] ; then
       echo "Branch master has changed; deploying website and binaries:"
       git clone ${GIT_REPO} ${TMP_REPO}
-      ${TMP_REPO}/scripts/deployMPIK.sh ${TMP_REPO}
+      #${TMP_REPO}/scripts/deployMPIK.sh ${TMP_REPO}
       ${TMP_REPO}/scripts/setupMPIKWebpage.sh ${TMP_REPO}
       rm -rf ${TMP_REPO}
     else
