@@ -16,11 +16,19 @@ PUBLIC_WWW=${HOME}/public_html/cass/
 # Path to the doxygen version
 DOXYGEN=/lfs/l4/ullrch/foucar/cass/dependencies/doxygen/v1.8.10/bin/doxygen
 
+# PATH to qmake version
+QMake=/lfs/l4/ullrch/foucar/cass/dependencies/qt/v4.8.4/bin/qmake
+
+
+
 
 ### create the zip and txt files
 
 # remove the old downloads
 rm -rf ${DOWNLOAD}/cass.* || exit 1
+
+# generate the download dir when not present yet
+mkdir -p ${DOWNLOAD} || exit 1
 
 # create a zip file with the contents of the master branch
 cd ${BASEDIR} || exit 1
@@ -38,7 +46,7 @@ done
 # generate the documentation (need to prepare the default config file first"
 echo "CONFIG      *= DOCS"         >> ${BASEDIR}/cass_defaultconfig.pri || exit 1
 echo "DOXYGEN_BIN  = "${DOXYGEN}"" >> ${BASEDIR}/cass_defaultconfig.pri || exit 1
-cd ${BASEDIR}/doc && make doc && cd .. || exit 1
+cd ${BASEDIR}/doc && ${QMake} && make doc && cd .. || exit 1
 
 ### move the docu to the webpage location
 
