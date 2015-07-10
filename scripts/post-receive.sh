@@ -12,7 +12,7 @@ TMP_REPO=$HOME/tmp/cass
 while read oldrev newrev refname
 do
     if [ "${refname}" = "refs/heads/master" ] ; then
-      echo "Branch master has changed; deploying website and binaries:"
+      echo "Branch master has changed; deploying website:"
       git clone ${GIT_REPO} ${TMP_REPO}
       #${TMP_REPO}/scripts/deployMPIK.sh ${TMP_REPO}
       ${TMP_REPO}/scripts/setupMPIKWebpage.sh ${TMP_REPO}
