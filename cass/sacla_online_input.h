@@ -13,8 +13,6 @@
 
 #include "cass.h"
 #include "input_base.h"
-#include "cass_event.h"
-#include "ringbuffer.h"
 
 
 namespace cass
@@ -36,14 +34,7 @@ namespace cass
  *           retrieve. Ensure that each parameter has a unique id in the list.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{CASSID}\n
  *           The id of the detector that CASS will use internally.
-             Default is "-1" which will cause to skip this index.
- * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NormalizeToAbsGain}\n
- *           Using this option one can control whether the pixel values of the
- *           individual tiles will be normalized to the gain value of the first
- *           tile. When true, the pixel values of tiles 2 to 8 will modified
- *           using:
- *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{tile1}}*pixval_{tile}\f$
- *           Default is true.
+ *           Default is "-1" which will cause to skip this index.
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/{NextTagNumberAdvancedBy}\n
  *           It is needed to guess the next tag number therefore one has to
  *           tell how much the tag number advanced from one shot to the next.
@@ -57,6 +48,12 @@ namespace cass
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/\%index\%{NbrCalibrationRows}\n
  *           Number of additional rows that are not part of the image but used for
  *           calibrating the image. Default is 6.
+ * @cassttng SACLAOnlineInput/OctalPixelDetectors/\%index\%/Tiles/\%index\%{NormalizeTo}\n
+ *           Using this option one can control whether the pixel values of this
+ *           tile will be normalized to the gain value of which other
+ *           tile. The pixel values of this tile will be modified using:
+ *           \f$ pixval_{tile} = \frac{gain_{tile}}{gain_{NormalizeTo}}*pixval_{tile}\f$
+ *           Default is 0 in which case the tile will not be normalized.
  * @cassttng SACLAOnlineInput/DatabaseValues/{size}\n
  *           The number of values one wants to retrieve from the database. Be sure
  *           that for each detector there is a unique id in the list below.

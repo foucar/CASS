@@ -347,26 +347,11 @@ struct OctalDetector
     for (size_t i(0); i < tiles.size(); ++i)
       datasize += tiles[i].datasize;
 
-//    /** in an octal MPCCD one needs to leverage the different tiles by its gain,
-//       *  taking the gain of the first tile as a reference
-//       */
-//      if (normalize)
-//      {
-//        for (size_t i(1); i < tiles.size(); ++i)
-//        {
-//          const float relGain(tiles[i].gain / tiles[0].gain);
-//          transform(tiles[i].start, tiles[i].end, tiles[i].start, bind1st(multiplies<float>(),relGain));
-//        }
-//      }
-
     return datasize;
   }
 
   /** vector containing the tiles of the detector */
   vector<DetectorTile> tiles;
-
-  /** flag whether the tiles should be normalized to one another */
-  bool normalize;
 
   /** the id that the detector should have within the pixeldetector part of
    *  the CASSEvent
@@ -514,13 +499,10 @@ void SACLAOnlineInput::runthis()
     octalDetectors.push_back(OctalDetector());
     OctalDetector &det(octalDetectors.back());
     det.CASSID = cassid;
-    det.normalize = s.value("NormalizeToAbsGain",true).toBool();
     det.tagAdvance = s.value("NextTagNumberAdvancedBy",2).toInt();
     Log::add(Log::INFO, "SACLAOnlineInput: Setting up octal detector with cassid '" +
-             toString(cassid) +  "' and" + (det.normalize?"":" don't") +
-             " normalize the tiles of the detector to one another." +
-             " The next tag number is guessed by advancing the current one by '" +
-             toString(det.tagAdvance) + "'");
+             toString(cassid) +  "'.  The next tag number is guessed by " +
+             "advancing the current one by '" + toString(det.tagAdvance) + "'");
     /** setup the individual tiles of the detector */
     int nTiles = s.beginReadArray("Tiles");
     for (int j(0); j<nTiles; ++j)
