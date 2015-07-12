@@ -544,16 +544,15 @@ void SACLAOnlineInput::runthis()
       if (tile.normalizeID != -1)
         tile.relativeGain = tile.gain / det.tiles[tile.normalizeID].gain;
       Log::add(Log::INFO, "SACLAOnlineInput: Octal detector with cassid '"+
-               toString(cassid) + "' has tile '" +
-               octalDetectors.back().tiles.back().name + "'."+
-               (tile.normalizeID == -1 ?"":" The tile will be normalized to tile " +
-                                        toString(tile.normalizeID + 1) + "' (" +
-                                        det.tiles[tile.normalizeID].name + "). " +
+               toString(cassid) + "' has tile '" + tile.name +
+               (tile.normalizeID == -1 ?"":" The tile will be normalized to tile '" +
+                                        toString(tile.normalizeID + 1) + " (" +
+                                        det.tiles[tile.normalizeID].name + ")'" +
                                         " with relative gain '" +
-                                        toString(tile.relativeGain) + "'") +
-               "  Tile Gain '" + toString(tile.gain) +
-               "' Tile shape '" + toString(tile.xsize) + "x" + toString(tile.ysize) +
-               "' Tile Gain '" + toString(tile.gain) + "'");
+                                        toString(tile.relativeGain)) +
+               "'. Tile Gain '" + toString(tile.gain) +
+               "'; Tile shape '" + toString(tile.xsize) + "x" + toString(tile.ysize) +
+               "'; Tile Gain '" + toString(tile.gain) + "'");
     }
     s.endArray();
   }
