@@ -558,6 +558,9 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
           break;
         case Sacla_DATA_TYPE_INVALID:
         default:
+#ifdef _OPENMP
+          #pragma omp critical
+#endif
           Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
                    tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
           break;
