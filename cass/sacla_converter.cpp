@@ -228,7 +228,28 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     vector<int>::const_iterator tagListEnd(tagList.end());
     vector<string>::const_iterator machine(machineValueStringList.begin());
     for (; tag != tagListEnd; ++tag, ++machine)
-      (machineValsIter->second)[*tag] = *machine;
+    {
+      /** check if retrieved value can be converted to double, and if so add it
+       *  to the machine data, otherwise issue an error and continue
+       *  @note the retrieved values might contain the unit of the value in the
+       *        string, therefore one has to remove all characters from the string
+       */
+      QString machineValueQString(QString::fromStdString(*machine));
+      machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
+      bool isDouble(false);
+      double machineValue(machineValueQString.toDouble(&isDouble));
+      if (isDouble)
+        (machineValsIter->second)[*tag] = machineValue;
+      else
+      {
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameters '" +
+                 machineValsIter->first + "' for tag '" + toString(*tag) +
+                 "': String '" + *machine + "' which is altered to '" +
+                 machineValueQString.toStdString() +
+                 "' to remove units, cannot be converted to double. Setting it to 0");
+        (machineValsIter->second)[*tag] = 0.;
+      }
+    }
   }
 
   /** for all pixel dets retrieve the non changing parameters from the first
@@ -365,7 +386,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
   {
     /** check if the cache contains the machine value for the requested tag */
-    map<int,string>::const_iterator entry(machineValsIter->second.find(tagNbr));
+    machineVals_t::mapped_type::const_iterator entry(machineValsIter->second.find(tagNbr));
     if (entry == machineValsIter->second.end())
     {
       Log::add(Log::ERROR,"SACLAConverter: cannot find beamline value '" +
@@ -373,25 +394,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
                "' in cache.");
       continue;
     }
-    /** check if retrieved value can be converted to double, and if so add it
-     *  to the machine data, otherwise issue an error and continue
-     *  @note the retrieved values might contain the unit of the value in the
-     *        string, therefore one has to remove all characters from the string
-     */
-    QString machineValueQString(QString::fromStdString(entry->second));
-    machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
-    bool isDouble(false);
-    double machineValue(machineValueQString.toDouble(&isDouble));
-    if (isDouble)
-      md.BeamlineData()[machineValsIter->first] = machineValue;
-    else
-    {
-      Log::add(Log::ERROR,"SACLAConverter: '" + machineValsIter->first +
-               "' for tag '" + toString(tagNbr) + "': String '" + entry->second +
-               "' which is altered to '" + machineValueQString.toStdString() +
-               "' to remove units, cannot be converted to double");
-      continue;
-    }
+    md.BeamlineData()[machineValsIter->first] = entry->second;
     datasize += sizeof(double);
   }
 

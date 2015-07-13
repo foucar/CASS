@@ -105,7 +105,7 @@ public:
 
 private:
   /** define the machine values */
-  typedef std::map<std::string, std::map<int,std::string> > machineVals_t;
+  typedef std::map<std::string, std::map<int,double> > machineVals_t;
 
   /** the list of requested machine values */
   machineVals_t _machineVals;
