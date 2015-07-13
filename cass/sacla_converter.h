@@ -12,6 +12,7 @@
 #include <SaclaDataAccessUserAPI.h>
 
 #include "cass.h"
+#include "pixeldetector.hpp"
 
 namespace cass
 {
@@ -114,6 +115,27 @@ public:
   /** non changeing parameters of a pixel detector tile */
   struct detTileParams
   {
+    /** constructor
+     *
+     * set the default parameters of the members
+     */
+    detTileParams()
+      : name(""),
+        xsize(0),
+        ysize(0),
+        datasize_bytes(0),
+        pixsize_um(0),
+        posx_um(0),
+        posy_um(0),
+        posz_um(0),
+        angle_deg(0),
+        gain(0),
+        type(Sacla_DATA_TYPE_INVALID),
+        bytes_retrieved(0),
+        normalize(false),
+        relativeGain(1)
+    {}
+
     std::string name;
     int xsize;
     int ysize;
@@ -125,6 +147,10 @@ public:
     float angle_deg;
     float gain;
     Sacla_DetDataType type;
+    size_t bytes_retrieved;
+    pixeldetector::frame_t::iterator start;
+    bool normalize;
+    float relativeGain;
   };
 
   /** detector consists of tiles */
