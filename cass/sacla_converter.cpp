@@ -22,14 +22,14 @@ using namespace cass;
 using namespace MachineData;
 using namespace std;
 
-/** retrieve a pixel detector from the data
+/** retrieve the tile data from a detector
  *
- * retrieve the pixel detector data and either normalize or copy it directly
+ * retrieve the tile data of a detector and either normalize or copy it directly
  * to the right position within the frame
  *
  * @tparam T the type of the detector data
  *
- * @param tileParams parameters of the frame
+ * @param tileParams parameters of the tile of the frame
  * @param runNbr the run number of the experiment
  * @param blNbr the Beamline number of the experiment
  * @param highTagNbr the high tag number for the experiment
@@ -38,12 +38,16 @@ using namespace std;
  * @author Lutz Foucar
  */
 template <typename T>
-void retrievePixelDet(SACLAConverter::detTileParams &tileParams,
+void retrieveTileData(SACLAConverter::detTileParams &tileParams,
                       const int runNbr, const int blNbr,
                       const int highTagNbr, const int tagNbr)
 {
-  /** retrieve the detector data */
+  /** determine the size of the data */
   const size_t size(tileParams.xsize * tileParams.ysize);
+
+  /** prepare the buffer where the data should be loaded to and
+   * retrieve the detector data
+   */
   vector<T> buffer(size);
   int funcstatus(0);
   funcstatus = ReadDetData(&buffer.front(),tileParams.name.c_str(),
@@ -56,7 +60,6 @@ void retrievePixelDet(SACLAConverter::detTileParams &tileParams,
     tileParams.bytes_retrieved = 0.;
   }
 
-
   /** if tile should be normalized, use transform to copy the data, otherwise
    *  just copy the tile data to the frame
    */
@@ -66,12 +69,15 @@ void retrievePixelDet(SACLAConverter::detTileParams &tileParams,
   else
     copy(buffer.begin(), buffer.end(), tileParams.start);
 
-  /** set the datasize to the right size */
+  /** set the datasize of the retrieved data */
   tileParams.bytes_retrieved = size * sizeof(uint16_t);
 }
 
 
-/** cache pixel detector parameters
+/** cache the non-changing parameters of a tile
+ *
+ * retrieve the non-changing parameters of the tiles and store them in the
+ * tile parameters
  *
  * @return true in case all parameters were loaded correctly, false otherwise
  * @param tileParams the tile whos parameters should be cached.
@@ -82,10 +88,11 @@ void retrievePixelDet(SACLAConverter::detTileParams &tileParams,
  *
  * @author Lutz Foucar
  */
-bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
+bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
                     int blNbr, int highTagNbr, int tagNbr)
 {
   int funcstatus(0);
+  /** the number of columns */
   funcstatus = ReadXSizeOfDetData(tileParams.xsize,tileParams.name.c_str(),
                                   blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
@@ -95,6 +102,8 @@ bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+
+  /** the number of rows */
   funcstatus = ReadYSizeOfDetData(tileParams.ysize,tileParams.name.c_str(),
                                   blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
@@ -104,6 +113,8 @@ bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+
+  /** the size of the data of the tile in bytes */
   funcstatus = ReadSizeOfDetData(tileParams.datasize_bytes,tileParams.name.c_str(),
                                  blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
@@ -113,6 +124,8 @@ bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+
+  /** the size of the pixels of the tile */
   funcstatus = ReadPixelSize(tileParams.pixsize_um,tileParams.name.c_str(),
                              blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
@@ -122,6 +135,8 @@ bool cacheDetParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+
+  /** the data type of the tile */
   funcstatus = ReadDetDataType(tileParams.type,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, tagNbr);
   if (funcstatus)
@@ -222,20 +237,26 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                machineValsIter->first + "' ErrorCode is '" + toString(funcstatus) + "'");
       continue;
     }
+    /** check if as many parameters as tags given have been returned. In case
+     *  this number is different, somehting bad happened
+     */
     if (machineValueStringList.size() != tagList.size())
     {
       Log::add(Log::ERROR,"SACLAConverter:cacheParameters caching '" +
                machineValsIter->first + "' did not return the right size");
       continue;
     }
-    /** put the retrieved values into the cache */
+    /** convert the retrieved values into double numbers
+     *  and put them into the cache
+     */
     vector<int>::const_iterator tag(tagList.begin());
     vector<int>::const_iterator tagListEnd(tagList.end());
     vector<string>::const_iterator machine(machineValueStringList.begin());
     for (; tag != tagListEnd; ++tag, ++machine)
     {
       /** check if retrieved value can be converted to double, and if so add it
-       *  to the machine data, otherwise issue an error and continue
+       *  to the machine data, otherwise issue an error and add a 0 into the
+       *  cache.
        *  @note the retrieved values might contain the unit of the value in the
        *        string, therefore one has to remove all characters from the string
        */
@@ -257,13 +278,13 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     }
   }
 
-  /** for all pixel dets retrieve the non changing parameters from the first
-   *  image
+  /** for all pixel dets, which consist of only 1 tile, retrieve the
+   *  non-changing parameters from the first image
    */
   pixDets_t::iterator pixelDetsIter(_pixelDetectors.begin());
   pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
   for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
-    if (cacheDetParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first))
+    if (cacheTileParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first))
       pixelDetsIter->notLoaded = false;
 
   /** for all octal dets retrieve the non changing parameters from the first
@@ -275,11 +296,13 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   {
     for (size_t i(0); i< octalDetsIter->tiles.size(); ++i)
     {
-      if (cacheDetParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first))
+      if (cacheTileParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first))
         octalDetsIter->notLoaded = false;
       detTileParams &tileParams(octalDetsIter->tiles[i]);
-      /** retrieve the position and tilt of the tile */
+
+      /** retrieve the additonal information of the tiles of an octal detector */
       int funcstatus(0);
+      /** the position in x in the lab space in um */
       funcstatus = ReadDetPosX(tileParams.posx_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
@@ -289,6 +312,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      /** the position in y in the lab space in um */
       funcstatus = ReadDetPosY(tileParams.posy_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
@@ -298,6 +322,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      /** the position in z in the lab space in um */
       funcstatus = ReadDetPosZ(tileParams.posz_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
@@ -307,6 +332,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      /** the angle in degrees in the lab space */
       funcstatus = ReadDetRotationAngle(tileParams.angle_deg,tileParams.name.c_str(),
                                         blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
@@ -316,7 +342,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
-      /** get the gain of the detector tile */
+      /** the gain of the detector tile */
       funcstatus = ReadAbsGain(tileParams.gain,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
@@ -327,13 +353,17 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         octalDetsIter->notLoaded = true;
       }
     }
+    /** if the tiles of the octal detector should be normalized, calculate the
+     *  relative gain of the individual tiles with respect to the first tile
+     *  and store the relative gains within the tile
+     */
     if (octalDetsIter->normalize)
     {
       detTileParams firstTile(octalDetsIter->tiles[0]);
       firstTile.normalize = false;
-      for (size_t i(1); i<octalDetsIter->tiles.size(); ++i)
+      for (size_t j = 1; j<octalDetsIter->tiles.size(); ++j)
       {
-        detTileParams &tile(octalDetsIter->tiles[i]);
+        detTileParams &tile(octalDetsIter->tiles[j]);
         tile.normalize = true;
         tile.relativeGain = tile.gain / firstTile.gain;
       }
@@ -450,10 +480,10 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     switch(tile.type)
     {
       case Sacla_DATA_TYPE_UNSIGNED_SHORT:
-        retrievePixelDet<uint16_t>(tile, runNbr, blNbr, highTagNbr, tagNbr);
+        retrieveTileData<uint16_t>(tile, runNbr, blNbr, highTagNbr, tagNbr);
         break;
       case Sacla_DATA_TYPE_FLOAT:
-        retrievePixelDet<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
+        retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
         break;
       case Sacla_DATA_TYPE_INVALID:
       default:
@@ -461,6 +491,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
                  tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
         break;
     }
+
+    /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
   }
 
@@ -474,7 +506,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     if (octdet.notLoaded)
       continue;
 
-    /** retrieve the right detector from the cassevent */
+    /** retrieve the right detector from the cassevent and reset it */
     pixeldetector::Detector &det(dev.dets()[octdet.CASSID]);
     det.frame().clear();
     det.columns() = 0;
@@ -494,7 +526,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
      *  within the frame
      */
     size_t currentsize(0);
-    for (size_t i(0); i<octdet.tiles.size(); ++i)
+    for (size_t i = 0; i<octdet.tiles.size(); ++i)
     {
       detTileParams &tile(octdet.tiles[i]);
       md.BeamlineData()[tile.name+"_Width"]      = tile.xsize;
@@ -515,14 +547,14 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
-    for (size_t i= 0; i<octdet.tiles.size(); ++i)
+    for (size_t i = 0; i<octdet.tiles.size(); ++i)
     {
       detTileParams &tile(octdet.tiles[i]);
       /** retrieve the data with the right type */
       switch(tile.type)
       {
         case Sacla_DATA_TYPE_FLOAT:
-          retrievePixelDet<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
+          retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
           break;
         case Sacla_DATA_TYPE_INVALID:
         default:
@@ -533,7 +565,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     }
 
     /** gather the size retrieved of all the tiles */
-    for (size_t i= 0; i<octdet.tiles.size(); ++i)
+    for (size_t i = 0; i<octdet.tiles.size(); ++i)
       datasize += octdet.tiles[i].bytes_retrieved;
   }
 

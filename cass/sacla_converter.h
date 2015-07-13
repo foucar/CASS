@@ -136,29 +136,71 @@ public:
         relativeGain(1)
     {}
 
+    /** the name of the tile */
     std::string name;
+
+    /** the number of columns of the tile */
     int xsize;
+
+    /** the number of rows of the tile */
     int ysize;
+
+    /** the size of the frame in bytes */
     int datasize_bytes;
+
+    /** the size of a pixel in um */
     float pixsize_um;
+
+    /** the position in x in lab space of the tile in um */
     float posx_um;
+
+    /** the position in y in lab space of the tile in um */
     float posy_um;
+
+    /** the position in z in lab space of the tile in um */
     float posz_um;
+
+    /** the angle in degree in lab space of the tile */
     float angle_deg;
+
+    /** the absolute gain of the tile */
     float gain;
+
+    /** the data type of the data of the tile */
     Sacla_DetDataType type;
+
+    /** the number of bytes retrieved for this tile */
     size_t bytes_retrieved;
+
+    /** iterator to the start within the frame of this tile */
     pixeldetector::frame_t::iterator start;
+
+    /** flag to tell whether the data of this tile should be normalized to
+     *  another tile
+     */
     bool normalize;
+
+    /** the realtive gain with respect to the tile that this tile should be
+     *  normalized to
+     */
     float relativeGain;
   };
 
   /** detector consists of tiles */
   struct detParams
   {
+    /** vector containing the tiles of this detector */
     std::vector<detTileParams> tiles;
+
+    /** flag to tell whether the individual tiles of this detector should be
+     *  normalized to the first tile
+     */
     bool normalize;
+
+    /** the id of the detector within the CASSEvent */
     int CASSID;
+
+    /** flag to tell whether the non-changeing data of this tile has been loaded */
     bool notLoaded;
   };
 
