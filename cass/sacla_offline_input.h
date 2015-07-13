@@ -86,8 +86,6 @@ private:
                     bool quitwhendone,
                     QObject *parent=0);
 
-  /** flag that tells the input to rewind to the beginning of the eventlist */
-  bool _rewind;
 
   /** number of chuncks that the list should be split into */
   int _chunks;

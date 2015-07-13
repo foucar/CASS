@@ -78,8 +78,14 @@ public:
       output += " '" + toString(*iter) + "',";
     Log::add(Log::VERBOSEINFO,output);
 
+    /** get reference to the global input, which we use to interact with the
+     *  ringbuffer and the ratemeter
+     */
     InputBase::shared_pointer::element_type& input(InputBase::reference());
 
+    /** iterate through the list of tags and check every iteration whether the
+     *  input should quit
+     */
     iter = _liststart;
     for(;(!input.shouldQuit()) && (iter != _listend); ++iter)
     {
@@ -92,11 +98,19 @@ public:
 
       /** fill the cassevent object with the contents from the file */
       uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*iter,*rbItem->element);
+
+      /** in case nothing was retieved, issue a warning. Increase the counter
+       *  otherwise
+       */
       if (!datasize)
         Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
         ++_counter;
+
+      /** let the ratemeter know how much we retrieved and return the event
+       *  to the ringbuffer
+       */
       input.newEventAdded(datasize);
       input.ringbuffer().doneFilling(rbItem, datasize);
     }
@@ -128,7 +142,7 @@ private:
   uint64_t _counter;
 };
 
-/** retrieve the list of tags and the assiciated high tag number
+/** retrieve the list of tags and the associated high tag number
  *
  * @return false in case of an error, true otherwise
  * @param[out] taglist the taglist for the run and beamline
@@ -204,7 +218,6 @@ void SACLAOfflineInput::load()
 {
   CASSSettings s;
   s.beginGroup("SACLAOfflineInput");
-  _rewind = s.value("Rewind",false).toBool();
   _chunks = s.value("NbrThreads",1).toInt();
 }
 
@@ -271,11 +284,15 @@ void SACLAOfflineInput::runthis()
       continue;
     }
 
-    /** the rest of the line is a separated list of tags, add them to the id list */
+    /** the rest of the line could be a separated list of tags,
+     * add them to the id list
+     */
     vector<int> taglist(nbrs.begin()+2,nbrs.end());
     int highTagNbr(0);
 
-    /** if the user did not provide a tag list, get the tag list from the API */
+    /** if the user did not provide a tag list, get the tag list from the API
+     *  If there was an error, then continue with the next run in the runlist
+     */
     if (taglist.empty())
     {
       if (!getCompleteTagList(taglist,highTagNbr,blNbr,runNbr))
@@ -316,15 +333,21 @@ void SACLAOfflineInput::runthis()
     {
       vector<int>::const_iterator chunkstart(taglist.begin() + (chunk*chunksize));
       vector<int>::const_iterator chunkend(taglist.begin() + (chunk+1)*chunksize);
+      /** generate a processor for the chunk */
       TagListProcessor::shared_pointer
           processor(new TagListProcessor(chunkstart,chunkend,runNbr,blNbr,highTagNbr));
+      /** start the processor */
       processor->start();
+      /** put the processor in the processor container */
       processors.push_back(processor);
     }
+    /** if there are tags in the list remaining, add the into the last processor */
     vector<int>::const_iterator chunkstart(taglist.begin() + ((_chunks-1)*chunksize));
     TagListProcessor::shared_pointer
         processor(new TagListProcessor(chunkstart,taglist.end(),runNbr,blNbr,highTagNbr));
+    /** start the processor */
     processor->start();
+    /** put the processor in the processor container */
     processors.push_back(processor);
 
     /** wait until all threads are finished and sum up the total events */
@@ -339,6 +362,9 @@ void SACLAOfflineInput::runthis()
   }
 
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Finished with all runs.");
+  /** in case the input should not quit when everything has been processed, wait
+   *  until the input thread is told to quit
+   */
   if(!_quitWhenDone)
     while(!shouldQuit())
       this->sleep(1);
