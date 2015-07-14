@@ -65,6 +65,9 @@ class CASSEvent;
  * @cassttng SACLAConverter/DatabaseValues/\%index\%/{ValueName}\n
  *           The name of the database value to retrieve. Default is "Invalid"
  *           which will cause to skip that index.
+ * @cassttng SACLAConverter/DatabaseValues/\%index\%/{CASSName}\n
+ *           The name of the value that the database value should have within
+ *           the cassevent. Default is the same name as ValueName
  *
  * @author Lutz Foucar
  */
@@ -105,8 +108,26 @@ public:
                        int blNbr, int runNbr, int highTagNbr);
 
 private:
+  /** container for the cached machine value */
+  struct MachineValue
+  {
+    /** the name of the machine value within the database */
+    std::string databaseName;
+
+    /** the name of the machine value within the cassevent */
+    std::string cassName;
+
+    /** define map with tags as key and value and mapped type */
+    typedef std::map<int, double> values_t;
+
+    /** map that contains the tag as key and value for the value
+     *  associated with the tag
+     */
+    values_t values;
+  };
+
   /** define the machine values */
-  typedef std::map<std::string, std::map<int,double> > machineVals_t;
+  typedef std::vector<MachineValue> machineVals_t;
 
   /** the list of requested machine values */
   machineVals_t _machineVals;

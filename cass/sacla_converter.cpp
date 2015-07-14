@@ -204,8 +204,14 @@ void SACLAConverter::loadSettings()
     s.setArrayIndex(i);
     string machineValName(s.value("ValueName","Invalid").toString().toStdString());
     /** skip if the value name has not been set */
-    if (machineValName != "Invalid")
-      _machineVals.insert(make_pair(machineValName,machineVals_t::mapped_type()));
+    if (machineValName == "Invalid")
+      continue;
+    /** retrieve the name that the value should have in the CASSEvent
+     *  (in case non is given, default it to the machine value name
+     */
+    _machineVals.push_back(machineVals_t::value_type());
+    _machineVals.back().databaseName = machineValName;
+    _machineVals.back().cassName = s.value("CASSName",QString::fromStdString(machineValName)).toString().toStdString();
   }
   s.endArray();
 
@@ -227,23 +233,24 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   machineVals_t::const_iterator machineValsEnd(_machineVals.end());
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
   {
+    MachineValue & mv(*machineValsIter);
     vector<string> machineValueStringList;
     funcstatus = ReadSyncDataList(&machineValueStringList,
-                                  const_cast<char*>(machineValsIter->first.c_str()),
+                                  const_cast<char*>(mv.databaseName.c_str()),
                                   highTagNbr,tagList);
     if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAConverter::cacheParameters could not cache values of '" +
-               machineValsIter->first + "' ErrorCode is '" + toString(funcstatus) + "'");
+               mv.databaseName + "' ErrorCode is '" + toString(funcstatus) + "'");
       continue;
     }
     /** check if as many parameters as tags given have been returned. In case
-     *  this number is different, somehting bad happened
+     *  this number is different, something bad happened
      */
     if (machineValueStringList.size() != tagList.size())
     {
       Log::add(Log::ERROR,"SACLAConverter:cacheParameters caching '" +
-               machineValsIter->first + "' did not return the right size");
+               mv.databaseName + "' did not return the right size");
       continue;
     }
     /** convert the retrieved values into double numbers
@@ -265,15 +272,15 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       bool isDouble(false);
       double machineValue(machineValueQString.toDouble(&isDouble));
       if (isDouble)
-        (machineValsIter->second)[*tag] = machineValue;
+        mv.values[*tag] = machineValue;
       else
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameters '" +
-                 machineValsIter->first + "' for tag '" + toString(*tag) +
+                 mv.databaseName + "' for tag '" + toString(*tag) +
                  "': String '" + *machine + "' which is altered to '" +
                  machineValueQString.toStdString() +
                  "' to remove units, cannot be converted to double. Setting it to 0");
-        (machineValsIter->second)[*tag] = 0.;
+        mv.values[*tag] = 0.;
       }
     }
   }
@@ -426,21 +433,24 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
 
 
   /** go through all requested machine data events and retrieve the corresponding
-   *  values for the tag */
+   *  values for the tag
+   */
   machineVals_t::const_iterator machineValsIter(_machineVals.begin());
   machineVals_t::const_iterator machineValsEnd(_machineVals.end());
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
   {
+    /** rerference to the machine value */
+    const MachineValue &mv(*machineValsIter);
     /** check if the cache contains the machine value for the requested tag */
-    machineVals_t::mapped_type::const_iterator entry(machineValsIter->second.find(tagNbr));
-    if (entry == machineValsIter->second.end())
+    machineVals_t::value_type::values_t::const_iterator entry(mv.values.find(tagNbr));
+    if (entry == mv.values.end())
     {
       Log::add(Log::ERROR,"SACLAConverter: cannot find beamline value '" +
-               machineValsIter->first + "' for tag '" + toString(tagNbr) +
+               mv.databaseName + "' for tag '" + toString(tagNbr) +
                "' in cache.");
       continue;
     }
-    md.BeamlineData()[machineValsIter->first] = entry->second;
+    md.BeamlineData()[mv.cassName] = entry->second;
     datasize += sizeof(double);
   }
 
