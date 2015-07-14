@@ -102,6 +102,9 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has xsize '" + toString(tileParams.xsize) + "'");
 
   /** the number of rows */
   funcstatus = ReadYSizeOfDetData(tileParams.ysize,tileParams.name.c_str(),
@@ -113,6 +116,9 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has ysize '" + toString(tileParams.ysize) + "'");
 
   /** the size of the data of the tile in bytes */
   funcstatus = ReadSizeOfDetData(tileParams.datasize_bytes,tileParams.name.c_str(),
@@ -124,6 +130,9 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has datasize '" + toString(tileParams.datasize_bytes) + "' bytes");
 
   /** the size of the pixels of the tile */
   funcstatus = ReadPixelSize(tileParams.pixsize_um,tileParams.name.c_str(),
@@ -135,6 +144,9 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has pixelsize '" + toString(tileParams.pixsize_um) + "' um");
 
   /** the data type of the tile */
   funcstatus = ReadDetDataType(tileParams.type,tileParams.name.c_str(),
@@ -146,6 +158,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has data type '" + toString(tileParams.type) + "'");
+
   return true;
 }
 
@@ -159,6 +175,8 @@ void SACLAConverter::loadSettings()
 
   /** set the flag to retrieve the accelerator data */
   _retrieveAcceleratorData = s.value("RetrieveAcceleratorData",true).toBool();
+  Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Will ") +
+           (_retrieveAcceleratorData?"":"not ") + "retrieve the accelerator data");
 
   /** set the requested octal detectors */
   int size = s.beginReadArray("OctalPixelDetectors");
@@ -174,6 +192,8 @@ void SACLAConverter::loadSettings()
     _octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
     _octalDetectors.back().notLoaded = true;
     _octalDetectors.back().tiles.resize(8);
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add octal detector with CASSID '") +
+             toString(_octalDetectors.back().CASSID) + "'");
     for (size_t i(0); i<_octalDetectors.back().tiles.size(); ++i)
       _octalDetectors.back().tiles[i].name = (detID + "-" + toString(i+1));
   }
@@ -194,6 +214,8 @@ void SACLAConverter::loadSettings()
     _pixelDetectors.back().notLoaded = true;
     _pixelDetectors.back().tiles.resize(1);
     _pixelDetectors.back().tiles[0].name = detID;
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add detector with CASSID '") +
+             toString(_pixelDetectors.back().CASSID) + "'");
   }
   s.endArray();
 
@@ -212,6 +234,9 @@ void SACLAConverter::loadSettings()
     _machineVals.push_back(machineVals_t::value_type());
     _machineVals.back().databaseName = machineValName;
     _machineVals.back().cassName = s.value("CASSName",QString::fromStdString(machineValName)).toString().toStdString();
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add database value '") +
+             _machineVals.back().databaseName + "' with CASSName '" +
+             _machineVals.back().cassName + "'");
   }
   s.endArray();
 
@@ -253,7 +278,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                mv.databaseName + "' did not return the right size");
       continue;
     }
-    /** convert the retrieved values into double numbers
+    /** convert the retrieved database values into double numbers
      *  and put them into the cache
      */
     vector<int>::const_iterator tag(tagList.begin());
@@ -263,7 +288,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     {
       /** check if retrieved value can be converted to double, and if so add it
        *  to the machine data, otherwise issue an error and add a 0 into the
-       *  cache.
+       *  cache for that given tag.
        *  @note the retrieved values might contain the unit of the value in the
        *        string, therefore one has to remove all characters from the string
        */
@@ -314,51 +339,76 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"retrieveOctal: pos X of '" +
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameters: pos X of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      else
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tileParams.name + "' has pos x '" + toString(tileParams.posx_um) +
+                 "' um");
+
       /** the position in y in the lab space in um */
       funcstatus = ReadDetPosY(tileParams.posy_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"retrieveOctal: pos Y of '" +
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameters: pos Y of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      else
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tileParams.name + "' has pos y '" + toString(tileParams.posy_um) +
+                 "' um");
+
       /** the position in z in the lab space in um */
       funcstatus = ReadDetPosZ(tileParams.posz_um,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"retrieveOctal: pos Z of '" +
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameter: pos Z of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      else
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tileParams.name + "' has pos z '" + toString(tileParams.posz_um) +
+                 "' um");
+
       /** the angle in degrees in the lab space */
       funcstatus = ReadDetRotationAngle(tileParams.angle_deg,tileParams.name.c_str(),
                                         blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"retrieveOctal: angle of '" +
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameter: angle of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      else
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tileParams.name + "' has angle '" + toString(tileParams.angle_deg) +
+                 "' degrees");
+
       /** the gain of the detector tile */
       funcstatus = ReadAbsGain(tileParams.gain,tileParams.name.c_str(),
                                blNbr, runNbr, highTagNbr, *first);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"retrieveOctal: absolute gain of '" +
+        Log::add(Log::ERROR,"SACLAConverter::cacheParameter: absolute gain of '" +
                  tileParams.name + "' for tag '" + toString(*first) +
                  "' ErrorCode is '" + toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
+      else
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tileParams.name + "' has absolute gain '" +
+                 toString(tileParams.gain) + "'");
+
     }
     /** if the tiles of the octal detector should be normalized, calculate the
      *  relative gain of the individual tiles with respect to the first tile
@@ -373,6 +423,9 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
         detTileParams &tile(octalDetsIter->tiles[j]);
         tile.normalize = true;
         tile.relativeGain = tile.gain / firstTile.gain;
+        Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
+                 tile.name + "' will be normalized with relative gain of '" +
+                 toString(tile.relativeGain) + "'");
       }
     }
   }
