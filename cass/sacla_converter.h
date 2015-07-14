@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Lutz Foucar
+// Copyright (C) 2014, 2015 Lutz Foucar
 
 /**
  * @file sacla_converter.h contains class to convert sacla data to cassevent
