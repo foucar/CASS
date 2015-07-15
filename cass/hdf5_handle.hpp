@@ -20,6 +20,25 @@
 namespace hdf5
 {
 
+/** Exception thrown when there is an error with the dataset
+ *
+ * @author Lutz Foucar
+ */
+class DatasetError : public std::runtime_error
+{
+public:
+  /** explicit constructor
+   *
+   * @param message the error message
+   */
+  explicit DatasetError(const std::string & message)
+    : std::runtime_error(message)
+  {}
+
+  virtual ~DatasetError() throw() {}
+};
+
+
 /** traits for matching a build in type with the corresponding h5 type
  *
  * Default @throw logic_error reporting that the type is not supported by the
@@ -167,7 +186,7 @@ public:
     hid_t dataset_id(H5Dcreate(_fileid, valname.c_str(),H5Type<type>(),
                                dataspace_id, H5P_DEFAULT, H5P_DEFAULT , H5P_DEFAULT));
     if (dataset_id < 0)
-      throw runtime_error("writeScalar(float): Could not open the dataset '" + valname +"'");
+      throw DatasetError("writeScalar(float): Could not open the dataset '" + valname +"'");
 
     herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
                            H5P_DEFAULT, &value));
@@ -197,7 +216,7 @@ public:
     /** open the scalar dataset */
     hid_t dataset_id(H5Dopen(_fileid,valname.c_str(),H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readScalar(): Could not open the dataset '" +
+      throw DatasetError("readScalar(): Could not open the dataset '" +
                           valname + "'");
 
     /** read the attribute and close the resources */
@@ -261,7 +280,7 @@ public:
                               dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT));
 
     if (dataset_id < 0)
-      throw runtime_error("writeArray(): Could not open the dataset '"
+      throw DatasetError("writeArray(): Could not open the dataset '"
                           + valname +"'");
 
     herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
@@ -296,7 +315,7 @@ public:
 
     hid_t dataset_id(H5Dopen(_fileid, valname.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readArray(): Could not open Dataset '"+ valname +"'");
+      throw DatasetError("readArray(): Could not open Dataset '"+ valname +"'");
 
     hid_t dataspace_id(H5Dget_space (dataset_id));
     if (dataspace_id < 0)
@@ -366,7 +385,7 @@ public:
                              dataspace_id, H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
 
     if (dataset_id < 0)
-      throw runtime_error("writeMatrix(): Could not open the dataset '"
+      throw DatasetError("writeMatrix(): Could not open the dataset '"
                           + valname + "'");
 
     herr_t status(H5Dwrite(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL,
@@ -401,7 +420,7 @@ public:
 
     hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readMatrix(): Could not open Dataset '"+ valname +"'");
+      throw DatasetError("readMatrix(): Could not open Dataset '"+ valname +"'");
 
     hid_t dataspace_id(H5Dget_space (dataset_id));
     if (dataspace_id < 0)
@@ -449,7 +468,7 @@ public:
     hid_t dataset_id(H5Dcreate(_fileid, dsetName.c_str(), datatype_id,
                                dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT));
     if (dataset_id < 0 )
-      throw runtime_error("writeString(): Could not open the dataset '"
+      throw DatasetError("writeString(): Could not open the dataset '"
                           + dsetName + "'");
 
     const char *s(string.c_str());
@@ -475,7 +494,7 @@ public:
 
     hid_t dataset_id(H5Dopen(_fileid, dsetName.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readString(): Could not open Dataset '"+ dsetName +
+      throw DatasetError("readString(): Could not open Dataset '"+ dsetName +
                              "'");
 
     hid_t datatype_id(H5Dget_type(dataset_id));
@@ -511,7 +530,7 @@ public:
     /** open the dataset that the attribute should be added to */
     hid_t dataset_id(H5Dopen(_fileid,dsetName.c_str(),H5P_DEFAULT));
     if (dataset_id < 0)
-      throw runtime_error("writeScalarAttribute(): Could not open the dataset '" +
+      throw DatasetError("writeScalarAttribute(): Could not open the dataset '" +
                           dsetName + "'");
 
     /** open the attribute space and attribute of the dataset */
@@ -554,7 +573,7 @@ public:
     /** open the dataset that the attribute should be added to */
     hid_t dataset_id(H5Dopen(_fileid,dsetName.c_str(),H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("readScalarAttribute(): Could not open the dataset '" +
+      throw DatasetError("readScalarAttribute(): Could not open the dataset '" +
                           dsetName + "'");
 
     /** attach to the scalar attribute of the dataset and read it */
@@ -592,7 +611,7 @@ public:
     size_t dimension;
     hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
     if (dataset_id < 0)
-      throw invalid_argument("dimension(): Could not open Dataset '"+ valname +"'");
+      throw DatasetError("dimension(): Could not open Dataset '"+ valname +"'");
 
     hid_t dataspace_id(H5Dget_space (dataset_id));
     switch(H5Sget_simple_extent_type(dataspace_id))
