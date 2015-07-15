@@ -189,121 +189,131 @@ void HDF5FileInput::runthis()
         CASSEvent::devices_t &devices(evt.devices());
         CASSEvent::devices_t::iterator devIt;
 
-        /** ####  machine data  #### */
-
-        /** check if the event contains the machine data container, if so get a
-         *  reference to it. Otherwise throw an error.
-         */
-        devIt = devices.find(CASSEvent::MachineData);
-        if (devIt == devices.end())
-          throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Machine Data Device");
-        MachineData::MachineDataDevice &md (*dynamic_cast<MachineData::MachineDataDevice*>(devIt->second));
-
-        /** go through all requested machine data events and retrieve the corresponding
-         *  values for the tag */
-        machineVals_t::const_iterator machineValsIter(machineVals.begin());
-        machineVals_t::const_iterator machineValsEnd(machineVals.end());
-        for (; machineValsIter != machineValsEnd; ++machineValsIter)
+        /** try to retrieve the data */
+        try
         {
-          const string key(*it + "/" + machineValsIter->first);
-          /** check if dimension is correct */
-          if (h5handle.dimension(key) != 0)
-            throw runtime_error("HDF5FileInput(): file '"+ filename + "': key '" +
-                                key + "' is not a scalar value");
-          float machineValue(h5handle.readScalar<float>(key));
-          md.BeamlineData()[machineValsIter->second] = machineValue;
-        }
+          /** ####  machine data  #### */
 
+          /** check if the event contains the machine data container, if so get a
+           *  reference to it. Otherwise throw an error.
+           */
+          devIt = devices.find(CASSEvent::MachineData);
+          if (devIt == devices.end())
+            throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Machine Data Device");
+          MachineData::MachineDataDevice &md (*dynamic_cast<MachineData::MachineDataDevice*>(devIt->second));
 
-        /** acqiris data */
-
-        /** retrieve a pointer to the right acqiris instrument */
-        devIt = devices.find(CASSEvent::Acqiris);
-        if (devIt == devices.end())
-          throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Acqiris Device");
-        ACQIRIS::Device &acq (*dynamic_cast<ACQIRIS::Device*>(devIt->second));
-        /** go through all requested acqiris data */
-        acqirisVals_t::const_iterator acqirisValsIter(acqirisVals.begin());
-        acqirisVals_t::const_iterator acqirisValsEnd(acqirisVals.end());
-        for (; acqirisValsIter != acqirisValsEnd; ++acqirisValsIter)
-        {
-          /** retrieve a reference to the right instrument */
-          ACQIRIS::Instrument &instr(acq.instruments()[acqirisValsIter->Instrument]);
-          /** retrieve a reference to the channel container of the instrument */
-          ACQIRIS::Instrument::channels_t &channels(instr.channels());
-          /** resize the channel vector to how many channels are in the device */
-          channels.resize(acqirisValsIter->ChannelNumber + 1);
-          /** retrieve a reference to the channel we are working on */
-          ACQIRIS::Channel &chan(channels[acqirisValsIter->ChannelNumber]);
-          /** retrieve a reference to waveform container */
-          ACQIRIS::waveform_t &waveform = chan.waveform();
-          /** extract the meta infos from the hdf5 file */
-          chan.channelNbr()     = acqirisValsIter->ChannelNumber;
-          chan.horpos()         = (acqirisValsIter->HorposKey == "Invalid") ? 0 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->HorposKey);
-          chan.offset()         = (acqirisValsIter->VertOffsetKey == "Invalid") ? 0 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->VertOffsetKey);
-          chan.gain()           = (acqirisValsIter->GainKey == "Invalid") ? 1 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->GainKey);
-          chan.sampleInterval() = (acqirisValsIter->SampleIntervalKey == "Invalid") ? 1e-9 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->SampleIntervalKey);
-          /** extract the wavefrom and copy it to the CASSEvent container */
-          const string dkey(*it + "/" + acqirisValsIter->DataKey);
-          vector<float> array;
-          if (h5handle.dimension(dkey) == 1)
+          /** go through all requested machine data events and retrieve the corresponding
+           *  values for the tag */
+          machineVals_t::const_iterator machineValsIter(machineVals.begin());
+          machineVals_t::const_iterator machineValsEnd(machineVals.end());
+          for (; machineValsIter != machineValsEnd; ++machineValsIter)
           {
-            size_t length(0);
-            h5handle.readArray(array, length, dkey);
-            waveform.resize(length);
+            const string key(*it + "/" + machineValsIter->first);
+            /** check if dimension is correct */
+            if (h5handle.dimension(key) != 0)
+              throw runtime_error("HDF5FileInput(): file '"+ filename + "': key '" +
+                                  key + "' is not a scalar value");
+            float machineValue(h5handle.readScalar<float>(key));
+            md.BeamlineData()[machineValsIter->second] = machineValue;
           }
-          else if (h5handle.dimension(dkey) == 2)
+
+
+          /** acqiris data */
+
+          /** retrieve a pointer to the right acqiris instrument */
+          devIt = devices.find(CASSEvent::Acqiris);
+          if (devIt == devices.end())
+            throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Acqiris Device");
+          ACQIRIS::Device &acq (*dynamic_cast<ACQIRIS::Device*>(devIt->second));
+          /** go through all requested acqiris data */
+          acqirisVals_t::const_iterator acqirisValsIter(acqirisVals.begin());
+          acqirisVals_t::const_iterator acqirisValsEnd(acqirisVals.end());
+          for (; acqirisValsIter != acqirisValsEnd; ++acqirisValsIter)
           {
-            pair<size_t,size_t> shape;
-            h5handle.readMatrix(array, shape, dkey);
-            if (shape.second != 1)
+            /** retrieve a reference to the right instrument */
+            ACQIRIS::Instrument &instr(acq.instruments()[acqirisValsIter->Instrument]);
+            /** retrieve a reference to the channel container of the instrument */
+            ACQIRIS::Instrument::channels_t &channels(instr.channels());
+            /** resize the channel vector to how many channels are in the device */
+            channels.resize(acqirisValsIter->ChannelNumber + 1);
+            /** retrieve a reference to the channel we are working on */
+            ACQIRIS::Channel &chan(channels[acqirisValsIter->ChannelNumber]);
+            /** retrieve a reference to waveform container */
+            ACQIRIS::waveform_t &waveform = chan.waveform();
+            /** extract the meta infos from the hdf5 file */
+            chan.channelNbr()     = acqirisValsIter->ChannelNumber;
+            chan.horpos()         = (acqirisValsIter->HorposKey == "Invalid") ? 0 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->HorposKey);
+            chan.offset()         = (acqirisValsIter->VertOffsetKey == "Invalid") ? 0 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->VertOffsetKey);
+            chan.gain()           = (acqirisValsIter->GainKey == "Invalid") ? 1 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->GainKey);
+            chan.sampleInterval() = (acqirisValsIter->SampleIntervalKey == "Invalid") ? 1e-9 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->SampleIntervalKey);
+            /** extract the wavefrom and copy it to the CASSEvent container */
+            const string dkey(*it + "/" + acqirisValsIter->DataKey);
+            vector<float> array;
+            if (h5handle.dimension(dkey) == 1)
+            {
+              size_t length(0);
+              h5handle.readArray(array, length, dkey);
+              waveform.resize(length);
+            }
+            else if (h5handle.dimension(dkey) == 2)
+            {
+              pair<size_t,size_t> shape;
+              h5handle.readMatrix(array, shape, dkey);
+              if (shape.second != 1)
+                throw invalid_argument("HDF5FileInput: file '" + filename +
+                                       "': acqiris data key '" + dkey +
+                                       "' is a matrix of '" + toString(shape.first) +
+                                       "x" + toString(shape.second) + "'");
+              waveform.resize(shape.first*shape.second);
+            }
+            else
+            {
               throw invalid_argument("HDF5FileInput: file '" + filename +
                                      "': acqiris data key '" + dkey +
-                                     "' is a matrix of '" + toString(shape.first) +
-                                     "x" + toString(shape.second) + "'");
-            waveform.resize(shape.first*shape.second);
+                                     "' is not an array. It has dimension '" +
+                                     toString(h5handle.dimension(dkey)) + "'");
+            }
+            copy(array.begin(),array.end(),waveform.begin());
           }
-          else
+
+
+          /** image data */
+
+          /** retrieve the pixel detector part of the cassevent */
+          devIt = devices.find(CASSEvent::PixelDetectors);
+          if(devIt == devices.end())
+            throw runtime_error("HDF5FileInput: CASSEvent does not contains a pixeldetector device");
+          pixeldetector::Device &pixdev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+          /** go through all requested detectors and retrieve the data */
+          pixdetVals_t::const_iterator pixdetValsIter(pixdetVals.begin());
+          pixdetVals_t::const_iterator pixdetValsEnd(pixdetVals.end());
+          for(; pixdetValsIter != pixdetValsEnd; ++pixdetValsIter)
           {
-            throw invalid_argument("HDF5FileInput: file '" + filename +
-                                   "': acqiris data key '" + dkey +
-                                   "' is not an array. It has dimension '" +
-                                   toString(h5handle.dimension(dkey)) + "'");
+            /** retrieve the right detector from the cassevent and reset it*/
+            pixeldetector::Detector &det(pixdev.dets()[pixdetValsIter->CASSID]);
+            det.frame().clear();
+            /** get the data from the file */
+            string dkey(*it + "/" + pixdetValsIter->DataKey);
+            if (h5handle.dimension(dkey) != 2)
+              throw invalid_argument("HDF5FileInput: file '" + filename +
+                                     "': pixeldetector data key '" + dkey +
+                                     "' is not a matrix. It has dimension '" +
+                                     toString(h5handle.dimension(dkey)) + "'");
+            pair<size_t,size_t> shape;
+            h5handle.readMatrix(det.frame(), shape, dkey);
+            /** set the metadata of the frame */
+            det.columns() = shape.first;
+            det.rows() = shape.second;
+            det.id() = evt.id();
           }
-          copy(array.begin(),array.end(),waveform.begin());
+
         }
-
-
-        /** image data */
-
-        /** retrieve the pixel detector part of the cassevent */
-        devIt = devices.find(CASSEvent::PixelDetectors);
-        if(devIt == devices.end())
-          throw runtime_error("HDF5FileInput: CASSEvent does not contains a pixeldetector device");
-        pixeldetector::Device &pixdev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
-        /** go through all requested detectors and retrieve the data */
-        pixdetVals_t::const_iterator pixdetValsIter(pixdetVals.begin());
-        pixdetVals_t::const_iterator pixdetValsEnd(pixdetVals.end());
-        for(; pixdetValsIter != pixdetValsEnd; ++pixdetValsIter)
+        catch(const hdf5::DatasetError &error)
         {
-          /** retrieve the right detector from the cassevent and reset it*/
-          pixeldetector::Detector &det(pixdev.dets()[pixdetValsIter->CASSID]);
-          det.frame().clear();
-          /** get the data from the file */
-          string dkey(*it + "/" + pixdetValsIter->DataKey);
-          if (h5handle.dimension(dkey) != 2)
-            throw invalid_argument("HDF5FileInput: file '" + filename +
-                                   "': pixeldetector data key '" + dkey +
-                                   "' is not a matrix. It has dimension '" +
-                                   toString(h5handle.dimension(dkey)) + "'");
-          pair<size_t,size_t> shape;
-          h5handle.readMatrix(det.frame(), shape, dkey);
-          /** set the metadata of the frame */
-          det.columns() = shape.first;
-          det.rows() = shape.second;
-          det.id() = evt.id();
+          Log::add(Log::ERROR,"HDF5FileInput: file '" + filename +
+                   "' is missing data. Error is '" +  error.what() + "'");
+          isGood = false;
         }
-
 
         /** add the event back to the ringbuffer and let the world know if its
          *  a good event. Also do some output about the rate
