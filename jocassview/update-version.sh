@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -z ${1} ] ; then 
-  OUTFILE=jocassview_version.h 
+if [ -z ${1} ] ; then
+  OUTFILE=jocassview_version.h
 else
   OUTFILE=${1}
 fi

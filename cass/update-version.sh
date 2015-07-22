@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z ${1} ] ; then 
+if [ -z ${1} ] ; then
   OUTFILE=cass_version.h
 else
   OUTFILE=${1}
