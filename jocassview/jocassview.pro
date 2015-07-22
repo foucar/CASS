@@ -100,6 +100,9 @@ RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 # execute script that shows the current version derived from git
 #version.target      = cass_version.h
 version.commands    = $$PWD/update-version.sh
+!offline:!online {
+    version.commands = $$PWD/update-version.sh && ../cass/update-version.sh ../cass/cass_version.h
+}
 QMAKE_EXTRA_TARGETS+= version
 PRE_TARGETDEPS     += version
 

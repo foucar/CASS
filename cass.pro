@@ -5,26 +5,30 @@ include( cass_config.pri )
 
 TEMPLATE       = subdirs
 CONFIG        += ordered
-SUBDIRS        = LCLS \
+
+
+offline|online {
+    SUBDIRS    = LCLS \
                  cass_acqiris \
                  cass_pixeldetector \
                  cass_machinedata \
                  cass
 
-cass.depends = LCLS \
-               cass_acqiris \
-               cass_pixeldetector \
-               cass_machinedata
+    cass.depends = LCLS \
+                 cass_acqiris \
+                 cass_pixeldetector \
+                 cass_machinedata
+}
 
 DOCS{
-SUBDIRS       += doc
+    SUBDIRS   += doc
 }
 
-JoCASSView{
-SUBDIRS       += jocassview
+JoCASSView {
+    SUBDIRS   += jocassview
 }
 
-LuCASSView{
-SUBDIRS       += lucassview
+LuCASSView {
+    SUBDIRS   += lucassview
 }
 
