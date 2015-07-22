@@ -90,6 +90,8 @@ public:
       if (intarg != _intargs.end())
       {
         ++argument;
+        if (argument == argumentList.constEnd())
+          break;
         *(intarg->second.first) = argument->toInt();
         continue;
       }
@@ -97,6 +99,8 @@ public:
       if (stringarg != _stringargs.end())
       {
         ++argument;
+        if (argument == argumentList.constEnd())
+          break;
         *(stringarg->second.first) = argument->toStdString();
         continue;
       }
