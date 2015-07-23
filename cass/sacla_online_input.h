@@ -27,6 +27,10 @@ namespace cass
  *       data using the SACLADataAccessUserAPI, since the runnumber is needed to
  *       retrieve the needed hightag number.
  *
+ * @cassttng SACLAOnlineInput/{MaxGuessedEvents}\n
+ *           The number of consecutive events that should be guessed. Once this
+ *           number of events has been reached. The latest tag number will
+ *           be retrieved for the next event. Default is 60.
  * @cassttng SACLAOnlineInput/{BeamlineNumber}\n
  *           The Beamline at which the experiment is running. Default is 3
  * @cassttng SACLAOnlineInput/OctalPixelDetectors/{size}\n

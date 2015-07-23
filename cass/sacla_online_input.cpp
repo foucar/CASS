@@ -544,6 +544,11 @@ void SACLAOnlineInput::runthis()
   if (octalDetectors.empty())
     throw invalid_argument("SACLAOnlineInput: Need to have at least one octal detector defined");
 
+  /** generate a counter to enable the user to reset to the latest event after
+   *  so and so many events
+   */
+  size_t counter(0);
+  size_t maxGuessedEvents(s.value("MaxGuessedEvents",60).toUInt());
 
   /** load the beamline number of the beamline we're running on
    *  (needed to retieve database values)
@@ -658,8 +663,19 @@ void SACLAOnlineInput::runthis()
         }
 
 
-        /** remember the latest tag */
-        lastTag = latestTag;
+        /** remember the latest tag, but reset it every user given event,
+         *  to ensure that always gets the latest data.
+         */
+        if (counter < maxGuessedEvents)
+        {
+          lastTag = latestTag;
+          ++counter;
+        }
+        else
+        {
+          counter = 0;
+          lastTag = 0;
+        }
       }
     }
     /** if the data for the tag wasn't available, reset the last tag and the datasize */
