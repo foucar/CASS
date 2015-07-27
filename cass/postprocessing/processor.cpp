@@ -43,7 +43,7 @@ void PostProcessor::processEvent(const CASSEvent& evt)
     if (_condition->result(evt.id()).isTrue())
     {
       HistogramBackend &result(*(pointer->second));
-      QWriteLocker lock(&result.lock);
+      QWriteLocker lock(&(result.lock));
       result.id() = evt.id();
       process(evt,result);
       _resultList.latest(pointer);
