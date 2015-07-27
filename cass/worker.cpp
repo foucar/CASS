@@ -36,7 +36,9 @@ void Worker::runthis()
   while(_control != _quit)
   {
     pausePoint();
-    if ((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end())
+    /** ensure that one has retrieved a valid event and that the id is non zero number*/
+    if (((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end()) &&
+         (rbItem->element->id() != 0))
     {
       _postprocess(*rbItem->element);
       _ringbuffer.doneProcessing(rbItem);
