@@ -178,11 +178,15 @@ void HDF5FileInput::runthis()
         /** fill the cassevent object with the contents from the file */
         bool isGood(true);
 
-        /** set the event id from the highTag and Tag number */
+        /** set the event id from the retrieved id field */
         if (h5handle.dimension(*it + "/" + EventIDName) != 0)
           throw invalid_argument("HDF5FileInput:run(): EventID from '"+
                                  *it + "/" + EventIDName + "' is not a scalar number");
         evt.id() = h5handle.readScalar<int>(*it + "/" + EventIDName);
+
+        /** check if the eventid is valid (non zero and a number) */
+        if (!std::isfinite(evt.id()) || evt.id() == 0)
+          isGood = false;
 
 
         /** get reference to all devices of the CASSEvent and an iterator*/
