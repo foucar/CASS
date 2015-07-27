@@ -184,8 +184,8 @@ void HDF5FileInput::runthis()
                                  *it + "/" + EventIDName + "' is not a scalar number");
         evt.id() = h5handle.readScalar<int>(*it + "/" + EventIDName);
 
-        /** check if the eventid is valid (non zero and a number) */
-        if (!std::isfinite(evt.id()) || evt.id() == 0)
+        /** check if the eventid is valid (non zero number) */
+        if (evt.id() == 0)
           isGood = false;
 
 
