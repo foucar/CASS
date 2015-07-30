@@ -37,9 +37,6 @@ namespace cass
  *           "agat". Possible values are:
  *           - "agat": The type of data that is streamed from a normal version
  *                     of AGAT3.
- *           - "shmToOld": The type of data that is streamed from the RACOON
- *                         shm2tcp server. The output is written to the old
- *                         pnCCD container to be used with the old analysis chain.
  *           - "shm": Type of data that is streamed from RACOON shm2tcp server.
  *                    is to be used with the new ccd analysis chain.
  * @cassttng TCPInput/{SocketDataTimeout_ms}\n
