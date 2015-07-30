@@ -88,16 +88,21 @@ void setSignalHandler()
 /** The main program.
  *
  * @section clpar CASS Commandline Parameters
- * - i filename containing filesnames of xtcfiles to process (offline)
- * - c client id for shared memory access (online)
- * - s TCP port of the soap server (offline / online)
- * - p partition tag for accessing the shared memory (online)
- * - o output filename passed to the postprocessor (offline / online)
- * - q quit after finished with all files (offline)
- * - f optional complete path to the cass.ini to use (offline / online)
- * - r suppress the rate output
- * - m enable multifile input
+ * - -i filename containing filesnames of xtcfiles to process (offline)
+ * - -m enable multifile input (offline)
+ * - -q quit after finished with all files (offline)
+ * - --hdf5 enable the hdf5 file input module (offline)
+ * - -t enable the tcp input (online)
+ * - -p partition tag for accessing the shared memory (online)
+ * - -c client id for shared memory access (online)
  * - --noSoap disables the soap server
+ * - -s TCP port of the soap server (offline / online)
+ * - -r suppress the rate output
+ * - -o output filename passed to the Processor (offline / online)
+ * - -f optional complete path to the cass.ini to use (offline / online)
+ * - --sacla Enable sacla input (offline / online)
+ * - -h show this help
+ * - --version display the version of cass
  *
  * @author Lutz Foucar
  */
@@ -151,12 +156,12 @@ int main(int argc, char **argv)
     parser.add("--noSoap","Disable the Soap Server",noSoap);
     int soap_port(12321);
     parser.add("-s","TCP port of the soap server ",soap_port);
-    bool useDatagenerator(false);
-    parser.add("-d","Use generated fake data as input",useDatagenerator);
+//    bool useDatagenerator(false);
+//    parser.add("-d","Use generated fake data as input",useDatagenerator);
     bool suppressrate(false);
     parser.add("-r","suppress the rate output",suppressrate);
     string outputfilename("output.ext");
-    parser.add("-o","output filename passed to the postprocessor",outputfilename);
+    parser.add("-o","output filename passed to the Processor",outputfilename);
     string settingsfilename(settings.fileName().toStdString());
     parser.add("-f","complete path to the cass.ini to use",settingsfilename);
     bool sacladata(false);

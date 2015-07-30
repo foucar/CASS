@@ -3,10 +3,11 @@ CASS        {#mainpage}
 [TOC]
 
 CASS stands for (C)Fel-(A)SG (S)oftware (S)uite. It is a program designed
-to visualize data taken at Free-electron-lasers (FEL). To be easily adoptable
-to the various possible experiments it is designed to be consitsting of
-'puzzle' pieces which can be stiched together to make CASS visualize the
-data of interest for a given experiment.
+to analyze and visualize data taken at Free-electron-lasers (FEL). To be easily
+adoptable to the various possible different types of experiments, it is based
+on a highly modular design. The analysis part of CASS allows the user to set
+up a analysis chain that can be tailored for each experimantal needs.
+The section [general layout](#layout) describes the details of CASS.
 
 Please find below the links to most important parts of the description
 
@@ -47,7 +48,7 @@ public key.
 
 The recent stable version is contained in the 'master' branch.
 
-#### Anonymous retrieval via GitHub {#get_github}
+#### Anonymous retrieval via GitHub
 An anonymous clone of the latest master branch of the repository is accessable
 via GitHub
 
@@ -55,8 +56,9 @@ via GitHub
 
 Building CASS {#Building}
 -------------
-See the [INSTALL.md](@ref cassinstall) file for the prerequeries. Once you cloned / downloaded
-the version you want to compile you need to do the following steps:
+See the [INSTALL.md](@ref cassinstall) file for the prerequeries. Once you
+cloned / downloaded the version you want to compile you need to do the following
+steps:
 
     cd /path/to/cass/directory/
     copy cass_defaultconfig.pri to cass_myconfig.pri
@@ -74,7 +76,7 @@ if you want to install the binaries later on in a directory other than
 
 Once you did this you can type
 
-    make [-j]
+    make [-j5]
 
 After it is done with compiling you have the choice to either leave the
 binary in the ./bin folder and start CASS from there or you might want to
@@ -96,9 +98,9 @@ Documentation {#documentation}
 
 The Software Suite is documented using doxygen. One can create a html version
 of the documentation by running doxygen on the "doc" subfolder of the CASS
-directory. For this please install doxygen on your computer (see [INSTALL.md](@ref cassinstall)
-for details). Then cd into the doc directory and use doxygen there
-eg. if you are in the CASS base directory do:
+directory. For this please install doxygen on your computer (see
+[INSTALL.md](@ref cassinstall) for details). Then cd into the doc directory and
+use doxygen there eg. if you are in the CASS base directory do:
 
     cd doc
     make doc
@@ -118,8 +120,8 @@ is in this file.
 
 Using CASS {#using}
 ==========
-CASS multiple input modes allow running online (get the data from a live datastream) and
-offline (get the data from the written files).
+CASS multiple input modes allow running online (get the data from a live
+datastream) and offline (get the data from the written files).
 Depending on the settings in cass_myconfig.pri one can compile CASS for either
 online or offline mode. Please see @ref cassinstall for details.
 
@@ -160,13 +162,14 @@ shared memory that has been preset by the DAQ people. Doing
 
     ls /dev/shm
 
-gives a list which shared memory tags have been set up. The shared memory tag can
-be passed to the program with the
+gives a list which shared memory tags have been set up. The shared memory tag
+can be passed to the program with the
 
     -p <partition tag>
 
 parameter. If more than one person is running on the same machine trying to get
-the data from the online stream it is possible to pass an id to each one with the
+the data from the online stream it is possible to pass an id to each one with
+the
 
     -c <client id>
 
@@ -198,7 +201,7 @@ A typical program start command looks like this:
 For your convenience the most recent cass binary compiled by an expert is
 located here
 
-    /reg/g/cass/cass/devel/bin/cass_online
+    /reg/g/cass/cass/%version%/bin/cass_online
 
 In this location you will also find some convenience startup scripts. As well
 as the binary version of older versions of CASS.
@@ -208,13 +211,13 @@ To end the program you should use
     crtl + \
 
 Killing the program with `crtl + c` had the potential to eat up communication
-buffers for the interface to the shared memory communicatoin with LCLS. This
+buffers for the interface to the shared memory communication with LCLS. This
 should be under control but be adviced that one might use up all available
 buffer, such that one has to restart the shared memory server in order to be
 able to retrieve live data again.
 
 
-Using Offline {#running_offline}
+Using Offline at LCLS {#running_offline}
 -------------
 The offline version of CASS will process the xtc file that were recorded by the
 LCLS DAQ. Please put all files that you want to process into a txt file. Then
@@ -224,8 +227,9 @@ provide the name of the text file to CASS with the
 parameter.
 
 Usually CASS will not quit after it has finishes processing all the files. It
-will keep all histograms in memory to be accessible via the viewers. If you would
-like CASS to quit after it has processed all provided files you have to pass the
+will keep all histograms in memory to be accessible via the viewers. If you
+would like CASS to quit after it has processed all provided files you have to
+pass the
 
     -q
 
@@ -236,9 +240,9 @@ the program in a batched way on a cluster. You can suppress the output with
 
     -r
 
-Results of PostProcessors can optionally be saved to either a root or a hdf5 file.
+Results of Processors can optionally be saved to either a root or a hdf5 file.
 One has to enable these options in cass_myconfiq.pri Refer to @ref cassinstall
-for more details. The filename has to be given in the PostProcessor setup in
+for more details. The filename has to be given in the Processor setup in
 the ini file.
 
 If you want to quit the program before the file has been fully analyzed but
@@ -253,9 +257,9 @@ being written to file.
 
 The Viewers {#viewers}
 -----------
-There are two options to look at the histograms that are created and filled by CASS,
-@ref jocassview and @ref lucassview. Both viewers need to be told where to find
-the CASS server and on which port it will listen for requests.
+There are two options to look at the histograms that are created and filled by
+CASS, @ref jocassview and @ref lucassview. Both viewers need to be told where to
+find the CASS server and on which port it will listen for requests.
 
 
 ### Jocassview {#jocassview}
@@ -269,8 +273,8 @@ At LCLS, one can also use the convenience startup script to start the viewer.
 This viewer is based on ROOT which was developed by CERN.
 Please visit <http://root.cern.ch> for details.
 In order to run properly one has to provide a startup script to lucassview'er
-which is called lucassStartup.C. Apart from the declaration of the appropriate server and
-port, there are several options such as an automatic update.
+which is called lucassStartup.C. Apart from the declaration of the appropriate
+server and port, there are several options such as an automatic update.
 All options in the script can also be typed in the root console manually. A
 template of the startup script is located in  the lucassview folder of the
 repository you have downloaded:
@@ -289,7 +293,7 @@ One of such a collection of macros is available at LCLS and can be found at
 How to set up the .ini file {#ini_file}
 ---------------------------
 CASS consists of a lot of "lego" pieces that one can put together to process
-the data as you want it. These "lego" pieces are called "PostProcessors".
+the data as you want it. These "lego" pieces are called "Processors".
 For better understanding of this concept, here is a short overview of the
 program flow:
 
@@ -297,7 +301,7 @@ for each event
 - receive an event containing all data from either the file (offline) or the
   the live data stream
 - pick out the information we are interested in (Converters)
-- process the data using the PostProcessors
+- process the data using the Processors
 
 So the ini file exist of basically three parts:
 
@@ -305,8 +309,8 @@ The Converter part tells CASS what kind of data you are actually interested in.
 To see what options are available please refer to @ref converter.
 
 The processing part is the most advanced part. @ref pplist gives an overview
-of all available postprocessors. The parenthesis refers to the
-postprocessor to look up in the parameter list @ref casssetting to find out which
+of all available Processors. The parenthesis refers to the
+Processor to look up in the parameter list @ref casssetting to find out which
 parameters it takes. In this reference you will also find all available
 parameters that one can give in the .ini file. There are some examples given in
 @ref examples as a starting point for your .ini file.
@@ -315,7 +319,7 @@ The special detector Paramters. Currently there are Acqiris-detectors and Pixel-
 detectors that need such special parameters.
 
 ### The special Acqiris Detector Parameters {#acq_param}
-If you want to use the PostProcessors that deal with the AcqirisDetectors you
+If you want to use the Processors that deal with the AcqirisDetectors you
 need to set up the AcqirisDetectors first. Basically there are two types of
 Acqiris Detectors:
 - Time of Flight detectors (ToF)
@@ -415,8 +419,10 @@ Software repository {#repo_rules}
 * Push the code into descriptive branches, so that they can be reviewed by the
   principle developer to be merged to master.
 
-* One can check into tmp/branchname. If you need write access to other branches
+* One can check in to tmp/branchname. If you need write access to other branches
   ask the principle developer.
+
+* Alternatively you can sent patches to the principle developer.
 
 * Make sure the pushed code compiles.
   - if you made changes to the project, so that it will probably
@@ -426,164 +432,297 @@ Software repository {#repo_rules}
 
 * Please provide details on your changes in the commit message.
 
-* For further information please read the "How to add a feature to cass using git"
+* For further information please read the "How to add a feature to cass using
+  git"
 
 
 General program layout Information {#layout}
 ----------------------------------
-CASS has two basic parts the input and analyze. Where the input part gets the data
-from either file or shared memory and the analyze part will analyze the data.
-Both of them are threaded, where the input is always just one thread and the
-analyze part consists of more threads. The linkage between the input threads
-and the analysis thread is done by cass::RingBuffer. This is a buffer that
-contains the amount of cass::CASSEvent elements that can be chosen by setting
-cass::RingBufferSize. It allows to retrieve elements that should be filled with
-new data and elements whose contents should be analyzed.
+There are two versions of CASS availabe, the online and offline version. Both
+differ in the choise of input modules that one can choose from and how the
+ringbuffer behaves.
+Each version of CASS has two basic parts, an input module and the analyze module.
+The responsibility of the input module is to fetch the "raw" data from whichever
+source is available and adapt it to CASS conventions. The data is then put into
+a cass::CASSEvent.
+
+The purpose of the analysis module is to process the data according to the
+processing chain that the user provides with the help of the ini file. There are
+multiple processing units, where each one will analyze one of the data in the
+CASSEvents.
+
+The linkage between the input threads and the analysis thread is done by
+cass::RingBuffer. This is a buffer that contains the amount of cass::CASSEvent
+elements that can be chosen by setting cass::RingBufferSize.
+It allows to retrieve elements that should be filled with new data and elements
+whose contents should be analyzed. The difference of the cass::RingBuffer
+between the online and offline version of CASS is, that the online version
+allows for elements that haven't been processed yet to be filled with new data.
+The offline version ensures that only elements of the cass::RingBuffer that have
+been processed by the analysis module can be filled with new data by the input
+module.
 
 
-### Input part of CASS {#cass_input}
-Both inputs will do the following tasks after they retrieved the data from LCLS:
-- get fillable (empty) cass::CASSEvent element from cass::RingBuffer
-- convert LCLS data to cass::CASSEvent data and fill the later with the data
-- put cass::CASSEvent back into cass::RingBuffer
+### Available input modules in CASS {#cass_input}
+The input modules will do the following tasks after they retrieved the data from
+whichever source that they get the data from:
+1. get fillable (empty) cass::CASSEvent element from cass::RingBuffer
+2. convert retrieved data to cass::CASSEvent data and fill the later with the
+   data.
+3. put cass::CASSEvent back into cass::RingBuffer
 
-To convert the data the cass::FormatConverter singleton is used. This will
-iterate through the LCLS datagram and call the right cass::ConversionBackend
-object that will convert the xtc data to cass::CASSEvent data. The user can
-select what part of the data he wants to have converted by setting up which
-converters he wants to use. Please refer to the documentation of
-cass::FormatConverter and the converters for details.
+#### Offline input modules of CASS
+The following input modules are available in the offline version:
 
-#### Offline input of CASS {#cass_offline_input}
-The input part that will read the data from file in offline mode is handled by
-the class cass::FileInput. This just parses the input file containing the file
-names to analyze, put them into string list and then goes through that list.
-For each file it will retrieve an event and convert the data to cass::CASSEvent
-object. The later was retrieved from the cass::RingBuffer and then later put back
-into it.
+##### General File input
+The input part that will read the data from one of the supported binary or ascii
+file types is handled by the class cass::FileInput. This just parses the input
+file containing the file names to analyze, put them into string list and then
+goes through that list. Please refer to cass::FileInput for all options that
+this input module provides to the user.
+
+This input can read data files within the following file types:
+
+- **XTC:**
+  This is the data format used to record data at LCLS. To convert the xtc data
+  the cass::FormatConverter singleton is used. This will iterate through the
+  LCLS datagram and call the right cass::ConversionBackend object that will
+  convert the xtc data to cass::CASSEvent data. The user can select what part of
+  the data he wants to have converted by setting up which converters he wants to
+  use. Please refer to the documentation of cass::FormatConverter and the
+  converters for details.
+
+- **lma:**
+  This data format is used by AGAT, a standalone application to record data from
+  ACQIRIS Digitizers with the possibility to remove zeros. No further options
+  are available, when using this file reader.
+
+- **txt:**
+  This reader will read regular ascii files where the contents should be in csv
+  format. The delimiter between the values can be chosen. For details about all
+  user parameters please refer to the ini parameters of cass::TxtReader.
+
+- **sss:**
+  These files are generated by Per Johnsons program for VMI data which basically
+  contain concatunated raw image data where every image is preceded by the event
+  id. No further paramters are available for this reader.
+
+- **frms6:**
+  These files are generated by the HLL data acquisition program and contain the
+  frame data of the pnCCD detector. No further paramters are available for
+  this reader.
+
+##### Multi-File input
+The multi-file input allows to combine information that is distributed among
+several files of the types that the general file input can read.
+Please refer to cass::MultiFileInput to get an overview of all the parameters
+the user can choose from.
+
+##### HDF5 File input
+As the HDF5 files are no ordinary binary files where the data is just
+concatunated and one can parse them by serially reading the contents, a
+dedicated input module had to be written to read hdf5 files. It is highly
+recommended that one adds all the data related to the experiment into a single
+HDF5 file to be read as it is currently not possible to combine information from
+other sources with the data read in this input module.
+
+The layout of the data within the HDF5 file should be such, that data from all
+detectors for one event is bundled into a group. This input module will
+determine all "root" groups and assumes that each root groups contains all the
+information for one event. For more details and all available users options,
+refer to cass::HDF5FileInput
+
+##### SACLA offline input
+At SACLA the data is not stored in files, but in a database. One can use one of
+their tools to retrieve the data and let it be written into HDF5 file or one can
+use a provided API to access all data. This input modules makes use of the
+provided API and allows the user to access the data directly, hence speeding up
+the offline analysis chain. One has to provide this input with all data that
+one is interested in. For details please refer to cass::SACLAOfflineInput and
+cass::SACLAConverter, where the latter will provide information about how to
+extract the user requested data.
 
 
-#### Online input of CASS {#cass_online_input}
-In the online mode the input part will read the data from the LCLS shared memory.
+#### Online input modules of CASS
+The following input modules are available in the online version:
+
+##### LCLS shared memory input
+This input module will read the xtc like data from the LCLS shared memory.
 The corrosponding class is cass::SharedMemoryInput. It derives from the
 Pds::XtcMonitorClient class provided by LCLS. This class will do all the
-communication between the shared memory and CASS. Once it retrieved new data
-(in LCLS terms this is called datagram) it will call the overwritten
-cass::SharedMemoryInput::processDgram() member. Here the datagram will be
-converted to a cass::CASSEvent which is retrieved from the cass::RingBuffer
-before. After that it is put back into the cass::RingBuffer.
+communication between the shared memory and CASS. Once new data is available
+it will call the overwritten cass::SharedMemoryInput::processDgram() member,
+where all the necessary steps for an input module will be performed. Parsing of
+the xtc like data will be done with the same class that also parses the data in
+offline mode cass::FormatConverter. For further details please refer to the
+documentation of this class.
 
+##### General TCP input
+This class connects to a tcp server on port 9090. It will then retrieve data
+from this server and parses it.
+The data packets need have the following layout: First 32 bits should contain
+the size of the following data packet. The following data packet then needs to
+be deserialized according to the rules of the program that serves the data.
+Please refer to cass::TCPInput for more details and user choosable parameters.
+Two types of data sources are currently supported:
+- **AGAT3:**
+  Data from AGAT3, which is a standalone program to operate with ACQIRIS
+  Digitizers.
+-**RACOON:**
+  This software suite was developed by the Max Planck semiconductor lab in
+  Munich. It provides the data in the frms6 data format to the tcp receiver.
+
+##### SACLA online input
+At SACLA a specialized API is provided that allows access to the detector data
+live. Meaning that as the data is acquired it is also provided to the user via
+the API. Other data, that is typically stored in the database is made available
+via the offline API, which is quite slow, thus it is currently not recommended
+to retrieve additional data about the experiment. However, it is possible to do
+so using this input module of CASS. One can retrieve the latest data, wihtin
+which it is described what event id the latest data has. Using the event id, all
+additional information about the experiment is retrieved.
+Please refer to cass::SACLAOnlineInput for all user parameters and details.
 
 
 ### Analysis part of CASS {#cass_analysis}
-The analysis part is done by multiple threads. One can set the number of analysis
-threads by modifying the cass::NbrOfWorkers variable. Each
+The analysis part is done by multiple threads. One can set the number of
+analysis threads by modifying the cass::NbrOfWorkers variable. Each
 analysis thread is a cass::Worker object, which are handled by the cass::Workers
-object. Each one of the cass::Worker objects will do the following until it is
-told to quit:
-- retrieve an analyzable (non empty) cass::CASSEvent element from cass::RingBuffer
-- pre analyze the cass::CASSEvent element using the cass::Analyzer singleton
-- post analyze the cass::CASSEvent element using the cass::PostProcessors
-  singleton.
-- put the event back to the ringbuffer to be refilled again.
+singleton. Each one of the cass::Worker objects will do the following until it
+is told to quit:
+1. Retrieve an analyzable cass::CASSEvent element from cass::RingBuffer
+2. Analyze the cass::CASSEvent element using the user set analysis chain build
+   by individual cass::Processors.
+3. Put the event back to the ringbuffer to be refilled again.
 
-The cass::Analyzer singleton will pass the cass event to all user selected pre
-analyzers to pre process the data. The cass::PostProcessor will pass the event
-to all user defined postprocessors to be postprocessed. For further details on
-how to select what postprocessors should run please see section @ref ini_file.
-A list of analyzers can be found in cass::Analyzer in which you can also find
-links to specific documentation of each analyzer.
+For further details on how to select what Processors should run please see
+section @ref ini_file.
 
 
 Communicating with CASS {#cass_communication}
 -----------------------
 CASS is using SOAP to communicate with the viewers. The class that handles these
-communication is cass::SoapServer. It uses a cass::HistogramGetter object to
-retrieve a requested histogram from the available postprocessors.
+communication is cass::SoapServer. There are several commands that are
+understood by the CASS implementation of the server:
+
+- **quit:**
+  This tells CASS to quit itself.
+- **readini:**
+  This tells CASS to reload the ini file. It can be used to clear all data and
+  restart over.
+- **getPostprocessorIds:**
+  This returns a list of all those Processors that are not marked as hidden.
+- **clearHistogram:**
+  This command will clear all the histograms of the Processor provided to
+  this function.
+- **controlDarkcal:**
+  This broadcasts the received command to all Processors. Unlike the next
+  function that only provides the received command to a specific Processor
+- **receiveCommand:**
+  This forwards a given command string to the requested Processor.
+- **getHistogram:**
+  Retrieves either the latest (when eventID is 0) histogram or a histogram for
+  a specific eventID. The histogram is serialized and must be deserialized by
+  the receiver of the data. One can determin what kind of histogram is is by
+  checking the mimetype that is attached to the dime.
 
 
+The Processors {#processors}
+--------------
+All Processors are managed by the cass::ProcessorManager singleton. This manager
+will parse the ini file and set up the requested Processors and put them in
+an internal list. Once all requested Processors have been created they will
+be ordered correclty such that all dependencies will be processed before the
+Processors that require the information from the Processors they depend
+upon.
 
-The post processors {#postprocessors}
--------------------
-Each post post processor has a list of pointers to histograms that it has
-processed yet. This is to ensure that it will not evaluate the same event
-over and over again. When it has already processed one event it will return the
-resulting histogram associated with this event.
+When processing the events the event data contained in cass::CASSEvent
+will be passed to the invidividual Procssors in that order. After the event
+has been passed to all Processors by the manager it tells all Processors
+that the event with the given id can be released and can be overwritten by the
+result of a different event.
 
-Some of the post processors do not have a separate result for each event,
-i.e. the summing up and averaging post processors. They are based upon the
-accumulating postprocessor base class.
+Each regular Processor stores a list of pointers to histograms to cache the
+events it has processed so far. The list is implemented by cass::CachedList.
+This is to ensure that it is not needed to evaluate the same event if a
+Processor in a parallel analysis chain, that evluates a different event,
+requests the result of its event. Since there is only one instance of each
+Processor this is the only way that multiple events can be anlysed in
+parallel. When told to process an event a regular Processor will check if the
+condition for the requested event is true. If this is the case it will get a new
+event from the list and lock the contents for writing. It will then call the
+cass::Processor::process function that should have been overwritten by the
+individual Processor type. Once the event is processed by the Processor, the
+result will be marked as the latest event into the list.
 
-To make sure that in the cass::PostProcessor::process() function one will
-always use the right histograms a reference to it will be passed to this function.
-The following happens in each post processor when cass::PostProcessors::process()
-will call the cass::PostProcessor::processEvent() member of each normal
-post processor:
-- search in the histogram list whether there is a an entry that has the
-  cass::CASSEvent::_id as first part of the pair.
-- if so then just return the second part of the pair.
-- if not, check if the condition is true and in this case evaluate it.
+Some of the Processors do not have a separate result for each event,
+i.e. the summing up and averaging Processors. These types of Processors
+are based upon the cass::AccumulatingProcessor base class. Unlike the regular
+Processors, this only holds one result. Thus when told to process an event it
+will also check if the condition is true and if so it will lock the single
+result for writing before calling the overwritten cass::Processor::process
+member of the cass::Processor base class of this accumulating Processor class.
+
 
 Adding new functionality to CASS {#add_functionality}
 --------------------------------
 
-### How to add a new PostProcessor {#add_pp}
+### How to add a new Processor {#add_pp}
 
-A new "normal" PostProcessor needs to inherit from cass::PostProcessor. The most
+A new "normal" Processor needs to inherit from cass::Processor. The most
 important function that need to be overwritten are
-cass::PostProcessor::loadSettings() and
-cass::PostProcessor::process().
-In cass::PostProcessor::loadSettings() you need to setup the
-dependencies you are relying on, the general available parameters
-and most importantly the resulting histogram. With
-cass::PostProcessor::setupCondition() you set up that your PostProcessor has a
-condition.
+cass::Processor::loadSettings() and
+cass::Processor::process().
+In cass::Processor::loadSettings() you need to load all user information,
+setup the dependencies you are relying on and most importantly the resulting
+histogram. With cass::Processor::setupCondition() you set up that your
+Processor has a condition.
 
-cass::PostProcessor::setupGeneral() will setup all the default parameters that
-are available for post processors. Optionally you can use the function member
-cass::PostProcessor::setupDependency() to set up the dependencies you
+cass::Processor::setupGeneral() will setup all the default parameters that
+are available for Processors. Optionally you can use the function member
+cass::Processor::setupDependency() to set up the dependencies you
 rely on.
 
 To initialize the list of cached resulting histograms you need to call the
-cass::PostProcessor::createHistList() member. This member needs to have a
-shared pointer to the histogram that will work as a result of the PostProcessor
+cass::Processor::createHistList() member. This member needs to have a
+shared pointer to the histogram that will work as a result of the Processor
 passed.
 
-Most PostProcessors rely on the fact that a histograms shape or size will not be
-changed during the processing step. (An exception to this rule are the table like
-PostProcessors.) Therefore one needs to ensure that the result Histogram will
+Most Processors rely on the fact that a histograms shape or size will not be
+changed during the processing step. (An exception to this rule are the table
+like Processors.) Therefore one needs to ensure that the result Histogram will
 have the right size or shape during the load settings step.
 
-The resulting histogram is write locked before calling the cass::PostProcessor::process()
-function. There is no need to lock it again in definition of you PostProcessor.
-However the Histogram of the PostProcessor you depend on is not locked. Therefore
-one needs to readlock it before trying to read contents from it to ensure its
-contents are not changed during the time one reads them. It is recommended to
-use the locker facility that Qt provides. Eg:
+The resulting histogram is write locked before calling the
+cass::Processor::process() function. There is no need to lock it again in
+definition of your Processor. However the Histogram of the Processor you depend
+on is not locked. Therefore one needs to readlock it before trying to read
+contents from it to ensure its contents are not changed during the time one
+reads them. It is recommended to use the locker facility that Qt provides. Eg:
 
     // retrieve the histogram for this event from the dependency (_pHist) and cast it to an 1d histogram
-    const Histogram1DFloat& one
+    const Histogram1DFloat& hist
         (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
 
     // lock the histogram for read access
-    QReadLocker lock(&one.lock);
+    QReadLocker lock(&(hist.lock));
 
-When you are done coding your postprocessor you need to make it available to
+When you are done coding your Processor you need to make it available to
 the user. To do this you need to complete the following steps:
-- in cass/postprocessing/processor_manager.h add the number and a short description
-  in the description part.
+- in cass/postprocessing/processor_manager.h add the number and a short
+  description in the description part.
 - in cass/postprocessing/processor_manager.h add an entry with your id in the
-  cass::PostProcessors::id_t enum.
+  cass::ProcessorManager::id_t enum.
 - in cass/postprocessing/processor_manager.cpp add your id in the
-  cass::PostProcessors::create() member to the switch statement. Just use the
+  cass::ProcessorManager::create() member to the switch statement. Just use the
   other entries as example.
 
-Please document what your postprocessor does so that other people now what it
+Please document what your processor does so that other people now what it
 does. When documenting please use doxygen style as then your documentation will
-be available on the webserver. Documenting the parameters in cass.ini can be done
-using the custom doxygen tag cassttng.
+be available on the webserver. Documenting the parameters in cass.ini can be
+done using the custom doxygen tag cassttng.
 
-### How to add a new Converter {#add_converter}
+### How to add a new LCLS Converter {#add_converter}
 Your converter has to inherit from cass::ConversionBackend and it should be a
 singleton. This means that it should have a static member function called
 instance that will return a cass::ConversionBackend::converterPtr_t object that
@@ -593,9 +732,9 @@ In the constructor of the class you need to fill the
 cass::ConversionBackend::_pdsTypeList with the type id's from the LCLS that you
 want the converter to react on.\n
 You need to overwrite cass::ConversionBackend::operator()() with the code that
-extracts the desired data from the datagram and put it into the cass::CASSEvent.\n
+extracts the desired data from the datagram and put it into the cass::CASSEvent.
 Once you have set up your converter, you need to modify
-cass::ConversionBackend::instance() and add an @c else-if-statment that returns
+cass::ConversionBackend::instance() and add an `else-if-statment` that returns
 converter. Please document in cass/format_converter.h which string will return
 your the singleton of your converter.
 
@@ -607,13 +746,13 @@ stream. This library get updated very often by LCLS. Historically this library
 was provided as a regular shared or static library that was generated from c++
 source code. And updating it was just a matter of finding out which files have
 been changed and then copy them into the local copy of the LCLS library.
-Unfortunately in the beginning of 2013 a decision was made to provide the library
-in a metalanguage that allows to export it to different computer languages. The
-c++ version of parts of the library is completely different to what was used
-before and it would require extensive effort to rewrite CASS to work with this
-new implementation. Luckily however, if one wants to only update the already
-existing parts, it can be done fairly easy, as the whole xtc part of the library
-has not been converted to the new metalanguage.
+Unfortunately in the beginning of 2013 a decision was made to provide the
+library in a metalanguage that allows to export it to different computer
+languages. The c++ version of parts of the library is completely different to
+what was used before and it would require extensive effort to rewrite CASS to
+work with this new implementation. Luckily however, if one wants to only update
+the already existing parts, it can be done fairly easy, as the whole xtc part of
+the library has not been converted to the new metalanguage.
 
 ## Find out which files have changed {#find_changed_files}
 The LCLS library is kept within a svn repository. One can get the latest version
@@ -705,8 +844,9 @@ Try to use the RubyGems Rational Versioning policy in which:
 - The Minor version number is incremented when new functionality is added
 - The Build number changes for bug fixes /typos
 
-When releasing a version (pushing a commit in the master branch to the repository)
-you need to give a tag according to the version number described above first.
+When releasing a version (pushing a commit in the master branch to the
+repository) you need to give a tag according to the version number described
+above first.
 
 
 Authors {#authors}
@@ -717,8 +857,8 @@ Lutz Foucar
 - general leader
 - CASS design, infrastructure development
 - cass, cass_acqiris, cass_ccd (depreciated), cass_machinedata, cass_pixeldetector implementation
-- new postprocessor framework
-- all acqiris related postprocessors
+- new Processor framework
+- all acqiris related Processors
 - new jocassviewer
 - new implementation of processing units
 - inputs for usage at SACLA
