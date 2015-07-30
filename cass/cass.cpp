@@ -142,8 +142,10 @@ int main(int argc, char **argv)
     parser.add("-m","enable the multifile input",multifile);
     bool quitwhendone(false);
     parser.add("-q","quit after finished with all files",quitwhendone);
+#ifdef HDF5
     bool hdf5file(false);
     parser.add("--hdf5","use the special hdf5 file parser",hdf5file);
+#endif
 #else
     bool tcp(false);
     parser.add("-t","enable the tcp input",tcp);
@@ -164,8 +166,10 @@ int main(int argc, char **argv)
     parser.add("-o","output filename passed to the Processor",outputfilename);
     string settingsfilename(settings.fileName().toStdString());
     parser.add("-f","complete path to the cass.ini to use",settingsfilename);
+#ifdef SACLADATA
     bool sacladata(false);
     parser.add("--sacla","Enable SACLA Input",sacladata);
+#endif
     bool showUsage(false);
     parser.add("-h","show this help",showUsage);
     bool showVersion(false);
