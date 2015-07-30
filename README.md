@@ -217,13 +217,15 @@ buffer, such that one has to restart the shared memory server in order to be
 able to retrieve live data again.
 
 
-Using Offline at LCLS {#running_offline}
--------------
-The offline version of CASS will process the xtc file that were recorded by the
-LCLS DAQ. Please put all files that you want to process into a txt file. Then
-provide the name of the text file to CASS with the
+Using the offline version {#running_offline}
+-----------------------------
+The offline version of CASS will process the data files that are provided to
+one of the offline input modules of CASS. All files that need to be processed
+need to be put into a txt file. Then provide the name of the text file to CASS
+with the
 
     -i <filename containing filenames of xtcfiles to process>
+
 parameter.
 
 Usually CASS will not quit after it has finishes processing all the files. It
@@ -235,15 +237,15 @@ pass the
 
 parameter to CASS at the program start.
 
-Sometimes you don't want to have all the rate output, ie. when you run
+Sometimes you don't want to have the rate displayed, ie. when you run
 the program in a batched way on a cluster. You can suppress the output with
 
     -r
 
-Results of Processors can optionally be saved to either a root or a hdf5 file.
-One has to enable these options in cass_myconfiq.pri Refer to @ref cassinstall
-for more details. The filename has to be given in the Processor setup in
-the ini file.
+Results of Processors can optionally be saved to either a root, cbf or a hdf5
+file. One has to enable these options in cass_myconfiq.pri. Please refer to
+@ref cassinstall for more details. The filename has to be given in the Processor
+setup in the ini file.
 
 If you want to quit the program before the file has been fully analyzed but
 still want to dump everything that has been processed so far to the file you
@@ -385,26 +387,19 @@ These are some guidelines for the CASS software development.
 * Please document the code using inline comments on implementation
   details and doxygen comments for interfaces and implementation choices:
 
-    /** short description title.
-     * detailed description
-     * parameters and return values using @param and @return.
-     */
+      /** short description title.
+       * detailed description
+       * parameters and return values using @param and @return.
+       */
 
   or
 
-    /** short description title
-     *
-     * detailed description
-     *
-     * parameters and return values using @param and @return.
-     */
-
-  Do not duplicate the code in the comment, augment it!
-
-* Do not bloat the code (implementation) by useless empty lines,
-  comments without content (i.e., essentially duplicating the code),
-  etc.
-  But please do structure/document header files well
+      /** short description title
+       *
+       * detailed description
+       *
+       * parameters and return values using @param and @return.
+       */
 
 * Please keep the indentation style consistent. Generally, indentation
   should be 2 spaces. Indent whenever a curly bracket opens a block.
@@ -413,8 +408,8 @@ These are some guidelines for the CASS software development.
   list for automatic indentation.)
 
 
-Software repository {#repo_rules}
--------------------
+Software repository rules {#repo_rules}
+-------------------------
 
 * Push the code into descriptive branches, so that they can be reviewed by the
   principle developer to be merged to master.
