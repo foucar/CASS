@@ -14,24 +14,24 @@ class CASSEvent;
  *
  * @PPList "240": Test image
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{sizeX} \n
+ * @cassttng Processor/\%name\%/{sizeX} \n
  *           Width of testimage (default = 1024)
- * @cassttng PostProcessor/\%name\%/{sizeY} \n
+ * @cassttng Processor/\%name\%/{sizeY} \n
  *           Height of testimage (default = 1024)
- * @cassttng PostProcessor/\%name\%/{FixedValue} \n
+ * @cassttng Processor/\%name\%/{FixedValue} \n
  *           Use a fixed value instead of the product of the column and row index.
  *           Default is false
- * @cassttng PostProcessor/\%name\%/{Value} \n
+ * @cassttng Processor/\%name\%/{Value} \n
  *           In case FixedValue is true, this is the value that the image will
  *           be filled with. Default is 0
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp240 : public PostProcessor
+class pp240 : public Processor
 {
 public:
   /** constructor. */

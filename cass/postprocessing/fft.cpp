@@ -26,7 +26,7 @@ using tr1::placeholders::_2;
 
 
 pp312::pp312(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -37,7 +37,7 @@ pp312::pp312(const name_t &name)
 void pp312::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -74,7 +74,7 @@ void pp312::loadSettings(size_t)
     throw invalid_argument("pp312::loadSettings(): Input Histogram '" + _hist->name() +
                            "' has unsupported dimenstion '" + toString(dim) + "'");
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the fft of '" + _hist->name() +
            "'. Condition is '" + _condition->name() + "'");
 }

@@ -22,8 +22,8 @@ namespace cass
  *
  * @PPList "310": calculate the autocorrelation of an image in radial coordinates
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram whos autocorrelation
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram whos autocorrelation
  *           should be calculated. The radius should be along the y-axis and the
  *           phi should be along the x-axis.
  *
@@ -31,7 +31,7 @@ namespace cass
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp310 : public PostProcessor
+class pp310 : public Processor
 {
 public:
   /** constructor */
@@ -55,16 +55,16 @@ protected:
  *
  * @PPList "311": calculate the autocorrelation of an image
  *
- * @cassttng PostProcessor/\%name\%/{CenterX|CenterY} \n
- * @cassttng PostProcessor/\%name\%/{MaximumRadius} \n
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram whos autocorrelation
+ * @cassttng Processor/\%name\%/{CenterX|CenterY} \n
+ * @cassttng Processor/\%name\%/{MaximumRadius} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram whos autocorrelation
  *           should be calculated.
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp311 : public PostProcessor
+class pp311 : public Processor
 {
 public:
   /** constructor */

@@ -25,7 +25,7 @@ Worker::Worker(RingBuffer<CASSEvent> &ringbuffer,
                QObject *parent)
   : PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
-    _postprocess(*PostProcessors::instance()),
+    _process(*ProcessorManager::instance()),
     _ratemeter(ratemeter)
 {}
 
@@ -40,7 +40,7 @@ void Worker::runthis()
     if (((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end()) &&
          (rbItem->element->id() != 0))
     {
-      _postprocess(*rbItem->element);
+      _process(*rbItem->element);
       _ringbuffer.doneProcessing(rbItem);
       _ratemeter.count();
     }
@@ -115,7 +115,7 @@ void Workers::end()
     _workers[i]->end();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
-  PostProcessors::instance()->aboutToQuit();
+  ProcessorManager::instance()->aboutToQuit();
 }
 
 void Workers::rethrowException()

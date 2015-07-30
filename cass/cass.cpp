@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 
     /** register used types as Qt meta type */
     qRegisterMetaType< std::string >("std::string");
-    qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
+    qRegisterMetaType<cass::ProcessorManager::key_t>("cass::ProcessorManager::key_t");
     qRegisterMetaType<size_t>("size_t");
 
     /** set up details for QSettings and Co.*/
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
      *  by the worker to post process the events.
      */
     RingBuffer<CASSEvent> ringbuffer(RingBufferSize);
-    PostProcessors::instance(outputfilename);
+    ProcessorManager::instance(outputfilename);
     Workers::instance(ringbuffer, workerrate);
 #ifdef OFFLINE
     if (multifile)

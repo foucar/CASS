@@ -24,7 +24,7 @@ using namespace std;
 //---postprocessor calculating cos2theta of requested averaged image----------
 
 pp200::pp200(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -33,7 +33,7 @@ void pp200::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _image = setupDependency("HistName");
@@ -79,8 +79,8 @@ void pp200::loadSettings(size_t)
   _nbrAngularPoints = 360;
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' calculates cos2theta of image from PostProcessor '" + _image->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' calculates cos2theta of image from Processor '" + _image->name() +
            "' Center is x'"+ toString(_center.first) + "' y'" + toString(_center.second) +
            "' Symmetry angle in radiants is '" + toString(_symAngle) +
            "' Min radius the user requested is '" + toString(_radiusRangeUser.first) +
@@ -127,7 +127,7 @@ void pp200::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 201 projects 2d hist to the radius for a selected center ***
 
 pp201::pp201(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -136,7 +136,7 @@ void pp201::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   pair<float,float> _userCenter(make_pair(settings.value("ImageXCenter", 500).toFloat(),
                                           settings.value("ImageYCenter", 500).toFloat()));
@@ -167,7 +167,7 @@ void pp201::loadSettings(size_t)
   _nbrRadialPoints = size_t(floor(_radiusRange.second - _radiusRange.first));
   createHistList(tr1::shared_ptr<Histogram1DFloat>
                   (new Histogram1DFloat(_nbrAngularPoints, 0., 360.)));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the angular distribution of '" + _image->name() +
            "' from radia '" + toString(_radiusRange.first) + "' to '" +
            toString(_radiusRange.second) + "' with center x:" + toString(_center.first) +
@@ -223,7 +223,7 @@ void pp201::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 202 transform 2d kartisian hist to polar coordinates ***
 
 pp202::pp202(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -232,7 +232,7 @@ void pp202::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   _userCenter = make_pair(settings.value("ImageXCenter", 500).toFloat(),
                           settings.value("ImageYCenter", 500).toFloat());
@@ -267,7 +267,7 @@ void pp202::loadSettings(size_t)
                               _nbrRadialPoints,0., _maxRadius,
                               "#phi","r")));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' will transform '" +_image->name() +
+  Log::add(Log::INFO,"Processor '" + name() + "' will transform '" +_image->name() +
            "' to polar coordinates. Center x'"+ toString(_center.first) +"' y'" +
            toString(_center.second) + "'. Maximum radius is '" + toString(_maxRadius) +
            "'. Number of Points on the phi '" + toString(_nbrAngularPoints) +

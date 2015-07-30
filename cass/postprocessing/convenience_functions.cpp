@@ -22,11 +22,11 @@ using namespace cass;
 using namespace ACQIRIS;
 using namespace std;
 
-HistogramBackend::shared_pointer cass::set1DHist(const PostProcessor::name_t &name)
+HistogramBackend::shared_pointer cass::set1DHist(const Processor::name_t &name)
 {
   //open the settings//
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name));
   //create new histogram using the parameters//
   Log::add(Log::VERBOSEINFO,string("set1dHist(): Creating 1D histogram with") +
@@ -41,11 +41,11 @@ HistogramBackend::shared_pointer cass::set1DHist(const PostProcessor::name_t &na
                             s.value("XTitle","x-axis").toString().toStdString()));
 }
 
-HistogramBackend::shared_pointer cass::set2DHist(const PostProcessor::name_t &name)
+HistogramBackend::shared_pointer cass::set2DHist(const Processor::name_t &name)
 {
   //open the settings//
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name));
   //create new histogram using the parameters//
   Log::add(Log::VERBOSEINFO,string("set2DHist(): Creating 2D histogram with") +

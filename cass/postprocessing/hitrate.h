@@ -6,7 +6,7 @@
 #include <math.h>
 #include <vigra/linear_algebra.hxx>
 #include <vigra/inspectimage.hxx>
-#include <vigra/multi_pointoperators.hxx> 
+#include <vigra/multi_pointoperators.hxx>
 #include <vigra/separableconvolution.hxx>
 
 #include "processor.h"
@@ -26,25 +26,25 @@ class Histogram2DFloat;
  * @PPList "300": detect Single Particle hits.
  *
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName}\n
- *           Postprocessor name containing the histogram in which hits should be detected.
- * @cassttng PostProcessor/\%name\%/{xstart}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
+ *           processor name containing the histogram in which hits should be detected.
+ * @cassttng Processor/\%name\%/{xstart}\n
  *           ROI for calculations. First pixel = 0 (default).
- * @cassttng PostProcessor/\%name\%/{ystart}\n
+ * @cassttng Processor/\%name\%/{ystart}\n
  *           ROI for calculations. First pixel = 0 (default).
- * @cassttng PostProcessor/\%name\%/{xend}\n
+ * @cassttng Processor/\%name\%/{xend}\n
  *           ROI for calculations. Last pixel = -1 (default).
- * @cassttng PostProcessor/\%name\%/{yend}\n
+ * @cassttng Processor/\%name\%/{yend}\n
  *           ROI for calculations. Last pixel = -1 (default).
- * @cassttng PostProcessor/\%name\%/{TrainingSetSize}\n
+ * @cassttng Processor/\%name\%/{TrainingSetSize}\n
  *           How many images should be included in training phase. default = 200.
- * @cassttng PostProcessor/\%name\%/{saveTraining}\n
+ * @cassttng Processor/\%name\%/{saveTraining}\n
  *           optional. If true (default), save Training matrices to
  *           files with automaic names in currend directory.
- * @cassttng PostProcessor/\%name\%/{readTrainingFile}\n
+ * @cassttng Processor/\%name\%/{readTrainingFile}\n
  *           optional filename to read training matrices from.
  *           If setting doesn't exist, training is not read but
  *           calculated on "loadSettings".
@@ -54,7 +54,7 @@ class Histogram2DFloat;
  * @author Stephan Kassemeyer
  */
 
-class pp300 : public PostProcessor
+class pp300 : public Processor
 {
 public:
   /** constructor */
@@ -145,18 +145,18 @@ protected:
  *
  * @PPList "313": convolute histogram with kernel
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name, that should be convoluted
- * @cassttng PostProcessor/\%name\%/{Kernel} \n
+ * @cassttng Processor/\%name\%/{Kernel} \n
  *           Comma separated list of values for the Kernel that should be
  *           convoluted to the histogram
  *
  * @author Lutz Foucar
  */
-class pp313 : public PostProcessor
+class pp313 : public Processor
 {
 public:
   /** constructor */

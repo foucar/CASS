@@ -25,7 +25,7 @@ using tr1::placeholders::_5;
 //********** offset/noise calibrations ******************
 
 pp330::pp330(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -33,7 +33,7 @@ pp330::pp330(const name_t &name)
 void pp330::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("RawImage");
   setupGeneral();
@@ -93,7 +93,7 @@ void pp330::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(shape.first,nbrOfOutputs*shape.second)));
   loadCalibration();
-  Log::add(Log::INFO,"Postprocessor " + name() +
+  Log::add(Log::INFO,"processor " + name() +
            ": generates the calibration data from images contained in '" +
            _image->name() +
            "' autoNoiseSNR '" + toString(_autoNoiseSNR) +
@@ -320,12 +320,12 @@ void pp330::aboutToQuit()
 
 void pp330::processCommand(string command)
 {
-  /** if the command orders us to start the darkcal, 
+  /** if the command orders us to start the darkcal,
    *  clear all variables and start the calibration
    */
   if(command == "startDarkcal")
   {
-    Log::add(Log::INFO,"pp330::processCommand: '" + name() + 
+    Log::add(Log::INFO,"pp330::processCommand: '" + name() +
              "'starts collecting data for dark calibration");
     _trainstorage.clear();
     _counter = 0;
@@ -414,7 +414,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
      */
     if (_trainstorage.size() == _minTrainImages)
     {
-      Log::add(Log::INFO,"pp330::process: '" + name() + 
+      Log::add(Log::INFO,"pp330::process: '" + name() +
                "'done collecting images for darkcalibration. Calculating maps");
       //generate the initial calibration
       for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
@@ -436,7 +436,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
       /** reset the training variables */
       _train = false;
       _trainstorage.clear();
-      Log::add(Log::INFO,"pp330::process: '" + name() + 
+      Log::add(Log::INFO,"pp330::process: '" + name() +
                "'done calculating maps");
     }
   }
@@ -462,7 +462,7 @@ void pp330::process(const CASSEvent &evt, HistogramBackend &res)
 //********** gain calibrations ******************
 
 pp331::pp331(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -470,7 +470,7 @@ pp331::pp331(const name_t &name)
 void pp331::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("Image");
   setupGeneral();
@@ -512,7 +512,7 @@ void pp331::loadSettings(size_t)
         (new Histogram2DFloat(shape.first,3*shape.second)));
 
   loadCalibration();
-  Log::add(Log::INFO,"Postprocessor " + name() +
+  Log::add(Log::INFO,"processor " + name() +
            ": generates the gain calibration from images contained in '" +
            _image->name() + "'. Condition is '" + _condition->name() + "'");
 }
@@ -663,7 +663,7 @@ void pp331::process(const CASSEvent &evt, HistogramBackend &res)
 //********** hot pixel detection ******************
 
 pp332::pp332(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -671,7 +671,7 @@ pp332::pp332(const name_t &name)
 void pp332::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("Image");
   setupGeneral();
@@ -694,7 +694,7 @@ void pp332::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(shape.first,2*shape.second)));
   loadHotPixelMap();
-  Log::add(Log::INFO,"Postprocessor " + name() +
+  Log::add(Log::INFO,"processor " + name() +
            ": generates the hot pixel map from images contained in '" +
            _image->name() + "'. Condition is '" + _condition->name() + "'");
 }
@@ -807,7 +807,7 @@ void pp332::process(const CASSEvent &evt, HistogramBackend &res)
 //********** common mode background calculation ******************
 
 pp333::pp333(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -815,7 +815,7 @@ pp333::pp333(const name_t &name)
 void pp333::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("Image");
   setupGeneral();
@@ -837,7 +837,7 @@ void pp333::loadSettings(size_t)
 
 //  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
   createHistList(_image->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor " + name() +
+  Log::add(Log::INFO,"processor " + name() +
            ": generates the common mode background level of  '" +
            _image->name() + "' using calculation type '" + calctype +
            "'. Condition is '" + _condition->name() + "'");

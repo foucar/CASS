@@ -42,14 +42,14 @@ a short description. The postprocessor classes are named according to their
 number and placed in the file for the most appropriate group according to their
 content.
 
-@section pplist List of Postprocessors
+@section pplist List of Processors
 The Classes that implement the postprocessor are pointed out in parenthesis. See
 the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
 00001: Operation on 2 Histograms
-00002: Operation on Histogram with value or 0D PostProcessor
+00002: Operation on Histogram with value or 0D Processor
 00004: Apply boolean NOT to 0D histograms
 
 00009: Check whether histogram is in a range
@@ -112,7 +112,7 @@ the Class description for information about what parameters are user settable.
 ## Data used with new pixeldetector device
 00109: retrieve raw, untreated pixeldetector Image
 
-## PostProcessor below only work when one has set up the pixel detectors
+## Processors below only work when one has set up the pixel detectors
 00105: Pixeldetector Image
 00107: Display the Map used for correction and pixel detection
 
@@ -212,7 +212,7 @@ the Class description for information about what parameters are user settable.
 05000: Electron Energy from Recoil momenta
 05001: Tripple Coincidence Spectra from same detector
 
----Removed PostProcessors---
+---Removed Processors---
 00003: removed use pp2 instead
 00005: removed use pp1 instead
 00006: removed use pp1 instead
@@ -258,7 +258,7 @@ the Class description for information about what parameters are user settable.
 01001: removed use pp1002 instead
 @endverbatim
 */
-class CASSSHARED_EXPORT PostProcessors
+class ProcessorManager
 {
 public:
 
@@ -474,16 +474,16 @@ public:
   };
 
   /** a shared pointer of this class */
-  typedef std::tr1::shared_ptr<PostProcessors> shared_pointer;
+  typedef std::tr1::shared_ptr<ProcessorManager> shared_pointer;
 
   /** type of postproccessor accessor key */
-  typedef PostProcessor::name_t key_t;
+  typedef Processor::name_t key_t;
 
   /** Container of all currently active postprocessors */
-  typedef std::list<PostProcessor::shared_pointer> postprocessors_t;
+  typedef std::list<Processor::shared_pointer> processors_t;
 
   /** List of all postprocessor keys */
-  typedef PostProcessor::names_t keyList_t;
+  typedef Processor::names_t keyList_t;
 
   /** create the instance if not it does not exist already.
    *
@@ -528,26 +528,19 @@ public:
   std::tr1::shared_ptr<IdList> keys();
 
   /** retreive pp with key */
-  PostProcessor& getPostProcessor(const PostProcessor::name_t &name);
+  Processor& getProcessor(const Processor::name_t &name);
 
   /** retreive pp with name
    *
-   * @param name The name of the PostProcessor to retrive
+   * @param name The name of the Processor to retrive
    */
-  PostProcessor::shared_pointer getPostProcessorSPointer(const PostProcessor::name_t &name);
+  Processor::shared_pointer getProcessorSPointer(const Processor::name_t &name);
 
   /** retrieve pp container */
-  postprocessors_t& postprocessors() {return _postprocessors;}
+  processors_t& processors() {return _processors;}
 
   /** will be called when program will quit */
   void aboutToQuit();
-
-  /** find all postprocessors that depend on the given one
-   *
-   * @return list of postprocessor key that depend on requested one
-   * @param[in] key key of postprocessor that we find the dependants for
-   */
-  keyList_t find_dependant(const key_t& key);
 
   /** retrieve the list of active postprocessors */
   const keyList_t &activeList() {return _active;}
@@ -566,7 +559,7 @@ public:
   void loadSettings(size_t);
 
 protected:
-  /** factory to create new Postprocessor with the name key.
+  /** factory to create new processor with the name key.
    *
    * The ID which postprocessor should be used for the name is extracted from
    * the settings and has the property ID.
@@ -574,7 +567,7 @@ protected:
    * @return instance the newly created postprocessor
    * @param[in] key the key of the postprocessor
    */
-  PostProcessor::shared_pointer create(const key_t &key);
+  Processor::shared_pointer create(const key_t &key);
 
 protected:
   /** the list of keys.
@@ -584,7 +577,7 @@ protected:
   std::tr1::shared_ptr<IdList> _keys;
 
   /** container for user selected and registered postprocessors */
-  postprocessors_t _postprocessors;
+  processors_t _processors;
 
   /** filename of the output file */
   std::string _outputfilename;
@@ -598,13 +591,13 @@ private:
    * @param outputfilename filename of the file containing the results. Used
    *                       by special postprocessors.
    */
-  PostProcessors(std::string outputfilename);
+  ProcessorManager(std::string outputfilename);
 
   /** Prevent copy-construction of singleton */
-  PostProcessors(const PostProcessors&);
+  ProcessorManager(const ProcessorManager&);
 
   /** Prevent assignment (potentially resulting in a copy) of singleton */
-  PostProcessors& operator=(const PostProcessors&);
+  ProcessorManager& operator=(const ProcessorManager&);
 
   /** pointer to the singleton instance */
   static shared_pointer _instance;

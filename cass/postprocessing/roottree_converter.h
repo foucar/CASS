@@ -29,27 +29,27 @@ namespace cass
  * will write detectorhits of user specified delayline detectors to a root
  * tree.
  *
- * @cassttng PostProcessor/\%name\%/{Detectors}\n
+ * @cassttng Processor/\%name\%/{Detectors}\n
  *           comma separated list of Delaylinedetectors who's hits should be
  *           added to the tree.
- * @cassttng PostProcessor/\%name\%/{Particles}\n
+ * @cassttng Processor/\%name\%/{Particles}\n
  *           comma separated list of Particles who's hits should be
  *           added to the tree. The corrosponding detector does not need to be
  *           added above since this postprocessor will find out what detector
  *           a particle belongs to automatically.
- * @cassttng PostProcessor/\%name\%/{PostProcessors}\n
- *           comma separated list of 0d PostProcessors who's values should be
+ * @cassttng Processor/\%name\%/{Processors}\n
+ *           comma separated list of 0d Processors who's values should be
  *           added to the tree.
- * @cassttng PostProcessor/\%name\%/{MachineData}\n
+ * @cassttng Processor/\%name\%/{MachineData}\n
  *           Flag whether to add the Beamline and Epics data to the tree.
  *           Default is false.
- * @cassttng PostProcessor/\%name\%/{EventStatus}\n
+ * @cassttng Processor/\%name\%/{EventStatus}\n
  *           Flag whether to add the EventStatus array data to the tree.
  *           Default is false.
  *
  * @author Lutz Foucar
  */
-class pp2001 : public PostProcessor
+class pp2001 : public Processor
 {
 public:
   /** Construct postprocessor for converting histograms to root histograms */
@@ -105,7 +105,7 @@ protected:
   /** pointer to the event status structure */
   eventStatus_t *_eventstatusstructure_ptr;
 
-  /** container for all 0d PostProcessors that should be added to the tree */
+  /** container for all 0d Processors that should be added to the tree */
   std::list<shared_pointer> _pps;
 
   /** 0d postprocessor structure */

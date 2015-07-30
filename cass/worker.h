@@ -26,7 +26,7 @@ namespace cass
 {
 //forward declarations
 class Ratemeter;
-class PostProcessors;
+class ProcessorManager;
 
 /** The worker thread.
  *
@@ -70,7 +70,7 @@ private:
   RingBuffer<CASSEvent>  &_ringbuffer;
 
   /** the postprocessors */
-  PostProcessors &_postprocess;
+  ProcessorManager &_process;
 
   /** the ratemeter to measure the analysis rate */
   Ratemeter &_ratemeter;

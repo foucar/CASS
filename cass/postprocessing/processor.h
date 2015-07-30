@@ -36,11 +36,11 @@ namespace cass
  * @author Lutz Foucar
  * @author Jochen Kuepper
  */
-class PostProcessor
+class Processor
 {
 public:
   /** a shared pointer of this */
-  typedef std::tr1::shared_ptr<PostProcessor> shared_pointer;
+  typedef std::tr1::shared_ptr<Processor> shared_pointer;
 
   /** define the name type */
   typedef std::string name_t;
@@ -52,14 +52,14 @@ public:
    *
    * @param name the name of the postprocessor
    */
-  PostProcessor(const name_t &name);
+  Processor(const name_t &name);
 
   /** virtual destructor */
-  virtual ~PostProcessor();
+  virtual ~Processor();
 
   /** process the event
    *
-   * @note this is the function that should only be called by the PostProcessor
+   * @note this is the function that should only be called by the Processor
    *       Manager.
    * @note only use this function if all dependencies have been processed before.
    *
@@ -131,7 +131,7 @@ public:
    * If the dependencies are user choosable they must all be set in
    * loadSettings before it makes sense to call this function.
    *
-   * This function will be called by PostProcessors::setup() when it creates
+   * This function will be called by Processors::setup() when it creates
    * the container with all activated postprocessors.
    */
   const names_t& dependencies()
@@ -198,17 +198,17 @@ protected:
    *
    * will setup the options that are available for all postprocessors
    *
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   * @cassttng Processor/\%name\%/{Hide} \n
    *           Flag that will hide this postprocessor in cassview's combobox.
    *           Default is false
-   * @cassttng PostProcessor/\%name\%/{Write} \n
+   * @cassttng Processor/\%name\%/{Write} \n
    *           Flag that will tell a dumper to write this postprocessor into
    *           the file. Default is true
-   * @cassttng PostProcessor/\%name\%/{WriteSummary} \n
+   * @cassttng Processor/\%name\%/{WriteSummary} \n
    *           Flag that will tell a dumper to write this postprocessor into
    *           the summary. Useful for histograms that are only interesting
    *           per run. Default is true
-   * @cassttng PostProcessor/\%name\%/{Comment} \n
+   * @cassttng Processor/\%name\%/{Comment} \n
    *           A comment with a short description of what this postprocessor
    *           is doing. Will be added to the file, when its written.
    *           Default is "".
@@ -219,8 +219,8 @@ protected:
    *
    * this will setup the condition with the default name ConditionList
    *
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
+   * @cassttng Processor/\%name\%/{ConditionName} \n
+   *           0D Processor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is
    *           unconditional. Therefore its always true.
    *
@@ -280,29 +280,28 @@ protected:
  * instead of having a list of result, just uses one result.
  * Overwrites functions to only use one result
  */
-class AccumulatingPostProcessor : public PostProcessor
+class AccumulatingProcessor : public Processor
 {
 public:
   /** constructor
    *
    * @param name the name of the postprocessor
    */
-  AccumulatingPostProcessor(const name_t &name)
-    : PostProcessor(name)
+  AccumulatingProcessor(const name_t &name)
+    : Processor(name)
   {}
 
   /** virtual destructor */
-  virtual ~AccumulatingPostProcessor() {}
+  virtual ~AccumulatingProcessor() {}
 
   /** process the event
    *
-   * @note this is the function that should only be called by the PostProcessor
+   * @note this is the function that should only be called by the Processor
    *       Manager.
    * @note only use this function if all dependencies have been processed before.
    *
    * retrieve the result from the list. Get the writelock on it and process it,
    * if condition is true.
-   *
    *
    * @param evt the event to be processed
    */
@@ -353,4 +352,3 @@ protected:
 } //end namespace cass
 
 #endif
-

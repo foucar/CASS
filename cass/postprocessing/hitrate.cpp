@@ -17,7 +17,7 @@ using namespace std;
 
 // *** postprocessor 300 finds Single particle hits ***
 pp300::pp300(const name_t &name)
-  : PostProcessor(name),
+  : Processor(name),
     _integralimg(NULL),
     _rowsum(NULL)
 {
@@ -100,7 +100,7 @@ void pp300::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
 
   // Get the input
@@ -152,8 +152,8 @@ void pp300::loadSettings(size_t)
 
   //_pp.histograms_replace(name(),_integralimg);  // for debuging, output _integralimage instead of _result
 
-  std::cout<<"Postprocessor "<<name()
-      <<": detects Single particle hits in PostProcessor "<< _pHist->name()
+  std::cout<<"processor "<<name()
+      <<": detects Single particle hits in Processor "<< _pHist->name()
       <<" ROI for detection: ["<<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]"
       <<". Condition is"<<_condition->name()
       <<std::endl;
@@ -369,7 +369,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
     }
     std::cout << "] " << std::endl;
 #endif
-  
+
     try{
         _covI = vigra::linalg::inverse(_cov);
      }
@@ -377,7 +377,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
         // matrix is singular. use normalized euclidean distance instead of mahalanobis:
         std::cout << "Hit_Helper2::process: " << E.what() << std::endl;
         vigra::linalg::identityMatrix(_covI);
-        startNewTraining();  // try again: retrain... 
+        startNewTraining();  // try again: retrain...
         one.lock.unlock();
         _integralimg->lock.unlock();
         _rowsum->lock.unlock();
@@ -385,7 +385,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
     };
 
     //calculate collumn-average and store in _mean
-    // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
+    // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension
     /*transformMultiArray(srcMultiArrayRange(_variationFeatures),
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
@@ -404,7 +404,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   matrixType y(1, _nFeatures);
-  y[0] = var0; y[1] = var1; y[2] = var2; y[3] = var3; y[4] = var4; 
+  y[0] = var0; y[1] = var1; y[2] = var2; y[3] = var3; y[4] = var4;
   //y = _variationFeatures.subarray( matrixType::difference_type(0,0), matrixType::difference_type(1,_nFeatures));
 
   /*
@@ -430,7 +430,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 313 convolute histogram with kernel ***
 
 pp313::pp313(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -438,7 +438,7 @@ pp313::pp313(const name_t &name)
 void pp313::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -465,9 +465,9 @@ void pp313::loadSettings(size_t)
   _kright = distance(_kernelCenter, _kernel.end()-1);
 
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' convolutes '" + _pHist->name() + "' with kernel." +
-           "'. Condition on PostProcessor '" + _condition->name() + "'");
+           "'. Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp313::process(const CASSEvent& evt, HistogramBackend &res)

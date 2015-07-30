@@ -11,7 +11,7 @@
 #include "id_list.h"
 
 
-cass::IdList::IdList(const PostProcessor::names_t &list)
+cass::IdList::IdList(const Processor::names_t &list)
   : Serializable(1), _list(list), _size(list.size())
 {
   VERBOSEOUT(std::cerr << "IdList::IdList(): Initial list size = " << _size << std::endl);
@@ -47,7 +47,7 @@ void cass::IdList::serialize(SerializerBackend *out)const
   out->addUint16(_version);
   out->addSizet(_size);
   out->endChecksumGroupForWrite();
-  for (PostProcessor::names_t::const_iterator it=_list.begin();
+  for (Processor::names_t::const_iterator it=_list.begin();
        it!=_list.end();
        it++)
     out->addString(*it);
@@ -59,7 +59,7 @@ void cass::IdList::clear()
   _size=0;
 }
 
-void cass::IdList::setList(const PostProcessor::names_t &list)
+void cass::IdList::setList(const Processor::names_t &list)
 {
   clear();
   _list = list;

@@ -65,7 +65,7 @@ ForwardIterator min_element ( ForwardIterator first, ForwardIterator last )
 // ************ Operation on two results *************
 
 pp1::pp1(const name_t & name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -73,7 +73,7 @@ pp1::pp1(const name_t & name)
 void pp1::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistOne");
@@ -124,7 +124,7 @@ void pp1::loadSettings(size_t)
 
   createHistList(_one->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will do operation '"+  operation + "'with '" + _one->name() +
            "' as first and '" + _two->name() + "' as second argument" +
            "'. Condition is '" + _condition->name() + "'");
@@ -155,10 +155,10 @@ void pp1::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
+// ************ processor 2: operation with const value
 
 pp2::pp2(const name_t &name)
- : PostProcessor(name)
+ : Processor(name)
 {
  loadSettings(0);
 }
@@ -166,7 +166,7 @@ pp2::pp2(const name_t &name)
 void pp2::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _value = s.value("Value",1).toFloat();
   _retrieveValue = bind(&pp2::valueFromConst,this,_1);
@@ -222,7 +222,7 @@ void pp2::loadSettings(size_t)
                            "': value position '" + valuePos + "' is unkown.");
 
   createHistList(_hist->result().copy_sptr());
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' operation '" + operation +
+  Log::add(Log::INFO,"Processor '" + name() + "' operation '" + operation +
            "' on '" + _hist->name() + "' with " +
            (usePP ? " value in '"+_valuePP->name()+"'" : "constant '"+toString(_value)+"'")
             + ". Condition is "+ _condition->name() + "'");
@@ -275,10 +275,10 @@ void pp2::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
+// ************ processor 4: Apply boolean NOT to 0D histogram *************
 
 pp4::pp4(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -292,7 +292,7 @@ void pp4::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' will apply NOT to PostProcessor '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' will apply NOT to Processor '" +
            _one->name() + "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -318,10 +318,10 @@ void pp4::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 9: Check if histogram is in given range ************
+// ********** processor 9: Check if histogram is in given range ************
 
 pp9::pp9(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -329,7 +329,7 @@ pp9::pp9(const name_t &name)
 void pp9::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _range = make_pair(s.value("LowerLimit",0).toFloat(),
                      s.value("UpperLimit",0).toFloat());
@@ -340,8 +340,8 @@ void pp9::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name()
-           + "' will check whether hist in PostProcessor '" + _one->name() +
+  Log::add(Log::INFO,"Processor '" + name()
+           + "' will check whether hist in Processor '" + _one->name() +
       "' is between '" + toString(_range.first) + "' and '" + toString(_range.second) +
       "'. Condition is '" + _condition->name() + "'");
 }
@@ -367,10 +367,10 @@ void pp9::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 12: PP with constant value ************
+// ********** processor 12: PP with constant value ************
 
 pp12::pp12(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -378,7 +378,7 @@ pp12::pp12(const name_t &name)
 void pp12::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   string type(s.value("ValueType","0D").toString().toStdString());
   if (type == "0D")
@@ -422,7 +422,7 @@ void pp12::loadSettings(size_t)
 
   _hide = s.value("Hide",true).toBool();
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' has constant value of '" +
+  Log::add(Log::INFO,"Processor '" +  name() + "' has constant value of '" +
            toString(value) + "' and is of type '" + type + "'");
 }
 
@@ -434,10 +434,10 @@ void pp12::loadSettings(size_t)
 
 
 
-// ************ Postprocessor 13: return the result (identity operation) *****
+// ************ processor 13: return the result (identity operation) *****
 
 pp13::pp13(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -451,8 +451,8 @@ void pp13::loadSettings(size_t)
     return;
   createHistList(_one->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' will return a copy of PostProcessor '" + _one->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' will return a copy of Processor '" + _one->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -477,10 +477,10 @@ void pp13::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 15: Check if value has changed ************
+// ********** processor 15: Check if value has changed ************
 
 pp15::pp15(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -488,7 +488,7 @@ pp15::pp15(const name_t &name)
 void pp15::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _previousVal = 0;
   setupGeneral();
@@ -504,7 +504,7 @@ void pp15::loadSettings(size_t)
     _difference = std::numeric_limits<float>::epsilon();
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will check whether the difference between the current and the" +
            " previous value of '" + _hist->name() +
            "' is bigger than '"+ toString(_difference) +
@@ -538,10 +538,10 @@ void pp15::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ****************** Postprocessor 40: Threshold histogram ********************
+// ****************** processor 40: Threshold histogram ********************
 
 pp40::pp40(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -549,7 +549,7 @@ pp40::pp40(const name_t &name)
 void pp40::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _threshold = s.value("Threshold", 0.0).toFloat();
   _one = setupDependency("HistName");
@@ -559,8 +559,8 @@ void pp40::loadSettings(size_t)
     return;
   createHistList(_one->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-      "' will threshold Histogram in PostProcessor '" + _one->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+      "' will threshold Histogram in Processor '" + _one->name() +
       "' above '" + toString(_threshold) + "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -582,10 +582,10 @@ void pp40::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ****************** Postprocessor 40: Threshold histogram ********************
+// ****************** processor 40: Threshold histogram ********************
 
 pp41::pp41(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -593,7 +593,7 @@ pp41::pp41(const name_t &name)
 void pp41::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
@@ -634,8 +634,8 @@ void pp41::loadSettings(size_t)
                              ") differ in the shape.");
   createHistList(_one->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' will threshold Histogram in PostProcessor '" + _one->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' will threshold Histogram in Processor '" + _one->name() +
            "' above pixels in image '" + _threshold->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
@@ -677,7 +677,7 @@ void pp41::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 50 projects 2d hist to 1d histo for a selected region of the axis ***
 
 pp50::pp50(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -685,7 +685,7 @@ pp50::pp50(const name_t &name)
 void pp50::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -782,8 +782,8 @@ void pp50::loadSettings(size_t)
     break;
   }
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' will project histogram of PostProcessor '" + _pHist->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' will project histogram of Processor '" + _pHist->name() +
            "' from '" + toString(userRange.first) + "' to '" +
            toString(userRange.second) + "' to axis '" + toString(axis) +
            "' The area in histogram coordinates lower left '" +
@@ -836,7 +836,7 @@ void pp50::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 51 calcs integral over a region in 1d histo ***
 
 pp51::pp51(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -844,7 +844,7 @@ pp51::pp51(const name_t &name)
 void pp51::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   pair<float,float> userarea(make_pair(s.value("LowerBound",-1e6).toFloat(),
                                        s.value("UpperBound", 1e6).toFloat()));
@@ -888,8 +888,8 @@ void pp51::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO, "PostProcessor '" + name() +
-      "' will create integral of 1d histogram in PostProcessor '" + _pHist->name() +
+  Log::add(Log::INFO, "Processor '" + name() +
+      "' will create integral of 1d histogram in Processor '" + _pHist->name() +
       "' from '" + toString(userarea.first) +  "(" + toString(_area.first) +
       ")' to '" + toString(userarea.second) + "(" + toString(_area.second) +
       ")'. Condition is '" + _condition->name() + "'");
@@ -921,7 +921,7 @@ void pp51::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 56 stores previous version of another histogram ***
 
 pp56::pp56(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -936,8 +936,8 @@ void pp56::loadSettings(size_t)
   const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_pHist->result()));
   createHistList(one.copy_sptr());
   _storage.resize(one.memory().size());
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-           "' stores the previous histogram from PostProcessor '" + _pHist->name() +
+  Log::add(Log::INFO,"processor '" + name() +
+           "' stores the previous histogram from Processor '" + _pHist->name() +
            "'. Condition on postprocessor '" + _condition->name() +"'");
 }
 
@@ -975,7 +975,7 @@ void pp56::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 57 weighted projects 2d hist to 1d histo for a selected region of the axis ***
 
 pp57::pp57(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -983,7 +983,7 @@ pp57::pp57(const name_t &name)
 void pp57::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -1035,8 +1035,8 @@ void pp57::loadSettings(size_t)
                            "' does not exist.");
     break;
   }
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-      "' will project histogram of PostProcessor '" + _pHist->name() + "' from '" +
+  Log::add(Log::INFO,"Processor '" + name() +
+      "' will project histogram of Processor '" + _pHist->name() + "' from '" +
       toString(userRange.first) + "' to '" + toString(userRange.second) + "' on axis '" +
       toString(projection_axis) + "'. Condition is '" + _condition->name() + "'");
 }
@@ -1102,7 +1102,7 @@ void pp57::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 60 histograms 0D values ***
 
 pp60::pp60(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1115,9 +1115,9 @@ void pp60::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-      "' histograms values from PostProcessor '" +  _pHist->name() +
-      "'. Condition on PostProcessor '" + _condition->name() + "'");
+  Log::add(Log::INFO,"processor '" + name() +
+      "' histograms values from Processor '" +  _pHist->name() +
+      "'. Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp60::process(const CASSEvent& evt, HistogramBackend &res)
@@ -1152,7 +1152,7 @@ void pp60::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 61 averages histograms ***
 
 pp61::pp61(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -1160,7 +1160,7 @@ pp61::pp61(const name_t &name)
 void pp61::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   unsigned average = s.value("NbrOfAverages", 1).toUInt();
@@ -1170,8 +1170,8 @@ void pp61::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-      "' averages histograms from PostProcessor '" +  _pHist->name() +
+  Log::add(Log::INFO,"processor '" + name() +
+      "' averages histograms from Processor '" +  _pHist->name() +
       "' alpha for the averaging '" + toString(_alpha) +
       "'. Condition on postprocessor '" + _condition->name() + "'");
 }
@@ -1211,7 +1211,7 @@ void pp61::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 62 sums up histograms ***
 
 pp62::pp62(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -1224,8 +1224,8 @@ void pp62::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-      "' sums up histograms from PostProcessor '" +  _pHist->name() +
+  Log::add(Log::INFO,"processor '" + name() +
+      "' sums up histograms from Processor '" +  _pHist->name() +
       "'. Condition on postprocessor '" + _condition->name() + "'");
 }
 
@@ -1255,7 +1255,7 @@ void pp62::process(const CASSEvent& evt,HistogramBackend &res)
 //     of samples that are going to be used in the calculation ***
 
 pp63::pp63(const name_t &name)
-  : AccumulatingPostProcessor(name),
+  : AccumulatingProcessor(name),
     _num_seen_evt(0),
     _when_first_evt(0),
     _first_fiducials(0)
@@ -1266,7 +1266,7 @@ pp63::pp63(const name_t &name)
 void pp63::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   const size_t min_time_user (s.value("MinTime",0).toUInt());
   const size_t max_time_user (s.value("MaxTime",300).toUInt());
@@ -1278,13 +1278,13 @@ void pp63::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-      "' will calculate the time average of histogram of PostProcessor '" + _pHist->name() +
+  Log::add(Log::INFO,"Processor '" + name() +
+      "' will calculate the time average of histogram of Processor '" + _pHist->name() +
       "' from now '" + toString(s.value("MinTime",0).toUInt()) + "' to '" +
       toString(s.value("MaxTime",300).toUInt()) + "' seconds '" + toString(_timerange.first) +
       "' ; '" + toString(_timerange.second) + "' each bin is equivalent to up to '" +
       toString(_nbrSamples) + "' measurements," +
-      " Condition on PostProcessor '" + _condition->name() + "'");
+      " Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp63::process(const CASSEvent& evt, HistogramBackend &res)
@@ -1378,7 +1378,7 @@ void pp63::process(const CASSEvent& evt, HistogramBackend &res)
 //    *** while shifting all other previously saved values one bin to the left.
 
 pp64::pp64(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -1387,7 +1387,7 @@ void pp64::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   _hist = setupDependency("HistName");
@@ -1400,7 +1400,7 @@ void pp64::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat(_size, 0, _size-1,"Shots")));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will make a history of values of histogram in pp '" +
            _hist->name() + ", size of history '" + toString(_size) +
            "' Condition on postprocessor '" + _condition->name() + "'");
@@ -1436,7 +1436,7 @@ void pp64::process(const CASSEvent &evt, HistogramBackend &res)
 // *** postprocessor 65 histograms 2 0D values to 2D histogram ***
 
 pp65::pp65(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1453,9 +1453,9 @@ void pp65::loadSettings(size_t)
       _two->result().dimension() != 0)
     throw std::runtime_error("PP type 65: Either HistOne or HistTwo is not a 0D Hist");
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-      "': histograms values from PostProcessor '" +  _one->name() +"' and '" +
-      _two->name() + ". condition on PostProcessor '" + _condition->name() + "'");
+  Log::add(Log::INFO,"processor '" + name() +
+      "': histograms values from Processor '" +  _one->name() +"' and '" +
+      _two->name() + ". condition on Processor '" + _condition->name() + "'");
 }
 
 void pp65::process(const CASSEvent& evt, HistogramBackend &res)
@@ -1489,7 +1489,7 @@ void pp65::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 66 histograms 2 1D values to 2D histogram ***
 
 pp66::pp66(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1520,9 +1520,9 @@ void pp66::loadSettings(size_t)
                               one.axis()[HistogramBackend::xAxis].title(),
                               two.axis()[HistogramBackend::xAxis].title())));
 
-   Log::add(Log::INFO,"Postprocessor '" + name() +
-           "' creates a two dim histogram from PostProcessor '" + _one->name() +
-           "' and '" +  _two->name() + "'. condition on PostProcessor '" +
+   Log::add(Log::INFO,"processor '" + name() +
+           "' creates a two dim histogram from Processor '" + _one->name() +
+           "' and '" +  _two->name() + "'. condition on Processor '" +
            _condition->name() + "'");
 }
 
@@ -1563,7 +1563,7 @@ void pp66::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 67 histograms 2 0D values to 1D histogram add weight ***
 
 pp67::pp67(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1571,7 +1571,7 @@ pp67::pp67(const name_t &name)
 void pp67::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistOne");
@@ -1606,11 +1606,11 @@ void pp67::loadSettings(size_t)
                               s.value("XTitle","x-axis").toString().toStdString(),
                               "bins")));
 
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
       "' makes a 1D Histogram where '" + _one->name() +
       "' defines the x bin to fill and '" +  _two->name() +
       "' defines the weight of how much to fill the x bin" +
-      ". Condition on PostProcessor '" + _condition->name() + "'");
+      ". Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp67::process(const CASSEvent& evt, HistogramBackend &res)
@@ -1656,7 +1656,7 @@ void pp67::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 68 histograms 0D and 1d Histogram to 2D histogram ***
 
 pp68::pp68(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1664,7 +1664,7 @@ pp68::pp68(const name_t &name)
 void pp68::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistOne");
@@ -1688,10 +1688,10 @@ void pp68::loadSettings(size_t)
                               s.value("YUp",0).toFloat(),
                               xaxis.title(),
                               s.value("YTitle","y-axis").toString().toStdString())));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' makes a 2D Histogram where '" + _one->name() +
            "' defines the x axis to fill and '" + _two->name() +
-           "' defines the y axis bin. Condition on PostProcessor '" +
+           "' defines the y axis bin. Condition on Processor '" +
            _condition->name() + "'");
 }
 
@@ -1731,7 +1731,7 @@ void pp68::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 69 histograms 2 0D values to 1D scatter plot ***
 
 pp69::pp69(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -1748,11 +1748,11 @@ void pp69::loadSettings(size_t)
     throw runtime_error("pp69::loadSettings() '" + name() + "': Either '" +
                         _one->name() + "' or '" + _two->name() + "' is not a 0D Hist");
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' makes a 1D Histogram where '"+  _one->name() +
            "' defines the x bin to set and '" + _two->name() +
            "' defines the y value of the x bin"
-           ". Condition on PostProcessor '" + _condition->name() + "'");
+           ". Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp69::process(const CASSEvent& evt, HistogramBackend &res)
@@ -1804,7 +1804,7 @@ void pp69::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 70 subsets a histogram ***
 
 pp70::pp70(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1812,7 +1812,7 @@ pp70::pp70(const name_t &name)
 void pp70::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -1835,7 +1835,7 @@ void pp70::loadSettings(size_t)
   const size_t nXBins (binXUp-_inputOffset+1);
   const float xLow (xaxis.position(_inputOffset));
   const float xUp (xaxis.position(binXUp));
-  string output("PostProcessor '" + name() +
+  string output("Processor '" + name() +
                 "' setup: returns a subset of histogram in pp '"  +  _pHist->name() +
                 "' which has dimension '" + toString(hist.dimension()) +
                 "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
@@ -1907,7 +1907,7 @@ void pp70::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 71 returns a user specific value of a Histogram ***
 
 pp71::pp71(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1915,7 +1915,7 @@ pp71::pp71(const name_t &name)
 void pp71::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -1932,7 +1932,7 @@ void pp71::loadSettings(size_t)
                            "' unknown.");
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' returns the value in '" + _pHist->name() +
            "' that is retrieved by using function type '" + functype +
            "' .Condition on postprocessor '" + _condition->name() + "'");
@@ -1960,7 +1960,7 @@ void pp71::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 75 clears a histogram ***
 
 pp75::pp75(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -1968,14 +1968,14 @@ pp75::pp75(const name_t &name)
 void pp75::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _hist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' clears the histogram in pp '" + _hist->name() +
            "'. Condition is "+ _condition->name());
 }
@@ -1999,7 +1999,7 @@ void pp75::processEvent(const CASSEvent& evt)
 // ***  pp 76 quit program
 
 pp76::pp76(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2009,7 +2009,7 @@ void pp76::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will quit CASS.. Condition is "+ _condition->name());
 }
 
@@ -2037,7 +2037,7 @@ void pp76::processEvent(const CASSEvent& evt)
 // ***  pp 77 checks ids
 
 pp77::pp77(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2048,7 +2048,7 @@ void pp77::loadSettings(size_t)
   if (!setupCondition())
     return;
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _list.clear();
   string filename(s.value("List","").toString().toStdString());
@@ -2064,7 +2064,7 @@ void pp77::loadSettings(size_t)
   }
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will check whether eventid in file '" + filename +
            "'. Condition is "+ _condition->name());
 }
@@ -2088,7 +2088,7 @@ void pp77::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 78 counter ***
 
 pp78::pp78(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -2099,7 +2099,7 @@ void pp78::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' counts how many times its process is called. '"  +
            "'. Condition is '"+ _condition->name() + "'");
 }
@@ -2126,7 +2126,7 @@ void pp78::process(const CASSEvent&, HistogramBackend &res)
 // ***  pp 81 returns the highest bin of a 1D Histogram ***
 
 pp81::pp81(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2134,7 +2134,7 @@ pp81::pp81(const name_t &name)
 void pp81::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2154,7 +2154,7 @@ void pp81::loadSettings(size_t)
                            "' unknown.");
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' returns the maximum bin in '" + _pHist->name() +
            "' .Condition on postprocessor '" + _condition->name() + "'");
 }
@@ -2192,7 +2192,7 @@ void pp81::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 82 returns statistics value of all bins in a Histogram ***
 
 pp82::pp82(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2200,7 +2200,7 @@ pp82::pp82(const name_t &name)
 void pp82::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2223,7 +2223,7 @@ void pp82::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' returns the mean of all bins in '" + _pHist->name() +
            "' .Condition on postprocessor '" + _condition->name() + "'");
 }
@@ -2262,7 +2262,7 @@ void pp82::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 85 return full width at half maximum in given range of 1D histgoram ***
 
 pp85::pp85(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2270,7 +2270,7 @@ pp85::pp85(const name_t &name)
 void pp85::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2291,7 +2291,7 @@ void pp85::loadSettings(size_t)
                       xaxis.bin(userXRange.second));
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' returns the full width at half maximum in '" + _pHist->name() +
            "' of the range from xlow '" + toString(userXRange.first) +
            "' to xup '" + toString(userXRange.second) +
@@ -2362,7 +2362,7 @@ void pp85::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 86 return x position of a step in 1D histgoram ***
 
 pp86::pp86(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2370,7 +2370,7 @@ pp86::pp86(const name_t &name)
 void pp86::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2393,7 +2393,7 @@ void pp86::loadSettings(size_t)
   _xRangeBaseline = make_pair(xaxis.bin(userXRangeBaseline.first),
                               xaxis.bin(userXRangeBaseline.second));
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO, "PostProcessor '" + name() +
+  Log::add(Log::INFO, "Processor '" + name() +
            "' returns the postion of the step in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRangeStep.first) +
            "' to xup '" + toString(userXRangeStep.second) +
@@ -2455,7 +2455,7 @@ void pp86::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 87 return center of mass in range of 1D histgoram ***
 
 pp87::pp87(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2463,7 +2463,7 @@ pp87::pp87(const name_t &name)
 void pp87::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2482,7 +2482,7 @@ void pp87::loadSettings(size_t)
                       xaxis.bin(userXRange.second));
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO, "PostProcessor '" + name() +
+  Log::add(Log::INFO, "Processor '" + name() +
            "' returns the center of mass in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRange.first) +
            "' to xup '" + toString(userXRange.second) +
@@ -2523,7 +2523,7 @@ void pp87::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 88 returns an axis parameter ***
 
 pp88::pp88(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2531,7 +2531,7 @@ pp88::pp88(const name_t &name)
 void pp88::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -2586,10 +2586,10 @@ void pp88::loadSettings(size_t)
                            axisparam.toStdString() + "'");
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' returns axis parameter'"+ axisparam.toStdString() +
            "' of histogram in pp '" + _pHist->name() +
-           "'. Condition on PostProcessor '" + _condition->name() + "'");
+           "'. Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp88::process(const CASSEvent& evt, HistogramBackend &res)
@@ -2614,7 +2614,7 @@ void pp88::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 89 high/low pass filter ***
 
 pp89::pp89(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2622,7 +2622,7 @@ pp89::pp89(const name_t &name)
 void pp89::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -2660,10 +2660,10 @@ void pp89::loadSettings(size_t)
                            "' is not a 1D histograms");
 
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' does "+ filtertype.toStdString() +
            "' operation on histogram in pp '" + _pHist->name() +
-           "'. Condition on PostProcessor '" + _condition->name() + "'");
+           "'. Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp89::highPass(HistogramFloatBase::storage_t::const_iterator &orig,
@@ -2734,7 +2734,7 @@ void pp89::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 91 return a list of minima in a histogram ***
 
 pp91::pp91(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -2742,7 +2742,7 @@ pp91::pp91(const name_t &name)
 void pp91::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -2758,7 +2758,7 @@ void pp91::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
 
-  Log::add(Log::INFO, "PostProcessor '" + name() +
+  Log::add(Log::INFO, "Processor '" + name() +
            "' returns a list of local minima in '" + _pHist->name() +
            "'. The local minimum is the minimum within a range of +- '" +
            toString(_range) + "' .Condition on postprocessor '"+_condition->name()

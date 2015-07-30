@@ -31,7 +31,7 @@ using namespace std;
 
 //----------------Electron Energy----------------------------------------------
 pp5000::pp5000(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 
 {
   loadSettings(0);
@@ -40,7 +40,7 @@ pp5000::pp5000(const name_t &name)
 void pp5000::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   _detector = loadDelayDet(settings,5000,name());
   _particle = loadParticle(settings,_detector,5000,name());
@@ -48,7 +48,7 @@ void pp5000::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' extracts the total momentum of the particle '" + _particle +
            "' of detector '" + _detector +
            "' and then converts it to Energy assuming that it is an electron. " +
@@ -78,7 +78,7 @@ void pp5000::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------PIPIPICO-------------------------------------------------------
 pp5001::pp5001(const name_t &name)
-  :cass:: PostProcessor(name)
+  :cass:: Processor(name)
 {
   loadSettings(0);
 }
@@ -86,7 +86,7 @@ pp5001::pp5001(const name_t &name)
 void pp5001::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   _detector = settings.value("Detector","blubb").toString().toStdString();
   setupGeneral();
@@ -94,7 +94,7 @@ void pp5001::loadSettings(size_t)
     return;
   createHistList(set2DHist(name()));
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' create a tripple coincidence Histogram of particles of '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
 }

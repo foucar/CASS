@@ -129,7 +129,7 @@ public:
     const uint32_t &options(entry.options);
     const string &gname(entry.groupname);
     const string &name(entry.name);
-    PostProcessor &pp(*entry.pp);
+    Processor &pp(*entry.pp);
 
     /** create the requested dataset name */
     const string dataName(_baseGroupname + "/" + gname + "/" + name);
@@ -200,7 +200,7 @@ private:
 //*************** h5 output *************************
 
 pp1002::pp1002(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -208,7 +208,7 @@ pp1002::pp1002(const name_t &name)
 void pp1002::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
 
@@ -222,7 +222,7 @@ void pp1002::loadSettings(size_t)
     throw logic_error("pp1002::loadSettings(): HDF5 library doesn't allow compression. Please use a hdf5 library that allows compression.");
 
   bool allDepsAreThere(true);
-  int size = s.beginReadArray("PostProcessor");
+  int size = s.beginReadArray("Processor");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
@@ -237,7 +237,7 @@ void pp1002::loadSettings(size_t)
   }
   s.endArray();
 
-  size = s.beginReadArray("PostProcessorSummary");
+  size = s.beginReadArray("ProcessorSummary");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
@@ -290,7 +290,7 @@ void pp1002::loadSettings(size_t)
   }
 
   _hide = true;
-  string output("PostProcessor '" + name() + "' will write histogram ");
+  string output("Processor '" + name() + "' will write histogram ");
   for (list<entry_t>::const_iterator it(_ppList.begin());
        it != _ppList.end(); ++it)
     output += ("'" + it->pp->name() + "' to Group '" + it->groupname +

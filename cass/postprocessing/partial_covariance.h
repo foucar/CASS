@@ -22,29 +22,29 @@ namespace cass
  *       region where no signal will appear, such that it can correctly
  *       determine the baseline.
  *
- * @cassttng PostProcessor/\%name\%/{TofLow|TofUp}\n
+ * @cassttng Processor/\%name\%/{TofLow|TofUp}\n
  *           The time of flight range within the histogram to convert to energy.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{t0}\n
+ * @cassttng Processor/\%name\%/{t0}\n
  *           corrects the time of flight
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{e0}\n
+ * @cassttng Processor/\%name\%/{e0}\n
  *           Retard voltage
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{alpha}\n
+ * @cassttng Processor/\%name\%/{alpha}\n
  *           Coefficient for converting to energy. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrBins}\n
+ * @cassttng Processor/\%name\%/{NbrBins}\n
  *           number of bins in converted histogram. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb1}\n
+ * @cassttng Processor/\%name\%/{tb1}\n
  *           The lower limit in x for calculating the baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb2}\n
+ * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit in x for calculating the baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           input 1D histogram that contains the time of flight wavetrace.
  *
  * @author Koji Motomura
  */
-class pp400 : public PostProcessor
+class pp400 : public Processor
 {
 public:
   /** constructor */
@@ -137,18 +137,18 @@ protected:
  * Running or cummulative average of a histogram. In this case it will average
  * the squared value.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
+ * @cassttng Processor/\%name\%/{NbrOfAverages}\n
  *           how many images should be averaged. When value is 0 its a cummulative
  *           average. Default is 1.
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram that we average.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram that we average.
  *
  * @author Lutz Foucar
  */
-class pp402 : public AccumulatingPostProcessor
+class pp402 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -185,27 +185,27 @@ protected:
  * peaks and their Charge to Mass ratio. From this information the rest is
  * calculated.
  *
- * @cassttng PostProcessor/\%name\%/{TofLow|TofLow}\n
+ * @cassttng Processor/\%name\%/{TofLow|TofLow}\n
  *           The time of flight range within the histogram to convert to mass.
  *           to charge ratio Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{t0}\n
+ * @cassttng Processor/\%name\%/{t0}\n
  *           a time of flight of ion that we choosed. Default is 0.
- * @cassttng PostProcessor/\%name\%/{t1}\n
+ * @cassttng Processor/\%name\%/{t1}\n
  *           another time of flight of ion that we choosed. Default is 0.
- * @cassttng PostProcessor/\%name\%/{MtC0}\n
+ * @cassttng Processor/\%name\%/{MtC0}\n
  *           mass to charge ratio of t0. Default is 0.
- * @cassttng PostProcessor/\%name\%/{MtC1}\n
+ * @cassttng Processor/\%name\%/{MtC1}\n
  *           mass to charge ratio of t1. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb1}\n
+ * @cassttng Processor/\%name\%/{tb1}\n
  *           The lower limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb2}\n
+ * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrBins}\n
+ * @cassttng Processor/\%name\%/{NbrBins}\n
  *           number of bins in converted histogram. Default is 0.
  *
  * @author Marco Siano
  */
-class pp404 : public PostProcessor
+class pp404 : public Processor
 {
 public:
   /** constructor */
@@ -313,7 +313,7 @@ protected:
  *
  * @author Koji Motomura
  */
-class pp405 : public PostProcessor
+class pp405 : public Processor
 {
 public:
   /** constructor */
@@ -342,30 +342,30 @@ public:
  * correction from 0D histogram, using function
  * \f$e = (\frac{\alpha}{t-t_0})^2-e_0\f$.
  *
- * @cassttng PostProcessor/\%name\%/{TofLow|TofUp}\n
+ * @cassttng Processor/\%name\%/{TofLow|TofUp}\n
  *           The time of flight range within the histogram to convert to energy.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{t0}\n
+ * @cassttng Processor/\%name\%/{t0}\n
  *           corrects the time of flight. Default is 0.
- * @cassttng PostProcessor/\%name\%/{e0}\n
+ * @cassttng Processor/\%name\%/{e0}\n
  *           Retardation voltage. Default is 0.
- * @cassttng PostProcessor/\%name\%/{alpha}\n
+ * @cassttng Processor/\%name\%/{alpha}\n
  *           Coefficient for converting to energy. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrBins}\n
+ * @cassttng Processor/\%name\%/{NbrBins}\n
  *           number of bins in converted histogram. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb1}\n
+ * @cassttng Processor/\%name\%/{tb1}\n
  *           The lower limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb2}\n
+ * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           input 1D histogram that is the time of flight wavetrace.
- * @cassttng PostProcessor/\%name\%/{HistZeroD}\n
+ * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
  *
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp406 : public PostProcessor
+class pp406 : public Processor
 {
 public:
   /** constructor */
@@ -464,30 +464,30 @@ protected:
  * using fuction \f$e=(\frac{\alpha}{t-t_0})^2-e_0\f$ and apply linear
  * interpolation to energy spectrum.
  *
- * @cassttng PostProcessor/\%name\%/{TofLow|TofUp}\n
+ * @cassttng Processor/\%name\%/{TofLow|TofUp}\n
  *           The time of flight range within the histogram to convert to energy.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{t0}\n
+ * @cassttng Processor/\%name\%/{t0}\n
  *           corrects the time of flight. Default is 0.
- * @cassttng PostProcessor/\%name\%/{e0}\n
+ * @cassttng Processor/\%name\%/{e0}\n
  *           Retardation voltage. Default is 0.
- * @cassttng PostProcessor/\%name\%/{alpha}\n
+ * @cassttng Processor/\%name\%/{alpha}\n
  *           Coefficient for converting to energy. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrBins}\n
+ * @cassttng Processor/\%name\%/{NbrBins}\n
  *           number of bins in converted histogram. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb1}\n
+ * @cassttng Processor/\%name\%/{tb1}\n
  *           The lower limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb2}\n
+ * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           input 1D histogram that is the time of flight wavetrace.
- * @cassttng PostProcessor/\%name\%/{HistZeroD}\n
+ * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
  *
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp407 : public PostProcessor
+class pp407 : public Processor
 {
 public:
   /** constructor */
@@ -593,30 +593,30 @@ protected:
  * apply linear interpolation to energy spectrum using fuction
  * \f$e=(\frac{\alpha}{t-t_0})^2-e_0\f$.
  *
- * @cassttng PostProcessor/\%name\%/{TofLow|TofUp}\n
+ * @cassttng Processor/\%name\%/{TofLow|TofUp}\n
  *           The time of flight range within the histogram to convert to energy.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{t0}\n
+ * @cassttng Processor/\%name\%/{t0}\n
  *           corrects the time of flight. Default is 0.
- * @cassttng PostProcessor/\%name\%/{e0}\n
+ * @cassttng Processor/\%name\%/{e0}\n
  *           Retardation voltage. Default is 0.
- * @cassttng PostProcessor/\%name\%/{alpha}\n
+ * @cassttng Processor/\%name\%/{alpha}\n
  *           Coefficient for converting to energy. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrBins}\n
+ * @cassttng Processor/\%name\%/{NbrBins}\n
  *           number of bins in converted histogram. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb1}\n
+ * @cassttng Processor/\%name\%/{tb1}\n
  *           The lower limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{tb2}\n
+ * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           input 1D histogram that is the time of flight wavetrace.
- * @cassttng PostProcessor/\%name\%/{HistZeroD}\n
+ * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
  *
  * @author Koji Motomura
  * @author Marco Siano
  */
-class pp408 : public PostProcessor
+class pp408 : public Processor
 {
 public:
   /** constructor */
@@ -730,14 +730,14 @@ protected:
  * \f$cov_n=((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1})))\f$
  * and makes 2d map from 1d histogram.
  *
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           input 1D histogram that we calculate covariance map.
- * @cassttng PostProcessor/\%name\%/{AveHistName}\n
+ * @cassttng Processor/\%name\%/{AveHistName}\n
  *           averaged histogram of "HistName"
  *
  * @author Koji Motomura
  */
-class pp410 : public AccumulatingPostProcessor
+class pp410 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -785,18 +785,18 @@ protected:
  * by on-line algorithm
  * \f$cov_n=\frac{1}{n}((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1}))\f$
  *
- * @cassttng PostProcessor/\%name\%/{HistName1D}\n
+ * @cassttng Processor/\%name\%/{HistName1D}\n
  *           input 1D histogram that is the time of flight wavetrace.
- * @cassttng PostProcessor/\%name\%/{AveHistName1D}\n
+ * @cassttng Processor/\%name\%/{AveHistName1D}\n
  *           input 1D averaged histogram that is the time of flight wavetrace.
- * @cassttng PostProcessor/\%name\%/{HistName0D}\n
+ * @cassttng Processor/\%name\%/{HistName0D}\n
  *           input 1D histogram that is intensity.
- * @cassttng PostProcessor/\%name\%/{AveHistName0D}\n
+ * @cassttng Processor/\%name\%/{AveHistName0D}\n
  *           input 0D averaged histogram that is intensity.
  *
  * @author Koji Motomura
  */
-class pp412 : public AccumulatingPostProcessor
+class pp412 : public AccumulatingProcessor
 {
 public:
   /** constructor */

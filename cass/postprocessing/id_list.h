@@ -32,7 +32,7 @@ namespace cass
     {}
 
     /** constructor creating list from incomming list */
-    IdList(const PostProcessor::names_t &list);
+    IdList(const Processor::names_t &list);
 
     /** construct from serializer */
     IdList(SerializerBackend* in)
@@ -52,10 +52,10 @@ namespace cass
     void clear();
 
     /** copy the list to us */
-    void setList(const PostProcessor::names_t &list);
+    void setList(const Processor::names_t &list);
 
     /** getter for the internal list */
-    const PostProcessor::names_t& getList() { return _list; }
+    const Processor::names_t& getList() { return _list; }
 
     /** deserialize the list from the serializer */
     bool deserialize(SerializerBackend *in);
@@ -71,7 +71,7 @@ namespace cass
 
   private:
     /** a list of all postprocessor keys */
-    PostProcessor::names_t _list;
+    Processor::names_t _list;
 
     /** the size of the postprocessor keys list */
     size_t _size;

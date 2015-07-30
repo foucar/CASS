@@ -24,13 +24,13 @@ namespace cass
  * If input histogram is > 0d, its values get
  *  summed up prior to median calculation.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{MedianSize} \n
+ * @cassttng Processor/\%name\%/{MedianSize} \n
  *           how many last values should be included in median calculation.
  *           default is 100.
  *
@@ -38,7 +38,7 @@ namespace cass
  * @author Stephan Kassemeyer.
  * @author Lutz Foucar
  */
-class pp301 : public AccumulatingPostProcessor
+class pp301 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -90,24 +90,24 @@ protected:
  *  arr.tofile('waterJetMask_png.bin')
  *
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{BinaryFile} \n
+ * @cassttng Processor/\%name\%/{BinaryFile} \n
  *           Filename of binary float[sizeX*sizeY] file which contains data.
  *           Default is "".
  *
- * @cassttng PostProcessor/\%name\%/{SizeX} \n
+ * @cassttng Processor/\%name\%/{SizeX} \n
  *           nr of Pixels for x axis.
  *           Default is 0.
  *
- * @cassttng PostProcessor/\%name\%/{SizeY} \n
+ * @cassttng Processor/\%name\%/{SizeY} \n
  *           nr of Pixels for y axis.
  *           Default is 0.
  *
  * @author Stephan Kassemeyer
  */
-class pp302 : public PostProcessor
+class pp302 : public Processor
 {
 public:
   /** constructor */

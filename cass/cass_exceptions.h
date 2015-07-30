@@ -42,10 +42,10 @@ protected:
  *
  * @author Lutz Foucar
  */
-class InvalidPostProcessorError : public std::out_of_range
+class InvalidProcessorError : public std::out_of_range
 {
 public:
-  explicit InvalidPostProcessorError(const std::string &key)
+  explicit InvalidProcessorError(const std::string &key)
     : std::out_of_range("Invalid postprocessor requested!"), _key(key)
   {}
 
@@ -56,7 +56,7 @@ public:
     return msg.str().c_str();
   }
 
-  virtual ~InvalidPostProcessorError() throw(){}
+  virtual ~InvalidProcessorError() throw(){}
 
 protected:
   std::string _key;
@@ -178,9 +178,9 @@ public:
   {}
 
   virtual ~TagOutdated() throw() {}
- 
+
   operator bool()const {return _wasThrown;}
- 
+
 private:
   bool _wasThrown;
 };

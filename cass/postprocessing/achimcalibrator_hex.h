@@ -32,7 +32,7 @@ namespace cass
  * @PPList "170": Hex Delayline Calibrator (see Hexcalibrator for parameters)
  *
  * this class will use achims resort routine capabilties to calibrate
- * the timesum shift and the scalefactors. The PostProcessor will return the
+ * the timesum shift and the scalefactors. The Processor will return the
  * current ratio of full bins.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -40,13 +40,13 @@ namespace cass
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
- *           Speciality of this PostProcessor is, that it will only work with
+ *           Speciality of this Processor is, that it will only work with
  *           hex Delayline detectors and the appropriate HexSorter. Make sure
  *           that all settings of the HexSorter are correctly set. See
  *           cass::ACQIRIS::HexSorter and cass::ACQIRIS::DelaylineDetector.
- * @cassttng PostProcessor/\%name\%/{RatioFullBins}\n
+ * @cassttng Processor/\%name\%/{RatioFullBins}\n
  *           The ratio of how many bins in the detector image have to be full
  *           before the calibration is started and the results written to the
  *           settingsfile.
@@ -54,7 +54,7 @@ namespace cass
  * @author Lutz Foucar
  */
 class HexCalibrator
-    : public PostProcessor
+    : public Processor
 {
 public:
   /** enum for accessing the vectors */

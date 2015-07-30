@@ -29,16 +29,16 @@ namespace cass
  *
  * @PPList "1":Operation on 2 Histograms value by value
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ * @cassttng Processor/\%name\%/{HistOne} \n
  *           the postprocessor name that contain the first histogram.
  *           Needs to be of the same dimension and size as the second.
- * @cassttng PostProcessor/\%name\%/{HistTwo} \n
+ * @cassttng Processor/\%name\%/{HistTwo} \n
  *           the postprocessor name that contain the second histogram.
  *           Needs to be of the same dimension and size as the first
- * @cassttng PostProcessor/\%name\%/{Operation} \n
+ * @cassttng Processor/\%name\%/{Operation} \n
  *           Default is "+". Possible values are:
  *           - "+": Use add as operation
  *           - "-": Use minus as operation
@@ -55,7 +55,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class pp1 : public PostProcessor
+class pp1 : public Processor
 {
 public:
   /** constructor */
@@ -87,19 +87,19 @@ protected:
  *
  * @PPList "2":Operation on histogram with value
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Needs to
  *           be implemented, because default is "", which is invalid.
- * @cassttng PostProcessor/\%name\%/{Value} \n
+ * @cassttng Processor/\%name\%/{Value} \n
  *           Value for the operation. Default is 1.
- * @cassttng PostProcessor/\%name\%/{ValueName} \n
- *           0D PostProcessor containing value for the operation. If this is not
- *           the default value of DonnotUse, the value from the PostProcssor is
+ * @cassttng Processor/\%name\%/{ValueName} \n
+ *           0D Processor containing value for the operation. If this is not
+ *           the default value of DonnotUse, the value from the Procssor is
  *           used. Otherwise the Value is used. Default is "DonnotUse"
- * @cassttng PostProcessor/\%name\%/{Operation} \n
+ * @cassttng Processor/\%name\%/{Operation} \n
  *           Default is "+". Possible values are:
  *           - "+": Use add as operation
  *           - "-": Use minus as operation
@@ -113,16 +113,16 @@ protected:
  *           - "<=": Use less or equal as operation
  *           - "==": Use equal to as operation
  *           - "!=": Use not equal to as operation
- * @cassttng PostProcessor/\%name\%/{ValuePos} \n
+ * @cassttng Processor/\%name\%/{ValuePos} \n
  *           Chooses where in the operation the Value or the value taken from
- *           the 0D PostProcessor will be. Default is "first". Possible values
+ *           the 0D Processor will be. Default is "first". Possible values
  *           are:
  *           - first: Value will be first operand
  *           - second: Value will be second operand
  *
  * @author Lutz Foucar
  */
-class pp2 : public PostProcessor
+class pp2 : public Processor
 {
 
 public:
@@ -160,7 +160,7 @@ protected:
    */
   unaryoperation_t ValAtSecond(float val);
 
-  /** retrieve value from PostProcessor
+  /** retrieve value from Processor
    *
    * @returns value stored in _valuePP
    * @param id id of the event for which the value should be returned
@@ -205,16 +205,16 @@ protected:
  *
  * @PPList "4": Apply boolean NOT to 0D Histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is "".
  *
  * @author Lutz Foucar
  */
-class pp4 : public PostProcessor
+class pp4 : public Processor
 {
 public:
   /** constructor */
@@ -242,18 +242,18 @@ protected:
  *
  * @PPList "9": Check whether sum value of histogram is in range
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit} \n
+ * @cassttng Processor/\%name\%/{UpperLimit|LowerLimit} \n
  *           Upper and Lower limit of the range to check. Default is 0,0.
  *
  * @author Lutz Foucar
  */
-class pp9 : public PostProcessor
+class pp9 : public Processor
 {
 public:
   /** constructor */
@@ -286,20 +286,20 @@ protected:
  *
  * @PPList "12": Constant Value
  *
- * @cassttng PostProcessor/\%name\%/{Value} \n
+ * @cassttng Processor/\%name\%/{Value} \n
  *           The value of the postprocessors 0d histogram Default is 0.
- * @cassttng PostProcessor/\%name\%/{ValueType} \n
+ * @cassttng Processor/\%name\%/{ValueType} \n
  *           The type of constant that will we returned. Default is '0D'.
  *           Possible values are:
  *           - '0D': A 0d histogram  will be returned
  *           - '1D': A 1d array histogram will be returned
  *           - '2D': A 2d image histogram will be returned
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           Optional settings, needed when selected 1D or 2D as type
  *
  * @author Lutz Foucar
  */
-class pp12 : public PostProcessor
+class pp12 : public Processor
 {
 public:
   /** constructor */
@@ -339,16 +339,16 @@ private:
  *
  * @PPList "13": return the input (identiy operation)
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is "".
  *
  * @author Lutz Foucar
  */
-class pp13 : public PostProcessor
+class pp13 : public Processor
 {
 public:
   /** constructor */
@@ -378,17 +378,17 @@ protected:
  *
  * check whether a value has changed with respekt to the previous event.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           The PostProcessor name that contain the 0D Histogram that should be
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           The Processor name that contain the 0D Histogram that should be
  *           monitored.
- * @cassttng PostProcessor/\%name\%/{Difference} \n
+ * @cassttng Processor/\%name\%/{Difference} \n
  *           The maximum allowed difference between the previous and the current
  *           value of the 0D Histogram. Default is 0 which results in a value
  *           given by std::numeric_limits<float>::epsilon().
  *
  * @author Lutz Foucar
  */
-class pp15 : public PostProcessor
+class pp15 : public Processor
 {
 public:
   /** constructor */
@@ -424,17 +424,17 @@ protected:
  *
  * @PPList "40": Threshold histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with histogram that should be thresholded. Default is 0.
- * @cassttng PostProcessor/\%name\%/{Threshold} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name with histogram that should be thresholded. Default is 0.
+ * @cassttng Processor/\%name\%/{Threshold} \n
  *           Factor with which threshold value. Default is 0.
  *
  * @author Thomas White
  */
-class pp40 : public PostProcessor
+class pp40 : public Processor
 {
 public:
   /** constructor */
@@ -472,26 +472,26 @@ protected:
  * set the bin of a histogram to a user requested value when the value of the
  * threshold is within a user requested range.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with histogram that should be thresholded.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name with histogram that should be thresholded.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{ThresholdName} \n
+ * @cassttng Processor/\%name\%/{ThresholdName} \n
  *           Histogram with which the histogram will be thresholded.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{UserVal} \n
+ * @cassttng Processor/\%name\%/{UserVal} \n
  *           The value that will be set when the value of the ThresholdHist is
  *           within the boundaries. Default is 0
- * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
  *           The boundaries within which the value of the ThresholdHist has to
  *           be in order to set the value of the histogram to UserVal.
  *           Default is 0.5|1.5
  *
  * @author Lutz Foucar
  */
-class pp41 : public PostProcessor
+class pp41 : public Processor
 {
 public:
   /** constructor */
@@ -539,16 +539,16 @@ protected:
  *
  * @PPList "50": Project 2D histogram onto a axis
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with 2D-Histogram that we create project.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name with 2D-Histogram that we create project.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
  *           Upper and lower bound of the area to project. Default is
  *           -1e6 ... 1e6
- * @cassttng PostProcessor/\%name\%/{Axis} \n
+ * @cassttng Processor/\%name\%/{Axis} \n
  *           The axis we want to project to. Default is xAxis.
  *           Possible choises are:
  *           - 0:xAxis
@@ -556,7 +556,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp50 : public PostProcessor
+class pp50 : public Processor
 {
 public:
   /** constructor */
@@ -616,17 +616,17 @@ private:
  *
  * @PPList "51": Integral of 1D histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with 1D-Histogram that we create the intgral from Default is 0.
- * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name with 1D-Histogram that we create the intgral from Default is 0.
+ * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
  *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
  *
  * @author Lutz Foucar
  */
-class pp51 : public PostProcessor
+class pp51 : public Processor
 {
 public:
   /** constructor */
@@ -655,21 +655,21 @@ private:
 
 
 
-/** store previous histogram of other PostProcessor
+/** store previous histogram of other Processor
  *
  * @PPList "56": Contains the Histogram of the previous event
  *
  * Stores a previous version of another histogram.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram that we average.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram that we average.
  *
  * @author Lutz Foucar
  */
-class pp56 : public PostProcessor
+class pp56 : public Processor
 {
 public:
   /** constructor */
@@ -713,28 +713,28 @@ protected:
  * devides each bin by the number of non zero values that have been added in
  * this bin.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name with 2D-Histogram that we create project.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name with 2D-Histogram that we create project.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
+ * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
  *           Upper and lower bound of the area to project. Default is
  *           -1e6 ... 1e6
- * @cassttng PostProcessor/\%name\%/{Axis} \n
+ * @cassttng Processor/\%name\%/{Axis} \n
  *           The axis we want to project to. Default is xAxis.
  *           Possible choises are:
  *           - 0:xAxis
  *           - 1:yAxis
- * @cassttng PostProcessor/\%name\%/{ExclusionValue} \n
+ * @cassttng Processor/\%name\%/{ExclusionValue} \n
  *           The value that will be excluded when doing the projection. The
  *           result will be normilzed by the amount of bins that have been
  *           summed. Default is 0.
  *
  * @author Lutz Foucar
  */
-class pp57 : public PostProcessor
+class pp57 : public Processor
 {
 public:
   /** constructor */
@@ -806,20 +806,20 @@ private:
  * @PPList "60": Histogram 0D, 1D or 2D values to a 1D histogram
  *
  * histograms all values of 0D, 1D or 2D into a 1D Histogram. This histogram
- * holds only the histogrammed values of one event. Use PostProcessors 61 or
+ * holds only the histogrammed values of one event. Use Processors 61 or
  * 62 to average or sum up this histogram, respectively.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1D histogram
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the values to histogram
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the values to histogram
  *
  * @author Lutz Foucar
  */
-class pp60 : public PostProcessor
+class pp60 : public Processor
 {
 public:
   /** constructor */
@@ -847,18 +847,18 @@ protected:
  *
  * Running or cummulative average of a histogram.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
+ * @cassttng Processor/\%name\%/{NbrOfAverages}\n
  *           how many images should be averaged. When value is 0 its a cummulative
  *           average. Default is 1.
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram that we average.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram that we average.
  *
  * @author Lutz Foucar
  */
-class pp61 : public AccumulatingPostProcessor
+class pp61 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -888,15 +888,15 @@ protected:
  *
  * Sums up histograms.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram that we sum up.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram that we sum up.
  *
  * @author Lutz Foucar
  */
-class pp62 : public AccumulatingPostProcessor
+class pp62 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -924,22 +924,22 @@ protected:
  *
  * Makes an running average of a given Histogram over a given time period.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor id with 0D-Histogram that we create project.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor id with 0D-Histogram that we create project.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{MinTime|MaxTime} \n
+ * @cassttng Processor/\%name\%/{MinTime|MaxTime} \n
  *           Minimum and Maximum Time to plot in the histogram. Default
  *           is 0 ... 300 (WARNING: for the moment this setting is not active)
- * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
+ * @cassttng Processor/\%name\%/{NbrSamples} \n
  *           Number of values that are used per second to calculate the average.
  *           Default is 5
  *
  * @author Nicola Coppola
  */
-class pp63 : public AccumulatingPostProcessor
+class pp63 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -981,19 +981,19 @@ protected:
  *
  * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor id with 0D-Histogram that we create project.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor id with 0D-Histogram that we create project.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{Size} \n
+ * @cassttng Processor/\%name\%/{Size} \n
  *           Number of values that are stored
  *           Default is 10000
  *
  * @author Stephan Kassemeyer
  */
-class pp64 : public AccumulatingPostProcessor
+class pp64 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -1024,19 +1024,19 @@ protected:
  *
  * histograms two 0d values into one 2D Histogram. The resulting histogram
  * contains only the information from the current event. To get an average or
- * sum use PostProcessor 61 or 62.
+ * sum use Processor 61 or 62.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
- *           Postprocessor names containing the 0D values to histogram.
+ * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ *           processor names containing the 0D values to histogram.
  *
  * @author Lutz Foucar
  */
-class pp65 : public PostProcessor
+class pp65 : public Processor
 {
 public:
   /** constructor */
@@ -1069,15 +1069,15 @@ protected:
  *
  * histograms two 1d histograms into one 2D Histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
- *           Postprocessor names containing the 1D histograms to histogram.
+ * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ *           processor names containing the 1D histograms to histogram.
  *
  * @author Lutz Foucar
  */
-class pp66 : public PostProcessor
+class pp66 : public Processor
 {
 public:
   /** constructor */
@@ -1113,17 +1113,17 @@ protected:
  * Histogram is a 2d historam with 2 bins in y. The 0th bin contains the weighted
  * Histogram and the 1st bin contains the number of entries in that bin.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1d histogram
- * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
- *           Postprocessor names containing the values and weights to histogram.
+ * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ *           processor names containing the values and weights to histogram.
  *
  * @author Lutz Foucar
  */
-class pp67 : public PostProcessor
+class pp67 : public Processor
 {
 public:
   /** constructor */
@@ -1160,19 +1160,19 @@ protected:
  * One only has to define the y axis since the x axis will be taken from the
  * 1d histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{YNbrBins|YLow|YUp}\n
  *           properties of the y axis of the resulting 2d histogram
- * @cassttng PostProcessor/\%name\%/{HistOne}\n
+ * @cassttng Processor/\%name\%/{HistOne}\n
  *           postprocessr containing the 1d histogram.
- * @cassttng PostProcessor/\%name\%/{HistTwo} \n
- *           Postprocessor containing the 0D values for the y axis
+ * @cassttng Processor/\%name\%/{HistTwo} \n
+ *           processor containing the 0D values for the y axis
  *
  * @author Lutz Foucar
  */
-class pp68 : public PostProcessor
+class pp68 : public Processor
 {
 public:
   /** constructor */
@@ -1204,17 +1204,17 @@ protected:
  * sets two 0d values into one 1D Histogram where the first Histogram
  * defines the x axis bin and the second is the weight.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1d histogram
- * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
- *           Postprocessor names containing the 0D values to histogram.
+ * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ *           processor names containing the 0D values to histogram.
  *
  * @author Lutz Foucar
  */
-class pp69 : public AccumulatingPostProcessor
+class pp69 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -1246,22 +1246,22 @@ protected:
  *
  * Will copy a subset of another histogram and return it in a new histogram.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           name of postprocessor that contains the histogram you want a
  *           subset from. Default is "".
- * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+ * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           For 1d and 2d histogram the lower and upper range on the x-axis that one wants
  *           to include in the subset histogram. Default is 0|1
- * @cassttng PostProcessor/\%name\%/{YLow|YUp} \n
+ * @cassttng Processor/\%name\%/{YLow|YUp} \n
  *           In case you want to subset a 2d histogram these are the lower and upper range
  *           on the y-axis that one wants to include in the subset histogram. Default is 0|1
  *
  * @author Lutz Foucar
  */
-class pp70 : public PostProcessor
+class pp70 : public Processor
 {
 public:
   /** constructor */
@@ -1300,20 +1300,20 @@ protected:
  *
  * @PPList "71": Returns the min or max value of a histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{RetrieveType} \n
+ * @cassttng Processor/\%name\%/{RetrieveType} \n
  *           Type of function used to retrieve the requested value in the
  *           Histogram. Default is "max". Possible values are:
  *           - "max": return the maximum value in the histogram
  *           - "min": return the minimum value in the histogram
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name to find the maximum value in.
  *
  * @author Lutz Foucar
  */
-class pp71 : public PostProcessor
+class pp71 : public Processor
 {
 public:
   /** constructor */
@@ -1349,16 +1349,16 @@ protected:
  *
  * Will clear a specific histogram when the condition is true.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           name of postprocessor that contains the histogram you want a
  *           subset from. Default is "".
  *
  * @author Lutz Foucar
  */
-class pp75 : public PostProcessor
+class pp75 : public Processor
 {
 public:
   /** constructor */
@@ -1399,12 +1399,12 @@ protected:
  * meaningful. Defaultly "ConditionName" is set to "DefaultTrueHist" which
  * will let the program quit immediately
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @author Lutz Foucar
  */
-class pp76 : public PostProcessor
+class pp76 : public Processor
 {
 public:
   /** constructor */
@@ -1436,16 +1436,16 @@ public:
  * Checks if the id of the current event is on a user provided list. The
  * user provided list of id should be an ascii file where the ids are in lines.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{List} \n
+ * @cassttng Processor/\%name\%/{List} \n
  *           Path and name of the file containing the list of id that should
  *           be checked. Default is "".
  *
  * @author Lutz Foucar
  */
-class pp77 : public PostProcessor
+class pp77 : public Processor
 {
 public:
   /** constructor */
@@ -1481,12 +1481,12 @@ protected:
  *
  * @PPList "78": Counter
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @author Lutz Foucar
  */
-class pp78 : public AccumulatingPostProcessor
+class pp78 : public AccumulatingProcessor
 {
 public:
   /** constructor */
@@ -1515,12 +1515,12 @@ public:
  *
  * @PPList "81": retrieve user choosable bin of 1D histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name to retrieve the bin for
- * @cassttng PostProcessor/\%name\%/{RetrieveType} \n
+ * @cassttng Processor/\%name\%/{RetrieveType} \n
  *           The type of bin to retrieve. Default is "max". Options are:
  *           - max: the bin containing the maximum value
  *           - min: the bin containing the minimum value
@@ -1528,7 +1528,7 @@ public:
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp81 : public PostProcessor
+class pp81 : public Processor
 {
 public:
   /** constructor */
@@ -1567,13 +1567,13 @@ protected:
  *
  * @PPList "82": user choosable statistics value of all bins of a histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name for which the mean is calculated.
  *           Default is blubb
- * @cassttng PostProcessor/\%name\%/{Statistics} \n
+ * @cassttng Processor/\%name\%/{Statistics} \n
  *           Type of statistic that one wants to retrieve. Default is "sum".
  *           Possible values are:
  *           - sum: Sum of values of all bins
@@ -1583,7 +1583,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp82 : public PostProcessor
+class pp82 : public Processor
 {
 public:
   /** constructor */
@@ -1626,22 +1626,22 @@ protected:
  *
  * @PPList "85": full width at half maximum for a peak in given range
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Name of PostProcessor that contains the histogram that we want to
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           Name of Processor that contains the histogram that we want to
  *           analyze and find the FWHM. Default is 0.
- * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+ * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           Lower and upper limit of the range that we look for the width at half maximum.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{Fraction} \n
+ * @cassttng Processor/\%name\%/{Fraction} \n
  *           At which fraction of the height the width should be taken. Default
  *           is 0.5
  *
  * @author Lutz Foucar
  */
-class pp85 : public PostProcessor
+class pp85 : public Processor
 {
 public:
   /** constructor */
@@ -1681,27 +1681,27 @@ protected:
  * point in the range that should contain the step. Now it looks for the first
  * x position where the y value is Fraction * (highestPoint + baselline).
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *          Default is 0.
- * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+ * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           Lower and upper limit of the range that we look for the step.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{BaselineLow|BaselineUp} \n
+ * @cassttng Processor/\%name\%/{BaselineLow|BaselineUp} \n
  *           Lower and upper limit of the range that we use to calculate the
  *           Baseline.
  *           Default is 0|1.
- * @cassttng PostProcessor/\%name\%/{Fraction} \n
+ * @cassttng Processor/\%name\%/{Fraction} \n
  *           The Fraction between the baseline and the highest value that
  *           should be taken when searching for the right point. Default is
  *           0.5
  *
  * @author Lutz Foucar
  */
-class pp86 : public PostProcessor
+class pp86 : public Processor
 {
 public:
   /** constructor */
@@ -1738,19 +1738,19 @@ protected:
  *
  * calculates the center of Mass in the user given range.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+ * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           Lower and upper limit of the range that we look for the step.
  *           Default is 0|1.
  *
  * @author Lutz Foucar
  */
-class pp87 : public PostProcessor
+class pp87 : public Processor
 {
 public:
   /** constructor */
@@ -1778,12 +1778,12 @@ protected:
  *
  * @PPList "88": retrieve an axis parameter of the histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name for which we count fills. Default is 0.
- * @cassttng PostProcessor/\%name\%/{AxisParameter} \n
+ * @cassttng Processor/\%name\%/{AxisParameter} \n
  *           The parameter of the axis one is interested in.
  *           Default is "XNbrBins". Possible values are:
  *           - "XNbrBins": The number of Bins in X
@@ -1795,7 +1795,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp88 : public PostProcessor
+class pp88 : public Processor
 {
 public:
   /** constructor */
@@ -1824,19 +1824,19 @@ protected:
  *
  * @PPList "89":high or low pass filter on 1d histo
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           histogram name for which we count fills. Default is 0.
- * @cassttng PostProcessor/\%name\%/{FilterType} \n
+ * @cassttng Processor/\%name\%/{FilterType} \n
  *           The filter type to use. LowPass or HighPass
- * @cassttng PostProcessor/\%name\%/{Cutoff} \n
- * @cassttng PostProcessor/\%name\%/{SampleRate} \n
+ * @cassttng Processor/\%name\%/{Cutoff} \n
+ * @cassttng Processor/\%name\%/{SampleRate} \n
  *
  * @author Lutz Foucar
  */
-class pp89 : public PostProcessor
+class pp89 : public Processor
 {
 public:
   /** constructor */
@@ -1884,18 +1884,18 @@ protected:
  *
  * @PPList "91": returns a list of local minima in a Histogram
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *           Default is 0.
- * @cassttng PostProcessor/\%name\%/{Range} \n
+ * @cassttng Processor/\%name\%/{Range} \n
  *           The range to check for the local minima. Default is 10
  *
  * @author Lutz Foucar
  */
-class pp91 : public PostProcessor
+class pp91 : public Processor
 {
 public:
   /** constructor */

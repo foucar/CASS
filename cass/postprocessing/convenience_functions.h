@@ -182,7 +182,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-HistogramBackend::shared_pointer set1DHist(const PostProcessor::name_t &name);
+HistogramBackend::shared_pointer set1DHist(const Processor::name_t &name);
 
 
 /** function to set the 2d histogram properties from the ini file.
@@ -191,7 +191,7 @@ HistogramBackend::shared_pointer set1DHist(const PostProcessor::name_t &name);
  *
  * @author Lutz Foucar
  */
-HistogramBackend::shared_pointer set2DHist(const PostProcessor::name_t &name);
+HistogramBackend::shared_pointer set2DHist(const Processor::name_t &name);
 
 /** an alphabetical counter extension
  *

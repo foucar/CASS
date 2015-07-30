@@ -19,15 +19,15 @@ namespace cass
  *
  * @PPList "pp1500": converts histograms to (c)rystal (b)inary (f)ormat files.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram that write to cbf.
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram that write to cbf.
  *           If not set then no cbf file will be written when condition is true
- * @cassttng PostProcessor/\%name\%/{SummaryName} \n
- *           Postprocessor name containing Histogram to be written as summary to
+ * @cassttng Processor/\%name\%/{SummaryName} \n
+ *           processor name containing Histogram to be written as summary to
  *           cbf. If not set then no summary will be written
- * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
+ * @cassttng Processor/\%name\%/{FileBaseName} \n
  *           Default name given by program parameter
- * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
+ * @cassttng Processor/\%name\%/{MaximumNbrFilesPerDir} \n
  *           Distribute the files over subdirectories where each subdir contains
  *           this amount of files. If -1 it will not distribute the files.
  *           Default is -1.
@@ -35,7 +35,7 @@ namespace cass
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp1500 : public PostProcessor
+class pp1500 : public Processor
 {
 public:
   /** constructor */

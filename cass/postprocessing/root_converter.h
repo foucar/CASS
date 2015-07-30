@@ -25,35 +25,35 @@ namespace cass
  * them to a root file. Filename can be chosen with the -o parameter at
  * program start.
  *
- * @cassttng PostProcessor/\%name\%/{FileName} \n
+ * @cassttng Processor/\%name\%/{FileName} \n
  *           The name of the output root file. Default is "output.root"
- * @cassttng PostProcessor/\%name\%/PostProcessor/{size} \n
- *           How many PostProcessors should be written to the root file.
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
- *           Name of the PostProcessor that should be written into the root file.
+ * @cassttng Processor/\%name\%/Processor/{size} \n
+ *           How many Processors should be written to the root file.
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{Name} \n
+ *           Name of the Processor that should be written into the root file.
  *           Default is "unknown"
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{GroupName} \n
- *           Name of the group in the h5 file into which the PostProcessor
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{GroupName} \n
+ *           Name of the group in the h5 file into which the Processor
  *           should be written into. Default is "/". Note that the eventid will
  *           be prepended to the Name given here.
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{ValName} \n
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{ValName} \n
  *           Name that the data should have in the root file. Default is the
- *           name of the PostProcessor.
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/size \n
- *           How many PostProcessors should be written to the root file.
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
- *           Name of the PostProcessor that should be written into the root file.
+ *           name of the Processor.
+ * @cassttng Processor/\%name\%/ProcessorSummary/size \n
+ *           How many Processors should be written to the root file.
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{Name} \n
+ *           Name of the Processor that should be written into the root file.
  *           Default is "unknown"
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{GroupName} \n
- *           Name of the group in the root file into which the PostProcessor
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{GroupName} \n
+ *           Name of the group in the root file into which the Processor
  *           should be written into. Default is "/"
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{ValName} \n
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{ValName} \n
  *           Name that the data should have in the root file. Default is the
- *           name of the PostProcessor.
+ *           name of the Processor.
  *
  * @author Lutz Foucar
  */
-class pp2000 : public PostProcessor
+class pp2000 : public Processor
 {
 public:
   /** struct bundleing info for writing an entry to file

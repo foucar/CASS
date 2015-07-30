@@ -24,10 +24,10 @@ using tr1::placeholders::_1;
 using tr1::placeholders::_2;
 
 
-// ********** Postprocessor 203: subtract local background ************
+// ********** processor 203: subtract local background ************
 
 pp203::pp203(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -36,7 +36,7 @@ void pp203::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
@@ -55,7 +55,7 @@ void pp203::loadSettings(size_t)
   // Create the output
   createHistList(_hist->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' removes median of a box with size x'" + toString(_boxSize.first) +
            "' and y '" + toString(_boxSize.second) + "' from individual pixels" +
            " of hist in pp '"+ _hist->name() + "'. Condition is '" +
@@ -146,10 +146,10 @@ void pp203::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 204: find bragg peaks ************
+// ********** processor 204: find bragg peaks ************
 
 pp204::pp204(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -158,7 +158,7 @@ void pp204::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
@@ -186,7 +186,7 @@ void pp204::loadSettings(size_t)
   createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + name() + "' finds bragg peaks." +
+  string output("Processor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
@@ -407,10 +407,10 @@ void pp204::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 205: display peaks ************
+// ********** processor 205: display peaks ************
 
 pp205::pp205(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -419,7 +419,7 @@ void pp205::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -448,7 +448,7 @@ void pp205::loadSettings(size_t)
   // Create the output
   createHistList(_hist->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' displays the peaks that are listed in '" + _table->name() +
            "' and that were found in '" + _hist->name() + "'. Condition is '" +
            _condition->name() + "'");
@@ -540,10 +540,10 @@ void pp205::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 206: find pixels of bragg peaks ************
+// ********** processor 206: find pixels of bragg peaks ************
 
 pp206::pp206(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -552,7 +552,7 @@ void pp206::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   // size of box for median
@@ -576,7 +576,7 @@ void pp206::loadSettings(size_t)
   createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(pp204::nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + name() + "' finds bragg peaks." +
+  string output("Processor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +
@@ -673,7 +673,7 @@ NEXTPIXEL:;
 // *** will display the detected pixel in the table as 2d image ***
 
 pp207::pp207(const name_t &name)
-    : PostProcessor(name)
+    : Processor(name)
 {
   loadSettings(0);
 }
@@ -681,7 +681,7 @@ pp207::pp207(const name_t &name)
 void pp207::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   _table = setupDependency("Table");
@@ -697,7 +697,7 @@ void pp207::loadSettings(size_t)
   _pixRowIdx = s.value("RowIndex",0).toUInt();
   _pixValIdx = s.value("ValIndex",0).toUInt();
 
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' displays the pixels in table '" + _table->name() +
            "'' Index of Pixles column '" + toString(_pixColIdx) +
            "'' Index of Pixles row '" + toString(_pixRowIdx) +
@@ -741,10 +741,10 @@ void pp207::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ********** Postprocessor 208: find bragg peaks ************
+// ********** processor 208: find bragg peaks ************
 
 pp208::pp208(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 
@@ -754,7 +754,7 @@ void pp208::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
@@ -882,7 +882,7 @@ void pp208::loadSettings(size_t)
   createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
 
   /** log what the user was requesting */
-  string output("PostProcessor '" + name() + "' finds bragg peaks." +
+  string output("Processor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
                 "'. Threshold '" + toString(_threshold) +

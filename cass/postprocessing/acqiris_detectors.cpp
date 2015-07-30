@@ -43,8 +43,7 @@ namespace ACQIRIS
  * @param s CASSSettings object to read the info from
  * @param detector the name of the detector that contains the layer
  * @param layerKey key how the layer value is called in the .ini file
- * @param ppNbr the Postprocessor number of the postprocessor calling this
- *              function
+ * @param ppNbr the processor number of the processor calling this function
  * @param key the key of the postprocessor calling this function
  *
  * @author Lutz Foucar
@@ -90,8 +89,7 @@ DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
  * @return key containing the wireend name
  * @param s CASSSettings object to read the info from
  * @param wireendKey key how the wireend value is called in the .ini file
- * @param ppNbr the Postprocessor number of the postprocessor calling this
- *              function
+ * @param ppNbr the processor number of the processor calling this function
  * @param key the key of the postprocessor calling this function
  *
  * @author Lutz Foucar
@@ -116,7 +114,7 @@ AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
 
 //----------------Nbr of Peaks MCP---------------------------------------------
 pp150::pp150(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -124,7 +122,7 @@ pp150::pp150(const name_t &name)
 void pp150::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -132,7 +130,7 @@ void pp150::loadSettings(size_t)
   _detector = s.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves the nbr of mcp signals of detector '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
 }
@@ -159,7 +157,7 @@ void pp150::process(const CASSEvent &evt, HistogramBackend &res)
 
 //----------------MCP Hits (Tof)-----------------------------------------------
 pp151::pp151(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -167,7 +165,7 @@ pp151::pp151(const name_t &name)
 void pp151::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -175,7 +173,7 @@ void pp151::loadSettings(size_t)
   _detector = s.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' histograms times of the found mcp signals of detector '" + _detector +
            "'. Condition is '"+ _condition->name() + "'");
 }
@@ -206,7 +204,7 @@ void pp151::process(const CASSEvent &evt, HistogramBackend &res)
 
 //----------------MCP Fwhm vs. height------------------------------------------
 pp152::pp152(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -214,7 +212,7 @@ pp152::pp152(const name_t &name)
 void pp152::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -222,7 +220,7 @@ void pp152::loadSettings(size_t)
   _detector = s.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' histograms the FWHM vs the height of the found mcp signals" +
            " of detector '" + _detector + "'. Condition is '" +
            _condition->name() + "'");
@@ -252,7 +250,7 @@ void pp152::process(const CASSEvent &evt, HistogramBackend &res)
 
 //----------------Deadtime between consecutive MCP signals----------------------
 pp153::pp153(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -260,7 +258,7 @@ pp153::pp153(const name_t &name)
 void pp153::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -268,7 +266,7 @@ void pp153::loadSettings(size_t)
   _detector = s.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' creates a histogram of the deatime between two consecutive " +
            "MCP Signals of detctor '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
@@ -304,7 +302,7 @@ void pp153::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Nbr of Peaks Anode-------------------------------------------
 pp160::pp160(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -312,7 +310,7 @@ pp160::pp160(const name_t &name)
 void pp160::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -321,7 +319,7 @@ void pp160::loadSettings(size_t)
   _layer = loadLayer(s,_detector,"Layer",160,name());
   _signal = loadWireend(s,"Wireend",160,name());
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' outputs the nbr of signals of layer '" + _layer + "' wireend '" +
            _signal + "' of detector '" + _detector +"'. Condition is '" +
            _condition->name() + "'");
@@ -350,7 +348,7 @@ void pp160::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------FWHM vs. Height of Wireend Signals---------------------------
 pp161::pp161(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -358,7 +356,7 @@ pp161::pp161(const name_t &name)
 void pp161::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -367,7 +365,7 @@ void pp161::loadSettings(size_t)
   _layer = loadLayer(s,_detector,"Layer",161,name());
   _signal = loadWireend(s,"Wireend",161,name());
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' histograms the FWHM vs the height from the signals of layer '" +
            _layer + "' wireend '" + _signal + "' of detector '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
@@ -399,7 +397,7 @@ void pp161::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Timesum for the layers---------------------------------------
 pp162::pp162(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -407,7 +405,7 @@ pp162::pp162(const name_t &name)
 void pp162::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -417,7 +415,7 @@ void pp162::loadSettings(size_t)
   _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
                      s.value("TimeRangeHigh",20000).toDouble());
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' calculates the timesum of layer '" + _layer + "' of detector '" +
            _detector + "'. It will use the first signals that appeared in the" +
            "ToF range from '" + toString(_range.first) + "' ns to '" +
@@ -447,9 +445,9 @@ void pp162::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-//----------------Timesum vs Postition for the layers--------------------------
+//----------------Timesum vs Position for the layers--------------------------
 pp163::pp163(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -457,7 +455,7 @@ pp163::pp163(const name_t &name)
 void pp163::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("ostProcessor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -467,8 +465,8 @@ void pp163::loadSettings(size_t)
   _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
                      s.value("TimeRangeHigh",20000).toDouble());
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
-           "' histograms the timesum vs Postion on layer '" + _layer + "' of detector '" +
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' histograms the timesum vs Positon on layer '" + _layer + "' of detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -501,7 +499,7 @@ void pp163::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Detector First Hit-------------------------------------------
 pp164::pp164(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -509,7 +507,7 @@ pp164::pp164(const name_t &name)
 void pp164::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -524,7 +522,7 @@ void pp164::loadSettings(size_t)
                        make_pair(s.value("TimesumSecondLayerLow",20).toDouble(),
                                  s.value("TimesumSecondLayerHigh",200).toDouble()));
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' creates a detector picture of the first Hit on the detector created" +
            " from  Layers '" + _first + "' and '" + _second + "' of detector '" +
            _detector + "'. The signals from wich the frist hit is calculated have to be in the" +
@@ -578,7 +576,7 @@ void pp164::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Nbr of rec. Hits --------------------------------------------
 pp165::pp165(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -586,14 +584,14 @@ pp165::pp165(const name_t &name)
 void pp165::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
     return;
   _detector = loadDelayDet(s,165,name());
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' outputs the number of reconstructed hits of detector '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
 }
@@ -625,7 +623,7 @@ void pp165::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Detector Values----------------------------------------------
 pp166::pp166(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -633,7 +631,7 @@ pp166::pp166(const name_t &name)
 void pp166::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -647,7 +645,7 @@ void pp166::loadSettings(size_t)
                     max(s.value("ConditionLow",-50000.).toFloat(),
                         s.value("ConditionHigh",50000.).toFloat()));
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' histograms the Property '" +
            toString(_second) + "' vs. '" + toString(_first) +
            "' of the reconstructed detectorhits of detector '" + _detector +
            "'. It puts a condition from '" + toString(_cond.first) +
@@ -679,7 +677,7 @@ void pp166::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Deadtime between consecutive Anode signals----------------------
 pp167::pp167(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -687,7 +685,7 @@ pp167::pp167(const name_t &name)
 void pp167::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -697,7 +695,7 @@ void pp167::loadSettings(size_t)
   _signal = loadWireend(s,"Wireend",167,name());
   createHistList(set1DHist(name()));
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' creates a histogram of the deatime between two consecutive " +
            "Anode Signals of detctor '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
@@ -724,7 +722,7 @@ void pp167::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------PIPICO-------------------------------------------------------
 pp220::pp220(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -732,7 +730,7 @@ pp220::pp220(const name_t &name)
 void pp220::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector01 = s.value("FirstDetector","blubb").toString().toStdString();
   _detector02 = s.value("SecondDetector","blubb").toString().toStdString();
@@ -742,7 +740,7 @@ void pp220::loadSettings(size_t)
   createHistList(set2DHist(name()));
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
   HelperAcqirisDetectors::instance(_detector02)->loadSettings();
-  Log::add(Log::INFO,"PostProcessor '"+ name() +
+  Log::add(Log::INFO,"Processor '"+ name() +
       "' create a PIPICO Histogram of detectors '" + _detector01 +
       "' and '" + _detector02 + "'. Condition is '"+ _condition->name() + "'");
 }
@@ -780,7 +778,7 @@ void pp220::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Particle Value----------------------------------------------
 pp250::pp250(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -788,7 +786,7 @@ pp250::pp250(const name_t &name)
 void pp250::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -797,7 +795,7 @@ void pp250::loadSettings(size_t)
   _particle = loadParticle(s,_detector,250,name());
   _property = static_cast<ACQIRIS::particleHits>(s.value("Property",0).toInt());
   createHistList(set1DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' histograms the Property '" +
            toString(_property) + "' of the particle '" + _particle + "' of detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
@@ -825,7 +823,7 @@ void pp250::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Particle Values----------------------------------------------
 pp251::pp251(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -833,7 +831,7 @@ pp251::pp251(const name_t &name)
 void pp251::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -843,7 +841,7 @@ void pp251::loadSettings(size_t)
   _property01 = static_cast<ACQIRIS::particleHits>(s.value("Property",0).toInt());
   _property02 = static_cast<ACQIRIS::particleHits>(s.value("Property",1).toInt());
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' histograms the Property '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' histograms the Property '" +
            toString(_property02) + "' vs. '" + toString(_property01) + "' of the particle '" +
            _particle + "' of detector '" + _detector + "'. Condition is '"+
            _condition->name() + "'");
@@ -870,7 +868,7 @@ void pp251::process(const CASSEvent& evt, HistogramBackend &res)
 
 //----------------Number of Particles---------------------------------------------
 pp252::pp252(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -878,7 +876,7 @@ pp252::pp252(const name_t &name)
 void pp252::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -886,7 +884,7 @@ void pp252::loadSettings(size_t)
   _detector = loadDelayDet(s,252,name());
   _particle = loadParticle(s,_detector,252,name());
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            + "' outputs how many particles were found for '" + _particle +
            + "' of detector '" + _detector + "'. Condition is '" + _condition->name() + "'");
 }

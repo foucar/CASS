@@ -36,10 +36,10 @@ class Histogram2DFloat;
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -47,7 +47,7 @@ class Histogram2DFloat;
  *
  * @author Lutz Foucar
  */
-class pp150 : public PostProcessor
+class pp150 : public Processor
 {
 public:
   /** Constructor. Constructor for Number of Signals*/
@@ -83,12 +83,12 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the 1d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -96,7 +96,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp151 : public PostProcessor
+class pp151 : public Processor
 {
 public:
   /** Constructor*/
@@ -131,12 +131,12 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector or cass::ACQIRIS:::TofDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -144,7 +144,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp152 : public PostProcessor
+class pp152 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -180,10 +180,10 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -191,7 +191,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp153 : public PostProcessor
+class pp153 : public Processor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
@@ -232,15 +232,15 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Layer}\n
+ * @cassttng Processor/\%name\%/{Layer}\n
  *           The anode layer. Default is U. Options are:
  *           - for HexDetector
  *             - U: U-Layer
@@ -249,14 +249,14 @@ protected:
  *           - for Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{Wireend}\n
+ * @cassttng Processor/\%name\%/{Wireend}\n
  *           The anode layer Wireend. Default is 1. Options are:
  *           - 1: first wireend
  *           - 2: second wireend
  *
  * @author Lutz Foucar
  */
-class pp160 : public PostProcessor
+class pp160 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -301,17 +301,17 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Layer}\n
+ * @cassttng Processor/\%name\%/{Layer}\n
  *           The anode layer. Default is U. Options are:
  *           - for HexDetector
  *             - U: U-Layer
@@ -320,14 +320,14 @@ protected:
  *           - for Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{Wireend}\n
+ * @cassttng Processor/\%name\%/{Wireend}\n
  *           The anode layer Wireend. Default is 1. Options are:
  *           - 1: first wireend
  *           - 2: second wireend
  *
  * @author Lutz Foucar
  */
-class pp161 : public PostProcessor
+class pp161 : public Processor
 {
 public:
   /** Constructor*/
@@ -371,15 +371,15 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Layer}\n
+ * @cassttng Processor/\%name\%/{Layer}\n
  *           The anode layer. Default is U. Options are:
  *           - if detector type is HexDetector
  *             - U: U-Layer
@@ -388,7 +388,7 @@ protected:
  *           - if detector type is Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+ * @cassttng Processor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
  *           The time range in which we will take the first hits on the wireends
  *           and the mcp signal to calculate the timesum. This should be a
  *           timerange in which mostly single detectorhits are to be expected.
@@ -396,7 +396,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp162 : public PostProcessor
+class pp162 : public Processor
 {
 public:
   /** Constructor*/
@@ -439,15 +439,15 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Layer}\n
+ * @cassttng Processor/\%name\%/{Layer}\n
  *           The anode layer. Default is U. Options are:
  *           - if detector type is HexDetector
  *             - U: U-Layer
@@ -456,7 +456,7 @@ protected:
  *           - if detector type is Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+ * @cassttng Processor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
  *           The time range in which we will take the first hits on the wireends
  *           and the mcp signal to calculate the timesum. This should be a
  *           timerange in which mostly single detectorhits are to be expected.
@@ -464,7 +464,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp163 : public PostProcessor
+class pp163 : public Processor
 {
 public:
   /** Constructor */
@@ -508,17 +508,17 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{FirstLayer}\n
+ * @cassttng Processor/\%name\%/{FirstLayer}\n
  *           The anode layer of the first coordinate. Default is U. Options are:
  *           - for HexDetector
  *             - U: U-Layer
@@ -527,7 +527,7 @@ protected:
  *           - for Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{SecondLayer}\n
+ * @cassttng Processor/\%name\%/{SecondLayer}\n
  *           The anode layer of the second coordinate. Default is U. Options are:
  *           - for HexDetector
  *             - U: U-Layer
@@ -536,13 +536,13 @@ protected:
  *           - for Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{TimesumFirstLayerLow|TimesumFirstLayerHigh}\n
+ * @cassttng Processor/\%name\%/{TimesumFirstLayerLow|TimesumFirstLayerHigh}\n
  *           The Timesumcondition range for the first layer.
  *           Default is 20 | 200.
- * @cassttng PostProcessor/\%name\%/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
+ * @cassttng Processor/\%name\%/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
  *           The Timesumcondition range for the Second layer.
  *           Default is 20 | 200.
- * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+ * @cassttng Processor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
  *           The time range in which we will take the first hits on the wireends
  *           and the mcp signal to calculate the timesum. This should be a
  *           timerange in which mostly single detectorhits are to be expected.
@@ -550,7 +550,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp164 : public PostProcessor
+class pp164 : public Processor
 {
 public:
   /** Constructor */
@@ -600,10 +600,10 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -611,7 +611,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp165 : public PostProcessor
+class pp165 : public Processor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
@@ -651,32 +651,32 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{XInput}\n
+ * @cassttng Processor/\%name\%/{XInput}\n
  *           The value that should be put onto the x-axis of the histogram.
  *           Default is 0. For all options see ACQIRIS::detectorHits
- * @cassttng PostProcessor/\%name\%/{YInput}\n
+ * @cassttng Processor/\%name\%/{YInput}\n
  *           The value that should be put onto the x-axis of the histogram.
  *           Default is 1. For all options see ACQIRIS::detectorHits
- * @cassttng PostProcessor/\%name\%/{ConditionInput}\n
+ * @cassttng Processor/\%name\%/{ConditionInput}\n
  *           The value that should be checked for the range before filling the
  *           histogram.
  *           Default is 2. For all options see ACQIRIS::detectorHits
- * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
+ * @cassttng Processor/\%name\%/{ConditionLow|ConditionHigh}\n
  *           the condition range that should be applied to the condition input
  *
  * @author Lutz Foucar
  */
-class pp166 : public PostProcessor
+class pp166 : public Processor
 {
 public:
   /** Constructor */
@@ -737,15 +737,15 @@ protected:
  * @see cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::SignalProducer
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Layer}\n
+ * @cassttng Processor/\%name\%/{Layer}\n
  *           The anode layer. Default is U. Options are:
  *           - for HexDetector
  *             - U: U-Layer
@@ -754,14 +754,14 @@ protected:
  *           - for Quad Detector
  *             - X: X-Layer
  *             - Y: Y-Layer
- * @cassttng PostProcessor/\%name\%/{Wireend}\n
+ * @cassttng Processor/\%name\%/{Wireend}\n
  *           The anode layer Wireend. Default is 1. Options are:
  *           - 1: first wireend
  *           - 2: second wireend
  *
  * @author Lutz Foucar
  */
-class pp167 : public PostProcessor
+class pp167 : public Processor
 {
 public:
   /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
@@ -808,17 +808,17 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
+ * @cassttng Processor/\%name\%/{FirstDetector}\n
  *           Name of the first detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{SecondDetector}\n
+ * @cassttng Processor/\%name\%/{SecondDetector}\n
  *           Name of the first detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
@@ -826,7 +826,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp220 : public PostProcessor
+class pp220 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -863,24 +863,24 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the 1d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the first detector that we work on. Default is "blubb"
- * @cassttng PostProcessor/\%name\%/{Particle}\n
+ * @cassttng Processor/\%name\%/{Particle}\n
  *           Name of the particle whos properties we want to extract
  *           Default is "NeP"
- * @cassttng PostProcessor/\%name\%/{Property}\n
+ * @cassttng Processor/\%name\%/{Property}\n
  *           Name of the particles first property we want to extract
  *           Default is 0.
  *           Available Properties see ACQIRIS::particleHits
  *
  * @author Lutz Foucar
  */
-class pp250 : public PostProcessor
+class pp250 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -923,32 +923,32 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal and cass::ACQIRIS::Particle
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the detector that the particles belong to.
  *           Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Particle}\n
+ * @cassttng Processor/\%name\%/{Particle}\n
  *           Name of the particle whos properties we want to extract
  *           Default is "NeP"
- * @cassttng PostProcessor/\%name\%/{FirstProperty}\n
+ * @cassttng Processor/\%name\%/{FirstProperty}\n
  *           Name of the particles first property we want to extract
  *           Default is 0.
  *           Available Properties see ACQIRIS::particleHits
- * @cassttng PostProcessor/\%name\%/{SecondProperty}\n
+ * @cassttng Processor/\%name\%/{SecondProperty}\n
  *           Name of the particles second property we want to extract
  *           Default is 1
  *           Available Properties see ACQIRIS::particleHits
  *
  * @author Lutz Foucar
  */
-class pp251 : public PostProcessor
+class pp251 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -987,23 +987,23 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the 1d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the first detector that we work on. Default is "blubb"
  *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
  *           more information on how to set up the different types of Acqiris
  *           type detectors.
- * @cassttng PostProcessor/\%name\%/{Particle}\n
+ * @cassttng Processor/\%name\%/{Particle}\n
  *           Name of the particle whos properties we want to extract
  *           Default is "NeP"
  *
  * @author Lutz Foucar
  */
-class pp252 : public PostProcessor
+class pp252 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/

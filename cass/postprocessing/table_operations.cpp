@@ -21,7 +21,7 @@ using namespace std;
 // ***  pp 72 returns column of a table ***
 
 pp72::pp72(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -29,7 +29,7 @@ pp72::pp72(const name_t &name)
 void pp72::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
@@ -45,7 +45,7 @@ void pp72::loadSettings(size_t)
                         "maximum possible index value '" + toString(maxIdx) + "'");
 
   createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves column with index '" + toString(_colIdx) +
            "' from table " + _table->name() + "' .Condition on postprocessor '" +
            _condition->name() + "'");
@@ -77,7 +77,7 @@ void pp72::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 73 returns subset of table with condition on rows ***
 
 pp73::pp73(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -85,7 +85,7 @@ pp73::pp73(const name_t &name)
 void pp73::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
@@ -103,7 +103,7 @@ void pp73::loadSettings(size_t)
                         "maximum possible index value '" + toString(tableSize) + "'");
 
   createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(tableSize)));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves subset of table in '" + _table->name() + "'. UpperBound '" +
            toString(_bounds.first) + "' LowerBound '" + toString(_bounds.second) +
            "' on values in column with index '" + toString(_colIdx) +
@@ -144,7 +144,7 @@ void pp73::process(const CASSEvent& evt, HistogramBackend &res)
 // *** pp 74 retrieve a specific value of a specific row ***
 
 pp74::pp74(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -152,7 +152,7 @@ pp74::pp74(const name_t &name)
 void pp74::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
@@ -170,7 +170,7 @@ void pp74::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves the value of row '" + toString(_rowIdx) +
            "' and column '" + toString(_colIdx) + "' from table '" +
            _table->name() + "'. Condition on postprocessor '" +
@@ -209,7 +209,7 @@ void pp74::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 79 generates a 2d histogram from 2 columns***
 
 pp79::pp79(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -217,7 +217,7 @@ pp79::pp79(const name_t &name)
 void pp79::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _table = setupDependency("TableName");
@@ -238,7 +238,7 @@ void pp79::loadSettings(size_t)
                         "maximum possible index value '" + toString(maxIdx) + "'");
 
   createHistList(set2DHist(name()));
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' X column index '" + toString(_xcolIdx) +
            "' Y column index '" + toString(_ycolIdx) +
            "' Table " + _table->name() + "' .Condition on postprocessor '" +

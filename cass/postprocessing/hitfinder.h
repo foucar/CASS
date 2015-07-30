@@ -30,22 +30,22 @@ namespace cass
  * choosable size and determining the median of the pixel values inside this
  * box.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the 2d histogram. Default
  *           is "blubb".
- * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
- * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
  *
  * @author Lutz Foucar
  * @author Wolfgang Kabsch
  */
-class pp203 : public PostProcessor
+class pp203 : public Processor
 {
 public:
   /** constructor */
@@ -77,25 +77,25 @@ protected:
  *
  * @PPList "204": find bragg peaks and store them in a list
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the 2d histogram. Default
  *           is "blubb".
- * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
- * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
- * @cassttng PostProcessor/\%name\%/{Threshold} \n
- * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
- * @cassttng PostProcessor/\%name\%/{MinNbrBackgrndPixels} \n
- * @cassttng PostProcessor/\%name\%/{BraggPeakRadius} \n
+ * @cassttng Processor/\%name\%/{Threshold} \n
+ * @cassttng Processor/\%name\%/{MinSignalToNoiseRatio} \n
+ * @cassttng Processor/\%name\%/{MinNbrBackgrndPixels} \n
+ * @cassttng Processor/\%name\%/{BraggPeakRadius} \n
  *
  * @author Lutz Foucar
  */
-class pp204 : public PostProcessor
+class pp204 : public Processor
 {
 public:
   /** constructor */
@@ -195,29 +195,29 @@ protected:
  *
  * @PPList "205":  visualize the peaks that were found in the image itself
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the 2d histogram. Default
  *           is "blubb".
- * @cassttng PostProcessor/\%name\%/{TableName} \n
+ * @cassttng Processor/\%name\%/{TableName} \n
  *           name of postprocessor that contains the table like histogram that
  *           the pixels of interest are taken from
- * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           size in x and y of the box that should be drawn around the found
  *           peak
- * @cassttng PostProcessor/\%name\%/{DrawPixelValue} \n
- * @cassttng PostProcessor/\%name\%/{Radius} \n
- * @cassttng PostProcessor/\%name\%/{IndexColumn} \n
- * @cassttng PostProcessor/\%name\%/{DrawCircle} \n
- * @cassttng PostProcessor/\%name\%/{DrawBox} \n
+ * @cassttng Processor/\%name\%/{DrawPixelValue} \n
+ * @cassttng Processor/\%name\%/{Radius} \n
+ * @cassttng Processor/\%name\%/{IndexColumn} \n
+ * @cassttng Processor/\%name\%/{DrawCircle} \n
+ * @cassttng Processor/\%name\%/{DrawBox} \n
  *
  *
  * @author Lutz Foucar
  * @author Wolfgang Kabsch
  */
-class pp205 : public PostProcessor
+class pp205 : public Processor
 {
 public:
   /** constructor */
@@ -254,23 +254,23 @@ protected:
  *
  * @PPList "206": find pixels of bragg peaks and store them in a list
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the 2d histogram. Default
  *           is "blubb".
- * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
- * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           size in x and y of the box that is used for determining the median
  *           background. Default is 10|10.
- * @cassttng PostProcessor/\%name\%/{Threshold} \n
- * @cassttng PostProcessor/\%name\%/{Multiplier} \n
+ * @cassttng Processor/\%name\%/{Threshold} \n
+ * @cassttng Processor/\%name\%/{Multiplier} \n
  *
  * @author Lutz Foucar
  */
-class pp206 : public PostProcessor
+class pp206 : public Processor
 {
 public:
   /** constructor */
@@ -321,19 +321,19 @@ protected:
  * This postprocessor will fill a 2D histogram with the detected pixels that are
  * placed on a list
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Table}\n
- * @cassttng PostProcessor/\%name\%/{ColumnIndex}\n
- * @cassttng PostProcessor/\%name\%/{RowIndex}\n
- * @cassttng PostProcessor/\%name\%/{ValIndex}\n
+ * @cassttng Processor/\%name\%/{Table}\n
+ * @cassttng Processor/\%name\%/{ColumnIndex}\n
+ * @cassttng Processor/\%name\%/{RowIndex}\n
+ * @cassttng Processor/\%name\%/{ValIndex}\n
  *
  * @author Lutz Foucar
  */
-class pp207 : public PostProcessor
+class pp207 : public Processor
 {
 public:
   /** constructor */
@@ -381,55 +381,55 @@ protected:
  * Zhang et al. J. Appl. Cryst. (2006). 39, 112-119
  * [ doi:10.1107/S0021889805040677 ]
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the 2d histogram. Default
  *           is "blubb".
- * @cassttng PostProcessor/\%name\%/{SectionSizeX|SectionSizeY} \n
+ * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
- * @cassttng PostProcessor/\%name\%/{BraggPeakDiameter} \n
+ * @cassttng Processor/\%name\%/{BraggPeakDiameter} \n
  *           Minimum Diameter of a Bragg Peak. Used for determining the optimal
  *           box size and nbr of pixels in the Bragg Peak. Default is 2.
- * @cassttng PostProcessor/\%name\%/{MinRatio} \n
+ * @cassttng Processor/\%name\%/{MinRatio} \n
  *           The minimum ratio of pixel that are outliers of the distribution
  *           in the box to the pixels that are part of the distribution in the
  *           box. 3 mean that there have to be at least 3 times as meany pixels
  *           that are part of the distribution than outliers of the distribution.
  *           Default is 3.
- * @cassttng PostProcessor/\%name\%/{Threshold} \n
+ * @cassttng Processor/\%name\%/{Threshold} \n
  *           Threshold of pixel in adu to be exeeded. Default is 0.
- * @cassttng PostProcessor/\%name\%/{MinSignalToNoiseRatio} \n
+ * @cassttng Processor/\%name\%/{MinSignalToNoiseRatio} \n
  *           Signal to noise ratio of a pixel. Value needs to be exceeded in
  *           order for the pixel to be part of a bragg peak. Default is 4.
- * @cassttng PostProcessor/\%name\%/{MinNbrPixels} \n
+ * @cassttng Processor/\%name\%/{MinNbrPixels} \n
  *           Minimum Nbr of Pixels to be part of a Bragg Peak. Default is
  *           determined by BraggPeakRadius.
  *           \f$ nbr = (2 \times BraggPeakRadius)^2 \f$
- * @cassttng PostProcessor/\%name\%/{BoxSizeX|BoxSizeY} \n
+ * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           col (x) and rows (y) of the box that is used for determining the
  *           background. The box is going from -BoxSizeX ... BoxSizeX in x and
  *           same in y. Default is determined by the BraggPeakRadius.
  *           \f$ size = \sqrt{\pi} \times BraggPeakRadius \f$
- * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
+ * @cassttng Processor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "wrong_file" in which case the
  *           resolution will be calculated completely wrong
- * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
  *           Set this true if the geom file is for a cheetah layout of the data,
  *           but the image in HistName is the image in CASS layout.
- * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
+ * @cassttng Processor/\%name\%/{Wavelength_A} \n
  *           The wavelength in Angstroem. Can also be the name of a PP that
  *           contains the Wavelength. Default is 1.
- * @cassttng PostProcessor/\%name\%/{DetectorDistance_m} \n
+ * @cassttng Processor/\%name\%/{DetectorDistance_m} \n
  *           The detector distance in m. Can also be the name of a PP that
  *           contains the detector distance. Default is 60e-2.
- * @cassttng PostProcessor/\%name\%/{PixelSize_m} \n
+ * @cassttng Processor/\%name\%/{PixelSize_m} \n
  *           The pixel size in m. Default is 109.92-6
  *
  * @author Lutz Foucar
  */
-class pp208 : public PostProcessor
+class pp208 : public Processor
 {
 public:
   /** constructor */

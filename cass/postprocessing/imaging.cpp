@@ -16,7 +16,7 @@ using namespace std::tr1;
 // *** test image ***
 
 pp240::pp240(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -24,7 +24,7 @@ pp240::pp240(const name_t &name)
 void pp240::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _result = shared_ptr<Histogram2DFloat>(new Histogram2DFloat(s.value("sizeX", 1024).toInt(),
                                                               s.value("sizeY", 1024).toInt()));
@@ -33,7 +33,7 @@ void pp240::loadSettings(size_t)
       _result->bin(yy,xx) = s.value("FixedValue",false).toBool() ?
             s.value("Value",0).toFloat() : xx*yy;
 
-  Log::add(Log::INFO,"Postprocessor " + name() +": creates test image with shape '" +
+  Log::add(Log::INFO,"processor " + name() +": creates test image with shape '" +
            toString(s.value("sizeX", 1024).toInt()) + "x" +
            toString(s.value("sizeY", 1024).toInt()) + "'");
 }

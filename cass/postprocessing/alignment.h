@@ -18,23 +18,23 @@ class Histogram0DFloat;
  * This postprocessor reduces the running average of the requested image
  * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name%/{HistName}\n
- *           The name of the PostProcessor that contains the image to calculate
+ * @cassttng Processor/\%name%/{HistName}\n
+ *           The name of the Processor that contains the image to calculate
  *           \f$\cos^2\theta\f$  from. Default is 104.
- * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
+ * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n
  *           values for the center of the image. Default is 0,0
- * @cassttng PostProcessor/p\%name%/{SymmetryAngle}\n
+ * @cassttng Processor/p\%name%/{SymmetryAngle}\n
  *           value for the symmetry angle. Default is 0.
- * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
+ * @cassttng Processor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
  *           values for the interesting radius range. Default is 0,0
  *
  * @author Per Johnsson
  * @author Lutz Foucar
  */
-class pp200 : public PostProcessor
+class pp200 : public Processor
 {
 public:
   /** Construct postprocessor for Gaussian height of image */
@@ -83,24 +83,24 @@ protected:
  * The weighing factor is determined from the distance that the transformed
  * kartesian coordinates have from the neighboring pixels. 0 deg is up.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name%/{HistName}\n
- *           The name of the PostProcessor that contains the image that
+ * @cassttng Processor/\%name%/{HistName}\n
+ *           The name of the Processor that contains the image that
  *           the angluar distribution should be retrieved from.
- * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
+ * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n
  *           values for the center of the image. Default is 500,500
- * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
+ * @cassttng Processor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
  *           values for the interesting radius range. Default is 10,0
- * @cassttng PostProcessor/\%name%/{NbrAngularPoints}\n
+ * @cassttng Processor/\%name%/{NbrAngularPoints}\n
  *           The number of Bins in the resulting histogram
  *
  * @author Per Johnsson
  * @author Marc Vrakking
  * @author Lutz Foucar
  */
-class pp201 : public PostProcessor
+class pp201 : public Processor
 {
 public:
   /** Construct postprocessor for Gaussian height of image */
@@ -145,18 +145,18 @@ protected:
  * transformed kartesian coordinates have from the neighboring pixels. 0 deg
  * is up.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name%/{HistName}\n
- *           The name of the PostProcessor that contains the image that
+ * @cassttng Processor/\%name%/{HistName}\n
+ *           The name of the Processor that contains the image that
  *           the angluar distribution should be retrieved from.
- * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
+ * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n
  *           values for the center of the image. Default is 500,500
- * @cassttng PostProcessor/\%name%/{NbrAngularPoints}\n
+ * @cassttng Processor/\%name%/{NbrAngularPoints}\n
  *           The number of Bins along the phi axis in the resulting histogram.
  *           Default is 360.
- * @cassttng PostProcessor/\%name%/{NbrRadialPoints}\n
+ * @cassttng Processor/\%name%/{NbrRadialPoints}\n
  *           The number of Bins along the r axis in the resulting histogram.
  *           Default is 500.
  *
@@ -164,7 +164,7 @@ protected:
  * @author Marc Vrakking
  * @author Lutz Foucar
  */
-class pp202 : public PostProcessor
+class pp202 : public Processor
 {
 public:
   /** Construct postprocessor for Gaussian height of image */

@@ -67,13 +67,13 @@ struct Rotor
  *
  * @PPList "12": Constant Value
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is "".
- * @cassttng PostProcessor/\%name\%/{Operation} \n
+ * @cassttng Processor/\%name\%/{Operation} \n
  *           the operation that one wants to perform on the 2d histogram.
  *           Default is "90DegCCW". Possible values are:
  *           - "90DegCCW" or "270DegCW": rotate the 2d hist by 90 deg counter
@@ -87,7 +87,7 @@ struct Rotor
  *
  * @author Lutz Foucar
  */
-class pp55 : public PostProcessor
+class pp55 : public Processor
 {
 public:
   /** constructor */
@@ -181,16 +181,16 @@ y |     00      |     08      |     16      |     24      |
 @endverbatim
  *
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
  * @author Lutz Foucar
  */
-class pp1600 : public PostProcessor
+class pp1600 : public Processor
 {
 public:
   /** constructor */
@@ -311,16 +311,16 @@ y |     00      |
   +-------------+  |+----+  |+----+         +-------------+| |+----+  |+----+
                    +--->    +--->                      <---+ +--->    +--->
 @endverbatim
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
  * @author Lutz Foucar
  */
-class pp1601 : public PostProcessor
+class pp1601 : public Processor
 {
 public:
   /** constructor */
@@ -462,19 +462,19 @@ y |     00      |
  * above, but from the cheetah layout (see cass::pp1600). In this case one has
  * to set the ConvertCheetahToCASSLayout to true (default)
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
- * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
- * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
- * @cassttng PostProcessor/\%name\%/{BackgroundValue} \n
+ * @cassttng Processor/\%name\%/{GeometryFilename} \n
+ * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ * @cassttng Processor/\%name\%/{BackgroundValue} \n
  *
  * @author Lutz Foucar
  */
-class pp1602 : public PostProcessor
+class pp1602 : public Processor
 {
 public:
   /** constructor */
@@ -528,31 +528,31 @@ protected:
  *
  * calculate the Q value for each Pixel using the geom file.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{HistName} \n
  *           the postprocessor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
- * @cassttng PostProcessor/\%name\%/{GeometryFilename} \n
+ * @cassttng Processor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "cspad.geom".
- * @cassttng PostProcessor/\%name\%/{ConvertCheetahToCASSLayout} \n
+ * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
  *           Set this true if the geom file is for a cheetah layout of the data,
  *           but the image in HistName is the image in CASS layout.
- * @cassttng PostProcessor/\%name\%/{Wavelength_A} \n
+ * @cassttng Processor/\%name\%/{Wavelength_A} \n
  *           The wavelength in Angstroem. Can also be the name of a PP that
  *           contains the Wavelength. Default is 1.
- * @cassttng PostProcessor/\%name\%/{DetectorDistance_m} \n
+ * @cassttng Processor/\%name\%/{DetectorDistance_m} \n
  *           The detector distance in m. Can also be the name of a PP that
  *           contains the detector distance. Default is 60e-2.
- * @cassttng PostProcessor/\%name\%/{PixelSize_m} \n
+ * @cassttng Processor/\%name\%/{PixelSize_m} \n
  *           The pixel size in m. Default is 110e-6
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1D histogram
  *
  * @author Lutz Foucar
  */
-class pp90 : public PostProcessor
+class pp90 : public Processor
 {
 public:
   /** constructor */

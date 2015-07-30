@@ -22,7 +22,7 @@ using namespace std;
 
 
 pp310::pp310(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -40,7 +40,7 @@ void pp310::loadSettings(size_t)
                            "' The input histogram is not a 2d histogram");
   createHistList(srcImageHist.copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the autocorrelation of '" + _hist->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
@@ -89,7 +89,7 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
 
 //*** autocorrelation from image in kartesian coordinates ***
 pp311::pp311(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -97,7 +97,7 @@ pp311::pp311(const name_t &name)
 void pp311::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _hist = setupDependency("HistName");
@@ -136,7 +136,7 @@ void pp311::loadSettings(size_t)
 
   createHistList(srcImageHist.copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the autocorrelation of '" + _hist->name() +
            "'. Condition is '" + _condition->name() + "'");
 }

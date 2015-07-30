@@ -186,7 +186,7 @@ void shift_wLayer(double &w1, double &w2, const double w_offset)
 
 
 HexCalibrator::HexCalibrator(const name_t & name)
-  : PostProcessor(name),
+  : Processor(name),
     _timesums(3,make_pair(0,0)),
     _scalefactors(2,1)
 {
@@ -200,7 +200,7 @@ void HexCalibrator::loadSettings(size_t)
   if (!setupCondition())
     return;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   _detector = loadDelayDet(settings,161,name());
   _ratio = settings.value("RatioFullBins",0.9).toDouble();
@@ -246,7 +246,7 @@ void HexCalibrator::loadSettings(size_t)
                                                                                     _scalefactors[v],
                                                                                     _scalefactors[w]));
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' calibrates the hex detector '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' calibrates the hex detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 

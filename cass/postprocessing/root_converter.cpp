@@ -201,7 +201,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname
 }//end namespace cass
 
 pp2000::pp2000(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -214,11 +214,11 @@ const HistogramBackend& pp2000::result(const CASSEvent::id_t)
 void pp2000::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   bool allDepsAreThere(true);
-  int size = s.beginReadArray("PostProcessor");
+  int size = s.beginReadArray("Processor");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
@@ -233,7 +233,7 @@ void pp2000::loadSettings(size_t)
   }
   s.endArray();
 
-  size = s.beginReadArray("PostProcessorSummary");
+  size = s.beginReadArray("ProcessorSummary");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
@@ -262,7 +262,7 @@ void pp2000::loadSettings(size_t)
   if (!_rootfile)
     throw invalid_argument("pp2000 (" + name() + "): '" + filename +
                              "' could not be opened! Maybe deleting the file helps.");
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' will write all cass histograms with the write flag set " +
            "to rootfile '" + _rootfile->GetName() + "'. Condition is '" +
            _condition->name() + "'");

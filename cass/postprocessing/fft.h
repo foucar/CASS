@@ -48,19 +48,19 @@ struct pp312Traits<double>
  *
  * @PPList "312": calculate the absolute square fft of an histogram
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Postprocessor name containing the histogram whos fft
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           processor name containing the histogram whos fft
  *           should be calculated.
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
  */
-class pp312 : public PostProcessor
+class pp312 : public Processor
 {
 public:
   /** constructor
    *
-   * @param name the name of this PostProcessor
+   * @param name the name of this Processor
    */
   pp312(const name_t &name);
 

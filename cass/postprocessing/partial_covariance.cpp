@@ -98,7 +98,7 @@ protected:
 // ***  pp 400 ToF to Energ ***
 
 pp400::pp400(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -106,7 +106,7 @@ pp400::pp400(const name_t &name)
 void pp400::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -142,7 +142,7 @@ void pp400::loadSettings(size_t)
                               pow(alpha/(_userTofRange.second-t0),2)-e0,
                               pow(alpha/(_userTofRange.first-t0),2)-e0)));
 
-  Log::add(Log::INFO,"PostProcessor '"+ name() +
+  Log::add(Log::INFO,"Processor '"+ name() +
            "' converts ToF into Energy scale '" +  _pHist->name() +
            "' which has dimension '" + toString(one.dimension()) + " test TofUp:" +
            toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
@@ -224,7 +224,7 @@ void pp400::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 402 square averages histograms ***
 
 pp402::pp402(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -232,7 +232,7 @@ pp402::pp402(const name_t &name)
 void pp402::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   unsigned average = settings.value("NbrOfAverages", 1).toUInt();
@@ -242,8 +242,8 @@ void pp402::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   createHistList(_pHist->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor '" + name() +
-           "' sqaverages histograms from PostProcessor '" +  _pHist->name() +
+  Log::add(Log::INFO,"processor '" + name() +
+           "' sqaverages histograms from Processor '" +  _pHist->name() +
            "' alpha for the averaging '" + toString(_alpha) +
            "'. Condition on postprocessor '" + _condition->name() + "'");
 }
@@ -276,7 +276,7 @@ void pp402::process(const CASSEvent& evt, HistogramBackend &res)
 
 //*** Tof to Mass to Charge Ratio****
 pp404::pp404(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -285,7 +285,7 @@ void pp404::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(name().c_str());
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -322,7 +322,7 @@ void pp404::loadSettings(size_t)
                               pow(_userTofRange.first/alpha-beta,2),
                               pow(_userTofRange.second/alpha-beta,2))));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' converts ToF into MassTo ChargeRatio scale'" + _pHist->name() +
            "' which has dimension '" + toString(one.dimension()) + "  TofUp:" +
            toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
@@ -412,7 +412,7 @@ void pp404::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 405 calcs pulse duration from bld ***
 
 pp405::pp405(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -424,7 +424,7 @@ void pp405::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' calc pulse duration from" +
+  Log::add(Log::INFO,"Processor '" + name() + "' calc pulse duration from" +
             " beamline data. Condition is '" + _condition->name() + "'");
 }
 
@@ -458,7 +458,7 @@ void pp405::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 406 ToF to Energy correct from 0D Histogram value***
 
 pp406::pp406(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -467,7 +467,7 @@ void pp406::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -509,9 +509,9 @@ void pp406::loadSettings(size_t)
                               pow(alpha/(_userTofRange.second-t0),2)-e0,
                               pow(alpha/(_userTofRange.first-t0),2)-e0)));
 
-  Log::add(Log::INFO,"PostProcessor '"+ name() + "' converts ToF into Energy scale '" +
+  Log::add(Log::INFO,"Processor '"+ name() + "' converts ToF into Energy scale '" +
            _pHist->name() + "' which has dimension '" + toString(one.dimension()) +
-           "' with constant in 0D Histogram in PostProcessor '" + _constHist->name() +
+           "' with constant in 0D Histogram in Processor '" + _constHist->name() +
            " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
            "'. Conversion parameters e0:"+ toString(e0) + " t0(bin):" +
@@ -597,7 +597,7 @@ void pp406::process(const CASSEvent& evt, HistogramBackend &res)
 
 //***Tof to Energy linear interpolation***
 pp407::pp407(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -606,7 +606,7 @@ void pp407::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -642,7 +642,7 @@ void pp407::loadSettings(size_t)
                               pow(alpha/(_userTofRange.second-t0),2)-e0,
                               pow(alpha/(_userTofRange.first-t0),2)-e0)));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' converts ToF into Energy scale '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' converts ToF into Energy scale '" +
            _pHist->name() + "' which has dimension '" + toString(one.dimension()) +
            " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
@@ -744,7 +744,7 @@ void pp407::process(const CASSEvent& evt, HistogramBackend &res)
 // ***  pp 408 ToF to Energy correct from 0D Histogram value & linear corection***
 
 pp408::pp408(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -753,7 +753,7 @@ void pp408::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -794,9 +794,9 @@ void pp408::loadSettings(size_t)
                               pow(alpha/(_userTofRange.second-t0),2)-e0,
                               pow(alpha/(_userTofRange.first-t0),2)-e0)));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' converts ToF into Energy scale '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' converts ToF into Energy scale '" +
            _pHist->name() + "' which has dimension '" + toString(one.dimension()) +
-           "' with constant in 0D Histogram in PostProcessor '" + _constHist->name() +
+           "' with constant in 0D Histogram in Processor '" + _constHist->name() +
            " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
            "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" +
@@ -899,7 +899,7 @@ void pp408::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor 410 calculate covariance ***
 
 pp410::pp410(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -908,7 +908,7 @@ void pp410::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -927,7 +927,7 @@ void pp410::loadSettings(size_t)
                                  one.axis()[HistogramBackend::xAxis].upperLimit(),
                                  one.axis()[HistogramBackend::xAxis].title(),
                                  one.axis()[HistogramBackend::xAxis].title())));
-  Log::add(Log::INFO,"Postprocessor '" + name() + "'Calculate variance '"+
+  Log::add(Log::INFO,"processor '" + name() + "'Calculate variance '"+
            _pHist->name() + "'. Condition on postprocessor '" + _condition->name() + "'");
 }
 
@@ -981,7 +981,7 @@ void pp410::process(const CASSEvent& evt, HistogramBackend &res)
 //------------pp412 calculate covariance for intensity correction
 
 pp412::pp412(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -990,7 +990,7 @@ void pp412::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _hist1D = setupDependency("HistName1D");
@@ -1001,7 +1001,7 @@ void pp412::loadSettings(size_t)
   if (!(ret && _hist1D && _ave1D && _hist0D && _ave0D))
     return;
   createHistList(_hist1D->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor '" + name() + "'Calcurate variance '" +
+  Log::add(Log::INFO,"processor '" + name() + "'Calcurate variance '" +
            _hist1D->name() + "'. Condition on postprocessor '" + _condition->name() + "'");
 }
 

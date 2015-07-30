@@ -171,7 +171,7 @@ void copyMapValues(map<string,double>::const_iterator first,
 }//end namespace cass
 
 pp2001::pp2001(const name_t &name, std::string filename)
-  : PostProcessor(name),
+  : Processor(name),
     _rootfile(ROOTFileHelper::create(filename)),
     _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
     _treestructure_ptr(&_treestructure),
@@ -193,10 +193,10 @@ const HistogramBackend& pp2001::result(const CASSEvent::id_t)
 void pp2001::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  QStringList pps(settings.value("PostProcessors").toStringList());
+  QStringList pps(settings.value("Processors").toStringList());
   QStringList::const_iterator ppname(pps.begin());
   bool allDepsAreThere(true);
   for (ppname = pps.begin(); ppname != pps.constEnd(); ++ppname)
@@ -204,7 +204,7 @@ void pp2001::loadSettings(size_t)
     shared_pointer pp(setupDependency("",ppname->toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
     if (pp && pp->result().dimension() != 0)
-      throw invalid_argument("pp2001 (" + name() + "): PostProcessor '" + pp->name() +
+      throw invalid_argument("pp2001 (" + name() + "): Processor '" + pp->name() +
                              "' is not a 0d histogram.");
     _pps.push_back(pp);
   }
@@ -233,11 +233,11 @@ void pp2001::loadSettings(size_t)
     if (_tree->FindBranch("EventStatus") == 0)
       _tree->Branch("EventStatus","vector<bool>",&_eventstatusstructure_ptr);
   if (!_pps.empty())
-    if (_tree->FindBranch("PostProcessors") == 0)
-      _tree->Branch("PostProcessors","map<string,double>",&_ppstructure_ptr);
+    if (_tree->FindBranch("Processors") == 0)
+      _tree->Branch("Processors","map<string,double>",&_ppstructure_ptr);
 
   _hide = true;
-  string output("PostProcessor '" + name() + "' will write the hits of detectors: ");
+  string output("Processor '" + name() + "' will write the hits of detectors: ");
   dlddetectors_t::const_iterator detectorsIt(_detectors.begin());
   for (;detectorsIt!=_detectors.end();++detectorsIt)
     output += ("'" + (*detectorsIt) + "', ");
@@ -332,12 +332,12 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
   _eventstatusstructure.resize(machinedata.EvrData().size());
   copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
 
-  /** copy the values of each 0d PostProcessor into the postprocessor structure */
-  std::list<shared_pointer>::const_iterator PostProcessorsIt(_pps.begin());
-  std::list<shared_pointer>::const_iterator PostProcessorsEnd(_pps.end());
-  for (;PostProcessorsIt != PostProcessorsEnd;++PostProcessorsIt)
+  /** copy the values of each 0d Processor into the postprocessor structure */
+  std::list<shared_pointer>::const_iterator ProcessorsIt(_pps.begin());
+  std::list<shared_pointer>::const_iterator ProcessorsEnd(_pps.end());
+  for (;ProcessorsIt != ProcessorsEnd;++ProcessorsIt)
   {
-    PostProcessor &pp(*(*PostProcessorsIt));
+    Processor &pp(*(*ProcessorsIt));
     const Histogram0DFloat &val
         (dynamic_cast<const Histogram0DFloat&>(pp.result(_eventid)));
     QReadLocker lock(&val.lock);

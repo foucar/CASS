@@ -244,7 +244,7 @@ private:
 
 
 pp55::pp55(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   _functions["90DegCCW"] = make_pair(&cass::Rotate90DegCCW,true);
   _functions["270DegCW"] = make_pair(&cass::Rotate90DegCCW,true);
@@ -260,7 +260,7 @@ pp55::pp55(const name_t &name)
 void pp55::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
@@ -290,8 +290,8 @@ void pp55::loadSettings(size_t)
                       _one->result().axis()[HistogramBackend::yAxis].nbrBins());
   }
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will do '" + _operation +
-           "' on Histogram in PostProcessor '" +  _one->name() +
+  Log::add(Log::INFO,"Processor '" +  name() + "' will do '" + _operation +
+           "' on Histogram in Processor '" +  _one->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -321,7 +321,7 @@ void pp55::process(const CASSEvent &evt,HistogramBackend &res)
 // --------------convert cspad 2 cheetah--------------------
 
 pp1600::pp1600(const name_t &name)
-  : PostProcessor(name),
+  : Processor(name),
     _nx(194),
     _ny(185),
     _na(8)
@@ -332,7 +332,7 @@ pp1600::pp1600(const name_t &name)
 void pp1600::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
@@ -343,8 +343,8 @@ void pp1600::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(_na*_nx,_na*_ny)));
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert Histogram in " +
-           "PostProcessor '" +  _one->name() + " into the format that cheetah is using."
+  Log::add(Log::INFO,"Processor '" +  name() + "' will convert Histogram in " +
+           "Processor '" +  _one->name() + " into the format that cheetah is using."
            ". Condition is '" + _condition->name() + "'");
 }
 
@@ -384,7 +384,7 @@ void pp1600::process(const CASSEvent &evt,HistogramBackend &res)
 
 
 pp1601::pp1601(const name_t &name)
-  : PostProcessor(name),
+  : Processor(name),
     _LRTB( 1, 0, 0,-1),
     _RLBT(-1, 0, 0, 1),
     _TBRL( 0,-1,-1, 0),
@@ -398,7 +398,7 @@ pp1601::pp1601(const name_t &name)
 void pp1601::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _one = setupDependency("HistName");
@@ -413,8 +413,8 @@ void pp1601::loadSettings(size_t)
       std::tr1::shared_ptr<SegmentCopier>
       (new SegmentCopier(2*_nx, _ny, 2*(2*_nx+2*_ny)));
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert cspad image in " +
-           "PostProcessor '" +  _one->name() + " into a condensed real layout, " +
+  Log::add(Log::INFO,"Processor '" +  name() + "' will convert cspad image in " +
+           "Processor '" +  _one->name() + " into a condensed real layout, " +
            " looking from upstream."
            ". Condition is '" + _condition->name() + "'");
 }
@@ -494,7 +494,7 @@ void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 // --------------convert cspad 2 laboratory --------------------
 
 pp1602::pp1602(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -748,7 +748,7 @@ size_t linearizeComponents(const GeometryInfo::pos_t &pos, const size_t nCols)
 void pp1602::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _imagePP = setupDependency("HistName");
@@ -835,8 +835,8 @@ void pp1602::setup(const Histogram2DFloat &srcImageHist)
         (new Histogram2DFloat(nDestCols,min.x,max.x, nDestRows,min.y,max.y,
                               "Rows","Cols")));
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will convert Histogram in " +
-           "PostProcessor '" +  _imagePP->name() + " into lab frame" +
+  Log::add(Log::INFO,"Processor '" +  name() + "' will convert Histogram in " +
+           "Processor '" +  _imagePP->name() + " into lab frame" +
            ". Geometry Filename '" + _filename + "'"
            ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
            ". Beam center is '" + toString(-min.x) + " x " + toString(-min.y) + "' pixels"+
@@ -887,7 +887,7 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
 //************ radial average of Q values from det image ***************
 
 pp90::pp90(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -895,7 +895,7 @@ pp90::pp90(const name_t &name)
 void pp90::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   _imagePP = setupDependency("HistName");
@@ -954,8 +954,8 @@ void pp90::loadSettings(size_t)
   /** create the output histogram the storage where to put the normfactors*/
   createHistList(set1DHist(name()));
 
-  Log::add(Log::INFO,"PostProcessor '" +  name() + "' will generate Q average from Histogram in " +
-           "PostProcessor '" +  _imagePP->name() +
+  Log::add(Log::INFO,"Processor '" +  name() + "' will generate Q average from Histogram in " +
+           "Processor '" +  _imagePP->name() +
            ". Geometry Filename '" + _filename + "'"
            ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
            ". Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?

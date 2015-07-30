@@ -29,10 +29,10 @@ class Histogram0DFloat;
  * This postprocessor will retrieve the requested Beamline Data from
  * the cass event.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{VariableName}
+ * @cassttng Processor/\%name\%/{VariableName}
  *           The name of the beamline data variable you are interested in.
  *           Default is "". Available values are:
  *           - FEE Gas Detector values
@@ -76,7 +76,7 @@ class Histogram0DFloat;
  *
  * @author Lutz Foucar
  */
-class pp120 : public PostProcessor
+class pp120 : public Processor
 {
 public:
   /** constructor */
@@ -105,15 +105,15 @@ protected:
  *
  * This postprocessor will check whether an eventcode is present in the event.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{EventCode}
+ * @cassttng Processor/\%name\%/{EventCode}
  *           The EventCode to check for. Default is 0
  *
  * @author Lutz Foucar
  */
-class pp121 : public PostProcessor
+class pp121 : public Processor
 {
 public:
   /** constructor */
@@ -144,12 +144,12 @@ protected:
  * @PPList "122":EventID retrival
  *
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{EventIDPart}
+ * @cassttng Processor/\%name\%/{EventIDPart}
  *           The part of the event id that is of interest.
- *           The event id is a 64 bit value, but PostProcessors can only return
+ *           The event id is a 64 bit value, but Processors can only return
  *           a float (32 bit) value. Therefore this allows to retrieve either the
  *           upper or lower 32 bit of the 64 bit variable.
  *           Default is 0, possible values are:
@@ -158,7 +158,7 @@ protected:
  *           - 2: the upper 32 bits of the id.
  * @author Lutz Foucar
  */
-class pp122 : public PostProcessor
+class pp122 : public Processor
 {
 public:
   /** constructor */
@@ -195,21 +195,21 @@ private:
  *
  * @PPList "123": retrieve beamline spectrometer data
  *
- * @cassttng PostProcessor/\%name\%/{SpectrometerName}
+ * @cassttng Processor/\%name\%/{SpectrometerName}
  *           The name of the spectrometer one is interested in. One needs to add
  *           either "_horiz" or "_vert" to the name to tell wether one wants to
  *           use the vertical or horizontal projection.
- * @cassttng PostProcessor/\%name\%/{Size}
+ * @cassttng Processor/\%name\%/{Size}
  *           The size of the projection. Will defaulty be determined from the
  *           spectrometer name addition. If "horiz" its set to 1024, if its
  *           "vert" it is set to 256. Only set this when the default values are
  *           not working.
  *
- * @see PostProcessor for a list of all commonly available cass.ini settings.
+ * @see Processor for a list of all commonly available cass.ini settings.
  *
  * @author Lutz Foucar
  */
-class pp123 : public PostProcessor
+class pp123 : public Processor
 {
 public:
   /** constructor */
@@ -242,10 +242,10 @@ private:
  *
  * This postprocessor will retrieve the requested epics data from the cass-event.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{VariableName}
+ * @cassttng Processor/\%name\%/{VariableName}
  *           The name of the epics data variable you are interested in.
  *           Default is "".  If the EPICS variable is not part of the standart
  *           list, but contained in an additional list, you have to prepend
@@ -255,7 +255,7 @@ private:
  *
  * @author Lutz Foucar
  */
-class pp130 : public PostProcessor
+class pp130 : public Processor
 {
 public:
   /** constructor */
@@ -474,12 +474,12 @@ On Aug 10, 2011, at 5:52 AM, Anton Barty wrote:
 >
 @endverbatim
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @author Lutz Foucar
  */
-class pp230 : public PostProcessor
+class pp230 : public Processor
 {
 public:
   /** constructor */

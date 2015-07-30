@@ -25,7 +25,7 @@ using namespace std::tr1;
 // *** postprocessors 120 retrives beamline data ***
 
 pp120::pp120(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -33,7 +33,7 @@ pp120::pp120(const name_t &name)
 void pp120::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(name().c_str());
   _varname = s.value("VariableName","").toString().toStdString();
   setupGeneral();
@@ -42,7 +42,7 @@ void pp120::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "': will retrieve datafield ' " +
+  Log::add(Log::INFO,"Processor '" + name() + "': will retrieve datafield ' " +
            _varname + "' from beamline data. Condition is '" + _condition->name() +"'");
 }
 
@@ -66,7 +66,7 @@ void pp120::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 121 checks event code ***
 
 pp121::pp121(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -74,7 +74,7 @@ pp121::pp121(const name_t &name)
 void pp121::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(name().c_str());
   _eventcode = s.value("EventCode",0).toUInt();
   setupGeneral();
@@ -82,7 +82,7 @@ void pp121::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '"+ name() + "' will check whether event code '" +
+  Log::add(Log::INFO,"Processor '"+ name() + "' will check whether event code '" +
            toString(_eventcode) + "' is present in the event. Condition is '" +
            _condition->name() +"'");
 }
@@ -112,7 +112,7 @@ void pp121::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 122 retrieve eventID ***
 
 pp122::pp122(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -120,7 +120,7 @@ pp122::pp122(const name_t &name)
 void pp122::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(name().c_str());
 
   setupGeneral();
@@ -130,7 +130,7 @@ void pp122::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve the event ID from events. Condition is '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' will retrieve the event ID from events. Condition is '" +
            _condition->name() + "'");
 }
 
@@ -162,7 +162,7 @@ void pp122::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 123 retrieve beamline spectrometer data ***
 
 pp123::pp123(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -173,7 +173,7 @@ void pp123::loadSettings(size_t)
   if (!setupCondition())
     return;
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(name().c_str());
   _specname = s.value("SpectrometerName","").toString().toStdString();
   int size(0);
@@ -186,7 +186,7 @@ void pp123::loadSettings(size_t)
         tr1::shared_ptr<Histogram1DFloat>
         (new Histogram1DFloat(size,0,size,"arb. units")));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve the beamline spectrometer data '"+
+  Log::add(Log::INFO,"Processor '" + name() + "' will retrieve the beamline spectrometer data '"+
            _specname +"'.Condition is '" + _condition->name() + "'");
 }
 
@@ -227,7 +227,7 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 130 retrives epics data ***
 
 pp130::pp130(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -235,14 +235,14 @@ pp130::pp130(const name_t &name)
 void pp130::loadSettings(size_t)
 {
   CASSSettings settings;
-  settings.beginGroup("PostProcessor");
+  settings.beginGroup("Processor");
   settings.beginGroup(name().c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' will retrieve datafield' " +
+  Log::add(Log::INFO,"Processor '" + name() + "' will retrieve datafield' " +
            _varname +"' from epics data. Condition is" + _condition->name() + "'");
 }
 
@@ -272,7 +272,7 @@ void pp130::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessors 230 calcs photonenergy from bld ***
 
 pp230::pp230(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -283,7 +283,7 @@ void pp230::loadSettings(size_t)
     return;
   setupGeneral();
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' calculates photonenergy from " +
+  Log::add(Log::INFO,"Processor '" + name() + "' calculates photonenergy from " +
            "'EbeamL3Energy' and 'EbeamPkCurrBC2'." + " Condition is '" +
            _condition->name() + "'");
 }

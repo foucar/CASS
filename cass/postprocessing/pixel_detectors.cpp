@@ -63,7 +63,7 @@ frame_t::value_type getZValue(const containerType& container)
 // *** frame of the pixeldetector ***
 
 pp105::pp105(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -71,7 +71,7 @@ pp105::pp105(const name_t &name)
 void pp105::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -83,7 +83,7 @@ void pp105::loadSettings(size_t)
         (new Histogram2DFloat
          (CommonData::instance(_detector)->columns,
           CommonData::instance(_detector)->rows)));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will display frame of detector '" + _detector +
            "'. It will use condition '" + _condition->name() +"'");
 }
@@ -98,7 +98,7 @@ void pp105::process(const CASSEvent& evt, HistogramBackend &res)
 
   if (result.shape() != det->frame().shape())
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' incomming frame '" + toString(det->frame().columns) +
                            "x" + toString(det->frame().rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -119,7 +119,7 @@ void pp105::process(const CASSEvent& evt, HistogramBackend &res)
 // *** the maps of the pixeldetector ***
 
 pp107::pp107(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -127,7 +127,7 @@ pp107::pp107(const name_t &name)
 void pp107::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   string mapType(s.value("MapType","offset").toString().toStdString());
@@ -151,7 +151,7 @@ void pp107::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(CommonData::instance(_detector)->columns,
                               CommonData::instance(_detector)->rows)));
-  Log::add(Log::INFO,"Postprocessor '" + name() + "' will display the '"+ mapType +
+  Log::add(Log::INFO,"processor '" + name() + "' will display the '"+ mapType +
            "' map of detector '" + _detector + "'. It will use condition '" +
            _condition->name() +"'");
 }
@@ -164,7 +164,7 @@ void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
   if (result.shape().first != CommonData::instance(_detector)->columns ||
       result.shape().second != CommonData::instance(_detector)->rows)
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' The Map '" + toString(CommonData::instance(_detector)->columns) +
                            "x" + toString(CommonData::instance(_detector)->rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -186,7 +186,7 @@ void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
 // *** raw frame of the pixeldetector ***
 
 pp109::pp109(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -194,7 +194,7 @@ pp109::pp109(const name_t &name)
 void pp109::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   if (!setupCondition())
@@ -206,7 +206,7 @@ void pp109::loadSettings(size_t)
   createHistList(
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(cols,rows)));
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will display the raw frame of detector with CASSID '" +
            toString(_detector) + "' which has shape '" + toString(cols) + "'x'" +
            toString(rows) + "'. It will use condition '" + _condition->name() +"'");
@@ -235,7 +235,7 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
 
   if (result.shape() != det.shape())
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' incomming frame '" + toString(det.shape().first) +
                            "x" + toString(det.shape().second) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -254,10 +254,10 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
+// *** A processor that will display the coalesced photonhits of ccd detectors ***
 
 pp144::pp144(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -265,7 +265,7 @@ pp144::pp144(const name_t &name)
 void pp144::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -284,7 +284,7 @@ void pp144::loadSettings(size_t)
     _getZ = &getConstant<Hit>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will add all hits of detector '" + _detector +
            "' to an image only when the spectral component is between '" +
            toString(_range.first) + "' and '" + toString(_range.second) +
@@ -322,10 +322,10 @@ void pp144::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** A Postprocessor that will retrieve the number of coalesced hits ***
+// *** A processor that will retrieve the number of coalesced hits ***
 
 pp145::pp145(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -333,7 +333,7 @@ pp145::pp145(const name_t &name)
 void pp145::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -341,7 +341,7 @@ void pp145::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '"
            + _detector + "'. Condition is '" + _condition->name() + "'");
 }
@@ -364,10 +364,10 @@ void pp145::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** A Postprocessor that will output the split level of the coalesced pixels ***
+// *** A processor that will output the split level of the coalesced pixels ***
 
 pp146::pp146(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -375,7 +375,7 @@ pp146::pp146(const name_t &name)
 void pp146::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -383,7 +383,7 @@ void pp146::loadSettings(size_t)
     return;
   createHistList(set1DHist(name()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will retrieve the number of coalesced photonhits of detector '"
            + _detector + "'. Condition is '" + _condition->name() + "'");
 }
@@ -411,7 +411,7 @@ void pp146::process(const CASSEvent& evt, HistogramBackend &res)
 // *** will display the detected pixel of pixeldetectors as 2d image ***
 
 pp148::pp148(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -419,7 +419,7 @@ pp148::pp148(const name_t &name)
 void pp148::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -436,7 +436,7 @@ void pp148::loadSettings(size_t)
     _getZ = &getConstant<Pixel>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will add all hits of detector '" + _detector +
            "' to an image only when the spectral component is between '" +
            toString(_range.first) + "' and '" + toString(_range.second) +
@@ -469,10 +469,10 @@ void pp148::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** A Postprocessor that will retrieve the number of detected pixels ***
+// *** A processor that will retrieve the number of detected pixels ***
 
 pp149::pp149(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -480,7 +480,7 @@ pp149::pp149(const name_t &name)
 void pp149::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   setupGeneral();
@@ -488,7 +488,7 @@ void pp149::loadSettings(size_t)
     return;
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
   DetectorHelper::instance(_detector)->loadSettings();
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
@@ -515,7 +515,7 @@ void pp149::process(const CASSEvent& evt, HistogramBackend &res)
 // *** postprocessor to correct a distorted pnCCD image ***
 
 pp241::pp241(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -533,7 +533,7 @@ void pp241::loadSettings(size_t)
   createHistList(_hist->result().copy_sptr());
 
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _thresholdA = s.value("ThresholdQuadrantA",0).toFloat();
   _thresholdB = s.value("ThresholdQuadrantA",0).toFloat();
@@ -547,9 +547,9 @@ void pp241::loadSettings(size_t)
   _minRow = s.value("MinimumRow",0).toUInt();
   _maxRow = s.value("MaximumRow",1024).toUInt();
 
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' corrects the distorted offset of image in '" + _hist->name() +
-           ". Condition on PostProcessor '" + _condition->name() + "'");
+           ". Condition on Processor '" + _condition->name() + "'");
 }
 
 void pp241::process(const CASSEvent& evt, HistogramBackend &res)
@@ -679,7 +679,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
 // *** set bad pixel of detector to a user selected value ***
 
 pp242::pp242(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -687,7 +687,7 @@ pp242::pp242(const name_t &name)
 void pp242::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _detector = s.value("Detector","UnnamedPixeldetector").toString().toStdString();
   _value = s.value("Value",0.f).toFloat();
@@ -701,7 +701,7 @@ void pp242::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(CommonData::instance(_detector)->columns,
                               CommonData::instance(_detector)->rows)));
-  Log::add(Log::INFO,"Postprocessor '" + name() + "' sets the masked pixels of detector '" +
+  Log::add(Log::INFO,"processor '" + name() + "' sets the masked pixels of detector '" +
            _detector + "' to '" +toString(_value) + "' It will use condition '"
            + _condition->name() +"'");
 }
@@ -716,7 +716,7 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
 
   if (result.shape() != det->frame().shape())
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' incomming frame '" + toString(det->frame().columns) +
                            "x" + toString(det->frame().rows) + "'. Result '" +
                            toString(result.shape().first) + "x" +
@@ -744,7 +744,7 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
 // *** apply mask to image ***
 
 pp243::pp243(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -752,7 +752,7 @@ pp243::pp243(const name_t &name)
 void pp243::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("HistName");
   _mask = setupDependency("MaskName");
@@ -761,7 +761,7 @@ void pp243::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(_image->result().copy_sptr());
-  Log::add(Log::INFO,"Postprocessor '" + name() + "' sets pixels of '" +
+  Log::add(Log::INFO,"processor '" + name() + "' sets pixels of '" +
            _image->name() + "' that are masked in '" + _mask->name() + "' to '"
            + toString(_value) + "' It will use condition '"
            + _condition->name() +"'");
@@ -794,7 +794,7 @@ void pp243::process(const CASSEvent& evt, HistogramBackend &res)
 // *** generate pixel histograms ***
 
 pp244::pp244(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -802,7 +802,7 @@ pp244::pp244(const name_t &name)
 void pp244::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _image = setupDependency("ImageName");
   setupGeneral();
@@ -836,7 +836,7 @@ void pp244::loadSettings(size_t)
         tr1::shared_ptr<Histogram2DFloat>
         (new Histogram2DFloat(nbins,low,up,nPixels,0,nPixels-1,title,"Pixel")));
 
-  Log::add(Log::INFO,"Postprocessor '" + name() +
+  Log::add(Log::INFO,"processor '" + name() +
            "' generates histogram nbr Bins '" + toString(nbins) + "', low '" +
            toString(low) + "', up '" + toString(up) + "', title '" + title +
            "', for all pixels of '" + _image->name() + "'. Condition '" +

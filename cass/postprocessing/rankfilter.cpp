@@ -21,10 +21,10 @@ using namespace std::tr1;
 using namespace cass;
 
 
-// ********** Postprocessor 301: median of last values ************
+// ********** processor 301: median of last values ************
 
 pp301::pp301(const name_t &name)
-  : AccumulatingPostProcessor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -32,7 +32,7 @@ pp301::pp301(const name_t &name)
 void pp301::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   // size of dataset for median
@@ -48,7 +48,7 @@ void pp301::loadSettings(size_t)
 
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' computes median with a size of '" + toString(_medianSize) +
            "' of pp '"+ _one->name() +
            "'. Condition is '" + _condition->name() + "'");
@@ -86,10 +86,10 @@ void pp301::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// ****** Postprocessor 302: Binary data from file into 2DHistogram *******
+// ****** processor 302: Binary data from file into 2DHistogram *******
 
 pp302::pp302(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -98,7 +98,7 @@ void pp302::loadSettings(size_t)
 {
   CASSSettings s;
 
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
@@ -130,7 +130,7 @@ void pp302::loadSettings(size_t)
     throw invalid_argument("pp302:loadSettings(): binary file Histogram2D: cannot open file '" +
                            filename +"'");
 
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' loads 2DHistogram from binary File '" + filename +
            "' which is is of size '" + toString(sizeX) +
            "x" + toString(sizeY));

@@ -31,19 +31,19 @@ class Histogram2DFloat;
  *
  * @PPList "105": display the image from a pixeldetector defined
  *
- * Postprocessor will get the frame of the requested pixeldetector.
+ * processor will get the frame of the requested pixeldetector.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
  */
-class pp105 : public PostProcessor
+class pp105 : public Processor
 {
 public:
   /** constructor */
@@ -76,14 +76,14 @@ protected:
  * Will display the maps that are used the processing units to process the
  * frame and detect the pixels of interest.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
- * @cassttng PostProcessor/\%name\%/{MapType}\n
+ * @cassttng Processor/\%name\%/{MapType}\n
  *           the type of the map that should be displayed. See
  *           cass::pixeldetector::CommonData for details. Default is "offset".
  *           Possible values are:
@@ -95,7 +95,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp107 : public PostProcessor
+class pp107 : public Processor
 {
 public:
   /** constructor */
@@ -128,24 +128,24 @@ protected:
  *
  * @PPList "109": extract raw pixel detector image
  *
- * Postprocessor will get the untreated frame directly from the cassevent
+ * processor will get the untreated frame directly from the cassevent
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{CASSID}\n
+ * @cassttng Processor/\%name\%/{CASSID}\n
  *           The CASS ID of the detector device that one wants to extract. One
  *           can set up which CASS ID the detector has in the converter part.
- * @cassttng PostProcessor/\%name\%/{nRows}\n
+ * @cassttng Processor/\%name\%/{nRows}\n
  *           The number of rows of the device (only needed when value cannot be
- *           determined from the name of the PostProcessor)
- * @cassttng PostProcessor/\%name\%/{nCols}\n
+ *           determined from the name of the Processor)
+ * @cassttng Processor/\%name\%/{nCols}\n
  *           The number of columns of the device (only needed when value cannot
- *           be determined from the name of the PostProcessor)
+ *           be determined from the name of the Processor)
  *
  * @author Lutz Foucar
  */
-class pp109 : public PostProcessor
+class pp109 : public Processor
 {
 public:
   /** constructor */
@@ -179,35 +179,35 @@ protected:
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * availalbe to coalesce the detected hits on the pixeldetectors.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
- * @cassttng PostProcessor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
+ * @cassttng Processor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
  *           The range of the z value of the pixel. Only when the pixel is in
  *           this range the pixel will be drawn. Default is 0.0|0.0
- * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
+ * @cassttng Processor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
  *           The range of the Splitlevel of the photon hit. Splitlevel tells
  *           how many pixels contributed to the photonhit. Both limits are
  *           exclusive. IE: to only see a splitlevel of 1 (single pixel
  *           contributed to the photon hit) lower limit needs to be 0 and
  *           upper limit needs to be 2. Default is 0|2
- * @cassttng PostProcessor/\%name\%/{PixelvalueAsWeight}\n
+ * @cassttng Processor/\%name\%/{PixelvalueAsWeight}\n
  *           When filling the 2D histogram one can select whether for each hit
  *           the z value should be added on the coordinate or a constant. If
  *           true the z value will be used. If false the coordinate will be
  *           increased by 1. Default is true.
- * @cassttng PostProcessor/\%name\%/{BaseValue}\n
+ * @cassttng Processor/\%name\%/{BaseValue}\n
  *           Value of the pixels that are not set. Default is 0
  *
  * @author Lutz Foucar
  */
-class pp144 : public PostProcessor
+class pp144 : public Processor
 {
 public:
   /** constructor */
@@ -245,17 +245,17 @@ protected:
  * This postprocessor retrieve how many coalesced photonhits have been
  * detected in a ccd frame.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
  */
-class pp145 : public PostProcessor
+class pp145 : public Processor
 {
 public:
   /** constructor */
@@ -284,19 +284,19 @@ protected:
  * cass::pixeldetector::AdvancedDetector for the options available to coalesce
  * the detected hits on the pixeldetectors.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|Xup}\n
  *           properties of the 1D histogram:
  *
  * @author Lutz Foucar
  */
-class pp146 : public PostProcessor
+class pp146 : public Processor
 {
 public:
   /** constructor */
@@ -328,29 +328,29 @@ protected:
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * available identify pixels of interest.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
- * @cassttng PostProcessor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
+ * @cassttng Processor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
  *           The range of the z value of the pixel. Only when the pixel is in
  *           this range the pixel will be drawn. Default is 0.0|0.0
- * @cassttng PostProcessor/\%name\%/{PixelvalueAsWeight}\n
+ * @cassttng Processor/\%name\%/{PixelvalueAsWeight}\n
  *           When filling the 2D histogram one can select whether for each hit
  *           the z value should be added on the coordinate or a constant. If
  *           true the z value will be used. If false the coordinate will be
  *           increased by 1. Default is true.
- * @cassttng PostProcessor/\%name\%/{BaseValue}\n
+ * @cassttng Processor/\%name\%/{BaseValue}\n
  *           Value of the pixels that are not set. Default is 0
  *
  * @author Lutz Foucar
  */
-class pp148 : public PostProcessor
+class pp148 : public Processor
 {
 public:
   /** constructor */
@@ -387,17 +387,17 @@ protected:
  * pixeldetector frame. See cass::pixeldetector::AdvancedDetector for available
  * options on how to detect pixels of interest.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
  *           See cass::pixeldetector::DetectorHelperHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
  */
-class pp149 : public PostProcessor
+class pp149 : public Processor
 {
 public:
   /** constructor */
@@ -452,44 +452,44 @@ protected:
  * The average offset at the edge of the first two and the last two rows will
  * only be determined by the current row.
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Name of PostProcessor containing the distorted pnCCD image. Default
+ * @cassttng Processor/\%name\%/{HistName} \n
+ *           Name of Processor containing the distorted pnCCD image. Default
  *           is "".
- * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantA} \n
+ * @cassttng Processor/\%name\%/{ThresholdQuadrantA} \n
  *           Threshold for the rows of quadrant A. If the averaged value is
  *           below this value the whole row of this quadrant is changed. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantB} \n
+ * @cassttng Processor/\%name\%/{ThresholdQuadrantB} \n
  *           Threshold for the rows of quadrant B. If the averaged value is
  *           below this value the whole row of this quadrant is changed. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantC} \n
+ * @cassttng Processor/\%name\%/{ThresholdQuadrantC} \n
  *           Threshold for the rows of quadrant A. If the averaged value is
  *           below this value the whole row of this quadrant is changed. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantD} \n
+ * @cassttng Processor/\%name\%/{ThresholdQuadrantD} \n
  *           Threshold for the rows of quadrant D. If the averaged value is
  *           below this value the whole row of this quadrant is changed. Default
  *           is 0.
- * @cassttng PostProcessor/\%name\%/{WeightAdjecentRow} \n
+ * @cassttng Processor/\%name\%/{WeightAdjecentRow} \n
  *           How much will the row that is adjecent to the current row be weightd
  *           when calculating the average offset at the edge of the detector.
  *           Default is 0.75.
- * @cassttng PostProcessor/\%name\%/{WeightSecondNextRow} \n
+ * @cassttng Processor/\%name\%/{WeightSecondNextRow} \n
  *           How much will the row that is the next over to the current row be
  *           weightd when calculating the average offset at the edge of the
  *           detector. Default is 0.5.
- * @cassttng PostProcessor/\%name\%/{MinimumRow} \n
+ * @cassttng Processor/\%name\%/{MinimumRow} \n
  *           Define from which row the correction should be applied. Default is 0.
- * @cassttng PostProcessor/\%name\%/{MaximumRow} \n
+ * @cassttng Processor/\%name\%/{MaximumRow} \n
  *           Define to which row the correction should be applied. Default is 1024.
  *
  * @author Lutz Foucar
  */
-class pp241 : public PostProcessor
+class pp241 : public Processor
 {
 public:
   /** constructor */
@@ -547,18 +547,18 @@ protected:
  * Copys the frame data and then sets all maked  pixels in the 2d histogram to a
  * predefined value
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the Detector who's values should be masked
- * @cassttng PostProcessor/\%name\%/{Value}\n
+ * @cassttng Processor/\%name\%/{Value}\n
  *           Value that should be assigned to pixels that should be masked
  *           Default is 0.
  *
  * @author Lutz Foucar
  */
-class pp242 : public PostProcessor
+class pp242 : public Processor
 {
 public:
   /** constructor */
@@ -600,20 +600,20 @@ protected:
  * Copys the frame data and then sets all pixels that are 0 in the mask to a
  * predefined value
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{HistName}\n
  *           Name of the Histogram that should be masked
- * @cassttng PostProcessor/\%name\%/{MaskName}\n
+ * @cassttng Processor/\%name\%/{MaskName}\n
  *           The name of the Mask.
- * @cassttng PostProcessor/\%name\%/{Value}\n
+ * @cassttng Processor/\%name\%/{Value}\n
  *           Value that should be assigned to pixels that should be masked
  *           Default is 0.
  *
  * @author Lutz Foucar
  */
-class pp243 : public PostProcessor
+class pp243 : public Processor
 {
 public:
   /** constructor */
@@ -645,19 +645,19 @@ protected:
  *
  * @PPList "244" generate a histogram for each pixel of the input 2d image
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{ImageName}\n
+ * @cassttng Processor/\%name\%/{ImageName}\n
  *           Name of the Image whos pixels should be histogrammed
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the 1D histogram generated for each Pixel.
- * @cassttng PostProcessor/\%name\%/{Weight}\n
+ * @cassttng Processor/\%name\%/{Weight}\n
  *           The value that will be added to the histogram. Default is 1
- * @cassttng PostProcessor/\%name\%/{MaskVal}\n
+ * @cassttng Processor/\%name\%/{MaskVal}\n
  *           The value that the masked pixels have in the image. Masked pixels
  *           will not be added to the histogram. Default is 0
- * @cassttng PostProcessor/\%name\%/{IsPnCCD}\n
+ * @cassttng Processor/\%name\%/{IsPnCCD}\n
  *           Combine the columns of the pnCCD to lower the memory used.
  *           Default is false. In case of pnCCD the channels of the quadrants
  *           will be displayed in rows 0 to 2047 and the rows, which indicate the
@@ -665,7 +665,7 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp244 : public PostProcessor
+class pp244 : public Processor
 {
 public:
   /** constructor */

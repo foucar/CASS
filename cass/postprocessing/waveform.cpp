@@ -38,7 +38,7 @@ using std::tr1::placeholders::_1;
 
 //the last wavefrom postprocessor
 pp110::pp110(const name_t &name)
-  :PostProcessor(name)
+  :Processor(name)
 {
   loadSettings(0);
 }
@@ -46,7 +46,7 @@ pp110::pp110(const name_t &name)
 void pp110::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _instrument = static_cast<Instruments>(s.value("InstrumentId",8).toUInt());
   _channel    = s.value("ChannelNbr",0).toUInt();
@@ -58,7 +58,7 @@ void pp110::loadSettings(size_t)
   createHistList(
         shared_ptr<Histogram1DFloat>
         (new Histogram1DFloat(wsize,0,wsize*_sampleInterval,"Time [s]")));
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' is showing channel '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' is showing channel '" +
            toString(_channel) + "' of acqiris '" + toString(_instrument) +
            "'. Condition is '" + _condition->name() + "'");
 }
@@ -82,7 +82,7 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
   const waveform_t &waveform (channel.waveform());
   if (result.axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' incomming waveforms NbrSamples '" + toString(waveform.size()) +
                            "'. User set NbrSamples '" +
                            toString(result.axis()[HistogramBackend::xAxis].nbrBins()) +
@@ -90,25 +90,25 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
   }
   if (!std::isfinite(channel.gain()))
   {
-    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+    throw InvalidData("pp110::process(): Processor '"  + name() +
                       "': The provided gain '" + toString(channel.gain()) +
                       "' is not a number");
   }
   if (!std::isfinite(channel.sampleInterval()))
   {
-    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+    throw InvalidData("pp110::process(): Processor '"  + name() +
                       "': The provided sampleInterval '" +
                       toString(channel.sampleInterval()) + "' is not a number");
   }
   if (!std::isfinite(channel.offset()))
   {
-    throw InvalidData("pp110::process(): PostProcessor '"  + name() +
+    throw InvalidData("pp110::process(): Processor '"  + name() +
                       "': The provided vertical offset '" +
                       toString(channel.offset()) + "' is not a number");
   }
   if (!(std::abs(channel.sampleInterval()-_sampleInterval) < sqrt(std::numeric_limits<double>::epsilon())))
   {
-    throw invalid_argument("Postprocessor '" + name() +
+    throw invalid_argument("processor '" + name() +
                            "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
@@ -125,7 +125,7 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
 // ***cfd trace from waveform
 
 pp111::pp111(const name_t &name)
-  :PostProcessor(name)
+  :Processor(name)
 {
   loadSettings(0);
 }
@@ -133,7 +133,7 @@ pp111::pp111(const name_t &name)
 void pp111::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _waveform = setupDependency("Waveform");
   setupGeneral();
@@ -153,7 +153,7 @@ void pp111::loadSettings(size_t)
 
   createHistList(_waveform->result().copy_sptr());
 
-  Log::add(Log::INFO,"PostProcessor '" + name() + "' is converting waveform '" +
+  Log::add(Log::INFO,"Processor '" + name() + "' is converting waveform '" +
            _waveform->name() + "' to a CFD Trace using delay '" + toString(delay) +
            "', Fraction '" + toString(_fraction) + "', Walk '" + toString(_walk) +
            "'. Condition is '" + _condition->name() + "'");

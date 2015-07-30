@@ -130,8 +130,8 @@ int CASSsoapService::readini(size_t what, bool *success)
   InputBase::reference().pause(true);
   Workers::reference().pause();
   InputBase::reference().load();
-  QWriteLocker pplock(&PostProcessors::instance()->lock);
-  PostProcessors::reference().loadSettings(what);
+  QWriteLocker pplock(&ProcessorManager::instance()->lock);
+  ProcessorManager::reference().loadSettings(what);
   Workers::reference().resume();
   InputBase::reference().resume();
   *success = true;;
@@ -146,8 +146,8 @@ int CASSsoapService::readini(size_t what, bool *success)
 int CASSsoapService::getPostprocessorIds(bool *success)
 {
   static QQueue< shared_ptr<string> > queue;
-  QReadLocker lock(&PostProcessors::reference().lock);
-  tr1::shared_ptr<IdList> keys(PostProcessors::reference().keys());
+  QReadLocker lock(&ProcessorManager::reference().lock);
+  tr1::shared_ptr<IdList> keys(ProcessorManager::reference().keys());
   shared_ptr<Serializer> ser(new Serializer);
   keys->serialize(*ser);
   soap_set_dime(this);
@@ -187,17 +187,17 @@ int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
  * lock the postprocessors handler postprocessor list and retrieve the
  * requested postprocessor from it. Tell it to clear its histogram list.
  */
-int CASSsoapService::clearHistogram(PostProcessors::key_t type, bool *success)
+int CASSsoapService::clearHistogram(ProcessorManager::key_t type, bool *success)
 {
   Log::add(Log::VERBOSEINFO,"CASSsoapService::clearHistogram(type=" + type + ")");
-  QWriteLocker pplock(&PostProcessors::instance()->lock);
+  QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
   {
-    PostProcessors::instance()->getPostProcessor(type).clearHistograms();
+    ProcessorManager::instance()->getProcessor(type).clearHistograms();
     *success = true;;
     return SOAP_OK;
   }
-  catch(const InvalidPostProcessorError&)
+  catch(const InvalidProcessorError&)
   {
     *success = false;
     return SOAP_FATAL_ERROR;
@@ -213,10 +213,10 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
   try
   {
     pixeldetector::CommonData::controlCalibration(controlCommand);
-    QWriteLocker pplock(&PostProcessors::reference().lock);
-    PostProcessors::postprocessors_t &postprocessors(PostProcessors::reference().postprocessors());
-    PostProcessors::postprocessors_t::iterator iter(postprocessors.begin());
-    PostProcessors::postprocessors_t::iterator end(postprocessors.end());
+    QWriteLocker pplock(&ProcessorManager::reference().lock);
+    ProcessorManager::processors_t &processors(ProcessorManager::reference().processors());
+    ProcessorManager::processors_t::iterator iter(processors.begin());
+    ProcessorManager::processors_t::iterator end(processors.end());
     while( iter != end )
       (*iter++)->processCommand(controlCommand);
     *success = true;
@@ -234,17 +234,17 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
  * lock the postprocessor handler list then retrieve the requested postprocessor
  * and pass the string to process to it.
  */
-int CASSsoapService::receiveCommand(PostProcessors::key_t type, string command, bool *success)
+int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command, bool *success)
 {
   Log::add(Log::VERBOSEINFO,"CASSsoapService::receiveCommand(type=" + type + ")");
-  QWriteLocker pplock(&PostProcessors::instance()->lock);
+  QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
   {
-    PostProcessors::instance()->getPostProcessor(type).processCommand(command);
+    ProcessorManager::instance()->getProcessor(type).processCommand(command);
     *success = true;;
     return SOAP_OK;
   }
-  catch(const InvalidPostProcessorError&)
+  catch(const InvalidProcessorError&)
   {
     *success = false;
     return SOAP_FATAL_ERROR;
@@ -278,16 +278,16 @@ int CASSsoapService::getEvent(size_t /*type*/, unsigned /*t1*/, unsigned /*t2*/,
  * also after the scope of this function is left since it might be transferred
  * after this funtion returned.
  */
-int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, bool *success)
+int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId, bool *success)
 {
   Log::add(Log::VERBOSEINFO,"CASSsoapService::getHistogram");
   static QQueue<shared_ptr<pair<size_t, string> > > queue;
-  QWriteLocker pplock(&PostProcessors::instance()->lock);
+  QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
   {
     // get data
     shared_ptr<HistogramBackend> hist(
-          PostProcessors::reference().getPostProcessor(type).resultCopy(eventId));
+          ProcessorManager::reference().getProcessor(type).resultCopy(eventId));
     Serializer serializer;
     size_t dim(hist->dimension());
     hist->serialize(serializer);
@@ -325,7 +325,7 @@ int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, b
     *success = false;
     return SOAP_FATAL_ERROR;
   }
-  catch(InvalidPostProcessorError)
+  catch(InvalidProcessorError)
   {
     *success = false;
     return SOAP_FATAL_ERROR;

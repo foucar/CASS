@@ -23,10 +23,10 @@ class Histogram1DFloat;
  *
  * @PPList "110": retrieve wavefrom of a channel
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{InstrumentId} \n
+ * @cassttng Processor/\%name\%/{InstrumentId} \n
  *           The instrument id of the acqiris instrument that contains the
  *           channel. Default is 8. Options are:
  *           - 8: Camp Acqiris
@@ -34,16 +34,16 @@ class Histogram1DFloat;
  *           - 2: AMO GD Acqiris
  *           - 5: AMO Mbes Acqiris
  *           - 22: XPP Acqiris
- * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
+ * @cassttng Processor/\%name\%/{ChannelNbr} \n
  *           The channel number of the acqiris instrument. Default is 0.
- * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
+ * @cassttng Processor/\%name\%/{NbrSamples} \n
  *           Number of samples in the waveform. Default is 40000
- * @cassttng PostProcessor/\%name\%/{SampleInterval} \n
+ * @cassttng Processor/\%name\%/{SampleInterval} \n
  *           Sample Interval (Time between to samples in s. Default is 1e-9
  *
  * @author Lutz Foucar
  */
-class pp110 : public PostProcessor
+class pp110 : public Processor
 {
 public:
   /** constructor */
@@ -72,22 +72,22 @@ protected:
  *
  * @PPList "111": convert wavefrom to cfd trace
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{Waveform} \n
- *           The name of the PostProcessor containing the waveform that should
+ * @cassttng Processor/\%name\%/{Waveform} \n
+ *           The name of the Processor containing the waveform that should
  *           be converted. Default is 'Unknown'
- * @cassttng PostProcessor/\%name\%/{Delay_ns}\n
+ * @cassttng Processor/\%name\%/{Delay_ns}\n
  *           Delay in ns used. Default is 5.
- * @cassttng PostProcessor/\%name\%/{Fraction}\n
+ * @cassttng Processor/\%name\%/{Fraction}\n
  *           Fraction used. Default is 0.6
- * @cassttng PostProcessor/\%name\%/{Walk_V}\n
+ * @cassttng Processor/\%name\%/{Walk_V}\n
  *           walk in V used. Default is 0.
  *
  * @author Lutz Foucar
  */
-class pp111 : public PostProcessor
+class pp111 : public Processor
 {
 public:
   /** constructor */
@@ -100,7 +100,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** the PostProcessor that contains the waveform to convert */
+  /** the Processor that contains the waveform to convert */
   shared_pointer _waveform;
 
   /** the delay in bins */

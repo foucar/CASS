@@ -185,7 +185,7 @@ using namespace std;
 
 
 pp1500::pp1500(const name_t &name)
-  : PostProcessor(name)
+  : Processor(name)
 {
   loadSettings(0);
 }
@@ -193,7 +193,7 @@ pp1500::pp1500(const name_t &name)
 void pp1500::loadSettings(size_t)
 {
   CASSSettings s;
-  s.beginGroup("PostProcessor");
+  s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   bool allDepsAreThere(true);
@@ -242,7 +242,7 @@ void pp1500::loadSettings(size_t)
     _basefilename = AlphaCounter::intializeDir(_basefilename);
 
   _hide = true;
-  Log::add(Log::INFO,"PostProcessor '" + name() +
+  Log::add(Log::INFO,"Processor '" + name() +
            "' CBF Writer: " +
            "Basename '" + _basefilename + "'" +
            (_pHist? " Histname '" + _pHist->name() +"'" :"") +

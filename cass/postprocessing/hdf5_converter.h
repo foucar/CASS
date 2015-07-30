@@ -31,52 +31,52 @@ class WriteEntry;
  * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
  * crew is using to be able to read and process the hdf5 with crystfel
  *
- * @cassttng PostProcessor/\%name\%/{CompressLevel} \n
+ * @cassttng Processor/\%name\%/{CompressLevel} \n
  *           The compression level. Default is 2
- * @cassttng PostProcessor/\%name\%/{FileBaseName} \n
+ * @cassttng Processor/\%name\%/{FileBaseName} \n
  *           Base Name of the Files to be written. In case of writing mutiple
  *           Events to the same file an alpha counter will be added to the file
  *           name. In case of writing an event to a single file the event id
  *           Will be appended to the file name.
- * @cassttng PostProcessor/\%name\%/{WriteMultipleEventsInOneFile} \n
+ * @cassttng Processor/\%name\%/{WriteMultipleEventsInOneFile} \n
  *           Flag to tell whether to write multiple events to the same file
  *           (true) or each event into a single file (false). Default is false.
- * @cassttng PostProcessor/\%name\%/{MaximumNbrFilesPerDir} \n
+ * @cassttng Processor/\%name\%/{MaximumNbrFilesPerDir} \n
  *           In case of single files per event, distribute the files over
  *           subdirectories where each subdir contains this amount of files.
  *           If -1 it will not distribute the files. Default is -1.
- * @cassttng PostProcessor/\%name\%/{MaximumFileSize_GB} \n
+ * @cassttng Processor/\%name\%/{MaximumFileSize_GB} \n
  *           In case of multiple events per file, this is the maximum file size
  *           before the alpha counter of the filename will be increased and a
  *           the events will be written to the new file. Default is 200
- * @cassttng PostProcessor/\%name\%/PostProcessor/{size} \n
- *           How many PostProcessors should be written to the h5 file.
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{Name} \n
- *           Name of the PostProcessor that should be written into the h5 file.
+ * @cassttng Processor/\%name\%/Processor/{size} \n
+ *           How many Processors should be written to the h5 file.
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{Name} \n
+ *           Name of the Processor that should be written into the h5 file.
  *           Default is "unknown"
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{GroupName} \n
- *           Name of the group in the h5 file into which the PostProcessor
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{GroupName} \n
+ *           Name of the group in the h5 file into which the Processor
  *           should be written into. Default is "/"
- * @cassttng PostProcessor/\%name\%/PostProcessor/\%id\%/{ValName} \n
+ * @cassttng Processor/\%name\%/Processor/\%id\%/{ValName} \n
  *           Name that the data should have in the h5 file. Default is the
- *           name of the PostProcessor.
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/{size} \n
- *           How many PostProcessors should be written to the h5 file.
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{Name} \n
- *           Name of the PostProcessor that should be written into the h5 file.
+ *           name of the Processor.
+ * @cassttng Processor/\%name\%/ProcessorSummary/{size} \n
+ *           How many Processors should be written to the h5 file.
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{Name} \n
+ *           Name of the Processor that should be written into the h5 file.
  *           Default is "unknown"
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{GroupName} \n
- *           Name of the group in the h5 file into which the PostProcessor
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{GroupName} \n
+ *           Name of the group in the h5 file into which the Processor
  *           should be written into. Default is "/"
- * @cassttng PostProcessor/\%name\%/PostProcessorSummary/\%id\%/{ValName} \n
+ * @cassttng Processor/\%name\%/ProcessorSummary/\%id\%/{ValName} \n
  *           Name that the data should have in the h5 file. Default is the
- *           name of the PostProcessor.
+ *           name of the Processor.
  *
  * @todo enable that one can write into just one h5 file multiple events
  *
  * @author Lutz Foucar
  */
-class pp1002 : public PostProcessor
+class pp1002 : public Processor
 {
 public:
   /** struct bundleing info for writing an entry to file

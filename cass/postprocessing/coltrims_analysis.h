@@ -32,21 +32,21 @@ namespace cass
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the 1d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the first detector that we work on. Default is "blubb"
- * @cassttng PostProcessor/\%name\%/{Particle}\n
+ * @cassttng Processor/\%name\%/{Particle}\n
  *           Name of the particle whose momentum we want to convert to
  *           electron energy in eV
  *
  * @author Daniel Rolles
  * @author Benedikt Rudek
  */
-class pp5000 : public PostProcessor
+class pp5000 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
@@ -79,17 +79,17 @@ protected:
  * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
  *      cass::ACQIRIS::Signal
  *
- * @see PostProcessor for a list of all commonly available cass.ini
+ * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng PostProcessor/\%name\%/{Detector}\n
+ * @cassttng Processor/\%name\%/{Detector}\n
  *           Name of the first detector that we work on. Default is "blubb"
  *
  * @author Lutz Foucar
  */
-class pp5001 : public PostProcessor
+class pp5001 : public Processor
 {
 public:
   /** Constructor for Number of Signals*/
