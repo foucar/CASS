@@ -283,9 +283,9 @@ void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend 
   }
 }
 
+#ifdef HDF5
 cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
 {
-#ifdef HDF5
   try
   {
     hdf5::Handler h5handle(_filename.toStdString(),"r");
@@ -401,12 +401,10 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
                                                 _filename + "'. Unknown error occured"));
   }
   return 0;
-#endif
 }
 
 void FileHandler::saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString &mode)
 {
-#ifdef HDF5
   try
   {
     hdf5::Handler h5handle(filename.toStdString(),mode.toStdString());
@@ -462,8 +460,19 @@ void FileHandler::saveDataToH5(const QString &filename, cass::HistogramBackend *
     QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): can't open '" +
                                                 filename + "'. Unknown error occured"));
   }
-#endif
 }
+#else
+cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &)
+{
+  return 0;
+}
+
+void FileHandler::saveDataToH5(const QString &, cass::HistogramBackend *, const QString &)
+{
+
+}
+
+#endif
 
 cass::HistogramBackend* FileHandler::loadDataFromCBF()
 {

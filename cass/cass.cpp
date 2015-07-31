@@ -223,17 +223,13 @@ int main(int argc, char **argv)
       MultiFileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 //    else if (useDatagenerator)
 //      TestInput::instance(ringbuffer,inputrate, inputload);
-    else if (sacladata)
 #ifdef SACLADATA
+    else if (sacladata)
       SACLAOfflineInput::instance(filelistname,ringbuffer,inputrate,inputload,quitwhendone);
-#else
-      throw runtime_error("SACLA support has not been compiled into this version of CASS");
 #endif
-    else if (hdf5file)
 #ifdef HDF5
+    else if (hdf5file)
       HDF5FileInput::instance(filelistname,ringbuffer,inputrate, inputload,quitwhendone);
-#else
-      throw runtime_error("HDF5 support has not been compiled into this version of CASS");
 #endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
@@ -242,11 +238,9 @@ int main(int argc, char **argv)
       TCPInput::instance(ringbuffer,inputrate, inputload);
 //    else if (useDatagenerator)
 //      TestInput::instance(ringbuffer,inputrate, inputload);
-    else if (sacladata)
 #ifdef SACLADATA
+    else if (sacladata)
       SACLAOnlineInput::instance(ringbuffer,inputrate,inputload);
-#else
-      throw runtime_error("SACLA support has not been compiled into this version of CASS");
 #endif
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate, inputload);
