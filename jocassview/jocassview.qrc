@@ -13,5 +13,7 @@
         <file>images/auto_update.png</file>
         <file>images/axistitle.png</file>
         <file>images/mpg.svg</file>
+        <file>images/mpg.png</file>
+        <file>images/mpg.jpeg</file>
     </qresource>
 </RCC>
