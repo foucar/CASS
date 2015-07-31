@@ -24,7 +24,6 @@
 #include "machine_device.h"
 #include "xtciterator.hpp"
 #include "pdsdata/xtc/Dgram.hh"
-//#include "calibcycle.h"
 
 using namespace std;
 using namespace cass;

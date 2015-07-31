@@ -32,7 +32,6 @@ SOURCES            += \
                       worker.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
-                      calibcycle.cpp \
                       tcpserver.cpp \
                       geom_parser.cpp \
                       ./postprocessing/processor.cpp \
@@ -85,7 +84,6 @@ HEADERS            += cass.h \
                       xtciterator.hpp \
                       cass_exceptions.h \
                       cass_settings.h \
-                      calibcycle.h \
                       statistics_calculator.hpp \
 #                      generic_factory.hpp \
                       cached_list.hpp \
