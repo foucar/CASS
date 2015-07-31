@@ -95,7 +95,7 @@ private:
 
 /** a radius position condition
  *
- * checks whether the postion of the detectorhit on the detector is in a
+ * checks whether the position of the detectorhit on the detector is in a
  * given radius around a predefined center.
  *
  * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/RadiusCondition/{CenterX|CenterY}\n

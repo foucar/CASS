@@ -222,7 +222,7 @@ struct Axis
   std::string title;
 };
 
-/** A result of a postprocessor
+/** A result of a processor
  *
  * The result can be a value or an 1d or 2d array. The 1d or 2d can be used as
  * a histogram.

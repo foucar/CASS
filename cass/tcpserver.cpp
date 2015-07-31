@@ -140,7 +140,7 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 /** retrieve which processors are running
  *
- * get a list of keys of the running processors. Lock the postprocessors
+ * get a list of keys of the running processors. Lock the processors
  * handler lock to prevent that the list changes while its being created.
  */
 int CASSsoapService::getPostprocessorIds(bool *success)
@@ -184,7 +184,7 @@ int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
 
 /** clear the selected processors histogram list
  *
- * lock the processors handler postprocessor list and retrieve the
+ * lock the processors handler processor list and retrieve the
  * requested processor from it. Tell it to clear its histogram list.
  */
 int CASSsoapService::clearHistogram(ProcessorManager::key_t type, bool *success)
@@ -231,7 +231,7 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
 
 /** pass the string on to the requested processor
  *
- * lock the processor handler list then retrieve the requested postprocessor
+ * lock the processor handler list then retrieve the requested processor
  * and pass the string to process to it.
  */
 int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command, bool *success)

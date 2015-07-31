@@ -58,7 +58,7 @@ public:
    *
    * Create a particlehit.
    * Then copy the position and the time from the dethit to the particlehit.
-   * Then correct this position, then scale the correted postion and finaly
+   * Then correct this position, then scale the correted position and finaly
    * rotate the corrected scaled positition around the given angle.
    * Then substract _t0 form the time of the detectorhit
    *

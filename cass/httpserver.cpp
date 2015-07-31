@@ -7,9 +7,9 @@
  */
 
 #include "httpserver.h"
-#include "postprocessing/processor.h"
+#include "processor.h"
 #include "histogram.h"
-#include "postprocessing/id_list.h"
+#include "id_list.h"
 #include "cass_exceptions.h"
 
 
@@ -83,7 +83,7 @@ void req_overviewPage::createResponseBuffer()
   cass::PostProcessors::keyList_t list = idlist->getList();
   _responseBuffer = "";
   _responseBuffer += "<html><body>\n";
-  _responseBuffer += "List of active and published postprocessors:\n";
+  _responseBuffer += "List of active and published processors:\n";
   for (cass::PostProcessors::keyList_t::const_iterator it=list.begin(); it!=list.end(); ++it)
     _responseBuffer += "<li><a href=\"" + std::string(ADDR_HIST2DPage) + *it + ".html\">" + *it + "</a></li>\n";
   _responseBuffer += "end of list.\n";

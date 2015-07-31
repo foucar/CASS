@@ -57,7 +57,7 @@ namespace ACQIRIS
  *           use the mcp signal when reconstructing the detector hits. Default
  *           is 'true'
  * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{ScalefactorU}\n
- *           Conversion factor to convert postion from ns to mm. The scalefactors
+ *           Conversion factor to convert position from ns to mm. The scalefactors
  *           of the other two layers will be determined by the calibrator and
  *           written into the settingsfile (see parameter SettingsFilename)
  * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{CenterX|CenterY}\n
