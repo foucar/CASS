@@ -33,6 +33,7 @@ SOURCES       += \
 HEADERS       += \
                  histogram.h \
                  histo_updater.h \
+                 histo_updater_linkdef.h \
                  id_list.h \
                  serializable.h \
                  serializer.h \

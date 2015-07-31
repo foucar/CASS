@@ -223,8 +223,13 @@ singleparticle_hit {
 #extra stuff for ROOT
 cernroot {
     SOURCES        += ./postprocessing/root_converter.cpp
+    HEADERS        += ./postprocessing/root_converter.h
     SOURCES        += ./postprocessing/rootfile_helper.cpp
+    HEADERS        += ./postprocessing/rootfile_helper.h
     SOURCES        += ./postprocessing/roottree_converter.cpp
+    HEADERS        += ./postprocessing/roottree_converter.h
+    HEADERS        += ./postprocessing/tree_structure.h
+    HEADERS        += ./postprocessing/tree_structure_linkdef.h
     LIBS           += $$system($$ROOTCONFIG_BIN --libs)
     DEFINES        += CERNROOT
     DICTIONARYFILES = ./postprocessing/tree_structure.h

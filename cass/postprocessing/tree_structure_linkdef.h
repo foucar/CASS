@@ -1,3 +1,8 @@
+/**
+ * @file tree_structure_linkdef.h definitions for root cint
+ *
+ * @author Lutz Foucar
+ */
 #include "map"
 #include "string"
 #include "vector"

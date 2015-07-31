@@ -1,6 +1,12 @@
 #ifndef _TREESTRUCTURE_H
 #define _TREESTRUCTURE_H
 
+/**
+ * @file tree_structure.h defining structures for the root tree
+ *
+ * @author Lutz Foucar
+ */
+
 #include <map>
 #include <vector>
 #include <string>
