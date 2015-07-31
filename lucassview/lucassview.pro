@@ -23,27 +23,25 @@ DICTIONARYFILES      = histo_updater.h
 include( $$PWD/../cass/rootdict_generator.pri )
 
 
-SOURCES       += \
-                 main.cpp \
-                 tcpclient.cpp \
-                 histo_updater.cpp \
-                 id_list.cpp \
-                 histogram.cpp
+SOURCES             += main.cpp
+SOURCES             += tcpclient.cpp
+HEADERS             += tcpclient.h
+SOURCES             += histo_updater.cpp
+HEADERS             += histo_updater.h
+HEADERS             += histo_updater_linkdef.h
+SOURCES             += id_list.cpp
+HEADERS             += id_list.h
+SOURCES             += histogram.cpp
+HEADERS             += histogram.h
 
-HEADERS       += \
-                 histogram.h \
-                 histo_updater.h \
-                 histo_updater_linkdef.h \
-                 id_list.h \
-                 serializable.h \
-                 serializer.h \
-                 tcpclient.h
+HEADERS             += serializable.h
+HEADERS             += serializer.h
 
-LIBS          += $$system($$ROOTCONFIG_BIN --libs)
-LIBS          += -lgsoap++ -lgsoap
+LIBS                += $$system($$ROOTCONFIG_BIN --libs)
+LIBS                += -lgsoap++ -lgsoap
 
-INSTALLS      += target
+INSTALLS            += target
 
-QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN   += $$MOC_DIR/moc_*
-QMAKE_CLEAN   += $$TARGET
+QMAKE_CLEAN         += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN         += $$MOC_DIR/moc_*
+QMAKE_CLEAN         += $$TARGET
