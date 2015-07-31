@@ -1,5 +1,12 @@
 // Copyright (C) 2010-2013 Lutz Foucar
 
+/**
+ * @file imaging.cpp processors to generate a test image
+ *
+ * @author Stephan Kassemeyer
+ * @author Lutz Foucar
+ */
+
 #include <QtCore/QString>
 
 #include "imaging.h"

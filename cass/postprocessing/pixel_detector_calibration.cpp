@@ -1,5 +1,12 @@
 // Copyright (C) 2013 Lutz Foucar
 
+/**
+ * @file pixel_detector_calibration.cpp processors that do calibrations on pixel
+ *                                      detector data
+ *
+ * @author Lutz Foucar
+ */
+
 #include <QtCore/QDateTime>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>

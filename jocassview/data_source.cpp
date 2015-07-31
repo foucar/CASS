@@ -1,7 +1,7 @@
 // Copyright (C) 2014 Lutz Foucar
 
 /**
- * @file data_source.h contains the base class data sources
+ * @file data_source.cpp contains the base class data sources
  *
  * @author Lutz Foucar
  */

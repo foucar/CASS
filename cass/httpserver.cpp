@@ -1,5 +1,13 @@
+// Copyright (C) 2010 Stephan Kassemeyer
+
+/**
+ * @file httpserver.cpp a httpserver for serving histograms of cass
+ *
+ * @author Stephan Kassemeyer
+ */
+
 #include "httpserver.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessing/processor.h"
 #include "histogram.h"
 #include "postprocessing/id_list.h"
 #include "cass_exceptions.h"

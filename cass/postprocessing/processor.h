@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
-/** @file processor.h file contains postprocessors baseclass declaration
+/** @file processor.h file contains processors baseclass declaration
  *
  * @author Lutz Foucar
  */
@@ -24,12 +24,12 @@
 
 namespace cass
 {
-/** base class for postprocessors.
+/** base class for processors.
  *
- * This class handles most of the functionality of a postprocessor. When
- * creating a new postprocessor the user has just the overwrite the process
+ * This class handles most of the functionality of a processor. When
+ * creating a new processor the user has just the overwrite the process
  * function. There it will retrieve the result from either other
- * postprocessors or from the cassevent itselve. All the rest is handled by
+ * processors or from the cassevent itselve. All the rest is handled by
  * the base class. Optionally, if one wants to have user interaction with the
  * class, this can be implemented by overwriting loadSettings.
  *
@@ -50,7 +50,7 @@ public:
 
   /** constructor
    *
-   * @param name the name of the postprocessor
+   * @param name the name of the processor
    */
   Processor(const name_t &name);
 
@@ -118,21 +118,21 @@ public:
 
   /** load the general settings
    *
-   * loads the settings common to all postprocesors then calls loadSettings to
-   * get the specific settings of the postprocessor
+   * loads the settings common to all procesors then calls loadSettings to
+   * get the specific settings of the processor
    */
   virtual void load();
 
-  /** function that will be called when the postprocessor is about to be deleted */
+  /** function that will be called when the processor is about to be deleted */
   virtual void aboutToQuit();
 
-  /** Define all postprocessors keys a postprocessor depends on
+  /** Define all processors keys a processor depends on
    *
    * If the dependencies are user choosable they must all be set in
    * loadSettings before it makes sense to call this function.
    *
    * This function will be called by Processors::setup() when it creates
-   * the container with all activated postprocessors.
+   * the container with all activated processors.
    */
   const names_t& dependencies()
   {
@@ -157,20 +157,20 @@ public:
    */
   virtual void processCommand(std::string command);
 
-  /** retrieve the name of this postprocessor */
+  /** retrieve the name of this processor */
   const name_t name() const {return _name;}
 
-  /** retrieve the hide flag of this postprocessor */
+  /** retrieve the hide flag of this processor */
   bool hide()const {return _hide;}
 
-  /** retrieve the comment of this postprocessor */
+  /** retrieve the comment of this processor */
   const std::string& comment()const {return _comment;}
 
 protected:
   /** process the event
    *
    * This will evaluate the event and fill the resulting histogram. It needs
-   * to be implemented in the postprocessors. The result should be locked when
+   * to be implemented in the processors. The result should be locked when
    * calling this function so users can rely on the fact that they can savely
    * use the result without locking it.
    *
@@ -194,22 +194,22 @@ protected:
    */
   virtual void createHistList(HistogramBackend::shared_pointer result);
 
-  /** general setup of the postprocessor
+  /** general setup of the processor
    *
-   * will setup the options that are available for all postprocessors
+   * will setup the options that are available for all processors
    *
    * @cassttng Processor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Flag that will hide this processor in cassview's combobox.
    *           Default is false
    * @cassttng Processor/\%name\%/{Write} \n
-   *           Flag that will tell a dumper to write this postprocessor into
+   *           Flag that will tell a dumper to write this processor into
    *           the file. Default is true
    * @cassttng Processor/\%name\%/{WriteSummary} \n
-   *           Flag that will tell a dumper to write this postprocessor into
+   *           Flag that will tell a dumper to write this processor into
    *           the summary. Useful for histograms that are only interesting
    *           per run. Default is true
    * @cassttng Processor/\%name\%/{Comment} \n
-   *           A comment with a short description of what this postprocessor
+   *           A comment with a short description of what this processor
    *           is doing. Will be added to the file, when its written.
    *           Default is "".
    */
@@ -221,7 +221,7 @@ protected:
    *
    * @cassttng Processor/\%name\%/{ConditionName} \n
    *           0D Processor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is
+   *           if this setting is not defined, this processor is
    *           unconditional. Therefore its always true.
    *
    * @return true when condition is there, false otherwise
@@ -233,15 +233,15 @@ protected:
   /** setup the dependecy.
    *
    * this will look up the dependecy key in cass.ini and tries to get it from
-   * the postprocessors. It will return the pointer to the dependecy
-   * postprocessor when it is there. If it's not in the container it will
+   * the processors. It will return the pointer to the dependecy
+   * processor when it is there. If it's not in the container it will
    * return 0. When the depencendy key is not already in the list with all
    * dependcies, it will be added.
    *
    * In case the second parameter is set, then it doesn't look up the key name
    * in the cass.ini, but rather use the provided one.
    *
-   * @return pointer to the dependency postprocessor
+   * @return pointer to the dependency processor
    * @param[in] depVarName the name of the setting that hold the dependcy key
    * @param[in] name optional name of the key, without getting it from the
    *                 settings file.
@@ -249,13 +249,13 @@ protected:
   shared_pointer setupDependency(const std::string& depVarName, const name_t& name="");
 
 protected:
-  /** the postprocessors name */
+  /** the processors name */
   const name_t _name;
 
   /** flag to tell whether this pp should be hidden in the dropdown list */
   bool _hide;
 
-  /** optional comment that one can add to a postprocessor.
+  /** optional comment that one can add to a processor.
    *
    * Will be used when writing this pp to file.
    */
@@ -267,7 +267,7 @@ protected:
   /** the list of dependencies */
   names_t _dependencies;
 
-  /** pointer to the postprocessor that will contain the condition */
+  /** pointer to the processor that will contain the condition */
   shared_pointer _condition;
 };
 
@@ -275,7 +275,7 @@ protected:
 
 
 
-/** an accumulating postprocessor
+/** an accumulating processor
  *
  * instead of having a list of result, just uses one result.
  * Overwrites functions to only use one result
@@ -285,7 +285,7 @@ class AccumulatingProcessor : public Processor
 public:
   /** constructor
    *
-   * @param name the name of the postprocessor
+   * @param name the name of the processor
    */
   AccumulatingProcessor(const name_t &name)
     : Processor(name)

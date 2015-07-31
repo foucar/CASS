@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Stephan Kassemeyer
 
+/**
+ * @file hitrate.h processors for single particle hitfinding
+ *
+ * @author Stephan Kassemeyer
+ */
+
 #ifndef _HITRATE_H_
 #define _HITRATE_H_
 

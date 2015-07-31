@@ -1,3 +1,11 @@
+// Copyright (C) 2010 Stephan Kassemeyer
+
+/**
+ * @file httpserver.h a httpserver for serving histograms of cass
+ *
+ * @author Stephan Kassemeyer
+ */
+
 #include <microhttpd.h>
 #include <iostream>
 #include <string>

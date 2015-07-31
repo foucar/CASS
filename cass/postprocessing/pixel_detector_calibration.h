@@ -1,5 +1,12 @@
 // Copyright (C) 2013 Lutz Foucar
 
+/**
+ * @file pixel_detector_calibration.h processors that do calibrations on pixel
+ *                                    detector data
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _PIXELDETECTORCALIBRATION_H_
 #define _PIXELDETECTORCALIBRATION_H_
 

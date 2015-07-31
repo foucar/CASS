@@ -1,6 +1,12 @@
 // Copyright (C) 2009 Jochen Kuepper
 // Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file cass_machine.h global definition for machine data
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef CASS_MACHINE_GLOBAL_H
 #define CASS_MACHINE_GLOBAL_H
 

@@ -1,3 +1,13 @@
+// Copyright (C) 2012 Koji Motomura
+// Copyright (C) 2012 Marco Siano
+
+/**
+ * @file partial_covariance.cpp processors to calculate partical covariance
+ *
+ * @author Koji Motomura
+ * @author Marco Siano
+ */
+
 #include <QtCore/QString>
 #include <iterator>
 #include <algorithm>

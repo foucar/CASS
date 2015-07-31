@@ -1,3 +1,9 @@
+/**
+ * @file led.cpp a led in qt
+ *
+ * @author unknown
+ */
+
 #include <cmath>
 
 #include <QtCore/QTimer>

@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Jochen Kuepper
-// Copyright (C) 2010-2013 Lutz Foucar
+// Copyright (C) 2010-2015 Lutz Foucar
+
+/**
+ * @file alignment.cpp processors that calculate laser alignment parameters
+ *
+ * @author Lutz Foucar
+ */
 
 #include <algorithm>
 #include <cassert>

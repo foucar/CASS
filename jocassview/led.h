@@ -1,3 +1,9 @@
+/**
+ * @file led.h an led in qt
+ *
+ * @author unknown
+ */
+
 #ifndef _LED_H_
 #define _LED_H_
 

@@ -1,7 +1,7 @@
 //Copyright (C) 2010-2014 Lutz Foucar
 
 /**
- * @file xtciterator.h file contains iterator to iterate through a xtc datagram
+ * @file xtciterator.hpp file contains iterator to iterate through a xtc datagram
  *
  * @author Lutz Foucar
  */

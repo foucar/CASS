@@ -1,5 +1,12 @@
 // Copyright (C) 2010-2013 Lutz Foucar
 
+/**
+ * @file imaging.h processors to generate a test image
+ *
+ * @author Stephan Kassemeyer
+ * @author Lutz Foucar
+ */
+
 #ifndef _IMAGING_H_
 #define _IMAGING_H_
 

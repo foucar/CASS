@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Jochen Kuepper
 // Copyright (C) 2010-2013 Lutz Foucar
 
+/**
+ * @file alignment.h processors that calculate laser alignment parameters
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _ALGINMENT_POSTPROCESSOR_H_
 #define _ALGINMENT_POSTPROCESSOR_H_
 

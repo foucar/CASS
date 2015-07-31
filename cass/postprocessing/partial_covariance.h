@@ -1,3 +1,11 @@
+// Copyright (C) 2012 Koji Motomura
+
+/**
+ * @file partial_covariance.h processors to calculate partical covariance
+ *
+ * @author Koji Motomura
+ */
+
 #ifndef __PARTIAL_COVARIANCE_H__
 #define __PARTIAL_COVARIANCE_H__
 

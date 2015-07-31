@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Stephan Kassemeyer
 // Copyright (C) 2013 Lutz Foucar
 
+/**
+ * @file hitrate.cpp processors for single particle hitfinding
+ *
+ * @author Stephan Kassemeyer
+ */
+
 #include <QtCore/QString>
 #include <time.h>
 

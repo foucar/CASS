@@ -1,8 +1,9 @@
-/*
- * cass SOAP server definition
+/**
+ * @file soapserver.h cass SOAP server definition
  *
  * This is a gSOAP header file with web service definitions
  *
+ * @author Jochen Kuepper
  */
 
 //gsoap ns service name: CASSsoap CFEL ASG software system

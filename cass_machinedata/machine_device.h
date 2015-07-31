@@ -1,5 +1,11 @@
 //Copyright (C) 2009, 2010, 2014 Lutz Foucar
 
+/**
+ * @file machine_device.h definitions of a machine device
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _MACHINEDATADEVICE_H_
 #define _MACHINEDATADEVICE_H_
 

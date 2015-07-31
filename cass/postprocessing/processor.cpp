@@ -1,6 +1,6 @@
 // Copyright (C) 2010, 2013 Lutz Foucar
 
-/** @file processor.cpp file contains postprocessors baseclass definition
+/** @file processor.cpp file contains processors baseclass definition
  *
  * @author Lutz Foucar
  */
@@ -126,7 +126,7 @@ Processor::setupDependency(const string &depVarName, const name_t& depkey)
   {
     throw invalid_argument("Processor::setupDependency(): Error: '" +
                            name() + "' looks for a dependency '" + dependkey +
-                           "'. One cannot let a postprocessor depend on itself." +
+                           "'. One cannot let a processor depend on itself." +
                            " Note that qsettings is not case sensitive, so on must provide" +
                            " names that differ not only in upper / lower case.");
   }
