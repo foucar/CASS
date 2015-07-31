@@ -1,8 +1,8 @@
 // Copyright (C) 2010 -2013 Lutz Foucar
 
 /**
- * @file operations.h file contains postprocessors that will operate
- *                     on histograms of other postprocessors
+ * @file operations.h file contains processors that will operate
+ *                     on histograms of other processors
  *
  * @todo add pp creating a running/moving standart deviation (just lke average)
  *
@@ -33,10 +33,10 @@ namespace cass
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistOne} \n
- *           the postprocessor name that contain the first histogram.
+ *           the processor name that contain the first histogram.
  *           Needs to be of the same dimension and size as the second.
  * @cassttng Processor/\%name\%/{HistTwo} \n
- *           the postprocessor name that contain the second histogram.
+ *           the processor name that contain the second histogram.
  *           Needs to be of the same dimension and size as the first
  * @cassttng Processor/\%name\%/{Operation} \n
  *           Default is "+". Possible values are:
@@ -91,7 +91,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Needs to
+ *           the processor name that contain the first histogram. Needs to
  *           be implemented, because default is "", which is invalid.
  * @cassttng Processor/\%name\%/{Value} \n
  *           Value for the operation. Default is 1.
@@ -209,7 +209,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
+ *           the processor name that contain the first histogram. Default
  *           is "".
  *
  * @author Lutz Foucar
@@ -246,7 +246,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
+ *           the processor name that contain the first histogram. Default
  *           is 0.
  * @cassttng Processor/\%name\%/{UpperLimit|LowerLimit} \n
  *           Upper and Lower limit of the range to check. Default is 0,0.
@@ -282,12 +282,12 @@ protected:
 
 
 
-/** Constant Value postprocessor.
+/** Constant Value processor.
  *
  * @PPList "12": Constant Value
  *
  * @cassttng Processor/\%name\%/{Value} \n
- *           The value of the postprocessors 0d histogram Default is 0.
+ *           The value of the processors 0d histogram Default is 0.
  * @cassttng Processor/\%name\%/{ValueType} \n
  *           The type of constant that will we returned. Default is '0D'.
  *           Possible values are:
@@ -343,7 +343,7 @@ private:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
+ *           the processor name that contain the first histogram. Default
  *           is "".
  *
  * @author Lutz Foucar
@@ -1166,7 +1166,7 @@ protected:
  * @cassttng Processor/\%name\%/{YNbrBins|YLow|YUp}\n
  *           properties of the y axis of the resulting 2d histogram
  * @cassttng Processor/\%name\%/{HistOne}\n
- *           postprocessr containing the 1d histogram.
+ *           processr containing the 1d histogram.
  * @cassttng Processor/\%name\%/{HistTwo} \n
  *           processor containing the 0D values for the y axis
  *
@@ -1250,7 +1250,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           name of postprocessor that contains the histogram you want a
+ *           name of processor that contains the histogram you want a
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           For 1d and 2d histogram the lower and upper range on the x-axis that one wants
@@ -1353,7 +1353,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           name of postprocessor that contains the histogram you want a
+ *           name of processor that contains the histogram you want a
  *           subset from. Default is "".
  *
  * @author Lutz Foucar

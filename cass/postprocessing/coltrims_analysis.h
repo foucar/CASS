@@ -1,7 +1,7 @@
 //Copyright (C) 2011-2013 Lutz Foucar
 
 /**
- * @file coltrims_analysis.h file contains the postprocessor specific for
+ * @file coltrims_analysis.h file contains the processor specific for
  *                           coltrims analysis
  *
  * @author Lutz Foucar
@@ -72,7 +72,7 @@ protected:
  *
  * @PPList "5001": Tripple coincidence spectra
  *
- * This postprocessor will create Tripple Photo-Ion Coincidence Spectra.
+ * This processor will create Tripple Photo-Ion Coincidence Spectra.
  *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.

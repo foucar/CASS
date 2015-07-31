@@ -1,7 +1,7 @@
 //Copyright (C) 2010-2011 Lutz Foucar
 
 /**
- * @file waveform.cpp file contains acqiris data retrieval postprocessor
+ * @file waveform.cpp file contains acqiris data retrieval processor
  *                    definition
  *
  * @author Lutz Foucar
@@ -36,7 +36,7 @@ using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
 
-//the last wavefrom postprocessor
+//the last wavefrom processor
 pp110::pp110(const name_t &name)
   :Processor(name)
 {

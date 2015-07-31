@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file waveform.h file contains acqiris data retrieval postprocessor
+ * @file waveform.h file contains acqiris data retrieval processor
  *                  declaration
  *
  * @author Lutz Foucar
@@ -56,7 +56,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** the instrument that contains the channel this postprocessor will work on */
+  /** the instrument that contains the channel this processor will work on */
   ACQIRIS::Instruments _instrument;
 
   /** the Acqiris channel number of this processor */

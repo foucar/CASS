@@ -60,10 +60,10 @@ public:
   bool deserialize(cass::SerializerBackend &in);
 
 private:
-  /** a list of all postprocessor keys */
+  /** a list of all processor keys */
   QStringList _list;
 
-  /** the size of the postprocessor keys list */
+  /** the size of the processor keys list */
   size_t _size;
 };
 

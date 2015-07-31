@@ -195,7 +195,7 @@ void pp330::loadCalibration()
 void pp330::writeCalibration()
 {
   /** check if a proper name is given otherwise autogenerate a name from the
-   *  name of the postprocessor and the current time
+   *  name of the processor and the current time
    */
   string outname;
   if (_filename == "NotSet")

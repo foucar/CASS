@@ -38,7 +38,7 @@ protected:
 };
 
 
-/** Exception thrown when accessing invalid postprocessor
+/** Exception thrown when accessing invalid processor
  *
  * @author Lutz Foucar
  */
@@ -46,7 +46,7 @@ class InvalidProcessorError : public std::out_of_range
 {
 public:
   explicit InvalidProcessorError(const std::string &key)
-    : std::out_of_range("Invalid postprocessor requested!"), _key(key)
+    : std::out_of_range("Invalid processor requested!"), _key(key)
   {}
 
   virtual const char* what() const throw()

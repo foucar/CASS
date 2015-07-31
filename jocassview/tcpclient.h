@@ -69,13 +69,13 @@ public slots:
   /** reload .ini file */
   void reloadIni() const;
 
-  /** broadcast a command to all postprocessors in the server
+  /** broadcast a command to all processors in the server
    *
    * @param command The command to broadcast
    */
   void broadcastCommand(const QString& command) const;
 
-  /** broadcast a command to all postprocessors in the server
+  /** broadcast a command to all processors in the server
    *
    * @param key The key of the Postprocessor to send the command to
    * @param command The command to broadcast
@@ -91,7 +91,7 @@ public slots:
   /** tell the server to quit */
   void quitServer() const;
 
-  /** clear the histogram of a postprocessor
+  /** clear the histogram of a processor
    *
    * @param key The key of the Postprocessor whos histograms should be cleared
    */

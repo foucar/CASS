@@ -1,7 +1,7 @@
 // Copyright (C) 2012, 2013 Lutz Foucar
 
 /**
- * @file image_manipulation.cpp file contains postprocessors that will manipulate
+ * @file image_manipulation.cpp file contains processors that will manipulate
  *                            2d histograms
  *
  * @author Lutz Foucar
@@ -901,7 +901,7 @@ void pp90::loadSettings(size_t)
   _imagePP = setupDependency("HistName");
   bool ret (setupCondition());
   /** use fixed value for wavelength if value can be converted to double,
-   *  otherwise use the wavelength from the postprocessor
+   *  otherwise use the wavelength from the processor
    */
   bool isDouble(false);
   QString wlkey("Wavelength_A");
@@ -919,7 +919,7 @@ void pp90::loadSettings(size_t)
     _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
   }
   /** use fixed value for detector distance if value can be converted to double,
-   *  otherwise use the detector distance from the postprocessor
+   *  otherwise use the detector distance from the processor
    */
   isDouble = false;
   QString ddkey("DetectorDistance_m");

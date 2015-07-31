@@ -1,7 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file acqiris_detectors.cpp file contains definition of postprocessors that
+ * @file acqiris_detectors.cpp file contains definition of processors that
  *                             extract information of acqiris detectors.
  *
  * @author Lutz Foucar
@@ -44,7 +44,7 @@ namespace ACQIRIS
  * @param detector the name of the detector that contains the layer
  * @param layerKey key how the layer value is called in the .ini file
  * @param ppNbr the processor number of the processor calling this function
- * @param key the key of the postprocessor calling this function
+ * @param key the key of the processor calling this function
  *
  * @author Lutz Foucar
  */
@@ -90,7 +90,7 @@ DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
  * @param s CASSSettings object to read the info from
  * @param wireendKey key how the wireend value is called in the .ini file
  * @param ppNbr the processor number of the processor calling this function
- * @param key the key of the postprocessor calling this function
+ * @param key the key of the processor calling this function
  *
  * @author Lutz Foucar
  */

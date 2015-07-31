@@ -90,7 +90,7 @@ public:
      * @param _name the name of the value in the file
      * @param _groupname the group where the data will be written to
      * @param _options the options for writing
-     * @param _pp the postprocessor holding the data to be written
+     * @param _pp the processor holding the data to be written
      */
     entry_t(const std::string &_name,
             const std::string &_groupname,
@@ -108,7 +108,7 @@ public:
     /** options for writing */
     uint32_t options;
 
-    /** postprocessor holding the data to be written */
+    /** processor holding the data to be written */
     shared_pointer pp;
   };
 

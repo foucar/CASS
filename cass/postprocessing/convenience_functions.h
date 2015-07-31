@@ -2,7 +2,7 @@
 
 /**
  * @file convenience_functions.h file contains declaration of classes and
- *                               functions that help other postprocessors to do
+ *                               functions that help other processors to do
  *                               their job.
  *
  * @author Lutz Foucar
@@ -34,9 +34,9 @@ class DetectorBackend;
  *
  * @return key containing detector name
  * @param s CASSSettings object to read the info from
- * @param ppNbr the Postprocessor number of the postprocessor calling this
+ * @param ppNbr the Postprocessor number of the processor calling this
  *              function
- * @param key the key of the postprocessor calling this function
+ * @param key the key of the processor calling this function
  *
  * @author Lutz Foucar
  */
@@ -52,9 +52,9 @@ std::string loadDelayDet(CASSSettings &s,
  * @return key containing detector name
  * @param s CASSSettings object to read the info from
  * @param detector the name of the detector that contains the layer
- * @param ppNbr the Postprocessor number of the postprocessor calling this
+ * @param ppNbr the Postprocessor number of the processor calling this
  *              function
- * @param key the key of the postprocessor calling this function
+ * @param key the key of the processor calling this function
  *
  * @author Lutz Foucar
  */
@@ -178,7 +178,7 @@ protected:
 
 /** function to set the 1d histogram properties from the ini file.
  *
- * @param[in] name the name of the postprocessor too look up in cass.ini
+ * @param[in] name the name of the processor too look up in cass.ini
  *
  * @author Lutz Foucar
  */
@@ -187,7 +187,7 @@ HistogramBackend::shared_pointer set1DHist(const Processor::name_t &name);
 
 /** function to set the 2d histogram properties from the ini file.
  *
- * @param[in] name the name of the postprocessor too look up in cass.ini
+ * @param[in] name the name of the processor too look up in cass.ini
  *
  * @author Lutz Foucar
  */

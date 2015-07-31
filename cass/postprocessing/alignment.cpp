@@ -27,7 +27,7 @@ using namespace cass;
 using namespace std;
 
 
-//---postprocessor calculating cos2theta of requested averaged image----------
+//---processor calculating cos2theta of requested averaged image----------
 
 pp200::pp200(const name_t &name)
   : Processor(name)
@@ -130,7 +130,7 @@ void pp200::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 201 projects 2d hist to the radius for a selected center ***
+// *** processors 201 projects 2d hist to the radius for a selected center ***
 
 pp201::pp201(const name_t &name)
   : Processor(name)
@@ -226,7 +226,7 @@ void pp201::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessor 202 transform 2d kartisian hist to polar coordinates ***
+// *** processor 202 transform 2d kartisian hist to polar coordinates ***
 
 pp202::pp202(const name_t &name)
   : Processor(name)

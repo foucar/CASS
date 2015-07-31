@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Stephan Kassemeyer
 
-/** @file rankfilter.h file contains postprocessors that will operate
- *                     on histograms of other postprocessors, calculating
+/** @file rankfilter.h file contains processors that will operate
+ *                     on histograms of other processors, calculating
  *                     statistical rank filters like median filter.
  * @author Stephan Kassemeyer
  */
@@ -28,7 +28,7 @@ namespace cass
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
+ *           the processor name that contain the first histogram. Default
  *           is 0.
  * @cassttng Processor/\%name\%/{MedianSize} \n
  *           how many last values should be included in median calculation.

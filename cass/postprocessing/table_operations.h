@@ -1,8 +1,8 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file table_operations.h  contains postprocessors that will operate
- *                           on table like histograms of other postprocessors.
+ * @file table_operations.h  contains processors that will operate
+ *                           on table like histograms of other processors.
  *
  * @author Lutz Foucar
  */
@@ -27,7 +27,7 @@ namespace cass
  *      settings.
  *
  * @cassttng Processor/\%name\%/{TableName} \n
- *           name of postprocessor that contains the table like histogram
+ *           name of processor that contains the table like histogram
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{ColumnIndex} \n
  *           The index of the column in the table that one wants to have
@@ -73,7 +73,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{TableName} \n
- *           name of postprocessor that contains the table like histogram
+ *           name of processor that contains the table like histogram
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{ColumnIndex} \n
  *           The index of the column in the table that one wants to use the
@@ -124,7 +124,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{TableName} \n
- *           name of postprocessor that contains the table like histogram
+ *           name of processor that contains the table like histogram
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{RowIndex} \n
  *           The index of the row in the table that contains the requested value.
@@ -172,7 +172,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{TableName} \n
- *           name of postprocessor that contains the table like histogram
+ *           name of processor that contains the table like histogram
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{XColumnIndex|YColumnIndex} \n
  *           The index of the column in the table that one wants to have

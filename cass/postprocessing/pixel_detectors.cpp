@@ -1,6 +1,6 @@
 // Copyright (C) 2011,2012 Lutz Foucar
 
-/** @file pixel_detectors.cpp contains postprocessor dealing with more advanced
+/** @file pixel_detectors.cpp contains processor dealing with more advanced
  *                          pixel detectors.
  *
  * @author Lutz Foucar
@@ -512,7 +512,7 @@ void pp149::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessor to correct a distorted pnCCD image ***
+// *** processor to correct a distorted pnCCD image ***
 
 pp241::pp241(const name_t &name)
   : Processor(name)

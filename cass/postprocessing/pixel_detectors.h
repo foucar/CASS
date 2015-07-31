@@ -1,6 +1,6 @@
 // Copyright (C) 2011 Lutz Foucar
 
-/** @file pixel_detectors.h contains postprocessor dealing with more advanced
+/** @file pixel_detectors.h contains processor dealing with more advanced
  *                          pixel detectors.
  *
  * @author Lutz Foucar
@@ -175,7 +175,7 @@ protected:
  *
  * @PPList "144": display the coalesced pixels identified from a pixel detector
  *
- * This postprocessor will fill a 2D histogram with the coalesced hits on a
+ * This processor will fill a 2D histogram with the coalesced hits on a
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * availalbe to coalesce the detected hits on the pixeldetectors.
  *
@@ -242,7 +242,7 @@ protected:
  *
  * @PPList "145": shows the number of coalesced pixels
  *
- * This postprocessor retrieve how many coalesced photonhits have been
+ * This processor retrieve how many coalesced photonhits have been
  * detected in a ccd frame.
  *
  * @see Processor for a list of all commonly available cass.ini
@@ -279,7 +279,7 @@ protected:
  *
  * @PPList "146": histogram of the split level of coalescing
  *
- * This postprocessor creates a 1d histogram displaying what the split level
+ * This processor creates a 1d histogram displaying what the split level
  * of the photonhit was (how many pixels contributed to the photonhit). See
  * cass::pixeldetector::AdvancedDetector for the options available to coalesce
  * the detected hits on the pixeldetectors.
@@ -324,7 +324,7 @@ protected:
  *
  * @PPList "148": display an image generated from the identified pixels
  *
- * This postprocessor will fill a 2D histogram with the detected pixels in a
+ * This processor will fill a 2D histogram with the detected pixels in a
  * pixeldetector. See cass::pixeldetector::AdvancedDetector for the options
  * available identify pixels of interest.
  *
@@ -383,7 +383,7 @@ protected:
  *
  * @PPList "149": the number of detected pixels in a pixeldetector
  *
- * This postprocessor retrieve how many pixels have been detected in a
+ * This processor retrieve how many pixels have been detected in a
  * pixeldetector frame. See cass::pixeldetector::AdvancedDetector for available
  * options on how to detect pixels of interest.
  *
@@ -433,7 +433,7 @@ protected:
  * all since these parts are shielded from the light. A distortion will therefore
  * indicate how much these lines have been distorted.
  *
- * This postprocessor will therefore first determine at the edge of the detector
+ * This processor will therefore first determine at the edge of the detector
  * how much the offset has been distorted. Once this is know one can use a
  * correction factor and substract this from the measured value. A pixels
  * correction is therefore done like

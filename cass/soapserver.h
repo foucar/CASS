@@ -28,10 +28,10 @@ int ns__writeini(size_t what, bool *success);
 // tell server to clear a given histogram
 int ns__clearHistogram(std::string type, bool *success);
 
-// tell server to process a command in given postprocessor
+// tell server to process a command in given processor
 int ns__receiveCommand(std::string type, std::string command, bool *success);
 
-// get list of active postprocessor-ids
+// get list of active processor-ids
 int ns__getPostprocessorIds(bool *success);
 
 // get CASSEvent from server

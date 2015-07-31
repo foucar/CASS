@@ -1,6 +1,6 @@
 // Copyright (C) 2013 Lutz Foucar
 
-/** @file hitfinder.cpp contains postprocessors that will extract pixels of
+/** @file hitfinder.cpp contains processors that will extract pixels of
  *                      interrest from 2d histograms.
  * @author Lutz Foucar
  */
@@ -797,7 +797,7 @@ void pp208::loadSettings(size_t)
   bool ret (setupCondition());
 
   /** use fixed value for wavelength if value can be converted to double,
-   *  otherwise use the wavelength from the postprocessor
+   *  otherwise use the wavelength from the processor
    */
   bool isDouble(false);
   QString wlkey("Wavelength_A");
@@ -815,7 +815,7 @@ void pp208::loadSettings(size_t)
     _getLambda = bind(&pp208::lambdaFromProcessor,this,_1);
   }
   /** use fixed value for detector distance if value can be converted to double,
-   *  otherwise use the detector distance from the postprocessor
+   *  otherwise use the detector distance from the processor
    */
   isDouble = false;
   QString ddkey("DetectorDistance_m");

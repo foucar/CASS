@@ -138,9 +138,9 @@ int CASSsoapService::readini(size_t what, bool *success)
   return SOAP_OK;
 }
 
-/** retrieve which postprocessors are running
+/** retrieve which processors are running
  *
- * get a list of keys of the running postprocessors. Lock the postprocessors
+ * get a list of keys of the running processors. Lock the postprocessors
  * handler lock to prevent that the list changes while its being created.
  */
 int CASSsoapService::getPostprocessorIds(bool *success)
@@ -153,7 +153,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
   soap_set_dime(this);
   shared_ptr<string> datstr(new string(ser->buffer()));
   queue.enqueue(datstr);
-  int result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
+  int result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/processorList", "0", 0, NULL);
   if(100 < queue.size())
     queue.dequeue();
   *success = true;
@@ -163,8 +163,8 @@ int CASSsoapService::getPostprocessorIds(bool *success)
 /** will call savesettings members of workers
  *
  * pause the workers before calling this function then call savesettings for
- * analyzers and postprocessors, then resume the worker threads Prevent others
- * from retrieving data from the postprocessors by locking it
+ * analyzers and processors, then resume the worker threads Prevent others
+ * from retrieving data from the processors by locking it
  */
 int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
 {
@@ -182,10 +182,10 @@ int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
 
 }
 
-/** clear the selected postprocessors histogram list
+/** clear the selected processors histogram list
  *
- * lock the postprocessors handler postprocessor list and retrieve the
- * requested postprocessor from it. Tell it to clear its histogram list.
+ * lock the processors handler postprocessor list and retrieve the
+ * requested processor from it. Tell it to clear its histogram list.
  */
 int CASSsoapService::clearHistogram(ProcessorManager::key_t type, bool *success)
 {
@@ -229,9 +229,9 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
   }
 }
 
-/** pass the string on to the requested postprocessor
+/** pass the string on to the requested processor
  *
- * lock the postprocessor handler list then retrieve the requested postprocessor
+ * lock the processor handler list then retrieve the requested postprocessor
  * and pass the string to process to it.
  */
 int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command, bool *success)
@@ -270,7 +270,7 @@ int CASSsoapService::getEvent(size_t /*type*/, unsigned /*t1*/, unsigned /*t2*/,
 
 /** get the the requested histogram and return it as dime attachement
  *
- * lock the postprocessor handlers list by using the lock. then get a copy of
+ * lock the processor handlers list by using the lock. then get a copy of
  * the requested histogram and serialize it. The mimetype of the dime is
  * determined by the dimension of the histogram.
  *

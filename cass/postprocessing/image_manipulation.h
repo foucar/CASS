@@ -1,7 +1,7 @@
 // Copyright (C) 2012 Lutz Foucar
 
 /**
- * @file image_manipulation.h file contains postprocessors that will manipulate
+ * @file image_manipulation.h file contains processors that will manipulate
  *                            2d histograms
  *
  * @author Lutz Foucar
@@ -71,7 +71,7 @@ struct Rotor
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the first histogram. Default
+ *           the processor name that contain the first histogram. Default
  *           is "".
  * @cassttng Processor/\%name\%/{Operation} \n
  *           the operation that one wants to perform on the 2d histogram.
@@ -185,7 +185,7 @@ y |     00      |     08      |     16      |     24      |
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contains the histogram containing the
+ *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
  * @author Lutz Foucar
@@ -315,7 +315,7 @@ y |     00      |
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contains the histogram containing the
+ *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
  * @author Lutz Foucar
@@ -466,7 +466,7 @@ y |     00      |
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contains the histogram containing the
+ *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  * @cassttng Processor/\%name\%/{GeometryFilename} \n
  * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
@@ -532,7 +532,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contains the histogram containing the
+ *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  * @cassttng Processor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "cspad.geom".

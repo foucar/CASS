@@ -1,7 +1,7 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file coltrims_analysis.cpp file contains the postprocessor specific for
+ * @file coltrims_analysis.cpp file contains the processor specific for
  *                             coltrims analysis
  *
  * @author Lutz Foucar

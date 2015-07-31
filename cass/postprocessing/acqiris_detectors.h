@@ -1,7 +1,7 @@
 //Copyright (C) 2010-2011 Lutz Foucar
 
 /**
- * @file acqiris_detectors.h file contains declaration of postprocessors that
+ * @file acqiris_detectors.h file contains declaration of processors that
  *                           extract information of acqiris detectors.
  *
  * @author Lutz Foucar
@@ -28,7 +28,7 @@ class Histogram2DFloat;
  *
  * @PPList "150":TofDetector number of signals in MCP waveform
  *
- * This postprocessor will output how many Signals have been found
+ * This processor will output how many Signals have been found
  * in the acqiris channel for the mcp of the detector.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -75,7 +75,7 @@ protected:
  *
  * @PPList "151":TofDetector all signals
  *
- * This postprocessor will output the times of all found singal int the
+ * This processor will output the times of all found singal int the
  * mcp waveform of the detector. This is a Time of Flight Spectrum
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -123,7 +123,7 @@ protected:
  *
  * @PPList "152":TofDetector signal height vs. fwhm
  *
- * This postprocessor will make a histogram of the fwhm and height of
+ * This processor will make a histogram of the fwhm and height of
  * found mcp signals.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -172,7 +172,7 @@ protected:
  *
  * @PPList "153":TofDetector Deadtime between two consecutive MCP signals
  *
- * This postprocessor will output a histogram of the deadtime between two
+ * This processor will output a histogram of the deadtime between two
  * consecutive mcp signals.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -224,7 +224,7 @@ protected:
  *
  * @PPList "160":Delayline wireend number of signals
  *
- * This postprocessor will output how many Signals have been found in the
+ * This processor will output how many Signals have been found in the
  * acqiris channels of requested layers.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -293,7 +293,7 @@ protected:
  *
  * @PPList "161":Delayline wireend signal height vs. fwhm
  *
- * This postprocessor will make a histogram of the fwhm and height of
+ * This processor will make a histogram of the fwhm and height of
  * all identified signals in a detector.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -363,7 +363,7 @@ protected:
  *
  * @PPList "162":Delayline timesum on anode
  *
- * This postprocessor will output Timesum of a Delayline Anode for the first
+ * This processor will output Timesum of a Delayline Anode for the first
  * hit in a selectable good range.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -430,7 +430,7 @@ protected:
  *
  * @PPList "163":Delayline timesum on anode vs. position
  *
- * This postprocessor will output Timesum of a Delayline Anode versus the
+ * This processor will output Timesum of a Delayline Anode versus the
  * position of the delayline. This is used to know the value for extracting
  * the detectorhits.
  *
@@ -500,7 +500,7 @@ protected:
  *
  * @PPList "164":Delayline image of first good hit
  *
- * This postprocessor will output the Detector picture of the first Hit in
+ * This processor will output the Detector picture of the first Hit in
  * the selectable good range. The added Hit fullfilles the timesum condition.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -593,7 +593,7 @@ protected:
  *
  * @PPList "165":Delayline reconstructed Number of detectorhits
  *
- * This postprocessor will output the number of reconstructed detector hits.
+ * This processor will output the number of reconstructed detector hits.
  *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.
@@ -641,8 +641,8 @@ protected:
  *
  * @PPList "166":Delayline data of all reconstructed detectorhits
  *
- * This postprocessor will output the Detector Hit values reqeuested.
- * depending on the postprocessor id, it will histogram 2 of the 3 values
+ * This processor will output the Detector Hit values reqeuested.
+ * depending on the processor id, it will histogram 2 of the 3 values
  * of an detectorhit. It will make a condition on the third value of the
  * detector hit.
  *
@@ -729,7 +729,7 @@ protected:
  *
  * @PPList "167":Delayline Deadtime between two consecutive anode signals
  *
- * This postprocessor will output a histogram of the deadtime between two
+ * This processor will output a histogram of the deadtime between two
  * consecutive anode signals.
  *
  * To set up the channel assignment for the requested detector one needs to set
@@ -801,7 +801,7 @@ protected:
  *
  * @PPList "220":PIPICO Spectrum
  *
- * This postprocessor will create Photo-Ion Photo-Ion Coincidence Spectra.
+ * This processor will create Photo-Ion Photo-Ion Coincidence Spectra.
  *
  * To set up the channel assignment for the requested detector one needs to set
  * up the detector parameters.

@@ -1,6 +1,6 @@
 // Copyright (C) 2013 Lutz Foucar
 
-/** @file hitfinder.h contains postprocessors that will extract pixels of
+/** @file hitfinder.h contains processors that will extract pixels of
  *                    interrest from 2d histograms.
  * @author Lutz Foucar
  */
@@ -34,7 +34,7 @@ namespace cass
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the 2d histogram. Default
+ *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
@@ -81,7 +81,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the 2d histogram. Default
+ *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
@@ -108,7 +108,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** postprocessor containing the image to find the bragg peaks in */
+  /** processor containing the image to find the bragg peaks in */
   shared_pointer _hist;
 
   /** definition of the table */
@@ -199,10 +199,10 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the 2d histogram. Default
+ *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{TableName} \n
- *           name of postprocessor that contains the table like histogram that
+ *           name of processor that contains the table like histogram that
  *           the pixels of interest are taken from
  * @cassttng Processor/\%name\%/{BoxSizeX|BoxSizeY} \n
  *           size in x and y of the box that should be drawn around the found
@@ -258,7 +258,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the 2d histogram. Default
+ *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
@@ -283,10 +283,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** postprocessor containing the image to find the bragg peaks in */
+  /** processor containing the image to find the bragg peaks in */
   shared_pointer _imagePP;
 
-  /** postprocessor containing the noise image for thresholding */
+  /** processor containing the noise image for thresholding */
   shared_pointer _noisePP;
 
   /** definition of the table */
@@ -318,7 +318,7 @@ protected:
  *
  * @PPList "207": createimage of pixels in the list
  *
- * This postprocessor will fill a 2D histogram with the detected pixels that are
+ * This processor will fill a 2D histogram with the detected pixels that are
  * placed on a list
  *
  * @see Processor for a list of all commonly available cass.ini
@@ -385,7 +385,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{HistName} \n
- *           the postprocessor name that contain the 2d histogram. Default
+ *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
  *           Size of the subsection of the image. Default is 1024|512.
@@ -442,7 +442,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** postprocessor containing the image to find the bragg peaks in */
+  /** processor containing the image to find the bragg peaks in */
   shared_pointer _imagePP;
 
   /** definition of the table */

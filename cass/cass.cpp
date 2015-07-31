@@ -212,8 +212,8 @@ int main(int argc, char **argv)
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
      *  and finished signals such that they notify each other about that they are
-     *  done processing the events. Also create the postprocessor singleton used
-     *  by the worker to post process the events.
+     *  done processing the events. Also create the processor singleton used
+     *  by the worker to  process the events.
      */
     RingBuffer<CASSEvent> ringbuffer(RingBufferSize);
     ProcessorManager::instance(outputfilename);

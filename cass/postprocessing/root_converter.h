@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file root_converter.h file contains declaration of postprocessor 2000
+ * @file root_converter.h file contains declaration of processor 2000
  *
  * @author Lutz Foucar
  */
@@ -66,7 +66,7 @@ public:
      *
      * @param _name the name of the value in the file
      * @param _groupname the group where the data will be written to
-     * @param _pp the postprocessor holding the data to be written
+     * @param _pp the processor holding the data to be written
      */
     entry_t(const std::string &_name,
             const std::string &_groupname,
@@ -80,11 +80,11 @@ public:
     /** group where the data will be written to */
     std::string groupname;
 
-    /** postprocessor holding the data to be written */
+    /** processor holding the data to be written */
     shared_pointer pp;
   };
 
-  /** Construct postprocessor for converting histograms to root histograms */
+  /** Construct processor for converting histograms to root histograms */
   pp2000(const name_t&name);
 
   /** only a stub does nothing, but needs to be there because its pure virtual in base class */

@@ -35,7 +35,7 @@ class DetectorBackend;
 /** Helper for Acqiris related Postprocessors.
  *
  * This class will return the requested detector, which signals are going to
- * a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
+ * a Acqiris Instrument. It is implemented as a singleton such that every processor
  * can call it without knowing about it.
  *
  * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n

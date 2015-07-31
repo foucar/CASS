@@ -119,7 +119,7 @@ protected:
   /** storage for row sum (1d integral of image) */
   Histogram2DFloat* _rowsum;
 
-  // outlier detection postprocessor:
+  // outlier detection processor:
   typedef vigra::Matrix<double> matrixType;
 
   int _nTrainingSetSize;

@@ -158,7 +158,7 @@ void pp400::loadSettings(size_t)
            toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
            " binTofUp:" + toString(binTofUp) + "'. Conversion parameters e0:" +
            toString(e0) + " t0(bin):" + toString(t0) + "(" + toString(bint0) + ") alpha:" +
-           toString(alpha) + ", NbrBins:" + toString(NbrBins) + ". Condition on postprocessor '" +
+           toString(alpha) + ", NbrBins:" + toString(NbrBins) + ". Condition on processor '" +
            _condition->name() + "'");
 }
 
@@ -231,7 +231,7 @@ void pp400::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessor 402 square averages histograms ***
+// *** processor 402 square averages histograms ***
 
 pp402::pp402(const name_t &name)
   : AccumulatingProcessor(name)
@@ -255,7 +255,7 @@ void pp402::loadSettings(size_t)
   Log::add(Log::INFO,"processor '" + name() +
            "' sqaverages histograms from Processor '" +  _pHist->name() +
            "' alpha for the averaging '" + toString(_alpha) +
-           "'. Condition on postprocessor '" + _condition->name() + "'");
+           "'. Condition on processor '" + _condition->name() + "'");
 }
 
 void pp402::process(const CASSEvent& evt, HistogramBackend &res)
@@ -339,7 +339,7 @@ void pp404::loadSettings(size_t)
            " binTofUp:" + toString(binTofUp) + "'. Conversion parameters MtC0:" +
            toString(MtC0) + " t0(bin):" + toString(t0) + "'. Conversion parameters MtC1:" +
            toString(MtC1) + " t1(bin):" + toString(t1) +", NbrBins:"+ toString(NbrBins) +
-           ". Condition on postprocessor '" + _condition->name() +"'");
+           ". Condition on processor '" + _condition->name() +"'");
 
 }
 
@@ -419,7 +419,7 @@ void pp404::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 405 calcs pulse duration from bld ***
+// *** processors 405 calcs pulse duration from bld ***
 
 pp405::pp405(const name_t &name)
   : Processor(name)
@@ -526,7 +526,7 @@ void pp406::loadSettings(size_t)
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
            "'. Conversion parameters e0:"+ toString(e0) + " t0(bin):" +
            toString(t0) + "(" + toString(bint0) + ") alpha:" + toString(alpha) +
-            ", NbrBins:" + toString(NbrBins) + ". Condition on postprocessor '" +
+            ", NbrBins:" + toString(NbrBins) + ". Condition on processor '" +
             _condition->name() +"'");
 }
 
@@ -658,7 +658,7 @@ void pp407::loadSettings(size_t)
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
            "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" + toString(t0) +
            "(" + toString(bint0) + ") alpha:" + toString(alpha) + ", NbrBins:" +
-           toString(NbrBins) + ". Condition on postprocessor '" + _condition->name() + "'");
+           toString(NbrBins) + ". Condition on processor '" + _condition->name() + "'");
 }
 
 double pp407::calcEtoTof (double energy)
@@ -811,7 +811,7 @@ void pp408::loadSettings(size_t)
            toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
            "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" +
            toString(t0) + "(" + toString(bint0) + ") alpha:"+ toString(alpha) +
-           ", NbrBins:"+ toString(NbrBins) + ". Condition on postprocessor '" +
+           ", NbrBins:"+ toString(NbrBins) + ". Condition on processor '" +
            _condition->name() + "'");
 }
 
@@ -906,7 +906,7 @@ void pp408::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessor 410 calculate covariance ***
+// *** processor 410 calculate covariance ***
 
 pp410::pp410(const name_t &name)
   : AccumulatingProcessor(name)
@@ -938,7 +938,7 @@ void pp410::loadSettings(size_t)
                                  one.axis()[HistogramBackend::xAxis].title(),
                                  one.axis()[HistogramBackend::xAxis].title())));
   Log::add(Log::INFO,"processor '" + name() + "'Calculate variance '"+
-           _pHist->name() + "'. Condition on postprocessor '" + _condition->name() + "'");
+           _pHist->name() + "'. Condition on processor '" + _condition->name() + "'");
 }
 
 void pp410::calcCovariance(const HistogramFloatBase::storage_t& data ,
@@ -1012,7 +1012,7 @@ void pp412::loadSettings(size_t)
     return;
   createHistList(_hist1D->result().copy_sptr());
   Log::add(Log::INFO,"processor '" + name() + "'Calcurate variance '" +
-           _hist1D->name() + "'. Condition on postprocessor '" + _condition->name() + "'");
+           _hist1D->name() + "'. Condition on processor '" + _condition->name() + "'");
 }
 
 void pp412::calcCovariance(const HistogramFloatBase::storage_t& waveTrace ,

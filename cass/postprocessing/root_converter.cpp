@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file root_converter.cpp file contains definition of postprocessor 2000
+ * @file root_converter.cpp file contains definition of processor 2000
  *
  * @author Lutz Foucar
  */

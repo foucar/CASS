@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file machine_data.cpp file contains definition of postprocessors that
+ * @file machine_data.cpp file contains definition of processors that
  *                        extract information from the beamline and epics data.
  *
  * @author Lutz Foucar
@@ -22,7 +22,7 @@ using namespace MachineData;
 using namespace std;
 using namespace std::tr1;
 
-// *** postprocessors 120 retrives beamline data ***
+// *** processors 120 retrives beamline data ***
 
 pp120::pp120(const name_t &name)
   : Processor(name)
@@ -63,7 +63,7 @@ void pp120::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 121 checks event code ***
+// *** processors 121 checks event code ***
 
 pp121::pp121(const name_t &name)
   : Processor(name)
@@ -109,7 +109,7 @@ void pp121::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 122 retrieve eventID ***
+// *** processors 122 retrieve eventID ***
 
 pp122::pp122(const name_t &name)
   : Processor(name)
@@ -159,7 +159,7 @@ void pp122::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 123 retrieve beamline spectrometer data ***
+// *** processors 123 retrieve beamline spectrometer data ***
 
 pp123::pp123(const name_t &name)
   : Processor(name)
@@ -224,7 +224,7 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 130 retrives epics data ***
+// *** processors 130 retrives epics data ***
 
 pp130::pp130(const name_t &name)
   : Processor(name)
@@ -269,7 +269,7 @@ void pp130::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** postprocessors 230 calcs photonenergy from bld ***
+// *** processors 230 calcs photonenergy from bld ***
 
 pp230::pp230(const name_t &name)
   : Processor(name)

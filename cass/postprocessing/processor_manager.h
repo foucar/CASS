@@ -2,7 +2,7 @@
 // Copyright (C) 2010 Jochen Kuepper
 
 /**
- * @file processor_manager.h contains the manager for the postprocessors
+ * @file processor_manager.h contains the manager for the processors
  *
  * @author Lutz Foucar
  */
@@ -35,15 +35,15 @@ class IdList;
 
 
 
-/** container and call handler for all registered postprocessors.
+/** container and call handler for all registered processors.
 
-All currently registered postprocessors are listed here, specifying their id and
-a short description. The postprocessor classes are named according to their
+All currently registered processors are listed here, specifying their id and
+a short description. The processor classes are named according to their
 number and placed in the file for the most appropriate group according to their
 content.
 
 @section pplist List of Processors
-The Classes that implement the postprocessor are pointed out in parenthesis. See
+The Classes that implement the processor are pointed out in parenthesis. See
 the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
@@ -262,7 +262,7 @@ class ProcessorManager
 {
 public:
 
-  /** List of all currently registered postprocessors
+  /** List of all currently registered processors
    *
    * @todo instead of this list use strings as id
    *
@@ -476,13 +476,13 @@ public:
   /** a shared pointer of this class */
   typedef std::tr1::shared_ptr<ProcessorManager> shared_pointer;
 
-  /** type of postproccessor accessor key */
+  /** type of proccessor accessor key */
   typedef Processor::name_t key_t;
 
-  /** Container of all currently active postprocessors */
+  /** Container of all currently active processors */
   typedef std::list<Processor::shared_pointer> processors_t;
 
-  /** List of all postprocessor keys */
+  /** List of all processor keys */
   typedef Processor::names_t keyList_t;
 
   /** create the instance if not it does not exist already.
@@ -512,15 +512,15 @@ public:
 
   /** process event
    *
-   * This function will call postprocessors operators in the container
+   * This function will call processors operators in the container
    *
-   * @param event CASSEvent to process by all active postprocessors
+   * @param event CASSEvent to process by all active processors
    */
   void operator()(const CASSEvent& event);
 
-  /** retrieve all activated postprocessors keys
+  /** retrieve all activated processors keys
    *
-   * populate the serializable list of keys with the postprocessors that are
+   * populate the serializable list of keys with the processors that are
    * not hidden and return it
    *
    * @return shared pointer to the key list
@@ -542,30 +542,30 @@ public:
   /** will be called when program will quit */
   void aboutToQuit();
 
-  /** retrieve the list of active postprocessors */
+  /** retrieve the list of active processors */
   const keyList_t &activeList() {return _active;}
 
   /** a read write lock
    *
    * read write for making sure that reload is not called when someone
-   * wants retrieve a list or retrieve a postprocessor.
+   * wants retrieve a list or retrieve a processor.
    */
   QReadWriteLock lock;
 
-  /** Load active postprocessors and histograms
+  /** Load active processors and histograms
    *
-   * Reset set of active postprocessors/histograms based on cass.ini
+   * Reset set of active processors/histograms based on cass.ini
    */
   void loadSettings(size_t);
 
 protected:
   /** factory to create new processor with the name key.
    *
-   * The ID which postprocessor should be used for the name is extracted from
+   * The ID which processor should be used for the name is extracted from
    * the settings and has the property ID.
    *
-   * @return instance the newly created postprocessor
-   * @param[in] key the key of the postprocessor
+   * @return instance the newly created processor
+   * @param[in] key the key of the processor
    */
   Processor::shared_pointer create(const key_t &key);
 
@@ -576,7 +576,7 @@ protected:
    */
   std::tr1::shared_ptr<IdList> _keys;
 
-  /** container for user selected and registered postprocessors */
+  /** container for user selected and registered processors */
   processors_t _processors;
 
   /** filename of the output file */
@@ -589,7 +589,7 @@ private:
   /** Private constructor of singleton
    *
    * @param outputfilename filename of the file containing the results. Used
-   *                       by special postprocessors.
+   *                       by special processors.
    */
   ProcessorManager(std::string outputfilename);
 

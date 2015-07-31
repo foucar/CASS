@@ -73,10 +73,10 @@ namespace cass
     void serialize(SerializerBackend &out)const { serialize(&out); }
 
   private:
-    /** a list of all postprocessor keys */
+    /** a list of all processor keys */
     std::list<std::string> _list;
 
-    /** the size of the postprocessor keys list */
+    /** the size of the processor keys list */
     size_t _size;
   };
 

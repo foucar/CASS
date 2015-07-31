@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file roottree_converter.h file contains declaration of postprocessor 2001
+ * @file roottree_converter.h file contains declaration of processor 2001
  *
  * @author Lutz Foucar
  */
@@ -35,7 +35,7 @@ namespace cass
  * @cassttng Processor/\%name\%/{Particles}\n
  *           comma separated list of Particles who's hits should be
  *           added to the tree. The corrosponding detector does not need to be
- *           added above since this postprocessor will find out what detector
+ *           added above since this processor will find out what detector
  *           a particle belongs to automatically.
  * @cassttng Processor/\%name\%/{Processors}\n
  *           comma separated list of 0d Processors who's values should be
@@ -52,7 +52,7 @@ namespace cass
 class pp2001 : public Processor
 {
 public:
-  /** Construct postprocessor for converting histograms to root histograms */
+  /** Construct processor for converting histograms to root histograms */
   pp2001(const name_t&, std::string);
 
   /** only a stub does nothing, but needs to be there because its pure virtual in base class */
@@ -108,10 +108,10 @@ protected:
   /** container for all 0d Processors that should be added to the tree */
   std::list<shared_pointer> _pps;
 
-  /** 0d postprocessor structure */
+  /** 0d processor structure */
   ppstructure_t _ppstructure;
 
-  /** pointer to the 0d postprocessor structure */
+  /** pointer to the 0d processor structure */
   ppstructure_t *_ppstructure_ptr;
 
 private:

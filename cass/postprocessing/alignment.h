@@ -21,7 +21,7 @@ class Histogram0DFloat;
  *
  * @PPList "200":\f$\cos^2\theta\f$ of a requested image.
  *
- * This postprocessor reduces the running average of the requested image
+ * This processor reduces the running average of the requested image
  * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
  *
  * @see Processor for a list of all commonly available cass.ini
@@ -43,7 +43,7 @@ class Histogram0DFloat;
 class pp200 : public Processor
 {
 public:
-  /** Construct postprocessor for Gaussian height of image */
+  /** Construct processor for Gaussian height of image */
   pp200(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */
@@ -82,7 +82,7 @@ protected:
  *
  * @PPList "201":angular distribution of a requested image.
  *
- * this postprocessor will iterate through the requested radius set and
+ * this processor will iterate through the requested radius set and
  * all angles. Then it transforms the phi,r to kartesian coordinates to find
  * the pixel in the image that the r,phi values corrospond to. It will do a
  * 2D interpolation to be able to weight the content of the pixel correctly.
@@ -109,7 +109,7 @@ protected:
 class pp201 : public Processor
 {
 public:
-  /** Construct postprocessor for Gaussian height of image */
+  /** Construct processor for Gaussian height of image */
   pp201(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */
@@ -143,7 +143,7 @@ protected:
  *
  * @PPList "202":transform kartesian to poloar coordinates
  *
- * This postprocessor transforms the kartesian coordinates of an image to its
+ * This processor transforms the kartesian coordinates of an image to its
  * polar representation. It transforms the phi, r to kartesian coordinates to
  * find the pixel in the image that the r,phi values corrospond to. It will
  * do a 2D interpolation to be able to weight the content of the pixel
@@ -173,7 +173,7 @@ protected:
 class pp202 : public Processor
 {
 public:
-  /** Construct postprocessor for Gaussian height of image */
+  /** Construct processor for Gaussian height of image */
   pp202(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */

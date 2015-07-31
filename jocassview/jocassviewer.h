@@ -205,7 +205,7 @@ private slots:
 
   /** send clear histograms
    *
-   * ask the user which postprocessors histograms should be cleared and tell
+   * ask the user which processors histograms should be cleared and tell
    * the server to clear the requested histogram
    */
   void clearHistogram()const;

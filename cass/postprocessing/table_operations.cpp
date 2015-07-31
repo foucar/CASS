@@ -1,8 +1,8 @@
 // Copyright (C) 2013 Lutz Foucar
 
 /**
- * @file table_operations.cpp contains postprocessors that will operate
- *                            on table like histograms of other postprocessors.
+ * @file table_operations.cpp contains processors that will operate
+ *                            on table like histograms of other processors.
  *
  * @author Lutz Foucar
  */
@@ -47,7 +47,7 @@ void pp72::loadSettings(size_t)
   createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves column with index '" + toString(_colIdx) +
-           "' from table " + _table->name() + "' .Condition on postprocessor '" +
+           "' from table " + _table->name() + "' .Condition on processor '" +
            _condition->name() + "'");
 }
 
@@ -107,7 +107,7 @@ void pp73::loadSettings(size_t)
            "' retrieves subset of table in '" + _table->name() + "'. UpperBound '" +
            toString(_bounds.first) + "' LowerBound '" + toString(_bounds.second) +
            "' on values in column with index '" + toString(_colIdx) +
-           "'. Condition on postprocessor '" + _condition->name() + "'");
+           "'. Condition on processor '" + _condition->name() + "'");
 }
 
 void pp73::process(const CASSEvent& evt, HistogramBackend &res)
@@ -173,7 +173,7 @@ void pp74::loadSettings(size_t)
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves the value of row '" + toString(_rowIdx) +
            "' and column '" + toString(_colIdx) + "' from table '" +
-           _table->name() + "'. Condition on postprocessor '" +
+           _table->name() + "'. Condition on processor '" +
            _condition->name() + "'");
 }
 
@@ -241,7 +241,7 @@ void pp79::loadSettings(size_t)
   Log::add(Log::INFO,"Processor '" + name() +
            "' X column index '" + toString(_xcolIdx) +
            "' Y column index '" + toString(_ycolIdx) +
-           "' Table " + _table->name() + "' .Condition on postprocessor '" +
+           "' Table " + _table->name() + "' .Condition on processor '" +
            _condition->name() + "'");
 }
 

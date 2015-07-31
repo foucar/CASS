@@ -2,7 +2,7 @@
 // Copyright (C) 2010 Jochen Küpper
 
 /**
- * @file processor_manager.cpp contains the manager for the postprocessors
+ * @file processor_manager.cpp contains the manager for the processors
  *
  * @author Lutz Foucar
  */
@@ -111,16 +111,16 @@ ProcessorManager::ProcessorManager(string outputfilename)
 void ProcessorManager::operator()(const CASSEvent& event)
 {
   /**
-   * @todo catch when postprocessor throws an exeption and delete the
-   *       postprocessor from the active list.
-   *       - create a remove list with all postprocessors that depend on this
+   * @todo catch when processor throws an exeption and delete the
+   *       processor from the active list.
+   *       - create a remove list with all processors that depend on this
    *       - go through that list and fill all pp that depend on the ones in
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
    *       - this needs to be done in a locked way since more than one thread
    *         do this
    *
-   * @note one should not use for_each macro here, because the postprocressors
+   * @note one should not use for_each macro here, because the procressors
    *       rely on beeing processed sequantially in the right order. Using
    *       for_each could result in parallel execution via omp.
    */
@@ -138,7 +138,7 @@ void ProcessorManager::operator()(const CASSEvent& event)
 
 void ProcessorManager::aboutToQuit()
 {
- /** @note one should not use for_each macro here, because the postprocressors
+ /** @note one should not use for_each macro here, because the procressors
   *        rely on beeing processed sequantially in the right order. Using
   *        for_each could result in parallel execution via omp.
   */
@@ -150,10 +150,10 @@ void ProcessorManager::aboutToQuit()
 
 void ProcessorManager::loadSettings(size_t)
 {
-  /** remove all postprocessors */
+  /** remove all processors */
   _processors.clear();
 
-  /** load all postprocessors declared in the ini file and convert them to list
+  /** load all processors declared in the ini file and convert them to list
    *  of std strings
    */
   Log::add(Log::DEBUG0,"ProcessorManager::loadSettings");
@@ -170,14 +170,14 @@ void ProcessorManager::loadSettings(size_t)
   Processor::names_t declaredProcessors(list.size());
   transform(list.begin(), list.end(), declaredProcessors.begin(),
             tr1::bind(&QString::toStdString,tr1::placeholders::_1));
-  Log::add(Log::VERBOSEINFO, "ProcessorManager::loadSettings(): Number of unique postprocessor activations: " +
+  Log::add(Log::VERBOSEINFO, "ProcessorManager::loadSettings(): Number of unique processor activations: " +
            toString(declaredProcessors.size()));
 
-  /** add a default true and false postprocessors to beginning of list*/
+  /** add a default true and false processors to beginning of list*/
   declaredProcessors.push_front("DefaultTrueHist");
   declaredProcessors.push_front("DefaultFalseHist");
 
-  /** create all postprocessors in the list*/
+  /** create all processors in the list*/
   Processor::names_t::const_iterator iter(declaredProcessors.begin());
   Processor::names_t::const_iterator end = declaredProcessors.end();
   while( iter != end )
@@ -185,20 +185,20 @@ void ProcessorManager::loadSettings(size_t)
     _processors.push_back(create(*iter++));
   }
 
-  /** sort the postprocessors such that the ones with no dependencies are ealier
+  /** sort the processors such that the ones with no dependencies are ealier
    *  in the list
    */
   processors_t::iterator pp(_processors.begin());
   processors_t::iterator pEnd(_processors.end());
   while (pp != pEnd)
   {
-    /** retrive dependencies of postprocessor */
+    /** retrive dependencies of processor */
     typedef Processor::names_t deps_t;
     const deps_t &deps((*pp)->dependencies());
 
-    /** move all dependencies of this postprocessor that appear later in the list
-     *  to one before this postprocessor in the list and set the pointer to
-     *  the moved postprocessor
+    /** move all dependencies of this processor that appear later in the list
+     *  to one before this processor in the list and set the pointer to
+     *  the moved processor
      */
     bool reordered(false);
     deps_t::const_iterator dep(deps.begin());
@@ -235,7 +235,7 @@ void ProcessorManager::loadSettings(size_t)
     output += ((*pp++)->name() + ", ");
   Log::add(Log::INFO,output);
 
-  /** load the settings of the postprocessors */
+  /** load the settings of the processors */
   pp = _processors.begin();
   while (pp != pEnd)
     (*pp++)->loadSettings(0);

@@ -32,8 +32,7 @@ class ProcessorManager;
  *
  * The thread will do the following tasks in a loop:
  * - retrive an event form the buffer,
- * - analyze it using the analyzer,
- * - postanalyze it using the selected postanalyzers,
+ * - process it using the selected processors,
  * - put the event back to the buffer
  *
  * @author Lutz Foucar
@@ -59,9 +58,10 @@ public:
    *
    * While the thread has not been quitted do
    * retrieve a cassevent from the ringbuffer, but with a timeout. If we got
-   * a new event from the ringbuffer put it into the pre analyzer chain and
-   * then into the postanalysis chain. Then put it back to the ringbuffer for
-   * new refilling and increase the counter of the ratemeter.
+   * a new event from the ringbuffer put it into the processing chain. Then put
+   * it back to the ringbuffer for new refilling and increase the counter
+   * of the ratemeter.
+   * Before processing double check if the event has a correct id
    */
   void runthis();
 
@@ -69,7 +69,7 @@ private:
   /** the ringbuffer */
   RingBuffer<CASSEvent>  &_ringbuffer;
 
-  /** the postprocessors */
+  /** the processors */
   ProcessorManager &_process;
 
   /** the ratemeter to measure the analysis rate */
@@ -139,7 +139,7 @@ public:
    *
    * Will call the end()
    * member of all workers. Then waits until all workers are finished. After this
-   * the aboutToQuit member of the postprocessor and the Analyzer are notified.
+   * the aboutToQuit member of the processor and the Analyzer are notified.
    *
    * function is not reentrant. One needs to use the _lock mutex to prevent
    * simultanious calling of this function.

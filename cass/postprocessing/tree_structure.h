@@ -26,7 +26,7 @@ typedef std::map<std::string, double> machinestructure_t;
 /** a vector of bools that show which eventcodes where associated with the event */
 typedef std::vector<bool> eventStatus_t;
 
-/** the 0d postprocessor structure a map of values identified by a string */
+/** the 0d processor structure a map of values identified by a string */
 typedef std::map<std::string, double> ppstructure_t;
 
 #endif

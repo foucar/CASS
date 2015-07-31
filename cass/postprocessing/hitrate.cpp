@@ -21,7 +21,7 @@
 using namespace cass;
 using namespace std;
 
-// *** postprocessor 300 finds Single particle hits ***
+// *** processor 300 finds Single particle hits ***
 pp300::pp300(const name_t &name)
   : Processor(name),
     _integralimg(NULL),
@@ -125,7 +125,7 @@ void pp300::loadSettings(size_t)
   createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
 
 
-  // outlier postprocessor:
+  // outlier processor:
   _nTrainingSetSize = settings.value("TrainingSetSize", 200).toInt();
   _nFeatures = 5;
   _variationFeatures = matrixType(_nTrainingSetSize, _nFeatures);

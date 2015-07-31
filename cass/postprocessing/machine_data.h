@@ -1,7 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file machine_data.h file contains declaration of postprocessors that
+ * @file machine_data.h file contains declaration of processors that
  *                      extract information from the beamline and epics data.
  *
  * @author Lutz Foucar
@@ -26,7 +26,7 @@ class Histogram0DFloat;
  *
  * @PPList "120":Beamline data
  *
- * This postprocessor will retrieve the requested Beamline Data from
+ * This processor will retrieve the requested Beamline Data from
  * the cass event.
  *
  * @see Processor for a list of all commonly available cass.ini
@@ -103,7 +103,7 @@ protected:
  *
  * @PPList "121":Eventcode check
  *
- * This postprocessor will check whether an eventcode is present in the event.
+ * This processor will check whether an eventcode is present in the event.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -240,7 +240,7 @@ private:
  *
  * @PPList "130":Epics data
  *
- * This postprocessor will retrieve the requested epics data from the cass-event.
+ * This processor will retrieve the requested epics data from the cass-event.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -285,7 +285,7 @@ protected:
  *
  * @PPList "230":Photon energy of Shot
  *
- * This postprocessor will calculate the photonenergy from the BLD. Here is an
+ * This processor will calculate the photonenergy from the BLD. Here is an
  * email corrospondence from Andy Acquila and Anton Barty explaining where the
  * calculation comes from:
  *

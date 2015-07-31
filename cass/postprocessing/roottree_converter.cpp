@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file roottree_converter.cpp file contains definition of postprocessor 2001
+ * @file roottree_converter.cpp file contains definition of processor 2001
  *
  * @author Lutz Foucar
  */
@@ -332,7 +332,7 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
   _eventstatusstructure.resize(machinedata.EvrData().size());
   copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
 
-  /** copy the values of each 0d Processor into the postprocessor structure */
+  /** copy the values of each 0d Processor into the processor structure */
   std::list<shared_pointer>::const_iterator ProcessorsIt(_pps.begin());
   std::list<shared_pointer>::const_iterator ProcessorsEnd(_pps.end());
   for (;ProcessorsIt != ProcessorsEnd;++ProcessorsIt)

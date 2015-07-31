@@ -127,7 +127,7 @@ v  | C  | A  | |
    * 1 (reverse) -> C \n
    * 2 (reverse) -> D \n
    * If one wants to see the fram as it is oriented in the lab one has to rotate
-   * the data by 90 degrees counterclockwise. There is a postprocessor that can
+   * the data by 90 degrees counterclockwise. There is a processor that can
    * do this.\n
    * While copying the data one has to ignore the upper two bits of the data.
    *

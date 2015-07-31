@@ -11,6 +11,7 @@
 #include <QtCore/QMutexLocker>
 
 #include "worker.h"
+
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "processor_manager.h"
@@ -25,7 +26,7 @@ Worker::Worker(RingBuffer<CASSEvent> &ringbuffer,
                QObject *parent)
   : PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
-    _process(*ProcessorManager::instance()),
+    _process(ProcessorManager::reference()),
     _ratemeter(ratemeter)
 {}
 

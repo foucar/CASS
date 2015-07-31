@@ -2,7 +2,7 @@
 
 /**
  * @file convenience_functions.cpp file contains definition of functions that
- *                                 help other postprocessors to do their job.
+ *                                 help other processors to do their job.
  *
  * @author Lutz Foucar
  */
