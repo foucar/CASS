@@ -34,29 +34,29 @@ SOURCES            += \
                       cass_settings.cpp \
                       tcpserver.cpp \
                       geom_parser.cpp \
-                      ./postprocessing/processor.cpp \
-                      ./postprocessing/processor_manager.cpp \
-                      ./postprocessing/convenience_functions.cpp \
-                      ./postprocessing/operations.cpp \
-                      ./postprocessing/waveform.cpp \
-                      ./postprocessing/acqiris_detectors_helper.cpp \
-                      ./postprocessing/acqiris_detectors.cpp \
-                      ./postprocessing/machine_data.cpp \
-                      ./postprocessing/pixel_detector_helper.cpp \
-                      ./postprocessing/pixel_detectors.cpp \
-                      ./postprocessing/alignment.cpp \
-                      ./postprocessing/imaging.cpp \
-                      ./postprocessing/id_list.cpp \
-                      ./postprocessing/rankfilter.cpp \
-                      ./postprocessing/coltrims_analysis.cpp \
-                      ./postprocessing/achimcalibrator_hex.cpp \
-                      ./postprocessing/image_manipulation.cpp \
-                      ./postprocessing/hitfinder.cpp \
-                      ./postprocessing/partial_covariance.cpp \
-                      ./postprocessing/cbf_output.cpp \
-                      ./postprocessing/table_operations.cpp \
-                      ./postprocessing/autocorrelation.cpp \
-                      ./postprocessing/pixel_detector_calibration.cpp
+                      ./processing/processor.cpp \
+                      ./processing/processor_manager.cpp \
+                      ./processing/convenience_functions.cpp \
+                      ./processing/operations.cpp \
+                      ./processing/waveform.cpp \
+                      ./processing/acqiris_detectors_helper.cpp \
+                      ./processing/acqiris_detectors.cpp \
+                      ./processing/machine_data.cpp \
+                      ./processing/pixel_detector_helper.cpp \
+                      ./processing/pixel_detectors.cpp \
+                      ./processing/alignment.cpp \
+                      ./processing/imaging.cpp \
+                      ./processing/id_list.cpp \
+                      ./processing/rankfilter.cpp \
+                      ./processing/coltrims_analysis.cpp \
+                      ./processing/achimcalibrator_hex.cpp \
+                      ./processing/image_manipulation.cpp \
+                      ./processing/hitfinder.cpp \
+                      ./processing/partial_covariance.cpp \
+                      ./processing/cbf_output.cpp \
+                      ./processing/table_operations.cpp \
+                      ./processing/autocorrelation.cpp \
+                      ./processing/pixel_detector_calibration.cpp
 
 
 HEADERS            += cass.h \
@@ -88,35 +88,35 @@ HEADERS            += cass.h \
 #                      generic_factory.hpp \
                       cached_list.hpp \
                       geom_parser.h \
-                      ./postprocessing/processor.h \
-                      ./postprocessing/processor_manager.h \
-                      ./postprocessing/convenience_functions.h \
-                      ./postprocessing/id_list.h \
-                      ./postprocessing/acqiris_detectors.h \
-                      ./postprocessing/acqiris_detectors_helper.h \
-                      ./postprocessing/operations.h \
-                      ./postprocessing/rankfilter.h \
-                      ./postprocessing/alignment.h \
-                      ./postprocessing/pixel_detector_helper.h \
-                      ./postprocessing/pixel_detectors.h \
-                      ./postprocessing/imaging.h \
-                      ./postprocessing/waveform.h \
-                      ./postprocessing/machine_data.h \
-                      ./postprocessing/root_converter.h \
-                      ./postprocessing/rootfile_helper.h \
-                      ./postprocessing/roottree_converter.h \
-                      ./postprocessing/tree_structure.h \
-                      ./postprocessing/coltrims_analysis.h \
-                      ./postprocessing/achimcalibrator_hex.h \
-                      ./postprocessing/image_manipulation.h \
-                      ./postprocessing/hitfinder.h \
-                      ./postprocessing/partial_covariance.h \
-                      ./postprocessing/cbf_output.h \
-                      ./postprocessing/table_operations.h \
-                      ./postprocessing/autocorrelation.h \
-                      ./postprocessing/pixel_detector_calibration.h
+                      ./processing/processor.h \
+                      ./processing/processor_manager.h \
+                      ./processing/convenience_functions.h \
+                      ./processing/id_list.h \
+                      ./processing/acqiris_detectors.h \
+                      ./processing/acqiris_detectors_helper.h \
+                      ./processing/operations.h \
+                      ./processing/rankfilter.h \
+                      ./processing/alignment.h \
+                      ./processing/pixel_detector_helper.h \
+                      ./processing/pixel_detectors.h \
+                      ./processing/imaging.h \
+                      ./processing/waveform.h \
+                      ./processing/machine_data.h \
+                      ./processing/root_converter.h \
+                      ./processing/rootfile_helper.h \
+                      ./processing/roottree_converter.h \
+                      ./processing/tree_structure.h \
+                      ./processing/coltrims_analysis.h \
+                      ./processing/achimcalibrator_hex.h \
+                      ./processing/image_manipulation.h \
+                      ./processing/hitfinder.h \
+                      ./processing/partial_covariance.h \
+                      ./processing/cbf_output.h \
+                      ./processing/table_operations.h \
+                      ./processing/autocorrelation.h \
+                      ./processing/pixel_detector_calibration.h
 
-INCLUDEPATH        += postprocessing \
+INCLUDEPATH        += processing \
                       ../cass_acqiris \
                       ../cass_acqiris/classes \
                       ../cass_acqiris/classes/detector_analyzer \
@@ -128,7 +128,7 @@ INCLUDEPATH        += postprocessing \
                       ../cass_pixeldetector \
                       $$PWD/../LCLS
 
-DEPENDPATH         += ./postprocessing
+DEPENDPATH         += ./processing
 
 # the dependencies of other libraries of cass
 DEPENDENCY_LIBRARIES  = cass_acqiris \
@@ -199,11 +199,11 @@ httpServer {
     DEFINES        += JPEG_CONVERSION
 }
 
-# Extra stuff if compiling postprocessors with hdf5 support
+# Extra stuff if compiling processors with hdf5 support
 hdf5 {
     LIBS           += -lhdf5
-    SOURCES        += ./postprocessing/hdf5_converter.cpp
-    HEADERS        += ./postprocessing/hdf5_converter.h
+    SOURCES        += ./processing/hdf5_converter.cpp
+    HEADERS        += ./processing/hdf5_converter.h
     HEADERS        += hdf5_handle.hpp
     DEFINES        += HDF5
     is_offline {
@@ -215,31 +215,31 @@ hdf5 {
 # extra files if compiling single particle detector.
 # depends on VIGRA template library. (by Ullrich Koethe)
 singleparticle_hit {
-    SOURCES        += ./postprocessing/hitrate.cpp
-    HEADERS        += ./postprocessing/hitrate.h
+    SOURCES        += ./processing/hitrate.cpp
+    HEADERS        += ./processing/hitrate.h
     DEFINES        += SINGLEPARTICLE_HIT
 }
 
 #extra stuff for ROOT
 cernroot {
-    SOURCES        += ./postprocessing/root_converter.cpp
-    HEADERS        += ./postprocessing/root_converter.h
-    SOURCES        += ./postprocessing/rootfile_helper.cpp
-    HEADERS        += ./postprocessing/rootfile_helper.h
-    SOURCES        += ./postprocessing/roottree_converter.cpp
-    HEADERS        += ./postprocessing/roottree_converter.h
-    HEADERS        += ./postprocessing/tree_structure.h
-    HEADERS        += ./postprocessing/tree_structure_linkdef.h
+    SOURCES        += ./processing/root_converter.cpp
+    HEADERS        += ./processing/root_converter.h
+    SOURCES        += ./processing/rootfile_helper.cpp
+    HEADERS        += ./processing/rootfile_helper.h
+    SOURCES        += ./processing/roottree_converter.cpp
+    HEADERS        += ./processing/roottree_converter.h
+    HEADERS        += ./processing/tree_structure.h
+    HEADERS        += ./processing/tree_structure_linkdef.h
     LIBS           += $$system($$ROOTCONFIG_BIN --libs)
     DEFINES        += CERNROOT
-    DICTIONARYFILES = ./postprocessing/tree_structure.h
+    DICTIONARYFILES = ./processing/tree_structure.h
     include( $$PWD/rootdict_generator.pri )
 }
 
 # Extra stuff for fftw
 fftw {
-    SOURCES        += ./postprocessing/fft.cpp
-    HEADERS        += ./postprocessing/fft.h
+    SOURCES        += ./processing/fft.cpp
+    HEADERS        += ./processing/fft.h
     LIBS           += -lfftw3
     DEFINES        += FFTW
 }

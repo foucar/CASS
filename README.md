@@ -699,11 +699,11 @@ reads them. It is recommended to use the locker facility that Qt provides. Eg:
 
 When you are done coding your Processor you need to make it available to
 the user. To do this you need to complete the following steps:
-- in cass/postprocessing/processor_manager.h add the number and a short
+- in cass/processing/processor_manager.h add the number and a short
   description in the description part.
-- in cass/postprocessing/processor_manager.h add an entry with your id in the
+- in cass/processing/processor_manager.h add an entry with your id in the
   cass::ProcessorManager::id_t enum.
-- in cass/postprocessing/processor_manager.cpp add your id in the
+- in cass/processing/processor_manager.cpp add your id in the
   cass::ProcessorManager::create() member to the switch statement. Just use the
   other entries as example.
 
