@@ -6,7 +6,7 @@ CASS stands for (C)Fel-(A)SG (S)oftware (S)uite. It is a program designed
 to analyze and visualize data taken at Free-electron-lasers (FEL). To be easily
 adoptable to the various possible different types of experiments, it is based
 on a highly modular design. The analysis part of CASS allows the user to set
-up a analysis chain that can be tailored for each experimantal needs.
+up a analysis chain that can be tailored for each experimental needs.
 The section [general layout](#layout) describes the details of CASS.
 
 Please find below the links to most important parts of the description
@@ -113,9 +113,6 @@ An online version of the documentation that shows the latest stable version in
 the master branch is located at
 
 <http://www.mpi-hd.mpg.de/personalhomes/gitasg/cass>
-
-In the doc location are also the example .ini files. All of the documentation
-is in this file.
 
 
 Using CASS {#using}
@@ -302,23 +299,25 @@ program flow:
 for each event
 - receive an event containing all data from either the file (offline) or the
   the live data stream
-- pick out the information we are interested in (Converters)
 - process the data using the Processors
 
 So the ini file exist of basically three parts:
-
-The Converter part tells CASS what kind of data you are actually interested in.
-To see what options are available please refer to @ref converter.
+One part that describes how the data is retrieved using the different available
+input modules, one part that describes all general available CASS parameters
+such as the log output and the processing part.
 
 The processing part is the most advanced part. @ref pplist gives an overview
 of all available Processors. The parenthesis refers to the
 Processor to look up in the parameter list @ref casssetting to find out which
 parameters it takes. In this reference you will also find all available
 parameters that one can give in the .ini file. There are some examples given in
-@ref examples as a starting point for your .ini file.
+@ref examples as a starting point for your own custom made .ini file.
 
-The special detector Paramters. Currently there are Acqiris-detectors and Pixel-
-detectors that need such special parameters.
+The special detector Parameters. Currently there are Acqiris-detectors that need
+such special parameters. The need for the pixel detectors to use these
+special parameters has been loaded off the more specialized Processors that
+allow to output results of an anlysis into tables. There are Processors that
+allow to manipulate the table outputs.
 
 ### The special Acqiris Detector Parameters {#acq_param}
 If you want to use the Processors that deal with the AcqirisDetectors you
@@ -363,10 +362,6 @@ momentum. In this the raw values of the detectorhit are taken and corrected
 using a cass::ACQIRIS::HitCorrector object. Please refer to the documentation
 of cass::ACQIRIS::HitCorrector to see which parameters are available.
 
-
-### The special Pixel-detector Parameters {#pix_param}
-This section has not been written yet. Please refer to the @ref pplist and the examples
-to find out how tho setup these.
 
 
 
