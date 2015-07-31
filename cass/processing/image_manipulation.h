@@ -16,6 +16,8 @@
 
 #include "processor.h"
 
+#include "geom_parser.h"
+
 namespace cass
 {
 //forward declarations
@@ -496,11 +498,8 @@ protected:
   /** pp containing 2d histogram */
   shared_pointer _imagePP;
 
-  /** define the lookuptable */
-  typedef std::vector<size_t> lookupTable_t;
-
   /** the lookup table */
-  lookupTable_t _lookupTable;
+  GeometryInfo::lookupTable_t _lookupTable;
 
   /** flag whether to convert the positions in the src from cheetah to cass layout */
   bool _convertCheetahToCASSLayout;

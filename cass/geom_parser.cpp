@@ -16,8 +16,6 @@
 #include "geom_parser.h"
 #include "cass.h"
 
-#include "pdsdata/cspad/Detector.hh"
-
 using namespace cass;
 using namespace GeometryInfo;
 using namespace std;
@@ -178,8 +176,8 @@ GeometryInfo::conversion_t GeometryInfo::generateConversionMap(const string &fil
        */
     if (convertFromCheetahToCASS)
     {
-      const int nx(Pds::CsPad::MaxRowsPerASIC);
-      const int ny(Pds::CsPad::ColumnsPerASIC);
+      const int nx(194);
+      const int ny(185);
       const int quad(ai.min_fs/(2*nx));
       const int asicRow(ai.min_ss/(1*ny));
       const int xbegin(ai.min_fs/(1*nx) % 2);
