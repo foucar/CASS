@@ -50,7 +50,7 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_RPATHDIR *= /path/to/hdf5/lib
 
 # Uncomment this if you want to compile and use the single-particle hit
-# detection postprocessors. If the vigra include files are not in a default
+# detection processors. If the vigra include files are not in a default
 # location tell qmake here where to find it.
 #CONFIG         *= singleparticle_hit
 #QMAKE_INCDIR   *= /path/to/vigra/include
