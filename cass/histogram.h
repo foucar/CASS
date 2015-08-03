@@ -21,6 +21,7 @@
 #include <limits>
 #include <cmath>
 #include <sstream>
+#include <tr1/memory>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>

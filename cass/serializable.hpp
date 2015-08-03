@@ -10,6 +10,7 @@
 #define _SERIALIZABLE_HPP_
 
 #include <stdint.h>
+#include <sstream>
 
 #include "serializer.hpp"
 
@@ -30,7 +31,7 @@ class Serializable
 public:
   /** constructor initializing the version*/
   explicit Serializable(uint16_t version)
-    :_version(version)
+    : _version(version)
   {}
 
   /** virtual destructor to avoid warning with gcc 4.1.2 */
@@ -72,9 +73,10 @@ public:
     uint16_t version(in.retrieveUint16());
     if(version != _version)
     {
-      throw std::runtime_error(std::string("Version mismatch in '") + typeid(*this).name() +
-                               "': '" + toString(version) + "' != '" +
-                               toString(_version) + "'");
+      std::stringstream ss;
+      ss << "Version mismatch in '" << typeid(*this).name();
+      ss << "': '" << version << "' != '" << _version << "'";
+      throw std::runtime_error(ss.str());
     }
   }
 
