@@ -19,7 +19,7 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "partial_covariance.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "log.h"
 
 using namespace cass;

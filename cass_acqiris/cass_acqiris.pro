@@ -53,19 +53,19 @@ SOURCES += ./acqiris_converter.cpp \
     ./classes/momenta_calculators/spectrometer.cpp
 
 HEADERS += ./acqiris_converter.h \
-    ./cass_acqiris.h \
+    ./cass_acqiris.hpp \
     ./acqiris_device.h \
     ./acqiristdc_converter.h \
     ./acqiristdc_device.h \
     ./agat_deserializer.h \
-    ./agattypes.h \
+    ./agattypes.hpp \
     ./lma_reader.h \
     ./lma_parser.h \
     ../cass/conversion_backend.h \
-    ../cass/device_backend.h \
-    ../cass/serializer.h \
+    ../cass/device_backend.hpp \
+    ../cass/serializer.hpp \
     ./classes/particle.h \
-    ./classes/channel.h \
+    ./classes/channel.hpp \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \
     ./classes/tof_detector.h \

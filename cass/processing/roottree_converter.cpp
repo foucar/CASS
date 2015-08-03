@@ -30,7 +30,7 @@
 #include "convenience_functions.h"
 #include "delayline_detector.h"
 #include "tree_structure.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "rootfile_helper.h"
 #include "log.h"
 #include "processor_manager.h"

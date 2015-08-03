@@ -12,8 +12,9 @@
 #include <map>
 #include <vector>
 #include <stdint.h>
+
 #include "cass.h"
-#include "serializable.h"
+#include "serializable.hpp"
 
 
 namespace cass

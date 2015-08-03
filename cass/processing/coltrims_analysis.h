@@ -11,7 +11,7 @@
 #define _COLTRIMSANALYSIS_H
 
 #include "processor.h"
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 #include "acqiris_detectors_helper.h"
 #include "signal_producer.h"
 #include "delayline_detector.h"

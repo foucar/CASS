@@ -7,11 +7,11 @@
  * @author Lutz Foucar
  */
 
-#ifndef _WAVEFORM_POSTPROCESSOR_H_
-#define _WAVEFORM_POSTPROCESSOR_H_
+#ifndef _WAVEFORM__H_
+#define _WAVEFORM__H_
 
 #include "processor.h"
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 
 namespace cass
 {

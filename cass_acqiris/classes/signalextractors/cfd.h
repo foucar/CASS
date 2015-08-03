@@ -11,7 +11,7 @@
 #define _CFD_H_
 
 #include <iostream>
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 #include "cass.h"
 #include "signal_extractor.h"
 

@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "acqiristdc_device.h"
-#include "serializer.h"
+#include "serializer.hpp"
 
 using namespace std;
 using namespace cass::ACQIRISTDC;

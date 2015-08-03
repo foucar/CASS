@@ -14,9 +14,9 @@
 #include <iostream>
 #include <vector>
 
-#include "cass_acqiris.h"
-#include "serializer.h"
-#include "serializable.h"
+#include "cass_acqiris.hpp"
+#include "serializer.hpp"
+#include "serializable.hpp"
 
 namespace cass
 {

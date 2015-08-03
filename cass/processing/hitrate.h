@@ -16,8 +16,6 @@
 #include <vigra/separableconvolution.hxx>
 
 #include "processor.h"
-#include "cass_event.h"
-#include "cass_acqiris.h"
 
 namespace cass
 {

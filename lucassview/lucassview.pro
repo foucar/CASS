@@ -34,8 +34,8 @@ HEADERS             += id_list.h
 SOURCES             += histogram.cpp
 HEADERS             += histogram.h
 
-HEADERS             += serializable.h
-HEADERS             += serializer.h
+HEADERS             += serializable.hpp
+HEADERS             += serializer.hpp
 
 LIBS                += $$system($$ROOTCONFIG_BIN --libs)
 LIBS                += -lgsoap++ -lgsoap

@@ -14,7 +14,7 @@
 #include "processor.h"
 #include "cass_event.h"
 #include "pixel_detector_helper.h"
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 #include "pixeldetector.hpp"
 
 

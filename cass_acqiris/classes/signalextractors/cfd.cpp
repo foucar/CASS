@@ -13,7 +13,7 @@
 
 #include "cfd.h"
 
-#include "channel.h"
+#include "channel.hpp"
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "helperfunctionsforstdc.h"

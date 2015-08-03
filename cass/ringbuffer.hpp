@@ -1,13 +1,13 @@
 //Copyright (C) 2008-2010 Lutz Foucar
 
 /**
- * @file ringbuffer.h file contains the ringbuffer class
+ * @file ringbuffer.hpp file contains the ringbuffer class
  *
  * @author Lutz Foucar
  */
 
-#ifndef _RINGBUFFER_H
-#define _RINGBUFFER_H
+#ifndef _RINGBUFFER_HPP_
+#define _RINGBUFFER_HPP_
 
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
@@ -17,7 +17,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "cass.h"
 
 namespace cass

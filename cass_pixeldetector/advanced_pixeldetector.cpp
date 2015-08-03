@@ -17,7 +17,7 @@
 #include "common_data.h"
 #include "frame_processor_base.h"
 #include "pixel_finder_base.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 
 using namespace cass;
 using namespace pixeldetector;

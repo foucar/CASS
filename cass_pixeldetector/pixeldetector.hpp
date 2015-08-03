@@ -17,10 +17,10 @@
 #include <string>
 #include <stdint.h>
 
-#include "cass_pixeldetector.h"
-#include "serializer.h"
-#include "serializable.h"
-#include "device_backend.h"
+#include "cass_pixeldetector.hpp"
+#include "serializer.hpp"
+#include "serializable.hpp"
+#include "device_backend.hpp"
 #include "log.h"
 
 namespace cass

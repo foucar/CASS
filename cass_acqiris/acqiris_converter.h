@@ -15,7 +15,7 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 #include "conversion_backend.h"
 #include "acqiris_device.h"
 

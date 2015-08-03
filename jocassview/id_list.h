@@ -12,7 +12,7 @@
 
 #include <QtCore/QStringList>
 
-#include "serializable.h"
+#include "serializable.hpp"
 
 namespace jocassview
 {

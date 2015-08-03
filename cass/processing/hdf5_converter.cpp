@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010-2015 Lutz Foucar
 
 /**
  * @file hdf5_converter.cpp definition of pp1001 (hdf5_converter)
@@ -16,9 +16,7 @@
 
 #include "hdf5_converter.h"
 #include "histogram.h"
-#include "cass_event.h"
 #include "cass_settings.h"
-#include "machine_device.h"
 #include "log.h"
 #include "convenience_functions.h"
 #include "hdf5_handle.hpp"

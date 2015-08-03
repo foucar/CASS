@@ -14,9 +14,9 @@
 #include <string>
 #include <iostream>
 
-#include "device_backend.h"
-#include "cass_machine.h"
-#include "serializer.h"
+#include "device_backend.hpp"
+#include "cass_machine.hpp"
+#include "serializer.hpp"
 
 namespace cass
 {

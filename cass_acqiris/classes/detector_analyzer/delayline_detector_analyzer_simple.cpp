@@ -16,7 +16,7 @@
 
 #include "delayline_detector_analyzer_simple.h"
 #include "delayline_detector.h"
-#include "channel.h"
+#include "channel.hpp"
 #include "signal_producer.h"
 #include "cass_settings.h"
 #include "poscalculator.hpp"

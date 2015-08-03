@@ -13,10 +13,10 @@
 #include <vector>
 #include <map>
 
-#include "cass_acqiris.h"
-#include "device_backend.h"
-#include "channel.h"
-#include "serializable.h"
+#include "cass_acqiris.hpp"
+#include "device_backend.hpp"
+#include "channel.hpp"
+#include "serializable.hpp"
 
 namespace cass
 {

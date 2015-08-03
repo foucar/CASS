@@ -13,7 +13,7 @@
 #include <string>
 #include <list>
 
-#include "serializable.h"
+#include "serializable.hpp"
 
 namespace cass
 {

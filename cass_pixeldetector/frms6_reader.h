@@ -17,7 +17,7 @@
 
 #include "file_reader.h"
 
-#include "hlltypes.h"
+#include "hlltypes.hpp"
 
 namespace cass
 {

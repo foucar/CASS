@@ -16,7 +16,7 @@
 #include "cass.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
-#include "agattypes.h"
+#include "agattypes.hpp"
 
 using namespace cass;
 using namespace ACQIRIS;

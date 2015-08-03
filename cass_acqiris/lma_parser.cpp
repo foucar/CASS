@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 #include "lma_parser.h"
-#include "agattypes.h"
+#include "agattypes.hpp"
 #include "log.h"
 #include "input_base.h"
 

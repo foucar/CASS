@@ -16,7 +16,7 @@
 
 #include "cass.h"
 #include "cass_event.h"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 
 namespace cass
 {

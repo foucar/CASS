@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "mapcreator_base.h"
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 
 namespace cass
 {

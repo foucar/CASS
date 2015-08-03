@@ -11,7 +11,7 @@
 #include "cass_event.h"
 #include "acqiris_device.h"
 #include "acqiristdc_device.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "pixeldetector.hpp"
 
 using namespace cass;

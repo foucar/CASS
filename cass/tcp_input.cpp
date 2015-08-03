@@ -14,7 +14,7 @@
 #include "tcp_input.h"
 
 #include "cass_settings.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "tcp_streamer.h"
 #include "log.h"
 

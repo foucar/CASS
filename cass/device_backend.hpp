@@ -14,7 +14,7 @@
 #include <tr1/memory>
 
 #include "cass.h"
-#include "serializable.h"
+#include "serializable.hpp"
 
 namespace cass
 {

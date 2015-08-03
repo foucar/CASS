@@ -21,7 +21,7 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 
 using namespace cass;
 using namespace ACQIRIS;

@@ -26,7 +26,7 @@
 
 #include "cass_event.h"
 #include "log.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 
 using namespace cass::MachineData;
 using namespace std;

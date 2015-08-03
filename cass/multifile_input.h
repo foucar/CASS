@@ -15,7 +15,7 @@
 #include "input_base.h"
 
 #include "cass.h"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 #include "cass_event.h"
 #include "file_reader.h"
 

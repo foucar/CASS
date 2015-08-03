@@ -13,7 +13,7 @@
 #include "com.h"
 
 #include "helperfunctionsforstdc.h"
-#include "channel.h"
+#include "channel.hpp"
 #include "cass_settings.h"
 #include "acqiris_device.h"
 #include "cass_event.h"

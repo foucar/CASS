@@ -12,7 +12,7 @@
 
 #include <tr1/memory>
 
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 #include "delayline_detector.h"
 
 namespace cass

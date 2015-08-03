@@ -21,7 +21,7 @@
 #include "format_converter.h"
 
 #include "cass_event.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "xtciterator.hpp"
 #include "pdsdata/xtc/Dgram.hh"
 

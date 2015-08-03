@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "file_reader.h"
-#include "raw_sss_file_header.h"
+#include "raw_sss_file_header.hpp"
 
 namespace cass
 {

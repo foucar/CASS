@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 #include "frms6_parser.h"
-#include "hlltypes.h"
+#include "hlltypes.hpp"
 
 using namespace cass;
 using namespace std;

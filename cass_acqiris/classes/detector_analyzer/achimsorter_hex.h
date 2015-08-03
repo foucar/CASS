@@ -14,7 +14,7 @@
 #include <utility>
 #include <stdint.h>
 
-#include "delayline_detector_analyzer_backend.h"
+#include "delayline_detector_analyzer_backend.hpp"
 #include "delayline_detector.h"
 
 

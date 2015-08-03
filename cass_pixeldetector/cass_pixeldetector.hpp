@@ -1,14 +1,14 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file cass_pixeldetector.h contains global definitions for all classes
+ * @file cass_pixeldetector.hpp contains global definitions for all classes
  *
  * @author Lutz Foucar
  */
 
 
-#ifndef _CASS_PIXELDETECTOR_H_
-#define _CASS_PIXELDETECTOR_H_
+#ifndef _CASS_PIXELDETECTOR_HPP_
+#define _CASS_PIXELDETECTOR_HPP_
 
 #include <stdint.h>
 #include <vector>

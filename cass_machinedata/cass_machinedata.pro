@@ -20,10 +20,10 @@ SOURCES       += machine_converter.cpp
 
 
 HEADERS       += ../cass/conversion_backend.h \
-                 ../cass/serializer.h \
+                 ../cass/serializer.hpp \
                  machine_converter.h \
-                 cass_machine.h \
-                 machine_device.h
+                 cass_machine.hpp \
+                 machine_device.hpp
 
 
 #INSTALLS      += target

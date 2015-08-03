@@ -18,7 +18,7 @@
 
 #include "processor_manager.h"
 
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "processor.h"
 #include "histogram.h"
 #include "id_list.h"

@@ -14,7 +14,7 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "cass.h"
 #include "log.h"
 

@@ -18,7 +18,7 @@
 
 #include "pausablethread.h"
 #include "cass.h"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 #include "cass_event.h"
 
 

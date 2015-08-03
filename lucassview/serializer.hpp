@@ -1,22 +1,20 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010 - 2011 Lutz Foucar
 
 /**
- * @file cass/serializer.h file contains classes for serializing objects
+ * @file lucassview/serializer.hpp file contains classes for serializing objects
  *
  * @author Lutz Foucar
  */
 
-#ifndef _SERIALIZER_H_
-#define _SERIALIZER_H_
+#ifndef _SERIALIZER_HPP_
+#define _SERIALIZER_HPP_
 
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <stdint.h>
 
-#include "cass.h"
-
-#define SERIALIZER_INTERFACE_TEST // if this is set, SerializerBackend is made abstract (pure virtual member)
+//#define SERIALIZER_INTERFACE_TEST // if this is set, SerializerBackend is made abstract (pure virtual member)
 // to see if it is instantiated somewhere.
 // switch it off in release mode for performance gain.
 
@@ -32,13 +30,12 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT SerializerBackend
+  class  SerializerBackend
   {
   public:
-    SerializerBackend()
-    {
-        _checkSumGroupStartedForRead = false;
-        _checkSumGroupStartedForWrite = false;
+    SerializerBackend() {
+      _checkSumGroupStartedForRead = false;
+      _checkSumGroupStartedForWrite = false;
     }
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() = 0;
@@ -69,17 +66,6 @@ namespace cass
     void addFloat(const float);         //!< add float to serialized buffer
     void addBool(const bool);           //!< add bool to serialized buffer
 
-    /** add arbitrary value to the stream
-     *
-     * @tparam Type the type of the value
-     * @param value the value to add
-     */
-    template <typename Type>
-    void add(const Type& value)
-    {
-      writeToStream(reinterpret_cast<const char *> (&value), sizeof (Type));
-    }
-
     std::string retrieveString();   //!< retrieve string from serialized buffer
     uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
     uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
@@ -92,19 +78,6 @@ namespace cass
     double      retrieveDouble();   //!< retrieve string from serialized buffer
     float       retrieveFloat();    //!< retrieve string from serialized buffer
     bool        retrieveBool();     //!< retrieve string from serialized buffer
-
-    /** read arbitrary value from stream
-     *
-     * @tparam Type the type of the value
-     * @return the read value
-     */
-    template <typename Type>
-    Type retrieve()
-    {
-      Type val;
-      readFromStream (reinterpret_cast<char *> (&val), sizeof (Type));
-      return val;
-    }
 
   protected:
     std::iostream* _stream;    //!< the string to serialize the objects to (buffer)
@@ -124,7 +97,7 @@ namespace cass
    * @author Lutz Foucar
    * @author Stephan Kassemeyer
    */
-  class CASSSHARED_EXPORT Serializer : public SerializerBackend
+  class  Serializer : public SerializerBackend
   {
   public:
     /** constructor.
@@ -173,7 +146,7 @@ namespace cass
    *
    * @author Stephan Kassemeyer
    */
-  class CASSSHARED_EXPORT SerializerWriteFile : public SerializerBackend
+  class SerializerWriteFile : public SerializerBackend
   {
   public:
     /** constructor.
@@ -214,7 +187,7 @@ namespace cass
    *
    * @author Stephan Kassemeyer
    */
-  class CASSSHARED_EXPORT SerializerReadFile : public SerializerBackend
+  class SerializerReadFile : public SerializerBackend
   {
   public:
     /** constructor.
@@ -255,86 +228,86 @@ namespace cass
 // fletcher16 for 8bit input:
 inline void cass::SerializerBackend::addToOutChecksum( const char* data, std::streamsize len)
 {
-    while (len) {
-        size_t tlen = len > 21 ? 21 : len;
-                len -= tlen;
-                do {
-                        w_sum1 += *data++;
-                        w_sum2 += w_sum1;
-                } while (--tlen);
-                w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
-                w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
-        }
+  while (len) {
+    size_t tlen = len > 21 ? 21 : len;
+    len -= tlen;
+    do {
+      w_sum1 += *data++;
+      w_sum2 += w_sum1;
+    } while (--tlen);
+    w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+    w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+  }
 }
 
 // fletcher16 for 8bit input:
 inline void cass::SerializerBackend::addToInChecksum( const char* data, std::streamsize len)
 {
-    while (len) {
-        size_t tlen = len > 21 ? 21 : len;
-                len -= tlen;
-                do {
-                        r_sum1 += *data++;
-                        r_sum2 += r_sum1;
-                } while (--tlen);
-                r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
-                r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
-        }
+  while (len) {
+    size_t tlen = len > 21 ? 21 : len;
+    len -= tlen;
+    do {
+      r_sum1 += *data++;
+      r_sum2 += r_sum1;
+    } while (--tlen);
+    r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+    r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+  }
 }
 
 inline bool cass::SerializerBackend::endChecksumGroupForRead()
 {
-        _checkSumGroupStartedForRead = false;
-    // finalize checksum:
-        r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
-        r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
-        //retrieveUint8( reinterpret_cast<uint8_t>r_sum1 );
-        if (retrieveUint8() != (uint8_t)r_sum1 ) return false;
-        //retrieveUint8( reinterpret_cast<uint8_t>r_sum2 );
-        if (retrieveUint8() != (uint8_t)r_sum2 ) return false;
-        return true;
+  _checkSumGroupStartedForRead = false;
+  // finalize checksum:
+  r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+  r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+  //retrieveUint8( reinterpret_cast<uint8_t>r_sum1 );
+  if (retrieveUint8() != (uint8_t)r_sum1 ) return false;
+  //retrieveUint8( reinterpret_cast<uint8_t>r_sum2 );
+  if (retrieveUint8() != (uint8_t)r_sum2 ) return false;
+  return true;
 }
 
 inline void cass::SerializerBackend::endChecksumGroupForWrite()
 {
-        _checkSumGroupStartedForWrite = false;
-    // finalize checksum:
-        w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
-        w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
-        //addUint8( reinterpret_cast<uint8_t>(w_sum1) );
-        addUint8( (uint8_t)(w_sum1) );
-        //addUint8( reinterpret_cast<uint8_t>(w_sum2) );
-        addUint8( (uint8_t)(w_sum2) );
+  _checkSumGroupStartedForWrite = false;
+  // finalize checksum:
+  w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+  w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+  //addUint8( reinterpret_cast<uint8_t>(w_sum1) );
+  addUint8( (uint8_t)(w_sum1) );
+  //addUint8( reinterpret_cast<uint8_t>(w_sum2) );
+  addUint8( (uint8_t)(w_sum2) );
 }
 
 inline std::istream& cass::SerializerBackend::readFromStream( char* data, std::streamsize n)
 {
-    if (_checkSumGroupStartedForRead) {
-        std::istream& stream = _stream->read(data, n); \
-        addToInChecksum(data, n);
-        return(stream);
-    }
-    else return _stream->read(data, n);
+  if (_checkSumGroupStartedForRead) {
+    std::istream& stream = _stream->read(data, n); \
+                           addToInChecksum(data, n);
+    return(stream);
+  }
+  else return _stream->read(data, n);
 }
 
 inline std::ostream& cass::SerializerBackend::writeToStream( const char* data, std::streamsize n)
 {
-    if (_checkSumGroupStartedForWrite) addToOutChecksum(data, n); 
-    return _stream->write(data, n);
+  if (_checkSumGroupStartedForWrite) addToOutChecksum(data, n);
+  return _stream->write(data, n);
 }
 
 inline void cass::SerializerBackend::startChecksumGroupForRead()
 {
-    _checkSumGroupStartedForRead = true;
-    r_sum1 = 0xff;
-    r_sum2 = 0xff;
+  _checkSumGroupStartedForRead = true;
+  r_sum1 = 0xff;
+  r_sum2 = 0xff;
 }
 
 inline void cass::SerializerBackend::startChecksumGroupForWrite()
 {
-    _checkSumGroupStartedForWrite = true;
-    w_sum1 = 0xff;
-    w_sum2 = 0xff;
+  _checkSumGroupStartedForWrite = true;
+  w_sum1 = 0xff;
+  w_sum2 = 0xff;
 }
 
 

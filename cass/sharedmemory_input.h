@@ -15,7 +15,7 @@
 #include "cass.h"
 #include "input_base.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 #include "cass_event.h"
 
 namespace cass

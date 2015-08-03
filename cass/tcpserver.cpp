@@ -23,7 +23,7 @@
 #include "processor_manager.h"
 #include "processor.h"
 #include "id_list.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "input_base.h"
 #include "worker.h"
 #include "histogram.h"

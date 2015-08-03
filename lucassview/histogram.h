@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "serializer.h"
-#include "serializable.h"
+#include "serializer.hpp"
+#include "serializable.hpp"
 
 namespace cass
 {

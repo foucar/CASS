@@ -14,7 +14,7 @@
 #include <string>
 
 #include "pixeldetector.hpp"
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 
 namespace cass
 {

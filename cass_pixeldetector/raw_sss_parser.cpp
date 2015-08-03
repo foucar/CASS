@@ -14,7 +14,7 @@
 
 #include "raw_sss_parser.h"
 
-#include "raw_sss_file_header.h"
+#include "raw_sss_file_header.hpp"
 #include "file_reader.h"
 
 using namespace cass;
@@ -37,7 +37,7 @@ void RAWSSSParser::run()
   const uint32_t imagesize(header.width*header.height*sizeof(sssFile::image_t::value_type));
 
   cout <<"RAWSSSParser::run(): file contains '"<<header.nFrames<<"' images"<<endl;
-  
+
   for (uint32_t iImage(0); iImage < header.nFrames; ++iImage)
   {
     const streampos eventStartPos(file.tellg());
@@ -45,7 +45,7 @@ void RAWSSSParser::run()
     savePos(eventStartPos,eventId);
     file.seekg(imagesize,ios_base::cur);
   }
- 
+
   if (file.tellg()<filesize)
     throw runtime_error("RAWSSSParser::run(): Read all images, but end of the file not reached.");
 }

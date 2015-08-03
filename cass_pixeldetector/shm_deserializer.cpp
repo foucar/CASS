@@ -13,7 +13,7 @@
 
 #include "cass_event.h"
 #include "pixeldetector.hpp"
-#include "hlltypes.h"
+#include "hlltypes.hpp"
 
 using namespace cass;
 using namespace pixeldetector;

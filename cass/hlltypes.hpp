@@ -1,14 +1,14 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file hlltypes.h contains the layout of the hll data types and conversion to
- *                  cass data types
+ * @file hlltypes.hpp contains the layout of the hll data types and conversion to
+ *                    cass data types
  *
  * @author Lutz Foucar
  */
 
-#ifndef _HLLTYPES_H_
-#define _HLLTYPES_H_
+#ifndef _HLLTYPES_HPP_
+#define _HLLTYPES_HPP_
 
 #include <stdint.h>
 #include <vector>

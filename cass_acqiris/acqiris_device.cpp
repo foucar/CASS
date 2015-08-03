@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "acqiris_device.h"
-#include "serializer.h"
+#include "serializer.hpp"
 
 
 cass::ACQIRIS::Device::Device()

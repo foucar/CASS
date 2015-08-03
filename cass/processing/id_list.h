@@ -10,7 +10,7 @@
 #ifndef __IDLIST_H__
 #define __IDLIST_H__
 
-#include "serializable.h"
+#include "serializable.hpp"
 #include "processor.h"
 
 namespace cass

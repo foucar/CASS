@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "mapcreator_base.h"
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 #include "commonmode_calculator_base.h"
 
 namespace cass

@@ -15,7 +15,7 @@
 #include <stdexcept>
 #include <memory>
 
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 #include "tof_detector.h"
 #include "signal_producer.h"
 #include "particle.h"

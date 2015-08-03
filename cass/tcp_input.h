@@ -14,7 +14,7 @@
 #include "cass.h"
 #include "input_base.h"
 #include "cass_event.h"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 
 class QTcpSocket;
 

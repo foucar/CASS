@@ -12,7 +12,7 @@
 
 #include "processor.h"
 
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "cass_settings.h"
 #include "processor_manager.h"
 

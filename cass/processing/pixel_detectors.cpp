@@ -16,7 +16,7 @@
 #include "histogram.h"
 #include "common_data.h"
 #include "log.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 
 using namespace cass;
 using namespace std;

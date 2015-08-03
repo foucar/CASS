@@ -90,15 +90,16 @@ SOURCES                += ./processing/pixel_detector_calibration.cpp
 HEADERS                += ./processing/pixel_detector_calibration.h
 
 HEADERS                += cl_parser.hpp
-HEADERS                += hlltypes.h
-HEADERS                += raw_sss_file_header.h
-HEADERS                += ringbuffer.h
-HEADERS                += serializable.h
-HEADERS                += serializer.h
+HEADERS                += hlltypes.hpp
+HEADERS                += raw_sss_file_header.hpp
+HEADERS                += ringbuffer.hpp
+HEADERS                += serializable.hpp
+HEADERS                += serializer.hpp
 HEADERS                += xtciterator.hpp
-HEADERS                += cass_exceptions.h
+HEADERS                += cass_exceptions.hpp
 HEADERS                += statistics_calculator.hpp
 HEADERS                += cached_list.hpp
+HEADERS                += device_backend.hpp
 
 INCLUDEPATH            += processing
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris

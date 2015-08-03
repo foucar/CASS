@@ -21,7 +21,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 
 namespace cass
 {

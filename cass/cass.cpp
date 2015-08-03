@@ -21,7 +21,7 @@
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
-#include "ringbuffer.h"
+#include "ringbuffer.hpp"
 //#include "test_input.h"
 #include "tcpserver.h"
 #include "processor_manager.h"

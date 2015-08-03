@@ -76,6 +76,7 @@ HEADERS             += tcpclient.h
 SOURCES             += $${CASS_ROOT}/cass/geom_parser.cpp
 HEADERS             += $${CASS_ROOT}/cass/geom_parser.h
 HEADERS             += $${CASS_ROOT}/cass/cbf_handle.hpp
+HEADERS             += $${CASS_ROOT}/cass/serializable.hpp
 
 INCLUDEPATH         +=  $${CASS_ROOT}/cass
 

@@ -15,9 +15,9 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_machine.h"
+#include "cass_machine.hpp"
 #include "conversion_backend.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 
 namespace Pds
 {

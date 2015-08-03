@@ -12,7 +12,7 @@
 
 #include <tr1/memory>
 
-#include "cass_pixeldetector.h"
+#include "cass_pixeldetector.hpp"
 
 namespace cass
 {

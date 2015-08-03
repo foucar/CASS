@@ -14,7 +14,7 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
-#include "agattypes.h"
+#include "agattypes.hpp"
 #include "log.h"
 
 using namespace cass;

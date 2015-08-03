@@ -17,7 +17,6 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "cass_settings.h"
-#include "machine_device.h"
 #include "log.h"
 #include "convenience_functions.h"
 #include "cbf_handle.hpp"

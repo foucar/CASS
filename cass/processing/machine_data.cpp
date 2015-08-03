@@ -11,10 +11,10 @@
 
 #include "machine_data.h"
 #include "histogram.h"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "cass_settings.h"
 #include "log.h"
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 
 
 using namespace cass;

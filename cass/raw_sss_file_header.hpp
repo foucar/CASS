@@ -1,13 +1,13 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file raw_sss_file_header.h contains the layout of the lma file headers.
+ * @file raw_sss_file_header.hpp contains the layout of the sss file headers.
  *
  * @author Lutz Foucar
  */
 
-#ifndef _RAWSSSHEADER_H_
-#define _RAWSSSHEADER_H_
+#ifndef _RAWSSSHEADER_HPP_
+#define _RAWSSSHEADER_HPP_
 
 #include <stdint.h>
 #include <vector>

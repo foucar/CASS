@@ -11,7 +11,7 @@
 
 #include "convenience_functions.h"
 
-#include "cass_exceptions.h"
+#include "cass_exceptions.hpp"
 #include "histogram.h"
 #include "cass_settings.h"
 #include "acqiris_detectors_helper.h"

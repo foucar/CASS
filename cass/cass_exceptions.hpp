@@ -1,13 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file cass_exceptions.h file contains custom exceptions used in cass
+ * @file cass_exceptions.hpp file contains custom exceptions used in cass
  *
  * @author Lutz Foucar
  */
 
-#ifndef __CASS_EXCEPTIONS_H__
-#define __CASS_EXCEPTIONS_H__
+#ifndef __CASS_EXCEPTIONS_HPP__
+#define __CASS_EXCEPTIONS_HPP__
 
 #include <stdexcept>
 

@@ -14,12 +14,11 @@
 #include <OnlineUserAPI.h>
 
 #include "cass_settings.h"
-#include "cass_exceptions.h"
 #include "log.h"
 #include "sacla_converter.h"
 #include "pixeldetector.hpp"
-#include "machine_device.h"
-#include "cass_exceptions.h"
+#include "machine_device.hpp"
+#include "cass_exceptions.hpp"
 
 using namespace cass;
 using namespace std;

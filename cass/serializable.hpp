@@ -1,16 +1,16 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file cass/serializable.h file contains base class all serializable classes
+ * @file cass/serializable.hpp file contains base class all serializable classes
  *
  * @author Lutz Foucar
  */
 
-#ifndef _SERIALIZABLE_H_
-#define _SERIALIZABLE_H_
+#ifndef _SERIALIZABLE_HPP_
+#define _SERIALIZABLE_HPP_
 
 #include <stdint.h>
-#include "serializer.h"
+#include "serializer.hpp"
 
 namespace cass
 {

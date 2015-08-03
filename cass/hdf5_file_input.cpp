@@ -21,7 +21,7 @@
 #include "cass_settings.h"
 #include "log.h"
 #include "hdf5_handle.hpp"
-#include "machine_device.h"
+#include "machine_device.hpp"
 #include "acqiris_device.h"
 #include "pixeldetector.hpp"
 

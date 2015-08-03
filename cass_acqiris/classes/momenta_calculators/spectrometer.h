@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "cass_acqiris.h"
+#include "cass_acqiris.hpp"
 
 namespace cass
 {

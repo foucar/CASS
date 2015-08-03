@@ -25,7 +25,7 @@
 #include "advanced_pixeldetector.h"
 #include "mapcreator_base.h"
 #include "pixeldetector_mask.h"
-#include "hlltypes.h"
+#include "hlltypes.hpp"
 #include "log.h"
 #include "statistics_calculator.hpp"
 
