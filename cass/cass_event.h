@@ -64,14 +64,14 @@ public:
   id_t            &id()             {return _id;}
   buffer_t        &datagrambuffer() {return _datagrambuffer;}
   devices_t       &devices()        {return _devices;}
-  void             setFilename(const char * f) {_filename = f;}
+  void             setFilename(const std::string& f) {_filename = f;}
   //@}
   //@{
   /** getters */
   id_t              id()const        {return _id;}
   const buffer_t   &datagrambuffer()const {return _datagrambuffer;}
   const devices_t  &devices()const   {return _devices;}
-  const char       *filename()const  {return _filename;}
+  const std::string filename()const  {return _filename;}
   //@}
 
 public:
@@ -87,9 +87,9 @@ private:
   /** buffer for the datagram that contains all LCLS information */
   buffer_t _datagrambuffer;
 
-  /** filename of XTC file which this event came from (if offline) */
-  const char * _filename;
+  /** filename of file which this event came from (if offline) */
+  std::string _filename;
 };
-}//end namespace
+}//end namespace cass
 
 #endif // CASSEVENT_H
