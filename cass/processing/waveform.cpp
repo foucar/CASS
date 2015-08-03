@@ -66,10 +66,10 @@ void pp110::loadSettings(size_t)
 void pp110::process(const CASSEvent &evt, HistogramBackend &res)
 {
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-  const Device *dev
-      (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
-  Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
-  if (dev->instruments().end() == instrIt)
+  const Device &dev
+      (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::Acqiris)->second)));
+  Device::instruments_t::const_iterator instrIt (dev.instruments().find(_instrument));
+  if (dev.instruments().end() == instrIt)
     throw logic_error("pp110::process() '" + name() +
                         "': Data doesn't contain Instrument '"+toString(_instrument)
                         + "'");

@@ -326,7 +326,7 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
     }
   }
   const MachineDataDevice &machinedata
-      (*dynamic_cast<const MachineDataDevice*>(evt.devices().find(cass::CASSEvent::MachineData)->second));
+      (dynamic_cast<const MachineDataDevice&>(*(evt.devices().find(cass::CASSEvent::MachineData)->second)));
   copyMapValues(machinedata.BeamlineData().begin(), machinedata.BeamlineData().end(), _machinestructure);
   copyMapValues(machinedata.EpicsData().begin(), machinedata.EpicsData().end(), _machinestructure);
   _eventstatusstructure.resize(machinedata.EvrData().size());

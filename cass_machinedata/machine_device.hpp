@@ -1,7 +1,7 @@
 //Copyright (C) 2009, 2010, 2014 Lutz Foucar
 
 /**
- * @file machine_device.h definitions of a machine device
+ * @file machine_device.hpp definitions of a machine device
  *
  * @author Lutz Foucar
  */

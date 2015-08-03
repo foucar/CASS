@@ -441,10 +441,10 @@ void pp405::loadSettings(size_t)
 void pp405::process(const CASSEvent& evt, HistogramBackend &res)
 {
   using namespace MachineData;
-  const MachineDataDevice *mdev
-      (dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
+  const MachineDataDevice &md
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
+  const MachineDataDevice::bldMap_t bld(md.BeamlineData());
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   const double ebCharge

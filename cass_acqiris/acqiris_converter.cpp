@@ -108,10 +108,10 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
       const Pds::Acqiris::DataDescV1 *datadesc =
           reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
       //retrieve a pointer to the right acqiris instrument//
-      Device *dev =
-          dynamic_cast<Device*>(evt->devices()[cass::CASSEvent::Acqiris]);
+      Device &dev =
+          dynamic_cast<Device&>(*(evt->devices()[cass::CASSEvent::Acqiris]));
       //retrieve a reference to the right instrument//
-      Instrument & instr = dev->instruments()[static_cast<Instruments>(info.detector())];
+      Instrument & instr = dev.instruments()[static_cast<Instruments>(info.detector())];
       //retrieve a reference to the channel container of the instrument//
       Instrument::channels_t &channels = instr.channels();
       //resize the channel vector to how many channels are in the device//

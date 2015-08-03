@@ -60,8 +60,8 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       cass::CASSEvent::devices_t::iterator devIt
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
-      Device *dev (dynamic_cast<Device*>(devIt->second));
-      Instrument &instr(dev->instruments()[info.devId()]);
+      Device &dev (dynamic_cast<Device&>(*(devIt->second)));
+      Instrument &instr(dev.instruments()[info.devId()]);
       Instrument::channels_t &channels(instr.channels());
       channels.resize(Instrument::NbrChannels);
       cout << "ACQIRISTDC::Converter: found '"<<Pds::DetInfo::name(info)
@@ -77,8 +77,8 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       cass::CASSEvent::devices_t::iterator devIt
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
-      Device *dev (dynamic_cast<Device*>(devIt->second));
-      Instrument &instr(dev->instruments()[info.devId()]);
+      Device &dev (dynamic_cast<Device&>(*(devIt->second)));
+      Instrument &instr(dev.instruments()[info.devId()]);
 //      if (xtc->sizeofPayload()/4 > 2)
 //      {
 //        uint32_t* word ((uint32_t*) xtc->payload());

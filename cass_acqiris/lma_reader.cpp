@@ -69,8 +69,8 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
 bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
 {
   /** extract the right instrument from the cassevent */
-  Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
-  Instrument &instr(dev->instruments()[Standalone]);
+  Device &dev(dynamic_cast<Device&>(*(evt.devices()[CASSEvent::Acqiris])));
+  Instrument &instr(dev.instruments()[Standalone]);
   /** copy the header information to the instrument */
   instr = _instrument;
   Instrument::channels_t &channels(instr.channels());

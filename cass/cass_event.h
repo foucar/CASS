@@ -6,8 +6,8 @@
  * @author Lutz Foucar
  */
 
-#ifndef CASSEVENT_H
-#define CASSEVENT_H
+#ifndef _CASSEVENT_H_
+#define _CASSEVENT_H_
 
 #include <map>
 #include <vector>
@@ -15,11 +15,11 @@
 
 #include "cass.h"
 #include "serializable.hpp"
+#include "device_backend.hpp"
 
 
 namespace cass
 {
-class DeviceBackend;
 class SerializerBackend;
 
 /** Event to store all LCLS Data
@@ -36,15 +36,14 @@ public:
   CASSEvent();
 
   /** destroyes all devices */
-  ~CASSEvent();
+  ~CASSEvent() {}
 
 public:
   /** known devices */
-  enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC,PixelDetectors};
+  enum Device{Acqiris, MachineData, AcqirisTDC, PixelDetectors};
 
   /** mapping from device type to handler instance */
-  /** @todo use shared pointer here */
-  typedef std::map<Device, DeviceBackend*> devices_t;
+  typedef std::map<Device, DeviceBackend::shared_pointer > devices_t;
 
   /** a buffer type */
   typedef std::vector<char> buffer_t;
@@ -54,7 +53,7 @@ public:
 
 public:
   /** serialize a event to the Serializer*/
-  void serialize(SerializerBackend&)const;
+  void serialize(SerializerBackend&) const;
 
   /** deserialize an event from the Serializer*/
   bool deserialize(SerializerBackend&);
@@ -76,7 +75,7 @@ public:
   //@}
 
 public:
-  std::string pvControl;
+//  std::string pvControl;
 
 private:
   /** id of the cassevent */

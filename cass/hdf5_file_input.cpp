@@ -204,7 +204,7 @@ void HDF5FileInput::runthis()
           devIt = devices.find(CASSEvent::MachineData);
           if (devIt == devices.end())
             throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Machine Data Device");
-          MachineData::MachineDataDevice &md (*dynamic_cast<MachineData::MachineDataDevice*>(devIt->second));
+          MachineData::MachineDataDevice &md (dynamic_cast<MachineData::MachineDataDevice&>(*(devIt->second)));
 
           /** go through all requested machine data events and retrieve the corresponding
            *  values for the tag */
@@ -228,7 +228,7 @@ void HDF5FileInput::runthis()
           devIt = devices.find(CASSEvent::Acqiris);
           if (devIt == devices.end())
             throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Acqiris Device");
-          ACQIRIS::Device &acq (*dynamic_cast<ACQIRIS::Device*>(devIt->second));
+          ACQIRIS::Device &acq (dynamic_cast<ACQIRIS::Device&>(*(devIt->second)));
           /** go through all requested acqiris data */
           acqirisVals_t::const_iterator acqirisValsIter(acqirisVals.begin());
           acqirisVals_t::const_iterator acqirisValsEnd(acqirisVals.end());
@@ -287,7 +287,7 @@ void HDF5FileInput::runthis()
           devIt = devices.find(CASSEvent::PixelDetectors);
           if(devIt == devices.end())
             throw runtime_error("HDF5FileInput: CASSEvent does not contains a pixeldetector device");
-          pixeldetector::Device &pixdev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+          pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
           /** go through all requested detectors and retrieve the data */
           pixdetVals_t::const_iterator pixdetValsIter(pixdetVals.begin());
           pixdetVals_t::const_iterator pixdetValsEnd(pixdetVals.end());

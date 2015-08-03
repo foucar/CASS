@@ -122,7 +122,7 @@ private:
 /** extract the right detector from the CASSEvent
  *
  * check whether the device that contains the detector is present in the CASSevent
- * if not throw and runtime error
+ * if not throw a runtime error
  *
  * @return reference to the requested detector
  * @param evt the cassvent containing the detector
@@ -138,7 +138,7 @@ Detector& retrieveDet(CASSEvent& evt, const Device::detectors_t::key_type& key)
   {
     throw runtime_error("pixeldetector::retrieveDet: There is no  pixeldetector device within the CASSEvent");
   }
-  Device &dev (*dynamic_cast<Device*>(devIt->second));
+  Device &dev (dynamic_cast<Device&>(*(devIt->second)));
   return (dev.dets()[key]);
 }
 

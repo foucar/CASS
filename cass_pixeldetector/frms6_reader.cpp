@@ -51,7 +51,7 @@ bool Frms6Reader::operator ()(ifstream &file, CASSEvent& evt)
   CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
   if(devIt == devices.end())
     throw runtime_error("Frms6Reader: There is no pixeldetector device within the CASSEvent");
-  Device &dev(*dynamic_cast<Device*>(devIt->second));
+  Device &dev(dynamic_cast<Device&>(*(devIt->second)));
   Detector &det(dev.dets()[_frameHead.id]);
   det.id() = evt.id();
 

@@ -618,7 +618,7 @@ void SACLAOnlineInput::runthis()
       CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
       if(devIt == devices.end())
         throw runtime_error("SACLAOnlineInput: CASSEvent does not contains a pixeldetector device");
-      pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+      pixeldetector::Device &dev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
 
       /** get the latest tag from the first defined octal detector */
       int latestTag(octalDetectors.front().latestTag(lastTag));
@@ -649,7 +649,7 @@ void SACLAOnlineInput::runthis()
         CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
         if (mdIt == devices.end())
           throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
-        MachineData::MachineDataDevice &md(*dynamic_cast<MachineData::MachineDataDevice*>(mdIt->second));
+        MachineData::MachineDataDevice &md(dynamic_cast<MachineData::MachineDataDevice&>(*(mdIt->second)));
 
         /** retrieve requested machinedata, copy it to the CASSEvent and add
          *  the size in bytes to the total size retrieved

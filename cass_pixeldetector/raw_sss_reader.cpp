@@ -55,7 +55,7 @@ bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
   CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
   if(devIt == devices.end())
     throw runtime_error("RAWSSSReader: There is no pixeldetector device within the CASSEvent");
-  Device &dev(*dynamic_cast<Device*>(devIt->second));
+  Device &dev(dynamic_cast<Device&>(*(devIt->second)));
   Detector &det(dev.dets()[100]);
   det.id()      = event.id();
   det.columns() = _header.width;

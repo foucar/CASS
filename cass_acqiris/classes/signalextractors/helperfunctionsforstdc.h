@@ -50,7 +50,7 @@ const Channel* extactRightChannel(const CASSEvent &evt,
 {
   using namespace std;
   const Device &device
-      (*(dynamic_cast<const ACQIRIS::Device*>(evt.devices().find(CASSEvent::Acqiris)->second)));
+      (dynamic_cast<const ACQIRIS::Device&>(*(evt.devices().find(CASSEvent::Acqiris)->second)));
   ACQIRIS::Device::instruments_t::const_iterator instrumentIt
       (device.instruments().find(instrument));
   if (instrumentIt == device.instruments().end())

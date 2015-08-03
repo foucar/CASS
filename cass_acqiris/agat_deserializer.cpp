@@ -30,8 +30,8 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
   /** extract the right instrument from the cassevent */
   if (evt.devices().find(CASSEvent::Acqiris) == evt.devices().end())
     throw runtime_error("deserializeNormalAgat(): The Acqiris Device does not exist.");
-  Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
-  Instrument &instr(dev->instruments()[Standalone]);
+  Device &dev(dynamic_cast<Device&>(*(evt.devices()[CASSEvent::Acqiris])));
+  Instrument &instr(dev.instruments()[Standalone]);
 
   /** read the event header and copy the id */
   AGATRemoteHeader::Event evtHead;

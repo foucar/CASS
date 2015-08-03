@@ -65,7 +65,7 @@ void ACQIRISTDC::TDCExtractor::loadSettings(CASSSettings &s)
 void ACQIRISTDC::TDCExtractor::associate(const CASSEvent &evt)
 {
   const Device &device
-      (*(dynamic_cast<const ACQIRISTDC::Device*>(evt.devices().find(CASSEvent::AcqirisTDC)->second)));
+      (dynamic_cast<const ACQIRISTDC::Device&>(*(evt.devices().find(CASSEvent::AcqirisTDC)->second)));
   ACQIRISTDC::Device::instruments_t::const_iterator instrumentIt
       (device.instruments().find(_instrument));
   if (instrumentIt == device.instruments().end())

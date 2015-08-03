@@ -48,10 +48,10 @@ void pp120::loadSettings(size_t)
 
 void pp120::process(const CASSEvent& evt, HistogramBackend &res)
 {
-  const MachineDataDevice *mdev
-      (dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::bldMap_t &bld(mdev->BeamlineData());
+  const MachineDataDevice &md
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
+  const MachineDataDevice::bldMap_t &bld(md.BeamlineData());
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   result = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
 }
@@ -90,10 +90,10 @@ void pp121::loadSettings(size_t)
 void pp121::process(const CASSEvent& evt, HistogramBackend &res)
 {
   using namespace MachineData;
-  const MachineDataDevice *mdev
-      (dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::evrStatus_t &evr(mdev->EvrData());
+  const MachineDataDevice &md
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
+  const MachineDataDevice::evrStatus_t &evr(md.EvrData());
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   result = ((_eventcode < evr.size()) ? evr[_eventcode] : 0);
 }
@@ -194,8 +194,8 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
 {
   using namespace MachineData;
   const MachineDataDevice &mdev
-      (*dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
   const MachineDataDevice::spectrometer_t &spectros(mdev.spectrometers());
   MachineDataDevice::spectrometer_t::const_iterator specIt(spectros.find(_specname));
   if (specIt == spectros.end())
@@ -249,10 +249,10 @@ void pp130::loadSettings(size_t)
 void pp130::process(const CASSEvent& evt, HistogramBackend &res)
 {
   using namespace MachineData;
-  const MachineDataDevice *mdev
-      (dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::epicsDataMap_t &epics(mdev->EpicsData());
+  const MachineDataDevice &md
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
+  const MachineDataDevice::epicsDataMap_t &epics(md.EpicsData());
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   result = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
 }
@@ -291,10 +291,10 @@ void pp230::loadSettings(size_t)
 void pp230::process(const CASSEvent& evt, HistogramBackend &res)
 {
   using namespace MachineData;
-  const MachineDataDevice *mdev
-      (dynamic_cast<const MachineDataDevice *>
-       (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
+  const MachineDataDevice &md
+      (dynamic_cast<const MachineDataDevice&>
+       (*(evt.devices().find(CASSEvent::MachineData)->second)));
+  const MachineDataDevice::bldMap_t bld(md.BeamlineData());
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   const double ebEnergy

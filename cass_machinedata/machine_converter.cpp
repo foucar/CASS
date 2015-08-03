@@ -191,12 +191,6 @@ Converter::Converter()
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
-  /** during a configure transition we don't get a cassevent, so we should extract the machineevent
-   *  only when cassevent is non zero
-   */
-  MachineDataDevice *md = 0;
-  if (cassevent)
-    md = dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
 
   switch (xtc->contains.id())
   {
@@ -204,19 +198,20 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_FEEGasDetEnergy):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version (xtc->contains.version());
     const Pds::BldDataFEEGasDetEnergy &gasdet =
         *reinterpret_cast<const Pds::BldDataFEEGasDetEnergy*>(xtc->payload());
     switch (version)
     {
     case(1):
-      md->BeamlineData()["f_63_ENRC"] = gasdet.f_63_ENRC;
-      md->BeamlineData()["f_64_ENRC"] = gasdet.f_64_ENRC;
+      md.BeamlineData()["f_63_ENRC"] = gasdet.f_63_ENRC;
+      md.BeamlineData()["f_64_ENRC"] = gasdet.f_64_ENRC;
     case(0):
-      md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
-      md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
-      md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
-      md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
+      md.BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
+      md.BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
+      md.BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
+      md.BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
       break;
     default:
       Log::add(Log::ERROR,"Unknown FEEGasDet version");
@@ -227,6 +222,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_EBeam):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version (xtc->contains.version());
     const Pds::BldDataEBeam &beam =
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
@@ -239,17 +235,17 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     case (6):
     {
       if(!(Pds::BldDataEBeam::EbeamPhotonEnergyDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamPhotonEnergy"]= beam.fEbeamPhotonEnergy;
+        md.BeamlineData()["EbeamPhotonEnergy"]= beam.fEbeamPhotonEnergy;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamPhotonEnergy' is damaged");
 
 //      if(!(Pds::BldDataEBeam::EbeamXTCAVPhaseDamage & beam.uDamageMask))
-        md->BeamlineData()["fEbeamLTU250"]= beam.fEbeamLTU250;
+        md.BeamlineData()["fEbeamLTU250"]= beam.fEbeamLTU250;
 //      else
 //        Log::add(Log::VERBOSEINFO,"'EbeamXTCAVPhase' is damaged");
 
 //      if(!(Pds::BldDataEBeam::EbeamDumpChargeDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamLTU450"]= beam.fEbeamLTU450;
+        md.BeamlineData()["EbeamLTU450"]= beam.fEbeamLTU450;
 //      else
 //        Log::add(Log::VERBOSEINFO,"'EbeamDumpCharge' is damaged");
 
@@ -257,97 +253,97 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     case (5):
     {
       if(!(Pds::BldDataEBeam::EbeamXTCAVAmplDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamXTCAVAmpl"]= beam.fEbeamXTCAVAmpl;
+        md.BeamlineData()["EbeamXTCAVAmpl"]= beam.fEbeamXTCAVAmpl;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamXTCAVAmpl' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamXTCAVPhaseDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamXTCAVPhase"]= beam.fEbeamXTCAVPhase;
+        md.BeamlineData()["EbeamXTCAVPhase"]= beam.fEbeamXTCAVPhase;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamXTCAVPhase' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamDumpChargeDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamDumpCharge"]= beam.fEbeamDumpCharge;
+        md.BeamlineData()["EbeamDumpCharge"]= beam.fEbeamDumpCharge;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamDumpCharge' is damaged");
     }
     case (4):
     {
       if(!(Pds::BldDataEBeam::EbeamUndPosXDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamUndPosX"]= beam.fEbeamUndPosX;
+        md.BeamlineData()["EbeamUndPosX"]= beam.fEbeamUndPosX;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamUndPosX' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamUndPosYDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamUndPosY"]= beam.fEbeamUndPosY;
+        md.BeamlineData()["EbeamUndPosY"]= beam.fEbeamUndPosY;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamUndPosY' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamUndAngXDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamUndAngX"]= beam.fEbeamUndAngX;
+        md.BeamlineData()["EbeamUndAngX"]= beam.fEbeamUndAngX;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamUndPosX' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamUndAngYDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamUndAngY"]= beam.fEbeamUndAngY;
+        md.BeamlineData()["EbeamUndAngY"]= beam.fEbeamUndAngY;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamUndPosY' is damaged");
     }
     case (3):
     {
       if(!(Pds::BldDataEBeam::EbeamPkCurrBC1Damage & beam.uDamageMask))
-        md->BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
+        md.BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamPkCurrBC1' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamEnergyBC1Damage & beam.uDamageMask))
-        md->BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
+        md.BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
       else
         Log::add(Log::VERBOSEINFO,"'fEbeamEnergyBC1' is damaged");
     }
     case (2):
     {
       if(!(Pds::BldDataEBeam::EbeamEnergyBC2Damage & beam.uDamageMask))
-        md->BeamlineData()["EbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
+        md.BeamlineData()["EbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamEnergyBC2' is damaged");
     }
     case (1):
     {
       if(!(Pds::BldDataEBeam::EbeamPkCurrBC2Damage & beam.uDamageMask))
-        md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
+        md.BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamPkCurrBC2' is damaged");
     }
     case (0):
     {
       if(!(Pds::BldDataEBeam::EbeamChargeDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
+        md.BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamCharge' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamL3EnergyDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
+        md.BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamL3Energy' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamLTUAngXDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
+        md.BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamLTUAngX' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamLTUAngYDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
+        md.BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamLTUAngY' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamLTUPosXDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
+        md.BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamLTUPosX' is damaged");
 
       if(!(Pds::BldDataEBeam::EbeamLTUPosYDamage & beam.uDamageMask))
-        md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
+        md.BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
       else
         Log::add(Log::VERBOSEINFO,"'EbeamLTUPosY' is damaged");
       break;
@@ -359,12 +355,13 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_PhaseCavity):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::BldDataPhaseCavity &cavity =
         *reinterpret_cast<const Pds::BldDataPhaseCavity*>(xtc->payload());
-    md->BeamlineData()["Charge1"]  = cavity.fCharge1;
-    md->BeamlineData()["Charge2"]  = cavity.fCharge2;
-    md->BeamlineData()["FitTime1"] = cavity.fFitTime1;
-    md->BeamlineData()["FitTime2"] = cavity.fFitTime2;
+    md.BeamlineData()["Charge1"]  = cavity.fCharge1;
+    md.BeamlineData()["Charge2"]  = cavity.fCharge2;
+    md.BeamlineData()["FitTime1"] = cavity.fFitTime1;
+    md.BeamlineData()["FitTime2"] = cavity.fFitTime2;
     break;
   }
 
@@ -420,8 +417,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     /** time is the actual data, that will be send down the xtc with 1 Hz */
     else if(dbr_type_is_TIME(epicsData.iDbrType))
     {
-      if (!md)
-        throw logic_error("MachineData::Converter: Epics data without a proper cassevent");
+      MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
 
       /** now we need to find the variable name in the map, therefore we look up
        *  the name in the indexmap
@@ -447,39 +443,18 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         MachineDataDevice::epicsDataMap_t::iterator storeIt =
             _store.EpicsData().find(epicsVariableName);
         MachineDataDevice::epicsDataMap_t::iterator cassIt =
-            md->EpicsData().find(epicsVariableName);
+            md.EpicsData().find(epicsVariableName);
         /** if the name is not in the map, ouput error message */
-        if (storeIt == _store.EpicsData().end() || cassIt == md->EpicsData().end())
+        if (storeIt == _store.EpicsData().end() || cassIt == md.EpicsData().end())
           Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
                    toString(epicsData.iPvId) + "' was not found in store or cassevent");
         /** otherwise extract the epicsData and write it into the map */
         else
         {
           _epicsType2convFunc[epicsData.iDbrType](epicsData,storeIt,cassIt);
-//          /** now extract the value from the epics variable */
-//            switch(epicsData.iDbrType)
-//            {
-//            case DBR_TIME_SHORT:
-//              convertEpicsToDouble<DBR_SHORT>(epicsData,it);
-//              break;
-//            case DBR_TIME_FLOAT:
-//              convertEpicsToDouble<DBR_FLOAT>(epicsData,it);
-//              break;
-//            case DBR_TIME_ENUM:
-//              convertEpicsToDouble<DBR_ENUM>(epicsData,it);
-//              break;
-//            case DBR_TIME_LONG:
-//              convertEpicsToDouble<DBR_LONG>(epicsData,it);
-//              break;
-//            case DBR_TIME_DOUBLE:
-//              convertEpicsToDouble<DBR_DOUBLE>(epicsData,it);
-//              break;
-//            default:
-//              break;
-//            }//end switch
         }
         /** set the variable that the epics store was filled */
-        md->epicsFilled() = true;
+        md.epicsFilled() = true;
       }
     }
     break;
@@ -488,8 +463,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_EvrData):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     /** clear the status bytes of the event code */
-    std::fill(md->EvrData().begin(),md->EvrData().end(),false);
+    std::fill(md.EvrData().begin(),md.EvrData().end(),false);
     /** get the evr data */
     const Pds::EvrData::DataV3 &evrData =
         *reinterpret_cast<const Pds::EvrData::DataV3*>(xtc->payload());
@@ -501,9 +477,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
       uint32_t eventcode = fifoEvent.EventCode;
       /** check if the array is big enough to hold the recorded eventcode */
-      if (md->EvrData().size() < eventcode )
-        md->EvrData().resize(eventcode+1,false);
-      md->EvrData()[eventcode]=true;
+      if (md.EvrData().size() < eventcode )
+        md.EvrData().resize(eventcode+1,false);
+      md.EvrData()[eventcode]=true;
     }
     break;
   }
@@ -511,20 +487,22 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_IpimbData):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
     string detector(Pds::DetInfo::name(info.detector()));
     const Pds::Ipimb::DataV2& ipimbData =
         *reinterpret_cast<const Pds::Ipimb::DataV2*>(xtc->payload());
-    md->BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
-    md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
-    md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
-    md->BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
+    md.BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
+    md.BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
+    md.BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
+    md.BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
   }
     break;
 
 
   case(Pds::TypeId::Id_IpmFex):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
     string detector(Pds::DetInfo::name(info.detector()));
     const Pds::Lusi::IpmFexV1& ipmfex =
@@ -533,11 +511,11 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
       stringstream ss;
       ss << detector << "_CorrectChannel" << i;
-      md->BeamlineData()[ss.str()] = ipmfex.channel[i];
+      md.BeamlineData()[ss.str()] = ipmfex.channel[i];
     }
-    md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
-    md->BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
-    md->BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
+    md.BeamlineData()[detector + "_sum"]  = ipmfex.sum;
+    md.BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
+    md.BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
     break;
   }
 
@@ -545,6 +523,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   case(Pds::TypeId::Id_ControlConfig):
   {
     QMutexLocker lock(&_mutex);
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     /** add variables to store, cassevent and to log */
     const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
     string log("MachineData::Converter: Calibcylce: [" +
@@ -554,7 +533,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
       _store.BeamlineData()[pvControlCur.name()] = pvControlCur.value();
       if(cassevent)
-        md->BeamlineData()[pvControlCur.name()] = pvControlCur.value();
+        md.BeamlineData()[pvControlCur.name()] = pvControlCur.value();
       log += string(pvControlCur.name()) + " = " + toString(pvControlCur.value()) + "; ";
     }
     Log::add(Log::INFO,log);
@@ -564,13 +543,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_Spectrometer):
   {
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version(xtc->contains.version());
     string specname
         (Pds::BldInfo::name(reinterpret_cast<const Pds::BldInfo&>(xtc->src)));
     MachineDataDevice::spectrometer_t::mapped_type &horiz
-        (md->spectrometers()[specname +"_horiz"]);
+        (md.spectrometers()[specname +"_horiz"]);
     MachineDataDevice::spectrometer_t::mapped_type &vert
-        (md->spectrometers()[specname +"_vert"]);
+        (md.spectrometers()[specname +"_vert"]);
     switch (version)
     {
     case (0):
@@ -615,14 +595,14 @@ void Converter::prepare(cass::CASSEvent *evt)
   if (evt)
   {
     QMutexLocker lock(&_mutex);
-    MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
-    MachineDataDevice::bldMap_t::iterator bi (md->BeamlineData().begin());
-    MachineDataDevice::bldMap_t::const_iterator bEnd (md->BeamlineData().end());
+    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(evt->devices()[cass::CASSEvent::MachineData])));
+    MachineDataDevice::bldMap_t::iterator bi (md.BeamlineData().begin());
+    MachineDataDevice::bldMap_t::const_iterator bEnd (md.BeamlineData().end());
     for (; bi != bEnd ;++bi)
       bi->second = 0;
-    md->epicsFilled() = false;
+    md.epicsFilled() = false;
     /** copy values in the store to the event */
-    md->EpicsData() = _store.EpicsData();
+    md.EpicsData() = _store.EpicsData();
     /** @note we want to add the addional values that are in the store to
      *        the beamline data of the event therefore we should not use the
      *        assignment operator here
@@ -630,25 +610,10 @@ void Converter::prepare(cass::CASSEvent *evt)
     MachineDataDevice::bldMap_t::const_iterator it (_store.BeamlineData().begin());
     MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
     for(; it != End; ++it)
-      md->BeamlineData()[it->first] = it->second;
+      md.BeamlineData()[it->first] = it->second;
   }
 }
 
 void Converter::finalize(CASSEvent* /*evt*/)
 {
-//  /** copy the epics and calibcyle values in the storedevent to the machineevent */
-//    if (evt)
-//    {
-//      QMutexLocker lock(&_mutex);
-//      MachineDataDevice *md = dynamic_cast<MachineDataDevice*>(evt->devices()[cass::CASSEvent::MachineData]);
-//      md->EpicsData() = _store.EpicsData();
-//      /** @note we want to add the addional values that are in the store to
-//       *        the beamline data of the event therefore we should not use the
-//       *        assignment operator here
-//       */
-//      MachineDataDevice::bldMap_t::const_iterator it (_store.BeamlineData().begin());
-//      MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
-//      for(; it != End; ++it)
-//        md->BeamlineData()[it->first] = it->second;
-//    }
 }

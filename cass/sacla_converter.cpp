@@ -445,7 +445,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
     throw runtime_error("SACLAConverter():The CASSEvent does not contain a Machine Data Device");
   MachineDataDevice &md
-    (*dynamic_cast<MachineDataDevice*>(event.devices()[CASSEvent::MachineData]));
+    (dynamic_cast<MachineDataDevice&>(*(event.devices()[CASSEvent::MachineData])));
 
 
   /** if requested retrieve the accelarator parameters */
@@ -513,7 +513,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
   if(devIt == devices.end())
     throw runtime_error("SACLAConverter: CASSEvent does not contains a pixeldetector device");
-  pixeldetector::Device &dev (*dynamic_cast<pixeldetector::Device*>(devIt->second));
+  pixeldetector::Device &dev(dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
 
   /** read the requested pixel detector data */
   pixDets_t::iterator pixelDetsIter(_pixelDetectors.begin());
