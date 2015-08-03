@@ -23,318 +23,316 @@
 namespace cass
 {
 
-  /** A serializer.
-   *
-   * base class that will serialize / de serialize
-   * Serializable classes to an iostream
-   * This is an interface that should not be instantiated
-   * (can be made pure virtual once virtual methods are introduced).
-   *
-   * @author Lutz Foucar
-   */
-  class CASSSHARED_EXPORT SerializerBackend
+/** A serializer.
+ *
+ * base class that will serialize / de serialize
+ * Serializable classes to an iostream
+ * This is an interface that should not be instantiated
+ * (can be made pure virtual once virtual methods are introduced).
+ *
+ * @author Lutz Foucar
+ */
+class SerializerBackend
+{
+public:
+  SerializerBackend()
   {
-  public:
-    SerializerBackend()
-    {
-        _checkSumGroupStartedForRead = false;
-        _checkSumGroupStartedForWrite = false;
-    }
+    _checkSumGroupStartedForRead = false;
+    _checkSumGroupStartedForWrite = false;
+  }
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() = 0;
-    virtual ~SerializerBackend(){}
+  virtual void abstractTest() = 0;
+  virtual ~SerializerBackend(){}
 #endif
-    void flush() { _stream->flush(); }
+  void flush() { _stream->flush(); }
 
-    std::ostream& writeToStream( const char* data, std::streamsize n);
-    std::istream& readFromStream( char* data, std::streamsize n);
+  std::ostream& writeToStream( const char* data, std::streamsize n);
+  std::istream& readFromStream( char* data, std::streamsize n);
 
-    /** usage: add...; add...; startChecksumGroupforRead(); add...; add...; if (!endChecksumGroupForRead()) error(); **/
-    void startChecksumGroupForRead();
-    bool endChecksumGroupForRead();
-    /** usage: retrieve...; retrieve...; startChecksumGroupforWrite(); retrieve...; retrieve...; endChecksumGroupForWrite(); **/
-    void startChecksumGroupForWrite();
-    void endChecksumGroupForWrite();
+  /** usage: add...; add...; startChecksumGroupforRead(); add...; add...; if (!endChecksumGroupForRead()) error(); **/
+  void startChecksumGroupForRead();
+  bool endChecksumGroupForRead();
+  /** usage: retrieve...; retrieve...; startChecksumGroupforWrite(); retrieve...; retrieve...; endChecksumGroupForWrite(); **/
+  void startChecksumGroupForWrite();
+  void endChecksumGroupForWrite();
 
-    void addString(const std::string&); //!< add string to serialized buffer
-    void addUint16(const uint16_t);     //!< add uint16 to serialized buffer
-    void addUint8(const uint8_t);       //!< add uint16 to serialized buffer
-    void addInt16(const int16_t);       //!< add int16 to serialized buffer
-    void addUint32(const uint32_t);     //!< add uint32 to serialized buffer
-    void addInt32(const int32_t);       //!< add int32 to serialized buffer
-    void addUint64(const uint64_t);     //!< add uint64 to serialized buffer
-    void addInt64(const int64_t);       //!< add int64 to serialized buffer
-    void addSizet(const size_t);        //!< add size_t to serialized buffer
-    void addDouble(const double);       //!< add double to serialized buffer
-    void addFloat(const float);         //!< add float to serialized buffer
-    void addBool(const bool);           //!< add bool to serialized buffer
+  void addString(const std::string&); //!< add string to serialized buffer
+  void addUint16(const uint16_t);     //!< add uint16 to serialized buffer
+  void addUint8(const uint8_t);       //!< add uint16 to serialized buffer
+  void addInt16(const int16_t);       //!< add int16 to serialized buffer
+  void addUint32(const uint32_t);     //!< add uint32 to serialized buffer
+  void addInt32(const int32_t);       //!< add int32 to serialized buffer
+  void addUint64(const uint64_t);     //!< add uint64 to serialized buffer
+  void addInt64(const int64_t);       //!< add int64 to serialized buffer
+  void addSizet(const size_t);        //!< add size_t to serialized buffer
+  void addDouble(const double);       //!< add double to serialized buffer
+  void addFloat(const float);         //!< add float to serialized buffer
+  void addBool(const bool);           //!< add bool to serialized buffer
 
-    /** add arbitrary value to the stream
-     *
-     * @tparam Type the type of the value
-     * @param value the value to add
-     */
-    template <typename Type>
-    void add(const Type& value)
-    {
-      writeToStream(reinterpret_cast<const char *> (&value), sizeof (Type));
-    }
-
-    std::string retrieveString();   //!< retrieve string from serialized buffer
-    uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
-    uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
-    int16_t     retrieveInt16();    //!< retrieve string from serialized buffer
-    uint32_t    retrieveUint32();   //!< retrieve string from serialized buffer
-    int32_t     retrieveInt32();    //!< retrieve string from serialized buffer
-    uint64_t    retrieveUint64();   //!< retrieve string from serialized buffer
-    int64_t     retrieveInt64();    //!< retrieve string from serialized buffer
-    size_t      retrieveSizet();    //!< retrieve string from serialized buffer
-    double      retrieveDouble();   //!< retrieve string from serialized buffer
-    float       retrieveFloat();    //!< retrieve string from serialized buffer
-    bool        retrieveBool();     //!< retrieve string from serialized buffer
-
-    /** read arbitrary value from stream
-     *
-     * @tparam Type the type of the value
-     * @return the read value
-     */
-    template <typename Type>
-    Type retrieve()
-    {
-      Type val;
-      readFromStream (reinterpret_cast<char *> (&val), sizeof (Type));
-      return val;
-    }
-
-  protected:
-    std::iostream* _stream;    //!< the string to serialize the objects to (buffer)
-
-    uint16_t r_sum1, r_sum2, w_sum1, w_sum2;
-    bool _checkSumGroupStartedForRead, _checkSumGroupStartedForWrite;
-    void addToOutChecksum( const char* data, std::streamsize n);
-    void addToInChecksum( const char* data, std::streamsize n);
-
-  };
-
-  /** A string serializer.
+  /** add arbitrary value to the stream
    *
-   * class that will serialize / de serialize
-   * Serializable classes to a stringstream
-   *
-   * @author Lutz Foucar
-   * @author Stephan Kassemeyer
+   * @tparam Type the type of the value
+   * @param value the value to add
    */
-  class CASSSHARED_EXPORT Serializer : public SerializerBackend
+  template <typename Type>
+  void add(const Type& value)
   {
-  public:
-    /** constructor.
-     *
-     * will open the stream in binary writing mode
-     */
-    Serializer()
-    {
-      _stream = new std::stringstream(std::ios_base::binary|std::ios_base::out);
-    }
+    writeToStream(reinterpret_cast<const char *> (&value), sizeof (Type));
+  }
 
-    /** constructor.
-     *
-     * will open the provided string for reading in binary mode
-     * @param string the string that we want to read from
-     */
-    Serializer(const std::string &string)
-    {
-      _stream = new std::stringstream(string,std::ios_base::binary|std::ios_base::in);
-    }
+  std::string retrieveString();   //!< retrieve string from serialized buffer
+  uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
+  uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
+  int16_t     retrieveInt16();    //!< retrieve string from serialized buffer
+  uint32_t    retrieveUint32();   //!< retrieve string from serialized buffer
+  int32_t     retrieveInt32();    //!< retrieve string from serialized buffer
+  uint64_t    retrieveUint64();   //!< retrieve string from serialized buffer
+  int64_t     retrieveInt64();    //!< retrieve string from serialized buffer
+  size_t      retrieveSizet();    //!< retrieve string from serialized buffer
+  double      retrieveDouble();   //!< retrieve string from serialized buffer
+  float       retrieveFloat();    //!< retrieve string from serialized buffer
+  bool        retrieveBool();     //!< retrieve string from serialized buffer
 
-    /** destructor.
-     *
-     * deletes stream object
-     */
-    ~Serializer()
-    {
-      delete _stream;
-    }
-
-    /** retrieve a const reference to the string.
-     *
-     * @return const string of our stringstream
-     */
-    const std::string buffer()const  {return dynamic_cast<std::stringstream*>(_stream)->str();}
-
-#ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {}
-#endif
-  };
-
-  /** A file output serializer.
+  /** read arbitrary value from stream
    *
-   * class that will serialize
-   * Serializable classes to a stringstream
-   *
-   * @author Stephan Kassemeyer
+   * @tparam Type the type of the value
+   * @return the read value
    */
-  class CASSSHARED_EXPORT SerializerWriteFile : public SerializerBackend
+  template <typename Type>
+  Type retrieve()
   {
-  public:
-    /** constructor.
-     *
-     * will open the stream in binary reading/writing mode
-     */
-    SerializerWriteFile( const char* filename )
-    {
-      _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::out);
-      _opened = true;
-    }
+    Type val;
+    readFromStream (reinterpret_cast<char *> (&val), sizeof (Type));
+    return val;
+  }
 
-    /** destructor.
-     *
-     * closes the file and deletes stream object.
-     */
-    ~SerializerWriteFile()
-    {
-      close();
-      delete _stream;
-    }
+protected:
+  std::iostream* _stream;    //!< the string to serialize the objects to (buffer)
 
-    /** close file */
-    void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
+  uint16_t r_sum1, r_sum2, w_sum1, w_sum2;
+  bool _checkSumGroupStartedForRead, _checkSumGroupStartedForWrite;
+  void addToOutChecksum( const char* data, std::streamsize n);
+  void addToInChecksum( const char* data, std::streamsize n);
+
+};
+
+/** A string serializer.
+ *
+ * class that will serialize / de serialize
+ * Serializable classes to a stringstream
+ *
+ * @author Lutz Foucar
+ * @author Stephan Kassemeyer
+ */
+class Serializer : public SerializerBackend
+{
+public:
+  /** constructor.
+   *
+   * will open the stream in binary writing mode
+   */
+  Serializer()
+  {
+    _stream = new std::stringstream(std::ios_base::binary|std::ios_base::out);
+  }
+
+  /** constructor.
+   *
+   * will open the provided string for reading in binary mode
+   * @param string the string that we want to read from
+   */
+  Serializer(const std::string &string)
+  {
+    _stream = new std::stringstream(string,std::ios_base::binary|std::ios_base::in);
+  }
+
+  /** destructor.
+   *
+   * deletes stream object
+   */
+  ~Serializer()
+  {
+    delete _stream;
+  }
+
+  /** retrieve a const reference to the string.
+   *
+   * @return const string of our stringstream
+   */
+  const std::string buffer()const  {return dynamic_cast<std::stringstream*>(_stream)->str();}
 
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {}
+  virtual void abstractTest() {}
 #endif
+};
 
-  protected:
-    bool _opened;
-  };
-
-  /** A file input deserializer.
+/** A file output serializer.
+ *
+ * class that will serialize
+ * Serializable classes to a stringstream
+ *
+ * @author Stephan Kassemeyer
+ */
+class SerializerWriteFile : public SerializerBackend
+{
+public:
+  /** constructor.
    *
-   * class that will deserialize
-   * Serializable classes from a stringstream
-   *
-   * @author Stephan Kassemeyer
+   * will open the stream in binary reading/writing mode
    */
-  class CASSSHARED_EXPORT SerializerReadFile : public SerializerBackend
+  SerializerWriteFile( const char* filename )
   {
-  public:
-    /** constructor.
-     *
-     * will open the stream in binary reading/writing mode
-     */
-    SerializerReadFile( const char* filename )
-    {
-      _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::in);
-      _opened = true;
-    }
+    _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::out);
+    _opened = true;
+  }
 
-    /** destructor.
-     *
-     * closes the file and deletes stream object.
-     */
-    ~SerializerReadFile()
-    {
-      close();
-      delete _stream;
-    }
+  /** destructor.
+   *
+   * closes the file and deletes stream object.
+   */
+  ~SerializerWriteFile()
+  {
+    close();
+    delete _stream;
+  }
 
-    /** close file */
-    void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
+  /** close file */
+  void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
 
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {}
+  virtual void abstractTest() {}
 #endif
 
-  protected:
-    bool _opened;
-  };
+protected:
+  bool _opened;
+};
 
+/** A file input deserializer.
+ *
+ * class that will deserialize
+ * Serializable classes from a stringstream
+ *
+ * @author Stephan Kassemeyer
+ */
+class SerializerReadFile : public SerializerBackend
+{
+public:
+  /** constructor.
+   *
+   * will open the stream in binary reading/writing mode
+   */
+  SerializerReadFile( const char* filename )
+  {
+    _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::in);
+    _opened = true;
+  }
 
-}//end namespace
+  /** destructor.
+   *
+   * closes the file and deletes stream object.
+   */
+  ~SerializerReadFile()
+  {
+    close();
+    delete _stream;
+  }
+
+  /** close file */
+  void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
+
+#ifdef SERIALIZER_INTERFACE_TEST
+  virtual void abstractTest() {}
+#endif
+
+protected:
+  bool _opened;
+};
+}//end namespace cass
 
 
 // fletcher16 for 8bit input:
 inline void cass::SerializerBackend::addToOutChecksum( const char* data, std::streamsize len)
 {
-    while (len) {
-        size_t tlen = len > 21 ? 21 : len;
-                len -= tlen;
-                do {
-                        w_sum1 += *data++;
-                        w_sum2 += w_sum1;
-                } while (--tlen);
-                w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
-                w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
-        }
+  while (len) {
+    size_t tlen = len > 21 ? 21 : len;
+    len -= tlen;
+    do {
+      w_sum1 += *data++;
+      w_sum2 += w_sum1;
+    } while (--tlen);
+    w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+    w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+  }
 }
 
 // fletcher16 for 8bit input:
 inline void cass::SerializerBackend::addToInChecksum( const char* data, std::streamsize len)
 {
-    while (len) {
-        size_t tlen = len > 21 ? 21 : len;
-                len -= tlen;
-                do {
-                        r_sum1 += *data++;
-                        r_sum2 += r_sum1;
-                } while (--tlen);
-                r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
-                r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
-        }
+  while (len) {
+    size_t tlen = len > 21 ? 21 : len;
+    len -= tlen;
+    do {
+      r_sum1 += *data++;
+      r_sum2 += r_sum1;
+    } while (--tlen);
+    r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+    r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+  }
 }
 
 inline bool cass::SerializerBackend::endChecksumGroupForRead()
 {
-        _checkSumGroupStartedForRead = false;
-    // finalize checksum:
-        r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
-        r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
-        //retrieveUint8( reinterpret_cast<uint8_t>r_sum1 );
-        if (retrieveUint8() != (uint8_t)r_sum1 ) return false;
-        //retrieveUint8( reinterpret_cast<uint8_t>r_sum2 );
-        if (retrieveUint8() != (uint8_t)r_sum2 ) return false;
-        return true;
+  _checkSumGroupStartedForRead = false;
+  // finalize checksum:
+  r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+  r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+  //retrieveUint8( reinterpret_cast<uint8_t>r_sum1 );
+  if (retrieveUint8() != (uint8_t)r_sum1 ) return false;
+  //retrieveUint8( reinterpret_cast<uint8_t>r_sum2 );
+  if (retrieveUint8() != (uint8_t)r_sum2 ) return false;
+  return true;
 }
 
 inline void cass::SerializerBackend::endChecksumGroupForWrite()
 {
-        _checkSumGroupStartedForWrite = false;
-    // finalize checksum:
-        w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
-        w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
-        //addUint8( reinterpret_cast<uint8_t>(w_sum1) );
-        addUint8( (uint8_t)(w_sum1) );
-        //addUint8( reinterpret_cast<uint8_t>(w_sum2) );
-        addUint8( (uint8_t)(w_sum2) );
+  _checkSumGroupStartedForWrite = false;
+  // finalize checksum:
+  w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+  w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+  //addUint8( reinterpret_cast<uint8_t>(w_sum1) );
+  addUint8( (uint8_t)(w_sum1) );
+  //addUint8( reinterpret_cast<uint8_t>(w_sum2) );
+  addUint8( (uint8_t)(w_sum2) );
 }
 
 inline std::istream& cass::SerializerBackend::readFromStream( char* data, std::streamsize n)
 {
-    if (_checkSumGroupStartedForRead) {
-        std::istream& stream = _stream->read(data, n); \
-        addToInChecksum(data, n);
-        return(stream);
-    }
-    else return _stream->read(data, n);
+  if (_checkSumGroupStartedForRead) {
+    std::istream& stream = _stream->read(data, n); \
+    addToInChecksum(data, n);
+    return(stream);
+  }
+  else return _stream->read(data, n);
 }
 
 inline std::ostream& cass::SerializerBackend::writeToStream( const char* data, std::streamsize n)
 {
-    if (_checkSumGroupStartedForWrite) addToOutChecksum(data, n);
-    return _stream->write(data, n);
+  if (_checkSumGroupStartedForWrite) addToOutChecksum(data, n);
+  return _stream->write(data, n);
 }
 
 inline void cass::SerializerBackend::startChecksumGroupForRead()
 {
-    _checkSumGroupStartedForRead = true;
-    r_sum1 = 0xff;
-    r_sum2 = 0xff;
+  _checkSumGroupStartedForRead = true;
+  r_sum1 = 0xff;
+  r_sum2 = 0xff;
 }
 
 inline void cass::SerializerBackend::startChecksumGroupForWrite()
 {
-    _checkSumGroupStartedForWrite = true;
-    w_sum1 = 0xff;
-    w_sum2 = 0xff;
+  _checkSumGroupStartedForWrite = true;
+  w_sum1 = 0xff;
+  w_sum2 = 0xff;
 }
 
 
@@ -474,5 +472,4 @@ inline bool cass::SerializerBackend::retrieveBool()
   readFromStream (reinterpret_cast<char *> (&b), sizeof (bool));
   return b;
 }
-
 #endif
