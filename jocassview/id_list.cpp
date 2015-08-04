@@ -52,14 +52,14 @@ bool IdList::deserialize(cass::SerializerBackend &in)
 {
   _list.clear();
   in.startChecksumGroupForRead();
-  uint16_t ver(in.retrieveUint16());
+  uint16_t ver(in.retrieve<uint16_t>());
   if(ver != _version)
   {
     QMessageBox::information(0, QObject::tr("IDList"),
                              QObject::tr("Error: Deserialization version doesn't match"));
     return false;
   }
-  _size = in.retrieveSizet();
+  _size = in.retrieve<size_t>();
   if (!in.endChecksumGroupForRead())
   {
     QMessageBox::information(0, QObject::tr("IDList"),
@@ -67,6 +67,6 @@ bool IdList::deserialize(cass::SerializerBackend &in)
     return false;
   }
   for(size_t ii=0; ii<_size; ++ii)
-    _list.append(QString::fromStdString(in.retrieveString()));
+    _list.append(QString::fromStdString(in.retrieve<string>()));
   return true;
 }

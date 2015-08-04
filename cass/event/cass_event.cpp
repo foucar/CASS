@@ -32,21 +32,33 @@ CASSEvent::CASSEvent()
 void CASSEvent::serialize(SerializerBackend& out) const
 {
   writeVersion(out);
-  //the id//
-  out.addUint64(_id);
-
-  //all devices//
-  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+  /** write the id */
+  out.add(_id);
+  /** write the size of the container */
+  out.add(static_cast<size_t>(_devices.size()));
+  /** for each instrument in the map write the key and then the Instrument */
+  for (devices_t::const_iterator it = _devices.begin (); it != _devices.end (); ++it)
+  {
+    out.add(it->first);
     it->second->serialize(out);
+  }
 }
 
 bool CASSEvent::deserialize(SerializerBackend& in)
 {
   checkVersion(in);
-  //get id//
-  _id = in.retrieveUint64();
-  //all devices//
-  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
-    it->second->deserialize(in);
+  _id = in.retrieve<uint64_t>();
+  /** read the number of instruments */
+  size_t nDev(in.retrieve<size_t>());
+  /** read the key of the device and add the deserialized device */
+  for(size_t i(0); i < nDev; ++i)
+  {
+    const devices_t::key_type key(in.retrieve<devices_t::key_type>());
+    /** @note not yet working
+     *        maybe make the cassevent have the devices
+     *        and not a list of abstract devices?
+     */
+//    _devices[key] = DeviceBackend(in);
+  }
   return true;
 }

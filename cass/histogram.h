@@ -152,8 +152,7 @@ protected:
  * We are serializable.
  * @author Lutz Foucar
  */
-class HistogramBackend
-    : public Serializable
+class HistogramBackend : public Serializable
 {
 public:
   /** define a shared pointer of this */
@@ -223,13 +222,6 @@ public:
      * @param in The Serializer we serialize this from
      */
     virtual bool deserialize(SerializerBackend &in)=0;
-
-    /** clone the histogram.
-     * This function will create a new copy of this on the heap. It will not copy
-     * the data in memory but rather set it to 0.
-     * Needs to be implemented by the different flavors of histograms.
-     */
-//    virtual HistogramBackend* clone()const=0;
 
     /** create a copy of the histogram
      *
@@ -306,11 +298,12 @@ protected:
 
 
 /** base class for float histograms.
+ *
  * from this all float histograms should inherit
+ *
  * @author Lutz Foucar
  */
-class HistogramFloatBase
-    : public HistogramBackend
+class HistogramFloatBase : public HistogramBackend
 {
 public:
     /** constructor.
@@ -332,15 +325,6 @@ public:
     {
         deserialize(in);
     }
-
-    /** clone the histogram.
-     * This function will create a new copy of this on the heap. It will not copy
-     * the data in memory but rather set it to 0.
-     */
-//    virtual HistogramBackend* clone()const
-//    {
-//      return new HistogramFloatBase(dimension(),memory().size());
-//    }
 
     /** clone the histogram completly
      *
@@ -968,10 +952,10 @@ inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
 {
   writeVersion(out);
   //number of bins, lower & upper limit
-  out.addSizet(_size);
-  out.addFloat(_low);
-  out.addFloat(_up);
-  out.addString(_title);
+  out.add(_size);
+  out.add(_low);
+  out.add(_up);
+  out.add(_title);
 }
 
 
@@ -980,10 +964,10 @@ inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
 {
   checkVersion(in);
   //number of bins, lower & upper limit
-  _size     = in.retrieveSizet();
-  _low      = in.retrieveFloat();
-  _up       = in.retrieveFloat();
-  _title    = in.retrieveString();
+  _size     = in.retrieve<size_t>();
+  _low      = in.retrieve<float>();
+  _up       = in.retrieve<float>();
+  _title    = in.retrieve<std::string>();
   return true;
 }
 
@@ -1019,49 +1003,45 @@ inline size_t AxisProperty::bin(float pos) const
 
 
 //-----------------Base class-----------------------
-inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
+inline
+void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
   QReadLocker rlock(&lock);
   writeVersion(out);
-  //the number of fills//
-  out.addSizet(_nbrOfFills);
-  //the dimension//
-  out.addSizet(_dimension);
-  //the event id//
-  out.addUint64(_id);
-  //the axis properties//
+  /** write general information about the histogram */
+  out.add(_nbrOfFills);
+  out.add(_dimension);
+  out.add(_id);
+  /** write the axis properties */
   for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
-  //size of the memory//
-  size_t size = _memory.size();
-  out.addSizet(size);
-  //the memory//
+  /** write size of the memory and then the memory */
+  out.add(static_cast<size_t>(_memory.size()));
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
-    out.addFloat(*it);
-  out.addString(_key);
+    out.add(*it);
+  /** write the key of the histogram */
+  out.add(_key);
 }
 
-
-
-inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
+inline
+bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 {
   checkVersion(in);
   QWriteLocker wlock(&lock);
-  //the number of fills//
-  _nbrOfFills = in.retrieveSizet();
-  //the dimension//
-  _dimension = in.retrieveSizet();
-  //the event id//
-  _id = in.retrieveUint64();
-  //initialize axis for all dimensions//
+  /** read general information about the histogram */
+  _nbrOfFills = in.retrieve<size_t>();
+  _dimension  = in.retrieve<size_t>();
+  _id         = in.retrieve<uint64_t>();
+  /** deserialize the axis */
   for (size_t i=0; i<_dimension;++i)
     _axis.push_back(AxisProperty(in));
-  //the memory//
-  size_t size = in.retrieveSizet();
-  _memory.resize(size);
-  for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
-    *it = in.retrieveFloat();
-  _key = in.retrieveString();
+  /** clear the memroy container and then deserialize the memory */
+  _memory.clear();
+  const size_t size(in.retrieve<size_t>());
+  for (size_t i(0); i<size;++i)
+    _memory.push_back(in.retrieve<value_t>());
+  /** read the key from the stream */
+  _key = in.retrieve<std::string>();
   return true;
 }
 
