@@ -20,7 +20,7 @@
 
 #include "acqiristdc_converter.h"
 
-#include "acqiristdc_device.h"
+#include "acqiristdc_device.hpp"
 #include "cass_event.h"
 
 using namespace cass::ACQIRISTDC;

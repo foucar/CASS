@@ -196,10 +196,7 @@ struct DetectorTile
   uint64_t datasize;
 
   /** start position of the tile within the frame */
-  pixeldetector::frame_t::iterator start;
-
-  /** end position of the tile within the frame */
-  pixeldetector::frame_t::iterator end;
+  pixeldetector::Detector::frame_t::iterator start;
 
   /** id of tile to normalize to */
   int normalizeID;
@@ -301,7 +298,6 @@ struct OctalDetector
       tiles[i].start = det.frame().begin() + currentsize;
       const size_t npixels(tiles[i].xsize*tiles[i].ysize);
       currentsize += npixels;
-      tiles[i].end = det.frame().begin() + currentsize;
     }
 
     /** copy the data in the tile to the frame
@@ -399,7 +395,7 @@ struct MachineValue
    * @param md reference to the machine data devices
    * @param tag the tag for which the data should be retrieved
    */
-  uint64_t copyData(MachineData::MachineDataDevice &md, int tag)
+  uint64_t copyData(MachineData::Device &md, int tag)
   {
     /** retrieve the machinevalue and check if it was retrieved ok */
     vector<string> machineValueStringList;
@@ -649,7 +645,7 @@ void SACLAOnlineInput::runthis()
         CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
         if (mdIt == devices.end())
           throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
-        MachineData::MachineDataDevice &md(dynamic_cast<MachineData::MachineDataDevice&>(*(mdIt->second)));
+        MachineData::Device &md(dynamic_cast<MachineData::Device&>(*(mdIt->second)));
 
         /** retrieve requested machinedata, copy it to the CASSEvent and add
          *  the size in bytes to the total size retrieved

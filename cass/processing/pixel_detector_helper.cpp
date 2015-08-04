@@ -13,6 +13,7 @@
 
 #include "cass_settings.h"
 #include "advanced_pixeldetector.h"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;

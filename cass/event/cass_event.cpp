@@ -10,26 +10,26 @@
 
 #include "cass_event.h"
 
-#include "acqiris_device.h"
-#include "acqiristdc_device.h"
+#include "acqiris_device.hpp"
+#include "acqiristdc_device.hpp"
 #include "machine_device.hpp"
 #include "pixeldetector.hpp"
 
 using namespace cass;
 
 CASSEvent::CASSEvent()
-  : cass::Serializable(1),
+  : Serializable(1),
     _id(0),
     _datagrambuffer()
 {
   //add all devices that are available
-  _devices[MachineData]    = DeviceBackend::shared_pointer(new cass::MachineData::MachineDataDevice());
-  _devices[Acqiris]        = DeviceBackend::shared_pointer(new cass::ACQIRIS::Device());
-  _devices[AcqirisTDC]     = DeviceBackend::shared_pointer(new cass::ACQIRISTDC::Device());
-  _devices[PixelDetectors] = DeviceBackend::shared_pointer(new cass::pixeldetector::Device());
+  _devices[MachineData]    = DeviceBackend::shared_pointer(new MachineData::Device());
+  _devices[Acqiris]        = DeviceBackend::shared_pointer(new ACQIRIS::Device());
+  _devices[AcqirisTDC]     = DeviceBackend::shared_pointer(new ACQIRISTDC::Device());
+  _devices[PixelDetectors] = DeviceBackend::shared_pointer(new pixeldetector::Device());
 }
 
-void CASSEvent::serialize(cass::SerializerBackend& out) const
+void CASSEvent::serialize(SerializerBackend& out) const
 {
   writeVersion(out);
   //the id//
@@ -40,7 +40,7 @@ void CASSEvent::serialize(cass::SerializerBackend& out) const
     it->second->serialize(out);
 }
 
-bool CASSEvent::deserialize(cass::SerializerBackend& in)
+bool CASSEvent::deserialize(SerializerBackend& in)
 {
   checkVersion(in);
   //get id//

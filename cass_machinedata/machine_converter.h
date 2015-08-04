@@ -97,8 +97,8 @@ private:
 
   /** define the function to convert epics to cass */
   typedef std::tr1::function<void(const Pds::EpicsPvHeader&,
-                                  MachineDataDevice::epicsDataMap_t::iterator,
-                                  MachineDataDevice::epicsDataMap_t::iterator)> epicsType2val_t;
+                                  Device::epicsDataMap_t::iterator,
+                                  Device::epicsDataMap_t::iterator)> epicsType2val_t;
 
   /** define a map to map epics type to function for retrieval of the value */
   typedef std::map<int16_t, epicsType2val_t > epicsType2convFunc_t;
@@ -111,7 +111,7 @@ private:
    * @note this is necessary, since not every shot there is info about the
    *       epics values and calibcycle
    */
-  MachineDataDevice _store;
+   Device _store;
 };
 }//end namespace MachineData
 }//end namespace cass

@@ -17,7 +17,7 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "cass.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"

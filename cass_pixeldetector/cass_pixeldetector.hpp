@@ -24,7 +24,7 @@ namespace cass
 {
 namespace pixeldetector
 {
-/** the type of a pixel of a ccd image*/
+/** define a pixel of the pixel detector */
 typedef float pixel_t;
 
 /** a frame is a vector of pixels */

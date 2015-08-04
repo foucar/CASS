@@ -75,8 +75,8 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
   if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
     throw runtime_error("TextReader():The CASSEvent does not contain a Machine Data Device");
 
-  MachineDataDevice &md
-    (dynamic_cast<MachineDataDevice&>(*(event.devices()[CASSEvent::MachineData])));
+  Device &md
+    (dynamic_cast<Device&>(*(event.devices()[CASSEvent::MachineData])));
 
   vector<double>::const_iterator value(values.begin());
   vector<string>::const_iterator head(_headers.begin());

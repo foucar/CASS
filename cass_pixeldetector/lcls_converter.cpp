@@ -35,6 +35,7 @@
 #include "cass_event.h"
 #include "pixeldetector.hpp"
 #include "log.h"
+#include "cass_pixeldetector.hpp"
 
 using namespace cass;
 using namespace pixeldetector;

@@ -65,7 +65,7 @@ namespace MachineData
  */
 template <int valtype>
 void convertEpicsToDouble(const Pds::EpicsPvHeader& epicsData,
-                          MachineDataDevice::epicsDataMap_t::iterator first)
+                          Device::epicsDataMap_t::iterator first)
 {
   const Pds::EpicsPvTime<valtype> &p
       (reinterpret_cast<const Pds::EpicsPvTime<valtype>&>(epicsData));
@@ -89,8 +89,8 @@ void convertEpicsToDouble(const Pds::EpicsPvHeader& epicsData,
  */
 template <int valtype>
 void epicsValToCassVal(const Pds::EpicsPvHeader& epicsData,
-                       MachineDataDevice::epicsDataMap_t::iterator storefirst,
-                       MachineDataDevice::epicsDataMap_t::iterator cassfirst)
+                       Device::epicsDataMap_t::iterator storefirst,
+                       Device::epicsDataMap_t::iterator cassfirst)
 {
   const Pds::EpicsPvTime<valtype> &p
       (reinterpret_cast<const Pds::EpicsPvTime<valtype>&>(epicsData));
@@ -116,8 +116,8 @@ void epicsValToCassVal(const Pds::EpicsPvHeader& epicsData,
  * @author Lutz Foucar
  */
 void epicsValToNothing(const Pds::EpicsPvHeader& /*epicsData*/,
-                       MachineDataDevice::epicsDataMap_t::iterator /*storefirst*/,
-                       MachineDataDevice::epicsDataMap_t::iterator /*cassfirst*/)
+                       Device::epicsDataMap_t::iterator /*storefirst*/,
+                       Device::epicsDataMap_t::iterator /*cassfirst*/)
 
 {
 
@@ -198,7 +198,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_FEEGasDetEnergy):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version (xtc->contains.version());
     const Pds::BldDataFEEGasDetEnergy &gasdet =
         *reinterpret_cast<const Pds::BldDataFEEGasDetEnergy*>(xtc->payload());
@@ -222,7 +222,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_EBeam):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version (xtc->contains.version());
     const Pds::BldDataEBeam &beam =
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
@@ -355,7 +355,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_PhaseCavity):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::BldDataPhaseCavity &cavity =
         *reinterpret_cast<const Pds::BldDataPhaseCavity*>(xtc->payload());
     md.BeamlineData()["Charge1"]  = cavity.fCharge1;
@@ -417,7 +417,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     /** time is the actual data, that will be send down the xtc with 1 Hz */
     else if(dbr_type_is_TIME(epicsData.iDbrType))
     {
-      MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+      Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
 
       /** now we need to find the variable name in the map, therefore we look up
        *  the name in the indexmap
@@ -440,9 +440,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
          *  this returns an iterator to the first entry we found
          *  if it was an array we can then use the iterator to the next values
          */
-        MachineDataDevice::epicsDataMap_t::iterator storeIt =
+        Device::epicsDataMap_t::iterator storeIt =
             _store.EpicsData().find(epicsVariableName);
-        MachineDataDevice::epicsDataMap_t::iterator cassIt =
+        Device::epicsDataMap_t::iterator cassIt =
             md.EpicsData().find(epicsVariableName);
         /** if the name is not in the map, ouput error message */
         if (storeIt == _store.EpicsData().end() || cassIt == md.EpicsData().end())
@@ -463,7 +463,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_EvrData):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     /** clear the status bytes of the event code */
     std::fill(md.EvrData().begin(),md.EvrData().end(),false);
     /** get the evr data */
@@ -487,7 +487,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_IpimbData):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
     string detector(Pds::DetInfo::name(info.detector()));
     const Pds::Ipimb::DataV2& ipimbData =
@@ -502,7 +502,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_IpmFex):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
     string detector(Pds::DetInfo::name(info.detector()));
     const Pds::Lusi::IpmFexV1& ipmfex =
@@ -523,7 +523,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   case(Pds::TypeId::Id_ControlConfig):
   {
     QMutexLocker lock(&_mutex);
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     /** add variables to store, cassevent and to log */
     const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload());
     string log("MachineData::Converter: Calibcylce: [" +
@@ -543,13 +543,13 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
   case(Pds::TypeId::Id_Spectrometer):
   {
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
     uint32_t version(xtc->contains.version());
     string specname
         (Pds::BldInfo::name(reinterpret_cast<const Pds::BldInfo&>(xtc->src)));
-    MachineDataDevice::spectrometer_t::mapped_type &horiz
+    Device::spectrometer_t::mapped_type &horiz
         (md.spectrometers()[specname +"_horiz"]);
-    MachineDataDevice::spectrometer_t::mapped_type &vert
+    Device::spectrometer_t::mapped_type &vert
         (md.spectrometers()[specname +"_vert"]);
     switch (version)
     {
@@ -595,9 +595,9 @@ void Converter::prepare(cass::CASSEvent *evt)
   if (evt)
   {
     QMutexLocker lock(&_mutex);
-    MachineDataDevice &md(dynamic_cast<MachineDataDevice&>(*(evt->devices()[cass::CASSEvent::MachineData])));
-    MachineDataDevice::bldMap_t::iterator bi (md.BeamlineData().begin());
-    MachineDataDevice::bldMap_t::const_iterator bEnd (md.BeamlineData().end());
+    Device &md(dynamic_cast<Device&>(*(evt->devices()[cass::CASSEvent::MachineData])));
+    Device::bldMap_t::iterator bi (md.BeamlineData().begin());
+    Device::bldMap_t::const_iterator bEnd (md.BeamlineData().end());
     for (; bi != bEnd ;++bi)
       bi->second = 0;
     md.epicsFilled() = false;
@@ -607,8 +607,8 @@ void Converter::prepare(cass::CASSEvent *evt)
      *        the beamline data of the event therefore we should not use the
      *        assignment operator here
      */
-    MachineDataDevice::bldMap_t::const_iterator it (_store.BeamlineData().begin());
-    MachineDataDevice::bldMap_t::const_iterator End (_store.BeamlineData().end());
+    Device::bldMap_t::const_iterator it (_store.BeamlineData().begin());
+    Device::bldMap_t::const_iterator End (_store.BeamlineData().end());
     for(; it != End; ++it)
       md.BeamlineData()[it->first] = it->second;
   }

@@ -15,7 +15,7 @@
 #include "helperfunctionsforstdc.h"
 #include "channel.hpp"
 #include "cass_settings.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 #include "cass_event.h"
 
 using namespace cass::ACQIRIS;

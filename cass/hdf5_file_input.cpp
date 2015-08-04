@@ -22,7 +22,7 @@
 #include "log.h"
 #include "hdf5_handle.hpp"
 #include "machine_device.hpp"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 #include "pixeldetector.hpp"
 
 using namespace std;
@@ -204,7 +204,7 @@ void HDF5FileInput::runthis()
           devIt = devices.find(CASSEvent::MachineData);
           if (devIt == devices.end())
             throw runtime_error("HDF5FileInput():The CASSEvent does not contain a Machine Data Device");
-          MachineData::MachineDataDevice &md (dynamic_cast<MachineData::MachineDataDevice&>(*(devIt->second)));
+          MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
 
           /** go through all requested machine data events and retrieve the corresponding
            *  values for the tag */

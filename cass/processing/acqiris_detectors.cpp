@@ -18,7 +18,7 @@
 #include "acqiris_detectors_helper.h"
 #include "histogram.h"
 #include "cass_event.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 #include "cass.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"

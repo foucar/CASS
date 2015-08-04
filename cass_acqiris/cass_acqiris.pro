@@ -16,7 +16,9 @@ QT -= gui
 
 DEFINES += CASS_ACQIRIS_LIBRARY
 
-INCLUDEPATH += ../cass \
+INCLUDEPATH += \
+    ../cass \
+    ../cass/event \
     ./classes \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
@@ -29,10 +31,9 @@ DEPENDPATH += ../cass \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
     .
-SOURCES += ./acqiris_converter.cpp \
-    ./acqiris_device.cpp \
+SOURCES += \
+    ./acqiris_converter.cpp \
     ./acqiristdc_converter.cpp \
-    ./acqiristdc_device.cpp \
     ./agat_deserializer.cpp \
     ./lma_reader.cpp \
     ./lma_parser.cpp \
@@ -54,18 +55,13 @@ SOURCES += ./acqiris_converter.cpp \
 
 HEADERS += ./acqiris_converter.h \
     ./cass_acqiris.hpp \
-    ./acqiris_device.h \
     ./acqiristdc_converter.h \
-    ./acqiristdc_device.h \
     ./agat_deserializer.h \
     ./agattypes.hpp \
     ./lma_reader.h \
     ./lma_parser.h \
     ../cass/conversion_backend.h \
-    ../cass/device_backend.hpp \
-    ../cass/serializer.hpp \
     ./classes/particle.h \
-    ./classes/channel.hpp \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \
     ./classes/tof_detector.h \

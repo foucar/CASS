@@ -444,8 +444,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
    */
   if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
     throw runtime_error("SACLAConverter():The CASSEvent does not contain a Machine Data Device");
-  MachineDataDevice &md
-    (dynamic_cast<MachineDataDevice&>(*(event.devices()[CASSEvent::MachineData])));
+  Device &md(dynamic_cast<Device&>(*(event.devices()[CASSEvent::MachineData])));
 
 
   /** if requested retrieve the accelarator parameters */

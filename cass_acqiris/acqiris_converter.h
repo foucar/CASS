@@ -17,7 +17,7 @@
 
 #include "cass_acqiris.hpp"
 #include "conversion_backend.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 
 
 namespace cass

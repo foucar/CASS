@@ -14,7 +14,7 @@
 #include <string>
 
 #include "file_reader.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 
 namespace cass
 {

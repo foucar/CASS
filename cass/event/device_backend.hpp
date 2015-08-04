@@ -1,8 +1,8 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009, 2010, 2015 Lutz Foucar
 
 /**
- * @file device_backend.h contains base class for all devices that are part of
- *                        the cassevent.
+ * @file device_backend.hpp contains base class for all devices that are part of
+ *                          the cassevent.
  *
  * @author Lutz Foucar
  */

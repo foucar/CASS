@@ -15,7 +15,7 @@
 
 #include "channel.hpp"
 #include "cass_event.h"
-#include "acqiris_device.h"
+#include "acqiris_device.hpp"
 #include "signal_producer.h"
 
 namespace cass

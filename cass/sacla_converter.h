@@ -194,7 +194,7 @@ public:
     size_t bytes_retrieved;
 
     /** iterator to the start within the frame of this tile */
-    pixeldetector::frame_t::iterator start;
+    pixeldetector::Detector::frame_t::iterator start;
 
     /** flag to tell whether the data of this tile should be normalized to
      *  another tile

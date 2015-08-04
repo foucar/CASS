@@ -80,6 +80,19 @@ public:
     writeToStream(reinterpret_cast<const char *> (&value), sizeof (Type));
   }
 
+  /** specialization for strings
+   *
+   * write the length of the string, then the string itselve
+   *
+   * @param string to add to the stream
+   */
+//  template <>
+//  void add<std::string>(const std::string &str)
+//  {
+//    add(static_cast<size_t>(str.length()));
+//    writeToStream(str.data(), len);
+//  }
+
   std::string retrieveString();   //!< retrieve string from serialized buffer
   uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
   uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
@@ -105,6 +118,20 @@ public:
     readFromStream (reinterpret_cast<char *> (&val), sizeof (Type));
     return val;
   }
+
+  /** specialization for string
+   *
+   * create a temp string with right size containing blanks and read data to it
+   *
+   * @return the retrieved string
+   */
+//  template <>
+//  std::string retrieve()
+//  {
+//    std::string str(retrieve<size_t>(),' ');
+//    readFromStream (&str[0], len);
+//    return str;
+//  }
 
 protected:
   std::iostream* _stream;    //!< the string to serialize the objects to (buffer)

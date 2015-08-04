@@ -16,6 +16,7 @@
 #include "cass_settings.h"
 #include "agattypes.hpp"
 #include "log.h"
+#include "cass_acqiris.hpp"
 
 using namespace cass;
 using namespace cass::ACQIRIS;

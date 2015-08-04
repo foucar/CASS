@@ -11,7 +11,7 @@ target.path    = $${PREFIX}/lib
 
 QT            -= gui
 
-INCLUDEPATH   += ../cass ../LCLS
+INCLUDEPATH   += ../cass ../LCLS ../cass/event
 DEPENDPATH    += ../cass
 
 SOURCES       += \
@@ -42,7 +42,6 @@ SOURCES       += \
 HEADERS       += \
                  ../cass/cass_settings.h \
                  ../cass/conversion_backend.h \
-                 ../cass/device_backend.hpp \
                  ../cass/serializer.hpp \
                  ../cass/tcp_streamer.h \
                  ../cass/hlltypes.hpp \
@@ -60,7 +59,6 @@ HEADERS       += \
                  coalesce_simple.h \
                  coalescing_base.h \
                  pixeldetector_mask.h \
-                 pixeldetector.hpp \
                  cass_pixeldetector.hpp \
                  advanced_pixeldetector.h \
                  lcls_converter.h \

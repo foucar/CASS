@@ -13,7 +13,7 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
-#include "acqiristdc_device.h"
+#include "acqiristdc_device.hpp"
 
 using namespace std;
 using namespace cass;

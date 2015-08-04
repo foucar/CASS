@@ -1,4 +1,4 @@
-//Copyright (C) 2011 Lutz Foucar
+//Copyright (C) 2011, 2015 Lutz Foucar
 
 /**
  * @file pixeldetector.hpp contains container for simple pixel detector data
@@ -10,18 +10,14 @@
 #ifndef _PIXEL_DETECTOR_HPP_
 #define _PIXEL_DETECTOR_HPP_
 
-#include <QtCore/QMutex>
 #include <iostream>
 #include <vector>
 #include <map>
 #include <string>
 #include <stdint.h>
 
-#include "cass_pixeldetector.hpp"
-#include "serializer.hpp"
 #include "serializable.hpp"
 #include "device_backend.hpp"
-#include "log.h"
 
 namespace cass
 {
@@ -39,10 +35,10 @@ class Detector : public Serializable
 {
 public:
   /** constructor */
-  Detector():
-    Serializable(1),
-    _columns(0),
-    _rows(0)
+  Detector()
+    : Serializable(1),
+      _columns(0),
+      _rows(0)
   {}
 
   /** constructor
@@ -58,13 +54,31 @@ public:
   }
 
 public:
+/** define a pixel of the pixel detector */
+typedef float pixel_t;
+
+/** a frame is a vector of pixels */
+typedef std::vector<pixel_t> frame_t;
+
+/** define a shape of an image columnsxrows */
+typedef std::pair<size_t,size_t> shape_t;
+
+public:
   /** serialize the data to the Serializer
    *
    * serializes the frame, the info about colums and rows to the serializer.
    *
    * @param out the serializer object that the data will be serialzed to
    */
-  void serialize(SerializerBackend &out)const;
+  void serialize(SerializerBackend &out)const
+  {
+    writeVersion(out);
+    /** write the columns rows and then the frame */
+    out.add(_columns);
+    out.add(_rows);
+    for (frame_t::const_iterator it=_frame.begin();it!=_frame.end();++it)
+      out.add(*it);
+  }
 
   /** deserialize the data from the Serializer
    *
@@ -73,7 +87,18 @@ public:
    * @return true when de serialization was successfull
    * @param in the serializer object to read the data from
    */
-  bool deserialize(SerializerBackend &in);
+  bool deserialize(SerializerBackend &in)
+  {
+    checkVersion(in);
+    /**  get the number of columns and rows */
+    _columns = in.retrieve<uint16_t>();
+    _rows    = in.retrieve<uint16_t>();
+    /** clear the frame and read it from the stream */
+    _frame.clear();
+    for (size_t i(0); i < _columns*_rows;++i)
+      _frame.push_back(in.retrieve<frame_t::value_type>());
+    return true;
+  }
 
 public:
   //@{
@@ -131,12 +156,12 @@ private:
 class Device : public DeviceBackend
 {
 public:
-  /** a map of all pixel detectors available */
+  /** define the detector container */
   typedef std::map<int32_t,Detector> detectors_t;
 
   /** constructor.*/
   Device()
-    :DeviceBackend(1)
+    : DeviceBackend(1)
   {}
 
 public:
@@ -152,7 +177,19 @@ public:
    *
    * @param out the serializer object that the data will be serialzed to
    */
-  void serialize(cass::SerializerBackend &out)const;
+  void serialize(SerializerBackend &out)const
+  {
+    writeVersion(out);
+    /** write how many items in the container there are */
+    out.add(static_cast<size_t>(_detectors.size()));
+    /** write the keys of the detector and the detector itself */
+    detectors_t::const_iterator it(_detectors.begin());
+    for(; it != _detectors.end(); ++it)
+    {
+      out.add(it->first);
+      it->second.serialize(out);
+    }
+  }
 
   /** deserialize the data from the Serializer
    *
@@ -161,7 +198,19 @@ public:
    * @return true when de serialization was successfull
    * @param in the serializer object to read the data from
    */
-  bool deserialize(cass::SerializerBackend &in);
+  bool deserialize(SerializerBackend &in)
+  {
+    checkVersion(in);
+    /** read the number of detectors */
+    size_t nbrDetectors(in.retrieve<size_t>());
+    /** read the key of the detector and then deserialze the detector */
+    for(uint32_t i(0); i < nbrDetectors; ++nbrDetectors)
+    {
+      detectors_t::key_type key(in.retrieve<detectors_t::key_type>());
+      _detectors[key] = Detector(in);
+    }
+    return true;
+  }
 
 private:
   /** Container for all pixel detectors */
@@ -170,71 +219,4 @@ private:
 
 }//end namespace pixeldetectors
 }//end namespace cass
-
-inline
-void cass::pixeldetector::Detector::serialize(cass::SerializerBackend &out)const
-{
-  writeVersion(out);
-  //serialize the columns rows and then the frame//
-  out.addUint16(_columns);
-  out.addUint16(_rows);
-  for (frame_t::const_iterator it=_frame.begin();it!=_frame.end();++it)
-    out.addFloat(*it);
-}
-
-inline
-bool cass::pixeldetector::Detector::deserialize(cass::SerializerBackend &in)
-{
-  checkVersion(in);
-  //get the number of columns and rows. This defines the size of//
-  _columns = in.retrieveUint16();
-  _rows    = in.retrieveUint16();
-  //make the frame the right size//
-  _frame.resize(_columns*_rows);
-  //retrieve the frame//
-  for (frame_t::iterator it=_frame.begin();it!=_frame.end();++it)
-    *it = in.retrieveFloat();
-  return true;
-}
-
-inline
-void cass::pixeldetector::Device::serialize(cass::SerializerBackend &out) const
-{
-  //the version
-  out.addUint16(_version);
-  // how many detectors
-  out.addUint32(_detectors.size());
-  //the detectors
-  detectors_t::const_iterator it(_detectors.begin());
-  for(; it != _detectors.end(); ++it)
-  {
-    out.addInt32(it->first);
-    it->second.serialize(out);
-  }
-}
-
-inline
-bool cass::pixeldetector::Device::deserialize(cass::SerializerBackend &in)
-{
-  //check whether the version fits//
-  uint16_t ver = in.retrieveUint16();
-  if(ver!=_version)
-  {
-    Log::add(Log::ERROR,std::string("pixeldetector::Device::deserialize(): ") +
-                               " version conflict in pixel detector device: " +
-                               toString(ver) + " "+ toString(_version));
-    return false;
-  }
-  //how many detectors//
-  uint32_t nbrDetectors (in.retrieveUint32());
-  //the detectors//
-  for(uint32_t i(0); i < nbrDetectors; ++nbrDetectors)
-  {
-    int32_t key(in.retrieveInt32());
-    Detector det(in);
-    _detectors[key] = det;
-  }
-  return true;
-}
-
 #endif

@@ -41,13 +41,13 @@ public:
    *
    * will serialize an object to the Serializer class
    */
-  virtual void serialize(cass::SerializerBackend&)const=0;
+  virtual void serialize(SerializerBackend&)const=0;
 
   /** pure virtual function that needs to be defined by the derived class.
    *
    * will deserialize an object from the Serializer class
    */
-  virtual bool deserialize(cass::SerializerBackend&)=0;
+  virtual bool deserialize(SerializerBackend&)=0;
 
   /** retrieve the version of the serializer */
   uint16_t ver()const {return _version;}
@@ -58,7 +58,7 @@ public:
    */
   virtual void writeVersion(SerializerBackend &out)const
   {
-    out.addUint16(_version);
+    out.add(_version);
   }
 
   /** check the version
@@ -70,7 +70,7 @@ public:
    */
   virtual void checkVersion(SerializerBackend& in)const
   {
-    uint16_t version(in.retrieveUint16());
+    uint16_t version(in.retrieve<uint16_t>());
     if(version != _version)
     {
       std::stringstream ss;

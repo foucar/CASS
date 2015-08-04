@@ -16,8 +16,6 @@ include( $$PWD/soapfile_generator.pri )
 
 SOURCES                += cass.cpp
 HEADERS                += cass.h
-SOURCES                += cass_event.cpp
-HEADERS                += cass_event.h
 SOURCES                += conversion_backend.cpp
 HEADERS                += conversion_backend.h
 SOURCES                += log.cpp
@@ -42,6 +40,14 @@ SOURCES                += tcpserver.cpp
 HEADERS                += tcpserver.h
 SOURCES                += geom_parser.cpp
 HEADERS                += geom_parser.h
+SOURCES                += ./event/cass_event.cpp
+HEADERS                += ./event/cass_event.h
+HEADERS                += ./event/acqiris_device.hpp
+HEADERS                += ./event/acqiristdc_device.hpp
+HEADERS                += ./event/channel.hpp
+HEADERS                += ./event/machine_device.hpp
+HEADERS                += ./event/pixeldetector.hpp
+HEADERS                += ./event/device_backend.hpp
 SOURCES                += ./processing/processor.cpp
 HEADERS                += ./processing/processor.h
 SOURCES                += ./processing/processor_manager.cpp
@@ -99,9 +105,9 @@ HEADERS                += xtciterator.hpp
 HEADERS                += cass_exceptions.hpp
 HEADERS                += statistics_calculator.hpp
 HEADERS                += cached_list.hpp
-HEADERS                += device_backend.hpp
 
-INCLUDEPATH            += processing
+INCLUDEPATH            += ./processing
+INCLUDEPATH            += ./event
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/detector_analyzer

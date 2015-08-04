@@ -24,8 +24,8 @@
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QWriteLocker>
 
-#include "serializable.h"
-#include "serializer.h"
+#include "serializable.hpp"
+#include "serializer.hpp"
 
 namespace cass
 {

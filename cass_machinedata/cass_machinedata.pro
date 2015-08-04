@@ -12,7 +12,7 @@ target.path    = $${PREFIX}/lib
 QT            -= gui
 
 DEFINES       += CASS_MACHINEDATA_LIBRARY
-INCLUDEPATH   += ../cass ../LCLS
+INCLUDEPATH   += ../cass ../LCLS ../cass/event
 DEPENDPATH    += ../cass
 
 
@@ -23,7 +23,6 @@ HEADERS       += ../cass/conversion_backend.h \
                  ../cass/serializer.hpp \
                  machine_converter.h \
                  cass_machine.hpp \
-                 machine_device.hpp
 
 
 #INSTALLS      += target
