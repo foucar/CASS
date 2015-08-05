@@ -12,7 +12,7 @@ QT                     += network
 SOAP_INPUTFILE          = soapserver.h
 SOAP_OUTPUTFILE         = soapCASSsoapService.cpp
 SOAP_BIN                = $$GSOAP_BIN -S
-include( $$PWD/soapfile_generator.pri )
+include( $${CASS_ROOT}/soapfile_generator.pri )
 
 # general classes for cass
 HEADERS                += cached_list.hpp
@@ -316,7 +316,7 @@ cernroot {
     LIBS               += $$system($$ROOTCONFIG_BIN --libs)
     DEFINES            += CERNROOT
     DICTIONARYFILES     = ./processing/tree_structure.h
-    include( $$PWD/rootdict_generator.pri )
+    include( $${CASS_ROOT}/rootdict_generator.pri )
 }
 
 # Extra stuff for fftw

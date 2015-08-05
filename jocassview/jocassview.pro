@@ -25,7 +25,7 @@ QMAKE_CLEAN         += jocassview
 SOAP_INPUTFILE       = $${CASS_ROOT}/cass/soapserver.h
 SOAP_OUTPUTFILE      = soapCASSsoapProxy.cpp
 SOAP_BIN             = $$GSOAP_BIN -C
-include( $${CASS_ROOT}/cass/soapfile_generator.pri )
+include( $${CASS_ROOT}/soapfile_generator.pri )
 
 
 SOURCES             += main.cpp
@@ -91,7 +91,7 @@ hdf5 {
 
 INSTALLS            += target
 
-RESOURCES           += $$PWD/../jocassview/jocassview.qrc
+RESOURCES           += jocassview.qrc
 
 # execute script that shows the current version derived from git
 version.commands     = $$PWD/update-version.sh

@@ -13,14 +13,14 @@ QMAKE_CLEAN         += lucassview
 
 #soap creation
 SOAPFiles.target     = soapCASSsoapProxy.cpp
-SOAP_INPUTFILE       = $$PWD/../cass/soapserver.h
+SOAP_INPUTFILE       = $${CASS_ROOT}/cass/soapserver.h
 SOAP_OUTPUTFILE      = soapCASSsoapProxy.cpp
 SOAP_BIN             = $$GSOAP_BIN -C
-include( $$PWD/../cass/soapfile_generator.pri )
+include( $${CASS_ROOT}/soapfile_generator.pri )
 
 # dictionary creation
 DICTIONARYFILES      = histo_updater.h
-include( $$PWD/../cass/rootdict_generator.pri )
+include( $${CASS_ROOT}/rootdict_generator.pri )
 
 
 SOURCES             += main.cpp
