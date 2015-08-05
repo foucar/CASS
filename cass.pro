@@ -7,11 +7,14 @@ TEMPLATE          = subdirs
 CONFIG           += ordered
 
 
+
+LCLSLibrary {
+    SUBDIRS      += LCLS
+}
+
 offline|online {
-    SUBDIRS       = LCLS
     SUBDIRS      += cass
 
-    cass.depends  = LCLS
 }
 
 DOCS {

@@ -42,6 +42,10 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #CONFIG         *= DOCS
 #DOXYGEN_BIN     = /path/to/doxygen/bin/doxygen
 
+# Uncomment to add compiling the LCLS library for parsing xtc contents.
+# Keeping it commented will disable the input for lcls type data
+#CONFIG         *= LCLSLibrary
+
 # Uncomment the following line to enable HDF5 output. If H5 is installed in a
 # non default location tell qmake where to find the hdf5 libraries and includes
 #CONFIG         *= hdf5

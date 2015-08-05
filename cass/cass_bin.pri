@@ -193,31 +193,6 @@ HEADERS                += ./processing/worker.h
 INCLUDEPATH            += ./processing
 INCLUDEPATH            += ./event
 INCLUDEPATH            += ./input
-INCLUDEPATH            += $${CASS_ROOT}/LCLS
-
-
-# the dependencies of the lcls libraries
-DEPENDENCY_LIBRARIES   += acqdata
-DEPENDENCY_LIBRARIES   += appdata
-DEPENDENCY_LIBRARIES   += bld
-DEPENDENCY_LIBRARIES   += camdata
-DEPENDENCY_LIBRARIES   += compressdata
-DEPENDENCY_LIBRARIES   += controldata
-DEPENDENCY_LIBRARIES   += cspaddata
-DEPENDENCY_LIBRARIES   += cspad2x2data
-DEPENDENCY_LIBRARIES   += encoderdata
-DEPENDENCY_LIBRARIES   += epics
-DEPENDENCY_LIBRARIES   += evrdata
-DEPENDENCY_LIBRARIES   += fccddata
-DEPENDENCY_LIBRARIES   += ipimbdata
-DEPENDENCY_LIBRARIES   += lusidata
-DEPENDENCY_LIBRARIES   += opal1kdata
-DEPENDENCY_LIBRARIES   += pnccddata
-DEPENDENCY_LIBRARIES   += princetondata
-DEPENDENCY_LIBRARIES   += pulnixdata
-DEPENDENCY_LIBRARIES   += xtcdata
-
-include( $${CASS_ROOT}/cass_dependencies.pri )
 
 
 # Stuff needed offline for offline version
@@ -265,6 +240,36 @@ is_online {
     HEADERS            += ./input/tcp_input.h
     SOURCES            += ./input/tcp_streamer.cpp
     HEADERS            += ./input/tcp_streamer.h
+}
+
+# Extra stuff for the LCLS Library
+LCLSLibrary {
+    DEFINES                += LCLSLIBRARY
+    INCLUDEPATH            += $${CASS_ROOT}/LCLS
+    DEPENDENCY_LIBRARIES   += acqdata
+    DEPENDENCY_LIBRARIES   += appdata
+    DEPENDENCY_LIBRARIES   += bld
+    DEPENDENCY_LIBRARIES   += camdata
+    DEPENDENCY_LIBRARIES   += compressdata
+    DEPENDENCY_LIBRARIES   += controldata
+    DEPENDENCY_LIBRARIES   += cspaddata
+    DEPENDENCY_LIBRARIES   += cspad2x2data
+    DEPENDENCY_LIBRARIES   += encoderdata
+    DEPENDENCY_LIBRARIES   += epics
+    DEPENDENCY_LIBRARIES   += evrdata
+    DEPENDENCY_LIBRARIES   += fccddata
+    DEPENDENCY_LIBRARIES   += ipimbdata
+    DEPENDENCY_LIBRARIES   += lusidata
+    DEPENDENCY_LIBRARIES   += opal1kdata
+    DEPENDENCY_LIBRARIES   += pnccddata
+    DEPENDENCY_LIBRARIES   += princetondata
+    DEPENDENCY_LIBRARIES   += pulnixdata
+    DEPENDENCY_LIBRARIES   += xtcdata
+    include( $${CASS_ROOT}/cass_dependencies.pri )
+    is_offline {
+    }
+    is_online {
+    }
 }
 
 # Extra stuff for http Server
