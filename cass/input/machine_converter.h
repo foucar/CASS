@@ -15,7 +15,6 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_machine.hpp"
 #include "conversion_backend.h"
 #include "machine_device.hpp"
 
@@ -43,7 +42,7 @@ class EpicsKey;
  *
  * @author Lutz Foucar
  */
-class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
+class Converter : public cass::ConversionBackend
 {
 public:
   /** create singleton if doesnt exist already */

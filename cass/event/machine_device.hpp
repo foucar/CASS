@@ -15,7 +15,6 @@
 #include <iostream>
 
 #include "device_backend.hpp"
-#include "cass_machine.hpp"
 #include "serializable.hpp"
 
 namespace cass

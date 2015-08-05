@@ -14,6 +14,7 @@ SOAP_OUTPUTFILE         = soapCASSsoapService.cpp
 SOAP_BIN                = $$GSOAP_BIN -S
 include( $$PWD/soapfile_generator.pri )
 
+# general classes for cass
 SOURCES                += cass.cpp
 HEADERS                += cass.h
 SOURCES                += pausablethread.cpp
@@ -35,6 +36,7 @@ HEADERS                += tcpserver.h
 SOURCES                += geom_parser.cpp
 HEADERS                += geom_parser.h
 
+# input modules classes needed for offline AND online
 SOURCES                += ./input/acqiris_converter.cpp
 HEADERS                += ./input/acqiris_converter.h
 SOURCES                += ./input/acqiristdc_converter.cpp
@@ -53,6 +55,7 @@ SOURCES                += ./input/machine_converter.cpp
 HEADERS                += ./input/machine_converter.h
 HEADERS                += ./input/xtciterator.hpp
 
+# classes to describe the cassevents
 SOURCES                += ./event/cass_event.cpp
 HEADERS                += ./event/cass_event.h
 HEADERS                += ./event/acqiris_device.hpp
@@ -62,6 +65,7 @@ HEADERS                += ./event/machine_device.hpp
 HEADERS                += ./event/pixeldetector.hpp
 HEADERS                += ./event/device_backend.hpp
 
+# classes for the processing modules
 SOURCES                += ./processing/processor.cpp
 HEADERS                += ./processing/processor.h
 SOURCES                += ./processing/processor_manager.cpp
@@ -109,6 +113,7 @@ HEADERS                += ./processing/autocorrelation.h
 SOURCES                += ./processing/pixel_detector_calibration.cpp
 HEADERS                += ./processing/pixel_detector_calibration.h
 
+# Header implementations
 HEADERS                += cl_parser.hpp
 HEADERS                += ringbuffer.hpp
 HEADERS                += serializable.hpp
@@ -125,14 +130,12 @@ INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/detector_analyzer
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/signalextractors
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/momenta_calculators
-INCLUDEPATH            += $${CASS_ROOT}/cass_machinedata
 INCLUDEPATH            += $${CASS_ROOT}/cass_pixeldetector
 INCLUDEPATH            += $${CASS_ROOT}/LCLS
 
 
 # the dependencies of other libraries of cass
 DEPENDENCY_LIBRARIES   += cass_acqiris
-DEPENDENCY_LIBRARIES   += cass_machinedata
 DEPENDENCY_LIBRARIES   += cass_pixeldetector
 
 # the dependencies of the lcls libraries
