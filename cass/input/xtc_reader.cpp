@@ -71,7 +71,6 @@ bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
 {
   CASSEvent::buffer_t& buf(event.datagrambuffer());
   readDgramHeaderToBuf(file,buf);
-  Pds::Dgram& dg(reinterpret_cast<Pds::Dgram&>(buf.front()));
   readDgramPayloadToBuf(file,buf);
   return (_convert(&event));
 }
