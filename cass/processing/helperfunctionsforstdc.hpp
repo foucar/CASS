@@ -1,12 +1,15 @@
-#ifndef _HELPERFUNCTIONS_H_
-#define _HELPERFUNCTIONS_H_
+// Copyright (C) 2009,2010 Lutz Foucar
 
 /**
- * @file helperfunctionsforstdc.h file contains functions that help analysing
+ * @file helperfunctionsforstdc.hpp file contains functions that help analysing
  *                                an acqiris waveform
  *
  * @author Lutz Foucar
  */
+
+#ifndef _HELPERFUNCTIONS_H_
+#define _HELPERFUNCTIONS_H_
+
 
 #include <iostream>
 #include <cmath>

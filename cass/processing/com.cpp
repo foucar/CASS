@@ -12,7 +12,7 @@
 
 #include "com.h"
 
-#include "helperfunctionsforstdc.h"
+#include "helperfunctionsforstdc.hpp"
 #include "channel.hpp"
 #include "cass_settings.h"
 #include "acqiris_device.hpp"

@@ -32,42 +32,8 @@ DEPENDPATH += ../cass \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
     .
-SOURCES += \
-    ./classes/particle.cpp \
-    ./classes/signal_producer.cpp \
-    ./classes/delayline_detector.cpp \
-    ./classes/detector_backend.cpp \
-    ./classes/tof_detector.cpp \
-    ./classes/signalextractors/signal_extractor.cpp \
-    ./classes/signalextractors/com.cpp \
-    ./classes/signalextractors/cfd.cpp \
-    ./classes/signalextractors/tdc_extractor.cpp \
-    ./classes/detector_analyzer/detector_analyzer_backend.cpp \
-    ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
-    ./classes/detector_analyzer/achimsorter_hex.cpp\
-    ./classes/detector_analyzer/delayline_non_sorting.cpp\
-    ./classes/momenta_calculators/momenta_calculator.cpp \
-    ./classes/momenta_calculators/spectrometer.cpp
 
-HEADERS += \
-    ./cass_acqiris.hpp \
-    ./classes/particle.h \
-    ./classes/detector_backend.h \
-    ./classes/delayline_detector.h \
-    ./classes/tof_detector.h \
-    ./classes/signal_producer.h \
-    ./classes/signalextractors/signal_extractor.h \
-    ./classes/signalextractors/cfd.h \
-    ./classes/signalextractors/com.h \
-    ./classes/signalextractors/tdc_extractor.h \
-    ./classes/signalextractors/helperfunctionsforstdc.h \
-    ./classes/detector_analyzer/detector_analyzer_backend.h \
-    ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
-    ./classes/detector_analyzer/delayline_non_sorting.h \
-    ./classes/detector_analyzer/achimsorter_hex.h \
-    ./classes/detector_analyzer/poscalculator.hpp \
-    ./classes/momenta_calculators/spectrometer.h \
-    ./classes/momenta_calculators/momenta_calculator.h
+HEADERS +=    ./cass_acqiris.hpp
 
 #INSTALLS += target
 
