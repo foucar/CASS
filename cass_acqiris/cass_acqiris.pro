@@ -19,6 +19,7 @@ DEFINES += CASS_ACQIRIS_LIBRARY
 INCLUDEPATH += \
     ../cass \
     ../cass/event \
+    ../cass/input \
     ./classes \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
@@ -32,11 +33,6 @@ DEPENDPATH += ../cass \
     ./classes/detector_analyzer \
     .
 SOURCES += \
-    ./acqiris_converter.cpp \
-    ./acqiristdc_converter.cpp \
-    ./agat_deserializer.cpp \
-    ./lma_reader.cpp \
-    ./lma_parser.cpp \
     ./classes/particle.cpp \
     ./classes/signal_producer.cpp \
     ./classes/delayline_detector.cpp \
@@ -53,14 +49,8 @@ SOURCES += \
     ./classes/momenta_calculators/momenta_calculator.cpp \
     ./classes/momenta_calculators/spectrometer.cpp
 
-HEADERS += ./acqiris_converter.h \
+HEADERS += \
     ./cass_acqiris.hpp \
-    ./acqiristdc_converter.h \
-    ./agat_deserializer.h \
-    ./agattypes.hpp \
-    ./lma_reader.h \
-    ./lma_parser.h \
-    ../cass/conversion_backend.h \
     ./classes/particle.h \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \

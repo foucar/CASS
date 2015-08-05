@@ -16,16 +16,10 @@ include( $$PWD/soapfile_generator.pri )
 
 SOURCES                += cass.cpp
 HEADERS                += cass.h
-SOURCES                += conversion_backend.cpp
-HEADERS                += conversion_backend.h
-SOURCES                += log.cpp
-HEADERS                += log.h
-SOURCES                += input_base.cpp
-HEADERS                += input_base.h
 SOURCES                += pausablethread.cpp
 HEADERS                += pausablethread.h
-SOURCES                += format_converter.cpp
-HEADERS                += format_converter.h
+SOURCES                += log.cpp
+HEADERS                += log.h
 SOURCES                += histogram.cpp
 HEADERS                += histogram.h
 SOURCES                += ratemeter.cpp
@@ -40,6 +34,25 @@ SOURCES                += tcpserver.cpp
 HEADERS                += tcpserver.h
 SOURCES                += geom_parser.cpp
 HEADERS                += geom_parser.h
+
+SOURCES                += ./input/acqiris_converter.cpp
+HEADERS                += ./input/acqiris_converter.h
+SOURCES                += ./input/acqiristdc_converter.cpp
+HEADERS                += ./input/acqiristdc_converter.h
+HEADERS                += ./input/agattypes.hpp
+SOURCES                += ./input/conversion_backend.cpp
+HEADERS                += ./input/conversion_backend.h
+SOURCES                += ./input/format_converter.cpp
+HEADERS                += ./input/format_converter.h
+HEADERS                += ./input/hlltypes.hpp
+SOURCES                += ./input/input_base.cpp
+HEADERS                += ./input/input_base.h
+SOURCES                += ./input/lcls_converter.cpp
+HEADERS                += ./input/lcls_converter.h
+SOURCES                += ./input/machine_converter.cpp
+HEADERS                += ./input/machine_converter.h
+HEADERS                += ./input/xtciterator.hpp
+
 SOURCES                += ./event/cass_event.cpp
 HEADERS                += ./event/cass_event.h
 HEADERS                += ./event/acqiris_device.hpp
@@ -48,6 +61,7 @@ HEADERS                += ./event/channel.hpp
 HEADERS                += ./event/machine_device.hpp
 HEADERS                += ./event/pixeldetector.hpp
 HEADERS                += ./event/device_backend.hpp
+
 SOURCES                += ./processing/processor.cpp
 HEADERS                += ./processing/processor.h
 SOURCES                += ./processing/processor_manager.cpp
@@ -96,18 +110,16 @@ SOURCES                += ./processing/pixel_detector_calibration.cpp
 HEADERS                += ./processing/pixel_detector_calibration.h
 
 HEADERS                += cl_parser.hpp
-HEADERS                += hlltypes.hpp
-HEADERS                += raw_sss_file_header.hpp
 HEADERS                += ringbuffer.hpp
 HEADERS                += serializable.hpp
 HEADERS                += serializer.hpp
-HEADERS                += xtciterator.hpp
 HEADERS                += cass_exceptions.hpp
 HEADERS                += statistics_calculator.hpp
 HEADERS                += cached_list.hpp
 
 INCLUDEPATH            += ./processing
 INCLUDEPATH            += ./event
+INCLUDEPATH            += ./input
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes
 INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/detector_analyzer
@@ -149,32 +161,49 @@ include( $${CASS_ROOT}/cass_dependencies.pri )
 
 # Stuff needed offline for offline version
 is_offline {
-    SOURCES            += file_input.cpp
-    HEADERS            += file_input.h
-    SOURCES            += multifile_input.cpp
-    HEADERS            += multifile_input.h
-    SOURCES            += file_reader.cpp
-    HEADERS            += file_reader.h
-    SOURCES            += file_parser.cpp
-    HEADERS            += file_parser.h
-    SOURCES            += xtc_reader.cpp
-    HEADERS            += xtc_reader.h
-    SOURCES            += xtc_parser.cpp
-    HEADERS            += xtc_parser.h
-    SOURCES            += txt_reader.cpp
-    HEADERS            += txt_reader.h
-    SOURCES            += txt_parser.cpp
-    HEADERS            += txt_parser.h
+    SOURCES            += ./input/file_input.cpp
+    HEADERS            += ./input/file_input.h
+    SOURCES            += ./input/file_parser.cpp
+    HEADERS            += ./input/file_parser.h
+    SOURCES            += ./input/file_reader.cpp
+    HEADERS            += ./input/file_reader.h
+    SOURCES            += ./input/frms6_parser.cpp
+    HEADERS            += ./input/frms6_parser.h
+    SOURCES            += ./input/frms6_reader.cpp
+    HEADERS            += ./input/frms6_reader.h
+    SOURCES            += ./input/lma_parser.cpp
+    HEADERS            += ./input/lma_parser.h
+    SOURCES            += ./input/lma_reader.cpp
+    HEADERS            += ./input/lma_reader.h
+    SOURCES            += ./input/multifile_input.cpp
+    HEADERS            += ./input/multifile_input.h
+    HEADERS            += ./input/raw_sss_file_header.hpp
+    SOURCES            += ./input/raw_sss_parser.cpp
+    HEADERS            += ./input/raw_sss_parser.h
+    SOURCES            += ./input/raw_sss_reader.cpp
+    HEADERS            += ./input/raw_sss_reader.h
+    SOURCES            += ./input/txt_reader.cpp
+    HEADERS            += ./input/txt_reader.h
+    SOURCES            += ./input/txt_parser.cpp
+    HEADERS            += ./input/txt_parser.h
+    SOURCES            += ./input/xtc_reader.cpp
+    HEADERS            += ./input/xtc_reader.h
+    SOURCES            += ./input/xtc_parser.cpp
+    HEADERS            += ./input/xtc_parser.h
 }
 
 # Stuff needed online for online version
 is_online {
-    SOURCES            += sharedmemory_input.cpp
-    HEADERS            += sharedmemory_input.h
-    SOURCES            += tcp_input.cpp
-    HEADERS            += tcp_input.h
-    SOURCES            += tcp_streamer.cpp
-    HEADERS            += tcp_streamer.h
+    SOURCES            += ./input/agat_deserializer.cpp
+    HEADERS            += ./input/agat_deserializer.h
+    SOURCES            += ./input/sharedmemory_input.cpp
+    HEADERS            += ./input/sharedmemory_input.h
+    SOURCES            += ./input/shm_deserializer.cpp
+    HEADERS            += ./input/shm_deserializer.h
+    SOURCES            += ./input/tcp_input.cpp
+    HEADERS            += ./input/tcp_input.h
+    SOURCES            += ./input/tcp_streamer.cpp
+    HEADERS            += ./input/tcp_streamer.h
 }
 
 # Extra stuff for http Server
@@ -195,8 +224,8 @@ hdf5 {
     HEADERS            += hdf5_handle.hpp
     DEFINES            += HDF5
     is_offline {
-        HEADERS        += hdf5_file_input.h
-        SOURCES        += hdf5_file_input.cpp
+        HEADERS        += ./input/hdf5_file_input.h
+        SOURCES        += ./input/hdf5_file_input.cpp
     }
 }
 
@@ -235,15 +264,15 @@ fftw {
 # Extra stuff for SACLA DATA
 SACLA {
     is_offline {
-        SOURCES        += ./sacla_offline_input.cpp
-        HEADERS        += ./sacla_offline_input.h
-        SOURCES        += ./sacla_converter.cpp
-        HEADERS        += ./sacla_converter.h
+        SOURCES        += ./input/sacla_offline_input.cpp
+        HEADERS        += ./input/sacla_offline_input.h
+        SOURCES        += ./input/sacla_converter.cpp
+        HEADERS        += ./input/sacla_converter.h
     }
     is_online {
         LIBS           += $$SACLA_ONLINE_LIBDIR/libOnlineUserAPI.a
-        SOURCES        += ./sacla_online_input.cpp
-        HEADERS        += ./sacla_online_input.h
+        SOURCES        += ./input/sacla_online_input.cpp
+        HEADERS        += ./input/sacla_online_input.h
     }
     LIBS               += $$SACLA_OFFLINE_LIBDIR/libSaclaDataAccessUserAPI.a
     LIBS               += -lmysqlclient

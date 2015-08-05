@@ -11,7 +11,7 @@ target.path    = $${PREFIX}/lib
 
 QT            -= gui
 
-INCLUDEPATH   += ../cass ../LCLS ../cass/event
+INCLUDEPATH   += ../cass ../LCLS ../cass/event ../cass/input
 DEPENDPATH    += ../cass
 
 SOURCES       += \
@@ -30,21 +30,12 @@ SOURCES       += \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
                  advanced_pixeldetector.cpp \
-                 lcls_converter.cpp \
-                 shm_deserializer.cpp \
-                 frms6_reader.cpp \
-                 raw_sss_reader.cpp \
-                 raw_sss_parser.cpp \
-                 frms6_parser.cpp \
                  gaincalibration.cpp
 
 
 HEADERS       += \
                  ../cass/cass_settings.h \
-                 ../cass/conversion_backend.h \
                  ../cass/serializer.hpp \
-                 ../cass/tcp_streamer.h \
-                 ../cass/hlltypes.hpp \
                  common_data.h \
                  mapcreator_base.h \
                  mapcreators.h \
@@ -61,12 +52,6 @@ HEADERS       += \
                  pixeldetector_mask.h \
                  cass_pixeldetector.hpp \
                  advanced_pixeldetector.h \
-                 lcls_converter.h \
-                 shm_deserializer.h \
-                 frms6_reader.h \
-                 raw_sss_reader.h \
-                 raw_sss_parser.h \
-                 frms6_parser.h \
                  gaincalibration.h
 
 #INSTALLS      += target

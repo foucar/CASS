@@ -16,8 +16,8 @@
 #include "xtc_reader.h"
 #include "lma_reader.h"
 #include "txt_reader.h"
-#include "../cass_pixeldetector/raw_sss_reader.h"
-#include "../cass_pixeldetector/frms6_reader.h"
+#include "raw_sss_reader.h"
+#include "frms6_reader.h"
 
 
 using namespace cass;
