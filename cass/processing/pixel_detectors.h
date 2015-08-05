@@ -14,8 +14,8 @@
 #include "processor.h"
 #include "cass_event.h"
 #include "pixel_detector_helper.h"
-#include "cass_pixeldetector.hpp"
 #include "pixeldetector.hpp"
+#include "advanced_pixeldetector.h"
 
 
 namespace cass
@@ -115,7 +115,7 @@ protected:
   pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 
   /** pointer to the map */
-  pixeldetector::frame_t *_map;
+  pixeldetector::Detector::frame_t *_map;
 
   /** the lock for locking the map */
   QReadWriteLock *_mapLock;
@@ -229,7 +229,7 @@ protected:
   /** gate on split level */
   std::pair<size_t, size_t> _splitLevelRange;
 
-  std::tr1::function<pixeldetector::frame_t::value_type(const pixeldetector::Hit&)> _getZ;
+  std::tr1::function<pixeldetector::Detector::frame_t::value_type(const pixeldetector::Hit&)> _getZ;
 
   /** value of the image where no pixel is set */
   float _baseValue;
@@ -370,7 +370,7 @@ protected:
   std::pair<float,float> _range;
 
   /** function to retrieve the z value of the pixels */
-  std::tr1::function<pixeldetector::frame_t::value_type(const pixeldetector::Pixel&)> _getZ;
+  std::tr1::function<pixeldetector::Detector::frame_t::value_type(const pixeldetector::Pixel&)> _getZ;
 
   /** value of the image where no pixel is set */
   float _baseValue;
@@ -575,7 +575,7 @@ protected:
   pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 
   /** pointer to the mask */
-  pixeldetector::frame_t *_mask;
+  pixeldetector::Detector::frame_t *_mask;
 
   /** the lock for locking the map */
   QReadWriteLock *_maskLock;

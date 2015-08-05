@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "mapcreator_base.h"
-#include "cass_pixeldetector.hpp"
 #include "commonmode_calculator_base.h"
 
 namespace cass
@@ -78,7 +77,7 @@ public:
 
 private:
   /** the special storage type of this class */
-  typedef std::vector< std::vector<pixel_t>  > specialstorage_t;
+  typedef std::vector< std::vector<Detector::pixel_t>  > specialstorage_t;
 
   /** a function that just returns and does nothing
    *
@@ -105,7 +104,7 @@ private:
   size_t _nbrFrames;
 
   /** the multiplier to define the max noise before the pixel is considered to contain a photon */
-  pixel_t _multiplier;
+  Detector::pixel_t _multiplier;
 
   /** flag wether the create maps should be saved to file or just used */
   bool _writeMaps;
@@ -210,7 +209,7 @@ private:
   size_t _nbrFrames;
 
   /** the multiplier to define the max noise before the pixel is considered to contain a photon */
-  pixel_t _multiplier;
+  Detector::pixel_t _multiplier;
 
   /** flag wether the create maps should be saved to file or just used */
   bool _writeMaps;

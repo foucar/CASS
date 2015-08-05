@@ -44,12 +44,12 @@ namespace pixeldetector
  *
  * @author Lutz Foucar
  */
-void createPixelList(const frame_t::value_type &offset,
-                     const frame_t::value_type &noise,
+void createPixelList(const Detector::frame_t::value_type &offset,
+                     const Detector::frame_t::value_type &noise,
                      const MapCreatorBase::storage_t& storage,
                      size_t pixel,
                      bool exclude,
-                     frame_t &pixellist)
+                     Detector::frame_t &pixellist)
 {
   MapCreatorBase::storage_t::const_iterator frame(storage.begin());
   MapCreatorBase::storage_t::const_iterator frameEnd(storage.end());
@@ -68,13 +68,13 @@ void createPixelList(const frame_t::value_type &offset,
  *
  * @author Lutz Foucar
  */
-frame_t::value_type calcNoise(const frame_t& values, const frame_t::value_type& mean)
+Detector::frame_t::value_type calcNoise(const Detector::frame_t& values, const Detector::frame_t::value_type& mean)
 {
-  frame_t zero_mean(values);
+  Detector::frame_t zero_mean(values);
   transform( zero_mean.begin(), zero_mean.end(),
-             zero_mean.begin(),bind2nd( minus<frame_t::value_type>(), mean ) );
+             zero_mean.begin(),bind2nd( minus<Detector::frame_t::value_type>(), mean ) );
 
-  frame_t::value_type deviation
+  Detector::frame_t::value_type deviation
       (inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0f ));
   deviation = sqrt( deviation / ( values.size() - 1 ) );
   return deviation;
@@ -92,14 +92,14 @@ frame_t::value_type calcNoise(const frame_t& values, const frame_t::value_type& 
  *
  * @author Lutz Foucar
  */
-frame_t::value_type calcMean(frame_t& values, size_t mindisregard, size_t maxdisregard)
+Detector::frame_t::value_type calcMean(Detector::frame_t& values, size_t mindisregard, size_t maxdisregard)
 {
   sort(values.begin(),values.end());
-  frame_t::iterator begin(values.begin());
-  frame_t::iterator end(values.end());
+  Detector::frame_t::iterator begin(values.begin());
+  Detector::frame_t::iterator end(values.end());
   advance(begin,mindisregard);
   advance(end,-1*(maxdisregard));
-  return (accumulate(begin,end,0) / static_cast<frame_t::value_type>(distance(begin,end)));
+  return (accumulate(begin,end,0) / static_cast<Detector::frame_t::value_type>(distance(begin,end)));
 }
 
 /** calculate the median of the distribution
@@ -115,7 +115,7 @@ frame_t::value_type calcMean(frame_t& values, size_t mindisregard, size_t maxdis
  *
  * @author Lutz Foucar
  */
-frame_t::value_type calcMedian(frame_t& values,
+Detector::frame_t::value_type calcMedian(Detector::frame_t& values,
                                size_t mindisregard,
                                size_t maxdisregard)
 {
@@ -142,10 +142,10 @@ void FixedMaps::operator ()(const Frame &frame)
       _storage.push_back(frame.data);
     else
     {
-      frame_t pixels;
-      frame_t::iterator offset(_commondata->offsetMap.begin());
-      frame_t::iterator offsetEnd(_commondata->offsetMap.end());
-      frame_t::iterator noise(_commondata->noiseMap.begin());
+      Detector::frame_t pixels;
+      Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+      Detector::frame_t::iterator offsetEnd(_commondata->offsetMap.end());
+      Detector::frame_t::iterator noise(_commondata->noiseMap.begin());
       size_t idx(0);
       for (;offset != offsetEnd; ++offset, ++noise, ++idx)
       {
@@ -205,22 +205,22 @@ void MovingMaps::train(const Frame &frame)
   {
     Log::add(Log::INFO,"MovingMaps::train(): collected '" + toString(_framecounter) +
              "' frames; building intial offset and noise map");
-    frame_t::iterator offset(_commondata->offsetMap.begin());
-    frame_t::iterator offsetEnd(_commondata->offsetMap.end());
-    frame_t::iterator noise(_commondata->noiseMap.begin());
+    Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+    Detector::frame_t::iterator offsetEnd(_commondata->offsetMap.end());
+    Detector::frame_t::iterator noise(_commondata->noiseMap.begin());
     storage_t::const_iterator storageBegin(_storage.begin());
     storage_t::const_iterator storageEnd(_storage.end());
     size_t pixelIdx(0);
     for (;offset != offsetEnd; ++offset, ++noise, ++pixelIdx)
     {
       size_t accumulatedValues(0);
-      pixel_t tmp_offset(0.);
-      pixel_t tmp_noise(0.);
+      Detector::pixel_t tmp_offset(0.);
+      Detector::pixel_t tmp_noise(0.);
       for (storage_t::const_iterator iFrame(storageBegin); iFrame != storageEnd ; ++iFrame)
       {
-          pixel_t pixel((*iFrame)[pixelIdx]);
+          Detector::pixel_t pixel((*iFrame)[pixelIdx]);
           ++accumulatedValues;
-          const pixel_t old_offset(tmp_offset);
+          const Detector::pixel_t old_offset(tmp_offset);
           tmp_offset += ((pixel - tmp_offset) / accumulatedValues);
           tmp_noise += ((pixel - old_offset)*(pixel - tmp_offset));
       }
@@ -230,14 +230,14 @@ void MovingMaps::train(const Frame &frame)
       accumulatedValues = 0;
       tmp_offset = 0.;
       tmp_noise = 0.;
-      const pixel_t maxNoise(*noise * _multiplier);
+      const Detector::pixel_t maxNoise(*noise * _multiplier);
       for (storage_t::const_iterator iFrame(storageBegin); iFrame != storageEnd ; ++iFrame)
       {
-        pixel_t pixel((*iFrame)[pixelIdx]);
+        Detector::pixel_t pixel((*iFrame)[pixelIdx]);
         if ((pixel - *offset < maxNoise))
         {
           ++accumulatedValues;
-          const pixel_t old_offset(tmp_offset);
+          const Detector::pixel_t old_offset(tmp_offset);
           tmp_offset += ((pixel - tmp_offset) / accumulatedValues);
           tmp_noise += ((pixel - old_offset)*(pixel - tmp_offset));
         }
@@ -255,18 +255,18 @@ void MovingMaps::train(const Frame &frame)
 void MovingMaps::updateMaps(const Frame &frame)
 {
   QWriteLocker lock(&_commondata->lock);
-  frame_t::const_iterator pixel(frame.data.begin());
-  frame_t::const_iterator pixelEnd(frame.data.end());
-  frame_t::iterator offset(_commondata->offsetMap.begin());
-  frame_t::iterator noise(_commondata->noiseMap.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator pixelEnd(frame.data.end());
+  Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+  Detector::frame_t::iterator noise(_commondata->noiseMap.begin());
   for(;pixel != pixelEnd; ++pixel, ++offset, ++noise)
   {
 //      diff := x - mean
 //      incr := alpha * diff
 //      mean := mean + incr
 //      variance := (1 - alpha) * (variance + diff * incr)
-    const pixel_t diff(*pixel - *offset);
-    const pixel_t incr(_alpha * diff);
+    const Detector::pixel_t diff(*pixel - *offset);
+    const Detector::pixel_t incr(_alpha * diff);
     *offset = *offset + incr;
     *noise = sqrt((1 - _alpha) * (square(*noise) + (diff * incr)));
   }
@@ -304,14 +304,14 @@ void MovingMaps::loadSettings(CASSSettings &s)
 void HotPixelsFinder::operator()(const Frame &frame)
 {
   QWriteLocker lock(&_commondata->lock);
-  frame_t::const_iterator pixel(frame.data.begin());
-  frame_t::const_iterator pixelEnd(frame.data.end());
-  frame_t::iterator offset(_commondata->offsetMap.begin());
-  frame_t::iterator cor(_commondata->correctionMap.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator pixelEnd(frame.data.end());
+  Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+  Detector::frame_t::iterator cor(_commondata->correctionMap.begin());
   CommonData::mask_t::iterator hotpix(_commondata->hotpixels.begin());
   while(pixel != pixelEnd)
   {
-    const pixel_t pix(*pixel++ - *offset++);
+    const Detector::pixel_t pix(*pixel++ - *offset++);
     if (*hotpix != -1)
     {
       *hotpix = (_aduThreshold < pix)? ++(*hotpix) : 0;

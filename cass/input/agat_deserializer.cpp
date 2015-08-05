@@ -17,7 +17,6 @@
 #include "cass_event.h"
 #include "acqiris_device.hpp"
 #include "agattypes.hpp"
-#include "cass_acqiris.hpp"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -32,7 +31,7 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
   if (evt.devices().find(CASSEvent::Acqiris) == evt.devices().end())
     throw runtime_error("deserializeNormalAgat(): The Acqiris Device does not exist.");
   Device &dev(dynamic_cast<Device&>(*(evt.devices()[CASSEvent::Acqiris])));
-  Instrument &instr(dev.instruments()[Standalone]);
+  Instrument &instr(dev.instruments()[0]);
 
   /** read the event header and copy the id */
   AGATRemoteHeader::Event evtHead;
@@ -59,7 +58,7 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
       chan.gain() = chanHead.gain_mVperLSB*1e-3;
       chan.sampleInterval() = evtHead.samplingInterval;
       /** resize the wavefrom so that all the pulses will fit into it */
-      waveform_t& waveform(chan.waveform());
+      Channel::waveform_t& waveform(chan.waveform());
       waveform.resize(evtHead.nbrSamples);
       /** set all value to the basevalue */
       fill(waveform.begin(),waveform.end(),chanHead.offset_mV/chanHead.gain_mVperLSB);

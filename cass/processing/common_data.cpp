@@ -88,10 +88,10 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   vector<char> badpixmap(header.length);
   hllfile.read(&badpixmap[0],header.length);
 
-  frame_t hlloffsets(header.length);
-  frame_t::iterator hlloffset(hlloffsets.begin());
-  frame_t hllnoises(header.length);
-  frame_t::iterator hllnoise(hllnoises.begin());
+  Detector::frame_t hlloffsets(header.length);
+  Detector::frame_t::iterator hlloffset(hlloffsets.begin());
+  Detector::frame_t hllnoises(header.length);
+  Detector::frame_t::iterator hllnoise(hllnoises.begin());
   vector<hllDataTypes::statistics>::iterator pixelstatistic(pixelStatistics.begin());
   for( size_t i(0); i < header.length; ++i, ++hlloffset, ++hllnoise, ++pixelstatistic )
   {
@@ -135,12 +135,12 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
   };
 
   out.write(reinterpret_cast<char*>(&header),sizeof(hllDataTypes::DarkcalFileHeader));
-  frame_t hlloffsets(data.offsetMap);
+  Detector::frame_t hlloffsets(data.offsetMap);
   hllDataTypes::CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
-  frame_t hllnoises(data.noiseMap);
+  Detector::frame_t hllnoises(data.noiseMap);
   hllDataTypes::CASS2HLL(data.noiseMap,hllnoises,header.rows,header.rows,data.columns);
-  frame_t::const_iterator hlloffset(hlloffsets.begin());
-  frame_t::const_iterator hllnoise(hllnoises.begin());
+  Detector::frame_t::const_iterator hlloffset(hlloffsets.begin());
+  Detector::frame_t::const_iterator hllnoise(hllnoises.begin());
   vector<hllDataTypes::statistics> pixelStatistics(header.length);
   vector<hllDataTypes::statistics>::iterator pixelstatistic(pixelStatistics.begin());
   for(; hlloffset != hlloffsets.end(); ++hlloffset, ++hllnoise, ++pixelstatistic )
@@ -311,7 +311,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
   }
 
   //build up gain + cte map in HLL format
-  frame_t hllgaincteMap;
+  Detector::frame_t hllgaincteMap;
   const size_t rows(512);
   const size_t columns(gains.size());
   for (size_t row(0); row < rows; ++row)
@@ -344,12 +344,12 @@ void readCASSGainFile(const string &filename, CommonData& data)
     return;
   }
   in.seekg(0,std::ios::end);
-  const size_t size = in.tellg() / sizeof(pixel_t);
+  const size_t size = in.tellg() / sizeof(Detector::pixel_t);
   in.seekg(0,std::ios::beg);
   QWriteLocker lock(&data.lock);
-  frame_t &gains(data.gain_cteMap);
+  Detector::frame_t &gains(data.gain_cteMap);
   gains.resize(size);
-  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(pixel_t));
+  in.read(reinterpret_cast<char*>(&gains.front()), size*sizeof(Detector::pixel_t));
 }
 
 /** save the gain map to CASS style file
@@ -367,8 +367,8 @@ void saveCASSGainFile(const string &filename, const CommonData& data)
     throw invalid_argument("saveCASSGainFile(): Error opening file '" +
                            filename + "'");
   }
-  const frame_t &gains(data.gain_cteMap);
-  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(pixel_t));
+  const Detector::frame_t &gains(data.gain_cteMap);
+  out.write(reinterpret_cast<const char*>(&gains.front()), gains.size()*sizeof(Detector::pixel_t));
 }
 
 
@@ -568,7 +568,7 @@ void CommonData::loadSettings(CASSSettings &s)
     /** try do deduce the frame size from the detectorname, if it can't be
      *  deduced read it from the settings file and resize the maps accordingly.
      */
-    shape_t shape(Frame::shapeFromName(detectorname));
+    Detector::shape_t shape(Frame::shapeFromName(detectorname));
     columns = s.value("nColumns",static_cast<unsigned>(shape.first)).toUInt();
     rows = s.value("nRows",static_cast<unsigned>(shape.second)).toUInt();
     Log::add(Log::VERBOSEINFO,string("CommonData::loadSettings: ") +
@@ -808,10 +808,10 @@ void CommonData::createCorMap()
 {
   if (_autoNoiseThreshold && !noiseMap.empty())
   {
-    typedef CummulativeStatisticsNoOutlier<pixel_t> calc_t;
+    typedef CummulativeStatisticsNoOutlier<Detector::pixel_t> calc_t;
     calc_t stat(4);
-    frame_t::const_iterator val(noiseMap.begin());
-    frame_t::const_iterator End(noiseMap.end());
+    Detector::frame_t::const_iterator val(noiseMap.begin());
+    Detector::frame_t::const_iterator End(noiseMap.end());
     while  (val != End)
       stat.addDatum(*val++);
     _noiseRange.first = stat.mean() - (_autoMultiplier * stat.stdv());
@@ -820,10 +820,10 @@ void CommonData::createCorMap()
              toString(_noiseRange.first) + "' and '" + toString(_noiseRange.second) +
              "' are taken for detector with id '" + toString(detectorId) + "'");
   }
-  frame_t::iterator corval(correctionMap.begin());
-  frame_t::const_iterator corvalMapEnd(correctionMap.end());
-  frame_t::const_iterator noise(noiseMap.begin());
-  frame_t::const_iterator gain(gain_cteMap.begin());
+  Detector::frame_t::iterator corval(correctionMap.begin());
+  Detector::frame_t::const_iterator corvalMapEnd(correctionMap.end());
+  Detector::frame_t::const_iterator noise(noiseMap.begin());
+  Detector::frame_t::const_iterator gain(gain_cteMap.begin());
   mask_t::const_iterator Mask(mask.begin());
   mask_t::const_iterator hotpix(hotpixels.begin());
   /** reset the correction map before generating the correction values */

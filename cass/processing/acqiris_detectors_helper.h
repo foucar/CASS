@@ -21,8 +21,9 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include "cass_acqiris.hpp"
 #include "cass_event.h"
+#include "detector_backend.h"
+#include "acqiris_analysis_definitions.hpp"
 
 namespace cass
 {
@@ -30,7 +31,6 @@ class CASSEvent;
 
 namespace ACQIRIS
 {
-class DetectorBackend;
 
 /** Helper for Acqiris related Postprocessors.
  *

@@ -16,7 +16,6 @@
 #include "ringbuffer.hpp"
 #include "cass_event.h"
 #include "file_reader.h"
-#include "cass_acqiris.hpp"
 
 namespace cass
 {
@@ -129,7 +128,7 @@ public:
     /** name of the field that contains the sample interval */
     std::string SampleIntervalKey;
     /** the instrument within the CASSEvent that should be used */
-    ACQIRIS::Instruments Instrument;
+    uint32_t Instrument;
     /** the channel with the instrument within the CASSEvent that the data should
      *  loaded to
      */

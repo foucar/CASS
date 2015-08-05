@@ -20,6 +20,7 @@
 #include "signal_producer.h"
 #include "cass_settings.h"
 #include "poscalculator.hpp"
+#include "convenience_functions.h"
 
 using namespace cass;
 using namespace cass::ACQIRIS;

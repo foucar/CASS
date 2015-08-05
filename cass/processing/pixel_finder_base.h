@@ -12,8 +12,6 @@
 #include <tr1/memory>
 #include <vector>
 
-#include "cass_pixeldetector.hpp"
-
 namespace cass
 {
 class CASSSettings;
@@ -22,6 +20,42 @@ namespace pixeldetector
 {
 //forward declaration//
 struct Frame;
+
+/** Pixel definition
+ *
+ * Defines a pixel within a pixel detector.
+ *
+ * @author Lutz Foucar
+ */
+struct Pixel
+{
+  /** constructor
+   *
+   * @param X the x coordinate of the pixel
+   * @param Y the y coordinate of the pixel
+   * @param Z the value of the pixel
+   */
+  Pixel(uint16_t X, uint16_t Y, double Z)
+    :x(X),y(Y),z(Z),used(false)
+  {}
+
+  /** default constructor.*/
+  Pixel()
+    :x(0),y(0),z(0),used(0)
+  {}
+
+  /** x coordinate of the pixel */
+  uint16_t x;
+
+  /** y coordinate of the pixel */
+  uint16_t y;
+
+  /** the value of the pixel */
+  double z;
+
+  /** value to mark pixel any analysis of the pixels */
+  uint32_t used;
+};
 
 /** base class for pixel finders
  *

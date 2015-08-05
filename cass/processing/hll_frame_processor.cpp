@@ -23,9 +23,9 @@ Frame& HLLProcessor::operator ()(Frame &frame)
 {
   const CalculatorBase &calcCommonMode(*_commonModeCalculator);
   QReadLocker lock(&_commondata->lock);
-  frame_t::iterator pixel(frame.data.begin());
-  frame_t::const_iterator offset(_commondata->offsetMap.begin());
-  frame_t::const_iterator correction(_commondata->correctionMap.begin());
+  Detector::frame_t::iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator offset(_commondata->offsetMap.begin());
+  Detector::frame_t::const_iterator correction(_commondata->correctionMap.begin());
   size_t idx(0);
   float commonmodeLevel(0);
   const size_t width(_commonModeCalculator->width());

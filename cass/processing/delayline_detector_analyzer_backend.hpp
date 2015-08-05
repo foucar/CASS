@@ -14,32 +14,28 @@
 
 namespace cass
 {
-  namespace ACQIRIS
-  {
-    /** base class for delayline detector analysis.
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerBackend
-        : public DetectorAnalyzerBackend
-    {
-    public:
-      /** constructor.
-       *
-       * @note does this need to know what kind of waveform analyzers are
-       *       present? the list of Singals / Peak should be created by the
-       *       class Signal itselve?
-       */
-      DelaylineDetectorAnalyzerBackend()
-        :DetectorAnalyzerBackend()
-      {}
+namespace ACQIRIS
+{
+/** base class for delayline detector analysis.
+ *
+ * @author Lutz Foucar
+ */
+class  DelaylineDetectorAnalyzerBackend : public DetectorAnalyzerBackend
+{
+public:
+  /** constructor.
+   *
+   * @note does this need to know what kind of waveform analyzers are
+   *       present? the list of Singals / Peak should be created by the
+   *       class Signal itselve?
+   */
+  DelaylineDetectorAnalyzerBackend()
+    :DetectorAnalyzerBackend()
+  {}
 
-      /** virtual destructor*/
-      virtual ~DelaylineDetectorAnalyzerBackend() {}
-
-//      /** create the list of detector hits */
-//      virtual void operator()(DetectorBackend&,const Device&)=0;
-    };
-  }//end namespace acqiris
+  /** virtual destructor*/
+  virtual ~DelaylineDetectorAnalyzerBackend() {}
+};
+}//end namespace acqiris
 }//end namespace cass
 #endif

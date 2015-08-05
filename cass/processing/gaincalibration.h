@@ -119,7 +119,7 @@ private:
   void generateCalibration(const Frame& frame);
 
   /** the value that will be set when not enough statistics is present */
-  frame_t::value_type _constGain;
+  Detector::frame_t::value_type _constGain;
 
   /** define a conatiner for a statistics of a pixel */
   typedef std::pair<int,double> statistics_t;
@@ -128,7 +128,7 @@ private:
   std::vector<statistics_t> _statistics;
 
   /** range of ADU values that are of interest */
-  std::pair<frame_t::value_type,frame_t::value_type> _range;
+  std::pair<Detector::frame_t::value_type,Detector::frame_t::value_type> _range;
 
   /** the minimum nbr of photons that the median needs before the gain will calculated */
   statistics_t::first_type _minMedianCounts;

@@ -21,7 +21,7 @@ namespace pixeldetector
 
 namespace commonmode
 {
-typedef std::vector<pixel_t> pixels_t;
+typedef std::vector<Detector::pixel_t> pixels_t;
 
 /** Calculate the common mode by taking mean of pixel values
  *
@@ -53,7 +53,7 @@ public:
    *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
+  Detector::pixel_t operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *
@@ -104,7 +104,7 @@ public:
    *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
+  Detector::pixel_t operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *
@@ -162,7 +162,7 @@ public:
    *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
+  Detector::pixel_t operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *

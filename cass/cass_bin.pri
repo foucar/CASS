@@ -79,6 +79,7 @@ SOURCES                += ./processing/achimcalibrator_hex.cpp
 HEADERS                += ./processing/achimcalibrator_hex.h
 SOURCES                += ./processing/achimsorter_hex.cpp
 HEADERS                += ./processing/achimsorter_hex.h
+HEADERS                += ./processing/acqiris_analysis_definitions.hpp
 SOURCES                += ./processing/acqiris_detectors.cpp
 HEADERS                += ./processing/acqiris_detectors.h
 SOURCES                += ./processing/acqiris_detectors_helper.cpp
@@ -192,18 +193,8 @@ HEADERS                += ./processing/worker.h
 INCLUDEPATH            += ./processing
 INCLUDEPATH            += ./event
 INCLUDEPATH            += ./input
-INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris
-INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes
-INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/detector_analyzer
-INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/signalextractors
-INCLUDEPATH            += $${CASS_ROOT}/cass_acqiris/classes/momenta_calculators
-INCLUDEPATH            += $${CASS_ROOT}/cass_pixeldetector
 INCLUDEPATH            += $${CASS_ROOT}/LCLS
 
-
-# the dependencies of other libraries of cass
-DEPENDENCY_LIBRARIES   += cass_acqiris
-DEPENDENCY_LIBRARIES   += cass_pixeldetector
 
 # the dependencies of the lcls libraries
 DEPENDENCY_LIBRARIES   += acqdata

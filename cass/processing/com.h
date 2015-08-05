@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "cass.h"
-#include "cass_acqiris.hpp"
 #include "signal_extractor.h"
 
 namespace cass
@@ -121,7 +120,7 @@ private:
   CoMParameters _parameters;
 
   /** the instrument that the channel is in */
-  Instruments _instrument;
+  uint32_t _instrument;
 
   /** the channelnumber of the channel we extracting the signals from */
   size_t _chNbr;
@@ -145,7 +144,7 @@ public:
 
 private:
   CoMParameters  _parameters;
-  Instruments    _instrument;
+  uint32_t       _instrument;
   size_t         _chNbr;
   const Channel *_chan;
 };

@@ -17,7 +17,7 @@
 #include <iostream>
 #include <tr1/memory>
 
-#include "cass_acqiris.hpp"
+#include "acqiris_analysis_definitions.hpp"
 
 namespace cass
 {
@@ -40,7 +40,7 @@ class DetectorAnalyzerBackend;
  *
  * @author Lutz Foucar
  */
-class CASS_ACQIRISSHARED_EXPORT DetectorBackend
+class DetectorBackend
 {
 public:
   /** a shared pointer of this type */
@@ -105,13 +105,3 @@ private:
 }//end namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

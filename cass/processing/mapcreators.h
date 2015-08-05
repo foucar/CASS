@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "mapcreator_base.h"
-#include "cass_pixeldetector.hpp"
 
 namespace cass
 {
@@ -97,7 +96,7 @@ private:
   std::tr1::shared_ptr<CommonData> _commondata;
 
   /** the function that will calculate the offset */
-  std::tr1::function<frame_t::value_type(frame_t&, size_t, size_t)> _calcOffset;
+  std::tr1::function<Detector::frame_t::value_type(Detector::frame_t&, size_t, size_t)> _calcOffset;
 
   /** the storage with all the frames from which the maps are calculated */
   storage_t _storage;
@@ -251,7 +250,7 @@ private:
   size_t _frameSave;
 
   /** the adu threshold for identifying a potential hotpixel */
-  pixel_t _aduThreshold;
+  Detector::pixel_t _aduThreshold;
 
   /** the nbr of consecutive frames that a hotpixel is high */
   char _hotpixThreshold;

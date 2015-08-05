@@ -12,7 +12,8 @@
 #include <tr1/memory>
 #include <vector>
 
-#include "cass_pixeldetector.hpp"
+#include "pixel_finder_base.h"
+#include "advanced_pixeldetector.h"
 
 namespace cass
 {

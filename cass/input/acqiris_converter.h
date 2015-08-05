@@ -15,58 +15,57 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_acqiris.hpp"
 #include "conversion_backend.h"
 #include "acqiris_device.hpp"
 
 
 namespace cass
 {
-  namespace ACQIRIS
-  {
-    /** Acqiris Converter
-     *
-     * this class takes a xtc of type Id_AcqWaveform or Id_AcqConfig and
-     * extracts the acqiris channels for all instruments
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
-    {
-    public:
-      /** create singleton if doesnt exist already */
-      static ConversionBackend::shared_pointer instance();
+namespace ACQIRIS
+{
+/** Acqiris Converter
+ *
+ * this class takes a xtc of type Id_AcqWaveform or Id_AcqConfig and
+ * extracts the acqiris channels for all instruments
+ *
+ * @author Lutz Foucar
+ */
+class Converter : public ConversionBackend
+{
+public:
+  /** create singleton if doesnt exist already */
+  static ConversionBackend::shared_pointer instance();
 
-      /** takes the xtc and copies the data to cassevent */
-      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+  /** takes the xtc and copies the data to cassevent */
+  void operator()(const Pds::Xtc*, CASSEvent*);
 
-    private:
-      /** constructor
-       *
-       * sets up the pds type ids it is responsible for
-       */
-      Converter();
+private:
+  /** constructor
+   *
+   * sets up the pds type ids it is responsible for
+   */
+  Converter();
 
-      /** prevent copy construction */
-      Converter(const Converter&);
+  /** prevent copy construction */
+  Converter(const Converter&);
 
-      /** prevent assignment */
-      Converter& operator=(const Converter&);
+  /** prevent assignment */
+  Converter& operator=(const Converter&);
 
-      /** the singleton container */
-      static ConversionBackend::shared_pointer _instance;
+  /** the singleton container */
+  static ConversionBackend::shared_pointer _instance;
 
-      /** singleton locker for mutithreaded requests */
-      static QMutex _mutex;
+  /** singleton locker for mutithreaded requests */
+  static QMutex _mutex;
 
-      /** Number of Channels for a device
-       *
-       * the number of channels for the device is only send with a configure
-       * transition we store them in a map for each instrument
-       */
-      std::map<Instruments,size_t> _numberOfChannels;
-    };
-  }//end namespace acqiris
+  /** Number of Channels for a device
+   *
+   * the number of channels for the device is only send with a configure
+   * transition we store them in a map for each instrument
+   */
+  std::map<Device::instruments_t::key_type,size_t> _numberOfChannels;
+};
+}//end namespace acqiris
 }//end namespace cass
 
 #endif

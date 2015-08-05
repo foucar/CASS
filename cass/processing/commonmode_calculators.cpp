@@ -51,19 +51,19 @@ namespace commonmode
  * @author Lutz Foucar
  */
 void createPixelList(size_t nbrPixels,
-                     frame_t::const_iterator pixel,
-                     frame_t::const_iterator offset,
-                     frame_t::const_iterator noise,
+                     Detector::frame_t::const_iterator pixel,
+                     Detector::frame_t::const_iterator offset,
+                     Detector::frame_t::const_iterator noise,
                      CommonData::mask_t::const_iterator mask,
                      float multiplier,
-                     pixel_t initialLevel,
+                     Detector::pixel_t initialLevel,
                      pixels_t& pixels)
 {
   for(size_t i(0); i<nbrPixels;++i,++pixel,++offset,++noise)
   {
     if (*mask)
     {
-      pixel_t offsetcorrectedPixel(*pixel - *offset );
+      Detector::pixel_t offsetcorrectedPixel(*pixel - *offset );
       if((offsetcorrectedPixel - initialLevel) < (multiplier * *noise))
       {
         pixels.push_back(offsetcorrectedPixel);
@@ -77,14 +77,14 @@ void createPixelList(size_t nbrPixels,
 }//end namespace cass
 
 
-pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
+Detector::pixel_t SimpleMeanCalculator::operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const
 {
-  frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
-  frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
+  Detector::frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
+  Detector::frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
   CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
-  pixel_t commlvl(0);
+  Detector::pixel_t commlvl(0);
   size_t accumulatedValues(0);
-  pixel_t pixel_wo_offset(0);
+  Detector::pixel_t pixel_wo_offset(0);
   for(size_t i(0); i<_nbrPixels;++i,++pixel,++offset,++noise,++mask)
   {
     if (*mask)
@@ -111,9 +111,9 @@ void SimpleMeanCalculator::loadSettings(CASSSettings &s)
 }
 
 
-pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
+Detector::pixel_t MeanCalculator::operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const
 {
-  pixel_t commonmodelevel(0);
+  Detector::pixel_t commonmodelevel(0);
   pixels_t pixels;
   createPixelList(_nbrPixels, pixel,
                   _commondata->offsetMap.begin()+idx,
@@ -130,7 +130,7 @@ pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::const_iterator pixel
     pixels_t::iterator end(pixels.end());
     advance(begin,_nbrMinimumElementsToRemove);
     advance(end,-1*(_nbrMaximumElementsToRemove));
-    commonmodelevel = accumulate(begin,end,0) / static_cast<pixel_t>(distance(begin,end));
+    commonmodelevel = accumulate(begin,end,0) / static_cast<Detector::pixel_t>(distance(begin,end));
   }
   else
   {
@@ -149,9 +149,9 @@ void MeanCalculator::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
+Detector::pixel_t MedianCalculator::operator ()(Detector::frame_t::const_iterator pixel, size_t idx)const
 {
-  pixel_t commonmodelevel(0);
+  Detector::pixel_t commonmodelevel(0);
   pixels_t pixels;
   createPixelList(_nbrPixels, pixel,
                   _commondata->offsetMap.begin()+idx,

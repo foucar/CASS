@@ -12,7 +12,7 @@
 
 #include <tr1/memory>
 
-#include "cass_pixeldetector.hpp"
+#include "pixeldetector.hpp"
 
 namespace cass
 {
@@ -68,7 +68,7 @@ public:
    *        calculation
    * @param idx index where the pixel iterator is right now within the frame
    */
-  virtual pixel_t operator() (frame_t::const_iterator pixel, size_t idx)const=0;
+  virtual Detector::pixel_t operator() (Detector::frame_t::const_iterator pixel, size_t idx)const=0;
 
   /** load the settings of this calculator
    *

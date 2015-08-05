@@ -12,7 +12,6 @@
 
 #include <iostream>
 
-#include "cass_acqiris.hpp"
 #include "signal_extractor.h"
 
 namespace cass

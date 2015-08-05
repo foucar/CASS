@@ -55,7 +55,7 @@ void getcfd(const Channel& c, const CFDParameters &param, SignalProducer::signal
   const int32_t vOff      = static_cast<int32_t>(c.offset() / vGain);       //V -> ADC Bytes
 
   const int32_t idxToFiPoint = 0;
-  const waveform_t Data = c.waveform();
+  const Channel::waveform_t Data = c.waveform();
   const size_t wLength    = c.waveform().size();
 
   //--get the right cfd settings--//
@@ -207,10 +207,10 @@ void getcfd(const Channel& c, const CFDParameters &param, SignalProducer::signal
  *
  * @author Lutz Foucar
  */
-void loadSettings(CASSSettings &s,CFDParameters &p, Instruments &instrument, size_t & channelNbr)
+void loadSettings(CASSSettings &s,CFDParameters &p, uint32_t &instrument, size_t & channelNbr)
 {
   s.beginGroup("ConstantFraction");
-  instrument   = static_cast<Instruments>(s.value("AcqirisInstrument",Camp1).toInt());
+  instrument   = s.value("AcqirisInstrument",0).toInt();
   channelNbr   = s.value("ChannelNumber",0).toInt();
   p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
   p._threshold = fabs(s.value("Threshold",0.05).toDouble());

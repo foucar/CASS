@@ -20,14 +20,15 @@
 #include "pdsdata/acqiris/DataDescV1.hh"
 #include "pdsdata/xtc/Src.hh"
 
-using namespace cass::ACQIRIS;
+using namespace cass;
+using namespace ACQIRIS;
 using namespace std;
 
 // =================define static members =================
-cass::ConversionBackend::shared_pointer Converter::_instance;
+ConversionBackend::shared_pointer Converter::_instance;
 QMutex Converter::_mutex;
 
-cass::ConversionBackend::shared_pointer Converter::instance()
+ConversionBackend::shared_pointer Converter::instance()
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
@@ -44,7 +45,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_AcqWaveform);
 }
 
-void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
+void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
   //check whether xtc is a configuration or a event//
   switch (xtc->contains.id())
@@ -61,7 +62,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
              static_cast<int>(info.detector()) == static_cast<int>(Camp4) ||
              static_cast<int>(info.detector()) == static_cast<int>(XPP));
       //retrieve a reference to the nbr of Channels for this instrument//
-      size_t &nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
+      size_t &nbrChannels = _numberOfChannels[info.detector()];
       //make sure the number is smaller than 20, which is the maximum nbr of channels//
       assert(nbrChannels <= 20);
       unsigned version = xtc->contains.version();
@@ -101,7 +102,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
              static_cast<int>(info.detector()) == static_cast<int>(Camp4) ||
              static_cast<int>(info.detector()) == static_cast<int>(XPP));
       //retrieve  the nbr of Channels for this instrument//
-      const size_t nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
+      const size_t nbrChannels = _numberOfChannels[info.detector()];
       //make sure the number is smaller than 20
       assert(nbrChannels <= 20);
       //extract the datadescriptor (waveform etc) from the xtc//
@@ -109,9 +110,9 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
           reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
       //retrieve a pointer to the right acqiris instrument//
       Device &dev =
-          dynamic_cast<Device&>(*(evt->devices()[cass::CASSEvent::Acqiris]));
+          dynamic_cast<Device&>(*(evt->devices()[CASSEvent::Acqiris]));
       //retrieve a reference to the right instrument//
-      Instrument & instr = dev.instruments()[static_cast<Instruments>(info.detector())];
+      Instrument & instr = dev.instruments()[info.detector()];
       //retrieve a reference to the channel container of the instrument//
       Instrument::channels_t &channels = instr.channels();
       //resize the channel vector to how many channels are in the device//
@@ -136,7 +137,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         //we need to shift the pointer so that it looks at the first real point of the waveform//
         waveform += dd.indexFirstPoint();
         //retrieve a reference to our waveform//
-        waveform_t &mywaveform = chan.waveform();
+        Channel::waveform_t &mywaveform = chan.waveform();
         //resize our waveform vector to hold all the entries of the waveform//
         mywaveform.resize(dd.nbrSamplesInSeg());
 //        std::cout <<"AcqirisConverter: "

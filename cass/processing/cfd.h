@@ -11,7 +11,6 @@
 #define _CFD_H_
 
 #include <iostream>
-#include "cass_acqiris.hpp"
 #include "cass.h"
 #include "signal_extractor.h"
 
@@ -92,7 +91,7 @@ struct CFDParameters
  *
  * @author Lutz Foucar
  */
-class CASS_ACQIRISSHARED_EXPORT CFD8Bit : public SignalExtractor
+class CFD8Bit : public SignalExtractor
 {
 public:
   /** extract signals form the CASSEvent
@@ -128,7 +127,7 @@ private:
   CFDParameters _parameters;
 
   /** the instrument that the channel is in */
-  Instruments _instrument;
+  uint32_t _instrument;
 
   /** the channelnumber of the channel we extracting the signals from */
   size_t _chNbr;
@@ -153,7 +152,7 @@ public:
 
 private:
   CFDParameters _parameters;
-  Instruments   _instrument;
+  uint32_t      _instrument;
   size_t        _chNbr;
   const Channel*_chan;
 };

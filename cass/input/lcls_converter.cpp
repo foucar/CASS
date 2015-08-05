@@ -35,7 +35,6 @@
 #include "cass_event.h"
 #include "pixeldetector.hpp"
 #include "log.h"
-#include "cass_pixeldetector.hpp"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -257,7 +256,7 @@ void copyPnCCDFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
   const uint16_t * tileC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
   const uint16_t * tileD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
 
-  frame_t::iterator pixel = det.frame().begin();
+  Detector::frame_t::iterator pixel = det.frame().begin();
 
   for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
   {
@@ -302,7 +301,7 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
   while( (element=iter.next() ))
   {
     const size_t quad(element->quad());
-    pixel_t* rawframe((&det.frame().front()) + quad * pixelsPerQuadrant);
+    Detector::pixel_t* rawframe((&det.frame().front()) + quad * pixelsPerQuadrant);
     const Pds::CsPad::Section* section;
     unsigned int section_id;
     while(( section=iter.next(section_id) ))
@@ -317,8 +316,8 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
     }
   }
   /** all sections above each other */
-  det.columns() = CsPadColumns;
-  det.rows() = CsPadRows;
+  det.columns() = 2 * 194;
+  det.rows() = 4 * 8 * 185;
 }
 
 
@@ -326,10 +325,10 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
 }//end namespace cass
 
 // =================define static members =================
-cass::ConversionBackend::shared_pointer Converter::_instance;
+ConversionBackend::shared_pointer Converter::_instance;
 QMutex Converter::_mutex;
 
-cass::ConversionBackend::shared_pointer Converter::instance()
+ConversionBackend::shared_pointer Converter::instance()
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
@@ -627,15 +626,15 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     det.frame().resize(framesize);
     uint16_t* data = reinterpret_cast<uint16_t*>(head+1);
     uint16_t* End = data + framesize;
-    frame_t::iterator firstSegment(det.frame().begin());
-    frame_t::iterator secondSegment(det.frame().begin() + pixelsPerSegment);
+    Detector::frame_t::iterator firstSegment(det.frame().begin());
+    Detector::frame_t::iterator secondSegment(det.frame().begin() + pixelsPerSegment);
     while (data != End)
     {
       *firstSegment++  = *data++;
       *secondSegment++ = *data++;
     }
-    det.columns() = CsPad2x2Columns;
-    det.rows() = CsPad2x2Rows;
+    det.columns() = 2 * 194;
+    det.rows() = 2 * 185;
   }
     break;
 

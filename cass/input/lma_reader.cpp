@@ -16,7 +16,6 @@
 #include "cass_settings.h"
 #include "agattypes.hpp"
 #include "log.h"
-#include "cass_acqiris.hpp"
 
 using namespace cass;
 using namespace cass::ACQIRIS;
@@ -61,7 +60,7 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
       file >> chanheader;
       chan.offset() = chanheader.offset_mV*1e-3;
       chan.gain() = chanheader.gain_mVperLSB*1e-3;
-      waveform_t & waveform (chan.waveform());
+      Channel::waveform_t & waveform (chan.waveform());
       fill(waveform.begin(),waveform.end(),chanheader.offset_mV/chanheader.gain_mVperLSB);
     }
   }
@@ -71,7 +70,7 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
 {
   /** extract the right instrument from the cassevent */
   Device &dev(dynamic_cast<Device&>(*(evt.devices()[CASSEvent::Acqiris])));
-  Instrument &instr(dev.instruments()[Standalone]);
+  Instrument &instr(dev.instruments()[0]);
   /** copy the header information to the instrument */
   instr = _instrument;
   Instrument::channels_t &channels(instr.channels());
@@ -85,7 +84,7 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
   {
     Channel &chan(instr.channels()[i]);
     chan.horpos() = evtHead.horpos;
-    waveform_t &waveform(chan.waveform());
+    Channel::waveform_t &waveform(chan.waveform());
     if (_usedChannelBitmask & (0x1<<i))
     {
       /** since we zero substracted the wavefrom in the lma file, we need to

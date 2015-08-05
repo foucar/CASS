@@ -50,7 +50,7 @@ void getcom(const Channel& c, const CoMParameters &param, SignalProducer::signal
   //make sure that we are the right one for the waveform_t//
   assert(typeid(waveform_t::value_type) == typeid(T));
   //extract infos from channel//
-  const waveform_t &Data (c.waveform());
+  const Channel::waveform_t &Data (c.waveform());
   const int32_t vOffset (static_cast<int32_t>(c.offset() / c.gain()));    //mV -> ADC Bytes
   const size_t wLength (Data.size());
   //extract info how to analyse from signal
@@ -161,10 +161,10 @@ void getcom(const Channel& c, const CoMParameters &param, SignalProducer::signal
  *
  * @author Lutz Foucar
  */
-void loadSettings(CASSSettings &s,CoMParameters &p, Instruments &instrument, size_t & channelNbr)
+void loadSettings(CASSSettings &s,CoMParameters &p, uint32_t &instrument, size_t & channelNbr)
 {
   s.beginGroup("CenterOfMass");
-  instrument   = static_cast<Instruments>(s.value("AcqirisInstrument",Camp1).toInt());
+  instrument   = s.value("AcqirisInstrument",0).toUInt();
   channelNbr   = s.value("ChannelNumber",0).toInt();
   p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
   p._threshold = fabs(s.value("Threshold",0.05).toDouble());

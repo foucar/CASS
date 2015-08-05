@@ -11,7 +11,6 @@
 #define _WAVEFORM__H_
 
 #include "processor.h"
-#include "cass_acqiris.hpp"
 
 namespace cass
 {
@@ -57,7 +56,7 @@ public:
 
 protected:
   /** the instrument that contains the channel this processor will work on */
-  ACQIRIS::Instruments _instrument;
+  uint32_t _instrument;
 
   /** the Acqiris channel number of this processor */
   size_t _channel;

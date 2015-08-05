@@ -35,8 +35,8 @@ void GainCalibration::generateCalibration(const Frame &frame)
   vector<statistics_t>::iterator stat(_statistics.begin());
   vector<statistics_t>::const_iterator statEnd(_statistics.end());
 
-  frame_t::const_iterator pixel(frame.data.begin());
-  frame_t::const_iterator offset(_commondata->offsetMap.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator offset(_commondata->offsetMap.begin());
 
   /** average the common mode and offset corrected pixelvalues per pixel that
    *  lie within the given adu range
@@ -47,10 +47,10 @@ void GainCalibration::generateCalibration(const Frame &frame)
   size_t idx(0);
   for (size_t part(0); part < parts; ++part)
   {
-    const pixel_t cmode(commonMode(pixel,idx));
+    const Detector::pixel_t cmode(commonMode(pixel,idx));
     for (size_t i(0); i < length; ++i, ++stat, ++pixel, ++idx)
     {
-      const pixel_t pixval(*pixel - *offset++ - cmode);
+      const Detector::pixel_t pixval(*pixel - *offset++ - cmode);
 
       if (pixval < _range.first  ||  _range.second < pixval)
         continue;
@@ -93,7 +93,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
    *  \f$ gain = frac{average_average_pixelvalue}{average_pixelvalue} \f$
    *  If not enough photons are in the pixel, set the predefined user value
    */
-  frame_t::iterator gain(_commondata->gain_cteMap.begin());
+  Detector::frame_t::iterator gain(_commondata->gain_cteMap.begin());
   stat = _statistics.begin();
   while (stat != statEnd)
   {

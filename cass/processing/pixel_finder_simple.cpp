@@ -23,7 +23,7 @@ PixelFinderSimple::PixelFinderSimple()
 PixelFinderSimple::pixels_t& PixelFinderSimple::operator ()(const Frame &frame, pixels_t &pixels)
 {
   size_t idx(0);
-  frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
   for (;pixel != frame.data.end(); ++pixel)
   {
     const uint16_t x(idx % frame.columns);
@@ -67,7 +67,7 @@ PixelFinderSimpleMoreOptions::PixelFinderSimpleMoreOptions()
 PixelFinderSimple::pixels_t& PixelFinderSimpleMoreOptions::operator ()(const Frame &frame, pixels_t &pixels)
 {
   size_t idx(0);
-  frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
   for (;pixel != frame.data.end(); ++pixel)
   {
     const uint16_t x(idx % frame.columns);
@@ -114,8 +114,8 @@ WithinRange::WithinRange()
 
 WithinRange::pixels_t& WithinRange::operator ()(const Frame &frame, pixels_t &pixels)
 {
-  frame_t::const_iterator pixel(frame.data.begin());
-  frame_t::const_iterator end(frame.data.end());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator end(frame.data.end());
   size_t idx(0);
   for (; pixel != end; ++pixel, ++idx)
   {

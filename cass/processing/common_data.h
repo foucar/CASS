@@ -21,7 +21,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 
-#include "cass_pixeldetector.hpp"
+#include "pixeldetector.hpp"
+#include "cass_settings.h"
 
 namespace cass
 {
@@ -31,6 +32,22 @@ namespace pixeldetector
 {
 class Frame;
 class MapCreatorBase;
+
+/** retrieve the DetectorName
+ *
+ * @author Lutz Foucar
+ */
+struct DetectorName
+{
+  /** retrieve it from the casssettings
+   *
+   * @param s the settings to retrieve the name from
+   */
+  static std::string fromSettings(const CASSSettings &s)
+  {
+    return s.group().split("/").at(1).toStdString();
+  }
+};
 
 /** Data used commonly for one AdvancedDetector
  *
@@ -245,14 +262,14 @@ public:
    * the offset map is the mean value of the individual pixels for given
    * number of frames
    */
-  frame_t offsetMap;
+  Detector::frame_t offsetMap;
 
   /** the noise map
    *
    * the noise map is the standart deviation of the mean value of indidual
    * pixels for a given number of frames
    */
-  frame_t noiseMap;
+  Detector::frame_t noiseMap;
 
   /** the detector mask
    *
@@ -274,7 +291,7 @@ public:
    * this is a matrix of values containing correction factors for each
    * individual pixel of the frame
    */
-  frame_t gain_cteMap;
+  Detector::frame_t gain_cteMap;
 
   /** the correction map
    *
@@ -282,7 +299,7 @@ public:
    * and cte map. With this values the indivdual pixels will be mulitplied
    * in the HLL like processing of the frame
    */
-  frame_t correctionMap;
+  Detector::frame_t correctionMap;
 
   /** the id of the detector that contains the frames whos maps we have here */
   int32_t detectorId;
@@ -356,13 +373,13 @@ private:
   std::string _outputHotPixFilename;
 
   /** the range in adu for masking noisy pixels */
-  std::pair<pixel_t,pixel_t> _noiseRange;
+  std::pair<Detector::pixel_t,Detector::pixel_t> _noiseRange;
 
   /** flag whether the noise threshold should be automatically determined */
   bool _autoNoiseThreshold;
 
   /** the multiplier about which the automatically determined threshold will be defined */
-  pixel_t _autoMultiplier;
+  Detector::pixel_t _autoMultiplier;
 };
 
 } //end namespace pixeldetector

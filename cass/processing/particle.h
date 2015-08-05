@@ -17,6 +17,7 @@
 
 #include "spectrometer.h"
 #include "momenta_calculator.h"
+#include "acqiris_analysis_definitions.hpp"
 
 namespace cass
 {

@@ -16,6 +16,7 @@
 #include "detector_analyzer_backend.h"
 #include "convenience_functions.h"
 #include "log.h"
+#include "acqiris_analysis_definitions.hpp"
 
 using namespace cass::ACQIRIS;
 using namespace std;

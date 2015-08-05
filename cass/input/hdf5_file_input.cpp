@@ -96,7 +96,7 @@ void HDF5FileInput::runthis()
     if (datakey == "Invalid")
       continue;
     acqirisVals.push_back(AcqirisParams());
-    acqirisVals.back().Instrument = static_cast<ACQIRIS::Instruments>(s.value("CASSInstrumentID",1).toInt());
+    acqirisVals.back().Instrument = s.value("CASSInstrumentID",1).toUInt();
     acqirisVals.back().ChannelNumber = s.value("CASSChannelNumber",0).toUInt();
     acqirisVals.back().DataKey = datakey;
     acqirisVals.back().HorposKey = s.value("HDF5HorposKey","Invalid").toString().toStdString();
@@ -243,7 +243,7 @@ void HDF5FileInput::runthis()
             /** retrieve a reference to the channel we are working on */
             ACQIRIS::Channel &chan(channels[acqirisValsIter->ChannelNumber]);
             /** retrieve a reference to waveform container */
-            ACQIRIS::waveform_t &waveform = chan.waveform();
+            ACQIRIS::Channel::waveform_t &waveform = chan.waveform();
             /** extract the meta infos from the hdf5 file */
             chan.channelNbr()     = acqirisValsIter->ChannelNumber;
             chan.horpos()         = (acqirisValsIter->HorposKey == "Invalid") ? 0 : h5handle.readScalar<double>(*it + "/" + acqirisValsIter->HorposKey);

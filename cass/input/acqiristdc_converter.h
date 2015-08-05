@@ -12,50 +12,49 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_acqiris.hpp"
 #include "conversion_backend.h"
 #include "acqiris_device.hpp"
 
 namespace cass
 {
-  namespace ACQIRISTDC
-  {
-    /** Acqiris Converter
-     *
-     * this class takes a xtc of type Id_AcqTDC and extracts the acqiris tdc
-     * channels for all instruments
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
-    {
-    public:
-      /** create singleton if doesnt exist already */
-      static ConversionBackend::shared_pointer instance();
+namespace ACQIRISTDC
+{
+/** Acqiris Converter
+ *
+ * this class takes a xtc of type Id_AcqTDC and extracts the acqiris tdc
+ * channels for all instruments
+ *
+ * @author Lutz Foucar
+ */
+class Converter : public ConversionBackend
+{
+public:
+  /** create singleton if doesnt exist already */
+  static ConversionBackend::shared_pointer instance();
 
-      /** takes the xtc and copies the data to cassevent */
-      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+  /** takes the xtc and copies the data to cassevent */
+  void operator()(const Pds::Xtc*, CASSEvent*);
 
-    private:
-      /** constructor
-       *
-       * sets up the pds type ids that it is responsible for
-       */
-      Converter();
+private:
+  /** constructor
+   *
+   * sets up the pds type ids that it is responsible for
+   */
+  Converter();
 
-      /** prevent copy construction */
-      Converter(const Converter&);
+  /** prevent copy construction */
+  Converter(const Converter&);
 
-      /** prevent assignment */
-      Converter& operator=(const Converter&);
+  /** prevent assignment */
+  Converter& operator=(const Converter&);
 
-      /** the singleton container */
-      static ConversionBackend::shared_pointer _instance;
+  /** the singleton container */
+  static ConversionBackend::shared_pointer _instance;
 
-      /** singleton locker for mutithreaded requests */
-      static QMutex _mutex;
-    };
-  }//end namespace acqiris
+  /** singleton locker for mutithreaded requests */
+  static QMutex _mutex;
+};
+}//end namespace acqiris
 }//end namespace cass
 
 #endif

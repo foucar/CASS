@@ -48,7 +48,7 @@ namespace ACQIRIS
  */
 template <typename T>
 const Channel* extactRightChannel(const CASSEvent &evt,
-                                  const Instruments& instrument,
+                                  const uint32_t instrument,
                                   const size_t& ChannelNumber)
 {
   using namespace std;
@@ -302,7 +302,7 @@ double findXForGivenY(const double * x, const double * coeff, const double Y, co
 template <typename T>
 void getfwhm(const Channel &c, SignalProducer::signal_t &s, const double& /*thresh*/)
 {
-  const waveform_t Data (c.waveform());
+  const Channel::waveform_t Data (c.waveform());
   const double vGain (c.gain());
   const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));        //mV -> adc bytes
   const size_t wLength (c.waveform().size());
@@ -404,7 +404,7 @@ template <typename T>
 void CoM(const Channel &c, SignalProducer::signal_t &s, const double& thresh)
 {
   //get informations from the event and the channel//
-  const waveform_t Data (c.waveform());
+  const Channel::waveform_t Data (c.waveform());
   const double vGain (c.gain());
   const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));
   const double horpos (c.horpos()*1.e9);          //s -> ns
@@ -439,7 +439,7 @@ void CoM(const Channel &c, SignalProducer::signal_t &s, const double& thresh)
 template <typename T>
 void startstop(const Channel &c, SignalProducer::signal_t &s, const double& thresh)
 {
-  const waveform_t Data (c.waveform());
+  const Channel::waveform_t Data (c.waveform());
   const double vGain (c.gain());
   const int32_t vOff (static_cast<int32_t>(c.offset()/vGain));
   const int32_t wLength (c.waveform().size());
@@ -481,7 +481,7 @@ void startstop(const Channel &c, SignalProducer::signal_t &s, const double& thre
 template <typename T>
 void getmaximum(const Channel &c, SignalProducer::signal_t &s, const double& /*thresh*/)
 {
-  const waveform_t Data (c.waveform());
+  const Channel::waveform_t Data (c.waveform());
   const double vGain (c.gain());
   const int32_t vOff (static_cast<int32_t>(c.offset()/vGain));
 

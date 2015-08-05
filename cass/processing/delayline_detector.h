@@ -15,7 +15,6 @@
 #include <stdexcept>
 #include <memory>
 
-#include "cass_acqiris.hpp"
 #include "tof_detector.h"
 #include "signal_producer.h"
 #include "particle.h"
@@ -153,8 +152,10 @@ private:
 class DelaylineDetector : public TofDetector
 {
 public:
-  /** a map of anodelayers */
+  /** define the anodelayers */
   typedef std::map<char,AnodeLayer> anodelayers_t;
+
+  /** define the particles */
   typedef std::map<std::string,Particle> particles_t;
 
 public:

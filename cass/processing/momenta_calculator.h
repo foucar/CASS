@@ -13,7 +13,7 @@
 #include <memory>
 #include <tr1/memory>
 
-#include "cass_acqiris.hpp"
+#include "acqiris_analysis_definitions.hpp"
 
 namespace cass
 {

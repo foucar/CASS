@@ -35,7 +35,7 @@ namespace pixeldetector
  * @author Lutz Foucar
  */
 template <class containerType>
-frame_t::value_type getConstant(const containerType& /*container*/)
+Detector::frame_t::value_type getConstant(const containerType& /*container*/)
 {
   return 1.0f;
 }
@@ -49,7 +49,7 @@ frame_t::value_type getConstant(const containerType& /*container*/)
  * @author Lutz Foucar
  */
 template <class containerType>
-frame_t::value_type getZValue(const containerType& container)
+Detector::frame_t::value_type getZValue(const containerType& container)
 {
   return container.z;
 }
@@ -92,7 +92,7 @@ void pp105::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
-  const pixeldetector::frame_t& frame (det->frame().data);
+  const pixeldetector::Detector::frame_t& frame (det->frame().data);
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
@@ -200,7 +200,7 @@ void pp109::loadSettings(size_t)
   if (!setupCondition())
     return;
   _detector = s.value("CASSID",-1).toUInt();
-  const shape_t shape(Frame::shapeFromName(name()));
+  const Detector::shape_t shape(Frame::shapeFromName(name()));
   const int cols(s.value("nCols",static_cast<int>(shape.first)).toUInt());
   const int rows(s.value("nRows",static_cast<int>(shape.second)).toUInt());
   createHistList(
@@ -710,7 +710,7 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
-  const pixeldetector::frame_t& frame (det->frame().data);
+  const pixeldetector::Detector::frame_t& frame (det->frame().data);
 
   Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
@@ -725,7 +725,7 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
   copy(frame.begin(), frame.end(), result.memory().begin());
   QReadLocker locker(_maskLock);
   HistogramFloatBase::storage_t::iterator pixel(result.memory().begin());
-  pixeldetector::frame_t::const_iterator mask(_mask->begin());
+  pixeldetector::Detector::frame_t::const_iterator mask(_mask->begin());
   for (; pixel != result.memory().end(); ++pixel, ++mask)
   {
     if (qFuzzyCompare(*mask,0))

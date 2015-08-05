@@ -14,7 +14,7 @@
 #include <string>
 
 #include "pixeldetector.hpp"
-#include "cass_pixeldetector.hpp"
+#include "pixel_finder_base.h"
 
 namespace cass
 {
@@ -46,10 +46,10 @@ struct Frame
   uint16_t rows;
 
   /** the frame data */
-  frame_t data;
+  Detector::frame_t data;
 
   /** return the shape of the frame */
-  shape_t shape() const
+  Detector::shape_t shape() const
   {
     return std::make_pair(columns,rows);
   }
@@ -61,24 +61,51 @@ struct Frame
    * @return the shape of the detector
    * @param name the name of the detector
    */
-  static shape_t shapeFromName(const std::string &name)
+  static Detector::shape_t shapeFromName(const std::string &name)
   {
     using namespace std;
-    shape_t shape(make_pair(0,0));
+    Detector::shape_t shape(make_pair(0,0));
     if (name.find("PnCCD") != string::npos)
-      shape = make_pair(PnCCDColumns,PnCCDRows);
+      shape = make_pair(1024,1024);
     else if (name.find("CsPad2x2") != string::npos)
-      shape = make_pair(CsPad2x2Columns,CsPad2x2Rows);
+      shape = make_pair(2*194,2*185);
     else if (name.find("CsPad") != string::npos)
-      shape = make_pair(CsPadColumns,CsPadRows);
+      shape = make_pair(2*194,4*8*185);
     else if (name.find("Opal1k") != string::npos)
-      shape = make_pair(Opal1KColumns,Opal1KRows);
+      shape = make_pair(1024,1024);
     else if (name.find("Opal2k") != string::npos)
-      shape = make_pair(Opal2KColumns,Opal2KRows);
+      shape = make_pair(1920,1080);
     else if (name.find("Opal4k") != string::npos)
-      shape = make_pair(Opal4KColumns,Opal4KRows);
+      shape = make_pair(2048,2048);
     return shape;
   }
+};
+
+/** A Hit on a pixel detector.
+ *
+ * This class defines a hit on a pixel detector that might consist of more
+ * one pixel.
+ *
+ * @author Lutz Foucar
+ */
+struct Hit
+{
+  /** default constructor.*/
+  Hit()
+    :x(0),y(0),z(0),nbrPixels(0)
+  {}
+
+  /** the x coordinate of hit */
+  float x;
+
+  /** the x coordinate of hit */
+  float y;
+
+  /** the value of the hit */
+  uint64_t z;
+
+  /** number of pixels that this hit consists of */
+  size_t nbrPixels;
 };
 
 /** An Advanced Pixel Detector

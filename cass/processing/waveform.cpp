@@ -48,7 +48,7 @@ void pp110::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
-  _instrument = static_cast<Instruments>(s.value("InstrumentId",8).toUInt());
+  _instrument = s.value("InstrumentId",8).toUInt();
   _channel    = s.value("ChannelNbr",0).toUInt();
   int wsize(s.value("NbrSamples",40000).toInt());
   _sampleInterval = s.value("SampleInterval",1e-9).toDouble();
@@ -79,7 +79,7 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                         toString(_instrument) + "' doesn't contain channel '" +
                         toString(_channel)+ "'");
   const Channel &channel (instr.channels()[_channel]);
-  const waveform_t &waveform (channel.waveform());
+  const Channel::waveform_t &waveform (channel.waveform());
   if (result.axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     throw invalid_argument("processor '" + name() +

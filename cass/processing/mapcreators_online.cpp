@@ -47,7 +47,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
     _specialstorage.resize(frame.columns * frame.rows);
     specialstorage_t::iterator storagePixel(_specialstorage.begin());
     specialstorage_t::const_iterator lastStoragePixel(_specialstorage.end());
-    frame_t::const_iterator pixel(frame.data.begin()) ;
+    Detector::frame_t::const_iterator pixel(frame.data.begin()) ;
     while(storagePixel != lastStoragePixel)
       (*storagePixel++).push_back(*pixel++);
   }
@@ -60,20 +60,20 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
              "' frames. Starting to generate the offset and noise map");
     specialstorage_t::iterator storagePixels(_specialstorage.begin());
     specialstorage_t::const_iterator lastStoragePixels(_specialstorage.end());
-    frame_t::iterator offset(_commondata->offsetMap.begin());
-    frame_t::iterator noise(_commondata->noiseMap.begin());
+    Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+    Detector::frame_t::iterator noise(_commondata->noiseMap.begin());
     for (;storagePixels != lastStoragePixels; ++offset, ++noise, ++storagePixels)
     {
       /** calc noise and offset from all pixels */
       specialstorage_t::value_type::iterator pixel(storagePixels->begin());
       specialstorage_t::value_type::const_iterator lastPixel(storagePixels->end());
       size_t accumulatedValues(0);
-      pixel_t tmp_offset(0.);
-      pixel_t tmp_noise(0.);
+      Detector::pixel_t tmp_offset(0.);
+      Detector::pixel_t tmp_noise(0.);
       for(; pixel != lastPixel ; ++pixel)
       {
         ++accumulatedValues;
-        const pixel_t old_offset(tmp_offset);
+        const Detector::pixel_t old_offset(tmp_offset);
         tmp_offset += ((*pixel - tmp_offset) / accumulatedValues);
         tmp_noise  += ((*pixel - old_offset)*(*pixel - tmp_offset));
       }
@@ -91,14 +91,14 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
       accumulatedValues = 0;
       tmp_offset = 0.;
       tmp_noise = 0.;
-      const pixel_t maxNoise(*noise * _multiplier);
+      const Detector::pixel_t maxNoise(*noise * _multiplier);
       for(; pixel != lastPixel ; ++pixel)
       {
-        const pixel_t pixel_wo_offset(*pixel - *offset);
+        const Detector::pixel_t pixel_wo_offset(*pixel - *offset);
         if ((pixel_wo_offset < maxNoise))
         {
           ++accumulatedValues;
-          const pixel_t old_offset(tmp_offset);
+          const Detector::pixel_t old_offset(tmp_offset);
           tmp_offset += ((*pixel - tmp_offset) / accumulatedValues);
           tmp_noise += ((*pixel - old_offset)*(*pixel - tmp_offset));
         }
@@ -174,22 +174,22 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
     Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::buildAndCalc(): Collected '"
              + toString(_framecounter) +
              "' frames. Starting to generate the offset and noise map");
-    frame_t::iterator offset(_commondata->offsetMap.begin());
-    frame_t::const_iterator offsetEnd(_commondata->offsetMap.end());
-    frame_t::iterator noise(_commondata->noiseMap.begin());
+    Detector::frame_t::iterator offset(_commondata->offsetMap.begin());
+    Detector::frame_t::const_iterator offsetEnd(_commondata->offsetMap.end());
+    Detector::frame_t::iterator noise(_commondata->noiseMap.begin());
     size_t idx(0);
     for (;offset != offsetEnd; ++offset, ++noise, ++idx)
     {
       storage_t::iterator storagePixels(_storage.begin());
       storage_t::const_iterator lastStoragePixels(_storage.end());
       size_t accumulatedValues(0);
-      pixel_t tmp_offset(0.);
-      pixel_t tmp_noise(0.);
+      Detector::pixel_t tmp_offset(0.);
+      Detector::pixel_t tmp_noise(0.);
       for (;storagePixels != lastStoragePixels; ++storagePixels)
       {
-        const pixel_t pixel((*storagePixels)[idx]);
+        const Detector::pixel_t pixel((*storagePixels)[idx]);
         ++accumulatedValues;
-        const pixel_t old_offset(tmp_offset);
+        const Detector::pixel_t old_offset(tmp_offset);
         tmp_offset += ((pixel - tmp_offset) / accumulatedValues);
         tmp_noise  += ((pixel - old_offset)*(pixel - tmp_offset));
       }
@@ -203,15 +203,15 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
       accumulatedValues = 0;
       tmp_offset = 0.;
       tmp_noise = 0.;
-      const pixel_t maxNoise(*noise * _multiplier);
+      const Detector::pixel_t maxNoise(*noise * _multiplier);
       for (;storagePixels != lastStoragePixels; ++storagePixels)
       {
-        const pixel_t pixel((*storagePixels)[idx]);
-        const pixel_t pixel_wo_offset(pixel - *offset);
+        const Detector::pixel_t pixel((*storagePixels)[idx]);
+        const Detector::pixel_t pixel_wo_offset(pixel - *offset);
         if ((pixel_wo_offset < maxNoise))
         {
           ++accumulatedValues;
-          const pixel_t old_offset(tmp_offset);
+          const Detector::pixel_t old_offset(tmp_offset);
           tmp_offset += ((pixel - tmp_offset) / accumulatedValues);
           tmp_noise += ((pixel - old_offset)*(pixel - tmp_offset));
         }
@@ -234,27 +234,27 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
     offset = _commondata->offsetMap.begin();
     noise = _commondata->noiseMap.begin();
     idx = 0;
-    pixel_t commonmodeLevel(0.);
+    Detector::pixel_t commonmodeLevel(0.);
     const size_t width(calcCommonMode.width());
     for (;offset != offsetEnd; ++offset, ++noise, ++idx)
     {
       storage_t::iterator storagePixels(_storage.begin());
       storage_t::const_iterator lastStoragePixels(_storage.end());
       size_t accumulatedValues(0);
-      pixel_t tmp_offset(0.);
-      pixel_t tmp_noise(0.);
-      const pixel_t maxNoise(*noise * _multiplier);
+      Detector::pixel_t tmp_offset(0.);
+      Detector::pixel_t tmp_noise(0.);
+      const Detector::pixel_t maxNoise(*noise * _multiplier);
       for (;storagePixels != lastStoragePixels; ++storagePixels)
       {
         if ((idx % width) == 0)
           commonmodeLevel = calcCommonMode(storagePixels->begin()+idx,idx);
-        const pixel_t pixel((*storagePixels)[idx]);
-        const pixel_t pixel_wo_commonmode(pixel - commonmodeLevel);
-        const pixel_t corectedpixel(pixel_wo_commonmode - *offset);
+        const Detector::pixel_t pixel((*storagePixels)[idx]);
+        const Detector::pixel_t pixel_wo_commonmode(pixel - commonmodeLevel);
+        const Detector::pixel_t corectedpixel(pixel_wo_commonmode - *offset);
         if ((corectedpixel < maxNoise))
         {
           ++accumulatedValues;
-          const pixel_t old_offset(tmp_offset);
+          const Detector::pixel_t old_offset(tmp_offset);
           tmp_offset += ((pixel_wo_commonmode - tmp_offset) / accumulatedValues);
           tmp_noise += ((pixel_wo_commonmode - old_offset)*(pixel_wo_commonmode - tmp_offset));
         }

@@ -272,17 +272,8 @@ std::ifstream &operator>>(std::ifstream& stream, T& evt)
 const size_t RingBufferSize=32;
 /** global variable to set the number of worker threads */
 const size_t NbrOfWorkers=16;
-/** the maximum size of one datagram should be 16 MB */
-const size_t DatagramBufferSize=2*0x1000000;
-/** the type of a pixel of a ccd image*/
-typedef float pixel_t;
 //forward decalration//
-class PixelDetector;
 class FileReader;
-/** type of the container for ccd detectors */
-typedef std::vector<PixelDetector> detectors_t;
-/** known/supported Qt image formats */
-enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
 /** pair of a file pointer with the associated file reader */
 typedef std::pair<std::tr1::shared_ptr<FileReader>, FilePointer> filereaderpointerpair_t;
 /** map file name to the filepointer */

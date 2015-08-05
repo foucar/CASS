@@ -12,8 +12,6 @@
 #include <tr1/memory>
 #include <vector>
 
-#include "cass_pixeldetector.hpp"
-
 namespace cass
 {
 class CASSSettings;

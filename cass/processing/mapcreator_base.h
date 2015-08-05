@@ -12,7 +12,7 @@
 #include <tr1/memory>
 #include <vector>
 
-#include "cass_pixeldetector.hpp"
+#include "pixeldetector.hpp"
 
 namespace cass
 {
@@ -39,7 +39,7 @@ public:
   typedef std::tr1::shared_ptr<MapCreatorBase> shared_pointer;
 
   /** the type of storage used */
-  typedef std::vector<frame_t> storage_t;
+  typedef std::vector<Detector::frame_t> storage_t;
 
   /** virtual destructor */
   virtual ~MapCreatorBase();

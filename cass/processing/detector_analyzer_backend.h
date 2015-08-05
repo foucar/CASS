@@ -12,7 +12,6 @@
 
 #include <tr1/memory>
 
-#include "cass_acqiris.hpp"
 #include "delayline_detector.h"
 
 namespace cass
@@ -31,7 +30,7 @@ class DetectorBackend;
  *
  * @author Lutz Foucar
  */
-class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
+class DetectorAnalyzerBackend
 {
 public:
   /** typedef this as a shared pointer */

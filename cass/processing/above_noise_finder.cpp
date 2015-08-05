@@ -21,8 +21,8 @@ AboveNoiseFinder::AboveNoiseFinder()
 AboveNoiseFinder::pixels_t& AboveNoiseFinder::operator ()(const Frame &frame, pixels_t &pixels)
 {
   QReadLocker lock(&_commondata->lock);
-  frame_t::const_iterator pixel(frame.data.begin());
-  frame_t::const_iterator noise(_commondata->noiseMap.begin());
+  Detector::frame_t::const_iterator pixel(frame.data.begin());
+  Detector::frame_t::const_iterator noise(_commondata->noiseMap.begin());
   size_t idx(0);
   for (; pixel != frame.data.end(); ++pixel, ++noise, ++idx)
   {

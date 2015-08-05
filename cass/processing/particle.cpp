@@ -15,7 +15,6 @@
 #include "momenta_calculator.h"
 #include "cass_settings.h"
 #include "delayline_detector.h"
-#include "cass_acqiris.hpp"
 
 using namespace cass::ACQIRIS;
 using namespace std;

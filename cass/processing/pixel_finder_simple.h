@@ -10,6 +10,7 @@
 #define _PIXELFINDER_SIMPLE_H_
 
 #include "pixel_finder_base.h"
+#include "pixeldetector.hpp"
 
 namespace cass
 {
@@ -54,7 +55,7 @@ public:
 
 private:
   /** the threshold above which the pixels have to be */
-  pixel_t _threshold;
+  Detector::pixel_t _threshold;
 };
 
 
@@ -100,7 +101,7 @@ public:
 
 private:
   /** the threshold above which the pixels have to be */
-  pixel_t _threshold;
+  Detector::pixel_t _threshold;
 
   /** the size of the square to check */
   int _squaresize;
@@ -143,7 +144,7 @@ public:
 
 private:
   /** the threshold above which the pixels have to be */
-  std::pair<pixel_t,pixel_t> _range;
+  std::pair<Detector::pixel_t,Detector::pixel_t> _range;
 };
 }//end namespace pixeldetector
 }//end namespace cass

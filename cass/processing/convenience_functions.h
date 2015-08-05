@@ -323,78 +323,6 @@ public:
 };
 
 
-/** Qt names of known/supported Qt image formats
-   *
-   * @param fmt the Image Format
-   * @return Qt name of format
-   */
-inline const std::string imageformatName(ImageFormat fmt)
-{
-  std::string fmtname;
-  switch(fmt) {
-  case PNG:  fmtname = std::string("PNG"); break;
-  case TIFF: fmtname = std::string("TIFF"); break;
-  case JPEG: fmtname = std::string("JPEG"); break;
-  case GIF:  fmtname = std::string("GIF"); break;
-  case BMP:  fmtname = std::string("BMP"); break;
-  }
-  return fmtname;
-};
-
-
-/** File extensions of known/supported Qt image formats
-   *
-   * @param fmt the Image Format
-   * @return File extension of format
-   */
-inline const std::string imageExtension(ImageFormat fmt)
-{
-  std::string fmtname;
-  switch(fmt) {
-  case PNG:  fmtname = std::string("png"); break;
-  case TIFF: fmtname = std::string("tiff"); break;
-  case JPEG: fmtname = std::string("jpg"); break;
-  case GIF:  fmtname = std::string("gif"); break;
-  case BMP:  fmtname = std::string("bmp"); break;
-  }
-  return fmtname;
-};
-
-
-/** MIMI names of known/supported Qt image formats.
-   *
-   * @param fmt the Image Format
-   * @return MIME/type of format
-   */
-inline const std::string imageformatMIMEtype(ImageFormat fmt)
-{
-  std::string fmtname;
-  switch(fmt) {
-  case PNG:  fmtname = std::string("image/png"); break;
-  case TIFF: fmtname = std::string("image/tiff"); break;
-  case JPEG: fmtname = std::string("image/jpeg"); break;
-  case GIF:  fmtname = std::string("image/gif"); break;
-  case BMP:  fmtname = std::string("image/bmp"); break;
-  }
-  return fmtname;
-};
-
-
-/** Names of known/supported Qt image formats
-   *
-   * @param name format name
-   * @return ImageFormat
-   */
-inline ImageFormat imageformat(const std::string& name)
-{
-  ImageFormat fmt(PNG);
-  if(std::string("PNG") == name) fmt = PNG;
-  else if(std::string("TIFF") == name) fmt = TIFF;
-  else if(std::string("JPEG") == name) fmt = TIFF;
-  else if(std::string("GIF") == name) fmt = TIFF;
-  else if(std::string("BMP") == name) fmt = TIFF;
-  return fmt;
-};
 
 /** Helper function to delete duplicates from a std::list
    *
@@ -416,6 +344,29 @@ inline void unique(std::list<T>& l)
     while(l.end() != (i2 = find(i2, l.end(), *i1)))
       l.erase(i2);
   }
+}
+
+/** fuzzy compare two floating point variables
+ *
+ * @tparam the type that one want to compare
+ * @param first the first value for the equal comparison
+ * @param second the second value for the equal comparison
+ */
+template <typename T>
+bool fuzzycompare(const T& first, const T& second)
+{
+  return (abs(first-second) < sqrt(std::numeric_limits<T>::epsilon()));
+}
+
+/** fuzzy compare a floating point number to 0
+ *
+ * @tparam the type that one want to compare
+ * @param val the value for the comparison
+ */
+template <typename T>
+bool fuzzyIsNull(const T& val)
+{
+  return (val < sqrt(std::numeric_limits<T>::epsilon()));
 }
 }//end namespace cass
 
