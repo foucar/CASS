@@ -28,6 +28,30 @@
 using namespace std;
 using namespace cass;
 
+namespace cass
+{
+/** A machine vale
+ *
+ * allow the user to have a CASSName next to the hdf5 key as the key might be
+ * unreadable. Also allow the index in case the value is contained in it
+ *
+ * @author Lutz Foucar
+ */
+struct machineVal
+{
+  /** the hdf5 file key */
+  string h5key;
+
+  /** the name of the key within the cass event */
+  string cassname;
+
+  /** in case the machinval in question is contained within an array this is
+   *  the inxed of the array where the machine value iswritten to
+   */
+  int idx;
+};
+}//end namespace cass
+
 void HDF5FileInput::instance(string filelistname,
                              RingBuffer<CASSEvent> &ringbuffer,
                              Ratemeter &ratemeter, Ratemeter &loadmeter,
@@ -65,10 +89,7 @@ void HDF5FileInput::runthis()
   string EventIDName = s.value("EventIDKey","EventID").toString().toStdString();
 
   /** list of machine variables to extract from the hdf5 files */
-  /** allow the user to have a CASSName next to the hdf5 key as the key might be
-   *  unreadable
-   */
-  typedef vector<pair<string,string> > machineVals_t;
+  typedef vector<machineVal> machineVals_t;
   machineVals_t machineVals;
   int size = s.beginReadArray("MachineValues");
   for (int i = 0; i < size; ++i)
@@ -80,7 +101,10 @@ void HDF5FileInput::runthis()
     if (machineValName == "Invalid")
       continue;
     CASSName = CASSName == "Invalid" ? machineValName : CASSName;
-    machineVals.push_back(make_pair(machineValName,CASSName));
+    machineVals.push_back(machineVals_t::value_type());
+    machineVals.back().h5key = machineValName;
+    machineVals.back().cassname = CASSName;
+    machineVals.back().idx = s.value("ArrayIndex",0).toUInt();
   }
   s.endArray();
 
@@ -212,13 +236,25 @@ void HDF5FileInput::runthis()
           machineVals_t::const_iterator machineValsEnd(machineVals.end());
           for (; machineValsIter != machineValsEnd; ++machineValsIter)
           {
-            const string key(*it + "/" + machineValsIter->first);
+            const string key(*it + "/" + machineValsIter->h5key);
             /** check if dimension is correct */
-            if (h5handle.dimension(key) != 0)
+            if (h5handle.dimension(key) == 0)
+            {
+              float machineValue(h5handle.readScalar<float>(key));
+              md.BeamlineData()[machineValsIter->cassname] = machineValue;
+            }
+            else if (h5handle.dimension(key) == 1)
+            {
+              vector<double> array;
+              size_t length(0);
+              h5handle.readArray(array, length, key);
+              md.BeamlineData()[machineValsIter->cassname] = array[machineValsIter->idx];
+            }
+            else
+            {
               throw runtime_error("HDF5FileInput(): file '"+ filename + "': key '" +
-                                  key + "' is not a scalar value");
-            float machineValue(h5handle.readScalar<float>(key));
-            md.BeamlineData()[machineValsIter->second] = machineValue;
+                                  key + "' is neither a scalar nor an array value");
+            }
           }
 
 

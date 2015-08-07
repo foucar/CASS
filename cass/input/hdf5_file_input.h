@@ -44,6 +44,9 @@ namespace cass
  *           Name of the parameter within the Beamlineparameter part of the
  *           CASSEvent. Default is "Invalid" in which case the name of the
  *           dataset will be used.
+ * @cassttng HDF5FileInput/MachineValues/\%index\%/{ArrayIndex}\n
+ *           In case the value is contained within an array. This is the
+ *           index at which the values stand within the array. Default is 0
  * @cassttng HDF5FileInput/AcqirisValues/{size}\n
  *           The number of acqirs instrument channels that one wants to
  *           retrieve. Each channel of an instrument has to be defined separately.
