@@ -62,7 +62,8 @@ SerializerBackend& operator<<(SerializerBackend& serializer, const Axis<T>& axis
 SerializerBackend& operator>>(SerializerBackend& serializer, Axis<T>& axis)
 {
   uint16_t version(serializer.retrieve<uint16_t>());
-  assert(version == Axis<T>::serializationVersion);
+  if(version != Axis<T>::serializationVersion)
+    throw std::runtime_error("operator>>(serializer,Axis<T>): Version conflict");
   axis.nBins = serializer.retrieve<size_t>();
   axis.low = serializer.retrieve<T>();
   axis.up = serializer.retrieve<T>();
@@ -87,7 +88,7 @@ SerializerBackend& operator<<(SerializerBackend& serializer,
   serializer.add(static_cast<uint16_t>(Result<T>::serializationVersion));
   serializer.add(static_cast<size_t>(result._axis.size()));
   serializer.add(result._id);
-  for (typename result_t::axis_t::const_iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
+  for (typename Result<T>::axis_t::const_iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer << *it;
   serializer.add(static_cast<size_t>(result._storage.size()));
   for (typename Result<T>::const_iterator it=result.begin(),end=result.end(); it != end; ++it)
@@ -111,14 +112,15 @@ SerializerBackend& operator>>(SerializerBackend& serializer,
                               Result<T>& result)
 {
   uint16_t version(serializer.retrieve<uint16_t>());
-  assert(version == Result<T>::serializationVersion);
+  if (version != Result<T>::serializationVersion)
+    throw std::runtime_error("operator>>(serializer,Result<T>): Version conflict");
   result._axis.resize(serializer.retrieve<size_t>());
-  for (typename result_t::axis_t::iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
+  for (typename Result<T>::axis_t::iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer >> (*it);
-  const size_t size(serializer.retrieveSizet());
+  const size_t size(serializer.retrieve<size_t>());
   result._storage.clear();
   for (size_t i(0); i < size; ++i)
-    result._storage.push_back(serializer.retrieve<Result<T>::value_t>());
+    result._storage.push_back(serializer.retrieve<typename Result<T>::value_t>());
   return serializer;
 }
 
@@ -138,6 +140,14 @@ struct Axis
   /** the presision type of the axis boundaries */
   typedef T value_t;
 
+  /** default Constructor */
+  Axis()
+    : nBins(0),
+      low(0.),
+      up(0.),
+      title()
+  {}
+
   /** Constructor
    *
    * will set the properties in the initializtion list. Will also set the version
@@ -148,19 +158,28 @@ struct Axis
    * @param upperLimit The upper end of the axis
    */
   Axis(size_t nbrBins, value_t lowerLimit, value_t upperLimit, std::string title="Axis Title")
-    : Serializable(serializationVersion),
-      nBins(nbrBins),
+    : nBins(nbrBins),
       low(lowerLimit),
       up(upperLimit),
       title(title)
   {}
+
+  /** calculate the position for a given bin
+   *
+   * @return the position of the bin
+   * @param bin the bin to calculate the postion for
+   */
+  value_t pos(const int bin) const
+  {
+    return (low + (bin*(up - low)/nBins));
+  }
 
   /** return the bin that a value will fall in
    *
    * @return the bin that the value will fall into
    * @param val the value that should be histogrammed
    */
-  int bin(const value_t &val)
+  int bin(const value_t &val) const
   {
     return(static_cast<int>(nBins * (val - low) / (up-low)));
   }
@@ -170,7 +189,7 @@ struct Axis
    * @return true if bin is underflow
    * @param bin the bin to check
    */
-  bool isUndeflow(int bin)
+  bool isUnderflow(int bin) const
   {
     return (bin < 0);
   }
@@ -180,9 +199,9 @@ struct Axis
    * @return true if bin is overflow
    * @param bin the bin to check
    */
-  bool isOverflow(int bin)
+  bool isOverflow(int bin) const
   {
-    return (nBins < bin);
+    return (static_cast<int>(nBins) < bin);
   }
 
   /** the number of bins in this axis */
@@ -245,8 +264,11 @@ public:
   /** a const reference to the storage */
   typedef typename storage_t::const_reference const_reference;
 
-  /** the element accessor type of the storage */
+  /** define the size type of the storage */
   typedef typename storage_t::size_type size_type;
+
+  /** define the shape of the result */
+  typedef std::pair<size_type,size_type> shape_t;
 
   /** the axis descriptions of this container */
   typedef Axis<double>  axe_t;
@@ -286,7 +308,7 @@ public:
     : _axis(1),
       _storage(size,0)
   {
-    _axis[xAxis] = axis_t(size,0,size-1,"x-Axis");
+    _axis[xAxis] = axe_t(size,0,size-1,"x-Axis");
   }
 
   /** 1d histogram constructor
@@ -297,14 +319,14 @@ public:
    *
    * @param xaxis The x-axis of the histogram
    */
-  explicit Result(const axis_t& xaxis)
+  explicit Result(const axe_t& xaxis)
     : _axis(1),
       _storage(xaxis.nBins,0)
   {
     _axis[xAxis] = xaxis;
   }
 
-  /** 2d array conatiner constructor
+  /** 2d array container or table constructor
    *
    * use this constructor if you want to create a two dimensional array. The
    * 2d array itself is represented in a linearized array.
@@ -320,8 +342,8 @@ public:
     : _axis(2),
       _storage(cols*rows,0)
   {
-    _axis[xAxis] = axis_t(cols,0,cols-1,"x-Axis");
-    _axis[yAxis] = axis_t(rows,0,rows-1,"y-Axis");
+    _axis[xAxis] = axe_t(cols,0,cols-1,"x-Axis");
+    _axis[yAxis] = axe_t(rows,0,rows-1,"y-Axis");
   }
 
   /** 2d histogram constructor
@@ -333,28 +355,60 @@ public:
    * @param xaxis The x-axis of the histogram
    * @param yaxis The y-axis of the histogram
    */
-  Result(const axis_t& xaxis, const axis_t& yaxis)
+  Result(const axe_t& xaxis, const axe_t& yaxis)
     : _axis(2),
-      _storage(xaxis.nBins * yaxis.nbins,0)
+      _storage(xaxis.nBins * yaxis.nBins,0)
   {
     _axis[xAxis] = xaxis;
     _axis[yAxis] = yaxis;
   }
 
-  /** get a specific axis
+  /** read access to the axis
+   *
+   * @return const reference to the axis object
+   */
+  const axis_t& axis() const
+  {
+    return _axis;
+  }
+
+  /** write access to the axis
+   *
+   * @return reference to the axis object
+   */
+  axis_t& axis()
+  {
+    return _axis;
+  }
+
+  /** read access to a specific axis
    *
    * only 1d and 2d histograms have axis. Therefore throws invalid_argument if
    * the requested axis does not exist
    *
    * @param axis the requested axis
    */
-  const axis_t& axis(const axis_name& axis) const
+  const axe_t& axis(const axis_name& axis) const
   {
     if (_axis.size() <= axis)
-      throw std::invalid_argument("Result::axis: the requested axis '" + toString(axis) +
-                                  "' does not exist");
+      throw std::invalid_argument("Result::axis: the requested axis does not exist");
     return _axis[axis];
   }
+
+  /** write accesss to a specific axis
+   *
+   * only 1d and 2d histograms have axis. Therefore throws invalid_argument if
+   * the requested axis does not exist
+   *
+   * @param axis the requested axis
+   */
+   axe_t& axis(const axis_name& axis)
+  {
+    if (_axis.size() <= axis)
+      throw std::invalid_argument("Result::axis: the requested axis does not exist");
+    return _axis[axis];
+  }
+
 
   /** what is the dimension of the result
    *
@@ -406,8 +460,21 @@ public:
   void setValue(const_reference value)
   {
     if (!_axis.empty())
-      throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
+      throw std::logic_error("Result::setValue: Try using the result as a value, but it has axis");
     _storage.front() = value;
+  }
+
+  /** return the value
+   *
+   * should only be used when container acts as a value
+   *
+   * @return the value of the Value like container
+   */
+  value_t getValue() const
+  {
+    if (!_axis.empty())
+      throw std::logic_error("Result::getValue: Try using the result as a value, but it has axis");
+    return _storage.front();
   }
 
   /** evaluate whether value is zero
@@ -427,27 +494,59 @@ public:
     return !(std::abs(_storage.front()) < std::sqrt(std::numeric_limits<value_t>::epsilon()));
   }
 
-  /** return the value
+  /** read access to the storage
    *
-   * should only be used when container acts as a value
-   *
-   * @return the value of the Value like container
+   * @return const reference to the storage
    */
-  value_t getValue() const
+  const storage_t& storage() const
   {
-    if (!_axis.empty())
-      throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
-    return _storage.front();
+    return _storage;
   }
 
-  /** retrieve a iterator for read access to beginning */
-  const_iterator begin()const {return _storage.begin();}
+  /** write access to the storage
+   *
+   * @return  reference to the storage
+   */
+  storage_t& storage()
+  {
+    return _storage;
+  }
 
-  /** retrieve iterator for write access to beginning */
+  /** retrieve a iterator for read access to beginning
+   *
+   * @return const iterator to beginning
+   */
+  const_iterator begin() const {return _storage.begin();}
+
+  /** retrieve iterator for write access to beginning
+   *
+   * @return  iterator to beginning
+   */
   iterator begin() {return _storage.begin();}
 
-  /** retrieve iterator to the end of storage */
-  const_iterator end()const {return _storage.end();}
+  /** retrieve reference to the first element
+   *
+   * @return reference to the first element
+   */
+  reference front() {return _storage.front();}
+
+  /** retrieve const reference to the first element
+   *
+   * @return const reference to the first element
+   */
+  const_reference front() const {return _storage.front();}
+
+  /** retrieve iterator to the end of storage
+   *
+   * @return const iterator to end
+   */
+  const_iterator end() const {return _storage.end();}
+
+  /** retrieve iterator to the end of storage
+   *
+   * @return iterator to end
+   */
+  iterator end() {return _storage.end();}
 
   /** calculate the correct bin index for a value
    *
@@ -456,7 +555,10 @@ public:
    */
   size_t bin(const value_t &value) const
   {
+    if (_axis.size() != 1)
+      throw std::logic_error("Result::bin(): Result doesn't have dimension 1");
     const int xBin(_axis[xAxis].bin(value));
+    const size_t nxBins(_axis[xAxis].nBins);
     if (xBin == _axis[xAxis].isOverflow(xBin))
       return nxBins+Overflow;
     else if (xBin == _axis[xAxis].isUnderflow(xBin))
@@ -472,6 +574,8 @@ public:
    */
   size_t bin(const coordinate_t &coordinate) const
   {
+    if (_axis.size() != 2)
+      throw std::logic_error("Result::bin(): Result doesn't have dimension 2");
     const int xBin(_axis[xAxis].bin(coordinate.first));
     const int yBin(_axis[yAxis].bin(coordinate.second));
     const long maxSize  = _axis[xAxis].nBins*_axis[yAxis].nBins;
@@ -497,7 +601,7 @@ public:
       return yBin*_axis[xAxis].nBins + xBin;
   }
 
-  /** insert a value at the right bin in the 1d array
+  /** add the weight at the right bin for the value in the 1d array
    *
    * the position that is passed will be converted to the right bin number
    * using the world2hist function. The value in this bin is increased
@@ -508,12 +612,16 @@ public:
    * @param weight the value that should be added to the value in the bin.
    *               Default ist 1.
    */
-  iterator insert(const value_t& pos, const value_t& weight=1)
+  iterator histogram(const value_t& pos, const value_t& weight=1)
   {
-    _storage[bin(pos)] += weight;
+    if (_axis.size() != 1)
+      throw std::logic_error("Result::histogram(): Result doesn't have dimension 1");
+    iterator it(begin() + bin(pos));
+    *it += weight;
+    return it;
   }
 
-  /** insert a value at the right bin in the 2d array
+  /** add the weight at the right bin for the coordinate in the 2d array
    *
    * the position passed will be converted to the right bin number for each axis
    * using the utility world2hist function. The value in this bin is increased
@@ -524,10 +632,70 @@ public:
    * @param weight the value that should be added to the value in the bin.
    *               Default ist 1.
    */
-  iterator insert(const coordinate_t& pos, const value_t& weight=1)
+  iterator histogram(const coordinate_t& pos, const value_t& weight=1)
   {
-    _storage[bin(pos)] += weight;
+    if (_axis.size() != 2)
+      throw std::logic_error("Result::histogram(): Result doesn't have dimension 2");
+    iterator it(begin() + bin(pos));
+    *it += weight;
+    return it;
   }
+
+  /** add row(s) to the result
+   *
+   * in case the result is used as a table this will add row(s) to the table
+   *
+   * @param rows the rows to be appended to the table like result
+   */
+  void appendRows(const storage_t &rows)
+  {
+    if (_axis.size() != 2)
+      throw std::logic_error("Result::appendRows(): Result doesn't have dimension 2");
+    if (rows.size() % _axis[xAxis].nBins)
+      throw std::runtime_error("Result::appendRows: The rowsize is not a modulo of the rowsize of the table '");
+    const int nRows(rows.size() / _axis[xAxis].nBins);
+    _axis[yAxis].nBins += nRows;
+    _axis[yAxis].up = axis(yAxis).nBins - 1;
+
+    _storage.insert(_storage.end(),rows.begin(),rows.end());
+  }
+
+  /** reset the table like result */
+  void resetTable()
+  {
+    if (_axis.size() != 2)
+      throw std::logic_error("Result::resetTable(): Result doesn't have dimension 2");
+    _axis[yAxis].nBins = 0;
+    _axis[yAxis].up = -1;
+  }
+
+  /** append a value to the end of the result
+   *
+   * append the value and set the axis to reflect the new content
+   * @param val the value to append
+   */
+  void append(const value_t &val)
+  {
+    if (_axis.size() != 1)
+      throw std::logic_error("Result::push_back(): Result doesn't have dimension 1");
+    _storage.push_back(val);
+    _axis[xAxis].nBins = _storage.size();
+    _axis[xAxis].up = _axis[xAxis].nBins - 1;
+  }
+
+  /** clear the appendable 1d like result
+   *
+   * clears the storage and reset xaxis to reflect the new content
+   */
+  void reset()
+  {
+    if (_axis.size() != 1)
+      throw std::logic_error("Result::reset(): Result doesn't have dimension 1");
+    _storage.clear();
+    _axis[xAxis].nBins = _storage.size();
+    _axis[xAxis].up = _axis[xAxis].nBins - 1;
+  }
+
 
   /** enable accessing elements of the storage directly
    *
@@ -545,21 +713,106 @@ public:
    *
    * @param pos Position of requested element in the container
    */
-  const_reference operator[](size_type pos)const
+  const_reference operator[](size_type pos) const
   {
     return _storage[pos];
+  }
+
+  /** return the shape of the result
+   *
+   * in case it is a value the constant 0,0 will be returned. In case it is a
+   * 1d result the second parameter is 0, and the full shape in case it is a
+   * 2d result will be returned.
+   *
+   * @return the shape of the result
+   */
+  shape_t shape() const
+  {
+    switch (_axis.size())
+    {
+    case 0:
+      return std::make_pair(0,0);
+      break;
+    case 1:
+      return std::make_pair(axis(xAxis).nBins,0);
+      break;
+    case 2:
+      return std::make_pair(axis(xAxis).nBins,axis(yAxis).nBins);
+      break;
+    default:
+      throw std::logic_error("Result::shape(): Result doesn't have dimension 2");
+    }
+  }
+
+  /** return the raw size of the storage
+   *
+   * @return the size of the storage
+   */
+  size_type size() const
+  {
+    return _storage.size();
   }
 
   /** create a copy of the result
    *
    * @return shared pointer to this result
    */
-  shared_pointer clone()const
+  shared_pointer clone() const
   {
     shared_pointer sp(new self_type);
     sp->_axis = _axis;
     sp->_storage = _storage;
+    sp->_name = _name;
+    sp->_id = _id;
     return sp;
+  }
+
+  /** copy the contents of a different result to this result
+   *
+   * copy the axis and the storage only
+   *
+   * @param in input whos contents should be copied to here
+   */
+  void assign(const self_type& in)
+  {
+    _storage = in._storage;
+    _axis = in._axis;
+  }
+
+  /** retrieve the name of the result
+   *
+   * @return the name of the result
+   */
+  std::string name() const
+  {
+    return _name;
+  }
+
+  /** set the name of the result
+   *
+   * @param name the name that the result should have
+   */
+  void name(const std::string & name)
+  {
+    _name = name;
+  }
+
+  /** retrieve the id of the result
+   *
+   * @return the id
+   */
+  uint64_t id()const
+  {
+    return _id;
+  }
+
+  /** set the id of the result
+   *
+   * @param id the id that the result should have
+   */
+  void id(uint64_t id)
+  {
+    _id = id;
   }
 
 public:
@@ -581,7 +834,9 @@ protected:
   Result(const Result& in)
     : Serializable(in),
       _axis(in._axis),
-      _storage(in._storage)
+      _storage(in._storage),
+      _name(in._name),
+      _id(in._id)
   {}
 
   /** prevent self assigment */
