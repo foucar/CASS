@@ -309,7 +309,7 @@ public:
   {
     if (_condition->result(evt.id()).isTrue())
     {
-      QWriteLocker locker(&_result->lock);
+      QWriteLocker locker(&(_result->lock));
       _result->id() = evt.id();
       process(evt,*_result);
     }
@@ -347,6 +347,9 @@ public:
 protected:
   /** the result that accumulates the events */
   HistogramBackend::shared_pointer _result;
+
+  /** the number of events the processor has accumulated */
+  size_t _nbrEventsAccumulated;
 };
 
 } //end namespace cass
