@@ -71,7 +71,6 @@ void pp5000::process(const CASSEvent& evt, HistogramBackend &res)
     double e_energy = p*p*13.6;
     result.fill(e_energy);
   }
-  result.nbrOfFills() = 1;
 }
 
 
@@ -122,7 +121,6 @@ void pp5001::process(const CASSEvent& evt, HistogramBackend &res)
       }
     }
   }
-  result.nbrOfFills() = 1;
 }
 
 

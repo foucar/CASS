@@ -146,7 +146,6 @@ void pp1::process(const CASSEvent& evt, HistogramBackend &res)
             two.memory().begin(),
             result.memory().begin(),
             _op);
-  result.nbrOfFills()=1;
 }
 
 
@@ -264,7 +263,6 @@ void pp2::process(const CASSEvent& evt, HistogramBackend &res)
             result.memory().begin(),
             _setParamPos(_retrieveValue(evt.id())));
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -306,7 +304,6 @@ void pp4::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock(&one.lock);
 
   result = !one.isTrue();
-  result.nbrOfFills()=1;
 }
 
 
@@ -360,7 +357,6 @@ void pp9::process(const CASSEvent& evt, HistogramBackend &res)
                                 0.f));
 
   result = (_range.first < value &&  value < _range.second);
-  result.nbrOfFills()=1;
 }
 
 
@@ -466,7 +462,6 @@ void pp13::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock(&one.lock);
 
   result.axis() = one.axis();
-  result.nbrOfFills() = one.nbrOfFills();
   copy(one.memory().begin(),one.memory().end(),result.memory().begin());
 }
 
@@ -525,7 +520,6 @@ void pp15::process(const CASSEvent& evt, HistogramBackend &res)
 
   /** @note the fuzzycompare doesn't work when using big numbers */
   result = fabs(value-_previousVal) > _difference;
-  result.nbrOfFills()=1;
   QMutexLocker lock(&_mutex);
   _previousVal = value;
 }
@@ -576,7 +570,6 @@ void pp40::process(const CASSEvent& evt, HistogramBackend &res)
   transform(one.memory().begin(), one.memory().end(),
                  result.memory().begin(),
                  bind2nd(threshold(), _threshold));
-  result.nbrOfFills()=1;
 }
 
 
@@ -661,7 +654,6 @@ void pp41::process(const CASSEvent& evt, HistogramBackend &res)
             threshimage.memory().begin(),
             result.memory().begin(),
             bind(&pp41::checkrange,this,_1,_2));
-  result.nbrOfFills()=1;
 }
 
 
@@ -819,7 +811,6 @@ void pp50::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock(&one.lock);
 
   _project(one.memory(),result.memory());
-  result.nbrOfFills()=1;
 }
 
 
@@ -908,7 +899,6 @@ void pp51::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram1DFloat::storage_t::const_iterator end(one.memory().begin()+_area.second);
 
   result =  accumulate(begin, end, 0.f);
-  result.nbrOfFills()=1;
 }
 
 
@@ -953,7 +943,6 @@ void pp56::process(const CASSEvent& evt, HistogramBackend &res)
   QMutexLocker lock(&_mutex);
   copy(_storage.begin(),_storage.end(),histmem.begin());
   copy(one.memory().begin(),one.memory().end(),_storage.begin());
-  result.nbrOfFills() = 1;
 }
 
 
@@ -1088,7 +1077,6 @@ void pp57::process(const CASSEvent& evt, HistogramBackend &res)
             norm.begin(),result.memory().begin(),
             divides<float>());
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -1137,7 +1125,6 @@ void pp60::process(const CASSEvent& evt, HistogramBackend &res)
   for (; value != histEnd; ++value)
     result.fill(*value);
 
-  result.nbrOfFills() = 1;
 }
 
 
@@ -1186,10 +1173,10 @@ void pp61::process(const CASSEvent& evt, HistogramBackend &res)
 
   QReadLocker lock(&one.lock);
 
-  ++result.nbrOfFills();
-  float scale = (1./result.nbrOfFills() < _alpha) ?
+  ++_nbrEventsAccumulated;
+  float scale = (1./_nbrEventsAccumulated < _alpha) ?
                 _alpha :
-                1./result.nbrOfFills();
+                1./_nbrEventsAccumulated;
 
   transform(one.memory().begin(),one.memory().end(),
             result.memory().begin(),
@@ -1242,7 +1229,7 @@ void pp62::process(const CASSEvent& evt,HistogramBackend &res)
             result.memory().begin(),
             result.memory().begin(),
             plus<float>());
-  ++result.nbrOfFills();
+  ++_nbrEventsAccumulated;
 }
 
 
@@ -1351,7 +1338,6 @@ void pp63::process(const CASSEvent& evt, HistogramBackend &res)
   }
   QReadLocker lock(&one.lock);
 
-  result.nbrOfFills();
   transform(one.memory().begin(),one.memory().end(),
             result.memory().begin(),
             result.memory().begin(),
@@ -1473,7 +1459,6 @@ void pp65::process(const CASSEvent& evt, HistogramBackend &res)
 
   result.clear();
   result.fill(one.getValue(),two.getValue());
-  result.nbrOfFills()=1;
 }
 
 
@@ -1544,7 +1529,6 @@ void pp66::process(const CASSEvent& evt, HistogramBackend &res)
   for (size_t j(0); j < twoNBins; ++j)
     for (size_t i(0); i < oneNBins; ++i)
       memory[j*oneNBins+i] = one.memory()[i]*two.memory()[j];
-  result.nbrOfFills()=1;
 }
 
 
@@ -1786,7 +1770,7 @@ void pp69::process(const CASSEvent& evt, HistogramBackend &res)
   else if (xBin < 0)
     mem[nxBins+HistogramBackend::Underflow] += 1;
   //increase the number of fills//
-  ++(result.nbrOfFills());
+  ++_nbrEventsAccumulated;
 }
 
 
@@ -1896,7 +1880,6 @@ void pp70::process(const CASSEvent& evt, HistogramBackend &res)
     advance(iit,inputNbrXBins);
     advance(rit,resultNbrXBins);
   }
-  result.nbrOfFills()=1;
 }
 
 
@@ -1948,7 +1931,6 @@ void pp71::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock(&one.lock);
 
   result.fill(*(_func(one.memory().begin(), one.memory().end())));
-  result.nbrOfFills()=1;
 }
 
 
@@ -2075,7 +2057,6 @@ void pp77::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   result = (find(_list.begin(),_list.end(),evt.id()) != _list.end());
-  result.nbrOfFills()=1;
 }
 
 
@@ -2109,7 +2090,6 @@ void pp78::process(const CASSEvent&, HistogramBackend &res)
 {
   Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   ++(result.memory()[0]);
-  result.nbrOfFills()=1;
 }
 
 
@@ -2172,7 +2152,6 @@ void pp81::process(const CASSEvent& evt, HistogramBackend &res)
       (_func(one.memory().begin(), one.memory().end()));
   size_t bin(distance(one.memory().begin(),it));
   result.fill(one.axis()[HistogramBackend::xAxis].position(bin));
-  result.nbrOfFills()=1;
 }
 
 
@@ -2240,7 +2219,6 @@ void pp82::process(const CASSEvent& evt, HistogramBackend &res)
   stat_t stat;
   stat.addDistribution(one.memory().begin(),one.memory().end());
   result.fill(_val(stat));
-  result.nbrOfFills() = 1;
 }
 
 
@@ -2336,7 +2314,6 @@ void pp85::process(const CASSEvent& evt, HistogramBackend &res)
   const float fwfm((upperdist+lowerdist)*0.5);
 
   result.fill(fwfm);
-  result.nbrOfFills()=1;
 }
 
 
@@ -2435,7 +2412,6 @@ void pp86::process(const CASSEvent& evt, HistogramBackend &res)
   const size_t steppos(distance(one.memory().begin(),stepIt));
 
   result.fill(steppos);
-  result.nbrOfFills()=1;
 }
 
 
@@ -2512,7 +2488,6 @@ void pp87::process(const CASSEvent& evt, HistogramBackend &res)
   const float com(weight/integral);
 
   result.fill(com);
-  result.nbrOfFills()=1;
 }
 
 
@@ -2602,7 +2577,6 @@ void pp88::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock(&hist.lock);
 
   result = _func(hist.axis()[_axisId]);
-  result.nbrOfFills()=1;
 }
 
 
@@ -2723,7 +2697,6 @@ void pp89::process(const CASSEvent& evt, HistogramBackend &res)
     ++inIt;
     ++outIt;
   }
-  result.nbrOfFills()=1;
 }
 
 
@@ -2806,7 +2779,6 @@ void pp91::process(const CASSEvent& evt, HistogramBackend &res)
 //    dist = xAxis.hist2user(candidates[1]) - xAxis.hist2user(candidates[0]);
 //
 //  result.fill(dist);
-  result.nbrOfFills()=1;
 }
 
 

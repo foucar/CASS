@@ -121,7 +121,6 @@ void pp200::process(const CASSEvent& evt, HistogramBackend &res)
     }
   }
   result = (abs(denom) < 1e-15)?0.5:nom/denom;
-  result.nbrOfFills() = 1;
 }
 
 
@@ -219,7 +218,6 @@ void pp201::process(const CASSEvent& evt, HistogramBackend &res)
       histmemory[jth] += interpolateValue;
     }
   }
-  result.nbrOfFills()=1;
 }
 
 
@@ -317,6 +315,5 @@ void pp202::process(const CASSEvent& evt, HistogramBackend &res)
       resulthistmemory[jr*_nbrAngularPoints + jth] += interpolateValue;
     }
   }
-  result.nbrOfFills()=1;
 }
 

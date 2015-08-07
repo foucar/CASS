@@ -134,7 +134,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname
     roothist = new TH1F(valname.c_str(),valname.c_str(),
                         1,0,1);
     roothist->SetBinContent(1,casshist.memory()[0]);
-    roothist->SetEntries(casshist.nbrOfFills());
+    //roothist->SetEntries(casshist.nbrOfFills());
   }
     break;
   case 1:
@@ -154,7 +154,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname
     roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
     roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Overflow]);
     /** copy number of fills (how many shots have been accumulated) */
-    roothist->SetEntries(casshist.nbrOfFills());
+    //roothist->SetEntries(casshist.nbrOfFills());
   }
     break;
   case 2:
@@ -188,7 +188,7 @@ void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname
     roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Right]);
     roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Left]);
     /** copy number of fills (how many shots have been accumulated) */
-    roothist->SetEntries(casshist.nbrOfFills());
+    //roothist->SetEntries(casshist.nbrOfFills());
   }
     break;
   default:

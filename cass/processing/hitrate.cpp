@@ -493,7 +493,6 @@ void pp313::process(const CASSEvent& evt, HistogramBackend &res)
                       dest.begin(),FAccessor(),
                       _kernelCenter,KernelAccessor(),_kleft,_kright,
                       vigra::BORDER_TREATMENT_REFLECT);
-  result.nbrOfFills()=1;
 }
 
 

@@ -68,7 +68,6 @@ void pp72::process(const CASSEvent& evt, HistogramBackend &res)
   for (size_t row=0; row < nRows; ++row)
     col.append(tableContents[row*nCols + _colIdx]);
 
-  col.nbrOfFills()=1;
 }
 
 
@@ -135,7 +134,6 @@ void pp73::process(const CASSEvent& evt, HistogramBackend &res)
   }
   result.appendRows(rows);
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -199,7 +197,6 @@ void pp74::process(const CASSEvent& evt, HistogramBackend &res)
   const HistogramFloatBase::value_t val(tableContents[_rowIdx * nCols + _colIdx]);
 
   result.fill(val);
-  result.nbrOfFills()=1;
 }
 
 
@@ -263,7 +260,6 @@ void pp79::process(const CASSEvent& evt, HistogramBackend &res)
     result.fill(tableContents[row*nCols + _xcolIdx],
                 tableContents[row*nCols + _ycolIdx]);
 
-  result.nbrOfFills()=1;
 }
 
 

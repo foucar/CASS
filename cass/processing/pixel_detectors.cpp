@@ -105,7 +105,6 @@ void pp105::process(const CASSEvent& evt, HistogramBackend &res)
                            toString(result.shape().second) + "'");
   }
   copy(frame.begin(), frame.end(),result.memory().begin());
-  result.nbrOfFills() = 1;
 }
 
 
@@ -172,7 +171,6 @@ void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
   }
   copy(_map->begin(), _map->end(),result.memory().begin());
 
-  result.nbrOfFills() = 1;
 }
 
 
@@ -242,7 +240,6 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
                            toString(result.shape().second) + "'");
   }
   copy(det.frame().begin(), det.frame().end(),result.memory().begin());
-  result.nbrOfFills() = 1;
 }
 
 
@@ -731,7 +728,6 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
     if (qFuzzyCompare(*mask,0))
       *pixel = _value;
   }
-  result.nbrOfFills() = 1;
 }
 
 
@@ -783,7 +779,6 @@ void pp243::process(const CASSEvent& evt, HistogramBackend &res)
   Histogram2DFloat::storage_t::const_iterator maskIt(mask.memory().begin());
   for (; dest != result.memory().end(); ++dest, ++src, ++maskIt)
     *dest = qFuzzyIsNull(*maskIt) ? _value : *src;
-  result.nbrOfFills() = 1;
 }
 
 
@@ -894,5 +889,4 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
       }
     }
   }
-  result.nbrOfFills() = 1;
 }

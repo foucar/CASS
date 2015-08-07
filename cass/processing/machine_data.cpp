@@ -210,7 +210,6 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
                       "'is not large enough to handle spectrometer data with size" +
                       toString(spec.size()) + "'");
   copy(spec.begin(),spec.end(),result.memory().begin());
-  result.nbrOfFills() = 1;
 }
 
 

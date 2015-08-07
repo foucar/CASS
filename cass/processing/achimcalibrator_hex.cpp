@@ -310,5 +310,4 @@ void HexCalibrator::process(const CASSEvent &evt, HistogramBackend &res)
     }
   }
   result = ratio;
-  result.nbrOfFills()=1;
 }

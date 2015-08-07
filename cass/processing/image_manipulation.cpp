@@ -306,7 +306,6 @@ void pp55::process(const CASSEvent &evt,HistogramBackend &res)
 
   HistogramFloatBase::storage_t::iterator dest(result.memory().begin());
 
-  result.nbrOfFills()=1;
 
   for (size_t row(0); row < _size.second; ++row)
     for (size_t col(0); col < _size.first; ++col)
@@ -360,7 +359,6 @@ void pp1600::process(const CASSEvent &evt,HistogramBackend &res)
 
   QReadLocker lock(&hist.lock);
 
-  result.nbrOfFills()=1;
   const size_t pix_per_quad(8*_ny*2*_nx);
   for(size_t quadrant=0; quadrant<4; quadrant++)
   {
@@ -429,7 +427,6 @@ void pp1601::process(const CASSEvent &evt,HistogramBackend &result)
 
   QReadLocker lock(&hist.lock);
 
-  result.nbrOfFills()=1;
 
 //  const size_t pix_per_seg(2*_nx*_ny);
 //  const size_t pix_per_quad(8*pix_per_seg);
@@ -881,7 +878,6 @@ void pp1602::process(const CASSEvent &evt,HistogramBackend& r)
     destImage[*idx] = *srcpixel;
 
   /** relfect that only 1 event was processed and release resources */
-  result.nbrOfFills()=1;
 }
 
 
@@ -1061,5 +1057,4 @@ void pp90::process(const CASSEvent &evt,HistogramBackend& r)
   transform(radave.begin(),radave.end(),normfactors.begin(),radave.begin(),savedivides());
 
   /** relfect that only 1 event was processed and release resources */
-  result.nbrOfFills()=1;
 }

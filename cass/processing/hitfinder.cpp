@@ -141,7 +141,6 @@ void pp203::process(const CASSEvent& evt, HistogramBackend &res)
       }
     }
   }
-  res.nbrOfFills() = 1;
 }
 
 
@@ -398,7 +397,6 @@ void pp204::process(const CASSEvent& evt, HistogramBackend &res)
 
   }
 
-  result.nbrOfFills() = 1;
 }
 
 
@@ -532,7 +530,6 @@ void pp205::process(const CASSEvent& evt, HistogramBackend &res)
     }
 
   }
-  res.nbrOfFills() = 1;
 }
 
 
@@ -663,7 +660,6 @@ void pp206::process(const CASSEvent& evt, HistogramBackend &res)
 NEXTPIXEL:;
     }
   }
-  result.nbrOfFills() = 1;
 }
 
 
@@ -1158,7 +1154,6 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
   }
 
   /** tell that only the result of one event (image) is present in the table */
-  result.nbrOfFills() = 1;
 }
 
 

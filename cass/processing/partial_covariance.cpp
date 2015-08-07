@@ -226,7 +226,6 @@ void pp400::process(const CASSEvent& evt, HistogramBackend &res)
 
   ToftoEnergy( input, output,offset );
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -265,10 +264,10 @@ void pp402::process(const CASSEvent& evt, HistogramBackend &res)
   HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
 
   QReadLocker lock(&one.lock);
-  ++result.nbrOfFills();
-  float scale = (1./result.nbrOfFills() < _alpha) ?
+  ++_nbrEventsAccumulated;
+  float scale = (1./_nbrEventsAccumulated < _alpha) ?
                 _alpha :
-                1./result.nbrOfFills();
+                1./_nbrEventsAccumulated;
   transform(one.memory().begin(),one.memory().end(),
             result.memory().begin(),
             result.memory().begin(),
@@ -407,7 +406,6 @@ void pp404::process(const CASSEvent& evt, HistogramBackend &res)
 
   ToftoMtC( input, output,offset );
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -600,7 +598,6 @@ void pp406::process(const CASSEvent& evt, HistogramBackend &res)
 
   ToftoEnergy( input, output,offset );
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -741,7 +738,6 @@ void pp407::process(const CASSEvent& evt, HistogramBackend &res)
 
   ToftoEnergy( input, output,offset );
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -901,7 +897,6 @@ void pp408::process(const CASSEvent& evt, HistogramBackend &res)
 
   ToftoEnergy( input, output,offset );
 
-  result.nbrOfFills()=1;
 }
 
 
@@ -968,8 +963,8 @@ void pp410::process(const CASSEvent& evt, HistogramBackend &res)
 
   HistogramFloatBase::storage_t averagePre(ave.memory().size());
 
-  ++result.nbrOfFills();
-  float scale = 1./result.nbrOfFills();
+  ++_nbrEventsAccumulated;
+  float scale = 1./_nbrEventsAccumulated;
 
   transform(one.memory().begin(),one.memory().end(),
             ave.memory().begin(),
@@ -1048,12 +1043,12 @@ void pp412::process(const CASSEvent& evt, HistogramBackend &res)
   QReadLocker lock2(&intensity.lock);
   QReadLocker lock3(&intensityAve.lock);
 
-  ++result.nbrOfFills();
-  float scale = 1./result.nbrOfFills();
+  ++_nbrEventsAccumulated;
+  float scale = 1./_nbrEventsAccumulated;
 
   float intensityAvePre = intensityAve.getValue() - scale*(intensity.getValue() - intensityAve.getValue());
 
   calcCovariance(waveTrace.memory(),waveTraceAve.memory(),
                  intensity.getValue(),intensityAvePre,
-                 result.memory(),result.nbrOfFills());
+                 result.memory(),_nbrEventsAccumulated);
 }

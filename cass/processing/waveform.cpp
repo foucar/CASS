@@ -116,7 +116,6 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
             result.memory().begin(),
             bind(minus<float>(),
                  bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
-  result.nbrOfFills()=1;
 }
 
 
@@ -181,5 +180,4 @@ void pp111::process(const CASSEvent &evt, HistogramBackend &res)
     CFDTrace[i] = fsx - _walk;
   }
 
-  result.nbrOfFills()=1;
 }
