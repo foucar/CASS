@@ -18,7 +18,6 @@
 #include "cass_version.h"
 #include "log.h"
 #include "input_base.h"
-#include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
 #include "ringbuffer.hpp"
@@ -32,7 +31,9 @@
 #include "multifile_input.h"
 #include "file_input.h"
 #else
+#ifdef LCLSLIBRARY
 #include "sharedmemory_input.h"
+#endif
 #include "tcp_input.h"
 #endif
 #ifdef HTTPSERVER
@@ -149,10 +150,12 @@ int main(int argc, char **argv)
 #else
     bool tcp(false);
     parser.add("-t","enable the tcp input",tcp);
+#ifdef LCLSLIBRARY
     string partitionTag("0_1_cass_AMO");
     parser.add("-p","partition tag for accessing the shared memory",partitionTag);
     int index(0);
     parser.add("-c","client id for shared memory access",index);
+#endif
 #endif
     bool noSoap(false);
     parser.add("--noSoap","Disable the Soap Server",noSoap);
@@ -242,8 +245,10 @@ int main(int argc, char **argv)
     else if (sacladata)
       SACLAOnlineInput::instance(ringbuffer,inputrate,inputload);
 #endif
+#ifdef LCLSLIBRARY
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate, inputload);
+#endif
 #endif
 
     /** connect a own signal handler that acts on when sigquit is sent by linux

@@ -44,23 +44,10 @@ SOURCES                += tcpserver.cpp
 HEADERS                += tcpserver.h
 
 # input module classes needed for offline AND online
-SOURCES                += ./input/acqiris_converter.cpp
-HEADERS                += ./input/acqiris_converter.h
-SOURCES                += ./input/acqiristdc_converter.cpp
-HEADERS                += ./input/acqiristdc_converter.h
 HEADERS                += ./input/agattypes.hpp
-SOURCES                += ./input/conversion_backend.cpp
-HEADERS                += ./input/conversion_backend.h
-SOURCES                += ./input/format_converter.cpp
-HEADERS                += ./input/format_converter.h
 HEADERS                += ./input/hlltypes.hpp
 SOURCES                += ./input/input_base.cpp
 HEADERS                += ./input/input_base.h
-SOURCES                += ./input/lcls_converter.cpp
-HEADERS                += ./input/lcls_converter.h
-SOURCES                += ./input/machine_converter.cpp
-HEADERS                += ./input/machine_converter.h
-HEADERS                += ./input/xtciterator.hpp
 
 # classes to describe the cassevents
 HEADERS                += ./event/acqiris_device.hpp
@@ -222,18 +209,12 @@ is_offline {
     HEADERS            += ./input/txt_reader.h
     SOURCES            += ./input/txt_parser.cpp
     HEADERS            += ./input/txt_parser.h
-    SOURCES            += ./input/xtc_reader.cpp
-    HEADERS            += ./input/xtc_reader.h
-    SOURCES            += ./input/xtc_parser.cpp
-    HEADERS            += ./input/xtc_parser.h
 }
 
 # Stuff needed online for online version
 is_online {
     SOURCES            += ./input/agat_deserializer.cpp
     HEADERS            += ./input/agat_deserializer.h
-    SOURCES            += ./input/sharedmemory_input.cpp
-    HEADERS            += ./input/sharedmemory_input.h
     SOURCES            += ./input/shm_deserializer.cpp
     HEADERS            += ./input/shm_deserializer.h
     SOURCES            += ./input/tcp_input.cpp
@@ -246,6 +227,7 @@ is_online {
 LCLSLibrary {
     DEFINES                += LCLSLIBRARY
     INCLUDEPATH            += $${CASS_ROOT}/LCLS
+
     DEPENDENCY_LIBRARIES   += acqdata
     DEPENDENCY_LIBRARIES   += appdata
     DEPENDENCY_LIBRARIES   += bld
@@ -266,9 +248,29 @@ LCLSLibrary {
     DEPENDENCY_LIBRARIES   += pulnixdata
     DEPENDENCY_LIBRARIES   += xtcdata
     include( $${CASS_ROOT}/cass_dependencies.pri )
+
+    SOURCES                += ./input/acqiris_converter.cpp
+    HEADERS                += ./input/acqiris_converter.h
+    SOURCES                += ./input/acqiristdc_converter.cpp
+    HEADERS                += ./input/acqiristdc_converter.h
+    SOURCES                += ./input/conversion_backend.cpp
+    HEADERS                += ./input/conversion_backend.h
+    SOURCES                += ./input/format_converter.cpp
+    HEADERS                += ./input/format_converter.h
+    SOURCES                += ./input/lcls_converter.cpp
+    HEADERS                += ./input/lcls_converter.h
+    SOURCES                += ./input/machine_converter.cpp
+    HEADERS                += ./input/machine_converter.h
+    HEADERS                += ./input/xtciterator.hpp
     is_offline {
+        SOURCES            += ./input/xtc_reader.cpp
+        HEADERS            += ./input/xtc_reader.h
+        SOURCES            += ./input/xtc_parser.cpp
+        HEADERS            += ./input/xtc_parser.h
     }
     is_online {
+        SOURCES            += ./input/sharedmemory_input.cpp
+        HEADERS            += ./input/sharedmemory_input.h
     }
 }
 
