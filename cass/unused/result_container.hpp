@@ -1,10 +1,7 @@
-// Copyright (C) 2011, 2012 Lutz Foucar
+// Copyright (C) 2011, 2012, 2015 Lutz Foucar
 
 /**
  * @file result_container.hpp result container classes
- *
- * @todo make sure it compiles / needs creating appropriate forward declaration
- *       and most likely moving the function definition after the class definition
  *
  * @author Lutz Foucar
  */
@@ -22,10 +19,8 @@
 #include <tr1/memory>
 
 #include <QtCore/QReadWriteLock>
-#include <QtCore/QWriteLocker>
 
 #include "serializable.hpp"
-#include "serializer.hpp"
 
 namespace cass
 {
@@ -47,11 +42,11 @@ template <typename T> class Result;
 template <typename T>
 SerializerBackend& operator<<(SerializerBackend& serializer, const Axis<T>& axis)
 {
-  serializer.addUint16(Axis<T>::serializationVersion);
-  serializer.addSizet(axis.nBins);
-  serializer.add<T>(axis.low);
-  serializer.add<T>(axis.up);
-  serializer.addString(axis.title);
+  serializer.add(static_cast<uint16_t>(Axis<T>::serializationVersion));
+  serializer.add(axis.nBins);
+  serializer.add(axis.low);
+  serializer.add(axis.up);
+  serializer.add(axis.title);
   return serializer;
 }
 
@@ -63,17 +58,15 @@ SerializerBackend& operator<<(SerializerBackend& serializer, const Axis<T>& axis
  * @param serializer the serializer to serialize the axis to
  * @param axis the axis to serialize
  *
- * @author Lutz Foucar
- */
-template <typename T>
+ * @author Lutz Foucar */ template <typename T>
 SerializerBackend& operator>>(SerializerBackend& serializer, Axis<T>& axis)
 {
-  uint16_t version(serializer.retrieveUint16());
+  uint16_t version(serializer.retrieve<uint16_t>());
   assert(version == Axis<T>::serializationVersion);
-  axis.nBins = serializer.retrieveSizet();
+  axis.nBins = serializer.retrieve<size_t>();
   axis.low = serializer.retrieve<T>();
   axis.up = serializer.retrieve<T>();
-  axis.title = serializer.retrieveString();
+  axis.title = serializer.retrieve<std::string>();
   return serializer;
 }
 
@@ -91,14 +84,15 @@ template <typename T>
 SerializerBackend& operator<<(SerializerBackend& serializer,
                               const Result<T>& result)
 {
-  typedef Result<T,precision,world2hist> result_t;
-  serializer.addUint16(result_t::serializationVersion);
-  serializer.addSizet(result._axis.size());
+  serializer.add(static_cast<uint16_t>(Result<T>::serializationVersion));
+  serializer.add(static_cast<size_t>(result._axis.size()));
+  serializer.add(result._id);
   for (typename result_t::axis_t::const_iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer << *it;
-  serializer.addSizet(result._storage.size());
-  for (typename result_t::const_iterator it=result.begin(),end=result.end(); it != end; ++it)
-    serializer.add<T>(*it);
+  serializer.add(static_cast<size_t>(result._storage.size()));
+  for (typename Result<T>::const_iterator it=result.begin(),end=result.end(); it != end; ++it)
+    serializer.add(*it);
+  serializer.add(result._name);
   return serializer;
 }
 
@@ -116,15 +110,15 @@ template <typename T>
 SerializerBackend& operator>>(SerializerBackend& serializer,
                               Result<T>& result)
 {
-  typedef Result<T> result_t;
-  uint16_t version(serializer.retrieveUint16());
-  assert(version == result_t::serializationVersion);
-  result._axis.resize(serializer.retrieveSizet());
+  uint16_t version(serializer.retrieve<uint16_t>());
+  assert(version == Result<T>::serializationVersion);
+  result._axis.resize(serializer.retrieve<size_t>());
   for (typename result_t::axis_t::iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer >> (*it);
-  result._storage.resize(serializer.retrieveSizet());
-  for (typename result_t::iterator it=result.begin(),end = result.end(); it != end; ++it)
-    *it = serializer.retrieve<result_t::value_t>();
+  const size_t size(serializer.retrieveSizet());
+  result._storage.clear();
+  for (size_t i(0); i < size; ++i)
+    result._storage.push_back(serializer.retrieve<Result<T>::value_t>());
   return serializer;
 }
 
@@ -142,7 +136,7 @@ struct Axis
   enum {serializationVersion=1};
 
   /** the presision type of the axis boundaries */
-  typedef T precision_t;
+  typedef T value_t;
 
   /** Constructor
    *
@@ -153,7 +147,7 @@ struct Axis
    * @param lowerLimit The lower end of the axis
    * @param upperLimit The upper end of the axis
    */
-  Axis(size_t nbrBins, precision_t lowerLimit, precision_t upperLimit, std::string title="Axis Title")
+  Axis(size_t nbrBins, value_t lowerLimit, value_t upperLimit, std::string title="Axis Title")
     : Serializable(serializationVersion),
       nBins(nbrBins),
       low(lowerLimit),
@@ -161,30 +155,12 @@ struct Axis
       title(title)
   {}
 
-  /** friend for serialization
-   *
-   * @note make one single instance (called "specialization" in generic terms)
-   *       of the template a friend. Because the compiler knows from the
-   *       parameter list that the template arguments one does not have to put
-   *       those between <...>, so they can be left empty
-   */
-  friend SerializerBackend& operator<< <> (SerializerBackend&, const Axis<T>&);
-
-  /** friend for deserialization
-   *
-   * @note make one single instance (called "specialization" in generic terms)
-   *       of the template a friend. Because the compiler knows from the
-   *       parameter list that the template arguments one does not have to put
-   *       those between <...>, so they can be left empty
-   */
-  friend SerializerBackend& operator>> <> (SerializerBackend&, Axis<T>&);
-
   /** return the bin that a value will fall in
    *
    * @return the bin that the value will fall into
    * @param val the value that should be histogrammed
    */
-  int bin(const precision_t &val)
+  int bin(const value_t &val)
   {
     return(static_cast<int>(nBins * (val - low) / (up-low)));
   }
@@ -213,10 +189,10 @@ struct Axis
   size_t nBins;
 
   /** lower end of the axis */
-  precision_t low;
+  value_t low;
 
   /** upper end of the axis */
-  precision_t up;
+  value_t up;
 
   /** the title of the axis */
   std::string title;
@@ -412,12 +388,10 @@ public:
 
   /** clear the contents of the result
    *
-   * will use the lock to lock the data container before and then overwrite
-   * everything with 0.
+   * overwrite all values of the storage with 0.
    */
   void clear()
   {
-    QWriteLocker wlock(&lock);
     std::fill(_storage.begin(),_storage.end(),0.f);
   }
 
@@ -429,11 +403,11 @@ public:
    *
    * @param value the value that is assigned to this container
    */
-  self_type& operator=(const value_t& value)
+  void setValue(const_reference value)
   {
-    assert(_axis.empty());
+    if (!_axis.empty())
+      throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
     _storage.front() = value;
-    return *this;
   }
 
   /** evaluate whether value is zero
@@ -444,12 +418,13 @@ public:
    * whether the absolute value is smaller than the square root of epsilon of the
    * data type.
    *
-   * @return true if the result value is zero, false otherwise
+   * @return true if the result value is non-zero, false otherwise
    */
-  bool operator!() const
+  bool isTrue() const
   {
-    assert(_axis.empty());
-    return (std::abs(_storage.front()) < std::sqrt(std::numeric_limits<value_t>::epsilon()));
+    if (!_axis.empty())
+      throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
+    return !(std::abs(_storage.front()) < std::sqrt(std::numeric_limits<value_t>::epsilon()));
   }
 
   /** return the value
@@ -458,9 +433,10 @@ public:
    *
    * @return the value of the Value like container
    */
-  const_reference operator()() const
+  value_t getValue() const
   {
-    assert(_axis.empty());
+    if (!_axis.empty())
+      throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
     return _storage.front();
   }
 
@@ -532,7 +508,7 @@ public:
    * @param weight the value that should be added to the value in the bin.
    *               Default ist 1.
    */
-  iterator insert(const precision_t& pos, const value_t& weight=1)
+  iterator insert(const value_t& pos, const value_t& weight=1)
   {
     _storage[bin(pos)] += weight;
   }
@@ -586,11 +562,19 @@ public:
     return sp;
   }
 
+public:
+  /** lock for locking operations on the data of the container
+   *
+   * @note this needs to be mutable since we need to lock the data when
+   *       serializing it and serializing is const by definition.
+   */
+  mutable QReadWriteLock lock;
+
 protected:
   /** copy constructor
    *
    * @note We need to implement this ourselves, since it is not possitble to copy
-   * construct the lock
+   *       construct the lock
    *
    * @param in the result to copy the values from
    */
@@ -604,18 +588,17 @@ protected:
   self_type& operator=(const self_type&) {}
 
 protected:
-  /** lock for locking operations on the data of the container
-   *
-   * @note this needs to be mutable since we need to lock the data when
-   *       serializing it and serializing is const by definition.
-   */
-  QReadWriteLock lock;
-
   /** the axis of the histogram */
   axis_t _axis;
 
   /** result storage */
   storage_t _storage;
+
+  /** the name of this result */
+  std::string _name;
+
+  /** the id of the event that the contents reflect */
+  uint64_t _id;
 };
 }// end namespace cass
 #endif
