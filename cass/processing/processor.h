@@ -49,7 +49,10 @@ public:
   typedef std::list<name_t> names_t;
 
   /** define the results */
-  typedef Result<float> result_t;
+  typedef CachedList::item_type result_t;
+
+  /** define the shared pointer to the result */
+  typedef CachedList::item_sp resultsp_t;
 
   /** constructor
    *

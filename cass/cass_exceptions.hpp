@@ -17,24 +17,27 @@ namespace cass
  *
  * @author Jochen Küpper
  */
-class InvalidHistogramError : public std::out_of_range
+class InvalidResultError : public std::out_of_range
 {
 public:
-  explicit InvalidHistogramError(uint64_t id)
-    : std::out_of_range("Event id  does not exist for histogram!"), _id(id)
+  explicit InvalidResultError(const std::string &name, uint64_t id)
+    : std::out_of_range("no result with requested event id exists"),
+      _id(id),
+      _name(name)
   {}
 
   virtual const char* what() const throw()
   {
     std::ostringstream msg;
-    msg << "Event id (" << _id << ") does not exist for histogram!";
+    msg << "event with id (" << _id << ") is not in cache for "<<_name;
     return msg.str().c_str();
   }
 
-  virtual ~InvalidHistogramError() throw(){}
+  virtual ~InvalidResultError() throw(){}
 
 protected:
   uint64_t _id;
+  std::string _name;
 };
 
 
@@ -52,7 +55,7 @@ public:
   virtual const char* what() const throw()
   {
     std::ostringstream msg;
-    msg << "Invalid histogram " << _key << " requested!";
+    msg << "Invalid processor " << _key << " requested!";
     return msg.str().c_str();
   }
 

@@ -323,13 +323,15 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
     return soap_set_dime_attachment(this, (char *)data->second.data(), data->second.size(), mimetype.c_str(),
                                     type.c_str(), 0, NULL);
   }
-  catch(InvalidHistogramError)
+  catch(const InvalidResultError& error)
   {
+    Log::add(Log::ERROR,string("CASSsoapService::getHistogram: ") + error.what());
     *success = false;
     return SOAP_FATAL_ERROR;
   }
-  catch(InvalidProcessorError)
+  catch(const InvalidProcessorError& error)
   {
+    Log::add(Log::ERROR,string("CASSsoapService::getHistogram: ") + error.what());
     *success = false;
     return SOAP_FATAL_ERROR;
   }
@@ -383,8 +385,15 @@ int CASSsoapService::getResults(bool sameEventID, bool *success)
                                     cache.back().size(), "cass/Result",
                                     "0", 0, NULL);
   }
-  catch(const InvalidProcessorError&)
+  catch(const InvalidResultError& error)
   {
+    Log::add(Log::ERROR,string("CASSsoapService::getResults: ") + error.what());
+    *success = false;
+    return SOAP_FATAL_ERROR;
+  }
+  catch(const InvalidProcessorError& error)
+  {
+    Log::add(Log::ERROR,string("CASSsoapService::getResults: ") + error.what());
     *success = false;
     return SOAP_FATAL_ERROR;
   }

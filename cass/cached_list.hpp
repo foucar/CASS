@@ -21,6 +21,7 @@
 
 #include "result.hpp"
 #include "cass_event.h"
+#include "cass_exceptions.hpp"
 
 namespace cass
 {
@@ -42,8 +43,11 @@ public:
   /** define the type of the id used */
   typedef CASSEvent::id_t id_type;
 
+  /** bundeling the lock status and the id */
+  struct item_info { id_type id; bool locked; };
+
   /** define an entry in the list */
-  typedef std::pair<id_type,item_sp> entry_type;
+  typedef std::pair<item_info,item_sp> entry_type;
 
   /** define the container of items with their ids */
   typedef std::vector<entry_type> list_type;
@@ -60,8 +64,7 @@ public:
     QMutexLocker lock(&_mutex);
     iter_type it(findId(id));
     if (_list.end() == it)
-      throw std::logic_error("CachedList::item(): Item with id '" + toString(id) +
-                             "' is not in the list.");
+      throw InvalidResultError(_latest->second->name(),id);
     return *(it->second);
   }
 
@@ -104,7 +107,7 @@ public:
   void release(const id_type &id)
   {
     QMutexLocker lock(&_mutex);
-    findId(id)->first = 0;
+    findId(id)->first.locked = false;
   }
 
   /** get an item for processing
@@ -120,13 +123,14 @@ public:
   iter_type newItem(const id_type &id)
   {
     QMutexLocker lock(&_mutex);
-    while(_current->first || _current == _latest)
+    while(_current->first.locked || _current == _latest)
     {
       ++_current;
       if (_current == _list.end())
         _current = _list.begin();
     }
-    _current->first = id;
+    _current->first.id = id;
+    _current->first.locked = true;
     QWriteLocker wlock(&(_current->second->lock));
     _current->second->clear();
     return _current;
@@ -141,8 +145,11 @@ public:
   {
     QMutexLocker lock(&_mutex);
     _list.clear();
+    item_info info;
+    info.id = 0;
+    info.locked = false;
     for (size_t i=0; i<size; ++i)
-      _list.push_back(std::make_pair(0,item->clone()));
+      _list.push_back(std::make_pair(info,item->clone()));
     _latest = _current = _list.begin();
   }
 
@@ -177,7 +184,8 @@ private:
 
     return find_if(_list.begin(), _list.end(),
                    bind(equal_to<id_type>(),id,
-                        bind<id_type>(&entry_type::first,_1)));
+                        bind<const id_type&>(&item_info::id,
+                             bind<const item_info&>(&entry_type::first,_1))));
   }
 
 private:
