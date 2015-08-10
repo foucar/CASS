@@ -1,8 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file delayline_detector_analyzer_backend.h file contains base class for all
- *                                             delayline detector analyzers.
+ * @file delayline_detector_analyzer_backend.hpp file contains base class for all
+ *                                               delayline detector analyzers.
  *
  * @author Lutz Foucar
  */

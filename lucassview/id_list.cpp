@@ -1,8 +1,8 @@
 // Copyright (C) 2010, 2015 Lutz Foucar
 
 /**
- * @file cass/processing/id_list.cpp file contains the classes that can
- *              serialize the key list
+ * @file lucassview/id_list.cpp contains the classes that can
+ *                              serialize the key list
  *
  * @author Stephan Kassemeyer
  */

@@ -1,8 +1,8 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file cass_pixeldetector/frms6_parser.h contains class to parse a frms6 file
- *                     created by Xonline.
+ * @file frms6_parser.h contains class to parse a frms6 file
+ *                      created by Xonline.
  *
  * @author Lutz Foucar
  */

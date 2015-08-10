@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file agattypes.h contains the layout of the lma file headers.
+ * @file agattypes.hpp contains the layout of the lma file headers.
  *
  * @author Lutz Foucar
  */

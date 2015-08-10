@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file cass_pixeldetector/shm_deserializer.h contains functors to deserialize
+ * @file shm_deserializer.h contains functors to deserialize
  *                                           the data stream sent by shm2tcp.
  *
  * @author Lutz Foucar

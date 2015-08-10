@@ -1,7 +1,7 @@
 // Copyright (C) 2011, 2012, 2015 Lutz Foucar
 
 /**
- * @file result_container.hpp result container classes
+ * @file result.hpp result classes
  *
  * @author Lutz Foucar
  */
