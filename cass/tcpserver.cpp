@@ -8,6 +8,7 @@
  */
 
 #include <stdexcept>
+#include <deque>
 
 #include <QtCore/QReadLocker>
 #include <QtCore/QBuffer>
@@ -251,7 +252,7 @@ int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command
   }
 }
 
-int CASSsoapService::getEvent(size_t eventID, unsigned /*t1*/, unsigned /*t2*/, bool */*success*/)
+int CASSsoapService::getEvent(size_t /*eventID*/, unsigned /*t1*/, unsigned /*t2*/, bool */*success*/)
 {
 //  Log::add(Log::VERBOSEINFO,"CASSsoapService::getEvent with id "+ toString(eventId));
 //  static QQueue<shared_ptr<string> > queue;
@@ -328,6 +329,61 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
     return SOAP_FATAL_ERROR;
   }
   catch(InvalidProcessorError)
+  {
+    *success = false;
+    return SOAP_FATAL_ERROR;
+  }
+}
+
+int CASSsoapService::getResults(bool sameEventID, bool *success)
+{
+  static deque<string> cache;
+  try
+  {
+    /** get the list of requested processors */
+    soap_multipart::iterator attachment(this->dime.begin());
+    cout << "TCPServer: DIME attachment:" << endl
+         << " TCPServer: Memory=" << (void*)(*attachment).ptr << endl
+         << " TCPServer: Size=" << (*attachment).size << endl
+         << " TCPServer: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+         << " TCPServer: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
+    Serializer deserializer(string((char*)(*attachment).ptr, (*attachment).size));
+    IdList list(deserializer);
+
+    /** get the result and serialize them */
+    Serializer serializer;
+    Processor::result_t::shared_pointer result;
+    Processor::names_t::const_iterator it(list.getList().begin());
+    id_t eventId(0);
+    while (it != list.getList().end())
+    {
+      result = ProcessorManager::reference().getProcessor(*it).resultCopy(eventId);
+      /** if the same id is requested for all events and it is the first event
+       *  remember the event id of this event
+       */
+      if (sameEventID && it == list.getList().begin())
+        eventId = 0;
+      serializer << *result;
+      ++it;
+    }
+    Log::add(Log::VERBOSEINFO,"CASSsoapService::getResults ");
+
+    /** get the serialized data and store it in a cache to prevent the data from
+     *  being deleted before completely delivered
+     */
+    string data(serializer.buffer());
+    cache.push_back(data);
+    if (cache.size() > 100)
+      cache.pop_front();
+
+    /** send the data from the cache as dime attachment */
+    *success = true;
+    soap_set_dime(this);
+    return soap_set_dime_attachment(this, (char *)cache.back().data(),
+                                    cache.back().size(), "cass/Result",
+                                    "0", 0, NULL);
+  }
+  catch(const InvalidProcessorError&)
   {
     *success = false;
     return SOAP_FATAL_ERROR;

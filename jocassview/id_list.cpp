@@ -1,8 +1,8 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010 -2015 Lutz Foucar
 
 /**
- * @file jocassview/id_list.cpp file contains the classes that can serialize
- *               the key list
+ * @file jocassview/id_list.cpp contains the classes that can serialize
+ *                              the key list
  *
  * @author Lutz Foucar
  */
@@ -26,16 +26,18 @@ IdList::IdList()
 
 }
 
+IdList::IdList(const QStringList &list)
+    : Serializable(1),
+      _list(list),
+      _size(0)
+{
+
+}
+
 IdList::IdList(cass::SerializerBackend &in)
   : Serializable(1)
 {
   deserialize(in);
-}
-
-void IdList::clear()
-{
-  _list.clear();
-  _size=0;
 }
 
 const QStringList& IdList::getList()const
@@ -43,9 +45,14 @@ const QStringList& IdList::getList()const
   return _list;
 }
 
-void IdList::serialize(cass::SerializerBackend &/*out*/) const
+void IdList::serialize(cass::SerializerBackend &out) const
 {
-
+  out.startChecksumGroupForWrite();
+  writeVersion(out);
+  out.add(_size);
+  out.endChecksumGroupForWrite();
+  for (int i(0); i < _list.size() ; ++i)
+    out.add(_list.at(i).toStdString());
 }
 
 bool IdList::deserialize(cass::SerializerBackend &in)

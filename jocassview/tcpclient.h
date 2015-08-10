@@ -42,13 +42,20 @@ public:
   /** destructor */
   virtual ~TCPClient();
 
-  /** retrieve a specific histogram
+  /** retrieve a specific result
    *
    * @return Histogram for requested key
-   * @param histogramkey the key of the requested histogram
+   * @param key the key of the requested result
    * @param id the event id of the histogram to be returned
    */
-  result_t::shared_pointer result(const QString &histogramkey,quint64 id=0);
+  result_t::shared_pointer result(const QString &key,quint64 id=0);
+
+  /** retrieve a list of results all with the same id
+   *
+   * @return list of shared pointers of the requested results
+   * @param list the list of keys who's histograms should be retrieved
+   */
+  QVector<result_t::shared_pointer> results(const QStringList &list);
 
   /** retrieve the list of available histograms
    *

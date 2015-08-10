@@ -38,14 +38,14 @@ TCPClient::~TCPClient()
 {
 }
 
-DataSource::result_t::shared_pointer TCPClient::result(const QString &histogramkey, quint64 id)
+DataSource::result_t::shared_pointer TCPClient::result(const QString &key, quint64 id)
 {
   CASSsoapProxy client;
   client.soap_endpoint = _server.c_str();
 
   bool ret(false);
   QFuture<int> future = QtConcurrent::run(&client,&CASSsoapProxy::getHistogram,
-                                          histogramkey.toStdString(), id, &ret);
+                                          key.toStdString(), id, &ret);
   while (future.isRunning())
   {
     QCoreApplication::processEvents(QEventLoop::AllEvents);
@@ -61,6 +61,41 @@ DataSource::result_t::shared_pointer TCPClient::result(const QString &histogramk
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   serializer >> *result;
   return result;
+}
+
+QVector<DataSource::result_t::shared_pointer> TCPClient::results(const QStringList & list)
+{
+  /** set up the client */
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+  soap_set_dime(&client);
+  bool success;
+  /** serialize the id list */
+  cass::Serializer serializer;
+  IdList idlist(list);
+  idlist.serialize(serializer);
+  string data(serializer.buffer());
+  /** add the serialized list to the dime attachment and sent the request */
+  soap_set_dime_attachment(&client, (char*)data.data(), data.size(),
+                           "application/processorList", "0", 0, NULL);
+  int status = client.getResults(false, &success);
+  /** create the container for the results */
+  QVector<result_t::shared_pointer> results;
+  /** when the communication failed return here */
+  if (status != SOAP_OK || !success)
+    return results;
+  /** create a deserializing object and retrieve all results from it */
+  soap_multipart::iterator attachment(client.dime.begin());
+  if(client.dime.end() == attachment)
+    return results;
+  cass::Serializer deserializer(std::string((char*)(*attachment).ptr,(*attachment).size));
+  for (int i(0); i<list.size(); ++i)
+  {
+    result_t::shared_pointer result(new result_t());
+    deserializer >> *result;
+    results.push_back(result);
+  }
+  return results;
 }
 
 QStringList TCPClient::resultNames()

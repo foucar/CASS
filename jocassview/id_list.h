@@ -31,14 +31,17 @@ public:
   /** default constructor */
   IdList();
 
+  /** constuctor from an existing QStringList
+   *
+   * @param list the list of this object
+   */
+  IdList(const QStringList & list);
+
   /** construct from serializer
    *
    * @param in the serializer
    */
   IdList(cass::SerializerBackend& in);
-
-  /** clear the list */
-  void clear();
 
   /** getter for the internal list
    *
