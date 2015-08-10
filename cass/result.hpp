@@ -58,7 +58,9 @@ SerializerBackend& operator<<(SerializerBackend& serializer, const Axis<T>& axis
  * @param serializer the serializer to serialize the axis to
  * @param axis the axis to serialize
  *
- * @author Lutz Foucar */ template <typename T>
+ * @author Lutz Foucar
+ */
+template <typename T>
 SerializerBackend& operator>>(SerializerBackend& serializer, Axis<T>& axis)
 {
   uint16_t version(serializer.retrieve<uint16_t>());
@@ -86,14 +88,14 @@ SerializerBackend& operator<<(SerializerBackend& serializer,
                               const Result<T>& result)
 {
   serializer.add(static_cast<uint16_t>(Result<T>::serializationVersion));
-  serializer.add(static_cast<size_t>(result._axis.size()));
   serializer.add(result._id);
+  serializer.add(result._name);
+  serializer.add(static_cast<size_t>(result._axis.size()));
   for (typename Result<T>::axis_t::const_iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer << *it;
   serializer.add(static_cast<size_t>(result._storage.size()));
   for (typename Result<T>::const_iterator it=result.begin(),end=result.end(); it != end; ++it)
     serializer.add(*it);
-  serializer.add(result._name);
   return serializer;
 }
 
@@ -114,6 +116,8 @@ SerializerBackend& operator>>(SerializerBackend& serializer,
   uint16_t version(serializer.retrieve<uint16_t>());
   if (version != Result<T>::serializationVersion)
     throw std::runtime_error("operator>>(serializer,Result<T>): Version conflict");
+  result._id = serializer.retrieve<uint64_t>();
+  result._name = serializer.retrieve<std::string>();
   result._axis.resize(serializer.retrieve<size_t>());
   for (typename Result<T>::axis_t::iterator it=result._axis.begin(), end = result._axis.end(); it != end; ++it)
     serializer >> (*it);
@@ -135,7 +139,7 @@ template<typename T>
 struct Axis
 {
   /** the serialization version of this class */
-  enum {serializationVersion=1};
+  enum {serializationVersion=10};
 
   /** the presision type of the axis boundaries */
   typedef T value_t;
@@ -235,7 +239,7 @@ class Result
 {
 public:
   /** the serialization version of this class */
-  enum {serializationVersion=1};
+  enum {serializationVersion=10};
 
   /** this classes type */
   typedef Result<T> self_type;
