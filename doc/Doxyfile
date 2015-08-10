@@ -659,9 +659,6 @@ WARN_LOGFILE           = Doxygen.log
 # with spaces.
 
 INPUT                  = ../cass
-INPUT                 += ../cass_acqiris
-INPUT                 += ../cass_machinedata
-INPUT                 += ../cass_pixeldetector
 INPUT                 += ../doc
 INPUT                 += ../jocassview
 INPUT                 += ../lucassview
