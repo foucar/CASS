@@ -14,7 +14,10 @@
 #include <string>
 #include <stdexcept>
 #include <typeinfo>
+#include <cstring>
+
 #include <stdint.h>
+#include <zlib.h>
 
 /**
  * @note if this is set, SerializerBackend is made abstract (pure virtual member)
@@ -273,6 +276,9 @@ std::string SerializerBackend::retrieve<std::string>()
  * class that will serialize / de serialize Serializable classes to
  * a stringstream
  *
+ * The resulting buffer will be compressed and the string to be read from will
+ * be decompressed before reading from it
+ *
  * @author Lutz Foucar
  * @author Stephan Kassemeyer
  */
@@ -282,21 +288,27 @@ public:
   /** constructor.
    *
    * will open the stream in binary writing mode
+   *
+   * @param compressionlevel the level for the z-lib compression. Default is
+   *                         best compression
    */
-  Serializer()
+  explicit Serializer(int compressionlevel = Z_BEST_COMPRESSION)
+    : _compresslevel(compressionlevel)
   {
     _stream = new std::stringstream(std::ios_base::binary|std::ios_base::out);
   }
 
-  /** constructor.
+  /** constructor
    *
-   * will open the provided string for reading in binary mode
+   * will open the provided string for reading in binary mode after it is
+   * decompressed
    *
-   * @param string the string that we want to read from
+   * @param string the compressed string that we want to read from
    */
   Serializer(const std::string &string)
   {
-    _stream = new std::stringstream(string,std::ios_base::binary|std::ios_base::in);
+    _stream = new std::stringstream(decompress(string),
+                                    std::ios_base::binary|std::ios_base::in);
   }
 
   /** destructor.
@@ -308,11 +320,127 @@ public:
     delete _stream;
   }
 
-  /** retrieve a const reference to the string.
+  /** retrieve a const reference to the compressed string.
    *
    * @return const string of our stringstream
    */
-  const std::string buffer()const  {return dynamic_cast<std::stringstream*>(_stream)->str();}
+  const std::string buffer()const
+  {
+    return compress(dynamic_cast<std::stringstream*>(_stream)->str());
+  }
+
+private:
+  /** Compress a STL string using zlib with given compression level and return
+   * the binary data.
+   *
+   * Copyright 2007 Timo Bingmann <tb@panthema.net>
+   * Distributed under the Boost Software License, Version 1.0.
+   * (See http://www.boost.org/LICENSE_1_0.txt)
+   *
+   * @return a compressed string
+   * @param str
+   */
+  std::string compress(const std::string& str) const
+  {
+    /**  z_stream is zlib's control structure */
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (deflateInit(&zs, _compresslevel) != Z_OK)
+      throw(std::runtime_error("Serialzer::compress(): deflateInit failed"));
+
+    zs.next_in = (Bytef*)str.data();
+    /** set the z_stream's input */
+    zs.avail_in = str.size();
+
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+
+    /** retrieve the compressed bytes blockwise */
+    do {
+      zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+      zs.avail_out = sizeof(outbuffer);
+
+      ret = deflate(&zs, Z_FINISH);
+
+      if (outstring.size() < zs.total_out)
+      {
+        /** append the block to the output string */
+        outstring.append(outbuffer,
+                         zs.total_out - outstring.size());
+      }
+    } while (ret == Z_OK);
+
+    deflateEnd(&zs);
+
+    /** an error occurred that was not EOF */
+    if (ret != Z_STREAM_END)
+    {
+      std::ostringstream oss;
+      oss << "Serialzier::compress(): Error during zlib compression. ErrorCode: ";
+      oss << ret << " (" << zs.msg << ")";
+      throw(std::runtime_error(oss.str()));
+    }
+
+    return outstring;
+  }
+
+  /** Decompress an STL string using zlib and return the inflated data.
+   *
+   * Copyright 2007 Timo Bingmann <tb@panthema.net>
+   * Distributed under the Boost Software License, Version 1.0.
+   * (See http://www.boost.org/LICENSE_1_0.txt)
+   *
+   * @return the de-ccompressed string
+   * @param str the compressed string
+   */
+  std::string decompress(const std::string& str) const
+  {
+    /** z_stream is zlib's control structure */
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (inflateInit(&zs) != Z_OK)
+      throw(std::runtime_error("Serializer::decompress(): inflateInit failed."));
+
+    zs.next_in = (Bytef*)str.data();
+    zs.avail_in = str.size();
+
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+
+    /** get the decompressed bytes blockwise using repeated calls to inflate */
+    do {
+      zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+      zs.avail_out = sizeof(outbuffer);
+
+      ret = inflate(&zs, 0);
+
+      if (outstring.size() < zs.total_out)
+      {
+        outstring.append(outbuffer, zs.total_out - outstring.size());
+      }
+
+    } while (ret == Z_OK);
+
+    inflateEnd(&zs);
+
+    /** an error occurred that was not EOF */
+    if (ret != Z_STREAM_END)
+    {
+      std::ostringstream oss;
+      oss << "Serializer::decompress(): Error during zlib decompression: Error Code:";
+      oss << ret << " (" << zs.msg << ")";
+      throw(std::runtime_error(oss.str()));
+    }
+
+    return outstring;
+  }
+
+private:
+  int _compresslevel;
 
 #ifdef SERIALIZER_INTERFACE_TEST
   /** the abstract class test */

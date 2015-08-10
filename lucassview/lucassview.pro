@@ -39,6 +39,7 @@ INCLUDEPATH         +=  $${CASS_ROOT}/cass
 
 LIBS                += $$system($$ROOTCONFIG_BIN --libs)
 LIBS                += -lgsoap++ -lgsoap
+LIBS                += -lz
 
 INSTALLS            += target
 

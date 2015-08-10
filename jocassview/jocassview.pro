@@ -83,6 +83,7 @@ INCLUDEPATH         +=  $${CASS_ROOT}/cass
 
 LIBS                += -lgsoap++ -lgsoap
 LIBS                += -lqwt
+LIBS                += -lz
 
 # Extra stuff if compiling with hdf5 support
 hdf5 {

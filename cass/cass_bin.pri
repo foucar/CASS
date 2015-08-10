@@ -352,6 +352,7 @@ SACLA {
 LIBS                   += -lgsoap++ -lgsoap
 LIBS                   += -L./processing/resorter -lResort64c_x64
 LIBS                   += -lrt
+LIBS                   += -lz
 
 
 INSTALLS               += target
