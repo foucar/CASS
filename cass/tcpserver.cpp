@@ -251,19 +251,20 @@ int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command
   }
 }
 
-int CASSsoapService::getEvent(size_t /*type*/, unsigned /*t1*/, unsigned /*t2*/, bool */*success*/)
+int CASSsoapService::getEvent(size_t eventID, unsigned /*t1*/, unsigned /*t2*/, bool */*success*/)
 {
-//  /** @todo use shared pointer inside the queue */
-//  /** @todo get rid of the functor and do everything here */
-//  VERBOSEOUT(cerr << "CASSsoapService::getEvent" << endl);
-//  static QQueue<string *> queue;
-//  string *data(new string(SoapServer::instance()->get_event(EventParameter(type, t1, t2))));
+//  Log::add(Log::VERBOSEINFO,"CASSsoapService::getEvent with id "+ toString(eventId));
+//  static QQueue<shared_ptr<string> > queue;
+//  Serializer serializer;
+  // get event somehow
+//  event.serialize(serializer);
+//  shared_ptr<string> data(new serializer.buffer())
 //  queue.enqueue(data);
 //  if(10 < queue.size())
 //    queue.dequeue();
 //  *success = true;
 //  soap_set_dime(this); // enable dime
-//  return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/cassevent",
+//  return soap_set_dime_attachment(this, (char *)data->data(), data->size(), "application/cassevent",
 //                                  QString::number(type).toStdString().c_str(), 0, NULL);
   throw runtime_error("CASSsoapService::getEvent: has not yet been properly implemented");
 }
@@ -280,7 +281,8 @@ int CASSsoapService::getEvent(size_t /*type*/, unsigned /*t1*/, unsigned /*t2*/,
  */
 int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId, bool *success)
 {
-  Log::add(Log::VERBOSEINFO,"CASSsoapService::getHistogram");
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::getHistogram " + type +
+           " from event " + toString(eventId));
   static QQueue<shared_ptr<pair<size_t, string> > > queue;
   QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
