@@ -64,21 +64,21 @@ public:
 
   /** set the cass data to be wrapped by this
    *
-   * @param hist the cass data to be wrapped
+   * @param result the cass data to be wrapped
    */
-  void setResult(cass::HistogramBackend *hist);
+  void setResult(result_t::shared_pointer result);
 
   /** retrieve pointer to the cass data
    *
    * @return pointer to cass data
    */
-  cass::HistogramBackend* result();
+  Data::result_t::shared_pointer result();
 
   /** retrieve const pointer to the cass data
    *
    * @return const pointer to cass data
    */
-  const cass::HistogramBackend* result()const;
+  const Data::result_t::shared_pointer result()const;
 
   /** set up the bounding rect for when x should be log scale
    *
@@ -119,7 +119,7 @@ public:
   bool _yLog;
 
   /** pointer to the cass data */
-  cass::Histogram1DFloat *_hist;
+  result_t::shared_pointer _result;
 };
 }//end namespace jocassview
 #endif

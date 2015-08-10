@@ -48,7 +48,7 @@ public:
    * @param histogramkey the key of the requested histogram
    * @param id the event id of the histogram to be returned
    */
-  cass::HistogramBackend *result(const QString &histogramkey,quint64 id=0);
+  result_t::shared_pointer result(const QString &histogramkey,quint64 id=0);
 
   /** retrieve the list of available histograms
    *
@@ -100,9 +100,6 @@ public slots:
 private:
   /** the amount of bytes transferred */
   mutable size_t _transferredBytes;
-
-  /** the interface to cass */
-  //CASSsoapProxy *_client;
 
   /** the server string
    *

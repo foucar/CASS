@@ -9,10 +9,11 @@
 
 #include <QtCore/QString>
 #include <time.h>
+#include <iostream>
 
 #include "cass.h"
 #include "hitrate.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -23,19 +24,13 @@ using namespace std;
 
 // *** processor 300 finds Single particle hits ***
 pp300::pp300(const name_t &name)
-  : Processor(name),
-    _integralimg(NULL),
-    _rowsum(NULL)
+  : Processor(name)
 {
   loadSettings(0);
 }
 
 pp300::~pp300()
 {
-  delete _integralimg;
-  _integralimg = NULL;
-  delete _rowsum;
-  _rowsum = NULL;
 }
 
 void pp300::trainingFinished()
@@ -122,8 +117,7 @@ void pp300::loadSettings(size_t)
   _yend = settings.value("yend", -1).toInt();
 
   // Create result
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
-
+  createHistList(result_t::shared_pointer(new result_t()));
 
   // outlier processor:
   _nTrainingSetSize = settings.value("TrainingSetSize", 200).toInt();
@@ -148,15 +142,6 @@ void pp300::loadSettings(size_t)
     vigra::linalg::identityMatrix(_covI);
     startNewTraining();
   }
-
-
-  const Histogram2DFloat &img
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
-
-  _integralimg = new Histogram2DFloat(img);
-  _rowsum = new Histogram2DFloat(img);
-
-  //_pp.histograms_replace(name(),_integralimg);  // for debuging, output _integralimage instead of _result
 
   std::cout<<"processor "<<name()
       <<": detects Single particle hits in Processor "<< _pHist->name()
@@ -185,21 +170,17 @@ void pp300::processCommand(std::string command)
   }
 }
 
-void pp300::process(const CASSEvent& evt, HistogramBackend &res)
+void pp300::process(const CASSEvent& evt, result_t &result)
 {
-  _integralimg->lock.lockForWrite();
-  _rowsum->lock.lockForWrite();
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  QReadLocker lock(&one.lock);
+  const result_t &image(_pHist->result(evt.id()));
+  QReadLocker lock(&image.lock);
+  QMutexLocker mlock(&_mutex);
 
-  const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());
+  const size_t nxbins (image.shape().first);
+  const size_t nybins (image.shape().second);
 
-  const HistogramFloatBase::storage_t& img_mem( one.memory() );
-  HistogramFloatBase::storage_t& rowsum_mem( _rowsum->memory() );
-  HistogramFloatBase::storage_t& integralimg_mem( _integralimg->memory() );
+  result_t::storage_t integralimg(nxbins*nybins,0);
+  result_t::storage_t rowsum(nxbins*nybins,0);
 
   // sanity checks and auto-set nxbins. todo: restore -1 so that nxbins/nybins gets updated on size change?
   if (_xstart < 0) _xstart = 0;
@@ -213,18 +194,18 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
   // calculate integral-image:
   // row sum initialize first row:
   for (int xx = _xstart; xx<=_xend; ++xx)
-    rowsum_mem[xx-_xstart] = img_mem[xx + _ystart*nxbins];
+    rowsum[xx-_xstart] = image[xx + _ystart*nxbins];
   // row sum rest:
   for (int xx = _xstart; xx<=_xend; ++xx)
     for (int yy=_ystart+1; yy<=_yend; ++yy)
-      rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins] = rowsum_mem[xx-_xstart + (yy-_ystart-1)*nxbins] + img_mem[xx + yy*nxbins];
+      rowsum[xx-_xstart + (yy-_ystart)*nxbins] = rowsum[xx-_xstart + (yy-_ystart-1)*nxbins] + image[xx + yy*nxbins];
   // intImg first col:
   for (int yy = _ystart; yy<=_yend; ++yy)
-    integralimg_mem[(yy-_ystart)*nxbins] = rowsum_mem[(yy-_ystart)*nxbins];
+    integralimg[(yy-_ystart)*nxbins] = rowsum[(yy-_ystart)*nxbins];
   // intImg rest:
   for (int xx = _xstart+1; xx<=_xend; ++xx)
     for (int yy = _ystart; yy<=_yend; ++yy)
-      integralimg_mem[xx-_xstart + (yy-_ystart)*nxbins] = integralimg_mem[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins];
+      integralimg[xx-_xstart + (yy-_ystart)*nxbins] = integralimg[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum[xx-_xstart + (yy-_ystart)*nxbins];
 
   // calculate variation features:
   int xsize_intimg = _xend-_xstart+1;
@@ -236,7 +217,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
   { // start new scope
   int xsteps = 3;
   int ysteps = 3;
-  double avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  double avg = integralimg[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
     int xx_prev = lround( static_cast<double>(ii)*xsize_intimg/xsteps );
@@ -245,7 +226,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
     {
       int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
       int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
-      double val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
+      double val = integralimg[xx + yy*nxbins] + integralimg[xx_prev + yy_prev*nxbins] - integralimg[xx + yy_prev*nxbins] - integralimg[xx_prev + yy*nxbins];
       var0 += (val-avg)*(val-avg);
     }
   }
@@ -268,7 +249,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
       int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
       int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
       int yy_next = lround( static_cast<double>(jj+2)*ysize_intimg/ysteps);
-      double diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      double diff = 2*integralimg[xx+yy*nxbins] + integralimg[xx_prev+yy_prev*nxbins] - integralimg[xx+yy_prev*nxbins] - 2*integralimg[xx_prev+yy*nxbins] - integralimg[xx+yy_next*nxbins] + integralimg[xx_prev+yy_next*nxbins];
       var1 += diff*diff;
     }
   }
@@ -290,7 +271,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
       int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
       int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
       int yy_next = lround( static_cast<double>(jj+2)*ysize_intimg/ysteps);
-      double diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      double diff = 2*integralimg[xx+yy*nxbins] + integralimg[xx_prev+yy_prev*nxbins] - integralimg[xx+yy_prev*nxbins] - 2*integralimg[xx_prev+yy*nxbins] - integralimg[xx+yy_next*nxbins] + integralimg[xx_prev+yy_next*nxbins];
       var2 += diff*diff;
     }
   }
@@ -316,13 +297,13 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
       factor = xfactor*yfactor;
       int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
       int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
-      var3 += factor*(integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins]);
+      var3 += factor*(integralimg[xx + yy*nxbins] + integralimg[xx_prev + yy_prev*nxbins] - integralimg[xx + yy_prev*nxbins] - integralimg[xx_prev + yy*nxbins]);
     }
   }
   } //end scope  //
 
   // 5th variation feature: integral intensity
-  double var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  double var4 = integralimg[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
   // try to unify feature scales (avoid ill-conditioned matrices, also, matrix should not be singular):
   var0 /= 1;
@@ -384,9 +365,6 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
         std::cout << "Hit_Helper2::process: " << E.what() << std::endl;
         vigra::linalg::identityMatrix(_covI);
         startNewTraining();  // try again: retrain...
-        one.lock.unlock();
-        _integralimg->lock.unlock();
-        _rowsum->lock.unlock();
         return;
     };
 
@@ -420,11 +398,7 @@ void pp300::process(const CASSEvent& evt, HistogramBackend &res)
   std::cout << "cols: " << vigra::columnCount(_covI) << std::endl;*/
   double mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
 
-  _integralimg->lock.unlock();
-  _rowsum->lock.unlock();
-
-
-  result.fill( mahal_dist );
+  result.setValue(mahal_dist);
 }
 
 
@@ -470,27 +444,22 @@ void pp313::loadSettings(size_t)
   _kleft = distance(_kernelCenter,_kernel.begin());
   _kright = distance(_kernelCenter, _kernel.end()-1);
 
-  createHistList(_pHist->result().copy_sptr());
+  createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
            "' convolutes '" + _pHist->name() + "' with kernel." +
            "'. Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp313::process(const CASSEvent& evt, HistogramBackend &res)
+void pp313::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& hist
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  QReadLocker lock(&hist.lock);
-  const Histogram1DFloat::storage_t &src(hist.memory());
-  Histogram1DFloat::storage_t &dest(result.memory());
+  const result_t& src(_pHist->result(evt.id()));
+  QReadLocker lock(&src.lock);
 
   typedef vigra::StandardAccessor<float> FAccessor;
   typedef vigra::StandardAccessor<float> KernelAccessor;
 
   vigra::convolveLine(src.begin(),src.end(),FAccessor(),
-                      dest.begin(),FAccessor(),
+                      result.begin(),FAccessor(),
                       _kernelCenter,KernelAccessor(),_kleft,_kright,
                       vigra::BORDER_TREATMENT_REFLECT);
 }

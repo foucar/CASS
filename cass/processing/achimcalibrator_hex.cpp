@@ -14,7 +14,7 @@
 
 #include "resorter/resort64c.h"
 #include "cass_settings.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "convenience_functions.h"
 #include "log.h"
 
@@ -245,14 +245,13 @@ void HexCalibrator::loadSettings(size_t)
                                                                                     _scalefactors[u],
                                                                                     _scalefactors[v],
                                                                                     _scalefactors[w]));
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() + "' calibrates the hex detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void HexCalibrator::process(const CASSEvent &evt, HistogramBackend &res)
+void HexCalibrator::process(const CASSEvent &evt, result_t &res)
 {
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &d (dynamic_cast<DelaylineDetector&>(rawdet));
@@ -309,5 +308,5 @@ void HexCalibrator::process(const CASSEvent &evt, HistogramBackend &res)
       hexsettings.endGroup();
     }
   }
-  result = ratio;
+  res.setValue(ratio);
 }

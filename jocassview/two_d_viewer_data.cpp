@@ -12,51 +12,49 @@
 
 #include "two_d_viewer_data.h"
 
-#include "histogram.h"
+#include "result.hpp"
 
 using namespace jocassview;
 using namespace cass;
 
 TwoDViewerData::TwoDViewerData()
-  : _hist(0)
 {
 
 }
 
 TwoDViewerData::~TwoDViewerData()
 {
-  delete _hist;
+
 }
 
-void TwoDViewerData::setResult(HistogramBackend *hist)
+void TwoDViewerData::setResult(result_t::shared_pointer result)
 {
-  if (!hist || dynamic_cast<Histogram2DFloat*>(hist) == _hist)
+  if (!result)
     return;
 
-  delete _hist;
-  _hist = dynamic_cast<Histogram2DFloat*>(hist);
-  const AxisProperty &xaxis(result()->axis()[Histogram2DFloat::xAxis]);
-  setInterval(Qt::XAxis,QwtInterval(xaxis.lowerLimit(),xaxis.upperLimit()));
-  const AxisProperty &yaxis(result()->axis()[Histogram2DFloat::yAxis]);
-  setInterval(Qt::YAxis,QwtInterval(yaxis.lowerLimit(),yaxis.upperLimit()));
+  _result = result;
+  const result_t::axe_t &xaxis(_result->axis(result_t::xAxis));
+  setInterval(Qt::XAxis,QwtInterval(xaxis.low,xaxis.up));
+  const result_t::axe_t &yaxis(_result->axis(result_t::yAxis));
+  setInterval(Qt::YAxis,QwtInterval(yaxis.low,yaxis.up));
   setInterval(Qt::ZAxis,origZInterval(false));
   _wasUpdated = true;
 }
 
-HistogramBackend* TwoDViewerData::result()
+Data::result_t::shared_pointer TwoDViewerData::result()
 {
   _wasUpdated = false;
-  return _hist;
+  return _result;
 }
 
 QwtInterval TwoDViewerData::origZInterval(bool log)const
 {
-  if (!_hist)
+  if (!_result)
     return (QwtInterval(0,0));
 
   QwtInterval zRange(1e30,-1e30);
-  Histogram2DFloat::storage_t::const_iterator it(_hist->memory().begin());
-  Histogram2DFloat::storage_t::const_iterator End(_hist->memory().end());
+  result_t::const_iterator it(_result->begin());
+  result_t::const_iterator End(_result->end());
   for (;it != End;++it)
   {
     if (!std::isfinite(*it))
@@ -73,17 +71,17 @@ QwtInterval TwoDViewerData::origZInterval(bool log)const
 
 double TwoDViewerData::value(double x, double y) const
 {
-  if(!_hist)
+  if(!_result)
     return 0;
 
-  const int xSize(_hist->shape().first);
+  const int xSize(_result->shape().first);
   const int xMin(interval(Qt::XAxis).minValue());
   const int xWidth(interval(Qt::XAxis).width());
   const int binx(xSize  * (x - xMin) / xWidth);
   if (binx < 0 || xSize <= binx)
     return 0;
 
-  const int ySize(_hist->shape().second);
+  const int ySize(_result->shape().second);
   const int yMin(interval(Qt::YAxis).minValue());
   const int yWidth(interval(Qt::YAxis).width());
   const int biny(ySize  * (y - yMin) / yWidth);
@@ -91,6 +89,5 @@ double TwoDViewerData::value(double x, double y) const
     return 0;
 
   const int globalbin(biny*xSize + binx);
-  const Histogram2DFloat::storage_t &d(_hist->memory());
-  return d[globalbin];
+  return (*_result)[globalbin];
 }

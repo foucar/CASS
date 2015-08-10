@@ -55,7 +55,7 @@ public:
    * @param filename The filename to save the data to
    * @param data the data to save
    */
-  static void saveData(const QString &filename, cass::HistogramBackend* data);
+  static void saveData(const QString &filename, result_t::shared_pointer data);
 
   /** create the container file
    *
@@ -68,7 +68,7 @@ public:
    * @param key the key of the result
    * @param id the eventid of the result
    */
-  cass::HistogramBackend* result(const QString &key, quint64 id=0);
+  result_t::shared_pointer result(const QString &key, quint64 id=0);
 
   /** retrieve the list of names that an be displayed from the file
    *
@@ -107,34 +107,34 @@ private:
    *
    * @return pointer to the data
    */
-  cass::HistogramBackend* loadDataFromHist();
+  result_t::shared_pointer loadDataFromHist();
 
   /** save the data from a hist file
    *
    * @param filename the name of the file
    * @param data pointer to the data to save
    */
-  void saveDataToHist(const QString &filename, cass::HistogramBackend *data);
+  void saveDataToHist(const QString &filename, result_t::shared_pointer data);
 
   /** read the data from a CSV file
    *
    * @return pointer to the data
    */
-  cass::HistogramBackend * loadDataFromCSV();
+  result_t::shared_pointer loadDataFromCSV();
 
   /** save the data from a CSV file
    *
    * @param filename the name of the file
    * @param data pointer to the data to save
    */
-  void saveDataToCSV(const QString &filename, cass::HistogramBackend *data);
+  void saveDataToCSV(const QString &filename, result_t::shared_pointer data);
 
   /** read the data from a hdf5 file
    *
    * @return pointer to the data
    * @param key in case of a hdf5 file the key to the requested data. Default is ""
    */
-  cass::HistogramBackend* loadDataFromH5(const QString &key="");
+  result_t::shared_pointer loadDataFromH5(const QString &key="");
 
   /** write the data to a hdf5 file
    *
@@ -147,20 +147,20 @@ private:
    * @param data pointer to the data
    * @param mode The mode in which the file will be opened. Default is "w".
    */
-  void saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString& mode="w");
+  void saveDataToH5(const QString &filename, result_t::shared_pointer data, const QString& mode="w");
 
   /** read the data from a cbf file
    *
    * @return pointer to the data
    */
-  cass::HistogramBackend* loadDataFromCBF();
+  result_t::shared_pointer loadDataFromCBF();
 
   /** save the data to a cbf file
    *
    * @param filename the name of the file
    * @param data pointer to the data
    */
-   void saveDataToCBF(const QString &filename, cass::HistogramBackend *data);
+   void saveDataToCBF(const QString &filename, result_t::shared_pointer data);
 
 private:
   /** the filename of the file to work on */

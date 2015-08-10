@@ -1,84 +1,65 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010, 2015 Lutz Foucar
 
 /**
- * @file lucassview/id_list.h file contains the classes that can serialize the
- *                    key list
+ * @file cass/processing/id_list.h file contains the classes that can
+ *               serialize the key list
  *
- * @author Lutz Foucar
+ * @author Stephan Kassemeyer
  */
 
 #ifndef __IDLIST_H__
 #define __IDLIST_H__
 
-#include <string>
 #include <list>
 
 #include "serializable.hpp"
 
 namespace cass
 {
-  /** id-list
-   *
-   * used for SOAP communication of id-lists (copy of the IdList of cass, but
-   * without the qt components).
-   *
-   * @author Stephan Kassemeyer
-   * @author Lutz Foucar
-   */
-  class IdList : public Serializable
+/** id-list
+ *
+ * used for SOAP communication of id-lists
+ *
+ * @author Stephan Kassemeyer
+ * @author Lutz Foucar
+ */
+class IdList : public Serializable
+{
+public:
+  /** define the list of names */
+  typedef std::list<std::string> names_t;
+
+  /** default constructor */
+  IdList()
+    : Serializable(1), _size(0)
+  {}
+
+  /** construct from serializer */
+  IdList( SerializerBackend &in)
+    : Serializable(1)
   {
-  public:
+    deserialize(in);
+  }
 
-    /** default constructor */
-    IdList()
-      : Serializable(1), _size(0)
-    {}
+  /** clear the list */
+  void clear();
 
-    /** constructor creating list from incomming list */
-    IdList(const std::list<std::string>& list);
+  /** getter for the internal list */
+  const names_t& getList() { return _list; }
 
-    /** construct from serializer */
-    IdList(SerializerBackend* in)
-      : Serializable(1)
-    {
-      deserialize(in);
-    }
+  /** deserialize the list from the serializer */
+  bool deserialize(SerializerBackend &in);
 
-    /** @overload */
-    IdList( SerializerBackend &in)
-      : Serializable(1)
-    {
-      deserialize(in);
-    }
+  /** serialize the list to the serializer */
+  void serialize(SerializerBackend &out)const;
 
-    /** clear the list */
-    void clear();
+private:
+  /** a list of all processor keys */
+  names_t _list;
 
-    /** copy the list to us */
-    void setList(const std::list<std::string> &list);
-
-    /** getter for the internal list */
-    const std::list<std::string> &getList() { return _list; }
-
-    /** deserialize the list from the serializer */
-    bool deserialize(SerializerBackend *in);
-
-    /** @overload */
-    bool deserialize(SerializerBackend& in) { return deserialize(&in); }
-
-    /** serialize the list to the serializer */
-    void serialize(SerializerBackend *out)const;
-
-    /** @overload */
-    void serialize(SerializerBackend &out)const { serialize(&out); }
-
-  private:
-    /** a list of all processor keys */
-    std::list<std::string> _list;
-
-    /** the size of the processor keys list */
-    size_t _size;
-  };
+  /** the size of the processor keys list */
+  size_t _size;
+};
 
 } //end namespace
 #endif

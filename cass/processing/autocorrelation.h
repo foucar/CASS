@@ -11,7 +11,6 @@
 #define _AUTOCORRELATION_H_
 
 #include "processor.h"
-#include "histogram.h"
 
 namespace cass
 {
@@ -38,7 +37,7 @@ public:
   pp310(const name_t &);
 
   /** process the event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -71,7 +70,7 @@ public:
   pp311(const name_t &);
 
   /** process the event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -84,7 +83,7 @@ private:
   /** define a ring that knows its position in the original image and the value
    *  at that position
    */
-  typedef std::vector<std::pair<int,HistogramFloatBase::storage_t::value_type> > ring_t;
+  typedef std::vector<std::pair<int,result_t::value_t> > ring_t;
 
   /** retrieve the length of the ring for a given radius
    *
@@ -106,7 +105,7 @@ private:
    * @param nxx the number of columns of the original image
    * @param ring the ring that will contain the result
    */
-  void fillRing(const HistogramFloatBase::storage_t &image,
+  void fillRing(const result_t &image,
                 const int rad, const int x0, const int y0, const int nxx,
                 ring_t &ring);
 

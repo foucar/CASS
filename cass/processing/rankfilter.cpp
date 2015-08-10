@@ -7,12 +7,14 @@
  * @author Stephan Kassemeyer
  */
 
-#include <QtCore/QString>
 #include <iterator>
 #include <algorithm>
+#include <numeric>
+
+#include <QtCore/QString>
 
 #include "rankfilter.h"
-#include "histogram.h"
+
 #include "cass_settings.h"
 #include "log.h"
 
@@ -46,7 +48,7 @@ void pp301::loadSettings(size_t)
   if (!(_one && ret))
     return;
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' computes median with a size of '" + toString(_medianSize) +
@@ -54,18 +56,13 @@ void pp301::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp301::process(const CASSEvent& evt, HistogramBackend &res)
+void pp301::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
   QMutexLocker mLock(&_mutex);
 
-  float value (accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
+  const float value(accumulate(one.begin(), one.end(), 0.f));
 
   if (_medianStorage.empty())
     _medianStorage.resize(_medianSize,value);
@@ -75,7 +72,7 @@ void pp301::process(const CASSEvent& evt, HistogramBackend &res)
   vector<float> lastData(_medianStorage.begin(),_medianStorage.end());
   nth_element(lastData.begin(), lastData.begin() + _medianSize/2,
               lastData.end());
-  result = lastData[_medianSize/2];
+  result.setValue(lastData[_medianSize/2]);
   _medianStorage.pop_front();
 }
 
@@ -107,7 +104,7 @@ void pp302::loadSettings(size_t)
   size_t sizeX(s.value("SizeX",0).toInt());
   size_t sizeY(s.value("SizeY",0).toInt());
 
-  _result = shared_ptr<Histogram2DFloat>(new Histogram2DFloat( sizeX, 0, sizeX-1, sizeY, 0, sizeY-1 ));
+  _result = result_t::shared_pointer(new result_t(sizeX,sizeY));
 
   // load binary file into _result:
   std::ifstream in(filename.c_str(), std::ios::binary|std::ios::ate);
@@ -120,7 +117,7 @@ void pp302::loadSettings(size_t)
     if (size == sizeX*sizeY)
     {
       in.seekg(0,std::ios::beg); // go to beginning
-      in.read(reinterpret_cast<char*>(&((_result)->memory().front())), size_raw );
+      in.read(reinterpret_cast<char*>(&(_result->front())), size_raw );
     }
     else
       throw invalid_argument("pp302:loadSettings(): binary file Histogram2D: wrong size '"+

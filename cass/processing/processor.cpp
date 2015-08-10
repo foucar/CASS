@@ -38,9 +38,9 @@ void Processor::processEvent(const CASSEvent& evt)
     CachedList::iter_type pointer(_resultList.newItem(evt.id()));
     if (_condition->result(evt.id()).isTrue())
     {
-      HistogramBackend &result(*(pointer->second));
+      result_t &result(*(pointer->second));
       QWriteLocker lock(&(result.lock));
-      result.id() = evt.id();
+      result.id(evt.id());
       process(evt,result);
       _resultList.latest(pointer);
     }
@@ -51,7 +51,7 @@ void Processor::processEvent(const CASSEvent& evt)
   }
 }
 
-const HistogramBackend& Processor::result(const CASSEvent::id_t eventid)
+const Processor::result_t& Processor::result(const CASSEvent::id_t eventid)
 {
   if (0 == eventid)
     return _resultList.latest();
@@ -64,11 +64,11 @@ void Processor::releaseEvent(const CASSEvent &event)
   _resultList.release(event.id());
 }
 
-HistogramBackend::shared_pointer Processor::resultCopy(const uint64_t eventid)
+Processor::result_t::shared_pointer Processor::resultCopy(const uint64_t eventid)
 {
-  const HistogramBackend &h(result(eventid));
-  QReadLocker lock(&h.lock);
-  return h.copy_sptr();
+  const result_t &r(result(eventid));
+  QReadLocker lock(&r.lock);
+  return r.clone();
 }
 
 void Processor::clearHistograms()
@@ -76,9 +76,9 @@ void Processor::clearHistograms()
   _resultList.clearItems();
 }
 
-void Processor::createHistList(HistogramBackend::shared_pointer result)
+void Processor::createHistList(result_t::shared_pointer result)
 {
-  result->key() = name();
+  result->name(name());
   _resultList.setup(result, cass::NbrOfWorkers + 2);
 }
 
@@ -162,7 +162,7 @@ void Processor::load()
     _condition = setupDependency("ConditionName","DefaultTrueHist");
 }
 
-void Processor::process(const CASSEvent&, HistogramBackend&)
+void Processor::process(const CASSEvent&, result_t&)
 {
   Log::add(Log::DEBUG4,"ProcessorBackend::process(): '" + name() +
            "' not implemented");

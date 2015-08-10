@@ -17,7 +17,6 @@
 
 #include "processor.h"
 #include "cass_event.h"
-#include "histogram.h"
 #include "statistics_calculator.hpp"
 
 namespace cass
@@ -65,7 +64,7 @@ public:
   virtual void loadSettings(size_t);
 
   /** process event */
-  virtual void process(const CASSEvent& evt, HistogramBackend &res);
+  virtual void process(const CASSEvent& evt, result_t&);
 
 protected:
   /** pp containing the first histogram */
@@ -133,7 +132,7 @@ public:
   virtual void loadSettings(size_t);
 
   /** process event */
-  virtual void process(const CASSEvent& evt, HistogramBackend &res);
+  virtual void process(const CASSEvent& evt, result_t&);
 
 protected:
   /** define the unary operation */
@@ -221,7 +220,7 @@ public:
   pp4(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -260,7 +259,7 @@ public:
   pp9(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -306,7 +305,7 @@ public:
   pp12(const name_t &);
 
   /** overwrite default behaviour and just return the constant */
-  virtual const HistogramBackend& result(const CASSEvent::id_t)
+  virtual const result_t& result(const CASSEvent::id_t)
   {
     return *_res;
   }
@@ -322,7 +321,7 @@ public:
 
 private:
   /** the constant result */
-  std::tr1::shared_ptr<HistogramFloatBase> _res;
+  result_t::shared_pointer _res;
 };
 
 
@@ -355,7 +354,7 @@ public:
   pp13(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -388,14 +387,14 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp15 : public Processor
+class pp15 : public AccumulatingProcessor
 {
 public:
   /** constructor */
   pp15(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -409,9 +408,6 @@ protected:
 
   /** the maximum difference to previous val that is accepted */
   float _difference;
-
-  /** mutex for locking the previous value variable */
-  QMutex _mutex;
 };
 
 
@@ -441,7 +437,7 @@ public:
   pp40(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -498,7 +494,7 @@ public:
   pp41(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -563,7 +559,7 @@ public:
   pp50(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -572,18 +568,18 @@ private:
   /** project 2d histogram to x axis
    *
    * @param src the 2d histogram that one wants to project
-   * @param result histogram to store the resulting projection
+   * @param dest iterator to store the resulting projection
    */
-   void projectToX(const Histogram2DFloat::storage_t &src,
-                   Histogram1DFloat::storage_t &result);
+   void projectToX(result_t::const_iterator src,
+                   result_t::iterator dest);
 
   /** project 2d histogram to y axis
    *
    * @param src the 2d histogram that one wants to project
-   * @param result histogram to store the resulting projection
+   * @param dest iterator to store the resulting projection
    */
-   void projectToY(const Histogram2DFloat::storage_t &src,
-                   Histogram1DFloat::storage_t &result);
+   void projectToY(result_t::const_iterator src,
+                   result_t::iterator dest);
 
 private:
   /** pp containing the 2d hist we want to project */
@@ -599,8 +595,8 @@ private:
   size_t _nX;
 
   /** function that will do the projection */
-  std::tr1::function<void(const Histogram2DFloat::storage_t&,
-                          Histogram1DFloat::storage_t&)> _project;
+  std::tr1::function<void(result_t::const_iterator,
+                          result_t::iterator)> _project;
 };
 
 
@@ -633,7 +629,7 @@ public:
   pp51(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -676,14 +672,14 @@ public:
   pp56(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
 
 protected:
-  /** alpha for the running average */
-  HistogramFloatBase::storage_t _storage;
+  /** the previous result */
+  result_t _previous;
 
   /** pp containing histogram to work on */
   shared_pointer _pHist;
@@ -741,7 +737,7 @@ public:
   pp57(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -753,9 +749,9 @@ private:
    * @param result vector were the projection will be written to
    * @param norm vector where the normalization values will be added to
    */
-  void projectToX(const HistogramFloatBase::storage_t &src,
-                  HistogramFloatBase::storage_t &result,
-                  HistogramFloatBase::storage_t &norm);
+  void projectToX(result_t::const_iterator src,
+                  result_t::iterator result,
+                  result_t::iterator norm);
 
   /** integrate the columns
    *
@@ -763,9 +759,9 @@ private:
    * @param result vector were the projection will be written to
    * @param norm vector where the normalization values will be added to
    */
-  void projectToY(const HistogramFloatBase::storage_t &src,
-                  HistogramFloatBase::storage_t &result,
-                  HistogramFloatBase::storage_t &norm);
+  void projectToY(result_t::const_iterator src,
+                  result_t::iterator result,
+                  result_t::iterator norm);
 
 private:
   /** pp containing the 2d hist we want to project */
@@ -784,9 +780,9 @@ private:
   float _excludeVal;
 
   /** the function used to project the image */
-  std::tr1::function<void(const HistogramFloatBase::storage_t&,
-                          HistogramFloatBase::storage_t&,
-                          HistogramFloatBase::storage_t&)> _project;
+  std::tr1::function<void(result_t::const_iterator,
+                          result_t::iterator,
+                          result_t::iterator)> _project;
 };
 
 
@@ -826,7 +822,7 @@ public:
   pp60(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -850,6 +846,10 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
+ * @cassttng Processor/\%name\%/{AveragingType}\n
+ *           The type of averaging that should be performed. Default is "Normal"
+ *           - "Normal": a normal average will be used
+ *           - "Square"; a square averaging will be performed
  * @cassttng Processor/\%name\%/{NbrOfAverages}\n
  *           how many images should be averaged. When value is 0 its a cummulative
  *           average. Default is 1.
@@ -865,14 +865,53 @@ public:
   pp61(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
 
 protected:
+  /** function for normal averaging.
+   *
+   * this operator is capable of performing a cumulative moving average and
+   * a Exponential moving average.
+   * @see http://en.wikipedia.org/wiki/Moving_average
+   *
+   * the operator calculates the average using the function
+   * \f$ave_{new} = ave_{old} + \scale(val-ave_{old})\f$
+   * where when \f$\scale\f$ is equal to N it is a cumulative moving average,
+   * otherwise it will be a exponential moving average.
+   *
+   * @return the new average
+   * @param val the current value to be added to the average
+   * @param aveOld the old average
+   * @param scale the scale with which the new value will be weighted
+   */
+  result_t::value_t average(result_t::value_t val,
+                            result_t::value_t aveOld,
+                            result_t::value_t scale);
+
+  /** function that will calculate the square average
+   *
+   * the operator calculates the square average using the function
+   * \f$ave_{new} = ave_{old} + \scale(val*val-ave_{old})\f$
+   * where when \f$\scale\f$ is equal to N it is a cumulative moving average.
+   *
+   * @return the new average
+   * @param val the current value to be added to the average
+   * @param aveOld the old average
+   * @param scale the scale with which the new value will be weighted
+   */
+  result_t::value_t squareAverage(result_t::value_t val,
+                                  result_t::value_t aveOld,
+                                  result_t::value_t scale);
+
+protected:
   /** alpha for the running average */
-  float _alpha;
+  result_t::value_t _alpha;
+
+  /** function that will do the averagin */
+  std::tr1::function<result_t::value_t(result_t::value_t,result_t::value_t,result_t::value_t)> _func;
 
   /** pp containing histogram to work on */
   shared_pointer _pHist;
@@ -903,7 +942,7 @@ public:
   pp62(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -946,7 +985,7 @@ public:
   pp63(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1000,7 +1039,7 @@ public:
   pp64(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1043,7 +1082,7 @@ public:
   pp65(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -1084,7 +1123,7 @@ public:
   pp66(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -1130,7 +1169,7 @@ public:
   pp67(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -1179,7 +1218,7 @@ public:
   pp68(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -1221,7 +1260,7 @@ public:
   pp69(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -1268,7 +1307,7 @@ public:
   pp70(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1278,7 +1317,7 @@ protected:
      *
      * @param hist The histogram used for setting up the resulting histogram
      */
-  void setup(const HistogramFloatBase &hist);
+  void setup(const result_t &hist);
 
   /** pp containing input histogram */
   shared_pointer _pHist;
@@ -1320,7 +1359,7 @@ public:
   pp71(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1330,7 +1369,7 @@ protected:
   shared_pointer _pHist;
 
   /** the type of function used to retrive the wanted element */
-  std::tr1::function<HistogramFloatBase::storage_t::const_iterator(HistogramFloatBase::storage_t::const_iterator,HistogramFloatBase::storage_t::const_iterator)> _func;
+  std::tr1::function<result_t::const_iterator(result_t::const_iterator,result_t::const_iterator)> _func;
 };
 
 
@@ -1371,7 +1410,7 @@ public:
   virtual void loadSettings(size_t);
 
   /** overwrite the retrieval of an histogram */
-  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+  virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** overwrite the release */
   virtual void releaseEvent(const CASSEvent &){}
@@ -1414,7 +1453,7 @@ public:
   virtual void processEvent(const CASSEvent&);
 
   /** overwrite the retrieval of an histogram */
-  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+  virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** overwrite the release */
   virtual void releaseEvent(const CASSEvent &){}
@@ -1452,7 +1491,7 @@ public:
   pp77(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1493,7 +1532,7 @@ public:
   pp78(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1535,7 +1574,7 @@ public:
   pp81(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1545,7 +1584,7 @@ protected:
   shared_pointer _pHist;
 
   /** the type of function used to retrive the wanted bin */
-  std::tr1::function<HistogramFloatBase::storage_t::const_iterator(HistogramFloatBase::storage_t::const_iterator,HistogramFloatBase::storage_t::const_iterator)> _func;
+  std::tr1::function<result_t::const_iterator(result_t::const_iterator,result_t::const_iterator)> _func;
 };
 
 
@@ -1590,7 +1629,7 @@ public:
   pp82(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1600,7 +1639,7 @@ protected:
   shared_pointer _pHist;
 
   /** define the type of statistics used */
-  typedef CummulativeStatisticsCalculator<HistogramFloatBase::value_t> stat_t;
+  typedef CummulativeStatisticsCalculator<result_t::value_t> stat_t;
 
   /** the type of function used to retrive the wanted element */
   std::tr1::function<stat_t::value_type(const stat_t&)> _val;
@@ -1648,7 +1687,7 @@ public:
   pp85(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1708,7 +1747,7 @@ public:
   pp86(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1757,7 +1796,7 @@ public:
   pp87(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1802,7 +1841,7 @@ public:
   pp88(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1812,10 +1851,10 @@ protected:
   shared_pointer _pHist;
 
   /** the id of the axis */
-  int _axisId;
+  result_t::axis_name _axisId;
 
   /** function to retrieve the parameter from the axis */
-  std::tr1::function<float(const AxisProperty&)> _func;
+  std::tr1::function<float(const result_t::axe_t&)> _func;
 };
 
 
@@ -1843,7 +1882,7 @@ public:
   pp89(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -1854,16 +1893,16 @@ protected:
    * @param orig iterator to the original value
    * @param filtered iterator to the filtered value
    */
-  void highPass(HistogramFloatBase::storage_t::const_iterator &orig,
-                HistogramFloatBase::storage_t::iterator &filtered);
+  void highPass(result_t::const_iterator orig,
+                result_t::iterator filtered);
 
   /** low pass filtering function
    *
    * @param orig iterator to the original value
    * @param filtered iterator to the filtered value
    */
-  void lowPass(HistogramFloatBase::storage_t::const_iterator &orig,
-               HistogramFloatBase::storage_t::iterator &filtered);
+  void lowPass(result_t::const_iterator orig,
+               result_t::iterator filtered);
 
   /** pp containing input histogram */
   shared_pointer _pHist;
@@ -1872,8 +1911,8 @@ protected:
   float _alpha;
 
   /** function to retrieve the parameter from the axis */
-  std::tr1::function<void(HistogramFloatBase::storage_t::const_iterator &,
-                          HistogramFloatBase::storage_t::iterator &)> _func;
+  std::tr1::function<void(result_t::const_iterator,
+                          result_t::iterator)> _func;
 };
 
 
@@ -1902,14 +1941,14 @@ public:
   pp91(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
 
 protected:
   /** definition of the table */
-  typedef HistogramFloatBase::storage_t table_t;
+  typedef result_t::storage_t table_t;
 
   /** enum describing the contents of the resulting table */
   enum ColumnNames

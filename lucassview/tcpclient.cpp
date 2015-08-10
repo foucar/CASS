@@ -13,7 +13,6 @@
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
 #include "id_list.h"
-#include "histogram.h"
 
 using namespace lucassview;
 
@@ -76,7 +75,7 @@ std::list<std::string> TCPClient::operator() ()const
   return returnlist;
 }
 
-std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::operator() (const std::string &histogramkey)const
+cass::Result<float>::shared_pointer TCPClient::operator() (const std::string &histogramkey)const
 {
   using namespace std;
   using namespace std::tr1;
@@ -104,28 +103,8 @@ std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::operator() (const std:
 //      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
 //      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
   _transferredBytes += (*attachment).size;
-  string mimeType((*attachment).type);
-  shared_ptr<HistogramFloatBase> hist;
-  if(mimeType == "application/cass2Dhistogram")
-  {
-      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = shared_ptr<HistogramFloatBase>(new Histogram2DFloat(serializer));
-  }
-  else if(mimeType == "application/cass1Dhistogram")
-  {
-      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = shared_ptr<HistogramFloatBase>(new Histogram1DFloat(serializer));
-  }
-  else if(mimeType == "application/cass0Dhistogram")
-  {
-      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = shared_ptr<HistogramFloatBase>(new Histogram0DFloat(serializer));
-  }
-  else
-  {
-    stringstream ss;
-    ss << "The mime type '"<<mimeType<<"' is unknown";
-    throw runtime_error(ss.str());
-  }
-  return hist;
+  cass::Result<float>::shared_pointer result(new cass::Result<float>());
+  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+  serializer >> *result;
+  return result;
 }

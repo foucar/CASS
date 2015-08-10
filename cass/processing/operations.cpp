@@ -1,5 +1,5 @@
 // Copyright (C) 2010-2013 Lutz Foucar
-// (C) 2010 Thomas White - Updated to new (outdated) PP framework
+// (C) 2010 Thomas White - Updated to (outdated) PP framework
 
 /**
  * @file operations.cpp file contains definition of processors that will
@@ -14,7 +14,6 @@
 
 #include "cass.h"
 #include "operations.h"
-#include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -83,16 +82,16 @@ void pp1::loadSettings(size_t)
   if ( !(_one && _two && ret) )
     return;
 
-  const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->result()));
-  const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->result()));
-  if (one.dimension() != two.dimension() ||
-      one.memory().size() != two.memory().size())
-    throw invalid_argument("pp1::loadSettings() '"+name()+"': HistOne '" + _one->name() +
-                           "' with dimension '" + toString(one.dimension()) +
-                           "' and memory size '" + toString(one.memory().size()) +
+  const result_t &one(_one->result());
+  const result_t &two(_two->result());
+  if (one.dim() != two.dim() || one.size() != two.size())
+    throw invalid_argument("pp1::loadSettings() '"+name()+
+                           "': HistOne '" + _one->name() +
+                           "' with dimension '" + toString(one.dim()) +
+                           "' and memory size '" + toString(one.size()) +
                            "' differs from HistTwo '" + _one->name() +
-                           "' with has dimension '" + toString(two.dimension()) +
-                           "' and memory size '" + toString(two.memory().size()));
+                           "' with has dimension '" + toString(two.dim()) +
+                           "' and memory size '" + toString(two.size()));
 
   string operation(s.value("Operation","+").toString().toStdString());
   if (operation == "+")
@@ -123,7 +122,7 @@ void pp1::loadSettings(size_t)
     throw invalid_argument("pp1::loadSettings() '" + name() +
                            "': operation '" + operation + "' is unkown.");
 
-  createHistList(_one->result().copy_sptr());
+  createHistList(_one->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will do operation '"+  operation + "'with '" + _one->name() +
@@ -131,21 +130,14 @@ void pp1::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp1::process(const CASSEvent& evt, HistogramBackend &res)
+void pp1::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>(_two->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+  const result_t &one(_one->result(evt.id()));
+  QReadLocker lock1(&(one.lock));
+  const result_t &two(_two->result(evt.id()));
+  QReadLocker lock2(&(two.lock));
 
-  QReadLocker lock1(&one.lock);
-  QReadLocker lock2(&two.lock);
-
-  transform(one.memory().begin(), one.memory().end(),
-            two.memory().begin(),
-            result.memory().begin(),
-            _op);
+  transform(one.begin(), one.end(), two.begin(), result.begin(), _op);
 }
 
 
@@ -221,7 +213,7 @@ void pp2::loadSettings(size_t)
     throw invalid_argument("pp2::loadSettings() '" + name() +
                            "': value position '" + valuePos + "' is unkown.");
 
-  createHistList(_hist->result().copy_sptr());
+  createHistList(_hist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() + "' operation '" + operation +
            "' on '" + _hist->name() + "' with " +
            (usePP ? " value in '"+_valuePP->name()+"'" : "constant '"+toString(_value)+"'")
@@ -245,22 +237,17 @@ float pp2::valueFromConst(const CASSEvent::id_t&)
 
 float pp2::valueFromPP(const CASSEvent::id_t& id)
 {
-  const Histogram0DFloat &value
-      (dynamic_cast<const Histogram0DFloat&>(_valuePP->result(id)));
+  const result_t &value(_valuePP->result(id));
   QReadLocker lock(&value.lock);
   return value.getValue();
 }
 
-void pp2::process(const CASSEvent& evt, HistogramBackend &res)
+void pp2::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t &hist(_hist->result(evt.id()));
   QReadLocker lock(&hist.lock);
 
-  transform(hist.memory().begin(), hist.memory().end(),
-            result.memory().begin(),
+  transform(hist.begin(), hist.end(), result.begin(),
             _setParamPos(_retrieveValue(evt.id())));
 
 }
@@ -289,21 +276,18 @@ void pp4::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() + "' will apply NOT to Processor '" +
            _one->name() + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp4::process(const CASSEvent& evt, HistogramBackend &res)
+void pp4::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  result = !one.isTrue();
+  result.setValue(!one.isTrue());
 }
 
 
@@ -336,7 +320,7 @@ void pp9::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name()
            + "' will check whether hist in Processor '" + _one->name() +
@@ -344,19 +328,14 @@ void pp9::loadSettings(size_t)
       "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp9::process(const CASSEvent& evt, HistogramBackend &res)
+void pp9::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  const float value (accumulate(one.memory().begin(),
-                                one.memory().end(),
-                                0.f));
+  const float value (accumulate(one.begin(), one.end(), 0.f));
 
-  result = (_range.first < value &&  value < _range.second);
+  result.setValue(_range.first < value &&  value < _range.second);
 }
 
 
@@ -380,29 +359,30 @@ void pp12::loadSettings(size_t)
   string type(s.value("ValueType","0D").toString().toStdString());
   if (type == "0D")
   {
-    _res = tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat());
+    _res = result_t::shared_pointer(new result_t());
   }
   else if (type == "1D")
   {
-    _res = tr1::shared_ptr<Histogram1DFloat>
-        (new Histogram1DFloat(s.value("XNbrBins",1).toInt(),
-                              s.value("XLow",0).toFloat(),
-                              s.value("XUp",1).toFloat(),
-                              s.value("XTitle","x-axis").toString().toStdString()
-                              ));
+    _res = result_t::shared_pointer
+        (new result_t
+         (result_t::axe_t(s.value("XNbrBins",1).toInt(),
+                          s.value("XLow",0).toFloat(),
+                          s.value("XUp",1).toFloat(),
+                          s.value("XTitle","x-axis").toString().toStdString()
+                          )));
   }
   else if (type == "2D")
   {
-    _res = tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(s.value("XNbrBins",1).toInt(),
-                              s.value("XLow",0).toFloat(),
-                              s.value("XUp",1).toFloat(),
-                              s.value("YNbrBins",1).toInt(),
-                              s.value("YLow",0).toFloat(),
-                              s.value("YUp",1).toFloat(),
-                              s.value("XTitle","x-axis").toString().toStdString(),
-                              s.value("YTitle","y-axis").toString().toStdString()
-                              ));
+    _res = result_t::shared_pointer
+        (new result_t
+         (result_t::axe_t(s.value("XNbrBins",1).toInt(),
+                          s.value("XLow",0).toFloat(),
+                          s.value("XUp",1).toFloat(),
+                          s.value("XTitle","x-axis").toString().toStdString()),
+          result_t::axe_t(s.value("YNbrBins",1).toInt(),
+                          s.value("YLow",0).toFloat(),
+                          s.value("YUp",1).toFloat(),
+                          s.value("YTitle","y-axis").toString().toStdString())));
   }
   else
   {
@@ -415,7 +395,7 @@ void pp12::loadSettings(size_t)
     value = true;
   if (name() == "DefaultFalseHist")
     value = false;
-  fill(_res->memory().begin(), _res->memory().end(), value);
+  fill(_res->begin(), _res->end(), value);
 
   _hide = s.value("Hide",true).toBool();
 
@@ -446,23 +426,19 @@ void pp13::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
-  createHistList(_one->result().copy_sptr());
+  createHistList(_one->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will return a copy of Processor '" + _one->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp13::process(const CASSEvent& evt, HistogramBackend &res)
+void pp13::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  result.axis() = one.axis();
-  copy(one.memory().begin(),one.memory().end(),result.memory().begin());
+  result.assign(one);
 }
 
 
@@ -476,7 +452,7 @@ void pp13::process(const CASSEvent& evt, HistogramBackend &res)
 // ********** processor 15: Check if value has changed ************
 
 pp15::pp15(const name_t &name)
-  : Processor(name)
+  : AccumulatingProcessor(name)
 {
   loadSettings(0);
 }
@@ -492,13 +468,13 @@ void pp15::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_hist && ret))
     return;
-  if (_hist->result().dimension() != 0 )
+  if (_hist->result().dim() != 0 )
     throw runtime_error("pp15::loadSettings: Hist '" + _hist->name() +
                         "' is not a 0D Hist");
   _difference = s.value("Difference",0.).toFloat();
   if (fabs(_difference) < std::numeric_limits<float>::epsilon() )
     _difference = std::numeric_limits<float>::epsilon();
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"processor '" + name() +
            "' will check whether the difference between the current and the" +
@@ -508,19 +484,15 @@ void pp15::loadSettings(size_t)
 
 }
 
-void pp15::process(const CASSEvent& evt, HistogramBackend &res)
+void pp15::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram0DFloat &val
-      (dynamic_cast<const Histogram0DFloat&>(_hist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &val(_hist->result(evt.id()));
   QReadLocker lock1(&val.lock);
 
   const float value(val.getValue());
 
   /** @note the fuzzycompare doesn't work when using big numbers */
-  result = fabs(value-_previousVal) > _difference;
-  QMutexLocker lock(&_mutex);
+  result.setValue(fabs(value-_previousVal) > _difference);
   _previousVal = value;
 }
 
@@ -552,31 +524,27 @@ void pp40::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
-  createHistList(_one->result().copy_sptr());
+  createHistList(_one->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
       "' will threshold Histogram in Processor '" + _one->name() +
       "' above '" + toString(_threshold) + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp40::process(const CASSEvent& evt, HistogramBackend &res)
+void pp40::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  transform(one.memory().begin(), one.memory().end(),
-                 result.memory().begin(),
-                 bind2nd(threshold(), _threshold));
+  transform(one.begin(), one.end(), result.begin(),
+            bind2nd(threshold(), _threshold));
 }
 
 
 
 
 
-// ****************** processor 40: Threshold histogram ********************
+// ****************** processor 41: more advanced threshold histogram ********************
 
 pp41::pp41(const name_t &name)
   : Processor(name)
@@ -600,33 +568,19 @@ void pp41::loadSettings(size_t)
   _lowerBound = s.value("LowerBound",0.5).toFloat();
   _upperBound = s.value("UpperBound",1.5).toFloat();
 
-  if (_one->result().dimension() != _threshold->result().dimension())
+  if (_one->result().dim() != _threshold->result().dim())
     throw invalid_argument("pp41:loadSettings() '" + name() + "' Hist to threshold '" +
                            _one->name() + "' and theshold histo '" + _threshold->name() +
                            "' don't have the same dimension.");
-  if (_one->result().dimension() == 1)
-    if (_one->result().axis()[HistogramBackend::xAxis].size() !=
-        _threshold->result().axis()[HistogramBackend::xAxis].size())
-      throw invalid_argument("pp41:loadSettings() '" + name() + "' Hist to threshold '" +
-                             _one->name() + "' (" +
-                             toString(_one->result().axis()[HistogramBackend::xAxis].size()) +
-                             ") and theshold histo '" + _threshold->name() + "' (" +
-                              toString(_threshold->result().axis()[HistogramBackend::xAxis].size()) +
-                             ") differ in the size.");
-  if (_one->result().dimension() == 2)
-    if (_one->result().axis()[HistogramBackend::xAxis].size() !=
-        _threshold->result().axis()[HistogramBackend::xAxis].size() ||
-        _one->result().axis()[HistogramBackend::yAxis].size() !=
-        _threshold->result().axis()[HistogramBackend::yAxis].size())
-      throw invalid_argument("pp41:loadSettings() '" + name() + "' Hist to threshold '" +
-                             _one->name() + "' (" +
-                             toString(_one->result().axis()[HistogramBackend::xAxis].size()) + "x" +
-                             toString(_one->result().axis()[HistogramBackend::yAxis].size()) +
-                             ") and theshold histo '" + _threshold->name() + "' (" +
-                             toString(_threshold->result().axis()[HistogramBackend::xAxis].size()) + "x" +
-                             toString(_threshold->result().axis()[HistogramBackend::yAxis].size()) +
-                             ") differ in the shape.");
-  createHistList(_one->result().copy_sptr());
+  if (_one->result().shape() != _threshold->result().shape())
+    throw invalid_argument("pp41:loadSettings() '" + name() +
+                           "' Shape of hist to threshold '" + _one->name() + "'(" +
+                           toString(_one->result().shape().first) + "x" +
+                           toString(_one->result().shape().second) +
+                           ")  and the threshold '" + _threshold->name() + "' (" +
+                           toString(_threshold->result().shape().first) + "x" +
+                           toString(_threshold->result().shape().second) + ") differ.");
+  createHistList(_one->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will threshold Histogram in Processor '" + _one->name() +
@@ -639,20 +593,14 @@ float pp41::checkrange(float val, float checkval)
   return (_lowerBound < checkval && checkval < _upperBound) ? _userVal : val;
 }
 
-void pp41::process(const CASSEvent& evt, HistogramBackend &res)
+void pp41::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &image
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  const HistogramFloatBase &threshimage
-      (dynamic_cast<const HistogramFloatBase&>(_threshold->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t &image(_one->result(evt.id()));
   QReadLocker lock1(&image.lock);
+  const result_t &threshimage(_threshold->result(evt.id()));
   QReadLocker lock2(&threshimage.lock);
 
-  transform(image.memory().begin(), image.memory().end(),
-            threshimage.memory().begin(),
-            result.memory().begin(),
+  transform(image.begin(), image.end(), threshimage.begin(), result.begin(),
             bind(&pp41::checkrange,this,_1,_2));
 }
 
@@ -685,87 +633,76 @@ void pp50::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  if (_pHist->result().dimension() != 2)
+  if (_pHist->result().dim() != 2)
     throw invalid_argument("pp50::loadSettings()'" + name() +
                            "': Histogram '" + _pHist->name() +
                            "' is not a 2D Histogram.");
-  const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
+  const result_t &hist(_pHist->result());
 
-  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
-  const AxisProperty &yAxis(hist.axis()[HistogramBackend::yAxis]);
-  _nX = xAxis.nbrBins();
+  const result_t::axe_t &xAxis(hist.axis(result_t::xAxis));
+  const result_t::axe_t &yAxis(hist.axis(result_t::yAxis));
+  _nX = xAxis.nBins;
 
   pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
                                         s.value("UpperBound", 1e6).toFloat()));
-  int axis(s.value("Axis",HistogramBackend::xAxis).toInt());
+  int axis(s.value("Axis",result_t::xAxis).toInt());
 
   switch(axis)
   {
-  case (HistogramBackend::xAxis):
-    _xRange = make_pair(0,xAxis.nbrBins());
-    if (userRange.first < yAxis.lowerLimit())
+  case (result_t::xAxis):
+    _xRange = make_pair(0,xAxis.nBins);
+    if (userRange.first < yAxis.low)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': LowerBound '" + toString(userRange.first) +
                              "' is smaller than the lowest possible value '" +
-                             toString(yAxis.lowerLimit()) + "'");
-    if (userRange.first > yAxis.upperLimit())
+                             toString(yAxis.low) + "'");
+    if (userRange.first > yAxis.up)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': LowerBound '" + toString(userRange.first) +
                              "' is higher than the highest possible value '" +
-                             toString(yAxis.upperLimit()) + "'");
-    if (userRange.second < yAxis.lowerLimit())
+                             toString(yAxis.up) + "'");
+    if (userRange.second < yAxis.low)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': UpperBound '" + toString(userRange.second) +
                              "' is smaller than the lowest possible value '" +
-                             toString(yAxis.lowerLimit()) + "'");
-    if (userRange.second > yAxis.upperLimit())
+                             toString(yAxis.low) + "'");
+    if (userRange.second > yAxis.up)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': UpperBound '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
-                             toString(yAxis.upperLimit()) + "'");
-    _yRange.first  = yAxis.nbrBins() * ((userRange.first - yAxis.lowerLimit()) /
-                                       (yAxis.upperLimit() - yAxis.lowerLimit()));
-    _yRange.second = yAxis.nbrBins() * ((userRange.second - yAxis.lowerLimit()) /
-                                       (yAxis.upperLimit() - yAxis.lowerLimit()));
+                             toString(yAxis.up) + "'");
+    _yRange.first  = yAxis.bin(userRange.first);
+    _yRange.second = yAxis.bin(userRange.second);
     _project = bind(&pp50::projectToX,this,_1,_2);
-    createHistList(
-          tr1::shared_ptr<Histogram1DFloat>
-          (new Histogram1DFloat(xAxis.nbrBins(),
-                                xAxis.lowerLimit(), xAxis.upperLimit())));
+    createHistList(result_t::shared_pointer(new result_t(xAxis)));
     break;
 
-  case (HistogramBackend::yAxis):
-    if (userRange.first < xAxis.lowerLimit())
+  case (result_t::yAxis):
+    if (userRange.first < xAxis.low)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': LowerBound '" + toString(userRange.first) +
                              "' is smaller than the lowest possible value '" +
-                             toString(xAxis.lowerLimit()) + "'");
-    if (userRange.first > xAxis.upperLimit())
+                             toString(xAxis.low) + "'");
+    if (userRange.first > xAxis.up)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': LowerBound '" + toString(userRange.first) +
                              "' is higher than the highest possible value '" +
-                             toString(xAxis.upperLimit()) + "'");
-    if (userRange.second < xAxis.lowerLimit())
+                             toString(xAxis.up) + "'");
+    if (userRange.second < xAxis.low)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': UpperBound '" + toString(userRange.second) +
                              "' is smaller than the lowest possible value '" +
-                             toString(xAxis.lowerLimit()) + "'");
-    if (userRange.second > xAxis.upperLimit())
+                             toString(xAxis.low) + "'");
+    if (userRange.second > xAxis.up)
       throw invalid_argument("pp50::loadSettings: '" + name() +
                              "': UpperBound '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
-                             toString(xAxis.upperLimit()) + "'");
-    _xRange.first  = xAxis.nbrBins() * ((userRange.first - xAxis.lowerLimit()) /
-                                       (xAxis.upperLimit() - xAxis.lowerLimit()));
-    _xRange.second = xAxis.nbrBins() * ((userRange.second - xAxis.lowerLimit()) /
-                                       (xAxis.upperLimit() - xAxis.lowerLimit()));
-    _yRange = make_pair(0,yAxis.nbrBins());
+                             toString(xAxis.up) + "'");
+    _xRange.first  = xAxis.bin(userRange.first);
+    _xRange.second = xAxis.bin(userRange.second);
+    _yRange = make_pair(0,yAxis.nBins);
     _project = bind(&pp50::projectToY,this,_1,_2);
-    createHistList(
-          tr1::shared_ptr<Histogram1DFloat>
-          (new Histogram1DFloat(yAxis.nbrBins(),
-                                yAxis.lowerLimit(), yAxis.upperLimit())));
+    createHistList(result_t::shared_pointer(new result_t(yAxis)));
     break;
 
   default:
@@ -786,31 +723,28 @@ void pp50::loadSettings(size_t)
            "'");
 }
 
-void pp50::projectToX(const Histogram2DFloat::storage_t &src,
-                      Histogram1DFloat::storage_t &result)
+void pp50::projectToX(result_t::const_iterator src,
+                      result_t::iterator dest)
 {
   for(size_t y(_yRange.first); y<_yRange.second; ++y)
     for(size_t x(_xRange.first); x<_xRange.second; ++x)
-      result[x] += src[y*_nX + x];
+      dest[x] += src[y*_nX + x];
 }
 
-void pp50::projectToY(const Histogram2DFloat::storage_t &src,
-                      Histogram1DFloat::storage_t &result)
+void pp50::projectToY(result_t::const_iterator src,
+                      result_t::iterator dest)
 {
   for(size_t y(_yRange.first); y<_yRange.second; ++y)
     for(size_t x(_xRange.first); x<_xRange.second; ++x)
-      result[y] += src[y*_nX + x];
+      dest[y] += src[y*_nX + x];
 }
 
-void pp50::process(const CASSEvent& evt, HistogramBackend &res)
+void pp50::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t &one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  _project(one.memory(),result.memory());
+  _project(one.begin(),result.begin());
 }
 
 
@@ -845,40 +779,36 @@ void pp51::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  if (_pHist->result().dimension() != 1)
+  if (_pHist->result().dim() != 1)
     throw invalid_argument("pp51::loadSettings: '" + name() +
                            "': hist '" + _pHist->name() + "' is not a 1d hist.");
-  const Histogram1DFloat &one
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result()));
-  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
-  if (userarea.first < xaxis.lowerLimit())
+  const result_t &one(_pHist->result());
+  const result_t::axe_t &xaxis(one.axis(result_t::xAxis));
+  if (userarea.first < xaxis.low)
     throw invalid_argument("pp51::loadSettings: '" + name() +
                            "': LowerBound '" + toString(userarea.first) +
                            "' is smaller than the lowest possible value '" +
-                           toString(xaxis.lowerLimit()) + "'");
-  if (userarea.first > xaxis.upperLimit())
+                           toString(xaxis.low) + "'");
+  if (userarea.first > xaxis.up)
     throw invalid_argument("pp51::loadSettings: '" + name() +
                            "': LowerBound '" + toString(userarea.first) +
                            "' is higher than the highest possible value '" +
-                           toString(xaxis.upperLimit()) + "'");
-  if (userarea.second < xaxis.lowerLimit())
+                           toString(xaxis.up) + "'");
+  if (userarea.second < xaxis.low)
     throw invalid_argument("pp51::loadSettings: '" + name() +
                            "': UpperBound '" + toString(userarea.second) +
                            "' is smaller than the lowest possible value '" +
-                           toString(xaxis.lowerLimit()) + "'");
-  if (userarea.second > xaxis.upperLimit())
+                           toString(xaxis.low) + "'");
+  if (userarea.second > xaxis.up)
     throw invalid_argument("pp51::loadSettings: '" + name() +
                            "': UpperBound '" + toString(userarea.second) +
                            "' is higher than the highest possible value '" +
-                           toString(xaxis.upperLimit()) + "'");
+                           toString(xaxis.up) + "'");
 
-  _area.first  = xaxis.nbrBins() * ((userarea.first - xaxis.lowerLimit()) /
-                                     (xaxis.upperLimit() - xaxis.lowerLimit()));
-  _area.second = xaxis.nbrBins() * ((userarea.second - xaxis.lowerLimit()) /
-                                     (xaxis.upperLimit() - xaxis.lowerLimit()));
+  _area.first  = xaxis.bin(userarea.first);
+  _area.second = xaxis.bin(userarea.second);
 
-
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO, "Processor '" + name() +
       "' will create integral of 1d histogram in Processor '" + _pHist->name() +
@@ -887,18 +817,14 @@ void pp51::loadSettings(size_t)
       ")'. Condition is '" + _condition->name() + "'");
 }
 
-void pp51::process(const CASSEvent& evt, HistogramBackend &res)
+void pp51::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat &one
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  Histogram1DFloat::storage_t::const_iterator begin(one.memory().begin()+_area.first);
-  Histogram1DFloat::storage_t::const_iterator end(one.memory().begin()+_area.second);
-
-  result =  accumulate(begin, end, 0.f);
+  result_t::const_iterator begin(one.begin()+_area.first);
+  result_t::const_iterator end(one.begin()+_area.second);
+  result.setValue(accumulate(begin, end, 0.f));
 }
 
 
@@ -924,25 +850,27 @@ void pp56::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_pHist->result()));
-  createHistList(one.copy_sptr());
-  _storage.resize(one.memory().size());
+  const result_t &one(_pHist->result());
+  createHistList(one.clone());
   Log::add(Log::INFO,"processor '" + name() +
            "' stores the previous histogram from Processor '" + _pHist->name() +
            "'. Condition on processor '" + _condition->name() +"'");
 }
 
-void pp56::process(const CASSEvent& evt, HistogramBackend &res)
+void pp56::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-  HistogramFloatBase::storage_t &histmem(result.memory());
+  /** get reference to the input */
+  const result_t& one(_pHist->result(evt.id()));
 
+  /** lock this and the input */
   QReadLocker rlock(&one.lock);
   QMutexLocker lock(&_mutex);
-  copy(_storage.begin(),_storage.end(),histmem.begin());
-  copy(one.memory().begin(),one.memory().end(),_storage.begin());
+
+  /** copy the old to the result */
+  result.assign(_previous);
+
+  /** copy the current to the store */
+  _previous.assign(one);
 }
 
 
@@ -980,43 +908,37 @@ void pp57::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  if (_pHist->result().dimension() != 2)
+  if (_pHist->result().dim() != 2)
     throw invalid_argument("pp57::setupParameters()'" + name() +
                            "': Error the histogram we depend on '" + _pHist->name() +
                            "' is not a 2D Histogram.");
-  const Histogram2DFloat &hist(dynamic_cast<const Histogram2DFloat&>(_pHist->result()));
+  const result_t &hist(_pHist->result());
 
   pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
                                         s.value("UpperBound", 1e6).toFloat()));
-  int projection_axis(s.value("Axis",HistogramBackend::xAxis).toUInt());
+  int projection_axis(s.value("Axis",result_t::xAxis).toUInt());
   _excludeVal = s.value("ExclusionValue",0).toFloat();
 
-  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
-  const AxisProperty &yAxis(hist.axis()[HistogramBackend::yAxis]);
-  _nX = xAxis.nbrBins();
+  const result_t::axe_t &xAxis(hist.axis(result_t::xAxis));
+  const result_t::axe_t &yAxis(hist.axis(result_t::yAxis));
+  _nX = xAxis.nBins;
 
   switch(projection_axis)
   {
-  case (HistogramBackend::xAxis):
-    _Xrange = make_pair(0,xAxis.nbrBins());
+  case (result_t::xAxis):
+    _Xrange = make_pair(0,xAxis.nBins);
     _Yrange = make_pair(yAxis.bin(userRange.first),
                         yAxis.bin(userRange.second));
     _project = bind(&pp57::projectToX,this,_1,_2,_3);
-    createHistList(
-          tr1::shared_ptr<Histogram1DFloat>
-          (new Histogram1DFloat(xAxis.nbrBins(),
-                                xAxis.lowerLimit(), xAxis.upperLimit())));
+    createHistList(result_t::shared_pointer(new result_t(xAxis)));
     break;
 
-  case (HistogramBackend::yAxis):
+  case (result_t::yAxis):
     _Xrange = make_pair(xAxis.bin(userRange.first),
                         xAxis.bin(userRange.second));
-    _Yrange = make_pair(0,yAxis.nbrBins());
+    _Yrange = make_pair(0,yAxis.nBins);
     _project = bind(&pp57::projectToY,this,_1,_2,_3);
-    createHistList(
-          tr1::shared_ptr<Histogram1DFloat>
-          (new Histogram1DFloat(yAxis.nbrBins(),
-                                yAxis.lowerLimit(), yAxis.upperLimit())));
+    createHistList(result_t::shared_pointer(new result_t(yAxis)));
     break;
 
   default:
@@ -1031,15 +953,15 @@ void pp57::loadSettings(size_t)
       toString(projection_axis) + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp57::projectToX(const HistogramFloatBase::storage_t &src,
-                      HistogramFloatBase::storage_t& result,
-                      HistogramFloatBase::storage_t& norm)
+void pp57::projectToX(result_t::const_iterator src,
+                      result_t::iterator result,
+                      result_t::iterator norm)
 {
   for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
     for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
     {
       const float pixval(src[y*_nX + x]);
-      if (!qFuzzyCompare(pixval,_excludeVal))
+      if (!fuzzycompare(pixval,_excludeVal))
       {
         result[x] += pixval;
         norm[x] += 1;
@@ -1047,15 +969,15 @@ void pp57::projectToX(const HistogramFloatBase::storage_t &src,
     }
 }
 
-void pp57::projectToY(const HistogramFloatBase::storage_t &src,
-                      HistogramFloatBase::storage_t& result,
-                      HistogramFloatBase::storage_t& norm)
+void pp57::projectToY(result_t::const_iterator src,
+                      result_t::iterator result,
+                      result_t::iterator norm)
 {
   for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
     for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
     {
       const float pixval(src[y*_nX + x]);
-      if (!qFuzzyCompare(pixval,_excludeVal))
+      if (!fuzzycompare(pixval,_excludeVal))
       {
         result[y] += pixval;
         norm[y] += 1;
@@ -1063,20 +985,18 @@ void pp57::projectToY(const HistogramFloatBase::storage_t &src,
     }
 }
 
-void pp57::process(const CASSEvent& evt, HistogramBackend &res)
+void pp57::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t &one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  vector<float> norm(result.memory().size(),0);
-  _project(one.memory(),result.memory(),norm);
-  transform(result.memory().begin(),result.memory().end(),
-            norm.begin(),result.memory().begin(),
+  /** project to axis and remember how many pixels have been added at which
+   *  bin. Then normalize to the number of added pixels
+   */
+  result_t::storage_t norm(result.size(),0);
+  _project(one.begin(),result.begin(),norm.begin());
+  transform(result.begin(),result.end(),norm.begin(),result.begin(),
             divides<float>());
-
 }
 
 
@@ -1088,7 +1008,7 @@ void pp57::process(const CASSEvent& evt, HistogramBackend &res)
 
 
 
-// *** processor 60 histograms 0D values ***
+// *** processor 60 histograms results ***
 
 pp60::pp60(const name_t &name)
   : Processor(name)
@@ -1109,22 +1029,16 @@ void pp60::loadSettings(size_t)
       "'. Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp60::process(const CASSEvent& evt, HistogramBackend &res)
+void pp60::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t &hist(_pHist->result(evt.id()));
   QReadLocker lock(&hist.lock);
 
-  const HistogramFloatBase::storage_t &histmem(hist.memory());
-  HistogramFloatBase::storage_t::const_iterator value(histmem.begin());
-  HistogramFloatBase::storage_t::const_iterator histEnd(histmem.end());
+  result_t::const_iterator value(hist.begin());
+  result_t::const_iterator histEnd(hist.end());
 
-  result.clear();
   for (; value != histEnd; ++value)
-    result.fill(*value);
-
+    result.histogram(*value);
 }
 
 
@@ -1157,33 +1071,48 @@ void pp61::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  createHistList(_pHist->result().copy_sptr());
+  QString averageType(s.value("AveragingType","Normal").toString());
+  if (averageType == "Normal")
+    _func = bind(&pp61::average,this,_1,_2,_3);
+  else if (averageType == "Square")
+    _func = bind(&pp61::squareAverage,this,_1,_2,_3);
+  else
+    throw invalid_argument("pp61::loadSettings() " + name() +
+                           ": requested Averaging type '" +
+                           averageType.toStdString() + "' unknown.");
+  createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"processor '" + name() +
       "' averages histograms from Processor '" +  _pHist->name() +
       "' alpha for the averaging '" + toString(_alpha) +
       "'. Condition on processor '" + _condition->name() + "'");
 }
 
-void pp61::process(const CASSEvent& evt, HistogramBackend &res)
+Processor::result_t::value_t pp61::average(result_t::value_t val,
+                                           result_t::value_t aveOld,
+                                           result_t::value_t scale)
 {
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
+  return aveOld + scale*(val - aveOld);
+}
 
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+Processor::result_t::value_t pp61::squareAverage(result_t::value_t val,
+                                                 result_t::value_t aveOld,
+                                                 result_t::value_t scale)
+{
+  return aveOld + scale*(val*val - aveOld);
+}
 
+void pp61::process(const CASSEvent& evt, result_t &result)
+{
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
   ++_nbrEventsAccumulated;
-  float scale = (1./_nbrEventsAccumulated < _alpha) ?
-                _alpha :
-                1./_nbrEventsAccumulated;
-
-  transform(one.memory().begin(),one.memory().end(),
-            result.memory().begin(),
-            result.memory().begin(),
-            Average(scale));
+  const result_t::value_t scale((1./_nbrEventsAccumulated < _alpha) ?
+                                  _alpha :
+                                  1./_nbrEventsAccumulated);
+  transform(one.begin(),one.end(),result.begin(),result.begin(),
+            bind(_func,_1,_2,scale));
 }
-
 
 
 
@@ -1211,24 +1140,18 @@ void pp62::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  createHistList(_pHist->result().copy_sptr());
+  createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"processor '" + name() +
       "' sums up histograms from Processor '" +  _pHist->name() +
       "'. Condition on processor '" + _condition->name() + "'");
 }
 
-void pp62::process(const CASSEvent& evt,HistogramBackend &res)
+void pp62::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  transform(one.memory().begin(),one.memory().end(),
-            result.memory().begin(),
-            result.memory().begin(),
-            plus<float>());
+  transform(one.begin(),one.end(),result.begin(),result.begin(),plus<float>());
   ++_nbrEventsAccumulated;
 }
 
@@ -1265,7 +1188,7 @@ void pp63::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  createHistList(_pHist->result().copy_sptr());
+  createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
       "' will calculate the time average of histogram of Processor '" + _pHist->name() +
       "' from now '" + toString(s.value("MinTime",0).toUInt()) + "' to '" +
@@ -1275,7 +1198,7 @@ void pp63::loadSettings(size_t)
       " Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp63::process(const CASSEvent& evt, HistogramBackend &res)
+void pp63::process(const CASSEvent& evt, result_t &result)
 {
   //#define debug1
 #ifdef debug1
@@ -1284,9 +1207,7 @@ void pp63::process(const CASSEvent& evt, HistogramBackend &res)
 #endif
   uint32_t fiducials;
   time_t now_of_event;
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+  const result_t& one(_pHist->result(evt.id()));
 
   // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
   //remember the time of the first event
@@ -1338,9 +1259,7 @@ void pp63::process(const CASSEvent& evt, HistogramBackend &res)
   }
   QReadLocker lock(&one.lock);
 
-  transform(one.memory().begin(),one.memory().end(),
-            result.memory().begin(),
-            result.memory().begin(),
+  transform(one.begin(),one.end(), result.begin(), result.begin(),
             TimeAverage(float(_num_seen_evt)));
   ++_num_seen_evt;
   if(_num_seen_evt>_nbrSamples+1) cout<<"pp64::process(): How... it smells like fish! "
@@ -1385,7 +1304,7 @@ void pp64::loadSettings(size_t)
   setupGeneral();
   _size = s.value("Size", 10000).toUInt();
 
-  createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat(_size, 0, _size-1,"Shots")));
+  createHistList(result_t::shared_pointer(new result_t(_size)));
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will make a history of values of histogram in pp '" +
@@ -1393,24 +1312,18 @@ void pp64::loadSettings(size_t)
            "' Condition on processor '" + _condition->name() + "'");
 }
 
-void pp64::process(const CASSEvent &evt, HistogramBackend &res)
+void pp64::process(const CASSEvent &evt, result_t &result)
 {
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase &>(_hist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
+  const result_t &values(_hist->result(evt.id()));
+  QReadLocker lock(&(values.lock));
 
-  QReadLocker lock(&hist.lock);
-
-  const HistogramFloatBase::storage_t &values(hist.memory());
-  HistogramFloatBase::storage_t::const_iterator value(values.begin());
-  HistogramFloatBase::storage_t::const_iterator valueEnd(values.end());
-
-  HistogramFloatBase::storage_t &mem(result.memory());
+  result_t::const_iterator value(values.begin());
+  result_t::const_iterator valueEnd(values.end());
 
   for(; value != valueEnd ;++value)
   {
-    rotate(mem.begin(), mem.begin()+1, mem.end());
-    mem[_size-1] = *value;
+    rotate(result.begin(), result.begin()+1, result.end());
+    result[_size-1] = *value;
   }
 }
 
@@ -1436,29 +1349,23 @@ void pp65::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  if (_one->result().dimension() != 0 ||
-      _two->result().dimension() != 0)
-    throw std::runtime_error("PP type 65: Either HistOne or HistTwo is not a 0D Hist");
+  if (_one->result().dim() != 0 || _two->result().dim() != 0)
+    throw runtime_error("pp65::loadSettings() " + name() +
+                        " Either HistOne or HistTwo is not a 0D Hist");
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"processor '" + name() +
       "': histograms values from Processor '" +  _one->name() +"' and '" +
       _two->name() + ". condition on Processor '" + _condition->name() + "'");
 }
 
-void pp65::process(const CASSEvent& evt, HistogramBackend &res)
+void pp65::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram0DFloat &one
-      (dynamic_cast<const Histogram0DFloat&>(_one->result(evt.id())));
-  const Histogram0DFloat &two
-      (dynamic_cast<const Histogram0DFloat&>(_two->result(evt.id())));
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock1(&one.lock);
+  const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-
-  result.clear();
-  result.fill(one.getValue(),two.getValue());
+  result.histogram(one.getValue(),two.getValue());
 }
 
 
@@ -1488,23 +1395,16 @@ void pp66::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->result()));
-  const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->result()));
-  if (one.dimension() != 1 || two.dimension() != 1)
+  const result_t &one(_one->result());
+  const result_t &two(_two->result());
+  if (one.dim() != 1 || two.dim() != 1)
     throw runtime_error("pp66::loadSettings(): HistOne '" + _one->name() +
-                        "' with dimension '" + toString(one.dimension()) +
+                        "' with dimension '" + toString(one.dim()) +
                         "' or HistTwo '" + _two->name() + "' has dimension '" +
-                        toString(two.dimension()) + "' does not have dimension 1");
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
-                              one.axis()[HistogramBackend::xAxis].lowerLimit(),
-                              one.axis()[HistogramBackend::xAxis].upperLimit(),
-                              two.axis()[HistogramBackend::xAxis].nbrBins(),
-                              two.axis()[HistogramBackend::xAxis].lowerLimit(),
-                              two.axis()[HistogramBackend::xAxis].upperLimit(),
-                              one.axis()[HistogramBackend::xAxis].title(),
-                              two.axis()[HistogramBackend::xAxis].title())));
+                        toString(two.dim()) + "' does not have dimension 1");
+  createHistList
+      (result_t::shared_pointer
+        (new result_t(one.axis(result_t::xAxis), two.axis(result_t::yAxis))));
 
    Log::add(Log::INFO,"processor '" + name() +
            "' creates a two dim histogram from Processor '" + _one->name() +
@@ -1512,23 +1412,18 @@ void pp66::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp66::process(const CASSEvent& evt, HistogramBackend &res)
+void pp66::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat &one
-      (dynamic_cast<const Histogram1DFloat&>(_one->result(evt.id())));
-  const Histogram1DFloat &two
-      (dynamic_cast<const Histogram1DFloat&>(_two->result(evt.id())));
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock1(&one.lock);
+  const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  HistogramFloatBase::storage_t &memory(result.memory());
-  const size_t oneNBins(one.axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t twoNBins(two.axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t oneNBins(one.axis(result_t::xAxis).nBins);
+  const size_t twoNBins(two.axis(result_t::xAxis).nBins);
   for (size_t j(0); j < twoNBins; ++j)
     for (size_t i(0); i < oneNBins; ++i)
-      memory[j*oneNBins+i] = one.memory()[i]*two.memory()[j];
+      result[j*oneNBins+i] = one[i]*two[j];
 }
 
 
@@ -1564,32 +1459,32 @@ void pp67::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  if (_one->result().dimension() != _two->result().dimension() )
+  if (_one->result().dim() != _two->result().dim() )
     throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
                            _one->name() + "' and '" + _two->name() +
                            "' are not of the same type");
-  if (dynamic_cast<const HistogramFloatBase&>(_one->result()).memory().size() !=
-      dynamic_cast<const HistogramFloatBase&>(_two->result()).memory().size())
+  if (_one->result().shape() != _two->result().shape())
     throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
                            _one->name() + "' and '" + _two->name() +
                            "' are not of the same size");
 
-  switch (_one->result().dimension())
+  switch (_one->result().dim())
   {
   case 0: _statsize = 0; break;
-  case 1: _statsize = HistogramBackend::Underflow+1; break;
-  case 2: _statsize = HistogramBackend::LowerRight+1; break;
+  case 1: _statsize = result_t::Underflow+1; break;
+  case 2: _statsize = result_t::LowerRight+1; break;
   default:  break;
   }
 
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(s.value("XNbrBins",1).toUInt(),
-                              s.value("XLow",0).toFloat(),
-                              s.value("XUp",0).toFloat(),
-                              2,0,2, /** @note this allows to address the y bin with 0.1 and 1.1 */
-                              s.value("XTitle","x-axis").toString().toStdString(),
-                              "bins")));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
+         (result_t::axe_t(s.value("XNbrBins",1).toUInt(),
+                          s.value("XLow",0).toFloat(),
+                          s.value("XUp",0).toFloat(),
+                          s.value("XTitle","x-axis").toString().toStdString()),
+          /** @note this allows to address the y bin with 0.1 and 1.1 */
+          result_t::axe_t(2,0,2,"bins"))));
 
   Log::add(Log::INFO,"processor '" + name() +
       "' makes a 1D Histogram where '" + _one->name() +
@@ -1598,29 +1493,22 @@ void pp67::loadSettings(size_t)
       ". Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp67::process(const CASSEvent& evt, HistogramBackend &res)
+void pp67::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_one->result(evt.id())));
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>(_two->result(evt.id())));
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock1(&one.lock);
+  const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  const HistogramFloatBase::storage_t &xmem(one.memory());
-  HistogramFloatBase::storage_t::const_iterator xx(xmem.begin());
-  HistogramFloatBase::storage_t::const_iterator xEnd(xmem.end()-_statsize);
+  result_t::const_iterator xx(one.begin());
+  result_t::const_iterator xEnd(one.end()-_statsize);
 
-  const HistogramFloatBase::storage_t &ymem(two.memory());
-  HistogramFloatBase::storage_t::const_iterator yy(ymem.begin());
+  result_t::const_iterator yy(two.begin());
 
-  result.clear();
   for (;xx != xEnd; ++xx, ++yy)
   {
-    result.fill(*xx,0.1,*yy);
-    result.fill(*xx,1.1);
+    result.histogram(make_pair(*xx,0.1),*yy);
+    result.histogram(make_pair(*xx,1.1));
   }
 }
 
@@ -1657,22 +1545,19 @@ void pp68::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  if (_one->result().dimension() != 1 || _two->result().dimension() != 0)
+  if (_one->result().dim() != 1 || _two->result().dim() != 0)
     throw runtime_error("pp68::loadSettings() '" + name() + "': Either '" +
                         _one->name() + "' is not 1D or '" + _two->name() +
                         "' is not a 0D Hist");
-  const Histogram1DFloat &one(dynamic_cast<const Histogram1DFloat&>(_one->result()));
-  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(xaxis.nbrBins(),
-                              xaxis.lowerLimit(),
-                              xaxis.upperLimit(),
-                              s.value("YNbrBins",1).toUInt(),
-                              s.value("YLow",0).toFloat(),
-                              s.value("YUp",0).toFloat(),
-                              xaxis.title(),
-                              s.value("YTitle","y-axis").toString().toStdString())));
+  const result_t &one(_one->result());
+  const result_t::axe_t &xaxis(one.axis(result_t::xAxis));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
+         (xaxis, result_t::axe_t( s.value("YNbrBins",1).toUInt(),
+                                  s.value("YLow",0).toFloat(),
+                                  s.value("YUp",0).toFloat(),
+                                  s.value("YTitle","y-axis").toString().toStdString()))));
   Log::add(Log::INFO,"processor '" + name() +
            "' makes a 2D Histogram where '" + _one->name() +
            "' defines the x axis to fill and '" + _two->name() +
@@ -1680,28 +1565,19 @@ void pp68::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp68::process(const CASSEvent& evt, HistogramBackend &res)
+void pp68::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat &one
-      (dynamic_cast<const Histogram1DFloat&>(_one->result(evt.id())));
-  const Histogram0DFloat &two
-      (dynamic_cast<const Histogram0DFloat&>(_two->result(evt.id())));
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock1(&one.lock);
+  const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  result.clear();
-  try
+  const result_t::axe_t xaxis(result.axis(result_t::yAxis));
+  const size_t bin(xaxis.bin(two.getValue()));
+  if (!(xaxis.isOverflow(bin) || xaxis.isUnderflow(bin)))
   {
-    size_t bin(result.axis()[HistogramBackend::yAxis].bin(two.getValue()));
-    HistogramFloatBase::storage_t::iterator memorypointer
-        (result.memory().begin() + bin*result.axis()[HistogramBackend::xAxis].nbrBins());
-    copy(one.memory().begin(),one.memory().end()-2,memorypointer);
-  }
-  catch (const out_of_range& error)
-  {
-
+    result_t::iterator memorypointer(result.begin() + bin*xaxis.nBins);
+    copy(one.begin(),one.end()-2,memorypointer);
   }
 }
 
@@ -1729,7 +1605,7 @@ void pp69::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
-  if (_one->result().dimension() != 0 || _two->result().dimension() != 0)
+  if (_one->result().dim() != 0 || _two->result().dim() != 0)
     throw runtime_error("pp69::loadSettings() '" + name() + "': Either '" +
                         _one->name() + "' or '" + _two->name() + "' is not a 0D Hist");
   createHistList(set1DHist(name()));
@@ -1740,36 +1616,34 @@ void pp69::loadSettings(size_t)
            ". Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp69::process(const CASSEvent& evt, HistogramBackend &res)
+void pp69::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram0DFloat &one
-      (dynamic_cast<const Histogram0DFloat&>(_one->result(evt.id())));
-  const Histogram0DFloat &two
-      (dynamic_cast<const Histogram0DFloat&>(_two->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t &one(_one->result(evt.id()));
   QReadLocker lock1(&one.lock);
+  const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  Histogram1DFloat::storage_t &mem(result.memory());
+//  const float x(one.getValue());
+//  const float weight(two.getValue());
+//  const int nxBins(static_cast<const int>(result.axis()[result_t::xAxis].nbrBins()));
+//  const float xlow(result.axis()[result_t::xAxis].lowerLimit());
+//  const float xup(result.axis()[result_t::xAxis].upperLimit());
+//  const int xBin(static_cast<int>( nxBins * (x - xlow) / (xup-xlow)));
+//  //check whether the fill is in the right range//
+//  const bool xInRange = 0<=xBin && xBin<nxBins;
+//  // if in range fill the memory otherwise figure out whether over of underflow occured//
+//  if (xInRange)
+//    mem[xBin] = weight;
+//  else if (xBin >= nxBins)
+//    mem[nxBins+result_t::Overflow] += 1;
+//  else if (xBin < 0)
+//    mem[nxBins+result_t::Underflow] += 1;
 
-  const float x(one.getValue());
-  const float weight(two.getValue());
-  const int nxBins(static_cast<const int>(result.axis()[HistogramBackend::xAxis].nbrBins()));
-  const float xlow(result.axis()[HistogramBackend::xAxis].lowerLimit());
-  const float xup(result.axis()[HistogramBackend::xAxis].upperLimit());
-  const int xBin(static_cast<int>( nxBins * (x - xlow) / (xup-xlow)));
-
-  //check whether the fill is in the right range//
-  const bool xInRange = 0<=xBin && xBin<nxBins;
-  // if in range fill the memory otherwise figure out whether over of underflow occured//
-  if (xInRange)
-    mem[xBin] = weight;
-  else if (xBin >= nxBins)
-    mem[nxBins+HistogramBackend::Overflow] += 1;
-  else if (xBin < 0)
-    mem[nxBins+HistogramBackend::Underflow] += 1;
-  //increase the number of fills//
+  /** histogram the first value, which will return an iterator pointing to the
+   *  correct bin. We can then write the second value to the correct bin
+   */
+  *(result.histogram(one.getValue())) = two.getValue();
+  /** increase the number of fills */
   ++_nbrEventsAccumulated;
 }
 
@@ -1805,48 +1679,49 @@ void pp70::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
 
-  const HistogramFloatBase& hist(dynamic_cast<const HistogramFloatBase&>(_pHist->result()));
-  if (hist.dimension() == 0)
+  const result_t& hist(_pHist->result());
+  if (hist.dim() == 0)
     throw invalid_argument("pp70::loadSettings(): Dimension '" +
-                           toString(hist.dimension()) + "' of histogram '" +
+                           toString(hist.dim()) + "' of histogram '" +
                            _pHist->name() + "'not supported");
 
   pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
                                          s.value("XUp",1).toFloat()));
-  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
-  _inputOffset=(xaxis.bin(userXRange.first));
-  const size_t binXUp (xaxis.bin(userXRange.second));
-  /** @note the total number of bin between low and up is up-low +1 */
-  const size_t nXBins (binXUp-_inputOffset+1);
-  const float xLow (xaxis.position(_inputOffset));
-  const float xUp (xaxis.position(binXUp));
+  const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
+  _inputOffset = xaxis.bin(userXRange.first);
+  const size_t binXUp(xaxis.bin(userXRange.second));
+  /** @note the total number of bin between low and up is up-low+1 */
+  const size_t nXBins(binXUp-_inputOffset+1);
+  const float xLow(xaxis.pos(_inputOffset));
+  const float xUp(xaxis.pos(binXUp));
   string output("Processor '" + name() +
                 "' setup: returns a subset of histogram in pp '"  +  _pHist->name() +
-                "' which has dimension '" + toString(hist.dimension()) +
+                "' which has dimension '" + toString(hist.dim()) +
                 "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
                 "), xUp:" + toString(xUp) + "(" + toString(binXUp) +
                 "), xNbrBins:" + toString(nXBins));
-  if (1 == hist.dimension())
+  if (1 == hist.dim())
   {
-    createHistList(tr1::shared_ptr<Histogram1DFloat>
-                   (new Histogram1DFloat(nXBins,xLow,xUp)));
+    createHistList(result_t::shared_pointer
+                   (new result_t(result_t::axe_t(nXBins,xLow,xUp,xaxis.title))));
   }
-  else if (2 == hist.dimension())
+  else if (2 == hist.dim())
   {
     pair<float,float> userYRange(make_pair(s.value("YLow",0).toFloat(),
                                            s.value("YUp",1).toFloat()));
-    const AxisProperty &yaxis (hist.axis()[HistogramBackend::yAxis]);
+    const result_t::axe_t &yaxis(hist.axis(result_t::yAxis));
     const size_t binYLow(yaxis.bin(userYRange.first));
     const size_t binYUp (yaxis.bin(userYRange.second));
     /** @note the total number of bin between low and up is up-low +1 */
     const size_t nYBins = (binYUp - binYLow + 1);
-    const float yLow (yaxis.position(binYLow));
-    const float yUp (yaxis.position(binYUp));
-    _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow +0.1);
-    createHistList(
-          tr1::shared_ptr<Histogram2DFloat>
-          (new Histogram2DFloat(nXBins,xLow,xUp,
-                                nYBins,yLow,yUp)));
+    const float yLow (yaxis.pos(binYLow));
+    const float yUp (yaxis.pos(binYUp));
+    _inputOffset = static_cast<size_t>(binYLow*xaxis.nBins+xLow + 0.1);
+    createHistList
+        (result_t::shared_pointer
+          (new result_t
+           (result_t::axe_t(nXBins,xLow,xUp,xaxis.title),
+            result_t::axe_t(nYBins,yLow,yUp,yaxis.title))));
     output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
         "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
         "), yNbrBins:"+ toString(nYBins) + ", linearized offset is now:" +
@@ -1857,23 +1732,17 @@ void pp70::loadSettings(size_t)
   Log::add(Log::INFO,output);
 }
 
-void pp70::process(const CASSEvent& evt, HistogramBackend &res)
+void pp70::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& input
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t& input(_pHist->result(evt.id()));
   QReadLocker lock(&input.lock);
 
-  const HistogramFloatBase::storage_t &imem (input.memory());
-  HistogramFloatBase::storage_t::const_iterator iit(imem.begin()+_inputOffset);
-  HistogramFloatBase::storage_t &rmem(result.memory());
-  HistogramFloatBase::storage_t::iterator rit(rmem.begin());
-  const size_t resultNbrXBins(result.axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t resultNbrYBins = (result.dimension() == 2) ?
-                                 result.axis()[HistogramBackend::yAxis].nbrBins() :
-                                 1;
-  const size_t inputNbrXBins(input.axis()[HistogramBackend::xAxis].nbrBins());
+  result_t::const_iterator iit(input.begin()+_inputOffset);
+  result_t::iterator rit(result.begin());
+  const size_t resultNbrXBins(result.axis(result_t::xAxis).nBins);
+  const size_t resultNbrYBins((result.dim() == 2) ?
+                                result.axis(result_t::yAxis).nBins : 1);
+  const size_t inputNbrXBins(input.axis(result_t::xAxis).nBins);
   for (size_t yBins=0;yBins < resultNbrYBins; ++yBins)
   {
     copy(iit,iit+resultNbrXBins,rit);
@@ -1908,29 +1777,26 @@ void pp71::loadSettings(size_t)
     return;
   string functype(s.value("RetrieveType","max").toString().toStdString());
   if (functype == "max")
-    _func = &max_element<HistogramFloatBase::storage_t::const_iterator>;
+    _func = &max_element<result_t::const_iterator>;
   else if (functype == "min")
-    _func = &min_element<HistogramFloatBase::storage_t::const_iterator>;
+    _func = &min_element<result_t::const_iterator>;
   else
     throw invalid_argument("pp71::loadSettings(): RetrieveType '" + functype +
                            "' unknown.");
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns the value in '" + _pHist->name() +
            "' that is retrieved by using function type '" + functype +
            "' .Condition on processor '" + _condition->name() + "'");
 }
 
-void pp71::process(const CASSEvent& evt, HistogramBackend &res)
+void pp71::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  result.fill(*(_func(one.memory().begin(), one.memory().end())));
+  result.setValue(*(_func(one.begin(), one.end())));
 }
 
 
@@ -1963,7 +1829,7 @@ void pp75::loadSettings(size_t)
            "'. Condition is "+ _condition->name());
 }
 
-const HistogramBackend& pp75::result(const CASSEvent::id_t)
+const Processor::result_t &pp75::result(const CASSEvent::id_t)
 {
   throw logic_error("pp75::result: '"+name()+"' should never be called");
 }
@@ -1971,7 +1837,7 @@ const HistogramBackend& pp75::result(const CASSEvent::id_t)
 void pp75::processEvent(const CASSEvent& evt)
 {
   if (_condition->result(evt.id()).isTrue())
-    const_cast<HistogramBackend&>(_hist->result(evt.id())).clear();
+    const_cast<result_t&>(_hist->result(evt.id())).clear();
 }
 
 
@@ -1996,7 +1862,7 @@ void pp76::loadSettings(size_t)
            "' will quit CASS.. Condition is "+ _condition->name());
 }
 
-const HistogramBackend& pp76::result(const CASSEvent::id_t)
+const Processor::result_t& pp76::result(const CASSEvent::id_t)
 {
   throw logic_error("pp75::result: '"+name()+"' should never be called");
 }
@@ -2045,18 +1911,16 @@ void pp77::loadSettings(size_t)
     file >> id;
     _list.push_back(id);
   }
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will check whether eventid in file '" + filename +
            "'. Condition is "+ _condition->name());
 }
 
-void pp77::process(const CASSEvent& evt, HistogramBackend &res)
+void pp77::process(const CASSEvent& evt, result_t &result)
 {
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result = (find(_list.begin(),_list.end(),evt.id()) != _list.end());
+  result.setValue(find(_list.begin(),_list.end(),evt.id()) != _list.end());
 }
 
 
@@ -2080,16 +1944,15 @@ void pp78::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' counts how many times its process is called. '"  +
            "'. Condition is '"+ _condition->name() + "'");
 }
 
-void pp78::process(const CASSEvent&, HistogramBackend &res)
+void pp78::process(const CASSEvent&, result_t &result)
 {
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  ++(result.memory()[0]);
+  ++(result[0]);
 }
 
 
@@ -2122,36 +1985,32 @@ void pp81::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  if (_pHist->result().dimension() != 1)
+  if (_pHist->result().dim() != 1)
     throw invalid_argument("pp81::loadSettings() '" + name() + "': '" +
                            _pHist->name() + "' is not a 1D hist");
   string functype(s.value("RetrieveType","max").toString().toStdString());
   if (functype == "max")
-    _func = &max_element<HistogramFloatBase::storage_t::const_iterator>;
+    _func = &max_element<result_t::const_iterator>;
   else if (functype == "min")
-    _func = &min_element<HistogramFloatBase::storage_t::const_iterator>;
+    _func = &min_element<result_t::const_iterator>;
   else
     throw invalid_argument("pp81::loadSettings(): RetrieveType '" + functype +
                            "' unknown.");
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns the maximum bin in '" + _pHist->name() +
            "' .Condition on processor '" + _condition->name() + "'");
 }
 
-void pp81::process(const CASSEvent& evt, HistogramBackend &res)
+void pp81::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  HistogramFloatBase::storage_t::const_iterator it
-      (_func(one.memory().begin(), one.memory().end()));
-  size_t bin(distance(one.memory().begin(),it));
-  result.fill(one.axis()[HistogramBackend::xAxis].position(bin));
+  result_t::const_iterator it(_func(one.begin(), one.end()));
+  const size_t bin(distance(one.begin(),it));
+  result.setValue(one.axis(result_t::xAxis).pos(bin));
 }
 
 
@@ -2201,24 +2060,21 @@ void pp82::loadSettings(size_t)
     throw invalid_argument("pp71::loadSettings(): RetrieveType '" + functype +
                            "' unknown.");
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns the mean of all bins in '" + _pHist->name() +
            "' .Condition on processor '" + _condition->name() + "'");
 }
 
-void pp82::process(const CASSEvent& evt, HistogramBackend &res)
+void pp82::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t &one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
   stat_t stat;
-  stat.addDistribution(one.memory().begin(),one.memory().end());
-  result.fill(_val(stat));
+  stat.addDistribution(one.begin(),one.end());
+  result.setValue(_val(stat));
 }
 
 
@@ -2260,16 +2116,16 @@ void pp85::loadSettings(size_t)
                                          s.value("XUp",1).toFloat()));
   _fraction = s.value("Fraction",0.5).toFloat();
 
-  const HistogramBackend &hist(_pHist->result());
-  if (hist.dimension() != 1)
+  const result_t &hist(_pHist->result());
+  if (hist.dim() != 1)
     throw invalid_argument("pp85::loadSettings()'" + name() +
                            "': Error the histogram we depend on '" + _pHist->name() +
                            "' is not a 1D Histogram.");
-  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _xRange = make_pair(xaxis.bin(userXRange.first),
                       xaxis.bin(userXRange.second));
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns the full width at half maximum in '" + _pHist->name() +
            "' of the range from xlow '" + toString(userXRange.first) +
@@ -2277,43 +2133,41 @@ void pp85::loadSettings(size_t)
            "' .Condition on processor '" + _condition->name() + "'");
 }
 
-void pp85::process(const CASSEvent& evt, HistogramBackend &res)
+void pp85::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& one
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  HistogramFloatBase::storage_t::const_iterator xRangeBegin
-      (one.memory().begin()+_xRange.first);
-  HistogramFloatBase::storage_t::const_iterator xRangeEnd
-      (one.memory().begin()+_xRange.second);
-  HistogramFloatBase::storage_t::const_iterator maxElementIt
-      (std::max_element(xRangeBegin, xRangeEnd));
-  HistogramFloatBase::storage_t::const_iterator minElementIt
-      (std::min_element(xRangeBegin, xRangeEnd));
+  result_t::const_iterator xRangeBegin(one.begin()+_xRange.first);
+  result_t::const_iterator xRangeEnd(one.begin()+_xRange.second);
+  result_t::const_iterator maxElementIt(std::max_element(xRangeBegin, xRangeEnd));
+  result_t::const_iterator minElementIt(std::min_element(xRangeBegin, xRangeEnd));
   const float fracMax((*maxElementIt-*minElementIt) * _fraction + *minElementIt);
 
-  HistogramFloatBase::storage_t::const_iterator leftSide;
-  HistogramFloatBase::storage_t::const_iterator rightSide;
-  for(HistogramFloatBase::storage_t::const_iterator iVal(maxElementIt);
+  result_t::const_iterator leftSide;
+  result_t::const_iterator rightSide;
+  for(result_t::const_iterator iVal(maxElementIt);
       (iVal != xRangeBegin) && (*iVal > fracMax);
       --iVal)
   {
     leftSide = iVal;
   }
-  for(HistogramFloatBase::storage_t::const_iterator iVal(maxElementIt);
+  for(result_t::const_iterator iVal(maxElementIt);
       (iVal != xRangeEnd) && (*iVal > fracMax);
       ++iVal)
   {
     rightSide = iVal;
   }
-  const float lowerdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide,rightSide)));
-  const float upperdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide-1,rightSide+1)));
+  const result_t::axe_t xaxis(one.axis((result_t::xAxis)));
+  const float lowerLeftPos (xaxis.pos(distance(one.begin(),leftSide)));
+  const float lowerRightPos(xaxis.pos(distance(one.begin(),rightSide)));
+  const float upperLeftPos (xaxis.pos(distance(one.begin(),leftSide-1)));
+  const float upperRightPos(xaxis.pos(distance(one.begin(),rightSide+1)));
+  const float lowerdist(lowerRightPos - lowerLeftPos);
+  const float upperdist(upperRightPos - upperLeftPos);
   const float fwfm((upperdist+lowerdist)*0.5);
 
-  result.fill(fwfm);
+  result.setValue(fwfm);
 }
 
 
@@ -2360,17 +2214,17 @@ void pp86::loadSettings(size_t)
   pair<float,float> userXRangeBaseline(make_pair(s.value("BaselineLow",0).toFloat(),
                                                  s.value("BaselineUp",1).toFloat()));
   _userFraction = s.value("Fraction",0.5).toFloat();
-  const HistogramBackend &hist(_pHist->result());
-  if (hist.dimension() != 1)
+  const result_t &hist(_pHist->result());
+  if (hist.dim() != 1)
     throw invalid_argument("pp86::setupParameters()'" + name() +
                            "': Error the histogram we depend on '" + _pHist->name() +
                            "' is not a 1D Histogram.");
-  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _xRangeStep = make_pair(xaxis.bin(userXRangeStep.first),
                           xaxis.bin(userXRangeStep.second));
   _xRangeBaseline = make_pair(xaxis.bin(userXRangeBaseline.first),
                               xaxis.bin(userXRangeBaseline.second));
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO, "Processor '" + name() +
            "' returns the ion of the step in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRangeStep.first) +
@@ -2381,37 +2235,30 @@ void pp86::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp86::process(const CASSEvent& evt, HistogramBackend &res)
+void pp86::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& one
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  HistogramFloatBase::storage_t::const_iterator baselineBegin
-      (one.memory().begin()+_xRangeBaseline.first);
-  HistogramFloatBase::storage_t::const_iterator baselineEnd
-      (one.memory().begin()+_xRangeBaseline.second);
+  result_t::const_iterator baselineBegin(one.begin()+_xRangeBaseline.first);
+  result_t::const_iterator baselineEnd(one.begin()+_xRangeBaseline.second);
   const float baseline(accumulate(baselineBegin,baselineEnd,0.f) /
                        static_cast<float>(distance(baselineBegin,baselineEnd)));
 
-  HistogramFloatBase::storage_t::const_iterator stepRangeBegin
-      (one.memory().begin()+_xRangeStep.first);
-  HistogramFloatBase::storage_t::const_iterator stepRangeEnd
-      (one.memory().begin()+_xRangeStep.second);
+  result_t::const_iterator stepRangeBegin(one.begin()+_xRangeStep.first);
+  result_t::const_iterator stepRangeEnd(one.begin()+_xRangeStep.second);
 
-  HistogramFloatBase::storage_t::const_iterator maxElementIt
+  result_t::const_iterator maxElementIt
       (std::max_element(stepRangeBegin, stepRangeEnd));
   const float halfMax((*maxElementIt+baseline) * _userFraction);
 
-  HistogramFloatBase::storage_t::const_iterator stepIt(stepRangeBegin+1);
+  result_t::const_iterator stepIt(stepRangeBegin+1);
   for ( ; stepIt != maxElementIt ; stepIt++ )
     if ( *(stepIt-1) <= halfMax && halfMax < *stepIt )
       break;
-  const size_t steppos(distance(one.memory().begin(),stepIt));
+  const size_t steppos(distance(one.begin(),stepIt));
 
-  result.fill(steppos);
+  result.setValue(steppos);
 }
 
 
@@ -2449,16 +2296,16 @@ void pp87::loadSettings(size_t)
     return;
   pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
                                          s.value("XUp",1).toFloat()));
-  const HistogramBackend &hist(_pHist->result());
-  if (hist.dimension() != 1)
+  const result_t &hist(_pHist->result());
+  if (hist.dim() != 1)
     throw invalid_argument("pp87::setupParameters()'" + name() +
                            "': Error the histogram we depend on '" + _pHist->name() +
                            "' is not a 1D Histogram.");
-  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _xRange = make_pair(xaxis.bin(userXRange.first),
                       xaxis.bin(userXRange.second));
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO, "Processor '" + name() +
            "' returns the center of mass in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRange.first) +
@@ -2466,28 +2313,24 @@ void pp87::loadSettings(size_t)
            "' .Condition on processor '"+_condition->name()+"'");
 }
 
-void pp87::process(const CASSEvent& evt, HistogramBackend &res)
+void pp87::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& hist
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
+  const result_t& data(_pHist->result(evt.id()));
+  QReadLocker lock(&data.lock);
 
-  QReadLocker lock(&hist.lock);
-
-  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
-  const HistogramFloatBase::storage_t &data(hist.memory());
+  const result_t::axe_t &xAxis(data.axis(result_t::xAxis));
 
   float integral(0);
   float weight(0);
   for (size_t i(_xRange.first); i < _xRange.second; ++i)
   {
     integral += (data[i]);
-    const float pos(xAxis.position(i));
+    const float pos(xAxis.pos(i));
     weight += (data[i]*pos);
   }
   const float com(weight/integral);
 
-  result.fill(com);
+  result.setValue(com);
 }
 
 
@@ -2519,64 +2362,61 @@ void pp88::loadSettings(size_t)
   QString axisparam(s.value("AxisParameter","XNbrBins").toString());
   if (axisparam == "XNbrBins")
   {
-    _axisId = HistogramBackend::xAxis;
-    _func = &AxisProperty::size;
+    _axisId = result_t::xAxis;
+    _func = &result_t::axe_t::nBins;
   }
   else if (axisparam == "XLow")
   {
-    _axisId = HistogramBackend::xAxis;
-    _func = &AxisProperty::lowerLimit;
+    _axisId = result_t::xAxis;
+    _func = &result_t::axe_t::low;
   }
   else if (axisparam == "XUp")
   {
-    _axisId = HistogramBackend::xAxis;
-    _func = &AxisProperty::upperLimit;
+    _axisId = result_t::xAxis;
+    _func = &result_t::axe_t::up;
   }
   else if (axisparam == "YNbrBins")
   {
-    _axisId = HistogramBackend::yAxis;
-    _func = &AxisProperty::size;
+    _axisId = result_t::yAxis;
+    _func = &result_t::axe_t::nBins;
   }
   else if (axisparam == "YLow")
   {
-    _axisId = HistogramBackend::yAxis;
-    _func = &AxisProperty::lowerLimit;
+    _axisId = result_t::yAxis;
+    _func = &result_t::axe_t::low;
   }
   else if (axisparam == "YUp")
   {
-    _axisId = HistogramBackend::yAxis;
-    _func = &AxisProperty::upperLimit;
+    _axisId = result_t::yAxis;
+    _func = &result_t::axe_t::up;
   }
   else
     throw invalid_argument("pp88 '" + name() + "' AxisParameter '" +
                            axisparam.toStdString() + "' is unknown.");
 
-  if (_pHist->result().dimension() == 0)
+  if (_pHist->result().dim() == 0)
     throw invalid_argument("pp88 '" + name() + "' histogram '" + _pHist->name() +
                            "' has dimension 0, which has no axis properties.");
 
   if ((axisparam == "YNbrBins" || axisparam == "YLow" || axisparam == "YUp")
-      && _pHist->result().dimension() == 1)
+      && _pHist->result().dim() == 1)
     throw invalid_argument("pp88 '" + name() + "' histogram '" + _pHist->name() +
                            "' has dimension 1, which is incompatible with property '" +
                            axisparam.toStdString() + "'");
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns axis parameter'"+ axisparam.toStdString() +
            "' of histogram in pp '" + _pHist->name() +
            "'. Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp88::process(const CASSEvent& evt, HistogramBackend &res)
+void pp88::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase& hist
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->result(evt.id())));
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& hist(_pHist->result(evt.id()));
   QReadLocker lock(&hist.lock);
 
-  result = _func(hist.axis()[_axisId]);
+  result.setValue(_func(hist.axis(_axisId)));
 }
 
 
@@ -2630,19 +2470,19 @@ void pp89::loadSettings(size_t)
     throw invalid_argument("pp89 '" + name() + "' FilterType '" +
                            filtertype.toStdString() + "' is unknown.");
 
-  if (_pHist->result().dimension() != 1)
+  if (_pHist->result().dim() != 1)
     throw invalid_argument("pp89 '" + name() + "' histogram '" + _pHist->name() +
                            "' is not a 1D histograms");
 
-  createHistList(_pHist->result().copy_sptr());
+  createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
            "' does "+ filtertype.toStdString() +
            "' operation on histogram in pp '" + _pHist->name() +
            "'. Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp89::highPass(HistogramFloatBase::storage_t::const_iterator &orig,
-                    HistogramFloatBase::storage_t::iterator &filtered)
+void pp89::highPass(result_t::const_iterator orig,
+                    result_t::iterator filtered)
 {
 //  float RC = 1.0/(CUTOFF*2*3.14);
 //  float dt = 1.0/SAMPLE_RATE;
@@ -2658,8 +2498,8 @@ void pp89::highPass(HistogramFloatBase::storage_t::const_iterator &orig,
 
 }
 
-void pp89::lowPass(HistogramFloatBase::storage_t::const_iterator &orig,
-                   HistogramFloatBase::storage_t::iterator &filtered)
+void pp89::lowPass(result_t::const_iterator orig,
+                   result_t::iterator filtered)
 {
 //  float RC = 1.0/(CUTOFF*2*3.14);
 //  float dt = 1.0/SAMPLE_RATE;
@@ -2674,21 +2514,14 @@ void pp89::lowPass(HistogramFloatBase::storage_t::const_iterator &orig,
   *filtered = *(filtered-1) + (_alpha * (*orig - *(filtered-1)));
 }
 
-void pp89::process(const CASSEvent& evt, HistogramBackend &res)
+void pp89::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& hist
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
+  const result_t& in(_pHist->result(evt.id()));
+  QReadLocker lock(&in.lock);
 
-  QReadLocker lock(&hist.lock);
-
-  const HistogramFloatBase::storage_t &in(hist.memory());
-
-  HistogramFloatBase::storage_t &out(result.memory());
-
-  HistogramFloatBase::storage_t::const_iterator inIt(in.begin());
-  HistogramFloatBase::storage_t::const_iterator inEnd(in.end());
-  HistogramFloatBase::storage_t::iterator outIt(out.begin());
+  result_t::const_iterator inIt(in.begin());
+  result_t::const_iterator inEnd(in.end());
+  result_t::iterator outIt(result.begin());
 
   *outIt++ = *inIt++;
   while (inIt != inEnd)
@@ -2723,14 +2556,14 @@ void pp91::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  const HistogramBackend &hist(_pHist->result());
-  if (hist.dimension() != 1)
+  const result_t &hist(_pHist->result());
+  if (hist.dim() != 1)
     throw invalid_argument("pp91::loadSettings()'" + name() +
                            "': Error the histogram we depend on '" + _pHist->name() +
                            "' is not a 1D Histogram.");
   _range =  s.value("Range",10).toUInt();
 
-  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
+  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
 
   Log::add(Log::INFO, "Processor '" + name() +
            "' returns a list of local minima in '" + _pHist->name() +
@@ -2739,18 +2572,14 @@ void pp91::loadSettings(size_t)
            +"'");
 }
 
-void pp91::process(const CASSEvent& evt, HistogramBackend &res)
+void pp91::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram1DFloat& hist
-      (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  const result_t& data(_pHist->result(evt.id()));
+  QReadLocker lock(&data.lock);
 
-  QReadLocker lock(&hist.lock);
+  const result_t::axe_t &xAxis(data.axis(result_t::xAxis));
 
-  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
-  const HistogramFloatBase::storage_t &data(hist.memory());
-
-  result.clearTable();
+  result.resetTable();
   table_t candidate(nbrOf,0);
 
   for (size_t i=_range;i < data.size()-_range; ++i)
@@ -2768,22 +2597,9 @@ void pp91::process(const CASSEvent& evt, HistogramBackend &res)
     if (isSmaller)
     {
       candidate[Index] = i;
-      candidate[Position] = xAxis.hist2user(i);
+      candidate[Position] = xAxis.pos(i);
       candidate[Value] = data[i];
       result.appendRows(candidate);
     }
   }
-
-//  float dist(0);
-//  if (candidates.size() > 1)
-//    dist = xAxis.hist2user(candidates[1]) - xAxis.hist2user(candidates[0]);
-//
-//  result.fill(dist);
 }
-
-
-
-
-
-
-

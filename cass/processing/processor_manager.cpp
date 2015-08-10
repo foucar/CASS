@@ -20,7 +20,7 @@
 
 #include "cass_exceptions.hpp"
 #include "processor.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "id_list.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -601,9 +601,6 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
     break;
   case tof2energy:
     processor = Processor::shared_pointer(new pp400(key));
-    break;
-  case HistogramSqAveraging:
-    processor = Processor::shared_pointer(new pp402(key));
     break;
   case TofToMTC:
     processor = Processor::shared_pointer(new pp404(key));

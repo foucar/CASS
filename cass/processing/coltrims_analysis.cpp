@@ -16,7 +16,6 @@
 #include "coltrims_analysis.h"
 
 #include "acqiris_detectors_helper.h"
-#include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.hpp"
 #include "cass.h"
@@ -55,21 +54,18 @@ void pp5000::loadSettings(size_t)
            "Condition is '" + _condition->name() + "'");
 }
 
-void pp5000::process(const CASSEvent& evt, HistogramBackend &res)
+void pp5000::process(const CASSEvent& evt, result_t &result)
 {
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   Particle &particle(det.particles()[_particle]);
   particleHits_t::iterator it(particle.hits().begin());
-  result.clear();
   for (; it != particle.hits().end(); ++it)
   {
     double p = (*it)[roh];
     double e_energy = p*p*13.6;
-    result.fill(e_energy);
+    result.histogram(e_energy);
   }
 }
 
@@ -98,16 +94,13 @@ void pp5001::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp5001::process(const CASSEvent& evt, HistogramBackend &res)
+void pp5001::process(const CASSEvent& evt, result_t &result)
 {
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det01 (dynamic_cast<DelaylineDetector&>(rawdet));
   SignalProducer::signals_t::const_iterator it01(det01.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end(det01.mcp().output().end());
-  result.clear();
   for (; it01 != end;++it01)
   {
     SignalProducer::signals_t::const_iterator it02(it01+1);
@@ -117,7 +110,8 @@ void pp5001::process(const CASSEvent& evt, HistogramBackend &res)
       SignalProducer::signals_t::const_iterator it03(it02+1);
       for (; it03 != end; ++it03)
       {
-        result.fill((*it01)[ACQIRIS::time]+(*it02)[ACQIRIS::time],(*it03)[ACQIRIS::time]);
+        result.histogram(make_pair((*it01)[ACQIRIS::time]+(*it02)[ACQIRIS::time],
+                                   (*it03)[ACQIRIS::time]));
       }
     }
   }

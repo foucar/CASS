@@ -18,7 +18,7 @@
 #include <tr1/memory>
 
 #include "cass.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_event.h"
 #include "cached_list.hpp"
 
@@ -47,6 +47,9 @@ public:
 
   /** define the list of names */
   typedef std::list<name_t> names_t;
+
+  /** define the results */
+  typedef Result<float> result_t;
 
   /** constructor
    *
@@ -85,7 +88,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+  virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** tell the list that the result for event can be overwritten
    *
@@ -105,7 +108,7 @@ public:
    * @param eventid the event id of the histogram that is requested.
    *                Default is 0
    */
-  HistogramBackend::shared_pointer resultCopy(const uint64_t eventid);
+  result_t::shared_pointer resultCopy(const uint64_t eventid);
 
   /** Provide default implementation of loadSettings that does nothing
    *
@@ -182,9 +185,9 @@ protected:
    * @param event the cassevent to work on
    * @param result this is where the result will be written to
    */
-  virtual void process(const CASSEvent& event, HistogramBackend& result);
+  virtual void process(const CASSEvent& event, result_t& result);
 
-  /** create histogram list.
+  /** create result list.
    *
    * uses cass::CachedList::setup to generate the result list. The size is
    * 2+cass::nbrworkers.
@@ -192,7 +195,7 @@ protected:
    * @param result shared pointer of the result that will be used in the cached
    *               result list
    */
-  virtual void createHistList(HistogramBackend::shared_pointer result);
+  virtual void createHistList(result_t::shared_pointer result);
 
   /** general setup of the processor
    *
@@ -310,7 +313,7 @@ public:
     if (_condition->result(evt.id()).isTrue())
     {
       QWriteLocker locker(&(_result->lock));
-      _result->id() = evt.id();
+      _result->id(evt.id());
       process(evt,*_result);
     }
   }
@@ -323,7 +326,7 @@ public:
    * @return const reference to the requested histogram
    * @param eventid  Ignored
    */
-  virtual const HistogramBackend& result(const CASSEvent::id_t)
+  virtual const result_t& result(const CASSEvent::id_t)
   {
     return *_result;
   }
@@ -331,22 +334,22 @@ public:
   /** overwrite default behaviour to do nothing */
   virtual void releaseEvent(const CASSEvent&){}
 
-  /** create histogram list.
+  /** create the list of results
    *
-   * uses cached_list::setup to generate the result list. The size is 1
+   * Just sets up the one result that an accumulating processor manages
    *
    * @param result shared pointer of the result that will be used in the cached
    *               result list
    */
-  virtual void createHistList(HistogramBackend::shared_pointer result)
+  virtual void createHistList(result_t::shared_pointer result)
   {
-    result->key() = name();
-    _result = result->copy_sptr();
+    result->name(name());
+    _result = result->clone();
   }
 
 protected:
   /** the result that accumulates the events */
-  HistogramBackend::shared_pointer _result;
+  result_t::shared_pointer _result;
 
   /** the number of events the processor has accumulated */
   size_t _nbrEventsAccumulated;

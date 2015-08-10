@@ -10,7 +10,6 @@
 #include <QtCore/QString>
 
 #include "machine_data.h"
-#include "histogram.h"
 #include "machine_device.hpp"
 #include "cass_settings.h"
 #include "log.h"
@@ -40,20 +39,19 @@ void pp120::loadSettings(size_t)
   if (!setupCondition())
     return;
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() + "': will retrieve datafield ' " +
            _varname + "' from beamline data. Condition is '" + _condition->name() +"'");
 }
 
-void pp120::process(const CASSEvent& evt, HistogramBackend &res)
+void pp120::process(const CASSEvent& evt, result_t &result)
 {
   const Device &md
       (dynamic_cast<const Device&>
        (*(evt.devices().find(CASSEvent::MachineData)->second)));
   const Device::bldMap_t &bld(md.BeamlineData());
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
+  result.setValue(bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second);
 }
 
 
@@ -80,22 +78,21 @@ void pp121::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '"+ name() + "' will check whether event code '" +
            toString(_eventcode) + "' is present in the event. Condition is '" +
            _condition->name() +"'");
 }
 
-void pp121::process(const CASSEvent& evt, HistogramBackend &res)
+void pp121::process(const CASSEvent& evt, result_t &result)
 {
   using namespace MachineData;
   const Device &md
       (dynamic_cast<const Device&>
        (*(evt.devices().find(CASSEvent::MachineData)->second)));
   const Device::evrStatus_t &evr(md.EvrData());
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result = ((_eventcode < evr.size()) ? evr[_eventcode] : 0);
+  result.setValue((_eventcode < evr.size()) ? evr[_eventcode] : 0);
 }
 
 
@@ -128,21 +125,20 @@ void pp122::loadSettings(size_t)
     return;
   _part = s.value("EventIDPart",0).toInt();
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() + "' will retrieve the event ID from events. Condition is '" +
            _condition->name() + "'");
 }
 
-void pp122::process(const CASSEvent& evt, HistogramBackend &res)
+void pp122::process(const CASSEvent& evt, result_t &result)
 {
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
   if (_part == lower)
-    result = evt.id() & 0x00000000FFFFFFFF;
+    result.setValue(evt.id() & 0x00000000FFFFFFFF);
   if (_part == upper)
-    result = (evt.id() & 0xFFFFFFFF00000000) >> 32;
+    result.setValue((evt.id() & 0xFFFFFFFF00000000) >> 32);
   else
-    result = evt.id();
+    result.setValue(evt.id());
 }
 
 
@@ -182,15 +178,15 @@ void pp123::loadSettings(size_t)
   if (_specname.find("vert") != string::npos)
     size = 256;
   size = s.value("Size",size).toInt();
-  createHistList(
-        tr1::shared_ptr<Histogram1DFloat>
-        (new Histogram1DFloat(size,0,size,"arb. units")));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t(result_t::axe_t(size,0,size,"arb. units"))));
 
   Log::add(Log::INFO,"Processor '" + name() + "' will retrieve the beamline spectrometer data '"+
            _specname +"'.Condition is '" + _condition->name() + "'");
 }
 
-void pp123::process(const CASSEvent& evt, HistogramBackend &res)
+void pp123::process(const CASSEvent& evt, result_t &result)
 {
   using namespace MachineData;
   const Device &mdev
@@ -203,13 +199,12 @@ void pp123::process(const CASSEvent& evt, HistogramBackend &res)
                       _specname +"' is unknown.");
   const Device::spectrometer_t::mapped_type &spec(specIt->second);
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-  if (result.memory().size() < spec.size())
+  if (result.size() < spec.size())
     throw logic_error("pp123:process (" + name() +
-                      "): Result with size '" + toString(result.memory().size()) +
+                      "): Result with size '" + toString(result.size()) +
                       "'is not large enough to handle spectrometer data with size" +
                       toString(spec.size()) + "'");
-  copy(spec.begin(),spec.end(),result.memory().begin());
+  copy(spec.begin(),spec.end(),result.begin());
 }
 
 
@@ -240,20 +235,20 @@ void pp130::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() + "' will retrieve datafield' " +
            _varname +"' from epics data. Condition is" + _condition->name() + "'");
 }
 
-void pp130::process(const CASSEvent& evt, HistogramBackend &res)
+void pp130::process(const CASSEvent& evt, result_t &result)
 {
   using namespace MachineData;
   const Device &md
       (dynamic_cast<const Device&>
        (*(evt.devices().find(CASSEvent::MachineData)->second)));
   const Device::epicsDataMap_t &epics(md.EpicsData());
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
+  Device::epicsDataMap_t::const_iterator eit(epics.find(_varname));
+  result.setValue(eit == epics.end() ? 0 : eit->second);
 }
 
 
@@ -281,20 +276,19 @@ void pp230::loadSettings(size_t)
   if (!setupCondition())
     return;
   setupGeneral();
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() + "' calculates photonenergy from " +
            "'EbeamL3Energy' and 'EbeamPkCurrBC2'." + " Condition is '" +
            _condition->name() + "'");
 }
 
-void pp230::process(const CASSEvent& evt, HistogramBackend &res)
+void pp230::process(const CASSEvent& evt, result_t &result)
 {
   using namespace MachineData;
   const Device &md
       (dynamic_cast<const Device&>
        (*(evt.devices().find(CASSEvent::MachineData)->second)));
   const Device::bldMap_t bld(md.BeamlineData());
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
 
   const double ebEnergy
       (bld.find("EbeamL3Energy") == bld.end() ? 0 : bld.find("EbeamL3Energy")->second);
@@ -326,5 +320,5 @@ void pp230::process(const CASSEvent& evt, HistogramBackend &res)
   // Calculate the resonant photon energy of the first active segment
   const double photonenergy (44.42*energyProfile*energyProfile);
 
-  result = photonenergy;
+  result.setValue(photonenergy);
 }

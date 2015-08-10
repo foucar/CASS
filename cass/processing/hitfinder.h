@@ -12,7 +12,6 @@
 
 #include "processor.h"
 #include "cass_event.h"
-#include "histogram.h"
 #include "statistics_calculator.hpp"
 
 
@@ -52,7 +51,7 @@ public:
   pp203(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -102,7 +101,7 @@ public:
   pp204(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -112,7 +111,7 @@ protected:
   shared_pointer _hist;
 
   /** definition of the table */
-  typedef HistogramFloatBase::storage_t table_t;
+  typedef result_t::storage_t table_t;
 
 public:
   /** enum describing the contents of the resulting table */
@@ -137,7 +136,7 @@ public:
 
 protected:
   /** define the values of the pixels */
-  typedef  HistogramFloatBase::storage_t::value_type pixelval_t;
+  typedef  result_t::value_t pixelval_t;
 
   /** define the positions in the image */
   typedef int imagepos_t;
@@ -161,7 +160,7 @@ protected:
    * @param[out] count contains the number of pixels that were used to calculate
    *                   mean and stdv
    */
-  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator centerPixel,
+  int getBoxStatistics(result_t::const_iterator centerPixel,
                        const imagepos_t nColumns,
                        pixelval_t &mean, pixelval_t &stdv, int &count);
 
@@ -224,7 +223,7 @@ public:
   pp205(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -237,7 +236,7 @@ protected:
   shared_pointer _table;
 
   /** draw flags as bitmask */
-  HistogramFloatBase::storage_t::value_type _drawVal;
+  result_t::value_t _drawVal;
   float _radius;
   std::pair<int,int> _boxsize;
   bool _drawCircle,_drawBox;
@@ -277,7 +276,7 @@ public:
   pp206(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -290,7 +289,7 @@ protected:
   shared_pointer _noisePP;
 
   /** definition of the table */
-  typedef HistogramFloatBase::storage_t table_t;
+  typedef result_t::storage_t table_t;
 
 protected:
   /** the size of the box within which the peak should lie */
@@ -316,7 +315,7 @@ protected:
 
 /** image of pixels in the list
  *
- * @PPList "207": createimage of pixels in the list
+ * @PPList "207": create image of pixels in the list
  *
  * This processor will fill a 2D histogram with the detected pixels that are
  * placed on a list
@@ -340,7 +339,7 @@ public:
   pp207(const name_t&);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -436,7 +435,7 @@ public:
   pp208(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &result);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -446,10 +445,10 @@ protected:
   shared_pointer _imagePP;
 
   /** definition of the table */
-  typedef HistogramFloatBase::storage_t table_t;
+  typedef result_t::storage_t table_t;
 
   /** define the type of the pixel in image */
-  typedef Histogram2DFloat::storage_t::value_type pixelval_t;
+  typedef result_t::storage_t::value_type pixelval_t;
 
   /** define the type of statistics used */
   typedef CummulativeStatisticsNoOutlier<pixelval_t> stat_t;
@@ -498,7 +497,7 @@ protected:
    * @param stat the statistics calculator used to determine mean and stdv of
    *             pixels in box
    */
-  int getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+  int getBoxStatistics(result_t::const_iterator pixel,
                        const index_t linIdx, const shape_t &box, stat_t &stat);
 
   /** check if pixel is not highest within box
@@ -512,7 +511,7 @@ protected:
    * @param stat the statistics calculator used to determine mean and stdv of
    *             pixels in box
    */
-  int isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
+  int isNotHighest(result_t::const_iterator pixel,
                    const index_t linIdx, shape_t box, stat_t &stat);
 
   /** retrieve the constant wavelength

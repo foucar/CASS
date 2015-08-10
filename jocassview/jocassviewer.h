@@ -21,10 +21,7 @@
 #include <QtGui/QMainWindow>
 #endif
 
-namespace cass
-{
-class HistogramBackend;
-}//end namespace cass
+#include "result.hpp"
 
 class QLineEdit;
 class QSpinBox;
@@ -219,7 +216,7 @@ private:
    * @param hist pointer to the histogram that hold the data
    */
   void createViewerForType(QMap<QString,DataViewer*>::iterator view,
-                           cass::HistogramBackend *hist);
+                           cass::Result<float>::shared_pointer result);
 
 protected:
   /** receive move events to store the current position to the settings

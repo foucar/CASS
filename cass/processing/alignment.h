@@ -47,7 +47,7 @@ public:
   pp200(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from CASS.ini*/
   virtual void loadSettings(size_t);
@@ -113,7 +113,7 @@ public:
   pp201(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from CASS.ini*/
   virtual void loadSettings(size_t);
@@ -177,7 +177,7 @@ public:
   pp202(const name_t &);
 
   /** calculate \f$\cos^2\theta\f$ of averaged image */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from CASS.ini*/
   virtual void loadSettings(size_t);

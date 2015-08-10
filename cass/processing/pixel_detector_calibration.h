@@ -124,7 +124,7 @@ public:
   pp330(const name_t&);
 
   /** overwrite default behaviour don't do anything */
-  virtual void process(const CASSEvent&, HistogramBackend&);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -157,10 +157,10 @@ protected:
    * @param[in/out] nValsAr iterator to the beginning of the counter part of the output
    * @param[in] sizeOfImage the number of pixels in the image
    */
-  void cummulativeUpdate(const Histogram2DFloat::storage_t &image,
-                         Histogram2DFloat::storage_t::iterator meanAr,
-                         Histogram2DFloat::storage_t::iterator stdvAr,
-                         Histogram2DFloat::storage_t::iterator nValsAr,
+  void cummulativeUpdate(result_t::const_iterator image,
+                         result_t::iterator meanAr,
+                         result_t::iterator stdvAr,
+                         result_t::iterator nValsAr,
                          const size_t sizeOfImage);
 
   /** a moving exponential average and variance calculation
@@ -174,18 +174,18 @@ protected:
    * @param[in/out] nValsAr iterator to the beginning of the counter part of the output
    * @param[in] sizeOfImage the number of pixels in the image
    */
-  void movingUpdate(const Histogram2DFloat::storage_t &image,
-                    Histogram2DFloat::storage_t::iterator meanAr,
-                    Histogram2DFloat::storage_t::iterator stdvAr,
-                    Histogram2DFloat::storage_t::iterator nValsAr,
+  void movingUpdate(result_t::const_iterator image,
+                    result_t::iterator meanAr,
+                    result_t::iterator stdvAr,
+                    result_t::iterator nValsAr,
                     const size_t sizeOfImage);
 
 private:
   /** define the function */
-  typedef std::tr1::function<void(const Histogram2DFloat::storage_t&,
-                                  Histogram2DFloat::storage_t::iterator,
-                                  Histogram2DFloat::storage_t::iterator,
-                                  Histogram2DFloat::storage_t::iterator,
+  typedef std::tr1::function<void(result_t::const_iterator,
+                                  result_t::iterator,
+                                  result_t::iterator,
+                                  result_t::iterator,
                                   const size_t)> updateFunc_t;
 
   /** the function that will update the statistics */
@@ -263,7 +263,7 @@ private:
   bool _train;
 
   /** the storage for the training images */
-  std::vector< std::vector<float> > _trainstorage;
+  std::vector< result_t::shared_pointer > _trainstorage;
 
   /** the minimum nbr of images necessary for training */
   size_t _minTrainImages;
@@ -353,7 +353,7 @@ public:
   pp331(const name_t&);
 
   /** overwrite default behaviour don't do anything */
-  virtual void process(const CASSEvent&, HistogramBackend&);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -372,7 +372,7 @@ protected:
   void writeCalibration();
 
   /** write the calibration data to file */
-  void calculateGainMap(Histogram2DFloat& gainmap);
+  void calculateGainMap(result_t& gainmap);
 
 private:
   /** the raw image */
@@ -476,7 +476,7 @@ public:
   pp332(const name_t&);
 
   /** overwrite default behaviour don't do anything */
-  virtual void process(const CASSEvent&, HistogramBackend&);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -562,7 +562,7 @@ public:
   pp333(const name_t&);
 
   /** overwrite default behaviour don't do anything */
-  virtual void process(const CASSEvent&, HistogramBackend&);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -574,8 +574,8 @@ protected:
    * @param begin iterator to the beginning of the distribution
    * @param end iterator to the end of the distribution
    */
-  float meanCalc(HistogramFloatBase::storage_t::const_iterator begin,
-                 HistogramFloatBase::storage_t::const_iterator end);
+  float meanCalc(result_t::const_iterator begin,
+                 result_t::const_iterator end);
 
   /** function to calulate the common mode level via the median value
    *
@@ -583,8 +583,8 @@ protected:
    * @param begin iterator to the beginning of the distribution
    * @param end iterator to the end of the distribution
    */
-  float medianCalc(HistogramFloatBase::storage_t::const_iterator begin,
-                   HistogramFloatBase::storage_t::const_iterator end);
+  float medianCalc(result_t::const_iterator begin,
+                   result_t::const_iterator end);
 private:
   /** the image to create the hotpixel map from */
   shared_pointer _image;
@@ -596,8 +596,8 @@ private:
   float _snr;
 
   /** the function that calculates the commond mode level */
-  std::tr1::function<float(HistogramFloatBase::storage_t::const_iterator,
-                           HistogramFloatBase::storage_t::const_iterator)> _calcCommonmode;
+  std::tr1::function<float(result_t::const_iterator,
+                           result_t::const_iterator)> _calcCommonmode;
 };
 
 }//end namespace cass

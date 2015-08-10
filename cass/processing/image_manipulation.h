@@ -100,7 +100,7 @@ public:
    * @param evt the event to process
    * @param result the histogram where the result will be written to
    */
-  virtual void process(const CASSEvent& evt,HistogramBackend &result);
+  virtual void process(const CASSEvent& evt, result_t&);
 
   /** load the settings of this pp
    *
@@ -199,7 +199,7 @@ public:
   pp1600(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent& evt, HistogramBackend &result);
+  virtual void process(const CASSEvent& evt, result_t&);
 
   /** load the settings of this pp
    *
@@ -329,7 +329,7 @@ public:
   pp1601(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent& evt, HistogramBackend &result);
+  virtual void process(const CASSEvent& evt, result_t&);
 
   /** load the settings of this pp
    *
@@ -483,7 +483,7 @@ public:
   pp1602(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent& evt,HistogramBackend &);
+  virtual void process(const CASSEvent& evt, result_t&);
 
   /** load the settings of this pp
    *
@@ -493,7 +493,7 @@ public:
 
 protected:
   /** generate the lookup table by parsing the geom file */
-  void setup(const Histogram2DFloat &srcImageHist);
+  void setup(const result_t &srcImageHist);
 
   /** pp containing 2d histogram */
   shared_pointer _imagePP;
@@ -558,7 +558,7 @@ public:
   pp90(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent& evt,HistogramBackend &);
+  virtual void process(const CASSEvent& evt, result_t&);
 
   /** load the settings of this pp
    *

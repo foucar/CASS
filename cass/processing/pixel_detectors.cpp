@@ -13,7 +13,6 @@
 #include "advanced_pixeldetector.h"
 #include "cass_settings.h"
 #include "convenience_functions.h"
-#include "histogram.h"
 #include "common_data.h"
 #include "log.h"
 #include "cass_exceptions.hpp"
@@ -78,9 +77,9 @@ void pp105::loadSettings(size_t)
   if (!setupCondition())
     return;
   DetectorHelper::instance(_detector)->loadSettings();
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
          (CommonData::instance(_detector)->columns,
           CommonData::instance(_detector)->rows)));
   Log::add(Log::INFO,"processor '" + name() +
@@ -88,13 +87,11 @@ void pp105::loadSettings(size_t)
            "'. It will use condition '" + _condition->name() +"'");
 }
 
-void pp105::process(const CASSEvent& evt, HistogramBackend &res)
+void pp105::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::Detector::frame_t& frame (det->frame().data);
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   if (result.shape() != det->frame().shape())
   {
@@ -104,7 +101,7 @@ void pp105::process(const CASSEvent& evt, HistogramBackend &res)
                            toString(result.shape().first) + "x" +
                            toString(result.shape().second) + "'");
   }
-  copy(frame.begin(), frame.end(),result.memory().begin());
+  copy(frame.begin(), frame.end(),result.begin());
 }
 
 
@@ -146,19 +143,19 @@ void pp107::loadSettings(size_t)
     throw invalid_argument("p107::loadSettings(" +name() + "): MapType '"+ mapType +
                            "' does not exist");
   _mapLock = &CommonData::instance(_detector)->lock;
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(CommonData::instance(_detector)->columns,
-                              CommonData::instance(_detector)->rows)));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
+         (CommonData::instance(_detector)->columns,
+          CommonData::instance(_detector)->rows)));
   Log::add(Log::INFO,"processor '" + name() + "' will display the '"+ mapType +
            "' map of detector '" + _detector + "'. It will use condition '" +
            _condition->name() +"'");
 }
 
-void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
+void pp107::process(const CASSEvent& /*evt*/, result_t &result)
 {
   QReadLocker lock(_mapLock);
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   if (result.shape().first != CommonData::instance(_detector)->columns ||
       result.shape().second != CommonData::instance(_detector)->rows)
@@ -169,8 +166,7 @@ void pp107::process(const CASSEvent& /*evt*/, HistogramBackend &res)
                            toString(result.shape().first) + "x" +
                            toString(result.shape().second) + "'");
   }
-  copy(_map->begin(), _map->end(),result.memory().begin());
-
+  copy(_map->begin(), _map->end(),result.begin());
 }
 
 
@@ -201,16 +197,14 @@ void pp109::loadSettings(size_t)
   const Detector::shape_t shape(Frame::shapeFromName(name()));
   const int cols(s.value("nCols",static_cast<int>(shape.first)).toUInt());
   const int rows(s.value("nRows",static_cast<int>(shape.second)).toUInt());
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(cols,rows)));
+  createHistList(result_t::shared_pointer(new result_t(cols,rows)));
   Log::add(Log::INFO,"processor '" + name() +
            "' will display the raw frame of detector with CASSID '" +
            toString(_detector) + "' which has shape '" + toString(cols) + "'x'" +
            toString(rows) + "'. It will use condition '" + _condition->name() +"'");
 }
 
-void pp109::process(const CASSEvent& evt, HistogramBackend &res)
+void pp109::process(const CASSEvent& evt, result_t &result)
 {
   CASSEvent::devices_t::const_iterator devIt(
         evt.devices().find(CASSEvent::PixelDetectors));
@@ -229,7 +223,6 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
                       toString(det.id()) + "' of detector '" + toString(_detector)+
                       "' is inconsistent with the eventId '" + toString(evt.id()) + "'");
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   if (result.shape() != det.shape())
   {
@@ -239,7 +232,7 @@ void pp109::process(const CASSEvent& evt, HistogramBackend &res)
                            toString(result.shape().first) + "x" +
                            toString(result.shape().second) + "'");
   }
-  copy(det.frame().begin(), det.frame().end(),result.memory().begin());
+  copy(det.frame().begin(), det.frame().end(),result.begin());
 }
 
 
@@ -292,21 +285,18 @@ void pp144::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp144::process(const CASSEvent& evt, HistogramBackend &res)
+void pp144::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
-  fill(result.memory().begin(),result.memory().end(),_baseValue);
+  fill(result.begin(),result.end(),_baseValue);
   for (; hit != det->hits().end(); ++hit)
   {
     if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
       if (_range.first < hit->z && hit->z < _range.second)
-        result.fill(hit->x,hit->y,_getZ(*hit));
+        result.histogram(make_pair(hit->x,hit->y),_getZ(*hit));
   }
 }
 
@@ -336,22 +326,20 @@ void pp145::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   DetectorHelper::instance(_detector)->loadSettings();
   Log::add(Log::INFO,"processor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '"
            + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp145::process(const CASSEvent& evt, HistogramBackend &res)
+void pp145::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const AdvancedDetector::hits_t& hits(det->hits());
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result.fill(hits.size());
+  result.setValue(hits.size());
 }
 
 
@@ -385,17 +373,14 @@ void pp146::loadSettings(size_t)
            + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp146::process(const CASSEvent& evt, HistogramBackend &res)
+void pp146::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  result.clear();
   for (; hit != det->hits().end(); ++hit)
-    result.fill(hit->nbrPixels);
+    result.histogram(hit->nbrPixels);
 }
 
 
@@ -442,19 +427,16 @@ void pp148::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp148::process(const CASSEvent& evt, HistogramBackend &res)
+void pp148::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   AdvancedDetector::pixels_t::const_iterator pixel(det->pixels().begin());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
-  fill(result.memory().begin(),result.memory().end(),_baseValue);
+  fill(result.begin(),result.end(),_baseValue);
   for (; pixel != det->pixels().end(); ++pixel)
     if (_range.first < pixel->z && pixel->z < _range.second)
-      result.fill(pixel->x,pixel->y,_getZ(*pixel));
+      result.histogram(make_pair(pixel->x,pixel->y),_getZ(*pixel));
 }
 
 
@@ -483,21 +465,20 @@ void pp149::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   DetectorHelper::instance(_detector)->loadSettings();
   Log::add(Log::INFO,"processor '" + name() +
            "' will retrieve the number of coalesced pixels (hits) of detector '" +
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp149::process(const CASSEvent& evt, HistogramBackend &res)
+void pp149::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const AdvancedDetector::pixels_t& pixels(det->pixels());
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result.fill(pixels.size());
+  result.setValue(pixels.size());
 }
 
 
@@ -524,10 +505,10 @@ void pp241::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_hist && ret) )
     return;
-  if (_hist->result().dimension() != 2)
+  if (_hist->result().dim() != 2)
     throw std::runtime_error("PP type 241: Incomming is not a 2d histo");
 
-  createHistList(_hist->result().copy_sptr());
+  createHistList(_hist->result().clone());
 
   CASSSettings s;
   s.beginGroup("Processor");
@@ -549,19 +530,10 @@ void pp241::loadSettings(size_t)
            ". Condition on Processor '" + _condition->name() + "'");
 }
 
-void pp241::process(const CASSEvent& evt, HistogramBackend &res)
+void pp241::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat &imagehist
-      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
-
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
-  QReadLocker lock(&imagehist.lock);
-
-  result.clear();
-
-  const HistogramFloatBase::storage_t& image(imagehist.memory());
-  HistogramFloatBase::storage_t& corimage(result.memory());
+  const result_t &image(_hist->result(evt.id()));
+  QReadLocker lock(&image.lock);
 
   for(size_t row=0; row < 512; ++row)
   {
@@ -586,7 +558,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
     averageOffsetA = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetA < _thresholdA)) ? averageOffsetA : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col) - averageOffsetA;
+      result[row*1024 + col] = image[row*1024 + col] - (slopeA * col) - averageOffsetA;
     }
 
     //2nd quadrant in cass (4th in hll)
@@ -610,7 +582,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
     averageOffsetB = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetB < _thresholdB)) ? averageOffsetB : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
+      result[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
     }
   }
   for(size_t row = 512; row < 1024; ++row)
@@ -636,7 +608,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
     averageOffsetC = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetC < _thresholdC)) ? averageOffsetC : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col) - averageOffsetC;
+      result[row*1024 + col] = image[row*1024 + col] - (slopeC * col) - averageOffsetC;
     }
 
     //4th quadrant in cass (3rd in hll)
@@ -660,7 +632,7 @@ void pp241::process(const CASSEvent& evt, HistogramBackend &res)
     averageOffsetD = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetD < _thresholdD)) ? averageOffsetD : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;
+      result[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;
     }
   }
 }
@@ -694,22 +666,20 @@ void pp242::loadSettings(size_t)
   DetectorHelper::instance(_detector)->loadSettings();
   _mask = &CommonData::instance(_detector)->correctionMap;
   _maskLock = &CommonData::instance(_detector)->lock;
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(CommonData::instance(_detector)->columns,
-                              CommonData::instance(_detector)->rows)));
+  createHistList
+      (result_t::shared_pointer
+       (new result_t(CommonData::instance(_detector)->columns,
+                     CommonData::instance(_detector)->rows)));
   Log::add(Log::INFO,"processor '" + name() + "' sets the masked pixels of detector '" +
            _detector + "' to '" +toString(_value) + "' It will use condition '"
            + _condition->name() +"'");
 }
 
-void pp242::process(const CASSEvent& evt, HistogramBackend &res)
+void pp242::process(const CASSEvent& evt, result_t &result)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
   const pixeldetector::Detector::frame_t& frame (det->frame().data);
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
 
   if (result.shape() != det->frame().shape())
   {
@@ -719,13 +689,13 @@ void pp242::process(const CASSEvent& evt, HistogramBackend &res)
                            toString(result.shape().first) + "x" +
                            toString(result.shape().second) + "'");
   }
-  copy(frame.begin(), frame.end(), result.memory().begin());
+  copy(frame.begin(), frame.end(), result.begin());
   QReadLocker locker(_maskLock);
-  HistogramFloatBase::storage_t::iterator pixel(result.memory().begin());
+  result_t::iterator pixel(result.begin());
   pixeldetector::Detector::frame_t::const_iterator mask(_mask->begin());
-  for (; pixel != result.memory().end(); ++pixel, ++mask)
+  for (; pixel != result.end(); ++pixel, ++mask)
   {
-    if (qFuzzyCompare(*mask,0))
+    if (fuzzyIsNull(*mask))
       *pixel = _value;
   }
 }
@@ -756,29 +726,25 @@ void pp243::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(_image->result().copy_sptr());
+  createHistList(_image->result().clone());
   Log::add(Log::INFO,"processor '" + name() + "' sets pixels of '" +
            _image->name() + "' that are masked in '" + _mask->name() + "' to '"
            + toString(_value) + "' It will use condition '"
            + _condition->name() +"'");
 }
 
-void pp243::process(const CASSEvent& evt, HistogramBackend &res)
+void pp243::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat &image
-      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
-  const Histogram2DFloat &mask
-      (dynamic_cast<const Histogram2DFloat&>(_mask->result(evt.id())));
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  const result_t &image(_image->result(evt.id()));
   QReadLocker imagelock(&image.lock);
+  const result_t &mask(_mask->result(evt.id()));
   QReadLocker masklock(&mask.lock);
 
-  Histogram2DFloat::storage_t::iterator dest(result.memory().begin());
-  Histogram2DFloat::storage_t::const_iterator src(image.memory().begin());
-  Histogram2DFloat::storage_t::const_iterator maskIt(mask.memory().begin());
-  for (; dest != result.memory().end(); ++dest, ++src, ++maskIt)
-    *dest = qFuzzyIsNull(*maskIt) ? _value : *src;
+  result_t::iterator dest(result.begin());
+  result_t::const_iterator src(image.begin());
+  result_t::const_iterator maskIt(mask.begin());
+  for (; dest != result.end(); ++dest, ++src, ++maskIt)
+    *dest = fuzzyIsNull(*maskIt) ? _value : *src;
 }
 
 
@@ -806,11 +772,11 @@ void pp244::loadSettings(size_t)
 
   _isPnCCD = s.value("IsPnCCD",false).toBool();
 
-  if (_image->result().dimension() != 2)
+  if (_image->result().dim() != 2)
     throw invalid_argument("pp244::loadSettings: '" + name() + "' input '" +
                            _image->name() + "' is not a 2d histogram");
 
-  const Histogram2DFloat &image(dynamic_cast<const Histogram2DFloat&>(_image->result()));
+  const result_t &image(_image->result());
   if (_isPnCCD && (image.shape().first != 1024 || image.shape().second != 1024))
     throw invalid_argument("pp244::loadSettings(): '" + name() +
                            "' should be a pnCCD, but cols '" +
@@ -827,9 +793,11 @@ void pp244::loadSettings(size_t)
   _weight = s.value("Weight",1).toFloat();
   _maskval = s.value("MaskValue",0).toFloat();
 
-  createHistList(
-        tr1::shared_ptr<Histogram2DFloat>
-        (new Histogram2DFloat(nbins,low,up,nPixels,0,nPixels-1,title,"Pixel")));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
+         (result_t::axe_t(nbins,low,up,title),
+          result_t::axe_t(nPixels,0,nPixels-1,"Pixel"))));
 
   Log::add(Log::INFO,"processor '" + name() +
            "' generates histogram nbr Bins '" + toString(nbins) + "', low '" +
@@ -838,31 +806,25 @@ void pp244::loadSettings(size_t)
            _condition->name() +"'");
 }
 
-void pp244::process(const CASSEvent& evt, HistogramBackend &res)
+void pp244::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat &image
-      (dynamic_cast<const Histogram2DFloat&>(_image->result(evt.id())));
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-  result.clear();
-
+  const result_t &image(_image->result(evt.id()));
   QReadLocker imagelock(&image.lock);
-
 
   const size_t cols(image.shape().first);
   const size_t rows(image.shape().second);
   const size_t nPixels(cols*rows);
-  const AxisProperty &prop(result.axis()[Histogram2DFloat::xAxis]);
-  const float up(prop.upperLimit());
-  const float low(prop.lowerLimit());
-  const size_t nBins(prop.nbrBins());
+  const result_t::axe_t &xaxis(result.axis(result_t::xAxis));
+  const float up(xaxis.up);
+  const float low(xaxis.low);
+  const size_t nBins(xaxis.nBins);
   for (size_t i=0; i<nPixels; ++i)
   {
      /** find where in the histogram the pixel value would be put
       *  only if its within the range of the values
       */
-    const float pixval(image.memory()[i]);
-    if (!qFuzzyCompare(pixval,_maskval) && low <= pixval && pixval < up)
+    const float pixval(image[i]);
+    if (!fuzzycompare(pixval,_maskval) && low <= pixval && pixval < up)
     {
       const size_t col(i % cols);
       const size_t row(i / cols);
@@ -876,15 +838,14 @@ void pp244::process(const CASSEvent& evt, HistogramBackend &res)
       size_t rowidx(i);
       if (_isPnCCD)
         rowidx = (row < 512) ? col : col + cols;
-      Histogram2DFloat::storage_t::iterator rrow(result.memory().begin() + rowidx*nBins);
+      result_t::iterator rrow(result.begin() + rowidx*nBins);
       rrow[bin] += _weight;
 
       /** if it is a pnCCD now add the row to see the cte */
       if (_isPnCCD)
       {
         size_t cterow = (row < 512) ? row : 1023 - row;
-        Histogram2DFloat::storage_t::iterator cterowidx
-            (result.memory().begin() + (cterow + 2048)*nBins);
+        result_t::iterator cterowidx(result.begin() + (cterow + 2048)*nBins);
         cterowidx[bin] += _weight;
       }
     }

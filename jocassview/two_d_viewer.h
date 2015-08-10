@@ -12,6 +12,7 @@
 #include <QtCore/QMap>
 
 #include "data_viewer.h"
+#include "result.hpp"
 
 class QwtPlot;
 class QwtLinearColorMap;
@@ -19,10 +20,6 @@ class QwtPlotSpectrogram;
 class QSpinBox;
 class QStringList;
 
-namespace cass
-{
-class Histogram2DFloat;
-}
 
 namespace jocassview
 {
@@ -126,7 +123,7 @@ private:
   QString _geomFile;
 
   /** the original histogram */
-  cass::Histogram2DFloat *_origHist;
+  cass::Result<float>::shared_pointer _origHist;
 
   /** flag to tell whether the data is the original data */
   bool _isOriginalData;

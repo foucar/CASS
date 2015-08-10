@@ -42,7 +42,7 @@
 
 #include "one_d_viewer.h"
 
-#include "histogram.h"
+#include "result.hpp"
 #include "minmax_control.h"
 #include "one_d_viewer_data.h"
 #include "file_handler.h"
@@ -180,7 +180,7 @@ void OneDViewer::saveData(const QString &filename)
   {
     QString fname(filename);
     if(!FileHandler::isContainerFile(filename))
-      fname.insert(fname.lastIndexOf("."),"_" + QString::fromStdString((*dataIt)->result()->key()));
+      fname.insert(fname.lastIndexOf("."),"_" + QString::fromStdString((*dataIt)->result()->name()));
     FileHandler::saveData(filename,(*dataIt)->result());
     ++dataIt;
   }
@@ -244,10 +244,10 @@ void OneDViewer::replot()
   {
     if (!this->data().isEmpty())
     {
-      cass::HistogramBackend *hist(this->data().front()->result());
-      if (hist)
+      Data::result_t::shared_pointer result(this->data().front()->result());
+      if (result)
       {
-        QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+        QString xtitle(QString::fromStdString(result->axis(Data::result_t::xAxis).title));
         _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
       }
     }
@@ -410,8 +410,8 @@ void OneDViewer::on_add_graph_triggered()
     return;
 
   /** retrieve the result from the source and check if it is a 1d result */
-  HistogramBackend *result(source->result(item));
-  if (!(result && result->dimension() ==1))
+  Data::result_t::shared_pointer result(source->result(item));
+  if (!(result && result->dim() ==1))
   {
     QMessageBox::critical(this,tr("Error"),tr("The requested data doesn't exit or is not 1d data"));
     return;

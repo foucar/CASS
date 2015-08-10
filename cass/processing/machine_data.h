@@ -17,11 +17,6 @@
 
 namespace cass
 {
-//forward declaration
-class Histogram0DFloat;
-
-
-
 /** retrieval of beamline data.
  *
  * @PPList "120":Beamline data
@@ -83,7 +78,7 @@ public:
   pp120(const name_t &);
 
   /** copy data from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -120,7 +115,7 @@ public:
   pp121(const name_t &);
 
   /** copy data from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -165,7 +160,7 @@ public:
   pp122(const name_t &);
 
   /** copy data from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -216,7 +211,7 @@ public:
   pp123(const name_t &);
 
   /** copy data from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -262,7 +257,7 @@ public:
   pp130(const name_t &);
 
   /** copy data from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -486,11 +481,11 @@ public:
   pp230(const name_t &);
 
   /** calc the photonenergy from the bld */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
 };
-}
+}//end namespace cass
 
 #endif

@@ -45,7 +45,7 @@ public:
   pp240(const name_t&);
 
   /** overwrite default behaviour and just return the constant */
-  virtual const HistogramBackend& result(const CASSEvent::id_t)
+  virtual const result_t& result(const CASSEvent::id_t)
   {
     return *_result;
   }
@@ -60,8 +60,8 @@ public:
   virtual void loadSettings(size_t);
 
 private:
-  /** the constant iamge */
-  std::tr1::shared_ptr<Histogram2DFloat> _result;
+  /** the constant image */
+  result_t::shared_pointer _result;
 
 };
 

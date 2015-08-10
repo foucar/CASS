@@ -20,13 +20,6 @@
 
 namespace cass
 {
-// forward declaration
-class Histogram0DFloat;
-class Histogram1DFloat;
-class Histogram2DFloat;
-
-
-
 /** Pixeldetector image.
  *
  * @PPList "105": display the image from a pixeldetector defined
@@ -53,7 +46,7 @@ public:
    *
    * @throws invalid_argument if user provided size is incorrect
    */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings for this pp */
   virtual void loadSettings(size_t);
@@ -105,7 +98,7 @@ public:
    *
    * @throws invalid argument when the size of the maps have changed
    */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -155,7 +148,7 @@ public:
    *
    * @throws invalid_argument if user provided size is incorrect
    */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings for this pp */
   virtual void loadSettings(size_t);
@@ -214,7 +207,7 @@ public:
   pp144(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -262,7 +255,7 @@ public:
   pp145(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -303,7 +296,7 @@ public:
   pp146(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -357,7 +350,7 @@ public:
   pp148(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -404,7 +397,7 @@ public:
   pp149(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -496,7 +489,7 @@ public:
   pp241(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -565,7 +558,7 @@ public:
   pp242(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -620,7 +613,7 @@ public:
   pp243(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);
@@ -672,7 +665,7 @@ public:
   pp244(const name_t &name);
 
   /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** set the histogram size */
   virtual void loadSettings(size_t);

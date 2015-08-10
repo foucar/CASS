@@ -49,7 +49,7 @@ public:
   pp110(const name_t &name);
 
   /** copy the last waveform from the channel*/
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -93,7 +93,7 @@ public:
   pp111(const name_t &name);
 
   /** copy the last waveform from the channel*/
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);

@@ -24,7 +24,7 @@
 #include <QtCore/QStringList>
 
 #include "roottree_converter.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "convenience_functions.h"
@@ -185,7 +185,7 @@ pp2001::pp2001(const name_t &name, std::string filename)
   loadSettings(0);
 }
 
-const HistogramBackend& pp2001::result(const CASSEvent::id_t)
+const Processor::result_t &pp2001::result(const CASSEvent::id_t)
 {
   throw logic_error("pp2001::result: '"+name()+"' should never be called");
 }
@@ -203,7 +203,7 @@ void pp2001::loadSettings(size_t)
   {
     shared_pointer pp(setupDependency("",ppname->toStdString()));
     allDepsAreThere = pp && allDepsAreThere;
-    if (pp && pp->result().dimension() != 0)
+    if (pp && pp->result().dim() != 0)
       throw invalid_argument("pp2001 (" + name() + "): Processor '" + pp->name() +
                              "' is not a 0d histogram.");
     _pps.push_back(pp);
@@ -338,8 +338,7 @@ void pp2001::processEvent(const cass::CASSEvent &evt)
   for (;ProcessorsIt != ProcessorsEnd;++ProcessorsIt)
   {
     Processor &pp(*(*ProcessorsIt));
-    const Histogram0DFloat &val
-        (dynamic_cast<const Histogram0DFloat&>(pp.result(_eventid)));
+    const result_t &val(pp.result(_eventid));
     QReadLocker lock(&val.lock);
     float value(val.getValue());
     _ppstructure[pp.name()] = value;

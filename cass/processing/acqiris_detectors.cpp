@@ -16,7 +16,7 @@
 
 #include "acqiris_detectors.h"
 #include "acqiris_detectors_helper.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_event.h"
 #include "acqiris_device.hpp"
 #include "cass.h"
@@ -129,21 +129,19 @@ void pp150::loadSettings(size_t)
     return;
   _detector = s.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves the nbr of mcp signals of detector '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp150::process(const CASSEvent &evt, HistogramBackend &res)
+void pp150::process(const CASSEvent &evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result.fill(det.mcp().output().size());
+  result.setValue(det.mcp().output().size());
 }
 
 
@@ -178,7 +176,7 @@ void pp151::loadSettings(size_t)
            "'. Condition is '"+ _condition->name() + "'");
 }
 
-void pp151::process(const CASSEvent &evt, HistogramBackend &res)
+void pp151::process(const CASSEvent &evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -186,11 +184,8 @@ void pp151::process(const CASSEvent &evt, HistogramBackend &res)
   SignalProducer::signals_t::const_iterator it (det.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end (det.mcp().output().end());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  result.clear();
   while ( it != end )
-    result.fill((*it++)[ACQIRIS::time]);
+    result.histogram((*it++)[ACQIRIS::time]);
 }
 
 
@@ -226,7 +221,7 @@ void pp152::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp152::process(const CASSEvent &evt, HistogramBackend &res)
+void pp152::process(const CASSEvent &evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -234,11 +229,8 @@ void pp152::process(const CASSEvent &evt, HistogramBackend &res)
   SignalProducer::signals_t::const_iterator it(det.mcp().output().begin());
   SignalProducer::signals_t::const_iterator end(det.mcp().output().end());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
   for (; it != end; ++it)
-    result.fill((*it)[fwhm],(*it)[height]);
+    result.histogram(make_pair((*it)[fwhm],(*it)[height]));
 }
 
 
@@ -272,21 +264,15 @@ void pp153::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp153::process(const CASSEvent& evt, HistogramBackend &res)
+void pp153::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
   const SignalProducer::signals_t& mcp(det.mcp().output());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  result.clear();
   for (size_t i(1); i < mcp.size(); ++i)
-  {
-    const float diff(mcp[i-1][ACQIRIS::time] - mcp[i][ACQIRIS::time]);
-    result.fill(diff);
-  }
+    result.histogram(mcp[i-1][ACQIRIS::time] - mcp[i][ACQIRIS::time]);
 }
 
 
@@ -318,22 +304,20 @@ void pp160::loadSettings(size_t)
   _detector = loadDelayDet(s,160,name());
   _layer = loadLayer(s,_detector,"Layer",160,name());
   _signal = loadWireend(s,"Wireend",160,name());
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' outputs the nbr of signals of layer '" + _layer + "' wireend '" +
            _signal + "' of detector '" + _detector +"'. Condition is '" +
            _condition->name() + "'");
 }
 
-void pp160::process(const CASSEvent& evt, HistogramBackend &res)
+void pp160::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result.fill(det.layers()[_layer].wireends()[_signal].output().size());
+  result.setValue(det.layers()[_layer].wireends()[_signal].output().size());
 }
 
 
@@ -371,7 +355,7 @@ void pp161::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp161::process(const CASSEvent& evt, HistogramBackend &res)
+void pp161::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -379,11 +363,8 @@ void pp161::process(const CASSEvent& evt, HistogramBackend &res)
   SignalProducer::signals_t::const_iterator it (det.layers()[_layer].wireends()[_signal].output().begin());
   SignalProducer::signals_t::const_iterator end (det.layers()[_layer].wireends()[_signal].output().end());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
   for (; it != end; ++it)
-    result.fill((*it)[fwhm],(*it)[height]);
+    result.histogram(make_pair((*it)[fwhm],(*it)[height]));
 }
 
 
@@ -414,7 +395,7 @@ void pp162::loadSettings(size_t)
   _layer = loadLayer(s,_detector,"Layer",162,name());
   _range = make_pair(s.value("TimeRangeLow",0).toDouble(),
                      s.value("TimeRangeHigh",20000).toDouble());
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' calculates the timesum of layer '" + _layer + "' of detector '" +
            _detector + "'. It will use the first signals that appeared in the" +
@@ -422,7 +403,7 @@ void pp162::loadSettings(size_t)
            toString(_range.second) + "' ns. Condition is '" + _condition->name() + "'");
 }
 
-void pp162::process(const CASSEvent& evt, HistogramBackend &res)
+void pp162::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -431,9 +412,7 @@ void pp162::process(const CASSEvent& evt, HistogramBackend &res)
   const double two (det.layers()[_layer].wireends()['2'].firstGood(_range));
   const double mcp (det.mcp().firstGood(_range));
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result.fill( one + two - 2.*mcp);
+  result.setValue(one + two - 2.*mcp);
 }
 
 
@@ -470,7 +449,7 @@ void pp163::loadSettings(size_t)
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp163::process(const CASSEvent& evt, HistogramBackend &res)
+void pp163::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -481,10 +460,7 @@ void pp163::process(const CASSEvent& evt, HistogramBackend &res)
   const double timesum (one + two - 2.*mcp);
   const double position (one - two);
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
-  result.fill(position,timesum);
+  result.histogram(make_pair(position,timesum));
 }
 
 
@@ -533,7 +509,7 @@ void pp164::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp164::process(const CASSEvent& evt, HistogramBackend &res)
+void pp164::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -550,11 +526,8 @@ void pp164::process(const CASSEvent& evt, HistogramBackend &res)
   const bool csf = (_tsrange.first.first < tsf && tsf < _tsrange.first.second);
   const bool css = (_tsrange.second.first < tss && tss < _tsrange.second.second);
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
   if (csf && css)
-    result.fill(f,s);
+    result.histogram(make_pair(f,s));
 }
 
 
@@ -590,20 +563,19 @@ void pp165::loadSettings(size_t)
   if (!setupCondition())
     return;
   _detector = loadDelayDet(s,165,name());
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' outputs the number of reconstructed hits of detector '" + _detector +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp165::process(const CASSEvent& evt, HistogramBackend &res)
+void pp165::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-  result.fill(det.hits().size());
+  result.setValue(det.hits().size());
 }
 
 
@@ -653,19 +625,17 @@ void pp166::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp166::process(const CASSEvent& evt, HistogramBackend &res)
+void pp166::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   detectorHits_t::iterator it (det.hits().begin());
   detectorHits_t::iterator end (det.hits().end());
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-  result.clear();
   for (; it != end; ++it)
   {
     if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
-      result.fill((*it)[_first],(*it)[_second]);
+      result.histogram(make_pair((*it)[_first],(*it)[_second]));
   }
 }
 
@@ -701,18 +671,15 @@ void pp167::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp167::process(const CASSEvent& evt, HistogramBackend &res)
+void pp167::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
       HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
   const SignalProducer::signals_t& anode(det.layers()[_layer].wireends()[_signal].output());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  result.clear();
   for (size_t i(1); i < anode.size(); ++i)
-    result.fill(anode[i-1][ACQIRIS::time] - anode[i][ACQIRIS::time]);
+    result.histogram(anode[i-1][ACQIRIS::time] - anode[i][ACQIRIS::time]);
 }
 
 
@@ -745,7 +712,7 @@ void pp220::loadSettings(size_t)
       "' and '" + _detector02 + "'. Condition is '"+ _condition->name() + "'");
 }
 
-void pp220::process(const CASSEvent& evt, HistogramBackend &res)
+void pp220::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet01(
       HelperAcqirisDetectors::instance(_detector01)->detector(evt));
@@ -757,9 +724,6 @@ void pp220::process(const CASSEvent& evt, HistogramBackend &res)
   SignalProducer::signals_t::const_iterator end01(det01.mcp().output().end());
   SignalProducer::signals_t::const_iterator end02(det02.mcp().output().end());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
   for (; it01 != end01;++it01)
   {
     //if both detectors are the same, then the second iterator should start
@@ -768,7 +732,7 @@ void pp220::process(const CASSEvent& evt, HistogramBackend &res)
                                                      it01+1 :
                                                      det02.mcp().output().begin());
     for (; it02 != end02; ++it02)
-      result.fill((*it01)[ACQIRIS::time],(*it02)[ACQIRIS::time]);
+      result.histogram(make_pair((*it01)[ACQIRIS::time],(*it02)[ACQIRIS::time]));
   }
 }
 
@@ -800,7 +764,7 @@ void pp250::loadSettings(size_t)
            _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp250::process(const CASSEvent& evt, HistogramBackend &res)
+void pp250::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -809,11 +773,8 @@ void pp250::process(const CASSEvent& evt, HistogramBackend &res)
   particleHits_t::iterator it (particle.hits().begin());
   particleHits_t::iterator end (particle.hits().end());
 
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
-  result.clear();
   while( it != end )
-    result.fill((*it++)[_property]);
+    result.histogram((*it++)[_property]);
 }
 
 
@@ -847,7 +808,7 @@ void pp251::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp251::process(const CASSEvent& evt, HistogramBackend &res)
+void pp251::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
@@ -856,11 +817,8 @@ void pp251::process(const CASSEvent& evt, HistogramBackend &res)
   particleHits_t::iterator it(particle.hits().begin());
   particleHits_t::iterator end(particle.hits().end());
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  result.clear();
   for (; it != end; ++it)
-    result.fill((*it)[_property01],(*it)[_property02]);
+    result.histogram(make_pair((*it)[_property01],(*it)[_property02]));
 }
 
 
@@ -883,20 +841,18 @@ void pp252::loadSettings(size_t)
     return;
   _detector = loadDelayDet(s,252,name());
   _particle = loadParticle(s,_detector,252,name());
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            + "' outputs how many particles were found for '" + _particle +
            + "' of detector '" + _detector + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp252::process(const CASSEvent& evt, HistogramBackend &res)
+void pp252::process(const CASSEvent& evt, result_t &result)
 {
   DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector(evt));
   DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   Particle& particle (det.particles()[_particle]);
 
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
-  result.fill(particle.hits().size());
+  result.setValue(particle.hits().size());
 }

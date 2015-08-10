@@ -15,7 +15,7 @@
 #include <tr1/functional>
 
 #include "hdf5_converter.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_settings.h"
 #include "log.h"
 #include "convenience_functions.h"
@@ -133,44 +133,37 @@ public:
     const string dataName(_baseGroupname + "/" + gname + "/" + name);
 
     /** retrieve data from pp and write it to the h5 file */
-    const HistogramBackend &data(pp.result(_id));
+    const Processor::result_t &data(pp.result(_id));
     QReadLocker lock(&data.lock);
-    switch (data.dimension())
+    switch (data.dim())
     {
     case 0:
     {
-      const Histogram0DFloat h0(dynamic_cast<const Histogram0DFloat&>(data));
-      _fh.writeScalar(h0.memory().front(),dataName);
+      _fh.writeScalar(data.front(),dataName);
       break;
     }
     case 1:
     {
-      const Histogram1DFloat h1(dynamic_cast<const Histogram1DFloat&>(data));
-      _fh.writeArray(h1.memory(),h1.axis()[HistogramBackend::xAxis].size(),
-          dataName);
-      _fh.writeScalarAttribute(h1.axis()[HistogramBackend::xAxis].lowerLimit(),
-          "xLow", dataName);
-      _fh.writeScalarAttribute(h1.axis()[HistogramBackend::xAxis].upperLimit(),
-          "xUp", dataName);
+      const Processor::result_t::axe_t &xaxis(data.axis(Processor::result_t::xAxis));
+      _fh.writeArray(data.storage(), xaxis.nBins, dataName);
+      _fh.writeScalarAttribute(xaxis.low, "xLow", dataName);
+      _fh.writeScalarAttribute(xaxis.up, "xUp", dataName);
       break;
     }
     case 2:
     {
-      const Histogram2DFloat h2(dynamic_cast<const Histogram2DFloat&>(data));
-      _fh.writeMatrix(h2.memory(),h2.shape(),dataName,options);
-      _fh.writeScalarAttribute(h2.axis()[HistogramBackend::xAxis].lowerLimit(),
-          "xLow", dataName);
-      _fh.writeScalarAttribute(h2.axis()[HistogramBackend::xAxis].upperLimit(),
-          "xUp", dataName);
-      _fh.writeScalarAttribute(h2.axis()[HistogramBackend::yAxis].lowerLimit(),
-          "yLow", dataName);
-      _fh.writeScalarAttribute(h2.axis()[HistogramBackend::yAxis].upperLimit(),
-          "yUp", dataName);
+      const Processor::result_t::axe_t &xaxis(data.axis(Processor::result_t::xAxis));
+      const Processor::result_t::axe_t &yaxis(data.axis(Processor::result_t::yAxis));
+      _fh.writeMatrix(data.storage(), data.shape(), dataName, options);
+      _fh.writeScalarAttribute(xaxis.low, "xLow", dataName);
+      _fh.writeScalarAttribute(xaxis.up, "xUp", dataName);
+      _fh.writeScalarAttribute(yaxis.low, "yLow", dataName);
+      _fh.writeScalarAttribute(yaxis.up, "yUp", dataName);
       break;
     }
     default:
       throw runtime_error("WriteEntry::operator(): data dimension '" +
-                          toString(data.dimension()) + "' not known");
+                          toString(data.dim()) + "' not known");
       break;
     }
   }
@@ -303,7 +296,7 @@ void pp1002::loadSettings(size_t)
   Log::add(Log::INFO,output);
 }
 
-const HistogramBackend& pp1002::result(const CASSEvent::id_t)
+const Processor::result_t &pp1002::result(const CASSEvent::id_t)
 {
   throw logic_error("pp1002::result: '"+name()+"' should never be called");
 }

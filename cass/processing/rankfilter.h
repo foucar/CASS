@@ -9,10 +9,11 @@
 #ifndef _RANKFILTER_H_
 #define _RANKFILTER_H_
 
+#include <deque>
+
 #include "processor.h"
 #include "cass_event.h"
-#include "histogram.h"
-#include <deque>
+#include "result.hpp"
 
 
 namespace cass
@@ -45,7 +46,7 @@ public:
   pp301(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -114,7 +115,7 @@ public:
   pp302(const name_t&);
 
   /** overwrite default behaviour and just return the constant */
-  virtual const HistogramBackend& result(const CASSEvent::id_t)
+  virtual const result_t& result(const CASSEvent::id_t)
   {
     return *_result;
   }
@@ -130,7 +131,7 @@ public:
 
 private:
   /** the constant result */
-  std::tr1::shared_ptr<Histogram2DFloat> _result;
+  result_t::shared_pointer _result;
 };
 
 }//end namespace cass

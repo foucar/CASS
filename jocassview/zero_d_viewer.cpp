@@ -22,7 +22,6 @@
 
 #include "zero_d_viewer.h"
 
-#include "histogram.h"
 #include "zero_d_viewer_data.h"
 #include "file_handler.h"
 

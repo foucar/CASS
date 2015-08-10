@@ -16,35 +16,32 @@
 
 #include "zero_d_viewer_data.h"
 
-#include "histogram.h"
+#include "result.hpp"
 
 using namespace jocassview;
 using namespace cass;
 
 ZeroDViewerData::ZeroDViewerData(QLabel *valuedisplay)
-  : _hist(0),
-    _value(valuedisplay)
+  : _value(valuedisplay)
 {
 
 }
 
 ZeroDViewerData::~ZeroDViewerData()
 {
-  delete _hist;
+
 }
 
-void ZeroDViewerData::setResult(HistogramBackend *result)
+void ZeroDViewerData::setResult(Data::result_t::shared_pointer result)
 {
-  if (!result || dynamic_cast<Histogram0DFloat*>(result) == _hist)
+  if (!result || result->getValue() == _result->getValue())
     return;
-  delete _hist;
-  _hist = dynamic_cast<Histogram0DFloat*>(result);
 
-  _value->setText(QString::number(_hist->getValue()));
+  _value->setText(QString::number(_result->getValue()));
 }
 
-HistogramBackend* ZeroDViewerData::result()
+Data::result_t::shared_pointer ZeroDViewerData::result()
 {
-  return _hist;
+  return _result;
 }
 

@@ -12,7 +12,6 @@
 #include <numeric>
 
 #include "autocorrelation.h"
-#include "histogram.h"
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -34,39 +33,32 @@ void pp310::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
-  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->result()));
-  if (srcImageHist.dimension() != 2)
+  const result_t &srcImageHist(_hist->result());
+  if (srcImageHist.dim() != 2)
     throw invalid_argument("pp310:setup: '" + name() +
                            "' The input histogram is not a 2d histogram");
-  createHistList(srcImageHist.copy_sptr());
+  createHistList(srcImageHist.clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the autocorrelation of '" + _hist->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp310::process(const CASSEvent &evt, HistogramBackend& res)
+void pp310::process(const CASSEvent &evt, result_t &result)
 {
-  typedef HistogramFloatBase::storage_t::const_iterator const_iterator;
-  const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
-  const Histogram2DFloat::storage_t& histdata( hist.memory() );
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-  Histogram2DFloat::storage_t& resultdata( result.memory() );
-
-  QWriteLocker lock1(&result.lock);
+  typedef result_t::const_iterator const_iterator;
+  const result_t& hist(_hist->result(evt.id()));
   QReadLocker lock2(&hist.lock);
 
-  size_t nCols(hist.axis()[HistogramBackend::xAxis].size());
-  size_t nRows(hist.axis()[HistogramBackend::yAxis].size());
+  size_t nCols(hist.axis(result_t::xAxis).nBins);
+  size_t nRows(hist.axis(result_t::yAxis).nBins);
 
-  HistogramFloatBase::storage_t row_buffer(nCols);
+  result_t::storage_t row_buffer(nCols);
   /** go through each row (radius) of input */
   for (size_t row(0); row < nRows; ++row)
   {
-    const_iterator rowStart(histdata.begin() + row*nCols);
-    const_iterator rowEnd(histdata.begin() + row*nCols + nCols);
+    const_iterator rowStart(hist.begin() + row*nCols);
+    const_iterator rowEnd(hist.begin() + row*nCols + nCols);
     /** go through each col (phi) of input */
     for (size_t col(0); col < nCols; ++col)
     {
@@ -80,7 +72,7 @@ void pp310::process(const CASSEvent &evt, HistogramBackend& res)
       const float autocorval(accumulate(row_buffer.begin(),row_buffer.end(),0));
 
       /** put value into correlatoin value at position radius, d_phi */
-      resultdata[row*nCols + col] = autocorval;
+      result[row*nCols + col] = autocorval;
     }
   }
 }
@@ -109,13 +101,13 @@ void pp311::loadSettings(size_t)
                                             s.value("CenterY",0).toInt());
   const int maxradius(s.value("MaximumRadius",0).toInt());
 
-  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_hist->result()));
-  if (srcImageHist.dimension() != 2)
+  const result_t &srcImageHist(_hist->result());
+  if (srcImageHist.dim() != 2)
     throw invalid_argument("pp311:setup: '" + name() +
                            "' The input histogram is not a 2d histogram");
   /** determine the center in histogram coordinates */
-  const AxisProperty &xaxis(srcImageHist.axis()[HistogramBackend::xAxis]);
-  const AxisProperty &yaxis(srcImageHist.axis()[HistogramBackend::yAxis]);
+  const result_t::axe_t &xaxis(srcImageHist.axis(result_t::xAxis));
+  const result_t::axe_t &yaxis(srcImageHist.axis(result_t::yAxis));
   _center = make_pair(xaxis.bin(usercenter.first),
                       yaxis.bin(usercenter.second));
 
@@ -134,7 +126,7 @@ void pp311::loadSettings(size_t)
                        toString(srcImageHist.shape().second) + "'");
   _maxrad = maxradius;
 
-  createHistList(srcImageHist.copy_sptr());
+  createHistList(srcImageHist.clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the autocorrelation of '" + _hist->name() +
@@ -168,7 +160,7 @@ int pp311::getCircleLength(const int rad)
   return npix;
 }
 
-void pp311::fillRing(const HistogramFloatBase::storage_t &image,
+void pp311::fillRing(const result_t &image,
                      const int rad, const int x0, const int y0, const int nxx,
                      ring_t &ring)
 {
@@ -238,17 +230,10 @@ void pp311::fillRing(const HistogramFloatBase::storage_t &image,
   }
 }
 
-void pp311::process(const CASSEvent &evt,HistogramBackend &res)
+void pp311::process(const CASSEvent &evt, result_t &result)
 {
-  const Histogram2DFloat& hist
-      (dynamic_cast<const Histogram2DFloat&>(_hist->result(evt.id())));
-  const Histogram2DFloat::storage_t& histdata( hist.memory() );
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-  Histogram2DFloat::storage_t& resultdata( result.memory() );
-
+  const result_t& hist(_hist->result(evt.id()));
   QReadLocker lock1(&hist.lock);
-  QWriteLocker lock2(&result.lock);
 
   const int nxx(hist.shape().first);
 
@@ -257,17 +242,17 @@ void pp311::process(const CASSEvent &evt,HistogramBackend &res)
   {
     const int ringsize(getCircleLength(rad));
     ring.resize(ringsize);
-    fillRing(histdata,rad,_center.first,_center.second,nxx,ring);
+    fillRing(hist,rad,_center.first,_center.second,nxx,ring);
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
     for (int d_phi_pix=0; d_phi_pix < ringsize; ++d_phi_pix)
     {
-      float result = 0.0;
+      float res = 0.0;
       for (int ii=0; ii<ringsize; ++ii)
-        result += ring[ii].second * ring[(ii+d_phi_pix)%ringsize].second;
-      result /= static_cast<float>(ringsize);
-      resultdata[ring[d_phi_pix].first] = result;
+        res += ring[ii].second * ring[(ii+d_phi_pix)%ringsize].second;
+      res /= static_cast<float>(ringsize);
+      result[ring[d_phi_pix].first] = res;
     }
   }
 }

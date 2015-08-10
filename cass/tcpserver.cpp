@@ -26,7 +26,7 @@
 #include "cass_exceptions.hpp"
 #include "input_base.h"
 #include "worker.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "common_data.h"
 #include "log.h"
 
@@ -286,11 +286,11 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
   try
   {
     // get data
-    shared_ptr<HistogramBackend> hist(
-          ProcessorManager::reference().getProcessor(type).resultCopy(eventId));
+    Processor::result_t::shared_pointer result
+          (ProcessorManager::reference().getProcessor(type).resultCopy(eventId));
     Serializer serializer;
-    size_t dim(hist->dimension());
-    hist->serialize(serializer);
+    const size_t dim(result->dim());
+    serializer << *result;
     shared_ptr<pair<size_t, string> >data(
           new pair<size_t, string>(make_pair(dim,serializer.buffer())));
     // MIME type

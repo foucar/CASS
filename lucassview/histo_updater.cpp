@@ -29,7 +29,7 @@
 #include "histo_updater.h"
 
 #include "tcpclient.h"
-#include "histogram.h"
+#include "result.hpp"
 
 using namespace lucassview;
 using namespace std;
@@ -230,12 +230,12 @@ namespace lucassview
    *
    * @author Lutz Foucar
    */
-  bool operator== (const cass::AxisProperty &ca, const TAxis &ra)
+  bool operator== (const cass::Result<float>::axe_t &ca, const TAxis &ra)
   {
-    return (static_cast<int>(ca.nbrBins()) == ra.GetNbins() &&
-            fabs(ca.lowerLimit() - ra.GetXmin()) <  sqrt(numeric_limits<double>::epsilon()) &&
-            fabs(ca.upperLimit() - ra.GetXmax()) <  sqrt(numeric_limits<double>::epsilon()) &&
-            ca.title() == ra.GetTitle());
+    return (static_cast<int>(ca.nBins) == ra.GetNbins() &&
+            fabs(ca.low - ra.GetXmin()) <  sqrt(numeric_limits<double>::epsilon()) &&
+            fabs(ca.up  - ra.GetXmax())  <  sqrt(numeric_limits<double>::epsilon()) &&
+            ca.title == ra.GetTitle());
   }
 
   /** comapre axis for inequality
@@ -246,7 +246,7 @@ namespace lucassview
    *
    * @author Lutz Foucar
    */
-  bool operator!= (const cass::AxisProperty &ca, const TAxis &ra)
+  bool operator!= (const cass::Result<float>::axe_t &ca, const TAxis &ra)
   {
     return !(ca==ra);
   }
@@ -296,91 +296,90 @@ namespace lucassview
       try
       {
 //        cout << "updateHist(): copy information of "<<key<<endl;
-        shared_ptr<HistogramFloatBase> casshist(_client(key));
+        Result<float>::shared_pointer result(_client(key));
         TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObjectAny(key.c_str())));
-        switch (casshist->dimension())
+        switch (result->dim())
         {
         case 2:
           {
-            const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
-            const AxisProperty &yaxis(casshist->axis()[HistogramBackend::yAxis]);
+            const Result<float>::axe_t &xaxis(result->axis(Result<float>::xAxis));
+            const Result<float>::axe_t &yaxis(result->axis(Result<float>::yAxis));
             if(!roothist)
             {
-              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title()<<") '"<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<"' "
-                  "Y("<<yaxis.title()<<") '"<<yaxis.nbrBins()<<" "<<yaxis.lowerLimit()<<" "<<yaxis.upperLimit()<<"'"<<endl;
+              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title<<") '"<<xaxis.nBins<<" "<<xaxis.low<<" "<<xaxis.up<<"' "
+                  "Y("<<yaxis.title<<") '"<<yaxis.nBins<<" "<<yaxis.low<<" "<<yaxis.up<<"'"<<endl;
               roothist = new TH2F(key.c_str(),key.c_str(),
-                                  xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
-                                  yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+                                  xaxis.nBins, xaxis.low, xaxis.up,
+                                  yaxis.nBins, yaxis.low, yaxis.up);
               roothist->SetOption("colz");
             }
             const TAxis &rxaxis(*roothist->GetXaxis());
             const TAxis &ryaxis(*roothist->GetYaxis());
             if(xaxis != rxaxis || yaxis != ryaxis)
             {
-              cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<"<->"<<rxaxis.GetXmax()<<" "
-                  <<yaxis.nbrBins()<<"<->"<<ryaxis.GetNbins()<<" "<<yaxis.lowerLimit()<<"<->"<<ryaxis.GetXmin()<<" "<<yaxis.upperLimit()<<"<->"<<ryaxis.GetXmax()<<endl;
-              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
-                                yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
-              roothist->SetXTitle(xaxis.title().c_str());
+              cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nBins<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.low<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.up<<"<->"<<rxaxis.GetXmax()<<" "
+                  <<yaxis.nBins<<"<->"<<ryaxis.GetNbins()<<" "<<yaxis.low<<"<->"<<ryaxis.GetXmin()<<" "<<yaxis.up<<"<->"<<ryaxis.GetXmax()<<endl;
+              roothist->SetBins(xaxis.nBins, xaxis.low, xaxis.up,
+                                yaxis.nBins, yaxis.low, yaxis.up);
+              roothist->SetXTitle(xaxis.title.c_str());
               roothist->GetXaxis()->CenterTitle(true);
-              roothist->SetYTitle(yaxis.title().c_str());
+              roothist->SetYTitle(yaxis.title.c_str());
               roothist->GetYaxis()->CenterTitle(true);
               roothist->GetYaxis()->SetTitleOffset(1.5);
             }
             /** copy histogram contents */
-            for (size_t iY(0); iY<yaxis.nbrBins();++iY)
-              for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+            for (size_t iY(0); iY<yaxis.nBins;++iY)
+              for (size_t iX(0); iX<xaxis.nBins;++iX)
               {
-                const double histvalue(casshist->memory()[iX + iY*xaxis.nbrBins()]);
+                const double histvalue((*result)[iX + iY*xaxis.nBins]);
                 const float value = (isnan(histvalue)) ?
-                              0. : casshist->memory()[iX + iY*xaxis.nbrBins()];
+                              0. : (*result)[iX + iY*xaxis.nBins];
                 roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),value);
               }
             /** copy over / underflow */
-            size_t OverUnderFlowStart (xaxis.nbrBins()*yaxis.nbrBins());
-            roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[OverUnderFlowStart+HistogramBackend::LowerLeft]);
-            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[OverUnderFlowStart+HistogramBackend::LowerRight]);
-            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[OverUnderFlowStart+HistogramBackend::UpperRight]);
-            roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist->memory()[OverUnderFlowStart+HistogramBackend::UpperLeft]);
-            roothist->SetBinContent(roothist->GetBin(1,0),casshist->memory()[OverUnderFlowStart+HistogramBackend::LowerMiddle]);
-            roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[OverUnderFlowStart+HistogramBackend::UpperMiddle]);
-            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[OverUnderFlowStart+HistogramBackend::Right]);
-            roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[OverUnderFlowStart+HistogramBackend::Left]);
+            size_t OverUnderFlowStart (xaxis.nBins*yaxis.nBins);
+            roothist->SetBinContent(roothist->GetBin(0,0),(*result)[OverUnderFlowStart+Result<float>::LowerLeft]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,0),(*result)[OverUnderFlowStart+Result<float>::LowerRight]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,yaxis.nBins+1),(*result)[OverUnderFlowStart+Result<float>::UpperRight]);
+            roothist->SetBinContent(roothist->GetBin(0,yaxis.nBins+1),(*result)[OverUnderFlowStart+Result<float>::UpperLeft]);
+            roothist->SetBinContent(roothist->GetBin(1,0),(*result)[OverUnderFlowStart+Result<float>::LowerMiddle]);
+            roothist->SetBinContent(roothist->GetBin(1,yaxis.nBins+1),(*result)[OverUnderFlowStart+Result<float>::UpperMiddle]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,1),(*result)[OverUnderFlowStart+Result<float>::Right]);
+            roothist->SetBinContent(roothist->GetBin(0,1),(*result)[OverUnderFlowStart+Result<float>::Left]);
             /** copy number of fills (how many shots have been accumulated) */
-            roothist->SetEntries(casshist->nbrOfFills());
+//            roothist->SetEntries(result->nbrOfFills());
           }
           break;
         case 1:
           {
-            const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
+            const Result<float>::axe_t &xaxis(result->axis(Result<float>::xAxis));
             if(!roothist)
             {
-              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title()<<"):'"<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<"'"<<endl;
+              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title<<"):'"<<xaxis.nBins<<" "<<xaxis.low<<" "<<xaxis.up<<"'"<<endl;
               roothist = new TH1F(key.c_str(),key.c_str(),
-                                  xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+                                  xaxis.nBins, xaxis.low, xaxis.up);
               roothist->GetXaxis()->CenterTitle(true);
             }
             const TAxis &rxaxis(*roothist->GetXaxis());
             if(xaxis != rxaxis)
             {
-              cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<"<->"<<rxaxis.GetXmax()<<endl;
-              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
-              roothist->SetXTitle(xaxis.title().c_str());
+              cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nBins<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.low<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.up<<"<->"<<rxaxis.GetXmax()<<endl;
+              roothist->SetBins(xaxis.nBins, xaxis.low, xaxis.up);
+              roothist->SetXTitle(xaxis.title.c_str());
             }
             /** copy histogram contents */
-            for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+            for (size_t iX(0); iX<xaxis.nBins;++iX)
             {
-              const double histvalue(casshist->memory()[iX]);
-              const float value = (isnan(histvalue)) ? 0. : casshist->memory()[iX];
+              const double histvalue((*result)[iX]);
+              const float value = (isnan(histvalue)) ? 0. : (*result)[iX];
               roothist->SetBinContent(roothist->GetBin(iX+1),value);
             }
             /** copy over / underflow */
-            size_t OverUnderFlowStart (xaxis.nbrBins());
-            roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
-            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[OverUnderFlowStart+HistogramBackend::Overflow]);
+            size_t OverUnderFlowStart (xaxis.nBins);
+            roothist->SetBinContent(roothist->GetBin(0),(*result)[OverUnderFlowStart+Result<float>::Underflow]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1),(*result)[OverUnderFlowStart+Result<float>::Overflow]);
             /** copy number of fills (how many shots have been accumulated) */
-            roothist->SetEntries(casshist->nbrOfFills());
-//            cout <<key<<" underflow '"<< casshist->memory()[HistogramBackend::Underflow] <<"' overflow '"<< casshist->memory()[HistogramBackend::Overflow] <<"'"<<endl;
+//            roothist->SetEntries(result->nbrOfFills());
           }
           break;
         case 0:
@@ -390,10 +389,10 @@ namespace lucassview
               cout << "updateHist(): '"<<key<<"' create roothist with for 0D histogram"<<endl;
               roothist = new TH1F(key.c_str(),key.c_str(),1,0,1);
             }
-            const double histvalue(casshist->memory()[0]);
-            const float value = (isnan(histvalue)) ? 0. : casshist->memory()[0];
+            const double histvalue(result->getValue());
+            const float value = (isnan(histvalue)) ? 0. : histvalue;
             roothist->SetBinContent(1,value);
-            roothist->SetEntries(casshist->nbrOfFills());
+//            roothist->SetEntries(result->nbrOfFills());
           }
           break;
         default:

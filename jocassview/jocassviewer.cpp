@@ -46,7 +46,7 @@
 
 #include "jocassviewer.h"
 
-#include "histogram.h"
+#include "result.hpp"
 #include "file_handler.h"
 #include "zero_d_viewer.h"
 #include "one_d_viewer.h"
@@ -411,7 +411,7 @@ void JoCASSViewer::updateViewers()
       /** if the viewer hasn't been initalized, initialize it with new result
        *  from the current active source.
        */
-      HistogramBackend * result(source->result(view.key(),eventID));
+       DataSource::result_t::shared_pointer result(source->result(view.key(),eventID));
       /** validate container consistency */
       if(_viewers.size() != nbrWindows)
       {
@@ -464,8 +464,8 @@ void JoCASSViewer::updateViewers()
           //qDebug()<<"result is empty"<<sourceName;
           continue;
         }
-        const QString key(QString::fromStdString((*dataIt)->result()->key()));
-        HistogramBackend * result(source->result(key,eventID));
+        const QString key(QString::fromStdString((*dataIt)->result()->name()));
+        DataSource::result_t::shared_pointer result(source->result(key,eventID));
         /** validate container consistency */
         //qDebug()<<"validate viewer conistency"<<nbrWindows<<_viewers.size();
         if(_viewers.size() != nbrWindows || data.size() != nbrData)
@@ -675,10 +675,10 @@ void JoCASSViewer::clearHistogram()const
 }
 
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
-                                       cass::HistogramBackend *hist)
+                                       Result<float>::shared_pointer result)
 {
   //qDebug()<<"create viewer"<<view.key()<<hist->dimension();
-  switch (hist->dimension())
+  switch (result->dim())
   {
   case 0:
     view.value() = new ZeroDViewer(view.key(),this);

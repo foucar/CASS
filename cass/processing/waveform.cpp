@@ -14,7 +14,7 @@
 #include <tr1/functional>
 
 #include "waveform.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_event.h"
 #include "cass.h"
 #include "acqiris_device.hpp"
@@ -55,17 +55,17 @@ void pp110::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  createHistList(
-        shared_ptr<Histogram1DFloat>
-        (new Histogram1DFloat(wsize,0,wsize*_sampleInterval,"Time [s]")));
+  createHistList
+      (result_t::shared_pointer
+        (new result_t
+         (result_t::axe_t(wsize,0,wsize*_sampleInterval,"Time [s]"))));
   Log::add(Log::INFO,"Processor '" + name() + "' is showing channel '" +
            toString(_channel) + "' of acqiris '" + toString(_instrument) +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp110::process(const CASSEvent &evt, HistogramBackend &res)
+void pp110::process(const CASSEvent &evt, result_t &result)
 {
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
   const Device &dev
       (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::Acqiris)->second)));
   Device::instruments_t::const_iterator instrIt (dev.instruments().find(_instrument));
@@ -80,12 +80,12 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                         toString(_channel)+ "'");
   const Channel &channel (instr.channels()[_channel]);
   const Channel::waveform_t &waveform (channel.waveform());
-  if (result.axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+  if (result.shape().first != waveform.size())
   {
     throw invalid_argument("processor '" + name() +
                            "' incomming waveforms NbrSamples '" + toString(waveform.size()) +
                            "'. User set NbrSamples '" +
-                           toString(result.axis()[HistogramBackend::xAxis].nbrBins()) +
+                           toString(result.shape().first) +
                            "'");
   }
   if (!std::isfinite(channel.gain()))
@@ -112,8 +112,7 @@ void pp110::process(const CASSEvent &evt, HistogramBackend &res)
                            "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
-  transform(waveform.begin(), waveform.end(),
-            result.memory().begin(),
+  transform(waveform.begin(), waveform.end(), result.begin(),
             bind(minus<float>(),
                  bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
 }
@@ -138,19 +137,19 @@ void pp111::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_waveform->result().dimension() != 1)
+  if (_waveform->result().dim() != 1)
     throw invalid_argument("pp111 '" + name() + "' histogram '" + _waveform->name() +
                            "' is not a 1D histogram");
 
   _fraction = s.value("Fraction",0.6).toFloat();
   _walk = s.value("Walk_V",0).toFloat();
   const float delay(s.value("Delay_ns",5).toFloat());
-  const size_t nBins(_waveform->result().axis()[Histogram1DFloat::xAxis].nbrBins());
-  const float Up(_waveform->result().axis()[Histogram1DFloat::xAxis].upperLimit());
+  const size_t nBins(_waveform->result().axis(result_t::xAxis).nBins);
+  const float Up(_waveform->result().axis(result_t::xAxis).up);
   const float samplInter(Up/nBins);
   _delay = static_cast<size_t>(delay/samplInter);
 
-  createHistList(_waveform->result().copy_sptr());
+  createHistList(_waveform->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() + "' is converting waveform '" +
            _waveform->name() + "' to a CFD Trace using delay '" + toString(delay) +
@@ -158,26 +157,24 @@ void pp111::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp111::process(const CASSEvent &evt, HistogramBackend &res)
+void pp111::process(const CASSEvent &evt, result_t &result)
 {
-  const Histogram1DFloat& waveform
-      (dynamic_cast<const Histogram1DFloat&>(_waveform->result(evt.id())));
-  Histogram1DFloat &result(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t& waveform(_waveform->result(evt.id()));
   QReadLocker lock(&waveform.lock);
 
-  const Histogram1DFloat::storage_t &Data(waveform.memory());
-  Histogram1DFloat::storage_t &CFDTrace(result.memory());
-
-  const size_t wLength(waveform.axis()[Histogram1DFloat::xAxis].size());
+  const size_t wLength(waveform.shape().first);
   /** set all points before the delay to 0 */
-  fill(CFDTrace.begin(),CFDTrace.begin()+_delay,0);
+  fill(result.begin(),result.begin()+_delay,0);
   for (size_t i=_delay; i<wLength; ++i)
   {
-    const float fx  = Data[i];            //the original Point at i
-    const float fxd = Data[i-_delay];      //the delayed Point  at i
-    const float fsx = -fx*_fraction + fxd; //the calculated CFPoint at i
-    CFDTrace[i] = fsx - _walk;
+    /** get the original value at i */
+    const float fx  = waveform[i];
+    /** get the delayed value at i-delay */
+    const float fxd = waveform[i-_delay];
+    /** the constant fraction value at i is \f fx*fraction + fx_{delayed}\f */
+    const float fsx = -fx*_fraction + fxd;
+    /** now remove the walk from the constant fraction to get the real cfd value */
+    result[i] = fsx - _walk;
   }
 
 }

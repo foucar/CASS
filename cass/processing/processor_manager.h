@@ -21,16 +21,12 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 
-#include "cass.h"
 #include "processor.h"
 
 namespace cass
 {
 //forward declarations
 class CASSEvent;
-class HistogramBackend;
-class Histogram1DFloat;
-class Histogram2DFloat;
 class IdList;
 
 
@@ -193,7 +189,6 @@ the Class description for information about what parameters are user settable.
 01602: rearrange cspad using a geom file
 
 00400: ToF to Energy conversion
-00402: Square average
 00404: ToF to Mass to Charge ratio conversion
 00405: Pulse duration of shot
 00406: ToF to Energy conversion from 0D histogram
@@ -252,6 +247,7 @@ the Class description for information about what parameters are user settable.
 00156: removed use pp84 instead
 00212: removed use pp144 or pp148 instead
 00401: removed use pp83 instead
+00402: removed use pp61 instead
 00403: removed use pp70 instead
 00420: removed use pp80 instead
 01000: removed use pp1002 instead
@@ -446,7 +442,6 @@ public:
 
     tof2energy=400,
     calcVariance=401,
-    HistogramSqAveraging=402,
     Bin1DHist=403,
     TofToMTC=404,
     PulseDuration=405,

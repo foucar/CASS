@@ -31,11 +31,11 @@ HEADERS             += histo_updater.h
 HEADERS             += histo_updater_linkdef.h
 SOURCES             += id_list.cpp
 HEADERS             += id_list.h
-SOURCES             += histogram.cpp
-HEADERS             += histogram.h
+HEADERS             += $${CASS_ROOT}/cass/result.hpp
+HEADERS             += $${CASS_ROOT}/cass/serializable.hpp
+HEADERS             += $${CASS_ROOT}/cass/serializer.hpp
 
-HEADERS             += serializable.hpp
-HEADERS             += serializer.hpp
+INCLUDEPATH         +=  $${CASS_ROOT}/cass
 
 LIBS                += $$system($$ROOTCONFIG_BIN --libs)
 LIBS                += -lgsoap++ -lgsoap

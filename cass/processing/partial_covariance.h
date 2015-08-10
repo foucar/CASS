@@ -11,7 +11,6 @@
 
 #include "processor.h"
 #include "cass_event.h"
-#include "histogram.h"
 
 
 namespace cass
@@ -59,7 +58,7 @@ public:
   pp400(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -84,8 +83,8 @@ protected:
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
-  void ToftoEnergy(const HistogramFloatBase& TofHisto,
-                   HistogramFloatBase::storage_t& Energy,
+  void ToftoEnergy(const result_t& TofHisto,
+                   result_t& Energy,
                    double offset);
 
   /** pp containing input histogram */
@@ -137,51 +136,6 @@ protected:
 
 
 
-
-/** Histogram square averaging.
- *
- * @PPList "402": Histogram square averaging.
- *
- * Running or cummulative average of a histogram. In this case it will average
- * the squared value.
- *
- * @see Processor for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng Processor/\%name\%/{NbrOfAverages}\n
- *           how many images should be averaged. When value is 0 its a cummulative
- *           average. Default is 1.
- * @cassttng Processor/\%name\%/{HistName} \n
- *           processor name containing the histogram that we average.
- *
- * @author Lutz Foucar
- */
-class pp402 : public AccumulatingProcessor
-{
-public:
-  /** constructor */
-  pp402(const name_t &);
-
-  /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
-
-  /** load the settings */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** alpha for the running average */
-  float _alpha;
-
-  /** pp containing histogram to work on */
-  shared_pointer _pHist;
-};
-
-
-
-
-
-
-
 /** convert time of flight to charge to mass ratio
  *
  * @PPList "404": convert time of flight to charge to mass ratio
@@ -220,7 +174,7 @@ public:
   pp404(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -259,8 +213,8 @@ protected:
    * @param MtC the resulting m to q histogram storage
    * @param offset the offset of the baseline
    */
-  void ToftoMtC(const HistogramFloatBase& hist ,
-                HistogramFloatBase::storage_t& MtC,
+  void ToftoMtC(const result_t& hist ,
+                result_t& MtC,
                 double offset);
 
   /** a time of flight of ion that we choosed */
@@ -286,9 +240,6 @@ protected:
 
   /** The upper limit for calculating baseline*/
   double tb2;
-
-  /** the calculated level of baseline*/
-  double offset;
 
   /** number of bins in converted histgram*/
   size_t NbrBins;
@@ -328,7 +279,7 @@ public:
   pp405(const name_t &);
 
   /** calc the  pulse duration from the bld */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings from cass.ini */
   virtual void loadSettings(size_t);
@@ -380,7 +331,7 @@ public:
   pp406(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -409,9 +360,6 @@ protected:
 
   /** The upper limit for calculating baseline*/
   double tb2;
-
-  /** the calculated level of baseline*/
-  double offset;
 
   /** corrects from photon energy value*/
   double ediff;
@@ -452,8 +400,8 @@ protected:
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
-  void ToftoEnergy(const HistogramFloatBase& TofHisto,
-                   HistogramFloatBase::storage_t& Energy,
+  void ToftoEnergy(const result_t& TofHisto,
+                   result_t& Energy,
                    double offset );
 };
 
@@ -502,7 +450,7 @@ public:
   pp407(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -534,7 +482,7 @@ protected:
    * @param TofHisto ToF wavetrace
    */
   double calcTofValue(const double tofPos, const size_t binlow ,
-                      const double bin_size, const HistogramFloatBase& TofHisto);
+                      const double bin_size, const result_t& TofHisto);
 
   /** make the histgram in energy scale.
    *
@@ -545,8 +493,8 @@ protected:
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
-  void ToftoEnergy(const HistogramFloatBase& TofHisto,
-                   HistogramFloatBase::storage_t& Energy,
+  void ToftoEnergy(const result_t& TofHisto,
+                   result_t& Energy,
                    double offset);
 
   /** corrects the time of flight*/
@@ -563,9 +511,6 @@ protected:
 
   /** The upper limit for calculating baseline*/
   double tb2;
-
-  /** the calculated level of baseline*/
-  double offset;
 
   /** number of bins in converted histgram*/
   size_t NbrBins;
@@ -631,7 +576,7 @@ public:
   pp408(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -666,7 +611,7 @@ protected:
    * @param TofHisto ToF wavetrace
    */
   double calcTofValue(const double tofPos, const size_t binlow ,
-                      const double bin_size, const HistogramFloatBase& TofHisto);
+                      const double bin_size, const result_t& TofHisto);
 
   /** make the histogram in energy scale.
    *
@@ -677,8 +622,8 @@ protected:
    * @param Energy result histgram converted to energy
    * @param offset baseline of wavetrace
    */
-  void ToftoEnergy(const HistogramFloatBase& TofHisto,
-                   HistogramFloatBase::storage_t& Energy,
+  void ToftoEnergy(const result_t& TofHisto,
+                   result_t& Energy,
                    double offset );
 
   /** corrects the time of flight*/
@@ -695,9 +640,6 @@ protected:
 
   /** The upper limit for calculating baseline*/
   double tb2;
-
-  /** the calculated level of baseline*/
-  double offset;
 
   /** difference from expected energy*/
   double ediff;
@@ -752,7 +694,7 @@ public:
   pp410(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -774,10 +716,10 @@ protected:
    * @param variance output histogram calculated variance
    * @param n number of present event
    */
-  void calcCovariance(const HistogramFloatBase::storage_t& data ,
-                      const HistogramFloatBase::storage_t& averageOld,
-                      const HistogramFloatBase::storage_t& averageNew,
-                      HistogramFloatBase::storage_t& variance,float n);
+  void calcCovariance(const result_t& data ,
+                      const result_t::storage_t &averageOld,
+                      const result_t& averageNew,
+                      result_t& variance, float n);
 
 };
 
@@ -811,7 +753,7 @@ public:
   pp412(const name_t &);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings */
   virtual void loadSettings(size_t);
@@ -841,11 +783,11 @@ protected:
    * @param correction output histogram calculated covariance
    * @param n number of present event
    */
-  void calcCovariance(const HistogramFloatBase::storage_t& waveTrace ,
-                      const HistogramFloatBase::storage_t& waveTraceAve ,
+  void calcCovariance(const result_t& waveTrace ,
+                      const result_t& waveTraceAve ,
                       const float intensity ,
                       const float intensityAveOld,
-                      HistogramFloatBase::storage_t& correction,
+                      result_t& correction,
                       float n);
 
 };

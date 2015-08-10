@@ -12,11 +12,7 @@
 #include <list>
 #include <tr1/memory>
 
-
-namespace cass
-{
-  class HistogramFloatBase;
-}
+#include "result.hpp"
 
 namespace lucassview
 {
@@ -41,7 +37,7 @@ namespace lucassview
      * @return Histogram for requested key
      * @param histogramkey the key of the requested histogram
      */
-    std::tr1::shared_ptr<cass::HistogramFloatBase> operator() (const std::string &histogramkey)const;
+    cass::Result<float>::shared_pointer operator() (const std::string &histogramkey)const;
 
     /** reload .ini file */
     void reloadIni() const;

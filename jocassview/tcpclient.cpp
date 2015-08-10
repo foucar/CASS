@@ -24,24 +24,21 @@
 #include "id_list.h"
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
-#include "histogram.h"
+#include "result.hpp"
 
 using namespace jocassview;
 using namespace std;
 
 TCPClient::TCPClient()
-  : _transferredBytes(0)//,
-//    _client(new CASSsoapProxy)
+  : _transferredBytes(0)
 {
-
 }
 
 TCPClient::~TCPClient()
 {
-//  delete _client;
 }
 
-cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 id)
+DataSource::result_t::shared_pointer TCPClient::result(const QString &histogramkey, quint64 id)
 {
   CASSsoapProxy client;
   client.soap_endpoint = _server.c_str();
@@ -55,21 +52,15 @@ cass::HistogramBackend* TCPClient::result(const QString &histogramkey, quint64 i
     QTest::qSleep(10);
   }
   if( (future.result() != SOAP_OK) || !ret)
-    return 0;
+    return result_t::shared_pointer();
   soap_multipart::iterator attachment(client.dime.begin());
   if(client.dime.end() == attachment)
-    return 0;
+    return result_t::shared_pointer();
   _transferredBytes += (*attachment).size;
-  string mimeType((*attachment).type);
-  cass::HistogramBackend* hist(0);
+  result_t::shared_pointer result(new result_t());
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-  if(mimeType == "application/cass2Dhistogram")
-    hist = new cass::Histogram2DFloat(serializer);
-  else if(mimeType == "application/cass1Dhistogram")
-    hist = new cass::Histogram1DFloat(serializer);
-  else if(mimeType == "application/cass0Dhistogram")
-    hist = new cass::Histogram0DFloat(serializer);
-  return hist;
+  serializer >> *result;
+  return result;
 }
 
 QStringList TCPClient::resultNames()

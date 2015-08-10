@@ -11,7 +11,6 @@
 
 #include "cass.h"
 #include "hitfinder.h"
-#include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -53,7 +52,7 @@ void pp203::loadSettings(size_t)
   if (!(_hist && ret)) return;
 
   // Create the output
-  createHistList(_hist->result().copy_sptr());
+  createHistList(_hist->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' removes median of a box with size x'" + toString(_boxSize.first) +
@@ -62,19 +61,14 @@ void pp203::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp203::process(const CASSEvent& evt, HistogramBackend &res)
+void pp203::process(const CASSEvent& evt, result_t &result)
 {
   // Get the input
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
-  const HistogramFloatBase::storage_t &image_in(hist.memory());
-  HistogramFloatBase::storage_t &image_out
-      (dynamic_cast<HistogramFloatBase&>(res).memory());
+  const result_t &image(_hist->result(evt.id()));
+  QReadLocker lock(&image.lock);
 
-  QReadLocker lock(&hist.lock);
-
-  const size_t xsize(hist.axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t ysize(hist.axis()[HistogramBackend::yAxis].nbrBins());
+  const size_t xsize(image.axis(result_t::xAxis).nBins);
+  const size_t ysize(image.axis(result_t::yAxis).nBins);
   const size_t xsectionsize(_sectionSize.first);
   const size_t ysectionsize(_sectionSize.second);
   const size_t xnbrsections(xsize/xsectionsize);
@@ -98,11 +92,11 @@ void pp203::process(const CASSEvent& evt, HistogramBackend &res)
         for (size_t x=xsectionbegin; x<xsectionend; ++x)
         {
           const size_t pixAddr(y*xsize+x);
-          const float pixel(image_in[pixAddr]);
+          const float pixel(image[pixAddr]);
 
-          if ( qFuzzyCompare(pixel,0.f) )
+          if (fuzzycompare(pixel,0.f) )
           {
-            image_out[pixAddr] = pixel;
+            result[pixAddr] = pixel;
             continue;
           }
 
@@ -118,22 +112,22 @@ void pp203::process(const CASSEvent& evt, HistogramBackend &res)
             for (size_t xb=xboxbegin; xb<xboxend;++xb)
             {
               const size_t pixAddrBox(yb*xsize+xb);
-              const float pixel_box(image_in[pixAddrBox]);
-              if ( ! qFuzzyCompare(pixel_box,0.f) )
+              const float pixel_box(image[pixAddrBox]);
+              if ( ! fuzzyIsNull(pixel_box) )
                 box.push_back(pixel_box);
             }
           }
 
           if (box.empty())
           {
-            image_out[pixAddr] = pixel;
+            result[pixAddr] = pixel;
           }
           else
           {
             const size_t mid(0.5*box.size());
             nth_element(box.begin(), box.begin() + mid, box.end());
             const float median = box[mid];
-            image_out[pixAddr] = median;
+            result[pixAddr] = median;
 //            const float backgroundsubstractedPixel(pixel-median);
 //            image_out[pixAddr] = backgroundsubstractedPixel;
           }
@@ -181,8 +175,8 @@ void pp204::loadSettings(size_t)
   if (!(_hist && ret))
     return;
 
-  /** Create the result output */
-  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
+  /** Create the resulting table */
+  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
 
   /** log what the user was requesting */
   string output("Processor '" + name() + "' finds bragg peaks." +
@@ -198,7 +192,7 @@ void pp204::loadSettings(size_t)
 }
 
 
-int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+int pp204::getBoxStatistics(result_t::const_iterator pixel,
                             const imagepos_t ncols,
                             pixelval_t &mean, pixelval_t &stdv, int &count)
 {
@@ -238,19 +232,16 @@ int pp204::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   return good;
 }
 
-void pp204::process(const CASSEvent& evt, HistogramBackend &res)
+void pp204::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
-  const HistogramFloatBase::storage_t &image(hist.memory());
+  const result_t &image(_hist->result(evt.id()));
+  QReadLocker lock(&image.lock);
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
+  /** reset the nbr of y entries */
+  result.resetTable();
 
-  QReadLocker lock(&hist.lock);
-  result.clearTable();
-
-  const imagepos_t ncols(hist.axis()[HistogramBackend::xAxis].size());
-  const imagepos_t nrows(hist.axis()[HistogramBackend::yAxis].size());
+  const imagepos_t ncols(image.shape().first);
+  const imagepos_t nrows(image.shape().second);
 
   imagepos_t neigbourOffsetArray[] =
   {
@@ -269,7 +260,7 @@ void pp204::process(const CASSEvent& evt, HistogramBackend &res)
   vector<bool> checkedPixels(image.size(),false);
 
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
-  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
+  result_t::const_iterator pixel(image.begin());
   imagepos_t idx(0);
   for (;pixel != image.end(); ++pixel,++idx, ++checkedPixel)
   {
@@ -437,14 +428,14 @@ void pp205::loadSettings(size_t)
   _drawCircle = s.value("DrawCircle",true).toBool();
   _drawBox = s.value("DrawBox",true).toBool();
 
-  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
+  size_t maxIdx(_table->result().axis(result_t::xAxis).nBins);
   if (_idxCol >= maxIdx)
     throw runtime_error("pp205::loadSettings(): '" + name() + "' The requested " +
                         "column '" + toString(_idxCol) + " 'exeeds the " +
                         "maximum possible value of '" + toString(maxIdx) + "'");
 
   // Create the output
-  createHistList(_hist->result().copy_sptr());
+  createHistList(_hist->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' displays the peaks that are listed in '" + _table->name() +
@@ -452,35 +443,28 @@ void pp205::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp205::process(const CASSEvent& evt, HistogramBackend &res)
+void pp205::process(const CASSEvent& evt, result_t &result)
 {
   // Get the input
-  const HistogramFloatBase &hist
-      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
-  const HistogramFloatBase::storage_t &image_in(hist.memory());
-  const HistogramFloatBase &table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  HistogramFloatBase::storage_t &image_out
-      (dynamic_cast<HistogramFloatBase&>(res).memory());
-
-  QReadLocker lock1(&hist.lock);
+  const result_t &image(_hist->result(evt.id()));
+  QReadLocker lock1(&image.lock);
+  const result_t &table(_table->result(evt.id()));
   QReadLocker lock2(&table.lock);
 
   /** copy the input image to the resulting image */
-  copy(image_in.begin(),image_in.end(),image_out.begin());
+  copy(image.begin(),image.end(),result.begin());
 
   /** extract the nbr of rows and columns of this table and the image */
-  const size_t nTableCols(table.axis()[HistogramBackend::xAxis].size());
-  const size_t nTableRows(table.axis()[HistogramBackend::yAxis].size());
-  const size_t nImageCols(hist.axis()[HistogramBackend::xAxis].size());
+  const size_t nTableCols(table.shape().first);
+  const size_t nTableRows(table.shape().second);
+  const size_t nImageCols(image.shape().first);
 
   /** go through all rows in table */
   for (size_t row=0; row < nTableRows; ++row)
   {
     /** extract the column with the global index of the peak center */
-    size_t idx(tableContents[row*nTableCols + _idxCol]);
-    HistogramFloatBase::storage_t::iterator centerpixel(image_out.begin()+idx);
+    size_t idx(table[row*nTableCols + _idxCol]);
+    result_t::iterator centerpixel(result.begin()+idx);
 
     /** draw user requested info (extract other stuff from table) */
     //box
@@ -570,7 +554,7 @@ void pp206::loadSettings(size_t)
     return;
 
   /** Create the result output */
-  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(pp204::nbrOf)));
+  createHistList(result_t::shared_pointer(new result_t(pp204::nbrOf,0)));
 
   /** log what the user was requesting */
   string output("Processor '" + name() + "' finds bragg peaks." +
@@ -583,32 +567,26 @@ void pp206::loadSettings(size_t)
   Log::add(Log::INFO,output);
 }
 
-void pp206::process(const CASSEvent& evt, HistogramBackend &res)
+void pp206::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &imageHist
-      (dynamic_cast<const HistogramFloatBase&>(_imagePP->result(evt.id())));
-  const HistogramFloatBase::storage_t &image(imageHist.memory());
-  const HistogramFloatBase &noiseHist
-      (dynamic_cast<const HistogramFloatBase&>(_noisePP->result(evt.id())));
-  const HistogramFloatBase::storage_t &noisemap(noiseHist.memory());
+  const result_t &image(_imagePP->result(evt.id()));
+  QReadLocker lock1(&(image.lock));
+  const result_t &noisemap(_noisePP->result(evt.id()));
+  QReadLocker lock2(&(noisemap.lock));
 
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
-  QReadLocker lock1(&imageHist.lock);
-  QReadLocker lock2(&noiseHist.lock);
-
-  result.clearTable();
+  /** reset the table */
+  result.resetTable();
 
 
   table_t peak(pp204::nbrOf,0);
 
-  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
-  HistogramFloatBase::storage_t::const_iterator imageEnd(image.end());
-  HistogramFloatBase::storage_t::const_iterator noise(noisemap.begin());
+  result_t::const_iterator pixel(image.begin());
+  result_t::const_iterator imageEnd(image.end());
+  result_t::const_iterator noise(noisemap.begin());
   size_t idx(0);
   vector<float> box;
-  const uint16_t ncols(imageHist.axis()[HistogramBackend::xAxis].size());
-  const uint16_t nrows(imageHist.axis()[HistogramBackend::yAxis].size());
+  const uint16_t ncols(image.shape().first);
+  const uint16_t nrows(image.shape().second);
   for (; pixel != imageEnd; ++pixel, ++noise, ++idx)
   {
 //    if(*noise * _multiplier < *pixel)
@@ -701,32 +679,24 @@ void pp207::loadSettings(size_t)
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp207::process(const CASSEvent& evt, HistogramBackend &res)
+void pp207::process(const CASSEvent& evt, result_t &result)
 {
-  const HistogramFloatBase &table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t &table(_table->result(evt.id()));
   QReadLocker lock(&table.lock);
 
-  result.clear();
-
-
-  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
-  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nRows(table.shape().first);
+  const size_t nCols(table.shape().second);
 
   /** go through all rows in table, extract the pixel column, row and value.
    *  then advance the table iterator by one row
    */
+  result_t::const_iterator tableIt(table.begin());
   for (size_t row=0; row < nRows; ++row)
   {
     const int pixCol(tableIt[_pixColIdx]);
     const int pixRow(tableIt[_pixRowIdx]);
     const float pixVal(tableIt[_pixValIdx]);
-    result.fill(pixCol,pixRow,pixVal);
+    result.histogram(make_pair(pixCol,pixRow),pixVal);
     tableIt += nCols;
   }
 }
@@ -841,13 +811,13 @@ void pp208::loadSettings(size_t)
   const bool convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
   const double pixsizeX_m = s.value("PixelSizeX_m",109.92e-6).toDouble();
   const double pixsizeY_m = s.value("PixelSizeY_m",109.92e-6).toDouble();
-  const Histogram2DFloat &srcImageHist(dynamic_cast<const Histogram2DFloat&>(_imagePP->result()));
+  const result_t &srcImageHist(_imagePP->result());
   if (filename != "wrong_file")
   {
     GeometryInfo::conversion_t src2lab =
         GeometryInfo::generateConversionMap(filename,
-                                            srcImageHist.memory().size(),
-                                            srcImageHist.axis()[HistogramBackend::xAxis].size(),
+                                            srcImageHist.size(),
+                                            srcImageHist.shape().first,
                                             convertCheetahToCASSLayout);
     _src2labradius.resize(src2lab.size());
     for (size_t i=0; i < src2lab.size(); ++i)
@@ -859,11 +829,11 @@ void pp208::loadSettings(size_t)
   }
   else
   {
-    _src2labradius.resize(srcImageHist.memory().size(),0);
+    _src2labradius.resize(srcImageHist.size(),0);
   }
 
   /** set up the neighbouroffset list */
-  _imageShape = dynamic_cast<const Histogram2DFloat&>(_imagePP->result()).shape();
+  _imageShape = srcImageHist.shape();
   _neighbourOffsets.clear();
 //  _neighbourOffsets.push_back(+_imageShape.first-1);     //up left
   _neighbourOffsets.push_back(+_imageShape.first+0);     //up
@@ -875,7 +845,7 @@ void pp208::loadSettings(size_t)
 //  _neighbourOffsets.push_back(-_imageShape.first+1);     //low right
 
   /** Create the result output */
-  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(nbrOf)));
+  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
 
   /** log what the user was requesting */
   string output("Processor '" + name() + "' finds bragg peaks." +
@@ -897,21 +867,19 @@ void pp208::loadSettings(size_t)
 
 double pp208::lambdaFromProcessor(const CASSEvent::id_t& id)
 {
-  const Histogram0DFloat &wavelength
-      (dynamic_cast<const Histogram0DFloat&>(_wavelengthPP->result(id)));
+  const result_t &wavelength(_wavelengthPP->result(id));
   QReadLocker lock(&wavelength.lock);
   return wavelength.getValue();
 }
 
 double pp208::distanceFromProcessor(const CASSEvent::id_t& id)
 {
-  const Histogram0DFloat &detdist
-      (dynamic_cast<const Histogram0DFloat&>(_detdistPP->result(id)));
+  const result_t &detdist(_detdistPP->result(id));
   QReadLocker lock(&detdist.lock);
   return detdist.getValue();
 }
 
-int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
+int pp208::getBoxStatistics(result_t::const_iterator pixel,
                             const index_t linIdx, const shape_t &box, stat_t &stat)
 {
   enum{use,skip};
@@ -950,7 +918,7 @@ int pp208::getBoxStatistics(HistogramFloatBase::storage_t::const_iterator pixel,
   return use;
 }
 
-int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
+int pp208::isNotHighest(result_t::const_iterator pixel,
                         const index_t linIdx, shape_t box, stat_t &stat)
 {
   enum{use,skip};
@@ -989,23 +957,13 @@ int pp208::isNotHighest(HistogramFloatBase::storage_t::const_iterator pixel,
 }
 
 
-void pp208::process(const CASSEvent & evt, HistogramBackend &r)
+void pp208::process(const CASSEvent & evt, result_t &result)
 {
-  const Histogram2DFloat &hist
-      (dynamic_cast<const Histogram2DFloat&>(_imagePP->result(evt.id())));
-  const HistogramFloatBase::storage_t &image(hist.memory());
-
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(r));
-
-  /** lock the resources */
-  QReadLocker hLock(&hist.lock);
+  const result_t &image(_imagePP->result(evt.id()));
+  QReadLocker hLock(&image.lock);
 
   /** clear the resulting table to fill it with the values of this image */
-  result.clearTable();
-
-  /** assert that incomming image has not changed the shape */
-  assert(static_cast<index_t>(hist.shape().first) == _imageShape.first &&
-         static_cast<index_t>(hist.shape().second) ==  _imageShape.second);
+  result.resetTable();
 
   /** get a table row that we can later add to the table */
   table_t peak(nbrOf,0);
@@ -1019,8 +977,8 @@ void pp208::process(const CASSEvent & evt, HistogramBackend &r)
    *  corresponsed to.
    */
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
-  HistogramFloatBase::storage_t::const_iterator pixel(image.begin());
-  HistogramFloatBase::storage_t::const_iterator ImageEnd(image.end());
+  result_t::const_iterator pixel(image.begin());
+  result_t::const_iterator ImageEnd(image.end());
   index_t idx(0);
   for (;pixel != ImageEnd; ++pixel,++idx, ++checkedPixel)
   {

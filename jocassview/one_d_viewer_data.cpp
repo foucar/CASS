@@ -10,7 +10,7 @@
 
 #include "one_d_viewer_data.h"
 
-#include "histogram.h"
+#include "result.hpp"
 
 using namespace jocassview;
 using namespace cass;
@@ -18,20 +18,19 @@ using namespace cass;
 OneDViewerData::OneDViewerData()
   : _logMinPos(QPointF(1,1)),
     _xLog(false),
-    _yLog(false),
-    _hist(0)
+    _yLog(false)
 {
   d_boundingRect = QRectF(1.0, 1.0, -2.0, -2.0); //invalid
 }
 
 OneDViewerData::~OneDViewerData()
 {
-  delete _hist;
+
 }
 
 size_t OneDViewerData::size() const
 {
-  return result() ? result()->axis()[Histogram1DFloat::xAxis].nbrBins() : 0;
+  return result() ? result()->shape().first : 0;
 }
 
 QPointF OneDViewerData::sample(size_t i) const
@@ -42,7 +41,8 @@ QPointF OneDViewerData::sample(size_t i) const
   const qreal xMin(d_boundingRect.left());
   const qreal xWidth(d_boundingRect.width());
   const qreal x(xMin + i*xWidth/(size()-1));
-  const qreal y(_hist->memory()[i]);
+  const qreal y((*result())[i]);
+  //const qreal y(res[i]);
   return QPointF(x,y);
 }
 
@@ -56,17 +56,16 @@ QRectF OneDViewerData::boundingRect() const
   return rect;
 }
 
-void OneDViewerData::setResult(HistogramBackend *hist)
+void OneDViewerData::setResult(result_t::shared_pointer result)
 {
-  if(!hist || dynamic_cast<Histogram1DFloat*>(hist) == _hist)
+  if(!result)
     return;
-  delete _hist;
-  _hist = dynamic_cast<Histogram1DFloat*>(hist);
+  _result = result;
 
   /** set the initial bounding rect in x */
-  const AxisProperty &xaxis(result()->axis()[Histogram1DFloat::xAxis]);
-  d_boundingRect.setLeft(xaxis.lowerLimit());
-  d_boundingRect.setRight(xaxis.upperLimit());
+  const result_t::axe_t &xaxis(_result->axis(result_t::xAxis));
+  d_boundingRect.setLeft(xaxis.low);
+  d_boundingRect.setRight(xaxis.up);
 
   /** go through all data points of the curve and find min/max values for lin
    *  and log scale purposes
@@ -102,14 +101,14 @@ void OneDViewerData::setResult(HistogramBackend *hist)
   }
 }
 
-HistogramBackend* OneDViewerData::result()
+Data::result_t::shared_pointer OneDViewerData::result()
 {
-  return _hist;
+  return _result;
 }
 
-const HistogramBackend* OneDViewerData::result()const
+const Data::result_t::shared_pointer OneDViewerData::result()const
 {
-  return _hist;
+  return _result;
 }
 
 void OneDViewerData::setXRangeForLog(bool log)

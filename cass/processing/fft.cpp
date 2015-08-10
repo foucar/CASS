@@ -12,7 +12,7 @@
 #include <numeric>
 
 #include "fft.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "log.h"
@@ -46,40 +46,40 @@ void pp312::loadSettings(size_t)
   if (!(ret && _hist))
     return;
 
-  const int dim(_hist->result().dimension());
+  const int dim(_hist->result().dim());
   if (dim == 1)
   {
-    _Nx = _hist->result().axis()[HistogramBackend::xAxis].size();
+    _Nx = _hist->result().shape().first;
     _func = bind(&pp312::fft1d,this,_1,_2);
     _fft_tmp_padding = (_Nx&1) ? 1 : 2;
     vector<double> fft_tmp;
     fft_tmp.resize(_Nx+_fft_tmp_padding);
     double* tmpdata(&(fft_tmp.front()));
     _fftw_plan = fftw_plan_dft_r2c_1d(_Nx, tmpdata, reinterpret_cast<fftw_complex*>(tmpdata), FFTW_MEASURE);
-    createHistList(_hist->result().copy_sptr());
   }
   else if (dim == 2)
   {
-    _Nx = _hist->result().axis()[HistogramBackend::xAxis].size();
-    _Ny = _hist->result().axis()[HistogramBackend::yAxis].size();
+    _Nx = _hist->result().shape().first;
+    _Ny = _hist->result().shape().second;
     _func = bind(&pp312::fft2d,this,_1,_2);
     _fft_tmp_padding = (_Nx&1) ? 1 : 2;
     vector<double> fft_tmp;
     fft_tmp.resize(_Ny*(_Nx+_fft_tmp_padding));
     double* tmpdata(&(fft_tmp.front()));
     _fftw_plan = fftw_plan_dft_r2c_2d(_Ny, _Nx, tmpdata, reinterpret_cast<fftw_complex*>(tmpdata), FFTW_MEASURE);
-    createHistList(_hist->result().copy_sptr());
   }
   else
     throw invalid_argument("pp312::loadSettings(): Input Histogram '" + _hist->name() +
                            "' has unsupported dimenstion '" + toString(dim) + "'");
+
+  createHistList(_hist->result().clone());
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' will calculate the fft of '" + _hist->name() +
            "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp312::fft1d(const HistogramFloatBase::value_t *in, HistogramFloatBase::value_t *out)
+void pp312::fft1d(result_t::const_iterator in, result_t::iterator out)
 {
   // if fftw was to support arbitrary precision, traits could be used to determine the precision of
   // a given Histogram and it could be cast to fftw types as follows:
@@ -99,22 +99,20 @@ void pp312::fft1d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
   // shift first half:
   for (size_t xx=0;xx<_Nx/2;++xx)
   {
-    HistogramFloatBase::value_t v_real = tmpdata[xx*2];
-    HistogramFloatBase::value_t v_imag = tmpdata[xx*2+1];
+    result_t::value_t v_real = tmpdata[xx*2];
+    result_t::value_t v_imag = tmpdata[xx*2+1];
     out[xx+_Nx/2] = v_real*v_real + v_imag*v_imag;
   }
   // shift second half:
   for (size_t xx=_Nx/2;xx<_Nx;++xx)
   {
-    HistogramFloatBase::value_t v_real = tmpdata[xx*2];
-    HistogramFloatBase::value_t v_imag = tmpdata[xx*2+1];
+    result_t::value_t v_real = tmpdata[xx*2];
+    result_t::value_t v_imag = tmpdata[xx*2+1];
     out[xx-_Nx/2] = v_real*v_real + v_imag*v_imag;
   }
-
-
 }
 
-void pp312::fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::value_t *out)
+void pp312::fft2d(result_t::const_iterator in, result_t::iterator out)
 {
   // if fftw was to support arbitrary precision, traits could be used to determine the precision of
   // a given Histogram and it could be cast to fftw types as follows:
@@ -154,8 +152,8 @@ void pp312::fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
   {
     for (size_t yy=_Ny/2;yy<_Ny;++yy)
     {
-      HistogramFloatBase::value_t v_real = tmpdata[(yy-_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2];
-      HistogramFloatBase::value_t v_imag = tmpdata[(yy-_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2+1];
+      result_t::value_t v_real = tmpdata[(yy-_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2];
+      result_t::value_t v_imag = tmpdata[(yy-_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2+1];
       out[_Nx*(yy)+xx] = v_real*v_real + v_imag*v_imag;
     }
   }
@@ -164,8 +162,8 @@ void pp312::fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
   {
     for (size_t yy=0;yy<_Ny/2;++yy)
     {
-      HistogramFloatBase::value_t v_real = tmpdata[(yy+_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2];
-      HistogramFloatBase::value_t v_imag = tmpdata[(yy+_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2+1];
+      result_t::value_t v_real = tmpdata[(yy+_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2];
+      result_t::value_t v_imag = tmpdata[(yy+_Ny/2)*(_Nx+_fft_tmp_padding)+(xx-_Nx/2)*2+1];
       out[_Nx*(yy)+xx] = v_real*v_real + v_imag*v_imag;
     }
   }
@@ -181,14 +179,11 @@ void pp312::fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::val
   out[_Nx/2*_Ny+_Ny/2] = tmpdata[0]*tmpdata[0] + tmpdata[1]*tmpdata[1];
 }
 
-void pp312::process(const CASSEvent &evt, HistogramBackend &res)
+void pp312::process(const CASSEvent &evt, result_t &result)
 {
-  const HistogramFloatBase& hist
-      (dynamic_cast<const HistogramFloatBase&>(_hist->result(evt.id())));
-  HistogramFloatBase &result(dynamic_cast<HistogramFloatBase&>(res));
-
+  const result_t& hist(_hist->result(evt.id()));
   QReadLocker lock(&hist.lock);
 
-  _func(&(hist.memory().front()),&(result.memory().front()));
+  _func(hist.begin(),result.begin());
 }
 

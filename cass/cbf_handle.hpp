@@ -26,13 +26,13 @@ namespace CBF
 /** write cbf file
  *
  * @param filename the filename to write the cbf to
- * @param data the data that should be written
+ * @param data iterator to the data that should be written
  * @param shape the shape of the image
  *
  * @author Stephan Kassemeyer
  */
 inline
-void write(const std::string &filename, const std::vector<float> &data,
+void write(const std::string &filename, std::vector<float>::const_iterator data,
            const std::pair<int,int>& shape)
 {
   const int nx = shape.first;

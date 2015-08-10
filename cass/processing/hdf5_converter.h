@@ -125,7 +125,7 @@ public:
   virtual void loadSettings(size_t);
 
   /** overwrite the retrieval of an histogram */
-  virtual const HistogramBackend& result(const CASSEvent::id_t eventid=0);
+  virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** overwrite the release */
   virtual void releaseEvent(const CASSEvent &){}

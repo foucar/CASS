@@ -49,17 +49,17 @@ public:
    *
    * @param result the pointer to the data that contains the value we manage
    */
-  virtual void setResult(cass::HistogramBackend *result);
+  virtual void setResult(Data::result_t::shared_pointer result);
 
   /** retrieve the result
    *
    * @return pointer to the result
    */
-  virtual cass::HistogramBackend* result();
+  virtual Data::result_t::shared_pointer result();
 
 private:
   /** the cass data container */
-  cass::Histogram0DFloat *_hist;
+  Data::result_t::shared_pointer _result;
 
   /** pointer to the lable that displays the value */
   QLabel *_value;

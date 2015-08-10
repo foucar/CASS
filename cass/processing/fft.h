@@ -14,7 +14,7 @@
 #include <tr1/functional>
 
 #include "processor.h"
-#include "histogram.h"
+#include "result.hpp"
 
 namespace cass
 {
@@ -69,7 +69,7 @@ public:
    * @param evt the event that contains the id
    * @param result the histogram that will contain the result of the process
    */
-  virtual void process(const CASSEvent &evt, HistogramBackend &result);
+  virtual void process(const CASSEvent &evt, result_t &result);
 
   /** load the settings of this pp */
   virtual void loadSettings(size_t);
@@ -84,14 +84,14 @@ protected:
    * @param in the incomming data
    * @param out where the fft will be written to
    */
-  void fft1d(const HistogramFloatBase::value_t *in, HistogramFloatBase::value_t *out);
+  void fft1d(result_t::const_iterator in, result_t::iterator out);
 
   /** calculate the absolute square fft for 2d data
    *
    * @param in the incomming data
    * @param out where the fft will be written to
    */
-  void fft2d(const HistogramFloatBase::value_t *in, HistogramFloatBase::value_t *out);
+  void fft2d(result_t::const_iterator in, result_t::iterator out);
 
 protected:
   /** pp containing histogram to calculate the autocorrelation for */
@@ -109,7 +109,7 @@ protected:
   int _fft_tmp_padding;
 
   /** function to call for processing */
-  std::tr1::function<void(const HistogramFloatBase::value_t*, HistogramFloatBase::value_t*)> _func;
+  std::tr1::function<void(result_t::const_iterator, result_t::iterator)> _func;
 };
 
 

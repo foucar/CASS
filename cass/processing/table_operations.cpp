@@ -38,35 +38,31 @@ void pp72::loadSettings(size_t)
     return;
   _colIdx = s.value("ColumnIndex",0).toUInt();
 
-  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
+  size_t maxIdx(_table->result().axis(result_t::xAxis).nBins);
   if (_colIdx >= maxIdx)
     throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
                         "column index '" + toString(_colIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(maxIdx) + "'");
 
-  createHistList(tr1::shared_ptr<Histogram1DFloat>(new Histogram1DFloat()));
+  createHistList(result_t::shared_pointer(new result_t(0)));
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves column with index '" + toString(_colIdx) +
            "' from table " + _table->name() + "' .Condition on processor '" +
            _condition->name() + "'");
 }
 
-void pp72::process(const CASSEvent& evt, HistogramBackend &res)
+void pp72::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  Histogram1DFloat &col(dynamic_cast<Histogram1DFloat&>(res));
-
+  const result_t& table(_table->result(evt.id()));
   QReadLocker lock(&table.lock);
 
-  col.clearline();
+  result.reset();
 
-  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
-  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nCols(table.shape().first);
+  const size_t nRows(table.shape().second);
 
   for (size_t row=0; row < nRows; ++row)
-    col.append(tableContents[row*nCols + _colIdx]);
+    result.append(table[row*nCols + _colIdx]);
 
 }
 
@@ -95,13 +91,13 @@ void pp73::loadSettings(size_t)
   _bounds = make_pair(s.value("LowerBound",0.f).toFloat(),
                       s.value("UpperBound",1.f).toFloat());
 
-  size_t tableSize(_table->result().axis()[HistogramBackend::xAxis].size());
+  size_t tableSize(_table->result().axis(result_t::xAxis).nBins);
   if (_colIdx >= tableSize)
     throw runtime_error("pp73::loadSettings(): '" + name() + "' The requested " +
                         "column index '" + toString(_colIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(tableSize) + "'");
 
-  createHistList(tr1::shared_ptr<Histogram2DFloat>(new Histogram2DFloat(tableSize)));
+  createHistList(result_t::shared_pointer(new result_t(tableSize,0)));
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves subset of table in '" + _table->name() + "'. UpperBound '" +
            toString(_bounds.first) + "' LowerBound '" + toString(_bounds.second) +
@@ -109,23 +105,19 @@ void pp73::loadSettings(size_t)
            "'. Condition on processor '" + _condition->name() + "'");
 }
 
-void pp73::process(const CASSEvent& evt, HistogramBackend &res)
+void pp73::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t& table(_table->result(evt.id()));
   QReadLocker lock(&table.lock);
 
-  HistogramFloatBase::storage_t::const_iterator tableIt(tableContents.begin());
+  result_t::const_iterator tableIt(table.begin());
 
-  result.clearTable();
+  result.resetTable();
 
-  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
-  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nCols(table.shape().first);
+  const size_t nRows(table.shape().second);
 
-  HistogramFloatBase::storage_t rows;
+  result_t::storage_t rows;
   for (size_t rowIdx=0; rowIdx < nRows; ++rowIdx)
   {
     if(_bounds.first <= tableIt[_colIdx] && tableIt[_colIdx] < _bounds.second)
@@ -160,13 +152,13 @@ void pp74::loadSettings(size_t)
   _colIdx = s.value("ColumnIndex",0).toUInt();
   _rowIdx = s.value("RowIndex",0).toUInt();
 
-  size_t tableSize(_table->result().axis()[HistogramBackend::xAxis].size());
+  size_t tableSize(_table->result().shape().first);
   if (_colIdx >= tableSize)
     throw runtime_error("pp73::loadSettings(): '" + name() + "' The requested " +
                         "column index '" + toString(_colIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(tableSize) + "'");
 
-  createHistList(tr1::shared_ptr<Histogram0DFloat>(new Histogram0DFloat()));
+  createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() +
            "' retrieves the value of row '" + toString(_rowIdx) +
@@ -175,29 +167,24 @@ void pp74::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp74::process(const CASSEvent& evt, HistogramBackend &res)
+void pp74::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  Histogram0DFloat &result(dynamic_cast<Histogram0DFloat&>(res));
-
+  const result_t& table(_table->result(evt.id()));
   QReadLocker lock(&table.lock);
 
-  result.clear();
-
-  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
-  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
+  const size_t nCols(table.shape().first);
+  const size_t nRows(table.shape().second);
 
   if (_rowIdx >= nRows)
     throw invalid_argument("pp74::process(): '" + name() + "' The requested row index '" +
                            toString(_rowIdx) + "' is too big for a table with '" +
                            toString(nRows) + "' rows.");
 
-  const HistogramFloatBase::value_t val(tableContents[_rowIdx * nCols + _colIdx]);
-
-  result.fill(val);
+  result.setValue(table[_rowIdx * nCols + _colIdx]);
 }
+
+
+
 
 
 
@@ -224,7 +211,7 @@ void pp79::loadSettings(size_t)
   _xcolIdx = s.value("XColumnIndex",0).toUInt();
   _ycolIdx = s.value("YColumnIndex",0).toUInt();
 
-  size_t maxIdx(_table->result().axis()[HistogramBackend::xAxis].size());
+  size_t maxIdx(_table->result().shape().first);
   if (_xcolIdx >= maxIdx)
     throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
                         "x column index '" + toString(_xcolIdx) + " 'exeeds the " +
@@ -242,24 +229,17 @@ void pp79::loadSettings(size_t)
            _condition->name() + "'");
 }
 
-void pp79::process(const CASSEvent& evt, HistogramBackend &res)
+void pp79::process(const CASSEvent& evt, result_t &result)
 {
-  const Histogram2DFloat& table
-      (dynamic_cast<const Histogram2DFloat&>(_table->result(evt.id())));
-  const HistogramFloatBase::storage_t &tableContents(table.memory());
-  Histogram2DFloat &result(dynamic_cast<Histogram2DFloat&>(res));
-
+  const result_t& table(_table->result(evt.id()));
   QReadLocker lock(&table.lock);
 
-  result.clear();
-
-  const size_t nCols(table.axis()[HistogramBackend::xAxis].size());
-  const size_t nRows(table.axis()[HistogramBackend::yAxis].size());
+  const size_t nCols(table.shape().first);
+  const size_t nRows(table.shape().second);
 
   for (size_t row=0; row < nRows; ++row)
-    result.fill(tableContents[row*nCols + _xcolIdx],
-                tableContents[row*nCols + _ycolIdx]);
-
+    result.histogram(make_pair(table[row*nCols + _xcolIdx],
+                               table[row*nCols + _ycolIdx]));
 }
 
 

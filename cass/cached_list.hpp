@@ -19,7 +19,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_event.h"
 
 namespace cass
@@ -34,7 +34,7 @@ class CachedList
 {
 public:
   /** define the type of which the list is for */
-  typedef HistogramBackend item_type;
+  typedef Result<float> item_type;
 
   /** define a shared pointer of the item */
   typedef std::tr1::shared_ptr<item_type> item_sp;
@@ -142,7 +142,7 @@ public:
     QMutexLocker lock(&_mutex);
     _list.clear();
     for (size_t i=0; i<size; ++i)
-      _list.push_back(std::make_pair(0,item->copy_sptr()));
+      _list.push_back(std::make_pair(0,item->clone()));
     _latest = _current = _list.begin();
   }
 

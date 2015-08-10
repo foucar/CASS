@@ -52,7 +52,7 @@ public:
   pp5000(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -95,7 +95,7 @@ public:
   pp5001(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);

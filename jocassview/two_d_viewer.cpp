@@ -38,7 +38,6 @@
 #include "two_d_viewer.h"
 
 #include "two_d_viewer_data.h"
-#include "histogram.h"
 #include "minmax_control.h"
 #include "track_zoomer_2d.h"
 #include "logcolor_map.h"
@@ -125,7 +124,6 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
 
   // set the original flag
   _isOriginalData = true;
-  _origHist = 0;
 
   settings.endGroup();
 }
@@ -162,11 +160,7 @@ void TwoDViewer::dataChanged()
 
   /** if the data is original, save the original histogram */
   if (_isOriginalData)
-  {
-    Histogram2DFloat * hist(dynamic_cast<Histogram2DFloat*>(data().front()->result()));
-    delete _origHist;
-    _origHist = dynamic_cast<Histogram2DFloat*>(hist->copyclone());
-  }
+    _origHist = data().front()->result()->clone();
 
   /** reset flag */
   _isOriginalData = true;
@@ -177,29 +171,29 @@ void TwoDViewer::dataChanged()
     /** generate the lookup table from the geomfile */
     GeometryInfo::lookupTable_t lut =
         GeometryInfo::generateLookupTable(_geomFile.toStdString(),
-                                          _origHist->memory().size(),
-                                          _origHist->axis()[HistogramBackend::xAxis].size(),
+                                          _origHist->size(),
+                                          _origHist->shape().first,
                                           false);
 
-    Histogram2DFloat *labHist(
-          new Histogram2DFloat(lut.nCols,lut.min.x,lut.max.x,
-                               lut.nRows,lut.min.y,lut.max.y, "cols", "rows"));
-    labHist->key() = _origHist->key();
-    Histogram2DFloat::storage_t& destImage(labHist->memory());
+    cass::Result<float>::shared_pointer labHist
+        ( new cass::Result<float>
+          (cass::Result<float>::axe_t(lut.nCols,lut.min.x,lut.max.x, "cols"),
+           cass::Result<float>::axe_t(lut.nRows,lut.min.y,lut.max.y, "rows")));
+    labHist->name() = _origHist->name();
 
-    Histogram2DFloat::storage_t::const_iterator srcpixel(_origHist->memory().begin());
-    Histogram2DFloat::storage_t::const_iterator srcImageEnd(_origHist->memory().end()-8);
+    cass::Result<float>::const_iterator srcpixel(_origHist->begin());
+    cass::Result<float>::const_iterator srcImageEnd(_origHist->end()-8);
 
     std::vector<size_t>::const_iterator idx(lut.lut.begin());
 
     for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
-      destImage[*idx] = *srcpixel;
+      (*labHist)[*idx] = *srcpixel;
 
     data().front()->setResult(labHist);
   }
   else
   {
-    data().front()->setResult(_origHist->copyclone());
+    data().front()->setResult(_origHist->clone());
   }
 
   /** check if the data is different (the bounding box changed) in which case we
@@ -255,12 +249,12 @@ void TwoDViewer::replot()
   /** display the axis titles if requested */
   if (_axisTitleControl->isChecked())
   {
-    cass::HistogramBackend *hist(data->result());
-    if (hist)
+    cass::Result<float>::shared_pointer result(data->result());
+    if (result)
     {
-      QString xtitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::xAxis].title()));
+      QString xtitle(QString::fromStdString(result->axis(cass::Result<float>::xAxis).title));
       _plot->axisWidget(QwtPlot::xBottom)->setTitle(xtitle);
-      QString ytitle(QString::fromStdString(hist->axis()[cass::HistogramBackend::yAxis].title()));
+      QString ytitle(QString::fromStdString(result->axis(cass::Result<float>::yAxis).title));
       _plot->axisWidget(QwtPlot::yLeft)->setTitle(ytitle);
     }
   }

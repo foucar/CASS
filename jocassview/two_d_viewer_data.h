@@ -50,15 +50,15 @@ public:
    * takes over ownership of the data pointed to and deletes it when another
    * pointer is passed to this.
    *
-   * @param hist the histogram that contains the data
+   * @param result the result that contains the data
    */
-  void setResult(cass::HistogramBackend *hist);
+  void setResult(result_t::shared_pointer result);
 
   /** retrieve the pointer to the data
    *
    * @return pointer to the data
    */
-  cass::HistogramBackend* result();
+  result_t::shared_pointer result();
 
   /** return the min max values of the values in the data
    *
@@ -76,7 +76,7 @@ public:
 
 private:
   /** the cass data container */
-  cass::Histogram2DFloat *_hist;
+  result_t::shared_pointer _result;
 };
 }//end namespace jocassview
 #endif

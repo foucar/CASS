@@ -14,15 +14,11 @@
 #include "acqiris_detectors_helper.h"
 #include "signal_producer.h"
 #include "delayline_detector.h"
+#include "result.hpp"
 
 
 namespace cass
 {
-//forward declarations//
-class Histogram0DFloat;
-class Histogram1DFloat;
-class Histogram2DFloat;
-
 /** Number of Signals in MCP Waveform.
  *
  * @PPList "150":TofDetector number of signals in MCP waveform
@@ -53,7 +49,7 @@ public:
   pp150(const name_t&);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -102,7 +98,7 @@ public:
   pp151(const name_t&);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -150,7 +146,7 @@ public:
   pp152(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &res);
+  virtual void process(const CASSEvent&, result_t &res);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -197,7 +193,7 @@ public:
   pp153(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -262,7 +258,7 @@ public:
   pp160(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -333,7 +329,7 @@ public:
   pp161(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -402,7 +398,7 @@ public:
   pp162(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -470,7 +466,7 @@ public:
   pp163(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -556,7 +552,7 @@ public:
   pp164(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -617,7 +613,7 @@ public:
   pp165(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -682,7 +678,7 @@ public:
   pp166(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -767,7 +763,7 @@ public:
   pp167(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -832,7 +828,7 @@ public:
   pp220(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -886,7 +882,7 @@ public:
   pp250(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -954,7 +950,7 @@ public:
   pp251(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);
@@ -1009,7 +1005,7 @@ public:
   pp252(const name_t &);
 
   /** Retrieve the number of Signals and histogram it */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t &);
 
   /** load the histogram settings from file*/
   virtual void loadSettings(size_t);

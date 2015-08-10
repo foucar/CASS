@@ -13,10 +13,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
-namespace cass
-{
-class HistogramBackend;
-}//end namespace cass
+#include "result.hpp"
 
 class QString;
 
@@ -29,12 +26,15 @@ namespace jocassview
 class DataSource
 {
 public:
+  /** define the result type */
+  typedef cass::Result<float> result_t;
+
   /** retrieve a result from the source
    *
    * @param key the key of the result
    * @param id The event id of the result
    */
-  virtual cass::HistogramBackend* result(const QString &key, quint64 id=0) = 0;
+  virtual result_t::shared_pointer result(const QString &key, quint64 id=0) = 0;
 
   /** retrieve the list items that can be displayed
    *

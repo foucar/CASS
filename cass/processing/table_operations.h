@@ -11,7 +11,7 @@
 #define _TABLE_OPERATIONS_H_
 
 #include "processor.h"
-#include "histogram.h"
+#include "result.hpp"
 
 namespace cass
 {
@@ -45,7 +45,7 @@ public:
   pp72(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -94,7 +94,7 @@ public:
   pp73(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -145,7 +145,7 @@ public:
   pp74(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
@@ -192,7 +192,7 @@ public:
   pp79(const name_t&);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);

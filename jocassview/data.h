@@ -11,10 +11,7 @@
 
 #include <QtCore/QString>
 
-namespace cass
-{
-class HistogramBackend;
-}//end namespace cass
+#include "result.hpp"
 
 namespace jocassview
 {
@@ -25,6 +22,9 @@ namespace jocassview
 class Data
 {
 public:
+  /** define the result type */
+  typedef cass::Result<float> result_t;
+
   /** constructor
    *
    * will set the _wasUpdated flag to false
@@ -38,13 +38,13 @@ public:
    *
    * @param result the result to fill into this data container
    */
-  virtual void setResult(cass::HistogramBackend* result) = 0;
+  virtual void setResult(result_t::shared_pointer result) = 0;
 
   /** retrieve the result
    *
    * @return pointer to the result
    */
-  virtual cass::HistogramBackend* result() = 0;
+  virtual result_t::shared_pointer result() = 0;
 
   /** set the source name
    *

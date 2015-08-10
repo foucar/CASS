@@ -29,7 +29,7 @@
 #ifdef HDF5
 #include "hdf5_handle.hpp"
 #endif
-#include "histogram.h"
+#include "result.hpp"
 #include "cbf_handle.hpp"
 
 
@@ -66,7 +66,7 @@ bool FileHandler::isContainerFile(const QString &filename)
   return retval;
 }
 
-void FileHandler::saveData(const QString &filename, cass::HistogramBackend *data)
+void FileHandler::saveData(const QString &filename, result_t::shared_pointer data)
 {
   QFileInfo fileInfo(filename);
   if (fileInfo.exists())
@@ -112,11 +112,11 @@ void FileHandler::createContainer(const QString &filename)
   }
 }
 
-HistogramBackend* FileHandler::result(const QString &key, quint64)
+DataSource::result_t::shared_pointer FileHandler::result(const QString &key, quint64)
 {
   QFileInfo fileInfo(_filename);
   if (! fileInfo.exists())
-    return 0;
+    return result_t::shared_pointer();
 
   if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
       fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
@@ -144,7 +144,7 @@ HistogramBackend* FileHandler::result(const QString &key, quint64)
   {
     return loadDataFromCBF();
   }
-  return 0;
+  return result_t::shared_pointer();
 }
 
 QStringList FileHandler::resultNames()
@@ -199,92 +199,69 @@ void FileHandler::saveImage(const QString &filename, const QImage &image)
                           QObject::tr("' could not be saved!"));
 }
 
-cass::HistogramBackend* FileHandler::loadDataFromHist()
+DataSource::result_t::shared_pointer FileHandler::loadDataFromHist()
 {
   /** use a file serializer to deserialize the data in the file to a hist object
    *  and get the dimension from the object.
    */
   cass::SerializerReadFile serializer( _filename.toStdString().c_str() );
-  cass::HistogramBackend* hist = new cass::HistogramFloatBase(serializer);
+  result_t::shared_pointer result(new result_t());
+  serializer >> (*result);
   serializer.close();
-  size_t dim(hist->dimension());
-  delete hist;
 
-  /** one needs to reopen the file using the correct derived class
-   *  (serializing base class doesn't work) as it will give problems using
-   *  when dynamic_casting the baseclass back to the derived class)
-   */
-  cass::SerializerReadFile serializer2(_filename.toStdString().c_str() );
-  switch(dim)
-  {
-  case 0:
-    hist = new cass::Histogram0DFloat( serializer2 );
-    break;
-  case 1:
-    hist = new cass::Histogram1DFloat( serializer2 );
-    break;
-  case 2:
-    hist = new cass::Histogram2DFloat( serializer2 );
-    break;
-  }
-  serializer2.close();
-
-  return hist;
+  return result;
 }
 
-void FileHandler::saveDataToHist(const QString &filename, cass::HistogramBackend *data)
+void FileHandler::saveDataToHist(const QString &filename, result_t::shared_pointer data)
 {
   cass::SerializerWriteFile serializer( filename.toStdString().c_str() );
-  data->serialize( serializer );
+  serializer << (*data);
   serializer.close();
 }
 
-cass::HistogramBackend* FileHandler::loadDataFromCSV()
+DataSource::result_t::shared_pointer FileHandler::loadDataFromCSV()
 {
   QMessageBox::information(0,QObject::tr("Info"),QObject::tr("CSV loading not yet implemented"));
-  return 0;
+  return result_t::shared_pointer();
 }
 
-void FileHandler::saveDataToCSV(const QString &filename, cass::HistogramBackend *data)
+void FileHandler::saveDataToCSV(const QString &filename, result_t::shared_pointer data)
 {
   QFile file(filename);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     return;
   QTextStream out(&file);
-  switch (data->dimension())
+  switch (data->dim())
   {
   case 0:
   {
-    cass::Histogram0DFloat *hist(dynamic_cast<cass::Histogram0DFloat*>(data));
-    for (size_t i(0); i < hist->memory().size(); ++i)
-      out << hist->memory()[i] << endl;
+    for (size_t i(0); i < data->size(); ++i)
+      out << (*data)[i] << endl;
     break;
   }
   case 1:
   {
-    cass::Histogram1DFloat *hist(dynamic_cast<cass::Histogram1DFloat*>(data));
-    const cass::AxisProperty &xaxis(hist->axis()[cass::Histogram1DFloat::xAxis]);
+    const result_t::axe_t &xaxis(data->axis(result_t::xAxis));
     out<<"x-axis value, y-axis value"<<endl;
-    for (size_t i(0); i < xaxis.nbrBins(); ++i)
-      out <<xaxis.position(i)<<";"<< hist->memory()[i] << endl;
+    for (size_t i(0); i < xaxis.nBins; ++i)
+      out <<xaxis.pos(i)<<";"<< (*data)[i] << endl;
     break;
   }
   case 2:
   {
-    cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
-    const cass::AxisProperty &xaxis(hist->axis()[cass::Histogram2DFloat::xAxis]);
-    const cass::AxisProperty &yaxis(hist->axis()[cass::Histogram2DFloat::yAxis]);
+    const result_t::axe_t &xaxis(data->axis(result_t::xAxis));
+    const result_t::axe_t &yaxis(data->axis(result_t::yAxis));
     out<<"x-axis value, y-axis value, z-axis value"<<endl;
-    for (size_t i(0); i < xaxis.nbrBins(); ++i)
-      for (size_t j(0); j < yaxis.nbrBins(); ++j)
-        out << xaxis.position(i) << ";" << yaxis.position(j) <<";"<<hist->bin(i,j) << endl;
+    for (size_t yy(0); yy < yaxis.nBins; ++yy)
+      for (size_t xx(0); xx < xaxis.nBins; ++xx)
+        out << xaxis.pos(xx) << ";" << yaxis.pos(yy) <<";"<<(*data)[yy*xaxis.nBins + xx] << endl;
     break;
   }
   }
 }
 
 #ifdef HDF5
-cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
+DataSource::result_t::shared_pointer FileHandler::loadDataFromH5(const QString &keyname)
 {
   try
   {
@@ -309,7 +286,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
       if (ok && !item.isEmpty())
         key = item;
       else
-        return 0;
+        return result_t::shared_pointer();
     }
 
     switch (h5handle.dimension(key.toStdString()))
@@ -317,10 +294,10 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
     case (0):
     {
       float value(h5handle.readScalar<float>(key.toStdString()));
-      cass::Histogram0DFloat * hist(new cass::Histogram0DFloat());
-      hist->fill(value);
-      hist->key() = key.toStdString();
-      return hist;
+      result_t::shared_pointer result(new result_t());
+      result->setValue(value);
+      result->name(key.toStdString());
+      return result;
       break;
     }
     case (1):
@@ -335,17 +312,17 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
         catch(const invalid_argument & what) { xlow = 0; }
         try { xup = h5handle.readScalarAttribute<float>("xUp",key.toStdString()); }
         catch(const invalid_argument & what) { xup = length; }
-        cass::Histogram1DFloat * hist(new cass::Histogram1DFloat(length,xlow,xup));
-        copy(array.begin(),array.end(),hist->memory().begin());
-        hist->key() = key.toStdString();
-        return hist;
+        result_t::shared_pointer result(new result_t(result_t::axe_t(length,xlow,xup)));
+        copy(array.begin(),array.end(),result->begin());
+        result->name(key.toStdString());
+        return result;
       }
       else
       {
-        cass::Histogram0DFloat * hist(new cass::Histogram0DFloat());
-        hist->fill(array[0]);
-        hist->key() = key.toStdString();
-        return hist;
+        result_t::shared_pointer result(new result_t());
+        result->setValue(array[0]);
+        result->name(key.toStdString());
+        return result;
       }
       break;
     }
@@ -363,11 +340,12 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
       catch(const invalid_argument & what) { ylow = 0; }
       try { yup = h5handle.readScalarAttribute<float>("yUp",key.toStdString()); }
       catch(const invalid_argument & what) { yup = shape.second; }
-      cass::Histogram2DFloat * hist(new cass::Histogram2DFloat(shape.first,xlow,xup,
-                                                               shape.second,ylow,yup));
-      copy(matrix.begin(),matrix.end(),hist->memory().begin());
-      hist->key() = key.toStdString();
-      return hist;
+      result_t::shared_pointer result(new result_t
+                                      (result_t::axe_t(shape.first,xlow,xup),
+                                       result_t::axe_t(shape.second,ylow,yup)));
+      copy(matrix.begin(),matrix.end(),result->begin());
+      result->name(key.toStdString());
+      return result;
       break;
     }
     case (3):
@@ -380,7 +358,7 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
     default:
       QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): Unknown dimension of dataset '" +
                                                     key + "' in file '" + _filename + "'"));
-      return 0;
+      return result_t::shared_pointer();
     }
   }
   catch(const invalid_argument & err)
@@ -400,45 +378,38 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &keyname)
     QMessageBox::critical(0,QObject::tr("Error"),QString("FileHandler::loadDataFromH5(): can't open '" +
                                                 _filename + "'. Unknown error occured"));
   }
-  return 0;
+  return result_t::shared_pointer();
 }
 
-void FileHandler::saveDataToH5(const QString &filename, cass::HistogramBackend *data, const QString &mode)
+void FileHandler::saveDataToH5(const QString &filename, result_t::shared_pointer data, const QString &mode)
 {
   try
   {
     hdf5::Handler h5handle(filename.toStdString(),mode.toStdString());
-    switch (data->dimension())
+    switch (data->dim())
     {
     case 0:
     {
-      cass::Histogram0DFloat *hist(dynamic_cast<cass::Histogram0DFloat*>(data));
-      h5handle.writeScalar(hist->memory().front(),data->key());
+      h5handle.writeScalar(data->front(),data->name());
       break;
     }
     case 1:
     {
-      cass::Histogram1DFloat *hist(dynamic_cast<cass::Histogram1DFloat*>(data));
-      h5handle.writeArray(hist->memory(),data->axis()[cass::Histogram1DFloat::xAxis].size(),
-          data->key());
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram1DFloat::xAxis].lowerLimit(),
-          "xLow", data->key());
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram1DFloat::xAxis].upperLimit(),
-          "xUp", data->key());
+      const result_t::axe_t &xaxis(data->axis(result_t::xAxis));
+      h5handle.writeArray(data->storage(),data->shape().first, data->name());
+      h5handle.writeScalarAttribute(xaxis.low, "xLow", data->name());
+      h5handle.writeScalarAttribute(xaxis.up, "xUp", data->name());
       break;
     }
     case 2:
     {
-      cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
-      h5handle.writeMatrix(hist->memory(),hist->shape(),data->key(),9);
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::xAxis].lowerLimit(),
-          "xLow", data->key());
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::xAxis].upperLimit(),
-          "xUp", data->key());
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::yAxis].lowerLimit(),
-          "yLow", data->key());
-      h5handle.writeScalarAttribute(data->axis()[cass::Histogram2DFloat::yAxis].upperLimit(),
-          "yUp", data->key());
+      const result_t::axe_t &xaxis(data->axis(result_t::xAxis));
+      const result_t::axe_t &yaxis(data->axis(result_t::yAxis));
+      h5handle.writeMatrix(data->storage(),data->shape(),data->name(),9);
+      h5handle.writeScalarAttribute(xaxis.low, "xLow", data->name());
+      h5handle.writeScalarAttribute(xaxis.up, "xUp", data->name());
+      h5handle.writeScalarAttribute(yaxis.low, "yLow", data->name());
+      h5handle.writeScalarAttribute(yaxis.up, "yUp", data->name());
       break;
     }
     }
@@ -467,14 +438,14 @@ cass::HistogramBackend* FileHandler::loadDataFromH5(const QString &)
   return 0;
 }
 
-void FileHandler::saveDataToH5(const QString &, cass::HistogramBackend *, const QString &)
+void FileHandler::saveDataToH5(const QString &, result_t::shared_pointer, const QString &)
 {
 
 }
 
 #endif
 
-cass::HistogramBackend* FileHandler::loadDataFromCBF()
+DataSource::result_t::shared_pointer FileHandler::loadDataFromCBF()
 {
   vector<float> matrix;
   pair<int,int> shape(0,0);
@@ -512,18 +483,17 @@ cass::HistogramBackend* FileHandler::loadDataFromCBF()
   double xmax = shape.first - center.first;
   double ymin = -center.second;
   double ymax = shape.second - center.second;
-  cass::Histogram2DFloat *hist =
-      new cass::Histogram2DFloat(shape.first, xmin, xmax,
-                                 shape.second, ymin, ymax,
-                                 "cols", "rows");
-  copy(matrix.begin(), matrix.end(), hist->memory().begin());
-  hist->key() = _filename.toStdString();
+  result_t::shared_pointer result
+      (new result_t
+       (result_t::axe_t(shape.first, xmin, xmax, "cols"),
+        result_t::axe_t(shape.second, ymin, ymax, "rows")));
+  copy(matrix.begin(), matrix.end(), result->begin());
+  result->name(_filename.toStdString());
 
-  return hist;
+  return result;
 }
 
-void FileHandler::saveDataToCBF(const QString &filename, HistogramBackend *data)
+void FileHandler::saveDataToCBF(const QString &filename, result_t::shared_pointer data)
 {
-  cass::Histogram2DFloat *hist(dynamic_cast<cass::Histogram2DFloat*>(data));
-  cass::CBF::write(filename.toStdString(), hist->memory(), hist->shape());
+  cass::CBF::write(filename.toStdString(), data->begin(), data->shape());
 }

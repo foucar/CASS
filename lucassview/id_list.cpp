@@ -1,67 +1,38 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010, 2015 Lutz Foucar
 
 /**
- * @file lucassview/id_list.cpp file contains the classes that can serialize
- *               the key list
+ * @file cass/processing/id_list.cpp file contains the classes that can
+ *              serialize the key list
  *
- * @author Lutz Foucar
+ * @author Stephan Kassemeyer
  */
 
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
 
 #include "id_list.h"
 
+using namespace cass;
 
-cass::IdList::IdList(const std::list<std::string>& list)
-  : Serializable(1), _list(list), _size(list.size())
+void IdList::serialize(SerializerBackend &out)const
 {
-  std::cerr << "IdList::IdList(): Initial list size = " << _size << std::endl;
+  out.startChecksumGroupForWrite();
+  writeVersion(out);
+  out.add(_size);
+  out.endChecksumGroupForWrite();
+  for (names_t::const_iterator it=_list.begin(); it!=_list.end(); it++)
+    out.add(*it);
 }
 
-bool cass::IdList::deserialize(SerializerBackend *in)
+bool IdList::deserialize(SerializerBackend &in)
 {
-  using namespace std;
   _list.clear();
   //check whether the version fits//
-  in->startChecksumGroupForRead();
-  uint16_t ver = in->retrieveUint16();
-  if(ver != _version)
-  {
-    stringstream ss;
-    ss <<"IdList::deserialize(): Version conflict is '"<<ver<<"' should be '"<<_version<<"'";
-    throw runtime_error(ss.str());
-  }
-  _size = in->retrieveSizet();
-  if (!in->endChecksumGroupForRead())
-    throw runtime_error("IdList::deserialize(): wrong checksum");
+  in.startChecksumGroupForRead();
+  checkVersion(in);
+  _size = in.retrieve<size_t>();
+  if (!in.endChecksumGroupForRead())
+    return false;
   for(size_t ii=0; ii<_size; ++ii)
-    _list.push_back(in->retrieveString());
+    _list.push_back(in.retrieve<std::string>());
   return true;
 }
 
-void cass::IdList::serialize(SerializerBackend *out)const
-{
-  out->startChecksumGroupForWrite();
-  out->addUint16(_version);
-  out->addSizet(_size);
-  out->endChecksumGroupForWrite();
-  for (std::list<std::string>::const_iterator it=_list.begin();
-       it!=_list.end();
-       it++)
-    out->addString(*it);
-}
-
-void cass::IdList::clear()
-{
-  _list.clear();
-  _size=0;
-}
-
-void cass::IdList::setList(const std::list<std::string> &list)
-{
-  clear();
-  _list = list;
-  _size = list.size();
-}

@@ -19,12 +19,6 @@
 
 namespace cass
 {
-
-// forward declaration
-class Histogram0DFloat;
-class Histogram1DFloat;
-class Histogram2DFloat;
-
 /** Single particle hit.
  *
  * @PPList "300": detect Single Particle hits.
@@ -68,7 +62,7 @@ public:
   virtual ~pp300();
 
   /** check if image specified in settings contains a single particle hit*/
-  virtual void process(const CASSEvent&,HistogramBackend&);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings for this pp */
   virtual void loadSettings(size_t);
@@ -111,12 +105,6 @@ protected:
   /** the histogram to work on */
   shared_pointer _pHist;
 
-  /** storage for integralimage (2d integral of entire image) */
-  Histogram2DFloat* _integralimg;
-
-  /** storage for row sum (1d integral of image) */
-  Histogram2DFloat* _rowsum;
-
   // outlier detection processor:
   typedef vigra::Matrix<double> matrixType;
 
@@ -139,6 +127,9 @@ protected:
   matrixType _covI;
   int _trainingSetsInserted; // counts how many training data items are already included in training set.
   int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
+
+  /** mutex to lock the processing part since only one can be processed at a time */
+  QMutex _mutex;
 };
 
 
@@ -167,7 +158,7 @@ public:
   pp313(const name_t &name);
 
   /** process event */
-  virtual void process(const CASSEvent&, HistogramBackend &);
+  virtual void process(const CASSEvent&, result_t&);
 
   /** load the settings of the pp */
   virtual void loadSettings(size_t);

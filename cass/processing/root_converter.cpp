@@ -21,7 +21,7 @@
 #include <QtCore/QDateTime>
 
 #include "root_converter.h"
-#include "histogram.h"
+#include "result.hpp"
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "rootfile_helper.h"
@@ -124,35 +124,34 @@ void changeDir(TFile* file,const string &dirname)
  *
  * @author Lutz Foucar
  */
-void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname)
+void copyHistToRootFile(const Processor::result_t &casshist, const string &valname)
 {
   TH1 *roothist(0);
-  switch (casshist.dimension())
+  switch (casshist.dim())
   {
   case 0:
   {
     roothist = new TH1F(valname.c_str(),valname.c_str(),
                         1,0,1);
-    roothist->SetBinContent(1,casshist.memory()[0]);
-    //roothist->SetEntries(casshist.nbrOfFills());
+    roothist->SetBinContent(1,casshist.getValue());
   }
     break;
   case 1:
   {
     /** create root histogram from cass histogram properties */
-    const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
+    const Processor::result_t::axe_t &xaxis(casshist.axis(Processor::result_t::xAxis));
     roothist = new TH1F(valname.c_str(),valname.c_str(),
-                        xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+                        xaxis.nBins, xaxis.low, xaxis.up);
     /** set up axis */
     roothist->GetXaxis()->CenterTitle(true);
-    roothist->SetXTitle(xaxis.title().c_str());
+    roothist->SetXTitle(xaxis.title.c_str());
     /** copy histogram contents */
-    for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-      roothist->SetBinContent(roothist->GetBin(iX+1),casshist.memory()[iX]);
+    for (size_t iX(0); iX<xaxis.nBins;++iX)
+      roothist->SetBinContent(roothist->GetBin(iX+1),casshist[iX]);
     /** copy over / underflow */
-    size_t OverUnderFlowStart (xaxis.nbrBins());
-    roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
-    roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Overflow]);
+    size_t OverUnderFlowStart (xaxis.nBins);
+    roothist->SetBinContent(roothist->GetBin(0),casshist[OverUnderFlowStart+Processor::result_t::Underflow]);
+    roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1),casshist[OverUnderFlowStart+Processor::result_t::Overflow]);
     /** copy number of fills (how many shots have been accumulated) */
     //roothist->SetEntries(casshist.nbrOfFills());
   }
@@ -160,33 +159,33 @@ void copyHistToRootFile(const HistogramFloatBase &casshist,const string &valname
   case 2:
   {
     /** create root histogram from cass histogram properties */
-    const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
-    const AxisProperty &yaxis(casshist.axis()[HistogramBackend::yAxis]);
+    const Processor::result_t::axe_t &xaxis(casshist.axis(Processor::result_t::xAxis));
+    const Processor::result_t::axe_t &yaxis(casshist.axis(Processor::result_t::yAxis));
     roothist = new TH2F(valname.c_str(),valname.c_str(),
-                        xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
-                        yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+                        xaxis.nBins, xaxis.low, xaxis.up,
+                        yaxis.nBins, yaxis.low, yaxis.up);
     /** make sure that the histogram is drawn in color and with color bar */
     roothist->SetOption("colz");
     /** set up axis */
-    roothist->SetXTitle(xaxis.title().c_str());
+    roothist->SetXTitle(xaxis.title.c_str());
     roothist->GetXaxis()->CenterTitle(true);
-    roothist->SetYTitle(yaxis.title().c_str());
+    roothist->SetYTitle(yaxis.title.c_str());
     roothist->GetYaxis()->CenterTitle(true);
     roothist->GetYaxis()->SetTitleOffset(1.5);
     /** copy histogram contents */
-    for (size_t iY(0); iY<yaxis.nbrBins();++iY)
-      for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-        roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist.memory()[iX + iY*xaxis.nbrBins()]);
+    for (size_t iY(0); iY<yaxis.nBins;++iY)
+      for (size_t iX(0); iX<xaxis.nBins;++iX)
+        roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist[iX + iY*xaxis.nBins]);
     /** copy over / underflow */
-    size_t OverUnderFlowStart (xaxis.nbrBins()*yaxis.nbrBins());
-    roothist->SetBinContent(roothist->GetBin(0,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerLeft]);
-    roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerRight]);
-    roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperRight]);
-    roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperLeft]);
-    roothist->SetBinContent(roothist->GetBin(1,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerMiddle]);
-    roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperMiddle]);
-    roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Right]);
-    roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Left]);
+    size_t OverUnderFlowStart (xaxis.nBins*yaxis.nBins);
+    roothist->SetBinContent(roothist->GetBin(0,0),casshist[OverUnderFlowStart+Processor::result_t::LowerLeft]);
+    roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,0),casshist[OverUnderFlowStart+Processor::result_t::LowerRight]);
+    roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,yaxis.nBins+1),casshist[OverUnderFlowStart+Processor::result_t::UpperRight]);
+    roothist->SetBinContent(roothist->GetBin(0,yaxis.nBins+1),casshist[OverUnderFlowStart+Processor::result_t::UpperLeft]);
+    roothist->SetBinContent(roothist->GetBin(1,0),casshist[OverUnderFlowStart+Processor::result_t::LowerMiddle]);
+    roothist->SetBinContent(roothist->GetBin(1,yaxis.nBins+1),casshist[OverUnderFlowStart+Processor::result_t::UpperMiddle]);
+    roothist->SetBinContent(roothist->GetBin(xaxis.nBins+1,1),casshist[OverUnderFlowStart+Processor::result_t::Right]);
+    roothist->SetBinContent(roothist->GetBin(0,1),casshist[OverUnderFlowStart+Processor::result_t::Left]);
     /** copy number of fills (how many shots have been accumulated) */
     //roothist->SetEntries(casshist.nbrOfFills());
   }
@@ -206,7 +205,7 @@ pp2000::pp2000(const name_t &name)
   loadSettings(0);
 }
 
-const HistogramBackend& pp2000::result(const CASSEvent::id_t)
+const Processor::result_t &pp2000::result(const CASSEvent::id_t)
 {
   throw logic_error("pp2000::result: '"+name()+"' should never be called");
 }
@@ -286,7 +285,7 @@ void pp2000::aboutToQuit()
        */
       string folder("/Summary/" + it->groupname);
       ROOT::changeDir(_rootfile,folder);
-      ROOT::copyHistToRootFile(dynamic_cast<const HistogramFloatBase&>(it->pp->result()),it->name);
+      ROOT::copyHistToRootFile(it->pp->result(),it->name);
       ++it;
     }
 
@@ -319,7 +318,7 @@ void pp2000::processEvent(const cass::CASSEvent &evt)
        */
       string folder("/" + dirname + "/" + it->groupname);
       ROOT::changeDir(_rootfile,folder);
-      ROOT::copyHistToRootFile(dynamic_cast<const HistogramFloatBase&>(it->pp->result(evt.id())),it->name);
+      ROOT::copyHistToRootFile(it->pp->result(evt.id()),it->name);
     }
 
     /** go back to original directory and save file */

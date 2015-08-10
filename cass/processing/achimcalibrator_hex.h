@@ -81,7 +81,7 @@ public:
    * @param evt the event to work on
    * @param res the histogram containing the result
    */
-  void process(const CASSEvent& evt, HistogramBackend &res);
+  void process(const CASSEvent& evt, result_t &res);
 
   /** load the detector analyzers settings from .ini file
    *
