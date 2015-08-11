@@ -290,10 +290,10 @@ public:
   /** over/ underflow of 2d histogram */
   enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight,
                 Left,                     Right,
-                LowerLeft  , LowerMiddle, LowerRight};
+                LowerLeft  , LowerMiddle, LowerRight, TwoDStatSize};
 
   /** the over/underflow bin of 1d histogram */
-  enum OverUnderFlow{Overflow=0, Underflow};
+  enum OverUnderFlow{Overflow=0, Underflow, OneDStatSize};
 
   /** default constructor
    *
@@ -329,7 +329,7 @@ public:
    */
   explicit Result(const axe_t& xaxis)
     : _axis(1),
-      _storage(xaxis.nBins,0)
+      _storage(xaxis.nBins+OneDStatSize,0)
   {
     _axis[xAxis] = xaxis;
   }
@@ -365,7 +365,7 @@ public:
    */
   Result(const axe_t& xaxis, const axe_t& yaxis)
     : _axis(2),
-      _storage(xaxis.nBins * yaxis.nBins,0)
+      _storage(xaxis.nBins * yaxis.nBins + TwoDStatSize,0)
   {
     _axis[xAxis] = xaxis;
     _axis[yAxis] = yaxis;
@@ -623,8 +623,11 @@ public:
   iterator histogram(const value_t& pos, const value_t& weight=1)
   {
     if (_axis.size() != 1)
-      throw std::logic_error("Result::histogram(): Result doesn't have dimension 1");
-    iterator it(begin() + bin(pos));
+      throw std::logic_error("Result::histogram(pos): Result doesn't have dimension 1");
+    const size_t hist_bin(pos);
+    if (hist_bin >= size())
+      throw std::out_of_range("Result::histogram(pos): calculated bin isn't with the size of the storage");
+    iterator it(begin() + hist_bin);
     *it += weight;
     return it;
   }
@@ -643,7 +646,9 @@ public:
   iterator histogram(const coordinate_t& pos, const value_t& weight=1)
   {
     if (_axis.size() != 2)
-      throw std::logic_error("Result::histogram(): Result doesn't have dimension 2");
+      throw std::logic_error("Result::histogram(coordinate): Result doesn't have dimension 2");
+    if (bin(pos) >= size())
+      throw std::out_of_range("Result::histogram(coordinate): calculated bin isn't with the size of the storage");
     iterator it(begin() + bin(pos));
     *it += weight;
     return it;
