@@ -1364,8 +1364,7 @@ void pp65::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock1(&one.lock);
   const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
-
-  result.histogram(one.getValue(),two.getValue());
+  result.histogram(make_pair(one.getValue(),two.getValue()));
 }
 
 
