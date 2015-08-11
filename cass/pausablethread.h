@@ -42,6 +42,8 @@ public:
     INVALID_ARGUMENT_EXCEPTION,
     RUNTIME_ERROR_EXCEPTION,
     OUT_OF_RANGE_EXCEPTION,
+    LOGIC_ERROR_EXCEPTION,
+    STANDART_EXCEPTION,
     UNKNOWN_EXCEPTION
   };
 
@@ -62,7 +64,8 @@ public:
       _exception_thrown(NO_EXCEPTION),
       _invarg_excep(""),
       _runt_excep(""),
-      _outrange_excep("")
+      _outrange_excep(""),
+      _logic_excep("")
   {}
 
   /** destructor
@@ -176,6 +179,9 @@ protected:
 
   /** the invalid arguemnt exception thrown */
   std::out_of_range _outrange_excep;
+
+  /** the invalid arguemnt exception thrown */
+  std::logic_error _logic_excep;
 };
 
 }//end namespace lmf

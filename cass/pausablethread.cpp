@@ -38,7 +38,7 @@ void PausableThread::run()
   }
   catch (const runtime_error &error)
   {
-    Log::add(Log::DEBUG4,string("PausableThread::run(): catch runtime erro exception '") +
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch runtime error exception '") +
              error.what() + "'");
     _exception_thrown = RUNTIME_ERROR_EXCEPTION;
     _runt_excep = error;
@@ -50,9 +50,22 @@ void PausableThread::run()
     _exception_thrown = OUT_OF_RANGE_EXCEPTION;
     _outrange_excep = error;
   }
+  catch (const logic_error &error)
+  {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch logic error exception '") +
+             error.what() + "'");
+    _exception_thrown = LOGIC_ERROR_EXCEPTION;
+    _logic_excep = error;
+  }
+  catch (const exception &error)
+  {
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch standart exception '") +
+             error.what() + "'");
+    _exception_thrown = STANDART_EXCEPTION;
+  }
   catch (...)
   {
-    Log::add(Log::DEBUG4,string("PausableThread::run(): catch unknown exception '"));
+    Log::add(Log::DEBUG4,string("PausableThread::run(): catch unknown exception"));
     _exception_thrown = UNKNOWN_EXCEPTION;
   }
 }
@@ -118,6 +131,10 @@ void PausableThread::rethrowException()const
   case lmf::PausableThread::OUT_OF_RANGE_EXCEPTION:
     throw _outrange_excep;
     break;
+  case lmf::PausableThread::LOGIC_ERROR_EXCEPTION:
+    throw _logic_excep;
+    break;
+  case lmf::PausableThread::STANDART_EXCEPTION:
   case lmf::PausableThread::UNKNOWN_EXCEPTION:
     throw 0;
     break;

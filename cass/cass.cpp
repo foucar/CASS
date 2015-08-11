@@ -289,9 +289,10 @@ int main(int argc, char **argv)
     {
       if (!Workers::reference().running())
       {
-        Log::add(Log::DEBUG4,"main(): One of the workers seem to not be working, quit the input");
+        Log::add(Log::DEBUG4,"main(): One of the workers seem to not be working, quit all workers and then quit the input");
         InputBase::reference().end();
         InputBase::reference().wait();
+        Workers::reference().end();
         Workers::reference().rethrowException();
       }
     }
@@ -316,16 +317,10 @@ int main(int argc, char **argv)
     cout <<endl<<endl<< "User input is wrong: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
-  catch (const runtime_error &error)
+  catch (exception &error)
   {
-    Log::add(Log::ERROR,string("Runtime error: ") + error.what());
-    cout <<endl<<endl<< "Bad error: Please review the log file '"
-         <<Log::filename()<<"'"<<endl;
-  }
-  catch (const out_of_range &error)
-  {
-    Log::add(Log::ERROR,string("Out of range error: ") + error.what());
-    cout <<endl<<endl<< "Bad error: Please review the log file '"
+    Log::add(Log::ERROR,string("Exception happened: ") + error.what());
+    cout <<endl<<endl<< "An exception happened: Please review the log file '"
          <<Log::filename()<<"'"<<endl;
   }
   catch (...)
