@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 
 #include <stdint.h>
 #include <zlib.h>
@@ -382,7 +384,16 @@ private:
       oss << ret << " (" << zs.msg << ")";
       throw(std::runtime_error(oss.str()));
     }
-
+//    std::ostringstream oss;
+//    oss << "Deflated data: "
+//        << str.size() << " -> " << outstring.size()
+//        << " (" << std::setprecision(1) << std::fixed
+//        << ( (1.0 - (float)outstring.size() / (float)str.size()) * 100.0)
+//        << "% or a factor of "
+//        << ((float)str.size() / (float)outstring.size())
+//        << " saved)."
+//        << std::endl;
+//    std::cout << oss.str();
     return outstring;
   }
 
@@ -435,7 +446,16 @@ private:
       oss << ret << " (" << zs.msg << ")";
       throw(std::runtime_error(oss.str()));
     }
-
+//    std::ostringstream oss;
+//    oss << "Inflated data: "
+//        << str.size() << " -> " << outstring.size()
+//        << " (" << std::setprecision(1) << std::fixed
+//        << ( ((float)str.size() / (float)outstring.size() - 1.0) * 100.0 )
+//        << "% or a factor of "
+//        << ((float)outstring.size() / (float)str.size())
+//        << " increase)."
+//        << std::endl;
+//    std::cout << oss.str();
     return outstring;
   }
 

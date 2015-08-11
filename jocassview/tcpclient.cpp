@@ -125,16 +125,16 @@ QStringList TCPClient::resultNames()
                              QString::fromStdString(_server) + tr("'didn't send data"));
     return QStringList();
   }
+//  qDebug() << "TCPClient: DIME attachment:" << endl
+//           << "TCPClient: Memory=" << (void*)(*attachment).ptr << endl
+//           << "TCPClient: Size=" << (*attachment).size << endl
+//           << "TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+//           << "TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
   _transferredBytes += (*attachment).size;
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   IdList list(serializer);
+//  qDebug() << list.getList();
   return list.getList();
-
-//  cout << "TCPClient: DIME attachment:" << endl
-//      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
-//      << " TCPClient: Size=" << (*attachment).size << endl
-//      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-//      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
 }
 
 QString TCPClient::type()const

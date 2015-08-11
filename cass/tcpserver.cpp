@@ -153,8 +153,14 @@ int CASSsoapService::getPostprocessorIds(bool *success)
   keys->serialize(*ser);
   soap_set_dime(this);
   shared_ptr<string> datstr(new string(ser->buffer()));
+  int result = soap_set_dime_attachment(this, (char*) datstr->data(),datstr->size(), "application/processorList", "0", 0, NULL);
+  string output("CASSsoapService::getPostprocessorIds: Sending the following names:");
+  for (Processor::names_t::const_iterator it(keys->getList().begin());
+       it != keys->getList().end(); ++it)
+    output += *it + ", ";
+  output += " size of serializer: " + toString(datstr->size());
+  Log::add(Log::DEBUG4,output);
   queue.enqueue(datstr);
-  int result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/processorList", "0", 0, NULL);
   if(100 < queue.size())
     queue.dequeue();
   *success = true;
@@ -237,7 +243,8 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
  */
 int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command, bool *success)
 {
-  Log::add(Log::VERBOSEINFO,"CASSsoapService::receiveCommand(type=" + type + ")");
+  Log::add(Log::VERBOSEINFO,"CASSsoapService::receiveCommand: command '" +
+           command + "' is for processor " + type );
   QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
   {
@@ -282,8 +289,6 @@ int CASSsoapService::getEvent(size_t /*eventID*/, unsigned /*t1*/, unsigned /*t2
  */
 int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId, bool *success)
 {
-  Log::add(Log::VERBOSEINFO,"CASSsoapService::getHistogram " + type +
-           " from event " + toString(eventId));
   static QQueue<shared_ptr<pair<size_t, string> > > queue;
   QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
@@ -320,7 +325,11 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
     // answer request
     *success = true;
     soap_set_dime(this);
-    return soap_set_dime_attachment(this, (char *)data->second.data(), data->second.size(), mimetype.c_str(),
+    Log::add(Log::DEBUG4,"CASSsoapService::getHistogram " + type +
+             " from event " + toString(eventId) + ", the serialized size is "
+             + toString(data->second.size()));
+    return soap_set_dime_attachment(this, (char *)data->second.data(),
+                                    data->second.size(), mimetype.c_str(),
                                     type.c_str(), 0, NULL);
   }
   catch(const InvalidResultError& error)
