@@ -266,9 +266,7 @@ tr1::shared_ptr<IdList> ProcessorManager::keys()
   processors_t::iterator iter(_processors.begin());
   processors_t::iterator end(_processors.end());
   for(; iter != end; ++iter)
-#ifndef DEBUG
     if (!(*iter)->hide())
-#endif
       active.push_back((*iter)->name());
   _keys->setList(active);
   return _keys;
