@@ -166,7 +166,7 @@ protected:
   int _filecounter;
 
   /** the entry writer */
-  hdf5::WriteEntry *_entryWriter;
+  std::tr1::shared_ptr<hdf5::WriteEntry>_entryWriter;
 
   /** the maximum file size of the single file */
   int _maxFileSize;

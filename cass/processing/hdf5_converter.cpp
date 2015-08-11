@@ -271,6 +271,7 @@ void pp1002::loadSettings(size_t)
     _writeEvent = bind(&pp1002::writeEventToMultipleEventsFile,this,_1);
     _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
     _basefilename = AlphaCounter::intializeFile(_basefilename);
+    _entryWriter = tr1::shared_ptr<hdf5::WriteEntry>(new hdf5::WriteEntry(_basefilename));
   }
   else
   {
@@ -394,9 +395,8 @@ void pp1002::writeEventToMultipleEventsFile(const CASSEvent &evt)
    */
   if (static_cast<int>(_entryWriter->currentFileSize()) > _maxFileSize)
   {
-    delete _entryWriter;
     _basefilename = AlphaCounter::increaseFileCounter(_basefilename);
-    _entryWriter = new hdf5::WriteEntry(_basefilename);
+    _entryWriter = tr1::shared_ptr<hdf5::WriteEntry>(new hdf5::WriteEntry(_basefilename));
   }
 
   /** tell the writer which id to use and the corresponding base group */
