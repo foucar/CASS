@@ -587,8 +587,8 @@ public:
     const int xBin(_axis[xAxis].bin(coordinate.first));
     const int yBin(_axis[yAxis].bin(coordinate.second));
     const long maxSize  = _axis[xAxis].nBins*_axis[yAxis].nBins;
-    const bool xInRange(!(_axis[xAxis].isUnderflow(xBin) && _axis[xAxis].isOverflow(xBin)));
-    const bool yInRange(!(_axis[yAxis].isUnderflow(yBin) && _axis[yAxis].isOverflow(yBin)));
+    const bool xInRange(!_axis[xAxis].isUnderflow(xBin) && !_axis[xAxis].isOverflow(xBin));
+    const bool yInRange(!_axis[yAxis].isUnderflow(yBin) && !_axis[yAxis].isOverflow(yBin));
     if (_axis[xAxis].isUnderflow(xBin) && _axis[yAxis].isUnderflow(yBin))
       return maxSize+LowerLeft;
     else if (_axis[xAxis].isOverflow(xBin)  && _axis[yAxis].isOverflow(yBin))
@@ -744,10 +744,10 @@ public:
     switch (_axis.size())
     {
     case 0:
-      return std::make_pair(0,0);
+      return std::make_pair(1,1);
       break;
     case 1:
-      return std::make_pair(axis(xAxis).nBins,0);
+      return std::make_pair(axis(xAxis).nBins,1);
       break;
     case 2:
       return std::make_pair(axis(xAxis).nBins,axis(yAxis).nBins);
@@ -755,6 +755,18 @@ public:
     default:
       throw std::logic_error("Result::shape(): Result doesn't have dimension 2");
     }
+  }
+
+  /** return the size of the data as determined by the axis
+   *
+   * This size will be the size of the data without the space reserved for the
+   * statistics
+   *
+   * @return the data size
+   */
+  size_type datasize() const
+  {
+    return (shape().first * shape().second);
   }
 
   /** return the raw size of the storage
