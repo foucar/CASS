@@ -67,14 +67,13 @@ private:
      * will initalize the status flags correcty.
      */
     Element()
-      : element(0),
-        processed(true),
+      : processed(true),
         filled(false),
         inUse(false)
     {}
 
     /** the pointer to the element */
-    T *element;
+    std::tr1::shared_ptr<T> element;
 
     /** status whether the element has been worked on*/
     bool processed;
@@ -106,18 +105,12 @@ public:
       _nextToFill(_buffer.begin())
   {
     for (size_t i=0; i<_buffer.size(); ++i)
-      _buffer[i].element = new T();
+      _buffer[i].element = std::tr1::shared_ptr<T>(new T());
   }
 
-  /** destructor.
-   *
-   * deletes all elements of the buffer
-   */
+  /** destructor */
   ~RingBuffer()
-  {
-    for (size_t i=0; i<_buffer.size(); ++i)
-      delete _buffer[i].element;
-  }
+  {}
 
 private:
   /** advances the _nextToProcess iterator to the next processable element.

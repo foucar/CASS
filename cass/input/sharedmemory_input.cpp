@@ -102,7 +102,7 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
              reinterpret_cast<CASSEvent::buffer_t::value_type*>(datagram)+(sizeof(Pds::Dgram)+datagram->xtc.sizeofPayload()));
 
   /** now convert the datagram to a cassevent */
-  const bool isGood = _convert(rbItem->element);
+  const bool isGood = _convert(rbItem->element.get());
 
   /** tell the buffer that we are done, but also let it know whether it is a good event */
   _ringbuffer.doneFilling(rbItem,isGood);
