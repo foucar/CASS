@@ -1023,6 +1023,13 @@ void pp60::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
+  switch (_pHist->result().dim())
+  {
+  case 0: _stats= 0; break;
+  case 1: _stats= result_t::Underflow+1; break;
+  case 2: _stats= result_t::LowerRight+1; break;
+  default:  break;
+  }
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"processor '" + name() +
       "' histograms values from Processor '" +  _pHist->name() +
@@ -1031,11 +1038,11 @@ void pp60::loadSettings(size_t)
 
 void pp60::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t &hist(_pHist->result(evt.id()));
-  QReadLocker lock(&hist.lock);
+  const result_t &input(_pHist->result(evt.id()));
+  QReadLocker lock(&input.lock);
 
-  result_t::const_iterator value(hist.begin());
-  result_t::const_iterator histEnd(hist.end());
+  result_t::const_iterator value(input.begin());
+  result_t::const_iterator histEnd(input.end()-_stats);
 
   for (; value != histEnd; ++value)
     result.histogram(*value);

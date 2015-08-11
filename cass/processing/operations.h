@@ -830,6 +830,9 @@ public:
 protected:
   /** pp containing 0D histogram to work on */
   shared_pointer _pHist;
+
+  /** the number of stats at the end of the input */
+  size_t _stats;
 };
 
 
