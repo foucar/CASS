@@ -180,11 +180,15 @@ struct Axis
 
   /** return the bin that a value will fall in
    *
-   * @return the bin that the value will fall into
+   * in case the value is nan return a value that states and underflow
+   *
+   * @return the bin that the value will fall into or -1 in case value is nan
    * @param val the value that should be histogrammed
    */
   int bin(const value_t &val) const
   {
+    if (!std::isfinite(val))
+      return -1;
     return(static_cast<int>(nBins * (val - low) / (up-low)));
   }
 
