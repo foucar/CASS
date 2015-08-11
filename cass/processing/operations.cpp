@@ -29,34 +29,53 @@ using tr1::placeholders::_3;
 
 namespace cass
 {
-/** temporarliy provide own copy of min_element to be able to compile
+/** provide own implementation of min_element to be able to compile
  *
- * This is just a copy from the cpp reference guide in the internet
+ * It will search for the largest element in range but only checking real numbers
+ *
+ * This is just a slighly modfied copy from the cpp reference guide
  */
 template <class ForwardIterator>
 ForwardIterator max_element ( ForwardIterator first, ForwardIterator last )
 {
   if (first==last) return last;
   ForwardIterator largest = first;
+  while (!std::isfinite(*largest))
+  {
+    if (largest == last)
+      return first;
+    ++largest;
+  }
 
   while (++first!=last)
-    if (*largest<*first)
-      largest=first;
+    if (std::isfinite(*first))
+      if (*largest<*first)
+        largest=first;
   return largest;
 }
-/** temporarliy provide own copy of min_element to be able to compile
+
+/** provide own implementation of min_element to be able to compile
  *
- * This is just a copy from the cpp reference guide in the internet
+ * It will search for the smallest element in range but only checking real numbers
+ *
+ * This is just a slightly modified copy from the cpp reference guide
  */
 template <class ForwardIterator>
 ForwardIterator min_element ( ForwardIterator first, ForwardIterator last )
 {
   if (first==last) return last;
   ForwardIterator smallest = first;
+  while (!std::isfinite(*smallest))
+  {
+    if (smallest == last)
+      return first;
+    ++smallest;
+  }
 
   while (++first!=last)
-    if (*first<*smallest)
-      smallest=first;
+    if (std::isfinite(*first))
+      if (*first<*smallest)
+        smallest=first;
   return smallest;
 }
 }//end namespace cass
@@ -76,15 +95,15 @@ void pp1::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("InputOne");
+  _two = setupDependency("InputTwo");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
 
   const result_t &one(_one->result());
   const result_t &two(_two->result());
-  if (one.dim() != two.dim() || one.size() != two.size())
+  if (one.shape() != two.shape())
     throw invalid_argument("pp1::loadSettings() '"+name()+
                            "': HistOne '" + _one->name() +
                            "' with dimension '" + toString(one.dim()) +
@@ -137,7 +156,8 @@ void pp1::process(const CASSEvent& evt, result_t &result)
   const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&(two.lock));
 
-  transform(one.begin(), one.end(), two.begin(), result.begin(), _op);
+  transform(one.begin(),one.begin()+one.datasize(), two.begin(), result.begin(),
+            _op);
 }
 
 
@@ -160,20 +180,30 @@ void pp2::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
-  _value = s.value("Value",1).toFloat();
-  _retrieveValue = bind(&pp2::valueFromConst,this,_1);
   setupGeneral();
-  _hist = setupDependency("HistName");
-  const bool usePP(s.value("ValueName","DonnotUse").toString().toStdString() != "DonnotUse");
+  _hist = setupDependency("InputName");
   bool ret (setupCondition());
-  if (usePP)
+  QString valuekey("Value");
+  QString valueparam(s.value(valuekey,1).toString());
+  bool IsFloatValue(false);
+  result_t::value_t val(valueparam.toFloat(&IsFloatValue));
+  if (!IsFloatValue)
   {
-    _valuePP = setupDependency("ValueName");
+    _valuePP = setupDependency(valuekey.toStdString());
     ret = _valuePP && ret;
     _retrieveValue = bind(&pp2::valueFromPP,this,_1);
   }
+  else
+  {
+    _retrieveValue = bind(&pp2::valueFromConst,this,_1);
+    _value = val;
+  }
   if (!(_hist && ret))
     return;
+
+  if (!IsFloatValue &&  _valuePP->result().dim() != 0)
+    throw invalid_argument("pp2::loadSettings() '"+ name()+ " value '" +
+                           _valuePP->name() + "' is not a 0d result");
 
   string operation(s.value("Operation","+").toString().toStdString());
   if (operation == "+")
@@ -216,8 +246,9 @@ void pp2::loadSettings(size_t)
   createHistList(_hist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() + "' operation '" + operation +
            "' on '" + _hist->name() + "' with " +
-           (usePP ? " value in '"+_valuePP->name()+"'" : "constant '"+toString(_value)+"'")
-            + ". Condition is "+ _condition->name() + "'");
+           (!IsFloatValue ? "value in '"+_valuePP->name() : "constant '"+
+                            toString(_value)) +
+           "'. Condition is "+ _condition->name() + "'");
 }
 
 pp2::unaryoperation_t pp2::ValAtFirst(float val)
@@ -244,12 +275,14 @@ float pp2::valueFromPP(const CASSEvent::id_t& id)
 
 void pp2::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t &hist(_hist->result(evt.id()));
-  QReadLocker lock(&hist.lock);
+  const result_t &input(_hist->result(evt.id()));
+  QReadLocker lock(&input.lock);
 
-  transform(hist.begin(), hist.end(), result.begin(),
+  /** only do the operation on the datasize to avoid doing the operation on the
+   *  statistics
+   */
+  transform(input.begin(), input.begin()+input.datasize(), result.begin(),
             _setParamPos(_retrieveValue(evt.id())));
-
 }
 
 
@@ -272,12 +305,14 @@ pp4::pp4(const name_t &name)
 void pp4::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
+  if (_one->result().dim() != 0)
+    throw invalid_argument("pp4::loadSettings() '"+ name()+ " value '" +
+                           _one->name() + "' is not a 0d result, but needs to be");
   createHistList(result_t::shared_pointer(new result_t()));
-
   Log::add(Log::INFO,"Processor '" + name() + "' will apply NOT to Processor '" +
            _one->name() + "'. Condition is '" + _condition->name() + "'");
 }
@@ -316,7 +351,7 @@ void pp9::loadSettings(size_t)
   _range = make_pair(s.value("LowerLimit",0).toFloat(),
                      s.value("UpperLimit",0).toFloat());
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
@@ -324,8 +359,9 @@ void pp9::loadSettings(size_t)
 
   Log::add(Log::INFO,"Processor '" + name()
            + "' will check whether hist in Processor '" + _one->name() +
-      "' is between '" + toString(_range.first) + "' and '" + toString(_range.second) +
-      "'. Condition is '" + _condition->name() + "'");
+           "' is between '" + toString(_range.first) + "' and '" +
+           toString(_range.second) + "' Both values are exclusive." +
+           " Condition is '" + _condition->name() + "'");
 }
 
 void pp9::process(const CASSEvent& evt, result_t &result)
@@ -333,7 +369,8 @@ void pp9::process(const CASSEvent& evt, result_t &result)
   const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  const float value (accumulate(one.begin(), one.end(), 0.f));
+  /** only accumulate over the range that contains actual data */
+  const float value (accumulate(one.begin(), one.begin()+one.datasize(), 0.f));
 
   result.setValue(_range.first < value &&  value < _range.second);
 }
@@ -422,7 +459,7 @@ pp13::pp13(const name_t &name)
 void pp13::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
@@ -464,16 +501,16 @@ void pp15::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
   _previousVal = 0;
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(_hist && ret))
     return;
   if (_hist->result().dim() != 0 )
-    throw runtime_error("pp15::loadSettings: Hist '" + _hist->name() +
-                        "' is not a 0D Hist");
+    throw runtime_error("pp15::loadSettings() " + name() +": Result '" +
+                        _hist->name() + "' is not 0D, but needs to be");
   _difference = s.value("Difference",0.).toFloat();
-  if (fabs(_difference) < std::numeric_limits<float>::epsilon() )
-    _difference = std::numeric_limits<float>::epsilon();
+  if (fabs(_difference) < std::numeric_limits<result_t::value_t>::epsilon() )
+    _difference = std::numeric_limits<result_t::value_t>::epsilon();
   createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"processor '" + name() +
@@ -481,7 +518,6 @@ void pp15::loadSettings(size_t)
            " previous value of '" + _hist->name() +
            "' is bigger than '"+ toString(_difference) +
            "'. It will use condition '" + _condition->name() +"'");
-
 }
 
 void pp15::process(const CASSEvent& evt, result_t &result)
@@ -491,7 +527,6 @@ void pp15::process(const CASSEvent& evt, result_t &result)
 
   const float value(val.getValue());
 
-  /** @note the fuzzycompare doesn't work when using big numbers */
   result.setValue(fabs(value-_previousVal) > _difference);
   _previousVal = value;
 }
@@ -519,16 +554,16 @@ void pp40::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   _threshold = s.value("Threshold", 0.0).toFloat();
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   setupGeneral();
   bool ret (setupCondition());
   if (!(_one && ret))
     return;
   createHistList(_one->result().clone());
-
   Log::add(Log::INFO,"Processor '" + name() +
-      "' will threshold Histogram in Processor '" + _one->name() +
-      "' above '" + toString(_threshold) + "'. Condition is '" + _condition->name() + "'");
+           "' will threshold Histogram in Processor '" + _one->name() +
+           "' above '" + toString(_threshold) +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
 void pp40::process(const CASSEvent& evt, result_t &result)
@@ -536,7 +571,8 @@ void pp40::process(const CASSEvent& evt, result_t &result)
   const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  transform(one.begin(), one.end(), result.begin(),
+  /** only threshold the area containing data */
+  transform(one.begin(), one.begin()+one.datasize(), result.begin(),
             bind2nd(threshold(), _threshold));
 }
 
@@ -558,20 +594,14 @@ void pp41::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   _threshold = setupDependency("ThresholdName");
   bool ret (setupCondition());
   if (!(_one && _threshold && ret))
     return;
-
   _userVal = s.value("UserVal",0.f).toFloat();
   _lowerBound = s.value("LowerBound",0.5).toFloat();
   _upperBound = s.value("UpperBound",1.5).toFloat();
-
-  if (_one->result().dim() != _threshold->result().dim())
-    throw invalid_argument("pp41:loadSettings() '" + name() + "' Hist to threshold '" +
-                           _one->name() + "' and theshold histo '" + _threshold->name() +
-                           "' don't have the same dimension.");
   if (_one->result().shape() != _threshold->result().shape())
     throw invalid_argument("pp41:loadSettings() '" + name() +
                            "' Shape of hist to threshold '" + _one->name() + "'(" +
@@ -581,11 +611,13 @@ void pp41::loadSettings(size_t)
                            toString(_threshold->result().shape().first) + "x" +
                            toString(_threshold->result().shape().second) + ") differ.");
   createHistList(_one->result().clone());
-
   Log::add(Log::INFO,"Processor '" + name() +
-           "' will threshold Histogram in Processor '" + _one->name() +
-           "' above pixels in image '" + _threshold->name() +
-           "'. Condition is '" + _condition->name() + "'");
+           "' will set bins in Processor '" + _one->name() +
+           "' to '" + toString(_userVal) + "' when the corresponding bin in '"
+           + _threshold->name() + "' is between '" + toString(_lowerBound) +
+           "' and '" + toString(_upperBound) +
+           "' where the boarders are exclusive.  Condition is '"
+           + _condition->name() + "'");
 }
 
 float pp41::checkrange(float val, float checkval)
@@ -595,13 +627,14 @@ float pp41::checkrange(float val, float checkval)
 
 void pp41::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t &image(_one->result(evt.id()));
-  QReadLocker lock1(&image.lock);
-  const result_t &threshimage(_threshold->result(evt.id()));
-  QReadLocker lock2(&threshimage.lock);
+  const result_t &input(_one->result(evt.id()));
+  QReadLocker lock1(&input.lock);
+  const result_t &thresh(_threshold->result(evt.id()));
+  QReadLocker lock2(&thresh.lock);
 
-  transform(image.begin(), image.end(), threshimage.begin(), result.begin(),
-            bind(&pp41::checkrange,this,_1,_2));
+  /** only check the data area of the input */
+  transform(input.begin(), input.begin()+input.datasize(), thresh.begin(),
+            result.begin(), bind(&pp41::checkrange,this,_1,_2));
 }
 
 
@@ -629,14 +662,14 @@ void pp50::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   if (_pHist->result().dim() != 2)
     throw invalid_argument("pp50::loadSettings()'" + name() +
-                           "': Histogram '" + _pHist->name() +
-                           "' is not a 2D Histogram.");
+                           "': Result '" + _pHist->name() +
+                           "' is not a 2D Result.");
   const result_t &hist(_pHist->result());
 
   const result_t::axe_t &xAxis(hist.axis(result_t::xAxis));
@@ -723,16 +756,14 @@ void pp50::loadSettings(size_t)
            "'");
 }
 
-void pp50::projectToX(result_t::const_iterator src,
-                      result_t::iterator dest)
+void pp50::projectToX(result_t::const_iterator src, result_t::iterator dest)
 {
   for(size_t y(_yRange.first); y<_yRange.second; ++y)
     for(size_t x(_xRange.first); x<_xRange.second; ++x)
       dest[x] += src[y*_nX + x];
 }
 
-void pp50::projectToY(result_t::const_iterator src,
-                      result_t::iterator dest)
+void pp50::projectToY(result_t::const_iterator src, result_t::iterator dest)
 {
   for(size_t y(_yRange.first); y<_yRange.second; ++y)
     for(size_t x(_xRange.first); x<_xRange.second; ++x)
@@ -775,7 +806,7 @@ void pp51::loadSettings(size_t)
   pair<float,float> userarea(make_pair(s.value("LowerBound",-1e6).toFloat(),
                                        s.value("UpperBound", 1e6).toFloat()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -846,7 +877,7 @@ pp56::pp56(const name_t &name)
 void pp56::loadSettings(size_t)
 {
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -904,7 +935,7 @@ void pp57::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -927,15 +958,55 @@ void pp57::loadSettings(size_t)
   {
   case (result_t::xAxis):
     _Xrange = make_pair(0,xAxis.nBins);
-    _Yrange = make_pair(yAxis.bin(userRange.first),
-                        yAxis.bin(userRange.second));
+    if (userRange.first < yAxis.low)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (userRange.first > yAxis.up)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
+    if (userRange.second < yAxis.low)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (userRange.second > yAxis.up)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
+    _Yrange.first  = yAxis.bin(userRange.first);
+    _Yrange.second = yAxis.bin(userRange.second);
     _project = bind(&pp57::projectToX,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(xAxis)));
     break;
 
   case (result_t::yAxis):
-    _Xrange = make_pair(xAxis.bin(userRange.first),
-                        xAxis.bin(userRange.second));
+    if (userRange.first < xAxis.low)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (userRange.first > xAxis.up)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': LowerBound '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
+    if (userRange.second < xAxis.low)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (userRange.second > xAxis.up)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': UpperBound '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
+    _Xrange.first  = xAxis.bin(userRange.first);
+    _Xrange.second = xAxis.bin(userRange.second);
     _Yrange = make_pair(0,yAxis.nBins);
     _project = bind(&pp57::projectToY,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(yAxis)));
@@ -953,8 +1024,7 @@ void pp57::loadSettings(size_t)
       toString(projection_axis) + "'. Condition is '" + _condition->name() + "'");
 }
 
-void pp57::projectToX(result_t::const_iterator src,
-                      result_t::iterator result,
+void pp57::projectToX(result_t::const_iterator src, result_t::iterator result,
                       result_t::iterator norm)
 {
   for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
@@ -969,8 +1039,7 @@ void pp57::projectToX(result_t::const_iterator src,
     }
 }
 
-void pp57::projectToY(result_t::const_iterator src,
-                      result_t::iterator result,
+void pp57::projectToY(result_t::const_iterator src, result_t::iterator result,
                       result_t::iterator norm)
 {
   for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
@@ -995,8 +1064,8 @@ void pp57::process(const CASSEvent& evt, result_t &result)
    */
   result_t::storage_t norm(result.size(),0);
   _project(one.begin(),result.begin(),norm.begin());
-  transform(result.begin(),result.end(),norm.begin(),result.begin(),
-            divides<float>());
+  transform(result.begin(),result.begin()+result.datasize(),
+            norm.begin(),result.begin(), divides<result_t::value_t>());
 }
 
 
@@ -1019,17 +1088,10 @@ pp60::pp60(const name_t &name)
 void pp60::loadSettings(size_t)
 {
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  switch (_pHist->result().dim())
-  {
-  case 0: _stats= 0; break;
-  case 1: _stats= result_t::Underflow+1; break;
-  case 2: _stats= result_t::LowerRight+1; break;
-  default:  break;
-  }
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"processor '" + name() +
       "' histograms values from Processor '" +  _pHist->name() +
@@ -1042,7 +1104,7 @@ void pp60::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock(&input.lock);
 
   result_t::const_iterator value(input.begin());
-  result_t::const_iterator histEnd(input.end()-_stats);
+  result_t::const_iterator histEnd(input.begin()+input.datasize());
 
   for (; value != histEnd; ++value)
     result.histogram(*value);
@@ -1074,7 +1136,7 @@ void pp61::loadSettings(size_t)
   setupGeneral();
   unsigned average = s.value("NbrOfAverages", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -1117,8 +1179,8 @@ void pp61::process(const CASSEvent& evt, result_t &result)
   const result_t::value_t scale((1./_nbrEventsAccumulated < _alpha) ?
                                   _alpha :
                                   1./_nbrEventsAccumulated);
-  transform(one.begin(),one.end(),result.begin(),result.begin(),
-            bind(_func,_1,_2,scale));
+  transform(one.begin(), one.begin()+one.datasize(),
+            result.begin(), result.begin(), bind(_func,_1,_2,scale));
 }
 
 
@@ -1143,13 +1205,13 @@ pp62::pp62(const name_t &name)
 void pp62::loadSettings(size_t)
 {
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"processor '" + name() +
-      "' sums up histograms from Processor '" +  _pHist->name() +
+      "' sums up results from Processor '" +  _pHist->name() +
       "'. Condition on processor '" + _condition->name() + "'");
 }
 
@@ -1303,7 +1365,7 @@ void pp64::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
 
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("InputName");
 
   bool ret (setupCondition());
   if ( !(_hist && ret) ) return;
@@ -1324,9 +1386,11 @@ void pp64::process(const CASSEvent &evt, result_t &result)
   const result_t &values(_hist->result(evt.id()));
   QReadLocker lock(&(values.lock));
 
+  /** @note since the rotate algorithm is quite fast, it might be faster to do
+   *        it like this. Otherwise we have to branch, which might be slower
+   */
   result_t::const_iterator value(values.begin());
   result_t::const_iterator valueEnd(values.end());
-
   for(; value != valueEnd ;++value)
   {
     rotate(result.begin(), result.begin()+1, result.end());
@@ -1351,8 +1415,8 @@ pp65::pp65(const name_t &name)
 void pp65::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("XValue");
+  _two = setupDependency("YValue");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
@@ -1396,21 +1460,22 @@ pp66::pp66(const name_t &name)
 void pp66::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("XName");
+  _two = setupDependency("YName");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
   const result_t &one(_one->result());
   const result_t &two(_two->result());
   if (one.dim() != 1 || two.dim() != 1)
-    throw runtime_error("pp66::loadSettings(): HistOne '" + _one->name() +
-                        "' with dimension '" + toString(one.dim()) +
-                        "' or HistTwo '" + _two->name() + "' has dimension '" +
-                        toString(two.dim()) + "' does not have dimension 1");
+    throw invalid_argument("pp66::loadSettings() "+name()+": First '" +
+                           _one->name() + "' with dimension '" +
+                           toString(one.dim()) + "' or Second '" +
+                           _two->name() + "' has dimension '" +
+                           toString(two.dim()) + "' does not have dimension 1");
   createHistList
       (result_t::shared_pointer
-        (new result_t(one.axis(result_t::xAxis), two.axis(result_t::yAxis))));
+        (new result_t(one.axis(result_t::xAxis), two.axis(result_t::xAxis))));
 
    Log::add(Log::INFO,"processor '" + name() +
            "' creates a two dim histogram from Processor '" + _one->name() +
@@ -1425,8 +1490,8 @@ void pp66::process(const CASSEvent& evt, result_t &result)
   const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  const size_t oneNBins(one.axis(result_t::xAxis).nBins);
-  const size_t twoNBins(two.axis(result_t::xAxis).nBins);
+  const size_t oneNBins(one.shape().first);
+  const size_t twoNBins(two.shape().first);
   for (size_t j(0); j < twoNBins; ++j)
     for (size_t i(0); i < oneNBins; ++i)
       result[j*oneNBins+i] = one[i]*two[j];
@@ -1446,7 +1511,7 @@ void pp66::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 67 histograms 2 0D values to 1D histogram add weight ***
+// *** processor 67 histograms 2 0D,1D or 2D values to 1D histogram add weight ***
 
 pp67::pp67(const name_t &name)
   : Processor(name)
@@ -1460,8 +1525,8 @@ void pp67::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("ValuesName");
+  _two = setupDependency("WeightsName");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
@@ -1470,18 +1535,13 @@ void pp67::loadSettings(size_t)
                            _one->name() + "' and '" + _two->name() +
                            "' are not of the same type");
   if (_one->result().shape() != _two->result().shape())
-    throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
+    throw invalid_argument("pp67::loadSettings() '" + name() + "': data of'" +
                            _one->name() + "' and '" + _two->name() +
                            "' are not of the same size");
-
-  switch (_one->result().dim())
-  {
-  case 0: _statsize = 0; break;
-  case 1: _statsize = result_t::Underflow+1; break;
-  case 2: _statsize = result_t::LowerRight+1; break;
-  default:  break;
-  }
-
+  if (_one->result().size() != _two->result().size())
+    throw invalid_argument("pp67::loadSettings() '" + name() + "': storage of '" +
+                           _one->name() + "' and '" + _two->name() +
+                           "' are not of the same size");
   createHistList
       (result_t::shared_pointer
         (new result_t
@@ -1507,7 +1567,7 @@ void pp67::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock2(&two.lock);
 
   result_t::const_iterator xx(one.begin());
-  result_t::const_iterator xEnd(one.end()-_statsize);
+  result_t::const_iterator xEnd(one.begin()+one.datasize());
 
   result_t::const_iterator yy(two.begin());
 
@@ -1546,8 +1606,8 @@ void pp68::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("XName");
+  _two = setupDependency("YName");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
@@ -1578,13 +1638,11 @@ void pp68::process(const CASSEvent& evt, result_t &result)
   const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
 
-  const result_t::axe_t xaxis(result.axis(result_t::yAxis));
-  const size_t bin(xaxis.bin(two.getValue()));
-  if (!(xaxis.isOverflow(bin) || xaxis.isUnderflow(bin)))
-  {
-    result_t::iterator memorypointer(result.begin() + bin*xaxis.nBins);
-    copy(one.begin(),one.end()-2,memorypointer);
-  }
+  const result_t::shape_t::first_type nxbins(result.shape().first);
+  const result_t::axe_t yaxis(result.axis(result_t::yAxis));
+  const size_t ybin(yaxis.bin(two.getValue()));
+  if (!yaxis.isOverflow(ybin) && !yaxis.isUnderflow(ybin))
+    copy(one.begin(), one.begin()+one.datasize(), result.begin()+(ybin*nxbins));
 }
 
 
@@ -1606,8 +1664,8 @@ pp69::pp69(const name_t &name)
 void pp69::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("HistOne");
-  _two = setupDependency("HistTwo");
+  _one = setupDependency("XName");
+  _two = setupDependency("YName");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
@@ -1628,22 +1686,6 @@ void pp69::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock1(&one.lock);
   const result_t &two(_two->result(evt.id()));
   QReadLocker lock2(&two.lock);
-
-//  const float x(one.getValue());
-//  const float weight(two.getValue());
-//  const int nxBins(static_cast<const int>(result.axis()[result_t::xAxis].nbrBins()));
-//  const float xlow(result.axis()[result_t::xAxis].lowerLimit());
-//  const float xup(result.axis()[result_t::xAxis].upperLimit());
-//  const int xBin(static_cast<int>( nxBins * (x - xlow) / (xup-xlow)));
-//  //check whether the fill is in the right range//
-//  const bool xInRange = 0<=xBin && xBin<nxBins;
-//  // if in range fill the memory otherwise figure out whether over of underflow occured//
-//  if (xInRange)
-//    mem[xBin] = weight;
-//  else if (xBin >= nxBins)
-//    mem[nxBins+result_t::Overflow] += 1;
-//  else if (xBin < 0)
-//    mem[nxBins+result_t::Underflow] += 1;
 
   /** histogram the first value, which will return an iterator pointing to the
    *  correct bin. We can then write the second value to the correct bin
@@ -1680,7 +1722,7 @@ void pp70::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -1745,9 +1787,8 @@ void pp70::process(const CASSEvent& evt, result_t &result)
 
   result_t::const_iterator iit(input.begin()+_inputOffset);
   result_t::iterator rit(result.begin());
-  const size_t resultNbrXBins(result.axis(result_t::xAxis).nBins);
-  const size_t resultNbrYBins((result.dim() == 2) ?
-                                result.axis(result_t::yAxis).nBins : 1);
+  const size_t resultNbrXBins(result.shape().first);
+  const size_t resultNbrYBins(result.shape().second);
   const size_t inputNbrXBins(input.axis(result_t::xAxis).nBins);
   for (size_t yBins=0;yBins < resultNbrYBins; ++yBins)
   {
@@ -1777,15 +1818,15 @@ void pp71::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   string functype(s.value("RetrieveType","max").toString().toStdString());
   if (functype == "max")
-    _func = &max_element<result_t::const_iterator>;
+    _func = &cass::max_element<result_t::const_iterator>;
   else if (functype == "min")
-    _func = &min_element<result_t::const_iterator>;
+    _func = &cass::min_element<result_t::const_iterator>;
   else
     throw invalid_argument("pp71::loadSettings(): RetrieveType '" + functype +
                            "' unknown.");
@@ -1802,7 +1843,7 @@ void pp71::process(const CASSEvent& evt, result_t &result)
   const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  result.setValue(*(_func(one.begin(), one.end())));
+  result.setValue(*(_func(one.begin(), one.begin()+one.datasize())));
 }
 
 
@@ -1826,12 +1867,12 @@ void pp75::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
   Log::add(Log::INFO,"Processor '" + name() +
-           "' clears the histogram in pp '" + _hist->name() +
+           "' clears the result in processor '" + _hist->name() +
            "'. Condition is "+ _condition->name());
 }
 
@@ -1987,7 +2028,7 @@ void pp81::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -1996,9 +2037,9 @@ void pp81::loadSettings(size_t)
                            _pHist->name() + "' is not a 1D hist");
   string functype(s.value("RetrieveType","max").toString().toStdString());
   if (functype == "max")
-    _func = &max_element<result_t::const_iterator>;
+    _func = &cass::max_element<result_t::const_iterator>;
   else if (functype == "min")
-    _func = &min_element<result_t::const_iterator>;
+    _func = &cass::min_element<result_t::const_iterator>;
   else
     throw invalid_argument("pp81::loadSettings(): RetrieveType '" + functype +
                            "' unknown.");
@@ -2014,7 +2055,7 @@ void pp81::process(const CASSEvent& evt, result_t &result)
   const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  result_t::const_iterator it(_func(one.begin(), one.end()));
+  result_t::const_iterator it(_func(one.begin(), one.begin()+one.datasize()));
   const size_t bin(distance(one.begin(),it));
   result.setValue(one.axis(result_t::xAxis).pos(bin));
 }
@@ -2048,8 +2089,8 @@ void pp82::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
-  bool ret (setupCondition());
+  _pHist = setupDependency("InputName");
+  bool ret(setupCondition());
   if (!(ret && _pHist))
     return;
 
@@ -2079,7 +2120,7 @@ void pp82::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock(&one.lock);
 
   stat_t stat;
-  stat.addDistribution(one.begin(),one.end());
+  stat.addDistribution(one.begin(),one.begin()+one.datasize());
   result.setValue(_val(stat));
 }
 
@@ -2114,7 +2155,7 @@ void pp85::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -2146,8 +2187,8 @@ void pp85::process(const CASSEvent& evt, result_t &result)
 
   result_t::const_iterator xRangeBegin(one.begin()+_xRange.first);
   result_t::const_iterator xRangeEnd(one.begin()+_xRange.second);
-  result_t::const_iterator maxElementIt(std::max_element(xRangeBegin, xRangeEnd));
-  result_t::const_iterator minElementIt(std::min_element(xRangeBegin, xRangeEnd));
+  result_t::const_iterator maxElementIt(cass::max_element(xRangeBegin, xRangeEnd));
+  result_t::const_iterator minElementIt(cass::min_element(xRangeBegin, xRangeEnd));
   const float fracMax((*maxElementIt-*minElementIt) * _fraction + *minElementIt);
 
   result_t::const_iterator leftSide;
@@ -2211,7 +2252,7 @@ void pp86::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -2222,9 +2263,9 @@ void pp86::loadSettings(size_t)
   _userFraction = s.value("Fraction",0.5).toFloat();
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
-    throw invalid_argument("pp86::setupParameters()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
-                           "' is not a 1D Histogram.");
+    throw invalid_argument("pp86::loadSettings()'" + name() +
+                           "': Error the processor we depend on '" + _pHist->name() +
+                           "' does not contain a 1D result.");
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _xRangeStep = make_pair(xaxis.bin(userXRangeStep.first),
                           xaxis.bin(userXRangeStep.second));
@@ -2232,7 +2273,7 @@ void pp86::loadSettings(size_t)
                               xaxis.bin(userXRangeBaseline.second));
   createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO, "Processor '" + name() +
-           "' returns the ion of the step in '" + _pHist->name() +
+           "' returns the position of the step in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRangeStep.first) +
            "' to xup '" + toString(userXRangeStep.second) +
            "'. Where the baseline is defined in range '" + toString(userXRangeBaseline.first) +
@@ -2296,7 +2337,7 @@ void pp87::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -2305,8 +2346,8 @@ void pp87::loadSettings(size_t)
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
     throw invalid_argument("pp87::setupParameters()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
-                           "' is not a 1D Histogram.");
+                           "': Error the processor we depend on '" + _pHist->name() +
+                           "' does not contain a 1D result.");
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _xRange = make_pair(xaxis.bin(userXRange.first),
                       xaxis.bin(userXRange.second));
@@ -2360,7 +2401,7 @@ void pp88::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -2401,19 +2442,19 @@ void pp88::loadSettings(size_t)
                            axisparam.toStdString() + "' is unknown.");
 
   if (_pHist->result().dim() == 0)
-    throw invalid_argument("pp88 '" + name() + "' histogram '" + _pHist->name() +
+    throw invalid_argument("pp88 '" + name() + "' result '" + _pHist->name() +
                            "' has dimension 0, which has no axis properties.");
 
   if ((axisparam == "YNbrBins" || axisparam == "YLow" || axisparam == "YUp")
       && _pHist->result().dim() == 1)
-    throw invalid_argument("pp88 '" + name() + "' histogram '" + _pHist->name() +
-                           "' has dimension 1, which is incompatible with property '" +
+    throw invalid_argument("pp88 '" + name() + "' result '" + _pHist->name() +
+                           "' has dimension 1 thus doesn't contain '" +
                            axisparam.toStdString() + "'");
 
   createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns axis parameter'"+ axisparam.toStdString() +
-           "' of histogram in pp '" + _pHist->name() +
+           "' of result in processor '" + _pHist->name() +
            "'. Condition on Processor '" + _condition->name() + "'");
 }
 
@@ -2447,7 +2488,7 @@ void pp89::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -2526,7 +2567,7 @@ void pp89::process(const CASSEvent& evt, result_t &result)
   QReadLocker lock(&in.lock);
 
   result_t::const_iterator inIt(in.begin());
-  result_t::const_iterator inEnd(in.end());
+  result_t::const_iterator inEnd(in.begin()+in.datasize());
   result_t::iterator outIt(result.begin());
 
   *outIt++ = *inIt++;
@@ -2558,15 +2599,15 @@ void pp91::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
     throw invalid_argument("pp91::loadSettings()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
-                           "' is not a 1D Histogram.");
+                           "': Error the processor we depend on '" + _pHist->name() +
+                           "' does not contain a 1D result.");
   _range =  s.value("Range",10).toUInt();
 
   createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
@@ -2588,9 +2629,9 @@ void pp91::process(const CASSEvent& evt, result_t &result)
   result.resetTable();
   table_t candidate(nbrOf,0);
 
-  for (size_t i=_range;i < data.size()-_range; ++i)
+  for (size_t i=_range;i < data.datasize()-_range; ++i)
   {
-    if (isnan(data[i]))
+    if (!std::isfinite(data[i]))
       continue;
 
     float curval(data[i]);

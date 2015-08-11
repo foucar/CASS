@@ -1,4 +1,4 @@
-// Copyright (C) 2010 -2013 Lutz Foucar
+// Copyright (C) 2010 -2015 Lutz Foucar
 
 /**
  * @file operations.h file contains processors that will operate
@@ -31,10 +31,10 @@ namespace cass
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistOne} \n
+ * @cassttng Processor/\%name\%/{InputOne} \n
  *           the processor name that contain the first histogram.
  *           Needs to be of the same dimension and size as the second.
- * @cassttng Processor/\%name\%/{HistTwo} \n
+ * @cassttng Processor/\%name\%/{InputTwo} \n
  *           the processor name that contain the second histogram.
  *           Needs to be of the same dimension and size as the first
  * @cassttng Processor/\%name\%/{Operation} \n
@@ -89,15 +89,12 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           the processor name that contain the first histogram. Needs to
  *           be implemented, because default is "", which is invalid.
  * @cassttng Processor/\%name\%/{Value} \n
- *           Value for the operation. Default is 1.
- * @cassttng Processor/\%name\%/{ValueName} \n
- *           0D Processor containing value for the operation. If this is not
- *           the default value of DonnotUse, the value from the Procssor is
- *           used. Otherwise the Value is used. Default is "DonnotUse"
+ *           Either the constant value for the operation or a 0D Processor
+ *           containing the value for the operation. Default is 1
  * @cassttng Processor/\%name\%/{Operation} \n
  *           Default is "+". Possible values are:
  *           - "+": Use add as operation
@@ -136,42 +133,42 @@ public:
 
 protected:
   /** define the unary operation */
-  typedef std::tr1::function<float(float)> unaryoperation_t;
+  typedef std::tr1::function<result_t::value_t(result_t::value_t)> unaryoperation_t;
 
   /** define the binary operation */
-  typedef std::tr1::function<float(float,float)> binaryoperation_t;
+  typedef std::tr1::function<result_t::value_t(result_t::value_t,result_t::value_t)> binaryoperation_t;
 
   /** define how to get the value */
-  typedef std::tr1::function<float(const CASSEvent::id_t &)> valueRetrieval_t;
+  typedef std::tr1::function<result_t::value_t(const CASSEvent::id_t &)> valueRetrieval_t;
 
   /** define how to get the right parameter position */
-  typedef std::tr1::function<unaryoperation_t(float)> setParamPos_t;
+  typedef std::tr1::function<unaryoperation_t(result_t::value_t)> setParamPos_t;
 
   /** bind the value to the first parameter of the binaryoperation
    *
    * @return function call where value is bound to the fist parameter
    */
-  unaryoperation_t ValAtFirst(float val);
+  unaryoperation_t ValAtFirst(result_t::value_t val);
 
   /** bind the value to the second parameter of the binaryoperation
    *
    * @return function call where value is bound to the second parameter
    */
-  unaryoperation_t ValAtSecond(float val);
+  unaryoperation_t ValAtSecond(result_t::value_t val);
 
   /** retrieve value from Processor
    *
    * @returns value stored in _valuePP
    * @param id id of the event for which the value should be returned
    */
-  float valueFromPP(const CASSEvent::id_t &id);
+  result_t::value_t valueFromPP(const CASSEvent::id_t &id);
 
   /** retrieve value constant
    *
    * @returns _value
    * @param evt ignored
    */
-  float valueFromConst(const CASSEvent::id_t &evt);
+  result_t::value_t valueFromConst(const CASSEvent::id_t &evt);
 
 protected:
   /** pp containing input histogram */
@@ -181,7 +178,7 @@ protected:
   shared_pointer _valuePP;
 
   /** the value for the unary operation */
-  float _value;
+  result_t::value_t _value;
 
   /** the operand */
   binaryoperation_t _op;
@@ -191,7 +188,6 @@ protected:
 
   /** function to retrieve the value */
   valueRetrieval_t _retrieveValue;
-
 };
 
 
@@ -207,7 +203,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           the processor name that contain the first histogram. Default
  *           is "".
  *
@@ -244,7 +240,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           the processor name that contain the first histogram. Default
  *           is 0.
  * @cassttng Processor/\%name\%/{UpperLimit|LowerLimit} \n
@@ -341,7 +337,7 @@ private:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           the processor name that contain the first histogram. Default
  *           is "".
  *
@@ -377,7 +373,7 @@ protected:
  *
  * check whether a value has changed with respekt to the previous event.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           The Processor name that contain the 0D Histogram that should be
  *           monitored.
  * @cassttng Processor/\%name\%/{Difference} \n
@@ -423,7 +419,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with histogram that should be thresholded. Default is 0.
  * @cassttng Processor/\%name\%/{Threshold} \n
  *           Factor with which threshold value. Default is 0.
@@ -465,15 +461,15 @@ protected:
  *
  * @PPList "41": Threshold histogram with another histogram
  *
- * set the bin of a histogram to a user requested value when the value of the
- * threshold is within a user requested range.
+ * set the bin of a result to a user requested value when the corresponding
+ * value of the threshold is within a user requested range.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with histogram that should be thresholded.
- *           Default is 0.
+ *           Default is Unknown.
  * @cassttng Processor/\%name\%/{ThresholdName} \n
  *           Histogram with which the histogram will be thresholded.
  *           Default is 0.
@@ -531,14 +527,16 @@ protected:
 
 
 
-/** Projection of 2d Histogram.
+/** Projection of 2d result
  *
- * @PPList "50": Project 2D histogram onto a axis
+ * @PPList "50": Project 2D result onto a axis
+ *
+ * Project a user defined range of a 2d result onto a user defined axis.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with 2D-Histogram that we create project.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
@@ -612,11 +610,14 @@ private:
  *
  * @PPList "51": Integral of 1D histogram
  *
+ * integrate the values of a 1d result within a user set range
+ *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
- *           processor name with 1D-Histogram that we create the intgral from Default is 0.
+ * @cassttng Processor/\%name\%/{InputName} \n
+ *           processor name with 1D-result that we create the intgral from.
+ *           Default is Unknown.
  * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
  *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
  *
@@ -660,7 +661,7 @@ private:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name containing the histogram that we average.
  *
  * @author Lutz Foucar
@@ -706,13 +707,13 @@ protected:
  *
  * @PPList "57": Weighted Project 2D histogram onto a axis
  *
- * devides each bin by the number of non zero values that have been added in
- * this bin.
+ * devides each bin by the number of values that have been added in
+ * this bin. Exclusion values will not be added to the bin.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with 2D-Histogram that we create project.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
@@ -808,10 +809,10 @@ private:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
+ * @cassttng Processor/\%name\%/{InputName} \n
+ *           processor name containing the values to histogram
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1D histogram
- * @cassttng Processor/\%name\%/{HistName} \n
- *           processor name containing the values to histogram
  *
  * @author Lutz Foucar
  */
@@ -830,9 +831,6 @@ public:
 protected:
   /** pp containing 0D histogram to work on */
   shared_pointer _pHist;
-
-  /** the number of stats at the end of the input */
-  size_t _stats;
 };
 
 
@@ -856,7 +854,7 @@ protected:
  * @cassttng Processor/\%name\%/{NbrOfAverages}\n
  *           how many images should be averaged. When value is 0 its a cummulative
  *           average. Default is 1.
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name containing the histogram that we average.
  *
  * @author Lutz Foucar
@@ -924,17 +922,17 @@ protected:
 
 
 
-/** Histogram summing.
+/** result summing.
  *
- * @PPList "62": Summing up of histogram
+ * @PPList "62": Summing up of results
  *
- * Sums up histograms.
+ * Sums up results.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
- *           processor name containing the histogram that we sum up.
+ * @cassttng Processor/\%name\%/{InputName} \n
+ *           processor name containing the result that we sum up.
  *
  * @author Lutz Foucar
  */
@@ -1026,7 +1024,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor id with 0D-Histogram that we create project.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{Size} \n
@@ -1073,7 +1071,7 @@ protected:
  *
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ * @cassttng Processor/\%name\%/{XValue|YValue} \n
  *           processor names containing the 0D values to histogram.
  *
  * @author Lutz Foucar
@@ -1107,15 +1105,21 @@ protected:
 
 /** 1D to 2D histogramming.
  *
- * @PPList "66": Histogram two 1D traces to a 2D histogram
+ * @PPList "66": histograms two 1D traces to a 2D result
  *
- * histograms two 1d histograms into one 2D Histogram
+ * histograms two 1d results into one 2D result
+ * The 2d result will be computed as follows
+ * /f result_{i,j} = X_{i} * Y_{j} /f, where /fi: 0 .. X_{max}/f and
+ * /fj: 0.. Y_{max}/f
+ *
+ * This processor relies on the fact the the input shapes are fixed for all
+ * events.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
- *           processor names containing the 1D histograms to histogram.
+ * @cassttng Processor/\%name\%/{XName|YName} \n
+ *           processor names containing the 1D results for the x an y values.
  *
  * @author Lutz Foucar
  */
@@ -1160,7 +1164,7 @@ protected:
  *
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1d histogram
- * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ * @cassttng Processor/\%name\%/{ValuesName|WeightsName} \n
  *           processor names containing the values and weights to histogram.
  *
  * @author Lutz Foucar
@@ -1183,9 +1187,6 @@ protected:
 
   /** pp containing second 0D histogram to work on */
   shared_pointer _two;
-
-  /** the size of the statistics that should not be histogramed */
-  size_t _statsize;
 };
 
 
@@ -1195,21 +1196,21 @@ protected:
 
 /** 0D and 1D to 2D histogramming.
  *
- * @PPList "68": Histogram 0D and 1D histogram to 2D histogram
+ * @PPList "68": Histogram 0D and 1D result to 2D result
  *
  * histograms a 0d and 1D Histogram to a 2d Histogram where the first 1d
- * Histogram defines the x axis and the second 0d histogram gives the y axis.
+ * result defines the x axis and the second 0d result gives the y axis.
  * One only has to define the y axis since the x axis will be taken from the
- * 1d histogram
+ * 1d result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{YNbrBins|YLow|YUp}\n
  *           properties of the y axis of the resulting 2d histogram
- * @cassttng Processor/\%name\%/{HistOne}\n
+ * @cassttng Processor/\%name\%/{XName}\n
  *           processr containing the 1d histogram.
- * @cassttng Processor/\%name\%/{HistTwo} \n
+ * @cassttng Processor/\%name\%/{YName} \n
  *           processor containing the 0D values for the y axis
  *
  * @author Lutz Foucar
@@ -1251,7 +1252,7 @@ protected:
  *
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1d histogram
- * @cassttng Processor/\%name\%/{HistOne|HistTwo} \n
+ * @cassttng Processor/\%name\%/{XName|YName} \n
  *           processor names containing the 0D values to histogram.
  *
  * @author Lutz Foucar
@@ -1282,24 +1283,25 @@ protected:
 
 
 
-/** Subset Histogram
+/** Subset result
  *
- * @PPList "70": Subset a Histogram
+ * @PPList "70": Subset a result
  *
- * Will copy a subset of another histogram and return it in a new histogram.
+ * Will copy a subset of another result and return it in a new result.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
- *           name of processor that contains the histogram you want a
+ * @cassttng Processor/\%name\%/{InputName} \n
+ *           name of processor that contains the result you want a
  *           subset from. Default is "".
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
- *           For 1d and 2d histogram the lower and upper range on the x-axis that one wants
- *           to include in the subset histogram. Default is 0|1
+ *           For 1d and 2d result the lower and upper range on the x-axis that
+ *           one wants to include in the subset result. Default is 0|1
  * @cassttng Processor/\%name\%/{YLow|YUp} \n
- *           In case you want to subset a 2d histogram these are the lower and upper range
- *           on the y-axis that one wants to include in the subset histogram. Default is 0|1
+ *           In case you want to subset a 2d result these are the lower and
+ *           upper range on the y-axis that one wants to include in the
+ *           subset histogram. Default is 0|1
  *
  * @author Lutz Foucar
  */
@@ -1350,7 +1352,7 @@ protected:
  *           Histogram. Default is "max". Possible values are:
  *           - "max": return the maximum value in the histogram
  *           - "min": return the minimum value in the histogram
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name to find the maximum value in.
  *
  * @author Lutz Foucar
@@ -1394,9 +1396,8 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
- *           name of processor that contains the histogram you want a
- *           subset from. Default is "".
+ * @cassttng Processor/\%name\%/{InputName} \n
+ *           name of processor that contains the result to clear
  *
  * @author Lutz Foucar
  */
@@ -1560,7 +1561,7 @@ public:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name to retrieve the bin for
  * @cassttng Processor/\%name\%/{RetrieveType} \n
  *           The type of bin to retrieve. Default is "max". Options are:
@@ -1612,7 +1613,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name for which the mean is calculated.
  *           Default is blubb
  * @cassttng Processor/\%name\%/{Statistics} \n
@@ -1671,7 +1672,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           Name of Processor that contains the histogram that we want to
  *           analyze and find the FWHM. Default is 0.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
@@ -1726,7 +1727,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *          Default is 0.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
@@ -1783,7 +1784,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
@@ -1823,7 +1824,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name for which we count fills. Default is 0.
  * @cassttng Processor/\%name\%/{AxisParameter} \n
  *           The parameter of the axis one is interested in.
@@ -1862,6 +1863,13 @@ protected:
 
 
 
+
+
+
+
+
+
+
 /** low / high pass filter of 1d histogram
  *
  * @PPList "89":high or low pass filter on 1d histo
@@ -1869,7 +1877,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name for which we count fills. Default is 0.
  * @cassttng Processor/\%name\%/{FilterType} \n
  *           The filter type to use. LowPass or HighPass
@@ -1929,7 +1937,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           Histogram name of the 1d Histogram that we look for the step in.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{Range} \n
