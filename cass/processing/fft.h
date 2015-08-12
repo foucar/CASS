@@ -48,7 +48,7 @@ struct pp312Traits<double>
  *
  * @PPList "312": calculate the absolute square fft of an histogram
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name containing the histogram whos fft
  *           should be calculated.
  *

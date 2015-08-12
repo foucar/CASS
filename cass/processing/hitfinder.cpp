@@ -47,7 +47,7 @@ void pp203::loadSettings(size_t)
   setupGeneral();
 
   // Get the input
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(_hist && ret)) return;
 
@@ -169,7 +169,7 @@ void pp204::loadSettings(size_t)
 
   setupGeneral();
 
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
 
   bool ret (setupCondition());
   if (!(_hist && ret))
@@ -414,7 +414,7 @@ void pp205::loadSettings(size_t)
   setupGeneral();
 
   // Get the input
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
   _table = setupDependency("TableName");
   bool ret (setupCondition());
   if (!(_hist && ret && _table))
@@ -740,7 +740,7 @@ void pp208::loadSettings(size_t)
     _getDistance = bind(&pp208::distanceFromProcessor,this,_1);
   }
 
-  _imagePP = setupDependency("HistName");
+  _imagePP = setupDependency("ImageName");
 
   if (!(_imagePP && ret))
     return;

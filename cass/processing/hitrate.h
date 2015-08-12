@@ -27,7 +27,7 @@ namespace cass
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{ImageName}\n
  *           processor name containing the histogram in which hits should be detected.
  * @cassttng Processor/\%name\%/{xstart}\n
  *           ROI for calculations. First pixel = 0 (default).
@@ -143,7 +143,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           histogram name, that should be convoluted
  * @cassttng Processor/\%name\%/{Kernel} \n
  *           Comma separated list of values for the Kernel that should be

@@ -19,7 +19,7 @@ namespace cass
  *
  * @PPList "pp1500": converts histograms to (c)rystal (b)inary (f)ormat files.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{Name} \n
  *           processor name containing the histogram that write to cbf.
  *           If not set then no cbf file will be written when condition is true
  * @cassttng Processor/\%name\%/{SummaryName} \n

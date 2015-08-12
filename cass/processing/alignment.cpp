@@ -42,7 +42,7 @@ void pp200::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _image = setupDependency("HistName");
+  _image = setupDependency("ImageName");
   bool ret = setupCondition();
   if (!(_image && ret))
     return;
@@ -145,7 +145,7 @@ void pp201::loadSettings(size_t)
                                                settings.value("MaxIncludedRadius",0).toFloat()));
   _nbrAngularPoints = settings.value("NbrAngularPoints",360.).toUInt();
   setupGeneral();
-  _image = setupDependency("HistName");
+  _image = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(ret && _image))
     return;
@@ -231,7 +231,7 @@ void pp202::loadSettings(size_t)
   _nbrAngularPoints = settings.value("NbrAngularPoints",360.).toUInt();
   _nbrRadialPoints  = settings.value("NbrRadialPoints",500.).toUInt();
   setupGeneral();
-  _image = setupDependency("HistName");
+  _image = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(ret && _image))
     return;

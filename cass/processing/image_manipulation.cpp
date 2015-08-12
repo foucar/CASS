@@ -261,7 +261,7 @@ void pp55::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
   _operation = s.value("Operation","90DegCCW").toString().toStdString();
@@ -321,7 +321,7 @@ void pp1600::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
@@ -379,7 +379,7 @@ void pp1601::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _one = setupDependency("HistName");
+  _one = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
@@ -477,7 +477,7 @@ void pp1602::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _imagePP = setupDependency("HistName");
+  _imagePP = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(_imagePP && ret)) return;
 
@@ -556,7 +556,7 @@ void pp90::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _imagePP = setupDependency("HistName");
+  _imagePP = setupDependency("ImageName");
   bool ret (setupCondition());
   /** use fixed value for wavelength if value can be converted to double,
    *  otherwise use the wavelength from the processor

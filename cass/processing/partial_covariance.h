@@ -46,7 +46,7 @@ namespace cass
  *           The lower limit in x for calculating the baseline. Default is 0.
  * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit in x for calculating the baseline. Default is 0.
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{TofName}\n
  *           input 1D histogram that contains the time of flight wavetrace.
  *
  * @author Koji Motomura
@@ -316,7 +316,7 @@ public:
  *           The lower limit for calculating baseline. Default is 0.
  * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{TofName}\n
  *           input 1D histogram that is the time of flight wavetrace.
  * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
@@ -435,7 +435,7 @@ protected:
  *           The lower limit for calculating baseline. Default is 0.
  * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{TofName}\n
  *           input 1D histogram that is the time of flight wavetrace.
  * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
@@ -561,7 +561,7 @@ protected:
  *           The lower limit for calculating baseline. Default is 0.
  * @cassttng Processor/\%name\%/{tb2}\n
  *           The upper limit for calculating baseline. Default is 0.
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{TofName}\n
  *           input 1D histogram that is the time of flight wavetrace.
  * @cassttng Processor/\%name\%/{HistZeroD}\n
  *           input 0D histogram for enegy correction.
@@ -680,10 +680,10 @@ protected:
  * \f$cov_n=((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1})))\f$
  * and makes 2d map from 1d histogram.
  *
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{InputName}\n
  *           input 1D histogram that we calculate covariance map.
- * @cassttng Processor/\%name\%/{AveHistName}\n
- *           averaged histogram of "HistName"
+ * @cassttng Processor/\%name\%/{AveInputName}\n
+ *           averaged histogram of "InputName"
  *
  * @author Koji Motomura
  */
@@ -735,13 +735,13 @@ protected:
  * by on-line algorithm
  * \f$cov_n=\frac{1}{n}((n-1)cov_{n-1}+(x_n-aveX_n))(y_n-aveY_{n-1}))\f$
  *
- * @cassttng Processor/\%name\%/{HistName1D}\n
+ * @cassttng Processor/\%name\%/{TofName}\n
  *           input 1D histogram that is the time of flight wavetrace.
- * @cassttng Processor/\%name\%/{AveHistName1D}\n
+ * @cassttng Processor/\%name\%/{AveTofName}\n
  *           input 1D averaged histogram that is the time of flight wavetrace.
- * @cassttng Processor/\%name\%/{HistName0D}\n
+ * @cassttng Processor/\%name\%/{IntensityName}\n
  *           input 1D histogram that is intensity.
- * @cassttng Processor/\%name\%/{AveHistName0D}\n
+ * @cassttng Processor/\%name\%/{AveIntensityName}\n
  *           input 0D averaged histogram that is intensity.
  *
  * @author Koji Motomura

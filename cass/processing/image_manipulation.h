@@ -72,7 +72,7 @@ struct Rotor
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the first histogram. Default
  *           is "".
  * @cassttng Processor/\%name\%/{Operation} \n
@@ -186,7 +186,7 @@ y |     00      |     08      |     16      |     24      |
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
@@ -316,7 +316,7 @@ y |     00      |
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  *
@@ -467,7 +467,7 @@ y |     00      |
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  * @cassttng Processor/\%name\%/{GeometryFilename} \n
@@ -530,14 +530,14 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contains the histogram containing the
  *           cspad image in cass layout. Default is "".
  * @cassttng Processor/\%name\%/{GeometryFilename} \n
  *           The geom file to use. Default is "cspad.geom".
  * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
  *           Set this true if the geom file is for a cheetah layout of the data,
- *           but the image in HistName is the image in CASS layout.
+ *           but the image in ImageName is the image in CASS layout.
  * @cassttng Processor/\%name\%/{Wavelength_A} \n
  *           The wavelength in Angstroem. Can also be the name of a PP that
  *           contains the Wavelength. Default is 1.

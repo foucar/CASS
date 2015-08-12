@@ -501,7 +501,7 @@ pp241::pp241(const name_t &name)
 void pp241::loadSettings(size_t)
 {
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
   bool ret (setupCondition());
   if ( !(_hist && ret) )
     return;
@@ -720,7 +720,7 @@ void pp243::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
-  _image = setupDependency("HistName");
+  _image = setupDependency("ImageName");
   _mask = setupDependency("MaskName");
   _value = s.value("Value",0.f).toFloat();
   setupGeneral();

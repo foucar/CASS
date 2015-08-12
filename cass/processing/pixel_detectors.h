@@ -448,7 +448,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           Name of Processor containing the distorted pnCCD image. Default
  *           is "".
  * @cassttng Processor/\%name\%/{ThresholdQuadrantA} \n
@@ -596,7 +596,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName}\n
+ * @cassttng Processor/\%name\%/{ImageName}\n
  *           Name of the Histogram that should be masked
  * @cassttng Processor/\%name\%/{MaskName}\n
  *           The name of the Mask.

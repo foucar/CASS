@@ -43,7 +43,7 @@ void pp301::loadSettings(size_t)
   setupGeneral();
 
   // Get the input
-  _one = setupDependency("HistName");
+  _one = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(_one && ret))
     return;

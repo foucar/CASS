@@ -28,7 +28,7 @@ namespace cass
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           the processor name that contain the first histogram. Default
  *           is 0.
  * @cassttng Processor/\%name\%/{MedianSize} \n

@@ -83,7 +83,7 @@ void pp400::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("TofName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -207,7 +207,7 @@ void pp404::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(name().c_str());
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("TofName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -379,7 +379,7 @@ void pp406::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("TofName");
   _constHist = setupDependency("HistZeroD");
   bool ret (setupCondition());
   if (!(ret && _pHist && _constHist ))
@@ -511,7 +511,7 @@ void pp407::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("TofName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -648,7 +648,7 @@ void pp408::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("TofName");
   _constHist = setupDependency("HistZeroD");
   bool ret (setupCondition());
   if (!(ret && _pHist && _constHist ))
@@ -793,8 +793,8 @@ void pp410::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("HistName");
-  _ave = setupDependency("AveHistName");
+  _pHist = setupDependency("InputName");
+  _ave = setupDependency("AveInputName");
   bool ret (setupCondition());
   if (!(ret && _pHist && _ave))
     return;
@@ -858,10 +858,10 @@ void pp412::loadSettings(size_t)
   settings.beginGroup("Processor");
   settings.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _hist1D = setupDependency("HistName1D");
-  _ave1D = setupDependency("AveHistName1D");
-  _hist0D = setupDependency("HistName0D");
-  _ave0D = setupDependency("AveHistName0D");
+  _hist1D = setupDependency("TofName");
+  _ave1D = setupDependency("AveTofName");
+  _hist0D = setupDependency("IntensityName");
+  _ave0D = setupDependency("AveIntensityName");
   bool ret (setupCondition());
   if (!(ret && _hist1D && _ave1D && _hist0D && _ave0D))
     return;

@@ -15,8 +15,6 @@
 
 namespace cass
 {
-class Histogram0DFloat;
-
 /** \f$\cos^2\theta\f$ of a requested image.
  *
  * @PPList "200":\f$\cos^2\theta\f$ of a requested image.
@@ -27,7 +25,7 @@ class Histogram0DFloat;
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name%/{HistName}\n
+ * @cassttng Processor/\%name%/{ImageName}\n
  *           The name of the Processor that contains the image to calculate
  *           \f$\cos^2\theta\f$  from. Default is 104.
  * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n
@@ -92,7 +90,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name%/{HistName}\n
+ * @cassttng Processor/\%name%/{ImageName}\n
  *           The name of the Processor that contains the image that
  *           the angluar distribution should be retrieved from.
  * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n
@@ -154,7 +152,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name%/{HistName}\n
+ * @cassttng Processor/\%name%/{ImageName}\n
  *           The name of the Processor that contains the image that
  *           the angluar distribution should be retrieved from.
  * @cassttng Processor/\%name%/{ImageXCenter|ImageYCenter}\n

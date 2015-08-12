@@ -32,7 +32,7 @@ namespace cass
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
@@ -79,7 +79,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
@@ -197,7 +197,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{TableName} \n
@@ -256,7 +256,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
@@ -333,7 +333,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{ImageName} \n
  *           the processor name that contain the 2d histogram. Default
  *           is "blubb".
  * @cassttng Processor/\%name\%/{SectionSizeX|SectionSizeY} \n
@@ -366,7 +366,7 @@ protected:
  *           resolution will be calculated completely wrong
  * @cassttng Processor/\%name\%/{ConvertCheetahToCASSLayout} \n
  *           Set this true if the geom file is for a cheetah layout of the data,
- *           but the image in HistName is the image in CASS layout.
+ *           but the image in ImageName is the image in CASS layout.
  * @cassttng Processor/\%name\%/{Wavelength_A} \n
  *           The wavelength in Angstroem. Can also be the name of a PP that
  *           contains the Wavelength. Default is 1.

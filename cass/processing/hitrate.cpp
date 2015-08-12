@@ -105,7 +105,7 @@ void pp300::loadSettings(size_t)
   settings.beginGroup(QString::fromStdString(name()));
 
   // Get the input
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("ImageName");
   setupGeneral();
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -422,7 +422,7 @@ void pp313::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;

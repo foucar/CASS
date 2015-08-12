@@ -29,7 +29,7 @@ pp310::pp310(const name_t &name)
 void pp310::loadSettings(size_t)
 {
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
@@ -92,7 +92,7 @@ void pp311::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("ImageName");
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;

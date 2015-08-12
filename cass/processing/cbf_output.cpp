@@ -39,7 +39,7 @@ void pp1500::loadSettings(size_t)
   setupGeneral();
   bool allDepsAreThere(true);
 
-  string hName(s.value("HistName","Unknown").toString().toStdString());
+  string hName(s.value("Name","Unknown").toString().toStdString());
   if (hName != "Unknown")
   {
     _pHist = setupDependency("",hName);

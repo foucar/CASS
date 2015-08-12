@@ -41,7 +41,7 @@ void pp312::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
 
   setupGeneral();
-  _hist = setupDependency("HistName");
+  _hist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _hist))
     return;
