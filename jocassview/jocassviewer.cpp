@@ -435,7 +435,9 @@ void JoCASSViewer::updateViewers()
       /** validate data */
       if (!view.value()->data().isEmpty())
       {
+        //qDebug()<<"set result to viewer:" <<QString::fromStdString(result->name());
         view.value()->data().front()->setResult(result);
+        //qDebug()<<"done set result to viewer:" <<QString::fromStdString(result->name());
         view.value()->data().front()->setSourceName(sourceName);
       }
     }
@@ -677,7 +679,7 @@ void JoCASSViewer::clearHistogram()const
 void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
                                        Result<float>::shared_pointer result)
 {
-  //qDebug()<<"create viewer"<<view.key()<<hist->dimension();
+  //qDebug()<<"create viewer"<<view.key()<<result->dim();
   switch (result->dim())
   {
   case 0:
@@ -693,6 +695,7 @@ void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
   view.value()->show();
   connect(view.value(),SIGNAL(viewerClosed(DataViewer*)),
           this,SLOT(removeViewer(DataViewer*)));
+  //qDebug()<<"created viewer"<<view.key()<<result->dim();
 }
 
 void JoCASSViewer::moveEvent(QMoveEvent *event)

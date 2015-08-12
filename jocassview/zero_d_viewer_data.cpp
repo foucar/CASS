@@ -7,6 +7,7 @@
  */
 
 #include <QtGlobal>
+#include <QtCore/QDebug>
 
 #if QT_VERSION >= 0x050000
 #include <QtWidgets/QLabel>
@@ -34,9 +35,11 @@ ZeroDViewerData::~ZeroDViewerData()
 
 void ZeroDViewerData::setResult(Data::result_t::shared_pointer result)
 {
-  if (!result || result->getValue() == _result->getValue())
+//  qDebug()<<QString::fromStdString(result->name());
+  if (!result)
     return;
-
+  _result = result;
+//  qDebug()<<"set 0d viewer data"<<QString::fromStdString(result->name());
   _value->setText(QString::number(_result->getValue()));
 }
 
