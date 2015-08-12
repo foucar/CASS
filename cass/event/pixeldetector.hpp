@@ -95,7 +95,8 @@ public:
     _rows    = in.retrieve<uint16_t>();
     /** clear the frame and read it from the stream */
     _frame.clear();
-    for (size_t i(0); i < _columns*_rows;++i)
+    const int nPixels(_columns*_rows);
+    for (int i(0); i < nPixels;++i)
       _frame.push_back(in.retrieve<frame_t::value_type>());
     return true;
   }

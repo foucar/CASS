@@ -398,7 +398,7 @@ public:
    */
   const axe_t& axis(const axis_name& axis) const
   {
-    if (_axis.size() <= axis)
+    if (static_cast<int>(_axis.size()) <= axis)
       throw std::invalid_argument("Result::axis: the requested axis does not exist");
     return _axis[axis];
   }
@@ -412,7 +412,7 @@ public:
    */
    axe_t& axis(const axis_name& axis)
   {
-    if (_axis.size() <= axis)
+    if (static_cast<int>(_axis.size()) <= axis)
       throw std::invalid_argument("Result::axis: the requested axis does not exist");
     return _axis[axis];
   }
