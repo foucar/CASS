@@ -540,7 +540,7 @@ void pp15::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ****************** processor 40: Threshold histogram ********************
+// ****************** processor 40: Threshold result ********************
 
 pp40::pp40(const name_t &name)
   : Processor(name)

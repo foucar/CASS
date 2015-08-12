@@ -65,9 +65,9 @@ struct Rotor
 
 
 
-/** rotate, transpose, invert axis on 2d histogram.
+/** rotate, transpose, invert axis on 2d result.
  *
- * @PPList "12": Constant Value
+ * @PPList "55": rotate, transpose or invert axis on 2d result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.

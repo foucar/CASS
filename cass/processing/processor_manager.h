@@ -44,65 +44,65 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
-00001: Operation on 2 Histograms
-00002: Operation on Histogram with value or 0D Processor
-00004: Apply boolean NOT to 0D histograms
+00001: Operation on 2 Result
+00002: Operation on Result with value or 0D Result
+00004: Apply boolean NOT to 0D Result
 
-00009: Check whether histogram is in a range
+00009: Check whether Result is in a range
 00012: Constant Value
 
 00013: Identity Operation (returns the input)
 
-00015: Check whether value of 0d histogram has changed
+00015: Check whether value of 0d Result has changed
 
-00040: Threshold histogram
-00041: Threshold histogram with another histogram
+00040: Threshold result
+00041: Set bin value in result to user value, when corresponding bin value of another result is in given range
 
-00050: Project 2D histogram onto a axis
-00057: weighted Project 2D histogram onto a axis
-00051: Integral of 1D histogram
+00050: Project 2D result onto a axis
+00057: weighted Project 2D result onto a axis
+00051: Integral of 1D result
 
-00055: Axis operations performed on 2d histogram
+00055: rotate, transpose or invert axis on 2d result
 
-00056: Contains the Histogram of the previous event
+00056: Contains the result of the previous event
 
 00060: Histogram 0D, 1D or 2D values to a 1D histogram
-00061: Average of a histogram
-00062: Summing up of histogram
-00063: Time Average of a histogram over given time-intervals
-00064: 0d into 1d (append on right end, shifting old values to the left)
+00061: Average of a result
+00062: Summing up of result
+00063: Time Average of a result over given time-intervals
+00064: 0D, 1D or 2D into 1D (append on right end, shifting old values to the left)
 00065: Histogram two 0D values to a 2D histogram
-00066: Histogram two 1D traces to a 2D histogram
-00067: Histogram values to a histogram, with first=x, second=weight, remembering nbr of fills
-00068: Histogram 0D and 1D histogram to 2D histogram
+00066: Create 2D result from two 1D results
+00067: Histogram 0D, 1D or 2D values to a 1D histogram, remembering nbr of fills per bin
+00068: Create 2D result from 0D and 1D results, 0D defines the y-axis
 00069: Use two 0D values for a scatter plot
 
-00070: Subset a Histogram
-00071: retrieve a user choosable value of a histogram
-00081: retrieve user choosable bin of 1D histogram
+00070: Subset a Result
+00071: retrieve a user choosable value of a Result
+00081: retrieve user choosable bin of 1D Result
 
-00072: Returns a user choosable column from a table like 2d histogram
+00072: Returns a user choosable column from a table like 2D result
 00073: Returns a subset of a table based on a condition on a chossable column
-00074: Returns a specific value of a specific row
-00079: 2D Histogram from 2 Columns of a table like 2d Histogram
+00074: Returns a specific value of a specific row of a table
+00079: 2D Result from 2 Columns of a table
 
-00075: Clear a Histogram
+00075: Clear a Result
 00076: Quit CASS when Condition is met
 00077: Checks if eventid is on a user provided list
 00078: Count how many times it has been called (Counter)
 
-00082: user choosable statistics value of all bins of a histogram
+00082: user choosable statistics value of all values of a result
 
-00085: full width at half maximum for a peak in given range
-00086: find step in a given range of 1d histo
-00087: find center of mass in given range of 1d histo
+00085: full width at half maximum for a peak in given range of 1D result
+00086: find step in a given range of 1D result
+00087: find center of mass in given range of 1D result
 
-00088: retrieve an axis parameter of the histogram
+00088: retrieve an axis parameter of the result
 
-00089: high or low pass filter on 1d histo
+00089: high or low pass filter on 1D result
 
 00090: Q average of detector image
-00091: Find distance between nodes of a trace
+00091: Find local minima in a 1D result
 
 ---Data retrieval (Histogram contain only last shot)--
 ## Data used with new pixeldetector device

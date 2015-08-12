@@ -412,9 +412,9 @@ protected:
 
 
 
-/** Threshold histogram.
+/** Threshold result.
  *
- * @PPList "40": Threshold histogram
+ * @PPList "40": Threshold result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
