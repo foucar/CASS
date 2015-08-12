@@ -185,7 +185,7 @@ protected:
  * @cassttng Processor/\%name\%/{WeightColumnIndex} \n
  *           Optional index of the column that will be used for the weights
  *           when histogramming the x and y values. If negative number is given
- *           1 will be used as weight. Default is -1
+ *           the absolute value of it will be used as weight. Default is -1
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d result
  *

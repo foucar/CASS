@@ -228,7 +228,9 @@ void pp79::loadSettings(size_t)
   if (_weightcolIdx < 0)
     _getWeight = bind(&pp79::constantWeight, this, tr1::placeholders::_1);
   else
+  {
     _getWeight = bind(&pp79::weightFromTable, this, tr1::placeholders::_1);
+  }
 
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"Processor '" + name() +
@@ -245,7 +247,7 @@ pp79::func_t::result_type pp79::weightFromTable(func_t::argument_type tableIt)
 
 pp79::func_t::result_type pp79::constantWeight(func_t::argument_type)
 {
-  return 1;
+  return abs(_weightcolIdx);
 }
 
 void pp79::process(const CASSEvent& evt, result_t &result)
