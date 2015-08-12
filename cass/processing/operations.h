@@ -967,7 +967,7 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{HistName} \n
+ * @cassttng Processor/\%name\%/{InputName} \n
  *           processor id with 0D-Histogram that we create project.
  *           Default is 0.
  * @cassttng Processor/\%name\%/{MinTime|MaxTime} \n
@@ -1071,7 +1071,7 @@ protected:
  *
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           properties of the 2d histogram
- * @cassttng Processor/\%name\%/{XValue|YValue} \n
+ * @cassttng Processor/\%name\%/{XName|YName} \n
  *           processor names containing the 0D values to histogram.
  *
  * @author Lutz Foucar

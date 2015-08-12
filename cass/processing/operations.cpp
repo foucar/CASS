@@ -1253,7 +1253,7 @@ void pp63::loadSettings(size_t)
   _timerange = make_pair(min_time_user,max_time_user);
   _nbrSamples=s.value("NumberOfSamples",5).toUInt();
   setupGeneral();
-  _pHist = setupDependency("HistName");
+  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -1415,8 +1415,8 @@ pp65::pp65(const name_t &name)
 void pp65::loadSettings(size_t)
 {
   setupGeneral();
-  _one = setupDependency("XValue");
-  _two = setupDependency("YValue");
+  _one = setupDependency("XName");
+  _two = setupDependency("YName");
   bool ret (setupCondition());
   if ( !(_one && _two && ret) )
     return;
