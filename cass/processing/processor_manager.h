@@ -442,6 +442,7 @@ public:
 
     tof2energy=400,
     calcVariance=401,
+    squaredaverage=402,
     Bin1DHist=403,
     TofToMTC=404,
     PulseDuration=405,
