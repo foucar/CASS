@@ -14,7 +14,6 @@
 #include <iomanip>
 
 #include "cass.h"
-#include "operations.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "partial_covariance.h"
