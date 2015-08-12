@@ -210,16 +210,25 @@ void pp79::loadSettings(size_t)
     return;
   _xcolIdx = s.value("XColumnIndex",0).toUInt();
   _ycolIdx = s.value("YColumnIndex",0).toUInt();
+  _weightcolIdx = s.value("WeightColumnIndex",-1).toInt();
 
   size_t maxIdx(_table->result().shape().first);
   if (_xcolIdx >= maxIdx)
-    throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
+    throw runtime_error("pp79::loadSettings(): '" + name() + "' The requested " +
                         "x column index '" + toString(_xcolIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(maxIdx) + "'");
   if (_ycolIdx >= maxIdx)
-    throw runtime_error("pp72::loadSettings(): '" + name() + "' The requested " +
+    throw runtime_error("pp79::loadSettings(): '" + name() + "' The requested " +
                         "y column index '" + toString(_ycolIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(maxIdx) + "'");
+  if (!(_weightcolIdx < 0) && _weightcolIdx >= static_cast<int>(maxIdx))
+    throw runtime_error("pp79::loadSettings(): '" + name() + "' The requested " +
+                        "weight column index '" + toString(_weightcolIdx) + " 'exeeds the " +
+                        "maximum possible index value '" + toString(maxIdx) + "'");
+  if (_weightcolIdx < 0)
+    _getWeight = bind(&pp79::constantWeight, this, tr1::placeholders::_1);
+  else
+    _getWeight = bind(&pp79::weightFromTable, this, tr1::placeholders::_1);
 
   createHistList(set2DHist(name()));
   Log::add(Log::INFO,"Processor '" + name() +
@@ -227,6 +236,16 @@ void pp79::loadSettings(size_t)
            "' Y column index '" + toString(_ycolIdx) +
            "' Table " + _table->name() + "' .Condition on processor '" +
            _condition->name() + "'");
+}
+
+pp79::func_t::result_type pp79::weightFromTable(func_t::argument_type tableIt)
+{
+  return tableIt[_weightcolIdx];
+}
+
+pp79::func_t::result_type pp79::constantWeight(func_t::argument_type)
+{
+  return 1;
 }
 
 void pp79::process(const CASSEvent& evt, result_t &result)
@@ -237,9 +256,14 @@ void pp79::process(const CASSEvent& evt, result_t &result)
   const size_t nCols(table.shape().first);
   const size_t nRows(table.shape().second);
 
+  result_t::const_iterator tableIt(table.begin());
   for (size_t row=0; row < nRows; ++row)
-    result.histogram(make_pair(table[row*nCols + _xcolIdx],
-                               table[row*nCols + _ycolIdx]));
+  {
+    const int pixCol(tableIt[_xcolIdx]);
+    const int pixRow(tableIt[_ycolIdx]);
+    result.histogram(make_pair(pixCol,pixRow),_getWeight(tableIt));
+    tableIt += nCols;
+  }
 }
 
 

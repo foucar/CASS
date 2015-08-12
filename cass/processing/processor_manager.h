@@ -84,7 +84,7 @@ the Class description for information about what parameters are user settable.
 00072: Returns a user choosable column from a table like 2D result
 00073: Returns a subset of a table based on a condition on a chossable column
 00074: Returns a specific value of a specific row of a table
-00079: 2D Result from 2 Columns of a table
+00079: 2D Result from 2 Columns of a table with optional weight column
 
 00075: Clear a Result
 00076: Quit CASS when Condition is met
@@ -163,7 +163,6 @@ the Class description for information about what parameters are user settable.
 00208: Find Bragg peaks in image using signal to noise ratio without outliers
 00205: Display Peaks found in an image
 00206: Find Pixels that might belong to a bragg peak by looking above threshold
-00207: create a new image from the pixel/peaks that are on the list
 
 00300: single particle detection
 00301: median over last values
@@ -245,6 +244,7 @@ the Class description for information about what parameters are user settable.
 00147: removed use pp60 instead
 00155: removed use pp84 instead
 00156: removed use pp84 instead
+00207: removed use pp79 instead
 00212: removed use pp144 or pp148 instead
 00401: removed use pp83 instead
 00402: removed use pp61 instead

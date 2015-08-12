@@ -522,9 +522,6 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case BraggPeakThreshold:
     processor = Processor::shared_pointer(new pp206(key));
     break;
-  case ImageFromTable:
-    processor = Processor::shared_pointer(new pp207(key));
-    break;
   case BraggPeakSNRWOOutliers:
     processor = Processor::shared_pointer(new pp208(key));
     break;

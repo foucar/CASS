@@ -644,65 +644,6 @@ NEXTPIXEL:;
 
 
 
-// *** will display the detected pixel in the table as 2d image ***
-
-pp207::pp207(const name_t &name)
-    : Processor(name)
-{
-  loadSettings(0);
-}
-
-void pp207::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("Processor");
-  s.beginGroup(QString::fromStdString(name()));
-
-  _table = setupDependency("Table");
-
-  setupGeneral();
-  bool ret (setupCondition());
-  if (!(ret && _table))
-    return;
-
-  createHistList(set2DHist(name()));
-
-  _pixColIdx = s.value("ColumnIndex",0).toUInt();
-  _pixRowIdx = s.value("RowIndex",0).toUInt();
-  _pixValIdx = s.value("ValIndex",0).toUInt();
-
-  Log::add(Log::INFO,"processor '" + name() +
-           "' displays the pixels in table '" + _table->name() +
-           "'' Index of Pixles column '" + toString(_pixColIdx) +
-           "'' Index of Pixles row '" + toString(_pixRowIdx) +
-           "'' Index of Pixles val '" + toString(_pixValIdx) +
-           "'. Condition is '" + _condition->name() + "'");
-}
-
-void pp207::process(const CASSEvent& evt, result_t &result)
-{
-  const result_t &table(_table->result(evt.id()));
-  QReadLocker lock(&table.lock);
-
-  const size_t nRows(table.shape().first);
-  const size_t nCols(table.shape().second);
-
-  /** go through all rows in table, extract the pixel column, row and value.
-   *  then advance the table iterator by one row
-   */
-  result_t::const_iterator tableIt(table.begin());
-  for (size_t row=0; row < nRows; ++row)
-  {
-    const int pixCol(tableIt[_pixColIdx]);
-    const int pixRow(tableIt[_pixRowIdx]);
-    const float pixVal(tableIt[_pixValIdx]);
-    result.histogram(make_pair(pixCol,pixRow),pixVal);
-    tableIt += nCols;
-  }
-}
-
-
-
 
 
 

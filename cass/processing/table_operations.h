@@ -10,6 +10,8 @@
 #ifndef _TABLE_OPERATIONS_H_
 #define _TABLE_OPERATIONS_H_
 
+#include <tr1/functional>
+
 #include "processor.h"
 #include "result.hpp"
 
@@ -180,8 +182,12 @@ protected:
  *           Processor description of the Processor that contains the
  *           table to find out what column indizes are available.
  *           Default is "0".
+ * @cassttng Processor/\%name\%/{WeightColumnIndex} \n
+ *           Optional index of the column that will be used for the weights
+ *           when histogramming the x and y values. If negative number is given
+ *           1 will be used as weight. Default is -1
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
- *           properties of the 2d histogram
+ *           properties of the 2d result
  *
  * @author Lutz Foucar
  */
@@ -198,14 +204,40 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** define the function to return the weight value */
+  typedef std::tr1::function<result_t::value_t(result_t::const_iterator)> func_t;
+
+  /** returns the weight value from a table
+   *
+   * @param the weight
+   * @param tableIt the iterator that points to the row of the table to exract
+   *                the weight from
+   */
+  func_t::result_type weightFromTable(func_t::argument_type tableIt);
+
+  /** returns a 1
+   *
+   * @param 1
+   * @param unused unused parameter
+   */
+  func_t::result_type constantWeight(func_t::argument_type unused);
+
+
+protected:
   /** pp containing input table */
   shared_pointer _table;
 
-  /** index of the column that needs to be extracted */
+  /** index of the column with the x-values that needs to be extracted */
   size_t _xcolIdx;
 
-  /** index of the column that needs to be extracted */
+  /** index of the column with the y-values that needs to be extracted */
   size_t _ycolIdx;
+
+  /** index of the column with the weights that needs to be exracted */
+  int _weightcolIdx;
+
+  /** the function to return the weight */
+  func_t _getWeight;
 };
 
 

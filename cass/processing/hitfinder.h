@@ -312,56 +312,6 @@ protected:
 
 
 
-
-/** image of pixels in the list
- *
- * @PPList "207": create image of pixels in the list
- *
- * This processor will fill a 2D histogram with the detected pixels that are
- * placed on a list
- *
- * @see Processor for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
- *           properties of the 2d histogram
- * @cassttng Processor/\%name\%/{Table}\n
- * @cassttng Processor/\%name\%/{ColumnIndex}\n
- * @cassttng Processor/\%name\%/{RowIndex}\n
- * @cassttng Processor/\%name\%/{ValIndex}\n
- *
- * @author Lutz Foucar
- */
-class pp207 : public Processor
-{
-public:
-  /** constructor */
-  pp207(const name_t&);
-
-  /** copy pixels from CASS event to histogram storage */
-  virtual void process(const CASSEvent&, result_t&);
-
-  /** set the histogram size */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** pp containing the results */
-  shared_pointer _table;
-
-  /** the index in the table that indicates the pixels row */
-  size_t _pixColIdx;
-
-  /** the index in the table that indicates the pixels row */
-  size_t _pixRowIdx;
-
-  /** the index in the table that indicates the pixels row */
-  size_t _pixValIdx;
-};
-
-
-
-
-
 /** find bragg peaks and store them in list
  *
  * @PPList "208": find bragg peaks and store them in list
