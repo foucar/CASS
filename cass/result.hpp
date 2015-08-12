@@ -567,9 +567,9 @@ public:
       throw std::logic_error("Result::bin(): Result doesn't have dimension 1");
     const int xBin(_axis[xAxis].bin(value));
     const size_t nxBins(_axis[xAxis].nBins);
-    if (xBin == _axis[xAxis].isOverflow(xBin))
+    if (_axis[xAxis].isOverflow(xBin))
       return nxBins+Overflow;
-    else if (xBin == _axis[xAxis].isUnderflow(xBin))
+    else if (_axis[xAxis].isUnderflow(xBin))
       return nxBins+Underflow;
     else
       return xBin;
@@ -624,10 +624,10 @@ public:
   {
     if (_axis.size() != 1)
       throw std::logic_error("Result::histogram(pos): Result doesn't have dimension 1");
-    const size_t hist_bin(pos);
-    if (hist_bin >= size())
+    const size_t histbin(bin(pos));
+    if (histbin >= size())
       throw std::out_of_range("Result::histogram(pos): calculated bin isn't with the size of the storage");
-    iterator it(begin() + hist_bin);
+    iterator it(begin() + histbin);
     *it += weight;
     return it;
   }
@@ -647,9 +647,10 @@ public:
   {
     if (_axis.size() != 2)
       throw std::logic_error("Result::histogram(coordinate): Result doesn't have dimension 2");
-    if (bin(pos) >= size())
+    const size_t histbin(bin(pos));
+    if (histbin >= size())
       throw std::out_of_range("Result::histogram(coordinate): calculated bin isn't with the size of the storage");
-    iterator it(begin() + bin(pos));
+    iterator it(begin() + histbin);
     *it += weight;
     return it;
   }
