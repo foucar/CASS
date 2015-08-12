@@ -1738,6 +1738,26 @@ void pp70::loadSettings(size_t)
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
   _inputOffset = xaxis.bin(userXRange.first);
   const size_t binXUp(xaxis.bin(userXRange.second));
+  if (xaxis.isUnderflow(_inputOffset))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': XLow '" + toString(userXRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xaxis.low) + "'");
+  if (xaxis.isOverflow(_inputOffset))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': XLow '" + toString(userXRange.first) +
+                             "' is bigger than the highest possible value '" +
+                             toString(xaxis.up) + "'");
+  if (xaxis.isUnderflow(binXUp))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': XUp '" + toString(userXRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xaxis.low) + "'");
+  if (xaxis.isOverflow(binXUp))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': XUp '" + toString(userXRange.second) +
+                             "' is bigger than the highest possible value '" +
+                             toString(xaxis.up) + "'");
   /** @note the total number of bin between low and up is up-low+1 */
   const size_t nXBins(binXUp-_inputOffset+1);
   const float xLow(xaxis.pos(_inputOffset));
@@ -1760,6 +1780,26 @@ void pp70::loadSettings(size_t)
     const result_t::axe_t &yaxis(hist.axis(result_t::yAxis));
     const size_t binYLow(yaxis.bin(userYRange.first));
     const size_t binYUp (yaxis.bin(userYRange.second));
+    if (yaxis.isUnderflow(binYLow))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': YLow '" + toString(userYRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yaxis.low) + "'");
+    if (yaxis.isOverflow(binYLow))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': YLow '" + toString(userYRange.first) +
+                             "' is bigger than the highest possible value '" +
+                             toString(yaxis.up) + "'");
+    if (yaxis.isUnderflow(binYUp))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': YUp '" + toString(userYRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yaxis.low) + "'");
+    if (yaxis.isOverflow(binYUp))
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': YUp '" + toString(userYRange.second) +
+                             "' is bigger than the highest possible value '" +
+                             toString(yaxis.up) + "'");
     /** @note the total number of bin between low and up is up-low +1 */
     const size_t nYBins = (binYUp - binYLow + 1);
     const float yLow (yaxis.pos(binYLow));
