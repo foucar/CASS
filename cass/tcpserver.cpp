@@ -86,7 +86,11 @@ void SoapServer::run()
   _soap->bind_flags = SO_REUSEADDR;
   // start SOAP
   if(SOAP_INVALID_SOCKET == _soap->bind(NULL, _port, _backlog))
-    throw runtime_error("No valid socket for SOAP server");
+  {
+    Log::add(Log::ERROR,"SoapServer::run(): Can't connect to socket on port '" +
+             toString(_port) +"' for SOAP connection, Quitting the soap server");
+    return;
+  }
   while(true)
   {
     if(SOAP_INVALID_SOCKET == _soap->accept())
