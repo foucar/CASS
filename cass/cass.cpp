@@ -125,9 +125,10 @@ int main(int argc, char **argv)
     QCoreApplication::setApplicationName("CASS");
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
-    /** create a qsettings object from which one can retrieve the default cass.ini.
-     *  After parsing one can then set the CASSSettings default object to the user
-     *  requested .ini file or the keep the default .ini file to use
+    /** create a qsettings object from which one can retrieve the default
+     *  cass.ini. After parsing one can then set the CASSSettings default
+     *  object to the user requested .ini file or the keep the default .ini
+     *  file to use
      */
     QSettings settings;
     settings.sync();
