@@ -177,7 +177,7 @@ With the
 
     -s <server port>
 
-parameter you tell the program on which port the CASS histograms are provided to
+parameter you tell the program on which port the CASS results are provided to
 the viewers. See @ref viewers for details on how to use this parameter in the
 viewer.
 
@@ -227,7 +227,7 @@ with the
 parameter.
 
 Usually CASS will not quit after it has finishes processing all the files. It
-will keep all histograms in memory to be accessible via the viewers. If you
+will keep all results in memory to be accessible via the viewers. If you
 would like CASS to quit after it has processed all provided files you have to
 pass the
 
@@ -257,7 +257,7 @@ being written to file.
 
 The Viewers {#viewers}
 -----------
-There are two options to look at the histograms that are created and filled by
+There are two options to look at the results that are created and filled by
 CASS, @ref jocassview and @ref lucassview. Both viewers need to be told where to
 find the CASS server and on which port it will listen for requests.
 
@@ -620,7 +620,7 @@ understood by the CASS implementation of the server:
 - **getPostprocessorIds:**
   This returns a list of all those Processors that are not marked as hidden.
 - **clearHistogram:**
-  This command will clear all the histograms of the Processor provided to
+  This command will clear all the results of the Processor provided to
   this function.
 - **controlDarkcal:**
   This broadcasts the received command to all Processors. Unlike the next
@@ -629,7 +629,7 @@ understood by the CASS implementation of the server:
   This forwards a given command string to the requested Processor.
 - **getHistogram:**
   Retrieves either the latest (when eventID is 0) result or a result for
-  a specific eventID. The histogram is serialized and must be deserialized by
+  a specific eventID. The result is serialized and must be deserialized by
   the receiver of the data.
 
 
@@ -648,20 +648,21 @@ has been passed to all Processors by the manager, the manager instructs all
 Processors that the event with the given id can be released and can be
 overwritten by the result of a different event.
 
-Each regular Processor stores a list of pointers to histograms to cache the
+Each regular Processor stores a list of pointers to results to cache the
 events it has processed so far. The list is implemented by cass::CachedList.
-This is to ensure that it is not needed to evaluate the same event if a
-Processor in a parallel analysis chain that evaluates a different event,
-requests the result of its event.
+This is to ensure that each event is only evaluated once. It allows for a client
+that uses the TCP-server to visualize the result of an evaluation to pull
+results of events that already have been analyzed a while ago.
 
-Since there is only one instance of each
-Processor this is the only way that multiple events can be analyzed in
-parallel. When told to process an event a regular Processor will check if the
+When told to process an event a regular Processor will check if the
 condition for the requested event is true. If this is the case it will get a new
-event from the list and lock the contents for writing. It will then call the
-cass::Processor::process function that should have been overwritten by the
-individual Processor type. Once the event is processed by the Processor, the
-result will be marked as the latest event into the list.
+event from the internal list and lock the contents for writing. It will then
+call the cass::Processor::process function that should have been overwritten by
+the individual Processor type. Once the event is fully analyzed by the
+Processor, the result will be marked as the latest event into the list. It will
+be also be locked until the analysis chain has completed processing this event.
+When all Processors have analyzed the event, the result in the list unlocked
+and can thus be overwritten with the outcome of another event.
 
 Some of the Processors do not have a separate result for each event,
 i.e. the summing up and averaging Processors. These types of Processors
@@ -685,8 +686,8 @@ and
 cass::Processor::process().
 
 In cass::Processor::loadSettings() you need to load all user information,
-setup the dependencies you are relying on, and most importantly, the resulting
-histogram. With cass::Processor::setupCondition() you set up that your
+setup the dependencies you are relying on, and most importantly, the result.
+With cass::Processor::setupCondition() you set up that your
 Processor has a condition.
 
 cass::Processor::setupGeneral() will setup all the default parameters that
@@ -694,29 +695,28 @@ are available for Processors. Optionally you can use the function member
 cass::Processor::setupDependency() to set up the dependencies that it
 relies on.
 
-To initialize the list of cached resulting histograms you need to call the
+To initialize the list of cached results you need to call the
 cass::Processor::createHistList() member. This member needs to have a
-shared pointer to the histogram that will work as a result of the Processor
-passed.
+shared pointer to the result that will work as a template to generate the cached
+list of the results.
 
-Most Processors rely on the fact that a histograms shape or size will not be
+Most Processors rely on the fact that a results shape or size will not be
 changed during the processing step. (An exception to this rule are the table
-like Processors.) Therefore one needs to ensure that the result Histogram will
+like Processors.) Therefore one needs to ensure that the result will
 have the right size or shape during the load settings step.
 
-The resulting histogram is write locked before calling the
-cass::Processor::process() function. There is no need to lock it again in
-definition of your Processor. However the Histogram of the Processor you depend
-on is not locked. Therefore one needs to readlock it before trying to read
-contents from it to ensure its contents are not changed during the time one
-reads them. It is recommended to use the locker facility that Qt provides, e.g.:
+The result is write locked before calling the cass::Processor::process()
+function. There is no need to lock it again in definition of your Processor.
+However the result of the Processor you depend on is not locked. Therefore one
+needs to readlock it before trying to read contents from it to ensure its
+contents are not changed during the time one reads them. It is recommended to
+use the locker facility that Qt provides, e.g.:
 
-    // retrieve the histogram for this event from the dependency (_pHist) and cast it to an 1d histogram
-    const Histogram1DFloat& hist
-        (dynamic_cast<const Histogram1DFloat&>(_pHist->result(evt.id())));
+    // retrieve the result for this event from the dependency (_input)
+    const result_t& input(_input->result(evt.id());
 
-    // lock the histogram for read access
-    QReadLocker lock(&(hist.lock));
+    // lock the result for read access
+    QReadLocker lock(&(input.lock));
 
 When you are done coding your Processor you need to make it available to
 the user. To do this you need to complete the following steps:
@@ -741,7 +741,8 @@ contains the singleton pointer.
 
 In the constructor of the class you need to fill the
 cass::ConversionBackend::_pdsTypeList with the type id's from the LCLS that you
-want the converter to react on.\n
+want the converter to react on.
+
 You need to overwrite cass::ConversionBackend::operator()() with the code that
 extracts the desired data from the datagram and put it into the cass::CASSEvent.
 Once you have set up your converter, you need to modify
