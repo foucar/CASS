@@ -12,11 +12,11 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <cmath>
 #include <limits>
-#include <cassert>
-#include <algorithm>
 #include <tr1/memory>
+#ifdef CASS_DEBUG
+#include <iostream>
+#endif
 
 #include <QtCore/QReadWriteLock>
 
@@ -209,7 +209,7 @@ struct Axis
    */
   bool isOverflow(int bin) const
   {
-    return (static_cast<int>(nBins) < bin);
+    return (static_cast<int>(nBins) <= bin);
   }
 
   /** the number of bins in this axis */
@@ -316,7 +316,7 @@ public:
     : _axis(1),
       _storage(size,0)
   {
-    _axis[xAxis] = axe_t(size,0,size-1,"x-Axis");
+    _axis[xAxis] = axe_t(size,0,size,"x-Axis");
   }
 
   /** 1d histogram constructor
@@ -350,8 +350,8 @@ public:
     : _axis(2),
       _storage(cols*rows,0)
   {
-    _axis[xAxis] = axe_t(cols,0,cols-1,"x-Axis");
-    _axis[yAxis] = axe_t(rows,0,rows-1,"y-Axis");
+    _axis[xAxis] = axe_t(cols,0,cols,"x-Axis");
+    _axis[yAxis] = axe_t(rows,0,rows,"y-Axis");
   }
 
   /** 2d histogram constructor
@@ -398,8 +398,10 @@ public:
    */
   const axe_t& axis(const axis_name& axis) const
   {
+#ifdef CASS_DEBUG
     if (static_cast<int>(_axis.size()) <= axis)
       throw std::invalid_argument("Result::axis: the requested axis does not exist");
+#endif
     return _axis[axis];
   }
 
@@ -412,8 +414,10 @@ public:
    */
    axe_t& axis(const axis_name& axis)
   {
+#ifdef CASS_DEBUG
     if (static_cast<int>(_axis.size()) <= axis)
       throw std::invalid_argument("Result::axis: the requested axis does not exist");
+#endif
     return _axis[axis];
   }
 
@@ -467,8 +471,10 @@ public:
    */
   void setValue(const_reference value)
   {
+#ifdef CASS_DEBUG
     if (!_axis.empty())
       throw std::logic_error("Result::setValue: Try using the result as a value, but it has axis");
+#endif
     _storage.front() = value;
   }
 
@@ -480,8 +486,10 @@ public:
    */
   value_t getValue() const
   {
+#ifdef CASS_DEBUG
     if (!_axis.empty())
       throw std::logic_error("Result::getValue: Try using the result as a value, but it has axis");
+#endif
     return _storage.front();
   }
 
@@ -497,8 +505,10 @@ public:
    */
   bool isTrue() const
   {
+#ifdef CASS_DEBUG
     if (!_axis.empty())
       throw std::logic_error("Result::isTrue: Try using the result as a value, but it has axis");
+#endif
     return !(std::abs(_storage.front()) < std::sqrt(std::numeric_limits<value_t>::epsilon()));
   }
 
@@ -563,8 +573,10 @@ public:
    */
   size_t bin(const value_t &value) const
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 1)
       throw std::logic_error("Result::bin(): Result doesn't have dimension 1");
+#endif
     const int xBin(_axis[xAxis].bin(value));
     const size_t nxBins(_axis[xAxis].nBins);
     if (_axis[xAxis].isOverflow(xBin))
@@ -582,31 +594,39 @@ public:
    */
   size_t bin(const coordinate_t &coordinate) const
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 2)
       throw std::logic_error("Result::bin(): Result doesn't have dimension 2");
+#endif
     const int xBin(_axis[xAxis].bin(coordinate.first));
     const int yBin(_axis[yAxis].bin(coordinate.second));
-    const long maxSize  = _axis[xAxis].nBins*_axis[yAxis].nBins;
-    const bool xInRange(!_axis[xAxis].isUnderflow(xBin) && !_axis[xAxis].isOverflow(xBin));
-    const bool yInRange(!_axis[yAxis].isUnderflow(yBin) && !_axis[yAxis].isOverflow(yBin));
-    if (_axis[xAxis].isUnderflow(xBin) && _axis[yAxis].isUnderflow(yBin))
+    const long maxSize = _axis[xAxis].nBins*_axis[yAxis].nBins;
+    const bool xUnderflow(_axis[xAxis].isUnderflow(xBin));
+    const bool xOverflow(_axis[xAxis].isOverflow(xBin));
+    const bool xInRange(!xUnderflow && !xOverflow);
+    const bool yUnderflow(_axis[yAxis].isUnderflow(yBin));
+    const bool yOverflow(_axis[yAxis].isOverflow(yBin));
+    const bool yInRange(!yUnderflow && !yOverflow);
+    if (xInRange && yInRange)
+       return yBin*_axis[xAxis].nBins + xBin;
+    else if (xUnderflow && yUnderflow)
       return maxSize+LowerLeft;
-    else if (_axis[xAxis].isOverflow(xBin)  && _axis[yAxis].isOverflow(yBin))
+    else if (xUnderflow && yOverflow)
       return maxSize+UpperRight;
-    else if (_axis[xAxis].isUnderflow(xBin) && _axis[yAxis].isOverflow(yBin))
+    else if (xUnderflow && yOverflow)
       return maxSize+UpperLeft;
-    else if (_axis[xAxis].isOverflow(xBin)  && _axis[yAxis].isUnderflow(yBin))
+    else if (xOverflow  && yUnderflow)
       return maxSize+LowerRight;
-    else if (xInRange && _axis[yAxis].isUnderflow(yBin))
+    else if (xInRange   && yUnderflow)
       return maxSize+LowerMiddle;
-    else if (xInRange && _axis[yAxis].isOverflow(yBin))
+    else if (xInRange   && yOverflow)
       return maxSize+UpperMiddle;
-    else if (_axis[xAxis].isUnderflow(xBin) && yInRange)
+    else if (xUnderflow && yInRange)
       return maxSize+Left;
-    else if (_axis[xAxis].isOverflow(xBin) && yInRange)
+    else if (xOverflow  && yInRange)
       return maxSize+Right;
     else
-      return yBin*_axis[xAxis].nBins + xBin;
+      return maxSize+UpperRight;
   }
 
   /** add the weight at the right bin for the value in the 1d array
@@ -622,11 +642,23 @@ public:
    */
   iterator histogram(const value_t& pos, const value_t& weight=1)
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 1)
       throw std::logic_error("Result::histogram(pos): Result doesn't have dimension 1");
     const size_t histbin(bin(pos));
     if (histbin >= size())
-      throw std::out_of_range("Result::histogram(pos): calculated bin isn't with the size of the storage");
+    {
+      std::cout << std:: boolalpha<<
+                   name() <<" " << size()  <<" "<< datasize() <<" "<<
+                   shape().first<<"x"<<shape().second<<" "<<
+                   pos <<" " <<
+                   axis(xAxis).bin(pos)<< " " <<
+                   "xOverflow:"<<axis(xAxis).isOverflow(axis(xAxis).bin(pos))<< " " <<
+                   "xUnderflow:"<<axis(xAxis).isUnderflow(axis(xAxis).bin(pos))<< " " <<
+                   histbin<<std::endl;
+      throw std::out_of_range("Result::histogram(pos): calculated bin isn't within the size of the storage");
+    }
+#endif
     iterator it(begin() + histbin);
     *it += weight;
     return it;
@@ -645,11 +677,26 @@ public:
    */
   iterator histogram(const coordinate_t& pos, const value_t& weight=1)
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 2)
       throw std::logic_error("Result::histogram(coordinate): Result doesn't have dimension 2");
     const size_t histbin(bin(pos));
     if (histbin >= size())
-      throw std::out_of_range("Result::histogram(coordinate): calculated bin isn't with the size of the storage");
+    {
+      std::cout << std:: boolalpha<<
+                   name() <<" " << size()  <<" "<< datasize() <<" "<<
+                   shape().first<<"x"<<shape().second<<" "<<
+                   pos.first <<"x"<<pos.second <<" " <<
+                   axis(xAxis).bin(pos.first)<< " " <<
+                   axis(yAxis).bin(pos.second)<< " " <<
+                   "xOverflow:"<<axis(xAxis).isOverflow(axis(xAxis).bin(pos.first))<< " " <<
+                   "xUnderflow:"<<axis(xAxis).isUnderflow(axis(xAxis).bin(pos.first))<< " " <<
+                   "yOverflow:"<<axis(yAxis).isOverflow(axis(yAxis).bin(pos.second))<< " " <<
+                   "yUnderflow:"<<axis(yAxis).isUnderflow(axis(yAxis).bin(pos.second))<< " " <<
+                   histbin<<std::endl;
+      throw std::out_of_range("Result::histogram(coordinate): calculated bin isn't within the size of the storage");
+    }
+#endif
     iterator it(begin() + histbin);
     *it += weight;
     return it;
@@ -663,10 +710,12 @@ public:
    */
   void appendRows(const storage_t &rows)
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 2)
       throw std::logic_error("Result::appendRows(): Result doesn't have dimension 2");
     if (rows.size() % _axis[xAxis].nBins)
       throw std::runtime_error("Result::appendRows: The rowsize is not a modulo of the rowsize of the table '");
+#endif
     const int nRows(rows.size() / _axis[xAxis].nBins);
     _axis[yAxis].nBins += nRows;
     _axis[yAxis].up = axis(yAxis).nBins - 1;
@@ -677,8 +726,10 @@ public:
   /** reset the table like result */
   void resetTable()
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 2)
       throw std::logic_error("Result::resetTable(): Result doesn't have dimension 2");
+#endif
     _axis[yAxis].nBins = 0;
     _axis[yAxis].up = -1;
   }
@@ -690,8 +741,10 @@ public:
    */
   void append(const value_t &val)
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 1)
       throw std::logic_error("Result::push_back(): Result doesn't have dimension 1");
+#endif
     _storage.push_back(val);
     _axis[xAxis].nBins = _storage.size();
     _axis[xAxis].up = _axis[xAxis].nBins - 1;
@@ -703,13 +756,14 @@ public:
    */
   void reset()
   {
+#ifdef CASS_DEBUG
     if (_axis.size() != 1)
       throw std::logic_error("Result::reset(): Result doesn't have dimension 1");
+#endif
     _storage.clear();
     _axis[xAxis].nBins = _storage.size();
     _axis[xAxis].up = _axis[xAxis].nBins - 1;
   }
-
 
   /** enable accessing elements of the storage directly
    *
