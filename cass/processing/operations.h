@@ -808,12 +808,21 @@ private:
  * histograms all values of 0D, 1D or 2D into a 1D result. This result
  * holds only the histogrammed values of one event. Use Processors 61 or
  * 62 to average or sum up this result, respectively.
+ * It has the capability to histogram the values with user provided weights.
+ * If the infomration about how many times a particular bin has been filled is
+ * needed use pp67 instead.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{InputName} \n
+ * @cassttng Processor/\%name\%/{ValuesName} \n
  *           processor name containing the values to histogram
+ * @cassttng Processor/\%name\%/{Weight} \n
+ *           The weight, Can either be a constant value or a processor name
+ *           containing the weights. The processor needs to be of the same
+ *           shape as the input. The individual entires are the weights of the
+ *           corresponding bins in the input.
+ *           Default 1
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1D histogram
  *
@@ -832,8 +841,47 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** define the function for histogramming */
+  typedef std::tr1::function<void(CASSEvent::id_t,
+                                  result_t::const_iterator,
+                                  result_t::const_iterator,
+                                  result_t &)> func_t;
+
+  /** histogam with weights from another processor
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithWeights(CASSEvent::id_t id,
+                            result_t::const_iterator in,
+                            result_t::const_iterator last,
+                            result_t & result);
+
+  /** histogam with user provided constant weight
+   *
+   * @param unused an unused paramter
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithConstant(CASSEvent::id_t unused,
+                             result_t::const_iterator in,
+                             result_t::const_iterator last,
+                             result_t & result);
+protected:
   /** processor containing result to histogram */
-  shared_pointer _pHist;
+  shared_pointer _input;
+
+  /** the weight in case it is a constant */
+  result_t::value_t _weight;
+
+  /** processor containing the weight */
+  shared_pointer _weightProc;
+
+  /** function used for histogramming */
+  func_t _histogram;
 };
 
 
@@ -1151,14 +1199,14 @@ protected:
 
 
 
-/** weighted 1D histogramming.
+/** 1D histogramming with keeping track of how many times a bin has been filled
  *
  * @PPList "67": Histogram two values  with first=x, second=weight to a histogram
  *               that remembers how many times each bin has been filled.
  *
- * histograms two 0d, 1d or 2d values into a 1D result. The first of the two
+ * Histograms two 0d, 1d or 2d values into a 1D result. The first of the two
  * results defines the x-axis bin and the second the weight. The result
- * is a 2d resutl with 2 bins in y. The 0th bin contains the weighted
+ * is a 2d result with 2 bins in y. The 0th bin contains the weighted
  * Histogram and the 1st bin contains the number of entries in the bins.
  *
  * @see Processor for a list of all commonly available cass.ini

@@ -26,6 +26,7 @@ using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
 using tr1::placeholders::_3;
+using tr1::placeholders::_4;
 
 namespace cass
 {
@@ -1119,7 +1120,7 @@ void pp57::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 60 result results ***
+// *** processor 60 histogram results ***
 
 pp60::pp60(const name_t &name)
   : Processor(name)
@@ -1129,27 +1130,80 @@ pp60::pp60(const name_t &name)
 
 void pp60::loadSettings(size_t)
 {
+  CASSSettings s;
+  s.beginGroup("Processor");
+  s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("InputName");
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  _input = setupDependency("ValuesName");
+  QString weightkey("Weight");
+  QString weightparam(s.value(weightkey,1).toString());
+  bool isFloat(false);
+  result_t::value_t weight(weightparam.toFloat(&isFloat));
+  string output;
+  if (isFloat)
+  {
+    _weight = weight;
+    _histogram = bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
+    output += (" Using a constant weight of '" + toString(_weight) + "'");
+  }
+  else
+  {
+    _weightProc = setupDependency(weightkey.toStdString());
+    ret = _weightProc && ret;
+    _histogram = bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
+    output += (" Using the weights taken from '" + _weightProc->name() + "'");
+  }
+  if (!(ret && _input))
     return;
+
+  if(!isFloat && _weightProc->result().shape() != _input->result().shape())
+    throw invalid_argument("pp60:loadSettings() " + name() +
+                           ": The processor containing the weights '" +
+                           _weightProc->name() + "' differs in its shape '" +
+                           toString(_weightProc->result().shape().first) + "x" +
+                           toString(_weightProc->result().shape().second) +
+                           "' from the input '" + _input->name() + "' shape '" +
+                           toString(_input->result().shape().first) + "x" +
+                           toString(_input->result().shape().second) +  "'");
+
   createHistList(set1DHist(name()));
   Log::add(Log::INFO,"processor '" + name() +
-      "' histograms values from Processor '" +  _pHist->name() +
-      "'. Condition on Processor '" + _condition->name() + "'");
+           "' histograms values from Processor '" +  _input->name() + "'. " +
+           output +  ". Condition on Processor '" + _condition->name() + "'");
+}
+
+void pp60::histogramWithWeights(CASSEvent::id_t id,
+                                result_t::const_iterator in,
+                                result_t::const_iterator last,
+                                result_t &result)
+{
+  const result_t &weights(_weightProc->result(id));
+  QReadLocker lock(&weights.lock);
+
+  result_t::const_iterator weight(weights.begin());
+  for (; in != last; ++in, ++weight)
+    result.histogram(*in,*weight);
+}
+
+void pp60::histogramWithConstant(CASSEvent::id_t,
+                                 result_t::const_iterator in,
+                                 result_t::const_iterator last,
+                                 result_t &result)
+{
+  for (; in != last; ++in)
+    result.histogram(*in,_weight);
 }
 
 void pp60::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t &input(_pHist->result(evt.id()));
+  const result_t &input(_input->result(evt.id()));
   QReadLocker lock(&input.lock);
 
   result_t::const_iterator value(input.begin());
   result_t::const_iterator histEnd(input.begin()+input.datasize());
 
-  for (; value != histEnd; ++value)
-    result.histogram(*value);
+  _histogram(evt.id(), input.begin(), input.begin()+input.datasize(), result);
 }
 
 
