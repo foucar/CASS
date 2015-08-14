@@ -2024,25 +2024,35 @@ protected:
 
 
 
-/** returns a list of local minima in a 1D result
+/** returns a list of local extreme points in a 1D result
  *
- * @PPList "91": returns a list of local minima in a 1D result
+ * @PPList "91": returns a list of local extreme points in a 1D result
  *
- * It will look for a maximum value that is an actual values within the user
+ * It will look for a maximum or minimum value that is a user
  * defined range. If data is the 1D array the range is as follows:
- * \f$ Range \leq i < size-range \f$, where i is the index of the array and size
+ * \f$ range \leq i < size-range \f$, where i is the index of the array and size
  * is the size of the array.
+ * The local extreme point has to be the highest (in case of maxima) or the
+ * lowest (in case of minima) value within the range:
+ * \f$ i-range \leq j < i+range \f$ where i is the index of the value to check
+ * whether it is a extreme point and j the index of the values to compare to.
+ * One can choose whether one want to find the local minima or the local maxima
  *
- * All found minima will be added to a table like result
+ * All found extreme points will be added to a table like result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
  *           Name of the Processor that contains the 1D result where the local
- *           minima will be retrieved from
+ *           extreme points will be retrieved from
  * @cassttng Processor/\%name\%/{Range} \n
- *           The range to check for the local minima. Default is 10
+ *           The range to check for the local extreme points. Default is 10
+ * @cassttng Processor/\%name\%/{ExtremePointType} \n
+ *           The type of extreme points that should be extracted from input.
+ *           Default is "minima". Possible values are:
+ *           - "minima": extracts the local minima from the 1D result
+ *           - "maxima": extracts the local maxima from the 1D result
  *
  * @author Lutz Foucar
  */
@@ -2072,10 +2082,13 @@ protected:
   };
 
   /** pp containing input histogram */
-  shared_pointer _pHist;
+  shared_pointer _input;
 
   /** the requested x-axis limits in histogram coordinates */
   size_t _range;
+
+  /** operation to find the extreme point */
+  std::tr1::function<bool(const result_t::value_t&, const result_t::value_t&)> _op;
 };
 
 

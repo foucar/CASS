@@ -2884,29 +2884,38 @@ void pp91::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("InputName");
+  _input = setupDependency("InputName");
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  if (!(ret && _input))
     return;
-  const result_t &hist(_pHist->result());
-  if (hist.dim() != 1)
+  const result_t &input(_input->result());
+  if (input.dim() != 1)
     throw invalid_argument("pp91::loadSettings()'" + name() +
-                           "': Error the processor we depend on '" + _pHist->name() +
+                           "': Error the processor we depend on '" + input.name() +
                            "' does not contain a 1D result.");
   _range =  s.value("Range",10).toUInt();
 
-  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
+  string extremePointTypes(s.value("ExtremePointType","minima").toString().toStdString());
+  if (extremePointTypes == "minima")
+    _op = greater<result_t::value_t>();
+  else if (extremePointTypes == "maxima")
+    _op = less<result_t::value_t>();
+  else
+    throw invalid_argument("pp91::loadSettings()'" + name() +
+                           "': extreme point type '" + extremePointTypes +
+                           "' is unrecognized");
 
+  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
   Log::add(Log::INFO, "Processor '" + name() +
-           "' returns a list of local minima in '" + _pHist->name() +
-           "'. The local minimum is the minimum within a range of +- '" +
-           toString(_range) + "' .Condition on processor '"+_condition->name()
-           +"'");
+           "' returns a list of local " + extremePointTypes + " in '" +
+           _input->name() + "'. The local " + extremePointTypes + " are the " +
+           extremePointTypes + " within a range of '" + toString(_range) +
+           "' .Condition on processor '"+_condition->name() + "'");
 }
 
 void pp91::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t& data(_pHist->result(evt.id()));
+  const result_t& data(_input->result(evt.id()));
   QReadLocker lock(&data.lock);
 
   const result_t::axe_t &xAxis(data.axis(result_t::xAxis));
@@ -2920,16 +2929,16 @@ void pp91::process(const CASSEvent& evt, result_t &result)
       continue;
 
     float curval(data[i]);
-    bool isSmaller(true);
+    bool isExtreme(true);
     for (size_t j=i-_range; j < i+_range; ++j)
     {
-      if(isnan(data[j]) || curval > data[j])
+      if(isnan(data[j]) || _op(curval,data[j]))
       {
-        isSmaller = false;
+        isExtreme = false;
         break;
       }
     }
-    if (isSmaller)
+    if (isExtreme)
     {
       candidate[Index] = i;
       candidate[Position] = xAxis.pos(i);
