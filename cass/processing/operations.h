@@ -2,7 +2,7 @@
 
 /**
  * @file operations.h file contains processors that will operate
- *                     on histograms of other processors
+ *                     on results of other processors
  *
  * @todo add pp creating a running/moving standart deviation (just lke average)
  *
@@ -24,18 +24,18 @@ namespace cass
 
 
 
-/** Operation on 2 Histograms
+/** Operation on 2 results
  *
- * @PPList "1":Operation on 2 Histograms value by value
+ * @PPList "1":Operation on 2 results value by value
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputOne} \n
- *           the processor name that contain the first histogram.
+ *           the processor name that contain the first result.
  *           Needs to be of the same dimension and size as the second.
  * @cassttng Processor/\%name\%/{InputTwo} \n
- *           the processor name that contain the second histogram.
+ *           the processor name that contain the second result.
  *           Needs to be of the same dimension and size as the first
  * @cassttng Processor/\%name\%/{Operation} \n
  *           Default is "+". Possible values are:
@@ -67,14 +67,14 @@ public:
   virtual void process(const CASSEvent& evt, result_t&);
 
 protected:
-  /** pp containing the first histogram */
+  /** processor containing the first result */
   shared_pointer _one;
 
-  /** pp containing the second histogram */
+  /** processor containing the second result */
   shared_pointer _two;
 
   /** the operand */
-  std::tr1::function<float(float, float)> _op;
+  std::tr1::function<result_t::value_t(result_t::value_t, result_t::value_t)> _op;
 };
 
 
@@ -82,16 +82,16 @@ protected:
 
 
 
-/** Operation on histogram with value
+/** Operation on result with value
  *
- * @PPList "2":Operation on histogram with value
+ * @PPList "2":Operation on result with value
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           the processor name that contain the first histogram. Needs to
- *           be implemented, because default is "", which is invalid.
+ *           the processor name that contains the result to operate on. Needs to
+ *           be implemented, because default is "Unknown", which is invalid.
  * @cassttng Processor/\%name\%/{Value} \n
  *           Either the constant value for the operation or a 0D Processor
  *           containing the value for the operation. Default is 1
@@ -171,10 +171,10 @@ protected:
   result_t::value_t valueFromConst(const CASSEvent::id_t &evt);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _hist;
 
-  /** pp containing 0D value histogram */
+  /** processor containing 0D value for the unary operation */
   shared_pointer _valuePP;
 
   /** the value for the unary operation */
@@ -186,7 +186,7 @@ protected:
   /** function to set the value to the requested parameter position */
   setParamPos_t _setParamPos;
 
-  /** function to retrieve the value */
+  /** function to retrieve the value for the unary operation */
   valueRetrieval_t _retrieveValue;
 };
 
@@ -196,16 +196,15 @@ protected:
 
 
 
-/** Apply boolean NOT to 0D Histogram
+/** Apply boolean NOT to 0D result
  *
- * @PPList "4": Apply boolean NOT to 0D Histogram
+ * @PPList "4": Apply boolean NOT to 0D result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           the processor name that contain the first histogram. Default
- *           is "".
+ *           the processor name that contains the result to invert
  *
  * @author Lutz Foucar
  */
@@ -222,7 +221,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing histogram */
+  /** processor containing result */
   shared_pointer _one;
 };
 
@@ -233,18 +232,23 @@ protected:
 
 
 
-/** Check whether histogram is in range.
+/** Check whether result is in range.
  *
- * @PPList "9": Check whether sum value of histogram is in range
+ * @PPList "9": Check whether sum value of result is in range
+ *
+ * In case the input is not a 0D result, the contents of all bins will be
+ * summed and the sum is then checked whether it is within the limits.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           the processor name that contain the first histogram. Default
- *           is 0.
+ *           the processor name that contain the result for checking the value
  * @cassttng Processor/\%name\%/{UpperLimit|LowerLimit} \n
  *           Upper and Lower limit of the range to check. Default is 0,0.
+ *           The following check will be done
+ *           \f$ LowerLimit < value < UpperLimit \f$ Thus, both enpoints are
+ *           exclusive.
  *
  * @author Lutz Foucar
  */
@@ -261,11 +265,11 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first histogram */
+  /** processor containing first result */
   shared_pointer _one;
 
-  /** the requested range that the histogram should be in */
-  std::pair<float,float> _range;
+  /** the requested range that the value should be in */
+  std::pair<result_t::value_t,result_t::value_t> _range;
 };
 
 
@@ -282,13 +286,13 @@ protected:
  * @PPList "12": Constant Value
  *
  * @cassttng Processor/\%name\%/{Value} \n
- *           The value of the processors 0d histogram Default is 0.
+ *           The value of the processors 0d result Default is 0.
  * @cassttng Processor/\%name\%/{ValueType} \n
  *           The type of constant that will we returned. Default is '0D'.
  *           Possible values are:
- *           - '0D': A 0d histogram  will be returned
- *           - '1D': A 1d array histogram will be returned
- *           - '2D': A 2d image histogram will be returned
+ *           - '0D': A 0d result will be returned
+ *           - '1D': A 1d array result will be returned
+ *           - '2D': A 2d image result will be returned
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
  *           Optional settings, needed when selected 1D or 2D as type
  *
@@ -338,8 +342,7 @@ private:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           the processor name that contain the first histogram. Default
- *           is "".
+ *           the processor name that contain the input result to be copied
  *
  * @author Lutz Foucar
  */
@@ -356,7 +359,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing histogram */
+  /** processor containing result */
   shared_pointer _one;
 };
 
@@ -369,16 +372,16 @@ protected:
 
 /** Check whether value has changed.
  *
- * @PPList "15": Check whether value of 0d histogram has changed
+ * @PPList "15": Check whether value of 0d result has changed
  *
  * check whether a value has changed with respekt to the previous event.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           The Processor name that contain the 0D Histogram that should be
+ *           The Processor name that contain the 0D result that should be
  *           monitored.
  * @cassttng Processor/\%name\%/{Difference} \n
  *           The maximum allowed difference between the previous and the current
- *           value of the 0D Histogram. Default is 0 which results in a value
+ *           value of the 0D result. Default is 0 which results in a value
  *           given by std::numeric_limits<float>::epsilon().
  *
  * @author Lutz Foucar
@@ -400,10 +403,10 @@ protected:
   shared_pointer _hist;
 
   /** the value of the previous event */
-  float _previousVal;
+  result_t::value_t _previousVal;
 
   /** the maximum difference to previous val that is accepted */
-  float _difference;
+  result_t::value_t _difference;
 };
 
 
@@ -420,7 +423,7 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name with histogram that should be thresholded. Default is 0.
+ *           processor name with result that should be thresholded. Default is 0.
  * @cassttng Processor/\%name\%/{Threshold} \n
  *           Factor with which threshold value. Default is 0.
  *
@@ -439,11 +442,11 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** pp containing input result */
   shared_pointer _one;
 
   /** the threshold */
-  float _threshold;
+  result_t::value_t _threshold;
 };
 
 
@@ -457,9 +460,9 @@ protected:
 
 
 
-/** Threshold histogram with another histogram
+/** Threshold result based upon information from another result
  *
- * @PPList "41": Threshold histogram with another histogram
+ * @PPList "41": Threshold result based upon information from another result
  *
  * set the bin of a result to a user requested value when the corresponding
  * value of the threshold is within a user requested range.
@@ -468,18 +471,18 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name with histogram that should be thresholded.
+ *           processor name with result that should be thresholded.
  *           Default is Unknown.
  * @cassttng Processor/\%name\%/{ThresholdName} \n
- *           Histogram with which the histogram will be thresholded.
- *           Default is 0.
+ *           Processor that will be used to threshold the Input
+ *           Default is Unknown.
  * @cassttng Processor/\%name\%/{UserVal} \n
- *           The value that will be set when the value of the ThresholdHist is
- *           within the boundaries. Default is 0
- * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
- *           The boundaries within which the value of the ThresholdHist has to
- *           be in order to set the value of the histogram to UserVal.
- *           Default is 0.5|1.5
+ *           The value that will be set when the value of the corresponding bin
+ *           is within the boundaries. Default is 0
+ * @cassttng Processor/\%name\%/{LowerLimit|UpperLimit} \n
+ *           The boundaries within which the value of the ThresholdName has to
+ *           be in order to set the value of the result to UserVal.
+ *           Default is 0.5|1.5. Both Limits are exclusive.
  *
  * @author Lutz Foucar
  */
@@ -502,23 +505,23 @@ protected:
    * @param val the value that will be returned if checkval is not in range
    * @param checkval the value to check if it is in range
    */
-  float checkrange(float val, float checkval);
+  result_t::value_t checkrange(result_t::value_t val, result_t::value_t checkval);
 
 protected:
-  /** pp containing input histogram */
+  /** pp containing input result */
   shared_pointer _one;
 
-  /** pp containing threshold histogram */
+  /** pp containing threshold result */
   shared_pointer _threshold;
 
   /** the value that will be set */
-  float _userVal;
+  result_t::value_t _userVal;
 
   /** the lower boundary of the range */
-  float _lowerBound;
+  result_t::value_t _lowerBound;
 
   /** the upper boundary of the range */
-  float _upperBound;
+  result_t::value_t _upperBound;
 };
 
 
@@ -537,16 +540,16 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name with 2D-Histogram that we create project.
- *           Default is 0.
- * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
- *           Upper and lower bound of the area to project. Default is
- *           -1e6 ... 1e6
+ *           Name of the processor containing the  2D result that will be
+ *           projected
+ * @cassttng Processor/\%name\%/{Low|Up} \n
+ *           Upper and lower bound of the area to project. The endpoints are
+ *           defined like \f$ [Low,Up[ \f$. Default is -1e6|1e6
  * @cassttng Processor/\%name\%/{Axis} \n
- *           The axis we want to project to. Default is xAxis.
+ *           The axis we want to project to. Default is "xAxis".
  *           Possible choises are:
- *           - 0:xAxis
- *           - 1:yAxis
+ *           - "xAxis": projects the selected range in y to the x-Axis
+ *           - "yAxis": projects the selected range in x to the y-Axis
  *
  * @author Lutz Foucar
  */
@@ -563,31 +566,33 @@ public:
   virtual void loadSettings(size_t);
 
 private:
-  /** project 2d histogram to x axis
+  /** project 2d result to x axis
    *
-   * @param src the 2d histogram that one wants to project
-   * @param dest iterator to store the resulting projection
+   * @param src iterator to the begining of the 2d result that one wants to
+   *            project
+   * @param dest iterator to the beginning of the resulting projection
    */
    void projectToX(result_t::const_iterator src,
                    result_t::iterator dest);
 
-  /** project 2d histogram to y axis
+  /** project 2d result to y axis
    *
-   * @param src the 2d histogram that one wants to project
-   * @param dest iterator to store the resulting projection
+   * @param src iterator to the beginning of the 2d result that one wants to
+   *            project
+   * @param dest iterator to the beginning of the resulting projection
    */
    void projectToY(result_t::const_iterator src,
                    result_t::iterator dest);
 
 private:
-  /** pp containing the 2d hist we want to project */
+  /** processor containing the 2d result we want to project */
   shared_pointer _pHist;
 
   /** range we want to project */
-  std::pair<size_t,size_t> _xRange;
+  std::pair<int,int> _xRange;
 
   /** range we want to project */
-  std::pair<size_t,size_t> _yRange;
+  std::pair<int,int> _yRange;
 
   /** the nbr of bins in the original image */
   size_t _nX;
@@ -606,9 +611,9 @@ private:
 
 
 
-/** Integral of 1d Histogram.
+/** Integral of 1D result.
  *
- * @PPList "51": Integral of 1D histogram
+ * @PPList "51": Integral of 1D result
  *
  * integrate the values of a 1d result within a user set range
  *
@@ -618,8 +623,9 @@ private:
  * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with 1D-result that we create the intgral from.
  *           Default is Unknown.
- * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
- *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
+ * @cassttng Processor/\%name\%/{XLow|XUp} \n
+ *           Upper and lower bound of the area to integrate. The endpoints are
+ *           defined like \f$ [XLow,Xup[ \f$. Default is -1e6 ... 1e6
  *
  * @author Lutz Foucar
  */
@@ -636,11 +642,11 @@ public:
   virtual void loadSettings(size_t);
 
 private:
-  /** pp containing the 1d hist we want to integrate */
-  shared_pointer _pHist;
+  /** processor containing the 1d result we want to integrate */
+  shared_pointer _input;
 
-  /** range we want to have the integral over in histogram bins */
-  std::pair<size_t,size_t> _area;
+  /** range we want to have the integral over in result bins */
+  std::pair<int,int> _range;
 };
 
 
@@ -652,17 +658,17 @@ private:
 
 
 
-/** store previous histogram of other Processor
+/** store previous result of other Processor
  *
- * @PPList "56": Contains the Histogram of the previous event
+ * @PPList "56": Contains the result of the previous event
  *
- * Stores a previous version of another histogram.
+ * Stores a previous version of another result.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name containing the histogram that we average.
+ *           processor name containing the result that will be stored
  *
  * @author Lutz Foucar
  */
@@ -682,11 +688,8 @@ protected:
   /** the previous result */
   result_t _previous;
 
-  /** pp containing histogram to work on */
+  /** processor containing result to store */
   shared_pointer _pHist;
-
-  /** mutex to lock the storage */
-  QMutex _mutex;
 };
 
 
@@ -703,9 +706,9 @@ protected:
 
 
 
-/** Weighted Projection of 2d Histogram.
+/** Weighted Projection of 2D result.
  *
- * @PPList "57": Weighted Project 2D histogram onto a axis
+ * @PPList "57": Weighted Project 2D result onto a axis
  *
  * devides each bin by the number of values that have been added in
  * this bin. Exclusion values will not be added to the bin.
@@ -714,16 +717,16 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name with 2D-Histogram that we create project.
- *           Default is 0.
- * @cassttng Processor/\%name\%/{LowerBound|UpperBound} \n
+ *           Name of the processor containing the  2D result that will be
+ *           projected
+ * @cassttng Processor/\%name\%/{Low|Up} \n
  *           Upper and lower bound of the area to project. Default is
  *           -1e6 ... 1e6
  * @cassttng Processor/\%name\%/{Axis} \n
- *           The axis we want to project to. Default is xAxis.
+ *           The axis we want to project to. Default is "xAxis".
  *           Possible choises are:
- *           - 0:xAxis
- *           - 1:yAxis
+ *           - "xAxis": projects the selected range in y to the x-Axis
+ *           - "yAxis": projects the selected range in x to the y-Axis
  * @cassttng Processor/\%name\%/{ExclusionValue} \n
  *           The value that will be excluded when doing the projection. The
  *           result will be normilzed by the amount of bins that have been
@@ -765,14 +768,14 @@ private:
                   result_t::iterator norm);
 
 private:
-  /** pp containing the 2d hist we want to project */
+  /** processor containing the 2d result we want to project */
   shared_pointer _pHist;
 
   /** range in X we want to project */
-  std::pair<size_t,size_t> _Xrange;
+  std::pair<int,int> _Xrange;
 
   /** range in Y we want to project */
-  std::pair<size_t,size_t> _Yrange;
+  std::pair<int,int> _Yrange;
 
   /** the size of the original image in X */
   size_t _nX;
@@ -800,11 +803,11 @@ private:
 
 /** 0D,1D or 2D to 1D histogramming.
  *
- * @PPList "60": Histogram 0D, 1D or 2D values to a 1D histogram
+ * @PPList "60": Histogram 0D, 1D or 2D values to a 1D result
  *
- * histograms all values of 0D, 1D or 2D into a 1D Histogram. This histogram
+ * histograms all values of 0D, 1D or 2D into a 1D result. This result
  * holds only the histogrammed values of one event. Use Processors 61 or
- * 62 to average or sum up this histogram, respectively.
+ * 62 to average or sum up this result, respectively.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -829,7 +832,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing 0D histogram to work on */
+  /** processor containing result to histogram */
   shared_pointer _pHist;
 };
 
@@ -838,11 +841,11 @@ protected:
 
 
 
-/** Histogram averaging.
+/** result averaging.
  *
- * @PPList "61": Average of a histogram
+ * @PPList "61": Average of a result
  *
- * Running or cummulative average of a histogram.
+ * Running or cummulative average of a result. Could also be a squared average.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -855,7 +858,7 @@ protected:
  *           how many images should be averaged. When value is 0 its a cummulative
  *           average. Default is 1.
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor name containing the histogram that we average.
+ *           processor name containing the result that we average.
  *
  * @author Lutz Foucar
  */
@@ -914,7 +917,7 @@ protected:
   /** function that will do the averagin */
   std::tr1::function<result_t::value_t(result_t::value_t,result_t::value_t,result_t::value_t)> _func;
 
-  /** pp containing histogram to work on */
+  /** processor containing result to average */
   shared_pointer _pHist;
 };
 
@@ -949,7 +952,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing histogram to work on */
+  /** processor containing result to sum */
   shared_pointer _pHist;
 };
 
@@ -958,20 +961,18 @@ protected:
 
 
 
-/** time average of 0d Histogram.
+/** time average of 0d result.
  *
- * @PPList "63": Time Average of a histogram over given time-intervals
+ * @PPList "63": Time Average of a result over given time-intervals
  *
- * Makes an running average of a given Histogram over a given time period.
+ * Makes an running average of a given result over a given time period.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor id with 0D-Histogram that we create project.
- *           Default is 0.
  * @cassttng Processor/\%name\%/{MinTime|MaxTime} \n
- *           Minimum and Maximum Time to plot in the histogram. Default
+ *           Minimum and Maximum Time to plot in the result. Default
  *           is 0 ... 300 (WARNING: for the moment this setting is not active)
  * @cassttng Processor/\%name\%/{NbrSamples} \n
  *           Number of values that are used per second to calculate the average.
@@ -992,13 +993,13 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing histogram to work on */
+  /** processor containing result to work on */
   shared_pointer _pHist;
 
   /** range of time that we use for the angular distribution */
   std::pair<size_t,size_t> _timerange;
 
-  /** the number of bins in the resulting histogram, range is fixed */
+  /** the number of bins in the result, range is fixed */
   size_t _nbrSamples;
 
   /** the number of samples seen up to now and used in the point */
@@ -1015,18 +1016,19 @@ protected:
 
 
 
-/** record 0d Histogram into 1d Histogram.
+/** record 0d result into 1d result.
  *
  * @PPList "64": 0d into 1d (append on right end, shifting old values to the left)
  *
- * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
+ * appends values from results at end of this result and shifts the old values
+ * to the left.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           processor id with 0D-Histogram that we create project.
- *           Default is 0.
+ *           Name of the processor that conatins the result whos values will
+ *           be appended to this.
  * @cassttng Processor/\%name\%/{Size} \n
  *           Number of values that are stored
  *           Default is 10000
@@ -1046,10 +1048,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _hist;
 
-  /** the number of bins in the resulting histogram, range is fixed */
+  /** the number of bins in the result, range is fixed */
   size_t _size;
 };
 
@@ -1060,9 +1062,9 @@ protected:
 
 /** 0D to 2D histogramming.
  *
- * @PPList "65": Histogram two 0D values to a 2D histogram
+ * @PPList "65": Histogram two 0D values to a 2D result
  *
- * histograms two 0d values into one 2D Histogram. The resulting histogram
+ * histograms two 0d values into one 2D result. The result
  * contains only the information from the current event. To get an average or
  * sum use Processor 61 or 62.
  *
@@ -1089,10 +1091,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first 0D histogram to work on */
+  /** processor containing X axis value */
   shared_pointer _one;
 
-  /** pp containing second 0D histogram to work on */
+  /** processor containing Y-axis value */
   shared_pointer _two;
 };
 
@@ -1103,14 +1105,14 @@ protected:
 
 
 
-/** 1D to 2D histogramming.
+/** 1D to 2D combining
  *
- * @PPList "66": histograms two 1D traces to a 2D result
+ * @PPList "66": combines two 1D traces to a 2D result
  *
- * histograms two 1d results into one 2D result
+ * combines two 1d results into one 2D result
  * The 2d result will be computed as follows
- * /f result_{i,j} = X_{i} * Y_{j} /f, where /fi: 0 .. X_{max}/f and
- * /fj: 0.. Y_{max}/f
+ * \f$ result_{i,j} = X_{i} * Y_{j} \f$, where \f$ 0 \leq i < X_{max}\f$ and
+ * \f$ 0 \leq j < Y_{max} \f$
  *
  * This processor relies on the fact the the input shapes are fixed for all
  * events.
@@ -1136,10 +1138,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first 0D histogram to work on */
+  /** pp containing X-axis 1D result to combine */
   shared_pointer _one;
 
-  /** pp containing second 0D histogram to work on */
+  /** pp containing Y-axis 1D result to combine */
   shared_pointer _two;
 };
 
@@ -1154,10 +1156,10 @@ protected:
  * @PPList "67": Histogram two values  with first=x, second=weight to a histogram
  *               that remembers how many times each bin has been filled.
  *
- * histograms two 0d, 1d or 2d values into a Histogram. The first of the two
- * Histogram defines the x axis bin and the second the weight. The resulting
- * Histogram is a 2d historam with 2 bins in y. The 0th bin contains the weighted
- * Histogram and the 1st bin contains the number of entries in that bin.
+ * histograms two 0d, 1d or 2d values into a 1D result. The first of the two
+ * results defines the x-axis bin and the second the weight. The result
+ * is a 2d resutl with 2 bins in y. The 0th bin contains the weighted
+ * Histogram and the 1st bin contains the number of entries in the bins.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -1182,10 +1184,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first 0D histogram to work on */
+  /** processor containing the values to histogram */
   shared_pointer _one;
 
-  /** pp containing second 0D histogram to work on */
+  /** processor containing the weights for the values */
   shared_pointer _two;
 };
 
@@ -1194,24 +1196,25 @@ protected:
 
 
 
-/** 0D and 1D to 2D histogramming.
+/** 0D and 1D to 2D combining.
  *
- * @PPList "68": Histogram 0D and 1D result to 2D result
+ * @PPList "68": Combines 0D and 1D result to 2D result
  *
- * histograms a 0d and 1D Histogram to a 2d Histogram where the first 1d
- * result defines the x axis and the second 0d result gives the y axis.
+ * combines a 0D and 1D result to a 2d result where the 1d
+ * result defines the x axis and the second 0d result defines the bin on the y
+ * axis where the 1D result will be written to.
  * One only has to define the y axis since the x axis will be taken from the
- * 1d result
+ * 1D result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{YNbrBins|YLow|YUp}\n
- *           properties of the y axis of the resulting 2d histogram
+ *           properties of the y axis of the 2D result
  * @cassttng Processor/\%name\%/{XName}\n
- *           processr containing the 1d histogram.
+ *           processr containing the 1D result.
  * @cassttng Processor/\%name\%/{YName} \n
- *           processor containing the 0D values for the y axis
+ *           processor containing the 0D values to define the bin on the y-axis
  *
  * @author Lutz Foucar
  */
@@ -1228,10 +1231,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first 0D histogram to work on */
+  /** processor containing the 1D result */
   shared_pointer _one;
 
-  /** pp containing second 0D histogram to work on */
+  /** processor containing 0D result */
   shared_pointer _two;
 };
 
@@ -1244,16 +1247,19 @@ protected:
  *
  * @PPList "69": Use two 0D values for a scatter plot
  *
- * sets two 0d values into one 1D Histogram where the first Histogram
- * defines the x axis bin and the second is the weight.
+ * sets two 0d values into one 1D result where the first 0D result
+ * defines the x axis bin and the second defines the value of that bin.
+ * Unlike in a histogram the weight will not be added but it will be set to the
+ * weight value. As this is an accumulating processor the values will be kept
+ * until they are overwritten.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
- *           properties of the resulting 1d histogram
+ *           properties of the 1D result.
  * @cassttng Processor/\%name\%/{XName|YName} \n
- *           processor names containing the 0D values to histogram.
+ *           processor names containing the 0D values for the scatter plot
  *
  * @author Lutz Foucar
  */
@@ -1270,10 +1276,10 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing first 0D histogram to work on */
+  /** processor containing x-axis 0D result */
   shared_pointer _one;
 
-  /** pp containing second 0D histogram to work on */
+  /** processor containing y-axis 0D result */
   shared_pointer _two;
 };
 
@@ -1294,14 +1300,18 @@ protected:
  *
  * @cassttng Processor/\%name\%/{InputName} \n
  *           name of processor that contains the result you want a
- *           subset from. Default is "".
+ *           subset from.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           For 1d and 2d result the lower and upper range on the x-axis that
- *           one wants to include in the subset result. Default is 0|1
+ *           one wants to include in the subset result.
+ *           These endpoints are defined like \f$ [XLow,XUp[ \f$
+ *           Default is 0|1
  * @cassttng Processor/\%name\%/{YLow|YUp} \n
  *           In case you want to subset a 2d result these are the lower and
  *           upper range on the y-axis that one wants to include in the
- *           subset histogram. Default is 0|1
+ *           subset result.
+ *           These endpoints are defined like \f$ [YLow,YUp[ \f$
+ *           Default is 0|1
  *
  * @author Lutz Foucar
  */
@@ -1318,17 +1328,11 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** setup the resulting histogram
-     *
-     * @param hist The histogram used for setting up the resulting histogram
-     */
-  void setup(const result_t &hist);
+  /** processor containing input result */
+  shared_pointer _input;
 
-  /** pp containing input histogram */
-  shared_pointer _pHist;
-
-  /** offset of first bin in input in Histogram coordinates */
-  size_t _inputOffset;
+  /** offset in x and y to the first bin of the input */
+  std::pair<int,int> _offset;
 };
 
 
@@ -1340,20 +1344,21 @@ protected:
 
 
 
-/** Returns a the min or max value of a histogram
+/** Returns a the min or max value of a result
  *
- * @PPList "71": Returns the min or max value of a histogram
+ * @PPList "71": Returns the min or max value of a result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{RetrieveType} \n
  *           Type of function used to retrieve the requested value in the
- *           Histogram. Default is "max". Possible values are:
- *           - "max": return the maximum value in the histogram
- *           - "min": return the minimum value in the histogram
+ *           result. Default is "max". Possible values are:
+ *           - "max": return the maximum value in the result
+ *           - "min": return the minimum value in the result
  * @cassttng Processor/\%name\%/{InputName} \n
- *           histogram name to find the maximum value in.
+ *           Name of the processor that contains the result to find the
+ *           requested value in.
  *
  * @author Lutz Foucar
  */
@@ -1370,7 +1375,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing the input result */
   shared_pointer _pHist;
 
   /** the type of function used to retrive the wanted element */
@@ -1387,11 +1392,11 @@ protected:
 
 
 
-/** clear Histogram
+/** clear result
  *
- * @PPList "75": Clear a Histogram
+ * @PPList "75": Clear a result
  *
- * Will clear a specific histogram when the condition is true.
+ * Will clear the result of a different processor when the condition is true.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -1413,14 +1418,14 @@ public:
   /** load the settings of the pp */
   virtual void loadSettings(size_t);
 
-  /** overwrite the retrieval of an histogram */
+  /** overwrite the retrieval of an result */
   virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** overwrite the release */
   virtual void releaseEvent(const CASSEvent &){}
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _hist;
 };
 
@@ -1456,7 +1461,7 @@ public:
   /** process event */
   virtual void processEvent(const CASSEvent&);
 
-  /** overwrite the retrieval of an histogram */
+  /** overwrite the retrieval of an result */
   virtual const result_t& result(const CASSEvent::id_t eventid=0);
 
   /** overwrite the release */
@@ -1554,15 +1559,16 @@ public:
 
 
 
-/** retrieve user choosable bin of 1D histogram
+/** retrieve user choosable type of bin of 1D result
  *
- * @PPList "81": retrieve user choosable bin of 1D histogram
+ * @PPList "81": retrieve user choosable type of bin of 1D result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           histogram name to retrieve the bin for
+ *           Name of the Processor that contains the result where the requested
+ *           bin is retrieved from.
  * @cassttng Processor/\%name\%/{RetrieveType} \n
  *           The type of bin to retrieve. Default is "max". Options are:
  *           - max: the bin containing the maximum value
@@ -1584,7 +1590,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
   /** the type of function used to retrive the wanted bin */
@@ -1606,16 +1612,16 @@ protected:
 
 
 
-/** return the statistic values of all bins of incomming histogram
+/** return the statistic values of all bins of a result
  *
- * @PPList "82": user choosable statistics value of all bins of a histogram
+ * @PPList "82": user choosable statistics value of all bins of a result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           histogram name for which the mean is calculated.
- *           Default is blubb
+ *           Processor containing the result for which the requested statistical
+ *           value is calculated.
  * @cassttng Processor/\%name\%/{Statistics} \n
  *           Type of statistic that one wants to retrieve. Default is "sum".
  *           Possible values are:
@@ -1639,7 +1645,7 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
   /** define the type of statistics used */
@@ -1665,7 +1671,7 @@ protected:
 
 
 
-/** return full width at half maximum in given range of 1D histgoram
+/** return full width at half maximum in given range of 1D result
  *
  * @PPList "85": full width at half maximum for a peak in given range
  *
@@ -1673,10 +1679,12 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           Name of Processor that contains the histogram that we want to
- *           analyze and find the FWHM. Default is 0.
+ *           Name of Processor that contains the result that the FWHM should be
+ *           extracted for.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
- *           Lower and upper limit of the range that we look for the width at half maximum.
+ *           Lower and upper endpoints of the range that the FWHM will be
+ *           calculated for.
+ *           The endpoints define the range as \f$ [XLow,XUp[ \f$
  *           Default is 0|1.
  * @cassttng Processor/\%name\%/{Fraction} \n
  *           At which fraction of the height the width should be taken. Default
@@ -1697,11 +1705,11 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
-  /** the requested x-axis limits in histogram coordinates */
-  std::pair<size_t,size_t> _xRange;
+  /** the requested x-axis limits in bins */
+  std::pair<int,int> _xRange;
 
   /** the fraction of the range */
   float _fraction;
@@ -1715,27 +1723,29 @@ protected:
 
 
 
-/** find step in 1d hist
+/** find step in 1d result
  *
- * @PPList "86": find step in a given range of 1d histo
+ * @PPList "86": find step in a given range of 1d result
  *
- * finds the x-position of a step in a 1d hist. It does this by defining a
+ * finds the x-position of a step in a 1d result. It does this by defining a
  * baseline from the user selected range. It then searches for the highest
  * point in the range that should contain the step. Now it looks for the first
- * x position where the y value is Fraction * (highestPoint + baselline).
+ * x position where the y value is \f$ Fraction * (highestPoint + baseline) \f$.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           Histogram name of the 1d Histogram that we look for the step in.
- *          Default is 0.
+ *           Name  of the processor that contains the 1D result that
+ *           we look for the step in.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
- *           Lower and upper limit of the range that we look for the step.
+ *           Lower and upper endpoints of the range that we look for the step in.
+ *           The endpoints define the range as \f$ [XLow,XUp[ \f$
  *           Default is 0|1.
  * @cassttng Processor/\%name\%/{BaselineLow|BaselineUp} \n
- *           Lower and upper limit of the range that we use to calculate the
+ *           Lower and upper endpoints of the range that we use to calculate the
  *           Baseline.
+ *           The endpoints define the range as \f$ [BaselineLow,BaselineUp[ \f$
  *           Default is 0|1.
  * @cassttng Processor/\%name\%/{Fraction} \n
  *           The Fraction between the baseline and the highest value that
@@ -1757,14 +1767,14 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
-  /** the requested x-axis limits for find the step in histogram coordinates */
-  std::pair<size_t,size_t> _xRangeStep;
+  /** the requested x-axis limits for find the step in bins */
+  std::pair<int,int> _xRangeStep;
 
-  /** the requested x-axis limits for find the baseline in histogram coordinates */
-  std::pair<size_t,size_t> _xRangeBaseline;
+  /** the requested x-axis limits for find the baseline in bins */
+  std::pair<int,int> _xRangeBaseline;
 
   /** user fraction of the height between low and up */
   float _userFraction;
@@ -1775,9 +1785,9 @@ protected:
 
 
 
-/** find center of Mass of 1d hist in a user given range
+/** find center of Mass of 1D result in a user given range
  *
- * @PPList "87": find center of mass in given range of 1d histo
+ * @PPList "87": find center of mass in given range of 1D result
  *
  * calculates the center of Mass in the user given range.
  *
@@ -1785,10 +1795,11 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           Histogram name of the 1d Histogram that we look for the step in.
- *           Default is 0.
+ *           Name of the processor that conatins the 1D resault that we look
+ *           for the step in.
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           Lower and upper limit of the range that we look for the step.
+ *           The endpoints define the range as \f$ [XLow,XUp[ \f$
  *           Default is 0|1.
  *
  * @author Lutz Foucar
@@ -1806,26 +1817,27 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
-  /** the requested x-axis limits in histogram coordinates */
-  std::pair<size_t,size_t> _xRange;
+  /** the requested x-axis limits in bins */
+  std::pair<int,int> _xRange;
 };
 
 
 
 
 
-/** return axis parameter of an histogram
+/** return axis parameter of a result
  *
- * @PPList "88": retrieve an axis parameter of the histogram
+ * @PPList "88": retrieve an axis parameter of a result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           histogram name for which we count fills. Default is 0.
+ *           Name of the processor that conatains the result from which the
+ *           requested axis parameter is retrieved.
  * @cassttng Processor/\%name\%/{AxisParameter} \n
  *           The parameter of the axis one is interested in.
  *           Default is "XNbrBins". Possible values are:
@@ -1851,14 +1863,14 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
   /** the id of the axis */
   result_t::axis_name _axisId;
 
   /** function to retrieve the parameter from the axis */
-  std::tr1::function<float(const result_t::axe_t&)> _func;
+  std::tr1::function<result_t::value_t(const result_t::axe_t&)> _func;
 };
 
 
@@ -1870,19 +1882,53 @@ protected:
 
 
 
-/** low / high pass filter of 1d histogram
+/** low / high pass filter of 1D result
  *
- * @PPList "89":high or low pass filter on 1d histo
+ * @PPList "89":high or low pass filter on 1D result
+ *
+ * inspired by code found at
+ * http://stackoverflow.com/questions/13882038/implementing-simple-high-and-low-pass-filters-in-c
+ * copright Slater Tyrus
+ *
+ * HighPass function:
+@verbatim
+float RC = 1.0/(CUTOFF*2*3.14);
+float dt = 1.0/SAMPLE_RATE;
+float alpha = RC/(RC + dt);
+float filteredArray[numSamples];
+filteredArray[0] = data.recordedSamples[0];
+for (i = 1; i<numSamples; i++){
+  filteredArray[i] = alpha * (filteredArray[i-1] + data.recordedSamples[i] - data.recordedSamples[i-1]);
+}
+data.recordedSamples = filteredArray;
+@endverbatim
+ *
+ * LowPass function:
+@verbatim
+float RC = 1.0/(CUTOFF*2*3.14);
+float dt = 1.0/SAMPLE_RATE;
+float alpha = dt/(RC+dt);
+float filteredArray[numSamples];
+filteredArray[0] = data.recordedSamples[0];
+for(i=1; i<numSamples; i++){
+  filteredArray[i] = filteredArray[i-1] + (alpha*(data.recordedSamples[i] - filteredArray[i-1]));
+}
+data.recordedSamples = filteredArray;
+@endverbatim
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           histogram name for which we count fills. Default is 0.
+ *           Name of the processor that contains the 1D result to filter
  * @cassttng Processor/\%name\%/{FilterType} \n
- *           The filter type to use. LowPass or HighPass
+ *           The filter type to use. Default is "LowPass". Possible values are:
+ *           - "LowPass": a low pass filter
+ *           - "HighPass": a high pass filter
  * @cassttng Processor/\%name\%/{Cutoff} \n
+ *           The cutoff of the filter.
  * @cassttng Processor/\%name\%/{SampleRate} \n
+ *           The sampling rate of the filter
  *
  * @author Lutz Foucar
  */
@@ -1915,7 +1961,7 @@ protected:
   void lowPass(result_t::const_iterator orig,
                result_t::iterator filtered);
 
-  /** pp containing input histogram */
+  /** processor containing input result */
   shared_pointer _pHist;
 
   /** factor used for filtering */
@@ -1930,16 +1976,23 @@ protected:
 
 
 
-/** returns a list of local minimal in a Histogram
+/** returns a list of local minima in a 1D result
  *
- * @PPList "91": returns a list of local minima in a Histogram
+ * @PPList "91": returns a list of local minima in a 1D result
+ *
+ * It will look for a maximum value that is an actual values within the user
+ * defined range. If data is the 1D array the range is as follows:
+ * \f$ Range \leq i < size-range \f$, where i is the index of the array and size
+ * is the size of the array.
+ *
+ * All found minima will be added to a table like result
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputName} \n
- *           Histogram name of the 1d Histogram that we look for the step in.
- *           Default is 0.
+ *           Name of the Processor that contains the 1D result where the local
+ *           minima will be retrieved from
  * @cassttng Processor/\%name\%/{Range} \n
  *           The range to check for the local minima. Default is 10
  *

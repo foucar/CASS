@@ -3,7 +3,7 @@
 
 /**
  * @file operations.cpp file contains definition of processors that will
- *                       operate on histograms of other processors
+ *                       operate on results of other processors
  * @author Lutz Foucar
  */
 
@@ -105,12 +105,16 @@ void pp1::loadSettings(size_t)
   const result_t &two(_two->result());
   if (one.shape() != two.shape())
     throw invalid_argument("pp1::loadSettings() '"+name()+
-                           "': HistOne '" + _one->name() +
+                           "': InputOne '" + one.name() +
                            "' with dimension '" + toString(one.dim()) +
-                           "' and memory size '" + toString(one.size()) +
-                           "' differs from HistTwo '" + _one->name() +
+                           "', memory size '" + toString(one.size()) +
+                           "' and shape '" + toString(one.shape().first) +
+                           "x" + toString(one.shape().second) +
+                           "' differs from InputTwo '" + two.name() +
                            "' with has dimension '" + toString(two.dim()) +
-                           "' and memory size '" + toString(two.size()));
+                           "', memory size '" + toString(two.size()) +
+                           "' and shape '" + toString(two.shape().first) +
+                           "x" + toString(two.shape().second));
 
   string operation(s.value("Operation","+").toString().toStdString());
   if (operation == "+")
@@ -294,7 +298,7 @@ void pp2::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ************ processor 4: Apply boolean NOT to 0D histogram *************
+// ************ processor 4: Apply boolean NOT to 0D results *************
 
 pp4::pp4(const name_t &name)
   : Processor(name)
@@ -335,7 +339,7 @@ void pp4::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ********** processor 9: Check if histogram is in given range ************
+// ********** processor 9: Check if results is in given range ************
 
 pp9::pp9(const name_t &name)
   : Processor(name)
@@ -580,7 +584,7 @@ void pp40::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ****************** processor 41: more advanced threshold histogram ********************
+// ****************** processor 41: more advanced threshold results ********************
 
 pp41::pp41(const name_t &name)
   : Processor(name)
@@ -600,8 +604,8 @@ void pp41::loadSettings(size_t)
   if (!(_one && _threshold && ret))
     return;
   _userVal = s.value("UserVal",0.f).toFloat();
-  _lowerBound = s.value("LowerBound",0.5).toFloat();
-  _upperBound = s.value("UpperBound",1.5).toFloat();
+  _lowerBound = s.value("LowerLimit",0.5).toFloat();
+  _upperBound = s.value("UpperLimit",1.5).toFloat();
   if (_one->result().shape() != _threshold->result().shape())
     throw invalid_argument("pp41:loadSettings() '" + name() +
                            "' Shape of hist to threshold '" + _one->name() + "'(" +
@@ -620,7 +624,7 @@ void pp41::loadSettings(size_t)
            + _condition->name() + "'");
 }
 
-float pp41::checkrange(float val, float checkval)
+Processor::result_t::value_t pp41::checkrange(result_t::value_t val, result_t::value_t checkval)
 {
   return (_lowerBound < checkval && checkval < _upperBound) ? _userVal : val;
 }
@@ -676,80 +680,91 @@ void pp50::loadSettings(size_t)
   const result_t::axe_t &yAxis(hist.axis(result_t::yAxis));
   _nX = xAxis.nBins;
 
-  pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
-                                        s.value("UpperBound", 1e6).toFloat()));
-  int axis(s.value("Axis",result_t::xAxis).toInt());
-
-  switch(axis)
+  pair<float,float> userRange(make_pair(s.value("Low",-1e6).toFloat(),
+                                        s.value("Up", 1e6).toFloat()));
+  if (userRange.first >= userRange.second)
+    throw invalid_argument("pp50::loadSettings: '"+name()+"' Low'" +
+                           toString(userRange.first) +
+                           "' is bigger or equal to Up'" +
+                           toString(userRange.second) + "'");
+  string axis(s.value("Axis","xAxis").toString().toStdString());
+  if (axis == "xAxis")
   {
-  case (result_t::xAxis):
     _xRange = make_pair(0,xAxis.nBins);
-    if (userRange.first < yAxis.low)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(yAxis.low) + "'");
-    if (userRange.first > yAxis.up)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is higher than the highest possible value '" +
-                             toString(yAxis.up) + "'");
-    if (userRange.second < yAxis.low)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(yAxis.low) + "'");
-    if (userRange.second > yAxis.up)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is higher than the highest possible value '" +
-                             toString(yAxis.up) + "'");
     _yRange.first  = yAxis.bin(userRange.first);
     _yRange.second = yAxis.bin(userRange.second);
+    if (_yRange.first == _yRange.second)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low'" + toString(userRange.first) +
+                             "' is giving the the same row as Up'" +
+                             toString(userRange.second) + "'");
+    if (_yRange.first < 0)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low'" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (static_cast<int>(yAxis.nBins) < _yRange.first)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
+    if (_yRange.second < 0)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (static_cast<int>(yAxis.nBins) < _yRange.second)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
     _project = bind(&pp50::projectToX,this,_1,_2);
     createHistList(result_t::shared_pointer(new result_t(xAxis)));
-    break;
-
-  case (result_t::yAxis):
-    if (userRange.first < xAxis.low)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xAxis.low) + "'");
-    if (userRange.first > xAxis.up)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is higher than the highest possible value '" +
-                             toString(xAxis.up) + "'");
-    if (userRange.second < xAxis.low)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xAxis.low) + "'");
-    if (userRange.second > xAxis.up)
-      throw invalid_argument("pp50::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is higher than the highest possible value '" +
-                             toString(xAxis.up) + "'");
+  }
+  else if (axis == "yAxis")
+  {
     _xRange.first  = xAxis.bin(userRange.first);
     _xRange.second = xAxis.bin(userRange.second);
     _yRange = make_pair(0,yAxis.nBins);
+    if (_xRange.first == _xRange.second)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is giving the the same column as Up '" +
+                             toString(userRange.second) + "'");
+    if (_xRange.first < 0)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (static_cast<int>(xAxis.nBins) < _xRange.first)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
+    if (_xRange.second < 0)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (static_cast<int>(xAxis.nBins) < _xRange.second)
+      throw invalid_argument("pp50::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
     _project = bind(&pp50::projectToY,this,_1,_2);
     createHistList(result_t::shared_pointer(new result_t(yAxis)));
-    break;
-
-  default:
+  }
+  else
+  {
     throw invalid_argument("pp50::loadSettings() '" + name() +
-                           "': requested axis '" + toString(axis) +
-                           "' does not exist.");
-    break;
+                           "': requested axis '" + axis + "' is not recognized");
   }
 
   Log::add(Log::INFO,"Processor '" + name() +
-           "' will project histogram of Processor '" + _pHist->name() +
+           "' will project result of Processor '" + _pHist->name() +
            "' from '" + toString(userRange.first) + "' to '" +
-           toString(userRange.second) + "' to axis '" + toString(axis) +
-           "' The area in histogram coordinates lower left '" +
+           toString(userRange.second) + "' to the " + axis +
+           ". The area in result coordinates lower left '" +
            toString(_xRange.first) + "x" + toString(_yRange.first) +
            "'; upper right '" + toString(_xRange.second) + "x" +
            toString(_yRange.second) +"'. Condition is '" + _condition->name() +
@@ -758,15 +773,15 @@ void pp50::loadSettings(size_t)
 
 void pp50::projectToX(result_t::const_iterator src, result_t::iterator dest)
 {
-  for(size_t y(_yRange.first); y<_yRange.second; ++y)
-    for(size_t x(_xRange.first); x<_xRange.second; ++x)
+  for(int y(_yRange.first); y<_yRange.second; ++y)
+    for(int x(_xRange.first); x<_xRange.second; ++x)
       dest[x] += src[y*_nX + x];
 }
 
 void pp50::projectToY(result_t::const_iterator src, result_t::iterator dest)
 {
-  for(size_t y(_yRange.first); y<_yRange.second; ++y)
-    for(size_t x(_xRange.first); x<_xRange.second; ++x)
+  for(int y(_yRange.first); y<_yRange.second; ++y)
+    for(int x(_xRange.first); x<_xRange.second; ++x)
       dest[y] += src[y*_nX + x];
 }
 
@@ -803,58 +818,68 @@ void pp51::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
-  pair<float,float> userarea(make_pair(s.value("LowerBound",-1e6).toFloat(),
-                                       s.value("UpperBound", 1e6).toFloat()));
   setupGeneral();
-  _pHist = setupDependency("InputName");
+  _input = setupDependency("InputName");
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  if (!(ret && _input))
     return;
-  if (_pHist->result().dim() != 1)
+  const result_t &input(_input->result());
+  if (input.dim() != 1)
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': hist '" + _pHist->name() + "' is not a 1d hist.");
-  const result_t &one(_pHist->result());
-  const result_t::axe_t &xaxis(one.axis(result_t::xAxis));
-  if (userarea.first < xaxis.low)
+                           "': result '" + input.name() + "' is not a 1d result.");
+  const result_t::axe_t &xaxis(input.axis(result_t::xAxis));
+  pair<float,float> userrange(make_pair(s.value("XLow",-1e6).toFloat(),
+                                       s.value("XUp", 1e6).toFloat()));
+  if (userrange.first >= userrange.second)
+    throw invalid_argument("pp51::loadSettings: '"+name()+"' XLow '" +
+                           toString(userrange.first) +
+                           "' is bigger or equal to XUp '" +
+                           toString(userrange.second) + "'");
+  _range.first  = xaxis.bin(userrange.first);
+  _range.second = xaxis.bin(userrange.second);
+  if (_range.first == _range.second)
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': LowerBound '" + toString(userarea.first) +
+                           "': XLow '" + toString(userrange.first) +
+                           "' is giving the the same column as XUp '" +
+                           toString(userrange.second) + "'");
+  if (_range.first < 0)
+    throw invalid_argument("pp51::loadSettings: '" + name() +
+                           "': XLow '" + toString(userrange.first) +
                            "' is smaller than the lowest possible value '" +
                            toString(xaxis.low) + "'");
-  if (userarea.first > xaxis.up)
+  if (static_cast<int>(xaxis.nBins) < _range.first)
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': LowerBound '" + toString(userarea.first) +
+                           "': XLow '" + toString(userrange.first) +
                            "' is higher than the highest possible value '" +
                            toString(xaxis.up) + "'");
-  if (userarea.second < xaxis.low)
+  if (_range.second < 0)
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': UpperBound '" + toString(userarea.second) +
+                           "': Xup '" + toString(userrange.second) +
                            "' is smaller than the lowest possible value '" +
                            toString(xaxis.low) + "'");
-  if (userarea.second > xaxis.up)
+  if (static_cast<int>(xaxis.nBins) < _range.second)
     throw invalid_argument("pp51::loadSettings: '" + name() +
-                           "': UpperBound '" + toString(userarea.second) +
+                           "': Xup '" + toString(userrange.second) +
                            "' is higher than the highest possible value '" +
                            toString(xaxis.up) + "'");
 
-  _area.first  = xaxis.bin(userarea.first);
-  _area.second = xaxis.bin(userarea.second);
 
   createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO, "Processor '" + name() +
-      "' will create integral of 1d histogram in Processor '" + _pHist->name() +
-      "' from '" + toString(userarea.first) +  "(" + toString(_area.first) +
-      ")' to '" + toString(userarea.second) + "(" + toString(_area.second) +
+      "' will create integral of 1D results in Processor '" + input.name() +
+      "' from '" + toString(userrange.first) +  "(" + toString(_range.first) +
+      ")' to '" + toString(userrange.second) + "(" + toString(_range.second) +
       ")'. Condition is '" + _condition->name() + "'");
 }
 
 void pp51::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t &one(_pHist->result(evt.id()));
-  QReadLocker lock(&one.lock);
+  const result_t &input(_input->result(evt.id()));
+  QReadLocker lock(&input.lock);
 
-  result_t::const_iterator begin(one.begin()+_area.first);
-  result_t::const_iterator end(one.begin()+_area.second);
+  result_t::const_iterator begin(input.begin()+_range.first);
+  result_t::const_iterator   end(input.begin()+_range.second);
   result.setValue(accumulate(begin, end, 0.f));
 }
 
@@ -866,7 +891,7 @@ void pp51::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 56 stores previous version of another histogram ***
+// *** processor 56 stores previous version of another result ***
 
 pp56::pp56(const name_t &name)
   : Processor(name)
@@ -884,7 +909,7 @@ void pp56::loadSettings(size_t)
   const result_t &one(_pHist->result());
   createHistList(one.clone());
   Log::add(Log::INFO,"processor '" + name() +
-           "' stores the previous histogram from Processor '" + _pHist->name() +
+           "' stores the previous result from Processor '" + _pHist->name() +
            "'. Condition on processor '" + _condition->name() +"'");
 }
 
@@ -895,7 +920,7 @@ void pp56::process(const CASSEvent& evt, result_t &result)
 
   /** lock this and the input */
   QReadLocker rlock(&one.lock);
-  QMutexLocker lock(&_mutex);
+  QWriteLocker wlock(&_previous.lock);
 
   /** copy the old to the result */
   result.assign(_previous);
@@ -939,96 +964,113 @@ void pp57::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  if (_pHist->result().dim() != 2)
+  const result_t &input(_pHist->result());
+  if (input.dim() != 2)
     throw invalid_argument("pp57::setupParameters()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
-                           "' is not a 2D Histogram.");
-  const result_t &hist(_pHist->result());
-
-  pair<float,float> userRange(make_pair(s.value("LowerBound",-1e6).toFloat(),
-                                        s.value("UpperBound", 1e6).toFloat()));
-  int projection_axis(s.value("Axis",result_t::xAxis).toUInt());
+                           "': Error the processor we depend on '" + input.name() +
+                           "' is not a 2D result.");
   _excludeVal = s.value("ExclusionValue",0).toFloat();
 
-  const result_t::axe_t &xAxis(hist.axis(result_t::xAxis));
-  const result_t::axe_t &yAxis(hist.axis(result_t::yAxis));
+  pair<float,float> userRange(make_pair(s.value("Low",-1e6).toFloat(),
+                                        s.value("Up", 1e6).toFloat()));
+  if (userRange.first >= userRange.second)
+    throw invalid_argument("pp57::loadSettings: '"+name()+"' Low'" +
+                           toString(userRange.first) +
+                           "' is bigger or equal to Up'" +
+                           toString(userRange.second) + "'");
+
+  const result_t::axe_t &xAxis(input.axis(result_t::xAxis));
+  const result_t::axe_t &yAxis(input.axis(result_t::yAxis));
   _nX = xAxis.nBins;
 
-  switch(projection_axis)
+  string axis(s.value("Axis","xAxis").toString().toStdString());
+  if (axis == "xAxis")
   {
-  case (result_t::xAxis):
     _Xrange = make_pair(0,xAxis.nBins);
-    if (userRange.first < yAxis.low)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(yAxis.low) + "'");
-    if (userRange.first > yAxis.up)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is higher than the highest possible value '" +
-                             toString(yAxis.up) + "'");
-    if (userRange.second < yAxis.low)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(yAxis.low) + "'");
-    if (userRange.second > yAxis.up)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is higher than the highest possible value '" +
-                             toString(yAxis.up) + "'");
     _Yrange.first  = yAxis.bin(userRange.first);
     _Yrange.second = yAxis.bin(userRange.second);
+    if (_Yrange.first == _Yrange.second)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is giving the the same row as Up '" +
+                             toString(userRange.second) + "'");
+    if (_Yrange.first < 0)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (static_cast<int>(yAxis.nBins) < _Yrange.first)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
+    if (_Yrange.second < 0)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(yAxis.low) + "'");
+    if (static_cast<int>(yAxis.nBins) < _Yrange.second)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(yAxis.up) + "'");
     _project = bind(&pp57::projectToX,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(xAxis)));
-    break;
-
-  case (result_t::yAxis):
-    if (userRange.first < xAxis.low)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xAxis.low) + "'");
-    if (userRange.first > xAxis.up)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': LowerBound '" + toString(userRange.first) +
-                             "' is higher than the highest possible value '" +
-                             toString(xAxis.up) + "'");
-    if (userRange.second < xAxis.low)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xAxis.low) + "'");
-    if (userRange.second > xAxis.up)
-      throw invalid_argument("pp57::loadSettings: '" + name() +
-                             "': UpperBound '" + toString(userRange.second) +
-                             "' is higher than the highest possible value '" +
-                             toString(xAxis.up) + "'");
+  }
+  else if (axis == "yAxis")
+  {
     _Xrange.first  = xAxis.bin(userRange.first);
     _Xrange.second = xAxis.bin(userRange.second);
+    if (_Xrange.first == _Xrange.second)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is giving the the same column as Up '" +
+                             toString(userRange.second) + "'");
+    if (_Xrange.first < 0)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (static_cast<int>(xAxis.nBins) < _Xrange.first)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Low '" + toString(userRange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
+    if (_Xrange.second < 0)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xAxis.low) + "'");
+    if (static_cast<int>(xAxis.nBins) < _Xrange.second)
+      throw invalid_argument("pp57::loadSettings: '" + name() +
+                             "': Up '" + toString(userRange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(xAxis.up) + "'");
     _Yrange = make_pair(0,yAxis.nBins);
     _project = bind(&pp57::projectToY,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(yAxis)));
-    break;
-
-  default:
+  }
+  else
+  {
     throw invalid_argument("pp57::loadSettings() '" + name() +
-                           "': requested _axis '" + toString(projection_axis) +
-                           "' does not exist.");
-    break;
+                           "': requested _axis '" + axis + "' is not recognized");
   }
   Log::add(Log::INFO,"Processor '" + name() +
-      "' will project histogram of Processor '" + _pHist->name() + "' from '" +
-      toString(userRange.first) + "' to '" + toString(userRange.second) + "' on axis '" +
-      toString(projection_axis) + "'. Condition is '" + _condition->name() + "'");
+           "' will project result of Processor '" + input.name() +
+           "' from '" + toString(userRange.first) + "' to '" +
+           toString(userRange.second) +  "' onto the " + axis +
+           ". The area in result coordinates lower left '" +
+           toString(_Xrange.first) + "x" + toString(_Yrange.first) +
+           "'; upper right '" + toString(_Xrange.second) + "x" +
+           toString(_Yrange.second) + "'. Condition is '" + _condition->name() +
+           "'");
 }
 
 void pp57::projectToX(result_t::const_iterator src, result_t::iterator result,
                       result_t::iterator norm)
 {
-  for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
-    for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
+  for(int y(_Yrange.first); y<_Yrange.second; ++y)
+    for(int x(_Xrange.first); x<_Xrange.second; ++x)
     {
       const float pixval(src[y*_nX + x]);
       if (!fuzzycompare(pixval,_excludeVal))
@@ -1042,8 +1084,8 @@ void pp57::projectToX(result_t::const_iterator src, result_t::iterator result,
 void pp57::projectToY(result_t::const_iterator src, result_t::iterator result,
                       result_t::iterator norm)
 {
-  for(size_t y(_Yrange.first); y<_Yrange.second; ++y)
-    for(size_t x(_Xrange.first); x<_Xrange.second; ++x)
+  for(int y(_Yrange.first); y<_Yrange.second; ++y)
+    for(int x(_Xrange.first); x<_Xrange.second; ++x)
     {
       const float pixval(src[y*_nX + x]);
       if (!fuzzycompare(pixval,_excludeVal))
@@ -1077,7 +1119,7 @@ void pp57::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 60 histograms results ***
+// *** processor 60 result results ***
 
 pp60::pp60(const name_t &name)
   : Processor(name)
@@ -1120,7 +1162,7 @@ void pp60::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 61 averages histograms ***
+// *** processor 61 averages result ***
 
 pp61::pp61(const name_t &name)
   : AccumulatingProcessor(name)
@@ -1151,7 +1193,7 @@ void pp61::loadSettings(size_t)
                            averageType.toStdString() + "' unknown.");
   createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"processor '" + name() +
-      "' averages histograms from Processor '" +  _pHist->name() +
+      "' averages result from Processor '" +  _pHist->name() +
       "' alpha for the averaging '" + toString(_alpha) +
       "'. Condition on processor '" + _condition->name() + "'");
 }
@@ -1194,7 +1236,7 @@ void pp61::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 62 sums up histograms ***
+// *** processor 62 sums up result ***
 
 pp62::pp62(const name_t &name)
   : AccumulatingProcessor(name)
@@ -1259,7 +1301,7 @@ void pp63::loadSettings(size_t)
     return;
   createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
-      "' will calculate the time average of histogram of Processor '" + _pHist->name() +
+      "' will calculate the time average of result of Processor '" + _pHist->name() +
       "' from now '" + toString(s.value("MinTime",0).toUInt()) + "' to '" +
       toString(s.value("MaxTime",300).toUInt()) + "' seconds '" + toString(_timerange.first) +
       "' ; '" + toString(_timerange.second) + "' each bin is equivalent to up to '" +
@@ -1349,7 +1391,7 @@ void pp63::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ***  pp 64 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
+// ***  pp 64 takes a 0d result (value) as input and writes it in the last bin of a 1d result
 //    *** while shifting all other previously saved values one bin to the left.
 
 pp64::pp64(const name_t &name)
@@ -1376,7 +1418,7 @@ void pp64::loadSettings(size_t)
   createHistList(result_t::shared_pointer(new result_t(_size)));
 
   Log::add(Log::INFO,"Processor '" + name() +
-           "' will make a history of values of histogram in pp '" +
+           "' will make a history of values of result in processor '" +
            _hist->name() + ", size of history '" + toString(_size) +
            "' Condition on processor '" + _condition->name() + "'");
 }
@@ -1449,7 +1491,7 @@ void pp65::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 66 histograms 2 1D values to 2D histogram ***
+// *** processor 66 combines 2 1D traces to 2D result ***
 
 pp66::pp66(const name_t &name)
   : Processor(name)
@@ -1478,7 +1520,7 @@ void pp66::loadSettings(size_t)
         (new result_t(one.axis(result_t::xAxis), two.axis(result_t::xAxis))));
 
    Log::add(Log::INFO,"processor '" + name() +
-           "' creates a two dim histogram from Processor '" + _one->name() +
+           "' creates a 2D result from Processor '" + _one->name() +
            "' and '" +  _two->name() + "'. condition on Processor '" +
            _condition->name() + "'");
 }
@@ -1511,7 +1553,7 @@ void pp66::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 67 histograms 2 0D,1D or 2D values to 1D histogram add weight ***
+// *** processor 67 histograms 2 0D,1D or 2D values to 1D result add weight ***
 
 pp67::pp67(const name_t &name)
   : Processor(name)
@@ -1592,7 +1634,7 @@ void pp67::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 68 histograms 0D and 1d Histogram to 2D histogram ***
+// *** processor 68 histograms 0D and 1d Histogram to 2D result ***
 
 pp68::pp68(const name_t &name)
   : Processor(name)
@@ -1653,7 +1695,7 @@ void pp68::process(const CASSEvent& evt, result_t &result)
 
 
 
-// *** processor 69 histograms 2 0D values to 1D scatter plot ***
+// *** processor 69 combines 2 0D values to 1D scatter plot ***
 
 pp69::pp69(const name_t &name)
   : AccumulatingProcessor(name)
@@ -1708,10 +1750,11 @@ void pp69::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ***  pp 70 subsets a histogram ***
+// ***  pp 70 subsets a result ***
 
 pp70::pp70(const name_t &name)
-  : Processor(name)
+  : Processor(name),
+    _offset(make_pair(0,0))
 {
   loadSettings(0);
 }
@@ -1722,119 +1765,135 @@ void pp70::loadSettings(size_t)
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
-  _pHist = setupDependency("InputName");
+  _input = setupDependency("InputName");
   bool ret (setupCondition());
-  if (!(ret && _pHist))
+  if (!(ret && _input))
     return;
 
-  const result_t& hist(_pHist->result());
-  if (hist.dim() == 0)
-    throw invalid_argument("pp70::loadSettings(): Dimension '" +
-                           toString(hist.dim()) + "' of histogram '" +
-                           _pHist->name() + "'not supported");
+  const result_t& input(_input->result());
+  if (input.dim() == 0)
+    throw invalid_argument("pp70::loadSettings(): Can't subset 0D result '" +
+                           input.name() + "'");
 
-  pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
-                                         s.value("XUp",1).toFloat()));
-  const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
-  _inputOffset = xaxis.bin(userXRange.first);
-  const size_t binXUp(xaxis.bin(userXRange.second));
-  if (xaxis.isUnderflow(_inputOffset))
-      throw invalid_argument("pp70::loadSettings: '" + name() +
-                             "': XLow '" + toString(userXRange.first) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xaxis.low) + "'");
-  if (xaxis.isOverflow(_inputOffset))
-      throw invalid_argument("pp70::loadSettings: '" + name() +
-                             "': XLow '" + toString(userXRange.first) +
-                             "' is bigger than the highest possible value '" +
-                             toString(xaxis.up) + "'");
-  if (xaxis.isUnderflow(binXUp))
-      throw invalid_argument("pp70::loadSettings: '" + name() +
-                             "': XUp '" + toString(userXRange.second) +
-                             "' is smaller than the lowest possible value '" +
-                             toString(xaxis.low) + "'");
-  if (xaxis.isOverflow(binXUp))
-      throw invalid_argument("pp70::loadSettings: '" + name() +
-                             "': XUp '" + toString(userXRange.second) +
-                             "' is bigger than the highest possible value '" +
-                             toString(xaxis.up) + "'");
-  /** @note the total number of bin between low and up is up-low+1 */
-  const size_t nXBins(binXUp-_inputOffset+1);
-  const float xLow(xaxis.pos(_inputOffset));
-  const float xUp(xaxis.pos(binXUp));
-  string output("Processor '" + name() +
-                "' setup: returns a subset of histogram in pp '"  +  _pHist->name() +
-                "' which has dimension '" + toString(hist.dim()) +
-                "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
-                "), xUp:" + toString(xUp) + "(" + toString(binXUp) +
-                "), xNbrBins:" + toString(nXBins));
-  if (1 == hist.dim())
+  const result_t::axe_t &xaxis(input.axis(result_t::xAxis));
+  pair<float,float> userXRange;
+  userXRange.first  = s.value("XLow",0).toFloat();
+  userXRange.second = s.value("XUp",1).toFloat();
+  if (userXRange.first >= userXRange.second)
+    throw invalid_argument("pp70::loadSettings: '" + name() + "' XLow '" +
+                           toString(userXRange.first) +
+                           "' is bigger or equal to XUp '" +
+                           toString(userXRange.second) + "'");
+
+  _offset.first = xaxis.bin(userXRange.first);
+  const int binXUp(xaxis.bin(userXRange.second));
+  if (_offset.first == binXUp)
+    throw invalid_argument("pp70::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is giving the the same column as XUp '" +
+                           toString(userXRange.second) + "'");
+  if (_offset.first < 0)
+    throw invalid_argument("pp70::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _offset.first)
+    throw invalid_argument("pp70::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is bigger than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  if (binXUp < 0)
+    throw invalid_argument("pp70::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < binXUp)
+    throw invalid_argument("pp70::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is bigger than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  const size_t nXBins(binXUp-_offset.first);
+  const float xLow(userXRange.first);
+  const float xUp(userXRange.second);
+  string output("pp70::loadSettings '" + name() +
+                "': returns a subset of result in processor '" + input.name() +
+                "' which has dimension '" + toString(input.dim()) +
+                "'. Subset is xLow:" + toString(userXRange.first) + "(" +
+                toString(_offset.first) + "), xUp:" + toString(userXRange.second) +
+                "(" + toString(binXUp) + "), xNbrBins:" + toString(nXBins));
+  if (1 == input.dim())
   {
     createHistList(result_t::shared_pointer
                    (new result_t(result_t::axe_t(nXBins,xLow,xUp,xaxis.title))));
   }
-  else if (2 == hist.dim())
+  else if (2 == input.dim())
   {
-    pair<float,float> userYRange(make_pair(s.value("YLow",0).toFloat(),
-                                           s.value("YUp",1).toFloat()));
-    const result_t::axe_t &yaxis(hist.axis(result_t::yAxis));
-    const size_t binYLow(yaxis.bin(userYRange.first));
-    const size_t binYUp (yaxis.bin(userYRange.second));
-    if (yaxis.isUnderflow(binYLow))
+    const result_t::axe_t &yaxis(input.axis(result_t::yAxis));
+    pair<float,float> userYRange;
+    userYRange.first = s.value("YLow",0).toFloat();
+    userYRange.second = s.value("YUp",1).toFloat();
+    if (userYRange.first >= userYRange.second)
+      throw invalid_argument("pp70::loadSettings: '" + name() + "' YLow '" +
+                             toString(userYRange.first) +
+                             "' is bigger or equal to YUp '" +
+                             toString(userYRange.second) + "'");
+    _offset.second = yaxis.bin(userYRange.first);
+    const int binYUp(yaxis.bin(userYRange.second));
+    if (_offset.second == binYUp)
+      throw invalid_argument("pp70::loadSettings: '" + name() +
+                             "': YLow '" + toString(userYRange.first) +
+                             "' is giving the the same row as YUp '" +
+                             toString(userYRange.second) + "'");
+    if (_offset.second < 0)
       throw invalid_argument("pp70::loadSettings: '" + name() +
                              "': YLow '" + toString(userYRange.first) +
                              "' is smaller than the lowest possible value '" +
                              toString(yaxis.low) + "'");
-    if (yaxis.isOverflow(binYLow))
+    if (static_cast<int>(yaxis.nBins) < _offset.second)
       throw invalid_argument("pp70::loadSettings: '" + name() +
                              "': YLow '" + toString(userYRange.first) +
                              "' is bigger than the highest possible value '" +
                              toString(yaxis.up) + "'");
-    if (yaxis.isUnderflow(binYUp))
+    if (binYUp < 0)
       throw invalid_argument("pp70::loadSettings: '" + name() +
                              "': YUp '" + toString(userYRange.second) +
                              "' is smaller than the lowest possible value '" +
                              toString(yaxis.low) + "'");
-    if (yaxis.isOverflow(binYUp))
+    if (static_cast<int>(yaxis.nBins) < binYUp)
       throw invalid_argument("pp70::loadSettings: '" + name() +
                              "': YUp '" + toString(userYRange.second) +
                              "' is bigger than the highest possible value '" +
                              toString(yaxis.up) + "'");
-    /** @note the total number of bin between low and up is up-low +1 */
-    const size_t nYBins = (binYUp - binYLow + 1);
-    const float yLow (yaxis.pos(binYLow));
-    const float yUp (yaxis.pos(binYUp));
-    _inputOffset = static_cast<size_t>(binYLow*xaxis.nBins+xLow + 0.1);
+    const size_t nYBins(binYUp - _offset.second);
+    const float yLow (userYRange.first);
+    const float yUp (userYRange.second);
     createHistList
         (result_t::shared_pointer
-          (new result_t
-           (result_t::axe_t(nXBins,xLow,xUp,xaxis.title),
-            result_t::axe_t(nYBins,yLow,yUp,yaxis.title))));
-    output += ", yLow:"+ toString(yLow) + "(" + toString(binYLow) +
-        "), yUp:" + toString(yUp) + "(" + toString(binYLow) +
-        "), yNbrBins:"+ toString(nYBins) + ", linearized offset is now:" +
-        toString(_inputOffset);
+         (new result_t
+          (result_t::axe_t(nXBins,xLow,xUp,xaxis.title),
+           result_t::axe_t(nYBins,yLow,yUp,yaxis.title))));
+    output += ", yLow:"+ toString(yLow) + "(" + toString(_offset.second) +
+        "), yUp:" + toString(yUp) + "(" + toString(binYUp) +
+        "), yNbrBins:"+ toString(nYBins);
   }
-
   output += ". Condition on processor '" + _condition->name() + "'";
   Log::add(Log::INFO,output);
 }
 
 void pp70::process(const CASSEvent& evt, result_t &result)
 {
-  const result_t& input(_pHist->result(evt.id()));
+  const result_t& input(_input->result(evt.id()));
   QReadLocker lock(&input.lock);
 
-  result_t::const_iterator iit(input.begin()+_inputOffset);
-  result_t::iterator rit(result.begin());
-  const size_t resultNbrXBins(result.shape().first);
-  const size_t resultNbrYBins(result.shape().second);
-  const size_t inputNbrXBins(input.axis(result_t::xAxis).nBins);
-  for (size_t yBins=0;yBins < resultNbrYBins; ++yBins)
+  const size_t resNX(result.shape().first);
+  const size_t resNY(result.shape().second);
+  const size_t inNX(input.shape().first);
+  for (size_t y(0);y < resNY; ++y)
   {
-    copy(iit,iit+resultNbrXBins,rit);
-    advance(iit,inputNbrXBins);
-    advance(rit,resultNbrXBins);
+    const size_t inStart((_offset.second+y)*inNX + _offset.first);
+    const size_t inEnd(inStart + resNX);
+    const size_t resStart(y*resNX);
+    copy(input.begin()+inStart, input.begin()+inEnd, result.begin()+resStart);
   }
 }
 
@@ -1893,7 +1952,7 @@ void pp71::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ***  pp 75 clears a histogram ***
+// ***  pp 75 clears a result ***
 
 pp75::pp75(const name_t &name)
   : Processor(name)
@@ -2199,24 +2258,55 @@ void pp85::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
-                                         s.value("XUp",1).toFloat()));
-  _fraction = s.value("Fraction",0.5).toFloat();
-
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
     throw invalid_argument("pp85::loadSettings()'" + name() +
-                           "': Error the histogram we depend on '" + _pHist->name() +
+                           "': Error the result we depend on '" + _pHist->name() +
                            "' is not a 1D Histogram.");
+  pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
+                                         s.value("XUp",1).toFloat()));
+  if (userXRange.first >= userXRange.second)
+    throw invalid_argument("pp85::loadSettings: '"+name()+"' XLow '" +
+                           toString(userXRange.first) +
+                           "' is bigger or equal to XUp '" +
+                           toString(userXRange.second) + "'");
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
-  _xRange = make_pair(xaxis.bin(userXRange.first),
-                      xaxis.bin(userXRange.second));
+  _xRange.first  = xaxis.bin(userXRange.first);
+  _xRange.second = xaxis.bin(userXRange.second);
+  if (_xRange.first == _xRange.second)
+    throw invalid_argument("pp85::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is giving the the same column as XUp '" +
+                           toString(userXRange.second) + "'");
+  if (_xRange.first < 0)
+    throw invalid_argument("pp85::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRange.first)
+    throw invalid_argument("pp85::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  if (_xRange.second < 0)
+    throw invalid_argument("pp85::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRange.second)
+    throw invalid_argument("pp85::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
 
+  _fraction = s.value("Fraction",0.5).toFloat();
   createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO,"Processor '" + name() +
            "' returns the full width at half maximum in '" + _pHist->name() +
            "' of the range from xlow '" + toString(userXRange.first) +
            "' to xup '" + toString(userXRange.second) +
+           "' which in bins is from '" + toString(_xRange.first) + "' to '" +
+           toString(_xRange.second) +
            "' .Condition on processor '" + _condition->name() + "'");
 }
 
@@ -2296,28 +2386,97 @@ void pp86::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  pair<float,float> userXRangeStep(make_pair(s.value("XLow",0).toFloat(),
-                                             s.value("XUp",1).toFloat()));
-  pair<float,float> userXRangeBaseline(make_pair(s.value("BaselineLow",0).toFloat(),
-                                                 s.value("BaselineUp",1).toFloat()));
-  _userFraction = s.value("Fraction",0.5).toFloat();
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
     throw invalid_argument("pp86::loadSettings()'" + name() +
                            "': Error the processor we depend on '" + _pHist->name() +
                            "' does not contain a 1D result.");
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
-  _xRangeStep = make_pair(xaxis.bin(userXRangeStep.first),
-                          xaxis.bin(userXRangeStep.second));
-  _xRangeBaseline = make_pair(xaxis.bin(userXRangeBaseline.first),
-                              xaxis.bin(userXRangeBaseline.second));
+
+  pair<float,float> userXRangeStep(make_pair(s.value("XLow",0).toFloat(),
+                                             s.value("XUp",1).toFloat()));
+  if (userXRangeStep.first >= userXRangeStep.second)
+    throw invalid_argument("pp86::loadSettings: '" + name() + "' XLow '" +
+                           toString(userXRangeStep.first) +
+                           "' is bigger or equal to XUp '" +
+                           toString(userXRangeStep.second) + "'");
+  _xRangeStep.first  = xaxis.bin(userXRangeStep.first);
+  _xRangeStep.second = xaxis.bin(userXRangeStep.second);
+  if (_xRangeStep.first == _xRangeStep.second)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRangeStep.first) +
+                           "' is giving the the same column as XUp '" +
+                           toString(userXRangeStep.second) + "'");
+  if (_xRangeStep.first < 0)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRangeStep.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRangeStep.first)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRangeStep.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  if (_xRangeStep.second < 0)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRangeStep.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRangeStep.second)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRangeStep.second) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+
+  pair<float,float> userXRangeBaseline(make_pair(s.value("BaselineLow",0).toFloat(),
+                                                 s.value("BaselineUp",1).toFloat()));
+  if (userXRangeBaseline.first >= userXRangeBaseline.second)
+    throw invalid_argument("pp86::loadSettings: '"+name()+"' BaselineLow '" +
+                           toString(userXRangeBaseline.first) +
+                           "' is bigger or equal to BaselineUp '" +
+                           toString(userXRangeBaseline.second) + "'");
+  _xRangeBaseline.first  = xaxis.bin(userXRangeBaseline.first);
+  _xRangeBaseline.second = xaxis.bin(userXRangeBaseline.second);
+  if (_xRangeBaseline.first == _xRangeBaseline.second)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': BaselineLow '" + toString(userXRangeBaseline.first) +
+                           "' is giving the the same column as BaselineUp '" +
+                           toString(userXRangeBaseline.second) + "'");
+  if (_xRangeBaseline.first < 0)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': BaselineLow '" + toString(userXRangeBaseline.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRangeBaseline.first)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': BaselineLow '" + toString(userXRangeBaseline.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  if (_xRangeBaseline.second < 0)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': BaselineUp '" + toString(userXRangeBaseline.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRangeBaseline.second)
+    throw invalid_argument("pp86::loadSettings: '" + name() +
+                           "': BaselineUp '" + toString(userXRangeBaseline.second) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+
+  _userFraction = s.value("Fraction",0.5).toFloat();
+
   createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO, "Processor '" + name() +
            "' returns the position of the step in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRangeStep.first) +
            "' to xup '" + toString(userXRangeStep.second) +
-           "'. Where the baseline is defined in range '" + toString(userXRangeBaseline.first) +
-           "' to '" + toString(userXRangeBaseline.second) + "'. The Fraction is '" +
+           "' which in bins is from '" + toString(_xRangeStep.first) +
+           "' to '" + toString(_xRangeStep.second) +
+           "'. Where the baseline is defined in range '" +
+           toString(userXRangeBaseline.first) + "' to '" +
+           toString(userXRangeBaseline.second) + "' which in bins is from '" +
+           toString(_xRangeBaseline.first) + "' to '" +
+           toString(_xRangeBaseline.second) + "'. The Fraction is '" +
            toString(_userFraction) + "' .Condition on processor '" +
            _condition->name() + "'");
 }
@@ -2381,22 +2540,54 @@ void pp87::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
-                                         s.value("XUp",1).toFloat()));
   const result_t &hist(_pHist->result());
   if (hist.dim() != 1)
-    throw invalid_argument("pp87::setupParameters()'" + name() +
+    throw invalid_argument("pp87::loadSettings()'" + name() +
                            "': Error the processor we depend on '" + _pHist->name() +
                            "' does not contain a 1D result.");
   const result_t::axe_t &xaxis(hist.axis(result_t::xAxis));
-  _xRange = make_pair(xaxis.bin(userXRange.first),
-                      xaxis.bin(userXRange.second));
+  pair<float,float> userXRange(make_pair(s.value("XLow",0).toFloat(),
+                                         s.value("XUp",1).toFloat()));
+  if (userXRange.first >= userXRange.second)
+    throw invalid_argument("pp87::loadSettings: '"+name()+"' XLow '" +
+                           toString(userXRange.first) +
+                           "' is bigger or equal to XUp '" +
+                           toString(userXRange.second) + "'");
+  _xRange.first  = xaxis.bin(userXRange.first);
+  _xRange.second = xaxis.bin(userXRange.second);
+  if (_xRange.first == _xRange.second)
+    throw invalid_argument("pp87::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is giving the the same column as XUp '" +
+                           toString(userXRange.second) + "'");
+  if (_xRange.first < 0)
+    throw invalid_argument("pp87::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRange.first)
+    throw invalid_argument("pp87::loadSettings: '" + name() +
+                           "': XLow '" + toString(userXRange.first) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
+  if (_xRange.second < 0)
+    throw invalid_argument("pp87::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is smaller than the lowest possible value '" +
+                           toString(xaxis.low) + "'");
+  if (static_cast<int>(xaxis.nBins) < _xRange.second)
+    throw invalid_argument("pp87::loadSettings: '" + name() +
+                           "': XUp '" + toString(userXRange.second) +
+                           "' is higher than the highest possible value '" +
+                           toString(xaxis.up) + "'");
 
   createHistList(result_t::shared_pointer(new result_t()));
   Log::add(Log::INFO, "Processor '" + name() +
            "' returns the center of mass in '" + _pHist->name() +
            "' in the range from xlow '" + toString(userXRange.first) +
            "' to xup '" + toString(userXRange.second) +
+           "' which in bins is from '" + toString(_xRange.first) + "' to '" +
+           toString(_xRange.second) +
            "' .Condition on processor '"+_condition->name()+"'");
 }
 
@@ -2409,7 +2600,7 @@ void pp87::process(const CASSEvent& evt, result_t &result)
 
   float integral(0);
   float weight(0);
-  for (size_t i(_xRange.first); i < _xRange.second; ++i)
+  for (int i(_xRange.first); i < _xRange.second; ++i)
   {
     integral += (data[i]);
     const float pos(xAxis.pos(i));
@@ -2558,13 +2749,13 @@ void pp89::loadSettings(size_t)
                            filtertype.toStdString() + "' is unknown.");
 
   if (_pHist->result().dim() != 1)
-    throw invalid_argument("pp89 '" + name() + "' histogram '" + _pHist->name() +
-                           "' is not a 1D histograms");
+    throw invalid_argument("pp89 '" + name() + "' result '" + _pHist->name() +
+                           "' is not a 1D result");
 
   createHistList(_pHist->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
            "' does "+ filtertype.toStdString() +
-           "' operation on histogram in pp '" + _pHist->name() +
+           "' operation on result in processor '" + _pHist->name() +
            "'. Condition on Processor '" + _condition->name() + "'");
 }
 
@@ -2625,7 +2816,7 @@ void pp89::process(const CASSEvent& evt, result_t &result)
 
 
 
-// ***  pp 91 return a list of minima in a histogram ***
+// ***  pp 91 return a list of minima in a result ***
 
 pp91::pp91(const name_t &name)
   : Processor(name)
@@ -2679,7 +2870,10 @@ void pp91::process(const CASSEvent& evt, result_t &result)
     for (size_t j=i-_range; j < i+_range; ++j)
     {
       if(isnan(data[j]) || curval > data[j])
+      {
         isSmaller = false;
+        break;
+      }
     }
     if (isSmaller)
     {
