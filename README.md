@@ -446,24 +446,24 @@ There are two versions of CASS available, the online and offline version. Both
 differ in the choice of input modules that one can choose from and how the
 ringbuffer behaves.
 
-Each version of CASS has two basic parts, an input module and the analyze module.
-The responsibility of the input module is to fetch the "raw" data from whichever
-source is available and adapt it to CASS conventions. The data is then put into
-a cass::CASSEvent.
+Each version of CASS has two basic parts, an input module and the analyze
+module. The responsibility of the input module is to fetch the "raw" data from
+whichever source is available and adapt it to CASS conventions. The data is then
+put into a cass::CASSEvent.
 
 The purpose of the analysis module is to process the data according to the
-processing chain that the user provides with the help of the .ini file. There are
-multiple processing units, where each will analyze one of the data in the
+processing chain that the user provides with the help of the .ini file. There
+are multiple processing units, where each will analyze one of the data in the
 CASSEvents.
 
 The linkage between the input threads and the analysis thread is done by
 cass::RingBuffer. This is a buffer that contains the amount of cass::CASSEvent
-elements that can be chosen by setting cass::RingBufferSize.
-It allows to retrieve elements that should be filled with new data and elements
-whose contents should be analyzed. The difference of the cass::RingBuffer
-between the online and offline version of CASS is that the online version
-allows for elements that haven't been processed yet to be filled with new data.
-The offline version ensures that only elements of the cass::RingBuffer that have
+elements that can be chosen by setting cass::RingBufferSize. It allows to
+retrieve elements that should be filled with new data and elements whose
+contents should be analyzed. The difference of the cass::RingBuffer between the
+online and offline version of CASS is that the online version allows for
+elements that haven't been processed yet to be filled with new data.  The
+offline version ensures that only elements of the cass::RingBuffer that have
 been processed by the analysis module can be filled with new data by the input
 module.
 
@@ -493,9 +493,9 @@ This input can read data files within the following file types:
   the cass::FormatConverter singleton is used. This will iterate through the
   LCLS datagram and call the right cass::ConversionBackend object that will
   convert the xtc data to cass::CASSEvent data. The user can select what part of
-  the data that needs to be converted by setting up which converters the user wants to
-  use. Please refer to the documentation of cass::FormatConverter and the
-  converters for details.
+  the data that needs to be converted by setting up which converters the user
+  wants to use. Please refer to the documentation of cass::FormatConverter and
+  the converters for details.
 
 - **lma:**
   This data format is used by AGAT, a standalone application to record data from
@@ -580,15 +580,15 @@ Two types of data sources are currently supported:
   Munich. It provides the data in the frms6 data format to the TCP receiver.
 
 ##### SACLA online input
-At SACLA a specialized API is provided that allows access to the live detector data.
-This means that as the data is acquired it is also provided to the user via
-the API. Other data, that is typically stored in the database, is made available
-via the offline API, which is quite slow, thus it is currently not recommended
-to retrieve additional data about the experiment. However, it is possible to do
-so using this input module of CASS. One can retrieve the latest data, within
-which it is described what event id the latest data has. Using the event id, all
-additional information about the experiment is retrieved.
-Please refer to cass::SACLAOnlineInput for all user parameters and details.
+At SACLA a specialized API is provided that allows access to the live detector
+data.  This means that as the data is acquired it is also provided to the user
+via the API. Other data, that is typically stored in the database, is made
+available via the offline API, which is quite slow, thus it is currently not
+recommended to retrieve additional data about the experiment. However, it is
+possible to do so using this input module of CASS. One can retrieve the latest
+data, within which it is described what event id the latest data has. Using the
+event id, all additional information about the experiment is retrieved.  Please
+refer to cass::SACLAOnlineInput for all user parameters and details.
 
 
 ### Analysis part of CASS {#cass_analysis}
@@ -624,7 +624,8 @@ understood by the CASS implementation of the server:
   this function.
 - **controlDarkcal:**
   This broadcasts the received command to all Processors. Unlike the next
-  function below that only provides the received command to a specific Processor.
+  function below that only provides the received command to a specific
+  Processor.
 - **receiveCommand:**
   This forwards a given command string to the requested Processor.
 - **getHistogram:**
@@ -770,9 +771,10 @@ the library has not been converted to the new metalanguage.
 
 ## Find out which files have changed {#find_changed_files}
 The LCLS library is kept within a svn repository. One can get the latest version
-of the library as described [here](https://confluence.slac.stanford.edu/display/PSDM/Analysis+Setup)
-Once one has a checkout version of the library one can see whether there have
-been any changes by doing run the `svn up` command.
+of the library as described
+[here](https://confluence.slac.stanford.edu/display/PSDM/Analysis+Setup) Once
+one has a checkout version of the library one can see whether there have been
+any changes by doing run the `svn up` command.
 
 ## How to update the files {#upate_changed_files}
 Typically files that have changed in the xtc sub directory can just be copied.
@@ -786,8 +788,8 @@ by comparing the contents with the contents of
     psddl/bld.ddl.h
 
 In the latter everything is implemented completely in the header, so one has to
-extract the essentials of a new class from this file and add it to the files in the
-LCLS library.
+extract the essentials of a new class from this file and add it to the files in
+the LCLS library.
 
 
 How to add a feature to cass using git {#add_to_git}
@@ -871,7 +873,8 @@ Lutz Foucar
 -----------
 - general leader
 - CASS design, infrastructure development
-- cass, cass_acqiris, cass_ccd (deprecated), cass_machinedata, cass_pixeldetector implementation
+- cass, cass_acqiris, cass_ccd (deprecated), cass_machinedata,
+  cass_pixeldetector implementation
 - new Processor framework
 - all acqiris related Processors
 - new jocassviewer
@@ -913,7 +916,8 @@ Mirko Scholz
 
 Thomas White
 ------------
-- pp1000 (HDF dump) and offline mode paragraph of the online documentation (deprecated)
+- pp1000 (HDF dump) and offline mode paragraph of the online documentation
+  (deprecated)
 
 
 Licence {#licence}
@@ -925,6 +929,7 @@ If you use this software for publishable work, please cite and
 acknowledge the authors and the CASS collaboration in your
 publication. The paper describing CASS is published in 'Computer Physics Communication'.
 Please cite it as:
+
 > Lutz Foucar; Barty, A.; Coppola, N.; Hartmann, R.; Holl, P.; Hoppe, U.; Kassemeyer, S.; Kimmel, N.; Küpper, J.; Scholz, M.; Techert, S.; White, T. A.; Strüder, L. & Ullrich, J
 > CASS—CFEL-ASG software suite
 > Computer Physics Communications, 2012, 183, 2207 - 2213
