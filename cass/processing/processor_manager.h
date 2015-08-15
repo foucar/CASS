@@ -66,14 +66,14 @@ the Class description for information about what parameters are user settable.
 
 00056: Contains the result of the previous event
 
-00060: Histogram 0D, 1D or 2D values to a 1D histogram
+00060: Histogram 0D, 1D or 2D values to a 1D histogram, optionally with
+       custom weights and remembering the counts per bin
 00061: Average of a result
 00062: Summing up of result
 00063: Time Average of a result over given time-intervals
 00064: 0D, 1D or 2D into 1D (append on right end, shifting old values to the left)
 00065: Histogram two 0D values to a 2D histogram
 00066: Create 2D result from two 1D results
-00067: Histogram 0D, 1D or 2D values to a 1D histogram, remembering nbr of fills per bin
 00068: Create 2D result from 0D and 1D results, 0D defines the y-axis
 00069: Use two 0D values for a scatter plot
 
@@ -229,6 +229,7 @@ the Class description for information about what parameters are user settable.
 00052: removed use pp202 and pp50 instead
 00053: removed use pp202 and pp50 instead
 00054: removed use pp202 instead
+00067: removed use pp60 instead
 00080: removed use pp78 instead
 00083: removed use pp82 instead
 00084: removed use pp82 instead

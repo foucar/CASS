@@ -809,8 +809,11 @@ private:
  * holds only the histogrammed values of one event. Use Processors 61 or
  * 62 to average or sum up this result, respectively.
  * It has the capability to histogram the values with user provided weights.
- * If the infomration about how many times a particular bin has been filled is
- * needed use pp67 instead.
+ *
+ * In case the option that allows rememebering how many times a bin has been
+ * filled the result is a 2D result with 2 bins in y. The 0th bin contains the
+ * weighted Histogram and the 1st bin contains the number of entries in the
+ * corresponding bin.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -870,6 +873,34 @@ protected:
                              result_t::const_iterator in,
                              result_t::const_iterator last,
                              result_t & result);
+
+  /** histogam with weights from another processor
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithWeights(CASSEvent::id_t id,
+                                       result_t::const_iterator in,
+                                       result_t::const_iterator last,
+                                       result_t & result);
+
+  /** histogam with user provided constant weight
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param unused an unused paramter
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithConstant(CASSEvent::id_t unused,
+                                        result_t::const_iterator in,
+                                        result_t::const_iterator last,
+                                        result_t & result);
 protected:
   /** processor containing result to histogram */
   shared_pointer _input;
@@ -903,8 +934,8 @@ protected:
  *           - "Normal": a normal average will be used
  *           - "Square"; a square averaging will be performed
  * @cassttng Processor/\%name\%/{NbrOfAverages}\n
- *           how many images should be averaged. When value is 0 its a cummulative
- *           average. Default is 1.
+ *           how many images should be averaged. When value is 0 its a
+ *           cummulative average. Default is 1.
  * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name containing the result that we average.
  *
@@ -1194,50 +1225,6 @@ protected:
 };
 
 
-
-
-
-
-
-/** 1D histogramming with keeping track of how many times a bin has been filled
- *
- * @PPList "67": Histogram two values  with first=x, second=weight to a histogram
- *               that remembers how many times each bin has been filled.
- *
- * Histograms two 0d, 1d or 2d values into a 1D result. The first of the two
- * results defines the x-axis bin and the second the weight. The result
- * is a 2d result with 2 bins in y. The 0th bin contains the weighted
- * Histogram and the 1st bin contains the number of entries in the bins.
- *
- * @see Processor for a list of all commonly available cass.ini
- *      settings.
- *
- * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
- *           properties of the resulting 1d histogram
- * @cassttng Processor/\%name\%/{ValuesName|WeightsName} \n
- *           processor names containing the values and weights to histogram.
- *
- * @author Lutz Foucar
- */
-class pp67 : public Processor
-{
-public:
-  /** constructor */
-  pp67(const name_t&);
-
-  /** process event */
-  virtual void process(const CASSEvent&, result_t&);
-
-  /** load the settings */
-  virtual void loadSettings(size_t);
-
-protected:
-  /** processor containing the values to histogram */
-  shared_pointer _one;
-
-  /** processor containing the weights for the values */
-  shared_pointer _two;
-};
 
 
 

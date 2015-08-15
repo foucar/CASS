@@ -351,9 +351,6 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case OneDto2DHistogramming:
     processor = Processor::shared_pointer(new pp66(key));
     break;
-  case ZeroDto1DHistogramming:
-    processor = Processor::shared_pointer(new pp67(key));
-    break;
   case ZeroDand1Dto2DHistogramming:
     processor = Processor::shared_pointer(new pp68(key));
     break;

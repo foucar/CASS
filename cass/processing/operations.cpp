@@ -1144,18 +1144,44 @@ void pp60::loadSettings(size_t)
   if (isFloat)
   {
     _weight = weight;
-    _histogram = bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
     output += (" Using a constant weight of '" + toString(_weight) + "'");
   }
   else
   {
     _weightProc = setupDependency(weightkey.toStdString());
     ret = _weightProc && ret;
-    _histogram = bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
     output += (" Using the weights taken from '" + _weightProc->name() + "'");
   }
   if (!(ret && _input))
     return;
+
+  bool CountsPerBin(s.value("RememberCounts",false).toBool());
+  if (isFloat && CountsPerBin)
+    _histogram = bind(&pp60::histogramAndBinCountWithConstant,this,_1,_2,_3,_4);
+  if (isFloat && !CountsPerBin)
+    _histogram = bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
+  if (!isFloat && CountsPerBin)
+    _histogram = bind(&pp60::histogramAndBinCountWithWeights,this,_1,_2,_3,_4);
+  if (!isFloat && !CountsPerBin)
+    _histogram = bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
+
+  if (CountsPerBin)
+  {
+    createHistList
+        (result_t::shared_pointer
+         (new result_t
+          (result_t::axe_t(s.value("XNbrBins",1).toUInt(),
+                           s.value("XLow",0).toFloat(),
+                           s.value("XUp",0).toFloat(),
+                           s.value("XTitle","x-axis").toString().toStdString()),
+           /** @note this allows to address the y bin with 0.1 and 1.1 */
+           result_t::axe_t(2,0,2,"bins"))));
+    output += ("' and remember the counts per bin");
+  }
+  else
+    createHistList(set1DHist(name()));
+
+
 
   if(!isFloat && _weightProc->result().shape() != _input->result().shape())
     throw invalid_argument("pp60:loadSettings() " + name() +
@@ -1167,7 +1193,6 @@ void pp60::loadSettings(size_t)
                            toString(_input->result().shape().first) + "x" +
                            toString(_input->result().shape().second) +  "'");
 
-  createHistList(set1DHist(name()));
   Log::add(Log::INFO,"processor '" + name() +
            "' histograms values from Processor '" +  _input->name() + "'. " +
            output +  ". Condition on Processor '" + _condition->name() + "'");
@@ -1193,6 +1218,34 @@ void pp60::histogramWithConstant(CASSEvent::id_t,
 {
   for (; in != last; ++in)
     result.histogram(*in,_weight);
+}
+
+void pp60::histogramAndBinCountWithWeights(CASSEvent::id_t id,
+                                           result_t::const_iterator in,
+                                           result_t::const_iterator last,
+                                           result_t &result)
+{
+  const result_t &weights(_weightProc->result(id));
+  QReadLocker lock(&weights.lock);
+
+  result_t::const_iterator weight(weights.begin());
+  for (; in != last; ++in, ++weight)
+  {
+    result.histogram(make_pair(*in,0.1),*weight);
+    result.histogram(make_pair(*in,0.1));
+  }
+}
+
+void pp60::histogramAndBinCountWithConstant(CASSEvent::id_t,
+                                            result_t::const_iterator in,
+                                            result_t::const_iterator last,
+                                            result_t &result)
+{
+  for (; in != last; ++in)
+  {
+    result.histogram(make_pair(*in,0.1),_weight);
+    result.histogram(make_pair(*in,1.1));
+  }
 }
 
 void pp60::process(const CASSEvent& evt, result_t &result)
@@ -1591,87 +1644,6 @@ void pp66::process(const CASSEvent& evt, result_t &result)
   for (size_t j(0); j < twoNBins; ++j)
     for (size_t i(0); i < oneNBins; ++i)
       result[j*oneNBins+i] = one[i]*two[j];
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// *** processor 67 histograms 2 0D,1D or 2D values to 1D result add weight ***
-
-pp67::pp67(const name_t &name)
-  : Processor(name)
-{
-  loadSettings(0);
-}
-
-void pp67::loadSettings(size_t)
-{
-  CASSSettings s;
-  s.beginGroup("Processor");
-  s.beginGroup(QString::fromStdString(name()));
-  setupGeneral();
-  _one = setupDependency("ValuesName");
-  _two = setupDependency("WeightsName");
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) )
-    return;
-  if (_one->result().dim() != _two->result().dim() )
-    throw invalid_argument("pp67::loadSettings() '" + name() + "': '" +
-                           _one->name() + "' and '" + _two->name() +
-                           "' are not of the same type");
-  if (_one->result().shape() != _two->result().shape())
-    throw invalid_argument("pp67::loadSettings() '" + name() + "': data of'" +
-                           _one->name() + "' and '" + _two->name() +
-                           "' are not of the same size");
-  if (_one->result().size() != _two->result().size())
-    throw invalid_argument("pp67::loadSettings() '" + name() + "': storage of '" +
-                           _one->name() + "' and '" + _two->name() +
-                           "' are not of the same size");
-  createHistList
-      (result_t::shared_pointer
-        (new result_t
-         (result_t::axe_t(s.value("XNbrBins",1).toUInt(),
-                          s.value("XLow",0).toFloat(),
-                          s.value("XUp",0).toFloat(),
-                          s.value("XTitle","x-axis").toString().toStdString()),
-          /** @note this allows to address the y bin with 0.1 and 1.1 */
-          result_t::axe_t(2,0,2,"bins"))));
-
-  Log::add(Log::INFO,"processor '" + name() +
-      "' makes a 1D Histogram where '" + _one->name() +
-      "' defines the x bin to fill and '" +  _two->name() +
-      "' defines the weight of how much to fill the x bin" +
-      ". Condition on Processor '" + _condition->name() + "'");
-}
-
-void pp67::process(const CASSEvent& evt, result_t &result)
-{
-  const result_t &one(_one->result(evt.id()));
-  QReadLocker lock1(&one.lock);
-  const result_t &two(_two->result(evt.id()));
-  QReadLocker lock2(&two.lock);
-
-  result_t::const_iterator xx(one.begin());
-  result_t::const_iterator xEnd(one.begin()+one.datasize());
-
-  result_t::const_iterator yy(two.begin());
-
-  for (;xx != xEnd; ++xx, ++yy)
-  {
-    result.histogram(make_pair(*xx,0.1),*yy);
-    result.histogram(make_pair(*xx,1.1));
-  }
 }
 
 
