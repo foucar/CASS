@@ -807,8 +807,13 @@ private:
  *
  * histograms all values of 0D, 1D or 2D into a 1D result. This result holds
  * only the histogrammed values of one event. Use Processors 61 or 62 to
- * average or sum up this result, respectively. It has the capability to
- * histogram the values with user provided weights.
+ * average or sum up this result, respectively.
+ *
+ * It has the capability to histogram the values with user provided weights,
+ * which can either be a provided constant or taken from another processor. In
+ * case the weight processor contains a 0D value, the value will be taked as a
+ * constant. Othwerwise the processor containing the weights has to have the
+ * same shape as the input values.
  *
  * In case the option that allows remembering how many times a bin has been
  * filled the result is a 2D result with 2 bins in y. The 0th bin contains the
@@ -820,14 +825,16 @@ private:
  *
  * @cassttng Processor/\%name\%/{XName} \n
  *           processor name containing the values to histogram
- * @cassttng Processor/\%name\%/{Weight} \n
- *           The weight, Can either be a constant value or a processor name
- *           containing the weights. The processor needs to be of the same
- *           shape as the input. The individual entires are the weights of the
- *           corresponding bins in the input.
- *           Default 1
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the resulting 1D histogram
+ * @cassttng Processor/\%name\%/{Weight} \n
+ *           The weight, Can either be a constant value or a processor name
+ *           containing the weights. The processor needs to be either of the
+ *           same shape as the input, in which case the individual entires are
+ *           the weights of the corresponding bins in the input, or contain a
+ *           0D value, in which case this will be used as weight for all the
+ *           input values. Please see details for details about this option.
+ *           Default 1
  * @cassttng Processor/\%name\%/{RememberCounts}\n
  *           This flag allows to enable the option of remembering the number of
  *           times a given bin has been filled. See detailed description for
@@ -878,6 +885,18 @@ protected:
                              result_t::const_iterator last,
                              result_t & result);
 
+  /** histogam with weight from 0D processor
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithWeightFrom0D(CASSEvent::id_t id,
+                                 result_t::const_iterator in,
+                                 result_t::const_iterator last,
+                                 result_t & result);
+
   /** histogam with weights from another processor
    *
    * In addition remember the number of counts in a bin
@@ -905,6 +924,21 @@ protected:
                                         result_t::const_iterator in,
                                         result_t::const_iterator last,
                                         result_t & result);
+
+  /** histogam with weights from 0D processor
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param in iterator to the beginning of the input
+   * @param last iterator to the end of the  data input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithWeightFrom0D(CASSEvent::id_t id,
+                                            result_t::const_iterator in,
+                                            result_t::const_iterator last,
+                                            result_t & result);
+
 protected:
   /** processor containing result to histogram */
   shared_pointer _input;
@@ -1149,10 +1183,13 @@ protected:
  *
  * histograms two 0D, 1D or 2D values into one 2D result. The result contains
  * only the information from the current event. To get an average or sum use
- * Processor 61 or 62. It has the capability to histogram the values with user
- * provided weights, which can either be a constant or taken from another
- * processor in which case they have to have the same shape as the input
- * values.
+ * Processor 61 or 62.
+ *
+ * It has the capability to histogram the values with user provided weights,
+ * which can either be a provided constant or taken from another processor. In
+ * case the weight processor contains a 0D value, the value will be taked as a
+ * constant. Othwerwise the processor containing the weights has to have the
+ * same shape as the input values.
  *
  * In case the option that allows remembering how many times a bin has been
  * filled the result is a 2D result with twice as many bins in y. the first n
@@ -1163,15 +1200,18 @@ protected:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
+ * @cassttng Processor/\%name\%/{XName|YName} \n
+ *           processor names containing the values to histogram. Both need to
+ *           be of the same shape.
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|XTitle|YNbrBins|YLow|YUp|YTitle}\n
  *           properties of the 2d histogram
- * @cassttng Processor/\%name\%/{XName|YName} \n
- *           processor names containing the values to histogram.
  * @cassttng Processor/\%name\%/{Weight} \n
  *           The weight, Can either be a constant value or a processor name
- *           containing the weights. The processor needs to be of the same
- *           shape as the input. The individual entires are the weights of the
- *           corresponding bins in the input.
+ *           containing the weights. The processor needs to be either of the
+ *           same shape as the input, in which case the individual entires are
+ *           the weights of the corresponding bins in the input, or contain a
+ *           0D value, in which case this will be used as weight for all the
+ *           input values. Please see details for details about this option.
  *           Default 1
  * @cassttng Processor/\%name\%/{RememberCounts}\n
  *           This flag allows to enable the option of remembering the number of
@@ -1228,6 +1268,20 @@ protected:
                              result_t::const_iterator yin,
                              result_t & result);
 
+  /** histogam with constant weight from input
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithWeightFrom0DInput(CASSEvent::id_t id,
+                                      result_t::const_iterator xin,
+                                      result_t::const_iterator xlast,
+                                      result_t::const_iterator yin,
+                                      result_t & result);
+
   /** histogam with weights from another processor
    *
    * In addition remember the number of counts in a bin
@@ -1259,6 +1313,22 @@ protected:
                                         result_t::const_iterator xlast,
                                         result_t::const_iterator yin,
                                         result_t & result);
+
+  /** histogam with constant weight from input
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithWeightFrom0DInput(CASSEvent::id_t id,
+                                                 result_t::const_iterator xin,
+                                                 result_t::const_iterator xlast,
+                                                 result_t::const_iterator yin,
+                                                 result_t & result);
 
 protected:
   /** processor containing X axis value */

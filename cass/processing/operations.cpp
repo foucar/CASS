@@ -1157,14 +1157,20 @@ void pp60::loadSettings(size_t)
     return;
 
   bool CountsPerBin(s.value("RememberCounts",false).toBool());
+  bool ConstantFromProc(_weightProc && _weightProc->result().dim() == 0);
+
   if (isFloat && CountsPerBin)
     _histogram = bind(&pp60::histogramAndBinCountWithConstant,this,_1,_2,_3,_4);
   if (isFloat && !CountsPerBin)
     _histogram = bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
-  if (!isFloat && CountsPerBin)
+  if (!isFloat && CountsPerBin && !ConstantFromProc)
     _histogram = bind(&pp60::histogramAndBinCountWithWeights,this,_1,_2,_3,_4);
-  if (!isFloat && !CountsPerBin)
+  if (!isFloat && !CountsPerBin && !ConstantFromProc)
     _histogram = bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
+  if (!isFloat && CountsPerBin && ConstantFromProc)
+    _histogram = bind(&pp60::histogramAndBinCountWithWeightFrom0D,this,_1,_2,_3,_4);
+  if (!isFloat && !CountsPerBin && ConstantFromProc)
+    _histogram = bind(&pp60::histogramWithWeightFrom0D,this,_1,_2,_3,_4);
 
   if (CountsPerBin)
   {
@@ -1212,6 +1218,19 @@ void pp60::histogramWithWeights(CASSEvent::id_t id,
     result.histogram(*in,*weight);
 }
 
+void pp60::histogramWithWeightFrom0D(CASSEvent::id_t id,
+                                     result_t::const_iterator in,
+                                     result_t::const_iterator last,
+                                     result_t &result)
+{
+  const result_t &weight(_weightProc->result(id));
+  QReadLocker lock(&weight.lock);
+
+  const result_t::value_t w(weight.getValue());
+  for (; in != last; ++in)
+    result.histogram(*in,w);
+}
+
 void pp60::histogramWithConstant(CASSEvent::id_t,
                                  result_t::const_iterator in,
                                  result_t::const_iterator last,
@@ -1233,6 +1252,22 @@ void pp60::histogramAndBinCountWithWeights(CASSEvent::id_t id,
   for (; in != last; ++in, ++weight)
   {
     result.histogram(make_pair(*in,0.1),*weight);
+    result.histogram(make_pair(*in,0.1));
+  }
+}
+
+void pp60::histogramAndBinCountWithWeightFrom0D(CASSEvent::id_t id,
+                                                result_t::const_iterator in,
+                                                result_t::const_iterator last,
+                                                result_t &result)
+{
+  const result_t &weight(_weightProc->result(id));
+  QReadLocker lock(&weight.lock);
+
+  const result_t::value_t w(weight.getValue());
+  for (; in != last; ++in)
+  {
+    result.histogram(make_pair(*in,0.1),w);
     result.histogram(make_pair(*in,0.1));
   }
 }
@@ -1596,7 +1631,8 @@ void pp65::loadSettings(size_t)
                         "' and YName '" + _yInput->name() + "' with shape '" +
                         toString(_yInput->result().shape().first) + "x" +
                         toString(_yInput->result().shape().second) + "' differ");
-  if (_weightInput && _xInput->result().shape() != _weightInput->result().shape())
+  if (_weightInput && _weightInput->result().dim() != 0 &&
+      _xInput->result().shape() != _weightInput->result().shape())
     throw runtime_error("pp65::loadSettings() " + name() + ": The input '" +
                         _xInput->name() + "' and '" + _yInput->name() +
                         "' with shape '" +
@@ -1609,15 +1645,20 @@ void pp65::loadSettings(size_t)
                         "' differ");
 
   bool CountsPerBin(s.value("RememberCounts",false).toBool());
+  bool ConstantFromProc(_weightInput && _weightInput->result().dim() == 0);
 
   if (isFloat && CountsPerBin)
     _histogram = bind(&pp65::histogramAndBinCountWithConstant,this,_1,_2,_3,_4,_5);
   if (isFloat && !CountsPerBin)
     _histogram = bind(&pp65::histogramWithConstant,this,_1,_2,_3,_4,_5);
-  if (!isFloat && CountsPerBin)
+  if (!isFloat && CountsPerBin && !ConstantFromProc)
     _histogram = bind(&pp65::histogramAndBinCountWithWeights,this,_1,_2,_3,_4,_5);
-  if (!isFloat && !CountsPerBin)
+  if (!isFloat && !CountsPerBin && !ConstantFromProc)
     _histogram = bind(&pp65::histogramWithWeights,this,_1,_2,_3,_4,_5);
+  if (!isFloat && CountsPerBin && ConstantFromProc)
+    _histogram = bind(&pp65::histogramAndBinCountWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
+  if (!isFloat && !CountsPerBin && ConstantFromProc)
+    _histogram = bind(&pp65::histogramWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
 
   if (CountsPerBin)
   {
@@ -1659,6 +1700,20 @@ void pp65::histogramWithWeights(CASSEvent::id_t id,
     result.histogram(make_pair(*xin,*yin),*weight);
 }
 
+void pp65::histogramWithWeightFrom0DInput(CASSEvent::id_t id,
+                                           result_t::const_iterator xin,
+                                           result_t::const_iterator xlast,
+                                           result_t::const_iterator yin,
+                                           result_t &result)
+{
+  const result_t &weight(_weightInput->result(id));
+  QReadLocker lock(&weight.lock);
+
+  const result_t::value_t w(weight.getValue());
+  for (; xin != xlast; ++xin, ++yin)
+    result.histogram(make_pair(*xin,*yin),w);
+}
+
 void pp65::histogramWithConstant(CASSEvent::id_t,
                                  result_t::const_iterator xin,
                                  result_t::const_iterator xlast,
@@ -1685,6 +1740,26 @@ void pp65::histogramAndBinCountWithWeights(CASSEvent::id_t id,
   {
     const size_t idx(histogramming::bin(xaxis, _origYAxis, make_pair(*xin,*yin)));
     result[idx] += *weight;
+    result[idx+distToCounts] += 1;
+  }
+}
+
+void pp65::histogramAndBinCountWithWeightFrom0DInput(CASSEvent::id_t id,
+                                                     result_t::const_iterator xin,
+                                                     result_t::const_iterator xlast,
+                                                     result_t::const_iterator yin,
+                                                     result_t &result)
+{
+  const result_t &weight(_weightInput->result(id));
+  QReadLocker lock(&weight.lock);
+
+  const result_t::axe_t &xaxis(result.axis(result_t::xAxis));
+  const size_t distToCounts(xaxis.nBins + _origYAxis.nBins);
+  const result_t::value_t w(weight.getValue());
+  for (; xin != xlast; ++xin, ++yin)
+  {
+    const size_t idx(histogramming::bin(xaxis, _origYAxis, make_pair(*xin,*yin)));
+    result[idx] += w;
     result[idx+distToCounts] += 1;
   }
 }
