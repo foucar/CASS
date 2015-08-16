@@ -1151,6 +1151,7 @@ void pp60::loadSettings(size_t)
   {
     _weightProc = setupDependency(weightkey.toStdString());
     ret = _weightProc && ret;
+    if (_weightProc)
     output += (" Using the weights taken from '" + _weightProc->name() + "'");
   }
   if (!(ret && _input))
@@ -1617,7 +1618,8 @@ void pp65::loadSettings(size_t)
   {
     _weightInput = setupDependency(weightkey.toStdString());
     ret = _weightInput && ret;
-    output += (" Using the weights taken from '" + _weightInput->name() + "'");
+    if (_weightInput)
+      output += (" Using the weights taken from '" + _weightInput->name() + "'");
   }
 
   if ( !(_xInput && _xInput && ret) )
