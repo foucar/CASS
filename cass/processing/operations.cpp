@@ -1136,7 +1136,7 @@ void pp60::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   bool ret (setupCondition());
-  _input = setupDependency("ValuesName");
+  _input = setupDependency("XName");
   QString weightkey("Weight");
   QString weightparam(s.value(weightkey,1).toString());
   bool isFloat(false);
