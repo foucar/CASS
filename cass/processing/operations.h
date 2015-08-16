@@ -805,12 +805,12 @@ private:
  *
  * @PPList "60": Histogram 0D, 1D or 2D values to a 1D result
  *
- * histograms all values of 0D, 1D or 2D into a 1D result. This result
- * holds only the histogrammed values of one event. Use Processors 61 or
- * 62 to average or sum up this result, respectively.
- * It has the capability to histogram the values with user provided weights.
+ * histograms all values of 0D, 1D or 2D into a 1D result. This result holds
+ * only the histogrammed values of one event. Use Processors 61 or 62 to
+ * average or sum up this result, respectively. It has the capability to
+ * histogram the values with user provided weights.
  *
- * In case the option that allows rememebering how many times a bin has been
+ * In case the option that allows remembering how many times a bin has been
  * filled the result is a 2D result with 2 bins in y. The 0th bin contains the
  * weighted Histogram and the 1st bin contains the number of entries in the
  * corresponding bin.
@@ -818,7 +818,7 @@ private:
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{ValuesName} \n
+ * @cassttng Processor/\%name\%/{XName} \n
  *           processor name containing the values to histogram
  * @cassttng Processor/\%name\%/{Weight} \n
  *           The weight, Can either be a constant value or a processor name
@@ -826,8 +826,12 @@ private:
  *           shape as the input. The individual entires are the weights of the
  *           corresponding bins in the input.
  *           Default 1
- * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|XTitle}\n
  *           properties of the resulting 1D histogram
+ * @cassttng Processor/\%name\%/{RememberCounts}\n
+ *           This flag allows to enable the option of remembering the number of
+ *           times a given bin has been filled. See detailed description for
+ *           more info about this option. Default is false
  *
  * @author Lutz Foucar
  */
@@ -1139,21 +1143,40 @@ protected:
 
 
 
-/** 0D to 2D histogramming.
+/** 0D, 1D, and 2D to 2D histogramming.
  *
- * @PPList "65": Histogram two 0D values to a 2D result
+ * @PPList "65": Histogram two 0D, 1D or 2D values to a 2D result
  *
- * histograms two 0d values into one 2D result. The result
- * contains only the information from the current event. To get an average or
- * sum use Processor 61 or 62.
+ * histograms two 0D, 1D or 2D values into one 2D result. The result contains
+ * only the information from the current event. To get an average or sum use
+ * Processor 61 or 62. It has the capability to histogram the values with user
+ * provided weights, which can either be a constant or taken from another
+ * processor in which case they have to have the same shape as the input
+ * values.
+ *
+ * In case the option that allows remembering how many times a bin has been
+ * filled the result is a 2D result with twice as many bins in y. the first n
+ * entries in y contain the (weighted) histogram whereas the y-entries is
+ * n..2*n contain the info about how many times the corresponding bin has been
+ * filled. Use pp70 to extract the two informations.
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
  *
- * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp|XTitle|YNbrBins|YLow|YUp|YTitle}\n
  *           properties of the 2d histogram
  * @cassttng Processor/\%name\%/{XName|YName} \n
- *           processor names containing the 0D values to histogram.
+ *           processor names containing the values to histogram.
+ * @cassttng Processor/\%name\%/{Weight} \n
+ *           The weight, Can either be a constant value or a processor name
+ *           containing the weights. The processor needs to be of the same
+ *           shape as the input. The individual entires are the weights of the
+ *           corresponding bins in the input.
+ *           Default 1
+ * @cassttng Processor/\%name\%/{RememberCounts}\n
+ *           This flag allows to enable the option of remembering the number of
+ *           times a given bin has been filled. See detailed description for
+ *           more info about this option. Default is false
  *
  * @author Lutz Foucar
  */
@@ -1170,11 +1193,91 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** define the function for histogramming */
+  typedef std::tr1::function<void(CASSEvent::id_t,
+                                  result_t::const_iterator,
+                                  result_t::const_iterator,
+                                  result_t::const_iterator,
+                                  result_t &)> func_t;
+
+  /** histogam with weights from another processor
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithWeights(CASSEvent::id_t id,
+                            result_t::const_iterator xin,
+                            result_t::const_iterator xlast,
+                            result_t::const_iterator yin,
+                            result_t & result);
+
+  /** histogam with constant weight
+   *
+   * @param unused an unused paramter
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramWithConstant(CASSEvent::id_t unused,
+                             result_t::const_iterator xin,
+                             result_t::const_iterator xlast,
+                             result_t::const_iterator yin,
+                             result_t & result);
+
+  /** histogam with weights from another processor
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithWeights(CASSEvent::id_t id,
+                                       result_t::const_iterator xin,
+                                       result_t::const_iterator xlast,
+                                       result_t::const_iterator yin,
+                                       result_t & result);
+
+  /** histogam with constant weight
+   *
+   * In addition remember the number of counts in a bin
+   *
+   * @param id the event id to get the right weight from the processor
+   * @param xin iterator to the beginning of the x input
+   * @param xlast iterator to the end of the x data input
+   * @param yin iterator to the begining of the y input
+   * @param result reference to the result that does the histograming
+   */
+  void histogramAndBinCountWithConstant(CASSEvent::id_t unused,
+                                        result_t::const_iterator xin,
+                                        result_t::const_iterator xlast,
+                                        result_t::const_iterator yin,
+                                        result_t & result);
+
+protected:
   /** processor containing X axis value */
-  shared_pointer _one;
+  shared_pointer _xInput;
 
   /** processor containing Y-axis value */
-  shared_pointer _two;
+  shared_pointer _yInput;
+
+  /** the constant weight */
+  result_t::value_t _weight;
+
+  /** processor containing the weights */
+  shared_pointer _weightInput;
+
+  /** y-axis object of the original size (without the nbr fills part) */
+  result_t::axe_t _origYAxis;
+
+  /** the function to histogram the values */
+  func_t _histogram;
 };
 
 
