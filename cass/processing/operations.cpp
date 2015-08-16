@@ -1708,7 +1708,7 @@ void pp68::process(const CASSEvent& evt, result_t &result)
 
   const result_t::shape_t::first_type nxbins(result.shape().first);
   const result_t::axe_t yaxis(result.axis(result_t::yAxis));
-  const size_t ybin(yaxis.bin(two.getValue()));
+  const int ybin(yaxis.bin(two.getValue()));
   if (!yaxis.isOverflow(ybin) && !yaxis.isUnderflow(ybin))
     copy(one.begin(), one.begin()+one.datasize(), result.begin()+(ybin*nxbins));
 }
