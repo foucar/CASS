@@ -31,8 +31,6 @@ template <typename T> class Result;
 
 /** add an Axis to a stream
  *
- * @todo add the type info to the stream and check it
- *
  * @tparam T the precision of the axis values
  * @param serializer the serializer to serialize the axis to
  * @param axis the axis to serialize
@@ -51,8 +49,6 @@ SerializerBackend& operator<<(SerializerBackend& serializer, const Axis<T>& axis
 }
 
 /** read an Axis from a stream
- *
- * @todo add the type info to the stream and check it
  *
  * @tparam T the precision of the axis values
  * @param serializer the serializer to serialize the axis to
@@ -127,6 +123,80 @@ SerializerBackend& operator>>(SerializerBackend& serializer,
     result._storage.push_back(serializer.retrieve<typename Result<T>::value_t>());
   return serializer;
 }
+
+namespace histogramming
+{
+
+/** calculate the index of the lineared array
+ *
+ * calculates the bin Index of the linearized array that the provided position
+ * corresponds to
+ *
+ * @tparam AxisPrecessionType the precision of the axis values
+ * @tparam ResultValueType the type within the result container
+ * @return correct bin index of 1d histogram or overflow / underflow
+ * @param xAxis The axis used to determin the bin for the value
+ * @param value The value whos corresponding bin should be found
+ */
+template <typename AxisPrecessionType, typename ResultValueType>
+size_t bin(const Axis<AxisPrecessionType>& xaxis, const ResultValueType &value)
+{
+  const int xBin(xaxis.bin(value));
+  if (xaxis.isOverflow(xBin))
+    return xaxis.nBins+Result<ResultValueType>::Overflow;
+  else if (xaxis.isUnderflow(xBin))
+    return xaxis.nBins+Result<ResultValueType>::Underflow;
+  else
+    return xBin;
+}
+
+/** calculate the corresponding index in the linearized array of a coordinate
+ *
+ * calculates the bin index of the linearized array that the provided coordinate
+ * corresponds to. It uses the two provided axis object to do so.
+ *
+ * @tparam AxisPrecessionType the precision of the axis values
+ * @tparam coordinate_t the coordinate type. Expected to be std::pair
+ * @return correct bin index of 1d histogram or overflow / underflow
+ * @param xAxis The x-axis used to determin the bin for the coordinate
+ * @param yAxis The y-axis used to determin the bin for the coordinate
+ * @param coordinate The coordinate whos corresponding bin should be found
+ */
+template <typename AxisPrecessionType, typename coordinate_t>
+size_t bin(const Axis<AxisPrecessionType> &xAxis,
+           const Axis<AxisPrecessionType> &yAxis,
+           const coordinate_t &coordinate)
+{
+  typedef Result<typename coordinate_t::first_type> result_t;
+  const int xBin(xAxis.bin(coordinate.first));
+  const int yBin(yAxis.bin(coordinate.second));
+  const long maxSize(xAxis.nBins*yAxis.nBins);
+  const bool xUnderflow(xAxis.isUnderflow(xBin));
+  const bool xOverflow(xAxis.isOverflow(xBin));
+  const bool xInRange(!xUnderflow && !xOverflow);
+  const bool yUnderflow(yAxis.isUnderflow(yBin));
+  const bool yOverflow(yAxis.isOverflow(yBin));
+  const bool yInRange(!yUnderflow && !yOverflow);
+  if (xUnderflow && yUnderflow)
+    return maxSize+result_t::LowerLeft;
+  else if (xUnderflow && yOverflow)
+    return maxSize+result_t::UpperRight;
+  else if (xUnderflow && yOverflow)
+    return maxSize+result_t::UpperLeft;
+  else if (xOverflow  && yUnderflow)
+    return maxSize+result_t::LowerRight;
+  else if (xInRange   && yUnderflow)
+    return maxSize+result_t::LowerMiddle;
+  else if (xInRange   && yOverflow)
+    return maxSize+result_t::UpperMiddle;
+  else if (xUnderflow && yInRange)
+    return maxSize+result_t::Left;
+  else if (xOverflow  && yInRange)
+    return maxSize+result_t::Right;
+  else
+    return yBin*xAxis.nBins + xBin;
+}
+}//end nampespace histogramming
 
 
 /** an axis of a more than 0 dimensional container
@@ -566,69 +636,6 @@ public:
    */
   iterator end() {return _storage.end();}
 
-  /** calculate the correct bin index for a value
-   *
-   * @return correct bin index of 1d histogram or overflow / underflow
-   * @param value The value whos corresponding bin should be found
-   */
-  size_t bin(const value_t &value) const
-  {
-#ifdef CASS_DEBUG
-    if (_axis.size() != 1)
-      throw std::logic_error("Result::bin(): Result doesn't have dimension 1");
-#endif
-    const int xBin(_axis[xAxis].bin(value));
-    const size_t nxBins(_axis[xAxis].nBins);
-    if (_axis[xAxis].isOverflow(xBin))
-      return nxBins+Overflow;
-    else if (_axis[xAxis].isUnderflow(xBin))
-      return nxBins+Underflow;
-    else
-      return xBin;
-  }
-
-  /** calculate the correct bin index for a value
-   *
-   * @return correct bin index of 1d histogram or overflow / underflow
-   * @param value The value whos corresponding bin should be found
-   */
-  size_t bin(const coordinate_t &coordinate) const
-  {
-#ifdef CASS_DEBUG
-    if (_axis.size() != 2)
-      throw std::logic_error("Result::bin(): Result doesn't have dimension 2");
-#endif
-    const int xBin(_axis[xAxis].bin(coordinate.first));
-    const int yBin(_axis[yAxis].bin(coordinate.second));
-    const long maxSize = _axis[xAxis].nBins*_axis[yAxis].nBins;
-    const bool xUnderflow(_axis[xAxis].isUnderflow(xBin));
-    const bool xOverflow(_axis[xAxis].isOverflow(xBin));
-    const bool xInRange(!xUnderflow && !xOverflow);
-    const bool yUnderflow(_axis[yAxis].isUnderflow(yBin));
-    const bool yOverflow(_axis[yAxis].isOverflow(yBin));
-    const bool yInRange(!yUnderflow && !yOverflow);
-    if (xInRange && yInRange)
-       return yBin*_axis[xAxis].nBins + xBin;
-    else if (xUnderflow && yUnderflow)
-      return maxSize+LowerLeft;
-    else if (xUnderflow && yOverflow)
-      return maxSize+UpperRight;
-    else if (xUnderflow && yOverflow)
-      return maxSize+UpperLeft;
-    else if (xOverflow  && yUnderflow)
-      return maxSize+LowerRight;
-    else if (xInRange   && yUnderflow)
-      return maxSize+LowerMiddle;
-    else if (xInRange   && yOverflow)
-      return maxSize+UpperMiddle;
-    else if (xUnderflow && yInRange)
-      return maxSize+Left;
-    else if (xOverflow  && yInRange)
-      return maxSize+Right;
-    else
-      return maxSize+UpperRight;
-  }
-
   /** add the weight at the right bin for the value in the 1d array
    *
    * the position that is passed will be converted to the right bin number
@@ -645,7 +652,10 @@ public:
 #ifdef CASS_DEBUG
     if (_axis.size() != 1)
       throw std::logic_error("Result::histogram(pos): Result doesn't have dimension 1");
-    const size_t histbin(bin(pos));
+#endif
+    //const size_t histbin(bin(pos));
+    const size_t histbin(histogramming::bin(_axis[xAxis],pos));
+#ifdef CASS_DEBUG
     if (histbin >= size())
     {
       std::cout << std:: boolalpha<<
@@ -680,7 +690,9 @@ public:
 #ifdef CASS_DEBUG
     if (_axis.size() != 2)
       throw std::logic_error("Result::histogram(coordinate): Result doesn't have dimension 2");
-    const size_t histbin(bin(pos));
+#endif
+    const size_t histbin(histogramming::bin(_axis[xAxis], _axis[yAxis], pos));
+#ifdef CASS_DEBUG
     if (histbin >= size())
     {
       std::cout << std:: boolalpha<<

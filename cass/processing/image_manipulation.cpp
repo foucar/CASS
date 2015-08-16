@@ -675,7 +675,7 @@ void pp90::process(const CASSEvent &evt, result_t &result)
   for (size_t i=0; i<ImageSize; ++i)
   {
     const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
-    const size_t bin(result.bin(Q));
+    const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
     get<0>(tmparr[i]) = bin;
     if(fuzzyIsNull(srcImage[i]))
     {
