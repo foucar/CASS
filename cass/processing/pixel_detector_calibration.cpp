@@ -414,7 +414,7 @@ void pp330::process(const CASSEvent &evt, result_t &result)
     if (_trainstorage.size() == _minTrainImages)
     {
       Log::add(Log::INFO,"pp330::process: '" + name() +
-               "'done collecting images for darkcalibration. Calculating maps");
+               "' done collecting images for darkcalibration. Calculating maps");
       //generate the initial calibration
       for (size_t iPix=0; iPix < sizeOfImage; ++iPix)
       {
@@ -436,7 +436,7 @@ void pp330::process(const CASSEvent &evt, result_t &result)
       _train = false;
       _trainstorage.clear();
       Log::add(Log::INFO,"pp330::process: '" + name() +
-               "'done calculating maps");
+               "' done calculating maps");
     }
   }
   else if (_update)
