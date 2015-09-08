@@ -115,29 +115,26 @@ public:
 private:
   /** advances the _nextToProcess iterator to the next processable element.
    *
-   * will go through the ringbuffer backwards starting at the
-   * position where we added the filled element. It will check
-   * whether the current element is not currently processed and has already
-   * been filled.
+   * will go through the whole ringbuffer backwards starting at the
+   * position where the _nextToProcess pointer was put. It will check
+   * whether the current element is not currently in use, has been not been
+   * filled and is processed. If thats the case we need to check for the next
+   * element
    *
    * @return true when a processable element has been found
    */
   bool findNextProcessable()
   {
-    /** we should end where the next fillable element is, because elements
-     *  before the next fillable are already processed or are in processing
-     */
-    iter_type lastEmpty(_nextToFill);
+     /** stop at the next item in tbe buffer*/
+    iter_type stop(_nextToProcess == _buffer.end()-1 ? _buffer.begin() : _nextToProcess + 1);
 
     /** search until the current element is not currently in use or
      *  not filled yet
      */
-    while (_nextToProcess->inUse || !_nextToProcess->filled)
+    while (_nextToProcess->inUse || !_nextToProcess->filled || _nextToProcess->processed)
     {
-      /** if we are at the position where the next fillable is,
-       *  then there is nothing to work on anymore
-       */
-      if (_nextToProcess == lastEmpty)
+      /** stop at the position 1 beyond the start */
+      if (_nextToProcess == stop)
         return false;
 
       /** we go backwards through the buffer to have always the latest
@@ -175,11 +172,12 @@ private:
     /** search until the current element is not currently in use or
      *  has been processed
      */
-    while (_nextToFill->inUse || !_nextToFill->processed) {
+    while (_nextToFill->inUse || !_nextToFill->processed)
 #else
     /** search until the current element is not currently in use */
-    while (_nextToFill->inUse) {
+    while (_nextToFill->inUse)
 #endif
+    {
       /** if we end up where we started, then the elements are not yet
        *  processed or still in progress, so retrun that we have not found
        *  anything yet.
