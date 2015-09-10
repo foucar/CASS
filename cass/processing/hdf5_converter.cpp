@@ -260,7 +260,7 @@ void pp1002::loadSettings(size_t)
   _filecounter = 0;
 
   /** set up the maximum file size and convert to Bytes */
-  _maxFileSize = s.value("MaximumFileSize_GB",200).toInt();
+  _maxFileSize = s.value("MaximumFileSize_GB",200).toUInt();
   _maxFileSize *= 1024*1024*1024;
 
   /** set up which kind of file should be written */
@@ -290,7 +290,7 @@ void pp1002::loadSettings(size_t)
   output += (" of a hdf5 file with '" + _basefilename +
              "' as basename. 2D File will " + (compresslevel ? "" : "NOT") +
              " be compressed. Files will " + (_maxFilePerSubDir != -1 ? "" : "NOT") +
-             " be distributed. Events will "+ (multipleevents ? "NOT" : "") +
+             " be distributed. Events will"+ (multipleevents ? " NOT" : "") +
              " be written to single files. Maximum file size '" +
              toString(_maxFileSize) + "' bytes. Condition is '" +
              _condition->name() + "'");
@@ -393,7 +393,7 @@ void pp1002::writeEventToMultipleEventsFile(const CASSEvent &evt)
   /** check the current file size, create a new file with increase ending,
    *  if too big
    */
-  if (static_cast<int>(_entryWriter->currentFileSize()) > _maxFileSize)
+  if (_entryWriter->currentFileSize() > _maxFileSize)
   {
     _basefilename = AlphaCounter::increaseFileCounter(_basefilename);
     _entryWriter = tr1::shared_ptr<hdf5::WriteEntry>(new hdf5::WriteEntry(_basefilename));

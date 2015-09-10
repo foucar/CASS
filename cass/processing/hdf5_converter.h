@@ -169,7 +169,7 @@ protected:
   std::tr1::shared_ptr<hdf5::WriteEntry>_entryWriter;
 
   /** the maximum file size of the single file */
-  int _maxFileSize;
+  size_t _maxFileSize;
 
   /** write summary to file */
   std::tr1::function<void(void)> _writeSummary;
