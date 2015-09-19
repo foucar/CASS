@@ -65,6 +65,9 @@ public:
     /** get a pointer to the calling thread */
     InputBase::shared_pointer::element_type& input(InputBase::reference());
 
+    /** make a container with all event ids */
+    vector<CASSEvent::id_t> ids;
+
     /** iterate through the file until we've reached the filesize */
     while((!input.shouldQuit()) && (_file.tellg() < _filesize))
     {
@@ -79,12 +82,30 @@ public:
         Log::add(Log::WARNING,"FileProcessor::run(): Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
+      {
         ++_counter;
+        ids.push_back(rbItem->element->id());
+      }
       rbItem->element->setFilename(_filename.c_str());
       input.newEventAdded(rbItem->element->datagrambuffer().size());
       input.ringbuffer().doneFilling(rbItem, isGood);
     }
     _file.close();
+    /** find out whether all ids are unique within the event */
+    sort(ids.begin(),ids.end());
+    vector<CASSEvent::id_t>::iterator first(ids.begin());
+    while((first = adjacent_find(first,ids.end())) != ids.end())
+    {
+      string output("File '"+_filename+"' has duplicate id '" + toString(*first)+"'");
+      if (_read->type() == "xtc")
+      {
+        uint32_t seconds(static_cast<uint32_t>((*first & 0xFFFFFFFF00000000) >> 32));
+        uint32_t fiducial(static_cast<uint32_t>((*first & 0x00000000FFFFFFFF) >> 8));
+        output += ("(seconds '" + toString(seconds) + "', fiducial '" +
+                   toString(fiducial) + "')");
+      }
+      Log::add(Log::ERROR,output);
+    }
   }
 
   /** retrieve the number of events processed by this thread
