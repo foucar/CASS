@@ -105,6 +105,7 @@ public:
                    toString(fiducial) + "')");
       }
       Log::add(Log::ERROR,output);
+      ++first;
     }
   }
 
