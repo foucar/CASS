@@ -190,6 +190,9 @@ const char* TypeId::name(Type type)
     "SmlDataProxy",            // 91
     "ArrayUInt16",             // 92
     "GotthardConfig",          // 93
+    "AnalogInput",             // 94
   };
-  return (type < NumberOf ? _names[type] : "-Invalid-");
+   const char* p = (type < NumberOf ? _names[type] : "-Invalid-");
+   if (!p) p = "-Unnamed-";
+   return p;
 }

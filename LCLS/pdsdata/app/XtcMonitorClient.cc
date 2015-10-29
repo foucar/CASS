@@ -25,8 +25,6 @@
 
 //#define DBUG
 
-static const unsigned MaxClients=10;
-
 enum {PERMS = S_IRUSR|S_IRGRP|S_IROTH|S_IWUSR|S_IWGRP|S_IWOTH};
 enum {PERMS_IN  = S_IRUSR|S_IRGRP|S_IROTH};
 enum {PERMS_OUT  = S_IWUSR|S_IWGRP|S_IWOTH};
@@ -188,8 +186,7 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
   XtcMonitorMsg myMsg;
   unsigned priority;
 
-  mqd_t myOutputEvQueues[MaxClients];
-  memset(myOutputEvQueues, -1, sizeof(myOutputEvQueues));
+  mqd_t* myOutputEvQueues = 0;
 
   //
   //  Request initialization
@@ -266,6 +263,10 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
     mqd_t myInputEvQueue = _openQueue(qname, O_RDONLY, PERMS_IN);
     if (myInputEvQueue == (mqd_t)-1)
       error++;
+
+    myOutputEvQueues = new mqd_t[myMsg.numberOfQueues()+1];
+    for(int i=0; i<=myMsg.numberOfQueues(); i++)
+      myOutputEvQueues[i]=-1;
 
     if (myMsg.serial()) {
       XtcMonitorMsg::eventOutputQueue(tag,ev_index,qname);
@@ -344,6 +345,9 @@ int XtcMonitorClient::run(const char* tag, int tr_index, int) {
 	}
       }
     }
+
+    if (myOutputEvQueues) 
+      delete[] myOutputEvQueues;
 
     close(myTrFd);
 

@@ -456,6 +456,15 @@ public:
   //double	_Fwhm[this->_nPeaks];
 };
 
+
+class BldDataAnalogInputV1
+{
+public:
+  enum { TypeId = Pds::TypeId::Id_AnalogInput /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 1 /**< XTC type version number */ };
+  uint32_t	_numChannels;	/**< The number of active channels on the analog input device. */
+};
+
 #pragma pack()
 }
 #endif

@@ -74,8 +74,9 @@ namespace Pds {
     void unlink     ();
   public:
     void distribute (bool);
-  private:
+  protected:
     int  _init             ();
+  private:
     void _initialize_client();
     mqd_t _openQueue       (const char* name, mq_attr&);
     void _flushQueue       (mqd_t q);
@@ -83,9 +84,11 @@ namespace Pds {
     void _moveQueue        (mqd_t iq, mqd_t oq);
     bool _send             (Dgram*);
     void _update           (int,TransitionId::Value);
+    void _clearDest        (mqd_t);
   private:
     virtual void _copyDatagram  (Dgram* dg, char*);
     virtual void _deleteDatagram(Dgram* dg);
+    virtual void _requestDatagram();
   private:
     const char*     _tag;               // name of the complete shared memory segment
     unsigned        _sizeOfBuffers;     // size of each shared memory datagram buffer
@@ -104,10 +107,12 @@ namespace Pds {
     int             _initFd;
     pollfd*         _pfd;               /* poll descriptors for:
 					**   0  new client connections
-                                        **   1  events to be distributed
-					**   2+ transition send/receive  */
+					**   1  buffer returned from client
+                                        **   2  events to be distributed
+					**   3+ transition send/receive  */
     int             _nfd;
     mqd_t           _shuffleQueue;      // message queue for pre-distribution event processing
+    mqd_t           _requestQueue;      // message queue for buffers awaiting request completion
     timespec        _tmo;
     pthread_t       _discThread;        // thread for receiving new client connections
     pthread_t       _taskThread;        // thread for datagram distribution
