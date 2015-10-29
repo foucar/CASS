@@ -15,15 +15,9 @@ QT -= core \
 
 INCLUDEPATH += ../../
 
-SOURCES += \
-    ./XtcMonitorServer.cc \
-    ./XtcMonitorClient.cc \
-    ./XtcMonitorMsg.cc
+SOURCES += ./*.cc
 
-HEADERS += \
-    ./XtcMonitorServer.hh \
-    ./XtcMonitorClient.hh \
-    ./XtcMonitorMsg.hh
+HEADERS += ./*.hh
 
 headers.files = $$HEADERS
 
