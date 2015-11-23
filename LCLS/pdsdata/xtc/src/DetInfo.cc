@@ -120,7 +120,7 @@ const char* DetInfo::name(Device dev) {
 }
 
 const char* DetInfo::name(const DetInfo& src) {
-  const int MaxLength=32;
+  const int MaxLength=64;
   static char _name[MaxLength];
   snprintf(_name, MaxLength, "%s-%u|%s-%u",
        name(src.detector()), (unsigned)src.detId(),

@@ -41,10 +41,10 @@ namespace Pds {
                 CxiDg1Imb01      = 27,  // CXI Local
                 CxiDg2Imb01      = 28,
                 CxiDg2Imb02      = 29,
-                CxiDg4Imb01      = 30,
+                CxiDg3Imb01      = 30,
                 CxiDg1Pim        = 31,
                 CxiDg2Pim        = 32,
-                CxiDg4Pim        = 33,
+                CxiDg3Pim        = 33,
                 XppMonPim0       = 34,
                 XppMonPim1       = 35,
                 XppSb2Ipm        = 36,
