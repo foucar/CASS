@@ -20,6 +20,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QStringList>
 
 #include "pixeldetector.hpp"
 #include "cass_settings.h"
