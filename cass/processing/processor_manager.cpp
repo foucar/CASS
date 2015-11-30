@@ -429,6 +429,9 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case CFDTraceFromWaveform:
     processor = Processor::shared_pointer(new pp111(key));
     break;
+  case CFDAnalysis:
+    processor = Processor::shared_pointer(new pp112(key));
+    break;
   case BlData:
     processor = Processor::shared_pointer(new pp120(key));
     break;
