@@ -300,7 +300,7 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
     // get data
     Processor::result_t::shared_pointer result
           (ProcessorManager::reference().getProcessor(type).resultCopy(eventId));
-    Serializer serializer;
+    Serializer serializer(0);
     const size_t dim(result->dim());
     serializer << *result;
     shared_ptr<pair<size_t, string> >data(
