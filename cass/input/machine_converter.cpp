@@ -231,6 +231,12 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     default:
       Log::add(Log::WARNING,"Unknown BLD version '" + toString(version) +
                "' using latest known version '7'");
+    /** BldDataEBeamV7 is the same as BldDataEBeamV6.
+     *  A sign-error error was discovered in the calculation of the photon
+     *  energy that goes into the ebeam bld. This is fixed on the accelerator
+     *  side, but we will increment the ebeam bld version number to V7 so the
+     *  data is clearly marked as changed.
+     */
     case (7):
     case (6):
     {
