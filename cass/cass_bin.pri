@@ -61,10 +61,6 @@ HEADERS                += ./event/pixeldetector.hpp
 # classes for the general processing modules
 SOURCES                += ./processing/above_noise_finder.cpp
 HEADERS                += ./processing/above_noise_finder.h
-SOURCES                += ./processing/achimcalibrator_hex.cpp
-HEADERS                += ./processing/achimcalibrator_hex.h
-SOURCES                += ./processing/achimsorter_hex.cpp
-HEADERS                += ./processing/achimsorter_hex.h
 HEADERS                += ./processing/acqiris_analysis_definitions.hpp
 SOURCES                += ./processing/acqiris_detectors.cpp
 HEADERS                += ./processing/acqiris_detectors.h
@@ -348,9 +344,18 @@ SACLA {
     DEFINES            += SACLADATA
 }
 
+# Stuff for achims resort routine
+achimsresorter {
+    SOURCES            += ./processing/achimcalibrator_hex.cpp
+    HEADERS            += ./processing/achimcalibrator_hex.h
+    SOURCES            += ./processing/achimsorter_hex.cpp
+    HEADERS            += ./processing/achimsorter_hex.h
+    LIBS               += $$ACHIMS_RESORTER
+    DEFINES            += ACHIMSRESORTER
+}
+
 # other libraries needed
 LIBS                   += -lgsoap++ -lgsoap
-LIBS                   += -L./processing/resorter -lResort64c_x64
 LIBS                   += -lrt
 LIBS                   += -lz
 

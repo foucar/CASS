@@ -87,6 +87,11 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_LIBDIR   *= /path/to/fftw/lib
 #QMAKE_RPATHDIR *= /path/to/fftw/lib
 
+# Uncomment the following to include achims resorter for hex delaylinedetectors
+#CONFIG          *= achimsresorter
+#QMAKE_INCDIR    *= /path/to/achims/resortroutine/include
+#ACHIMS_RESORTER *= /achims/resorter/library/file
+
 # Uncomment the following to also build the JoCASSViewer
 #CONFIG         *= JoCASSView
 #QMAKE_INCDIR   *= /path/to/qwt/include

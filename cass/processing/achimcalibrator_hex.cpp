@@ -12,7 +12,7 @@
 
 #include "achimcalibrator_hex.h"
 
-#include "resorter/resort64c.h"
+#include "resort64c.h"
 #include "cass_settings.h"
 #include "result.hpp"
 #include "convenience_functions.h"

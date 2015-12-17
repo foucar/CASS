@@ -25,7 +25,9 @@
 #include "cass_settings.h"
 #include "log.h"
 #include "acqiris_detectors.h"
+#ifdef ACHIMSRESORTER
 #include "achimcalibrator_hex.h"
+#endif
 #include "alignment.h"
 #include "waveform.h"
 #include "operations.h"
@@ -498,9 +500,11 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case DelaylineAnodeSigDeadtime:
     processor = Processor::shared_pointer(new pp167(key));
     break;
+#ifdef ACHIMSRESORTER
   case HEXCalibrator:
     processor = Processor::shared_pointer(new HexCalibrator(key));
     break;
+#endif
   case Cos2Theta:
     processor = Processor::shared_pointer(new pp200(key));
     break;

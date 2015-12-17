@@ -12,8 +12,10 @@
 #include "detector_analyzer_backend.h"
 #include "delayline_detector_analyzer_simple.h"
 #include "delayline_non_sorting.h"
-#include "achimsorter_hex.h"
 #include "cass.h"
+#ifdef ACHIMSRESORTER
+#include "achimsorter_hex.h"
+#endif
 
 using namespace cass::ACQIRIS;
 using namespace std;
@@ -30,9 +32,11 @@ shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const Dete
   case NonSorting:
     detanal = shared_pointer(new DelaylineNonSorting());
     break;
+#ifdef ACHIMSRESORTER
   case AchimsRoutine:
     detanal = shared_pointer(new HexSorter());
     break;
+#endif
   default:
     throw std::invalid_argument("DetectorAnalyzerBackend::instance(): the requested type '" +
                                 toString(type) + "' is unknown");

@@ -12,7 +12,7 @@
 
 #include "achimsorter_hex.h"
 
-#include "resorter/resort64c.h"
+#include "resort64c.h"
 #include "cass_settings.h"
 
 using namespace cass::ACQIRIS;
