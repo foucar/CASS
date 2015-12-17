@@ -95,7 +95,7 @@ additional viewers that ship with CASS.
 
 
 Documentation {#documentation}
-------------
+-------------
 
 The Software Suite is documented using doxygen. One can create a html version
 of the documentation by running doxygen in the "doc" sub directory of the CASS

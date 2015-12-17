@@ -181,6 +181,15 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
+## SACLA offline and online libraries {#sacla}
+You can find the SACLA libraries at the HPC at SACLA. You need to have a sacla
+account in order to get access to the SACLA HPC.
+
+
+## Achims resort routine  {#achimresorter}
+Please contact Achims Czasch to get the latest version of the resort routine.
+Be adviced that the CASS interface might have to be adapted to the latest version.
+
 
 Needed Environment Variables  {#env}
 ============================

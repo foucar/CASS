@@ -88,6 +88,7 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_RPATHDIR *= /path/to/fftw/lib
 
 # Uncomment the following to include achims resorter for hex delaylinedetectors
+# Please contact Achim Czasch to get the lastest version of the resort routine
 #CONFIG          *= achimsresorter
 #QMAKE_INCDIR    *= /path/to/achims/resortroutine/include
 #ACHIMS_RESORTER *= /achims/resorter/library/file
