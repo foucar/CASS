@@ -7,11 +7,15 @@
  * @author Lutz Foucar
  */
 
+#define __STDC_FORMAT_MACROS
+
 #include <iostream>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "rate_plotter.h"
 #include "ratemeter.h"
+#include "input_base.h"
 
 using namespace std;
 using namespace cass;
@@ -41,9 +45,28 @@ void RatePlotter::run()
   {
     sleep(_interval);
     char tmp[256];
-    snprintf(tmp, 255, "\rInput: %5.1fHz (%5.1fMB/s) | Analyze: %5.1fHz",
-             _inputrate.calculateRate(),(_inputload.calculateRate()/1024/1024),
-             _analyzerate.calculateRate());
+    char shortsize('K');
+    double load(_inputload.calculateRate()/1024.);
+    if (load > 999.9)
+    {
+      load /= 1024.;
+      shortsize = 'M';
+    }
+    if (load > 999.9)
+    {
+      load /= 1024.;
+      shortsize = 'G';
+    }
+    if (load > 999.9)
+    {
+      load /= 1024.;
+      shortsize = 'T';
+    }
+    snprintf(tmp, 255, "\rInput: %5.1fHz (%5.1f%cB/s) | Analyze: %5.1fHz | Processed: %5.1f%% | Events: %" PRIu64 "",
+             _inputrate.calculateRate(),load,shortsize,
+             _analyzerate.calculateRate(),
+             InputBase::reference().processed()*100.,
+             InputBase::reference().eventcounter());
     cout << tmp << flush;
   }
 }

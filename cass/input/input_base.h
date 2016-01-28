@@ -52,6 +52,20 @@ public:
    */
   virtual void load()=0;
 
+  /** retrieve the fraction of how much of the input has been processed
+   *
+   * needs to be implemented by the individual inputs, defaults to 0 in case
+   * it has not been implemented
+   */
+  virtual double processed();
+
+  /** retrieve the number of events that have been input so far
+   *
+   * needs to be implemented by the individual imputs, defaults to 0 otherwise
+   */
+  virtual uint64_t eventcounter();
+
+
   /** increment the numer of events received in the ratemeter
    *
    * To indicate that we are done processing an event this signal is emitted.

@@ -53,3 +53,13 @@ InputBase::rbItem_t InputBase::getNextFillable(unsigned timeout)
       break;
   return rbItem;
 }
+
+double InputBase::processed()
+{
+  return 0.;
+}
+
+uint64_t InputBase::eventcounter()
+{
+  return 0;
+}
