@@ -16,6 +16,7 @@
 #include "rate_plotter.h"
 #include "ratemeter.h"
 #include "input_base.h"
+#include "log.h"
 
 using namespace std;
 using namespace cass;
@@ -24,13 +25,18 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
                          Ratemeter &inputload,
                          Ratemeter &analyzerate,
                          int updateInterval,
+                         const string &filename,
                          QObject *parent)
   : QThread(parent),
     _inputrate(inputrate),
     _inputload(inputload),
     _analyzerate(analyzerate),
-    _interval(updateInterval)
-{}
+    _interval(updateInterval),
+    _filename(filename)
+{
+  Log::add(Log::INFO,"Status info will be written to " +
+           (_filename==""?"cout":_filename));
+}
 
 RatePlotter::~RatePlotter()
 {
@@ -67,6 +73,21 @@ void RatePlotter::run()
              _analyzerate.calculateRate(),
              InputBase::reference().processed()*100.,
              InputBase::reference().eventcounter());
-    cout << tmp << flush;
+
+    std::streambuf * buf;
+    std::ofstream of;
+    // taken from http://stackoverflow.com/questions/366955/obtain-a-stdostream-either-from-stdcout-or-stdofstreamfile
+    if(_filename!="")
+    {
+      of.open(_filename.c_str());
+      buf = of.rdbuf();
+    }
+    else
+    {
+      buf = cout.rdbuf();
+    }
+    std::ostream out(buf);
+
+    out << tmp << flush;
   }
 }

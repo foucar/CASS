@@ -41,12 +41,14 @@ public:
    * @param analyzerate the ratemeter of the worker threads
    * @param updateInterval the interval in which the rate will be plottet.
    *        Default is 1
+   * @param filename the name of the file that the rate will be plotted to
    * @param parent the qt parent of this object
    */
   RatePlotter(Ratemeter &inputrate,
               Ratemeter &inputload,
               Ratemeter &analyzerate,
               int updateInterval=1,
+              const std::string &filename="",
               QObject *parent=0);
 
   /** destructor
@@ -76,6 +78,9 @@ private:
 
   /** the interval in which the rate is plottet in s */
   int _interval;
+
+  /** the filename to which the status will be written */
+  std::string _filename;
 };
 }//end namespace cass
 
