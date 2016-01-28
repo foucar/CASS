@@ -166,6 +166,8 @@ int main(int argc, char **argv)
 //    parser.add("-d","Use generated fake data as input",useDatagenerator);
     bool suppressrate(false);
     parser.add("-r","suppress the rate output",suppressrate);
+    string ratefilename;
+    parser.add("--ratefilename","filename where the rate will be written to",ratefilename);
     string outputfilename("output.ext");
     parser.add("-o","output filename passed to the Processor",outputfilename);
     string settingsfilename(settings.fileName().toStdString());
@@ -211,7 +213,7 @@ int main(int argc, char **argv)
     Ratemeter inputrate;
     Ratemeter inputload;
     Ratemeter workerrate;
-    RatePlotter plotter(inputrate,inputload,workerrate);
+    RatePlotter plotter(inputrate,inputload,workerrate,1,ratefilename);
 
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
