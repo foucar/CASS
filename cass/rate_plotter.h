@@ -42,8 +42,8 @@ class Ratemeter;
  *           If true, it will show the input load. Default is true.
  * @cassttng ProcessingStatistics/{ShowAnalysisRate} \n
  *           If true, it will show the analysis rate. Default is true.
- * @cassttng ProcessingStatistics/{ShowProcessRatio} \n
- *           If true, it will show the processing ratio. Default is true.
+ * @cassttng ProcessingStatistics/{ShowProgress} \n
+ *           If true, it will show the progress of the process. Default is true.
  * @cassttng ProcessingStatistics/{ShowNbrProcessedEvents} \n
  *           If true, it will show the number of events processed. Default is
  *           false.
@@ -126,7 +126,7 @@ private:
   bool _showAnalysisRate;
 
   /** flag to tell whether the how much is processed ratio should be reported */
-  bool _showProcessRatio;
+  bool _showProgress;
 
   /** flag to tell whether to report on how many events have been processed */
   bool _showNProcessedEvents;

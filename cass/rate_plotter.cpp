@@ -51,8 +51,8 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
   output << "ShowInputLoad '"<< std::boolalpha << _showInputLoad << "', ";
   _showAnalysisRate = s.value("ShowAnalysisRate",true).toBool();
   output << "ShowAnalysisRate '"<< std::boolalpha << _showAnalysisRate << "', ";
-  _showProcessRatio = s.value("ShowProcessRatio",true).toBool();
-  output << "ShowProcessRatio '"<< std::boolalpha << _showProcessRatio << "', ";
+  _showProgress = s.value("ShowProgress",true).toBool();
+  output << "ShowProcessRatio '"<< std::boolalpha << _showProgress << "', ";
   _showNProcessedEvents = s.value("ShowNbrProcessedEvents",false).toBool();
   output << "ShowNbrProcessEvents '"<< std::boolalpha << _showNProcessedEvents << "', ";
   _newLine = s.value("NewLine",false).toBool();
@@ -149,7 +149,7 @@ void RatePlotter::run()
              << std::setw(5) << std::fixed << std::setprecision(1)
              << _analyzerate.calculateRate() << "Hz";
     }
-    if (_showProcessRatio)
+    if (_showProgress)
     {
       output << " | Processed: "
              << std::setw(5) << std::fixed << std::setprecision(1)
