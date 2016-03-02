@@ -138,7 +138,7 @@ void RatePlotter::run()
     {
       output << " | Processed: "
              << std::setw(5) << std::fixed << std::setprecision(1)
-             << InputBase::reference().processed()*100. << "%";
+             << InputBase::reference().progress()*100. << "%";
     }
     if (_showNProcessedEvents)
     {

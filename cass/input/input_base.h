@@ -57,7 +57,7 @@ public:
    * needs to be implemented by the individual inputs, defaults to 0 in case
    * it has not been implemented
    */
-  virtual double processed();
+  virtual double progress();
 
   /** retrieve the number of events that have been input so far
    *

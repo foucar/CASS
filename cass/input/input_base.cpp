@@ -54,7 +54,7 @@ InputBase::rbItem_t InputBase::getNextFillable(unsigned timeout)
   return rbItem;
 }
 
-double InputBase::processed()
+double InputBase::progress()
 {
   return 0.;
 }

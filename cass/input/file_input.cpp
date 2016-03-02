@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009-2016 Lutz Foucar
 
 /**
  * @file file_input.cpp file contains definition of xtcfile input
@@ -109,6 +109,12 @@ public:
     }
   }
 
+  /** retrieve the progess within the file
+   *
+   * @return the current progress
+   */
+  double progress() {return _file.tellg()/_filesize;}
+
   /** retrieve the number of events processed by this thread
    *
    *  @return the number of processed events
@@ -183,7 +189,7 @@ void FileInput::runthis()
   /** go through the list of files and create a processor for each file and
    *  add them to the list of processors
    */
-  vector<FileProcessor::shared_pointer> fProcs;
+  vector<FileProcessor::shared_pointer> _fProcs;
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
   for (;filelistIt != filelistEnd; ++filelistIt)
@@ -194,7 +200,7 @@ void FileInput::runthis()
     if (info.exists())
     {
       FileProcessor::shared_pointer fProc(new FileProcessor(filename));
-      fProcs.push_back(fProc);
+      _fProcs.push_back(fProc);
     }
     else
       Log::add(Log::ERROR,"FileInput::run(): could not open '" + filename + "'");
@@ -209,8 +215,8 @@ void FileInput::runthis()
    *       loops will prevent gathering the correct information about how many
    *       events have been analyzed so far.
    */
-  vector<FileProcessor::shared_pointer>::iterator pIt(fProcs.begin());
-  vector<FileProcessor::shared_pointer>::iterator pEnd(fProcs.end());
+  fileProcessors_t::iterator pIt(_fProcs.begin());
+  fileProcessors_t::iterator pEnd(_fProcs.end());
   for (;(!shouldQuit()) && (pIt != pEnd); ++pIt)
   {
     (*pIt)->start();
@@ -222,7 +228,7 @@ void FileInput::runthis()
    *  number of events they processed.
    */
   uint64_t eventcounter(0);
-  pIt = fProcs.begin();
+  pIt = _fProcs.begin();
   for (; pIt != pEnd; ++pIt)
   {
     (*pIt)->wait();
@@ -237,4 +243,20 @@ void FileInput::runthis()
   Log::add(Log::VERBOSEINFO, "FileInput::run(): closing the input");
   Log::add(Log::INFO,"FileInput::run(): Analysed '" + toString(eventcounter) +
            "' events.");
+}
+
+double FileInput::progress()
+{
+  double progressSum(0.);
+  for (fileProcessors_t::const_iterator it(_fProcs.begin()); it != _fProcs.end(); ++it)
+    progressSum += (*it)->progress();
+  return (progressSum / _fProcs.size());
+}
+
+uint64_t FileInput::eventcounter()
+{
+  uint64_t counter(0);
+  for (fileProcessors_t::const_iterator it(_fProcs.begin()); it != _fProcs.end(); ++it)
+    counter += (*it)->nEventsProcessed();
+  return counter;
 }

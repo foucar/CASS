@@ -1,4 +1,4 @@
-// Copyright (C) 2009 - 2011 Lutz Foucar
+// Copyright (C) 2009 - 2016 Lutz Foucar
 
 /**
  * @file file_input.h file contains declaration of xtcfile input
@@ -19,6 +19,9 @@
 
 namespace cass
 {
+/** forward declaration of the file processors */
+class FileProcessor;
+
 /** File Input for cass
  *
  * This class will be used in offline modus. I will take an string that
@@ -62,6 +65,18 @@ public:
   /** load the parameters used for the multifile input */
   void load();
 
+  /** retrieve the averaged progress state of all file processors
+   *
+   * @return the processing progress
+   */
+  double progress();
+
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter();
+
 private:
   /** constructor
    *
@@ -89,18 +104,14 @@ private:
 
   /** name of the file containing all files that we need to process */
   std::string _filelistname;
+
+  /** define the container for all file processors */
+  typedef std::vector<std::tr1::shared_ptr<FileProcessor> > fileProcessors_t;
+
+  /** the file processor container */
+  fileProcessors_t _fProcs;
 };
 
 }//end namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
