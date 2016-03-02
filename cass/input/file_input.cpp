@@ -115,7 +115,9 @@ public:
    */
   double progress()
   {
-    return static_cast<double>(_file.tellg()) / static_cast<double>(_filesize);
+    return ((_file.tellg() == -1) ? 1. :
+                                    (static_cast<double>(_file.tellg()) /
+                                     static_cast<double>(_filesize)));
   }
 
   /** retrieve the number of events processed by this thread
