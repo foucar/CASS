@@ -116,7 +116,7 @@ void RatePlotter::run()
     if (_showInputLoad)
     {
       double load(_inputload.calculateRate()/1024.);
-      string size("B/s");
+      string size("_B/s");
       if (load > 999.9)
       {
         load /= 1024.;
