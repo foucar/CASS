@@ -66,12 +66,14 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
     proc.name =  s.value("Name","Unknown").toString().toStdString();
     proc.fieldWidth =  s.value("FieldWidth",10).toInt();
     proc.precision = s.value("Precision",7).toInt();
+    proc.unit = s.value("Unit","").toString().toStdString();
     if (proc.name != "Unknown")
     {
       _procs.push_back(proc);
       output << "Name '" << proc.name <<", "
              << "FieldWidth '" << proc.fieldWidth << ", "
-             << "Precision '" << proc.precision << ", ";
+             << "Precision '" << proc.precision << ", "
+             << "Unit '" << proc.unit << ", ";
     }
   }
   Log::add(Log::INFO,output.str());
@@ -175,7 +177,7 @@ void RatePlotter::run()
           output << " | " << result->name() << ": "
                  << std::setw(it->fieldWidth)
                  << std::fixed << std::setprecision(it->precision)
-                 << result->getValue();
+                 << result->getValue() << it->unit;
         }
 
       }

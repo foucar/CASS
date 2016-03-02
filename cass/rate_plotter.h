@@ -59,6 +59,8 @@ class Ratemeter;
  * @cassttng ProcessingStatistics/ValueProcessors/\%id\%/{Precision} \n
  *           Precsion after the decimal point for floating. Used in
  *           setprecision(). Default is 7.
+ * @cassttng ProcessingStatistics/ValueProcessors/\%id\%/{Unit} \n
+ *           The unit to be displayed after the value. Default is "".
  *
  * @author Lutz Foucar
  */
@@ -143,6 +145,9 @@ private:
 
     /** how much digits after the decimal point should be used */
     int precision;
+
+    /** the unit that should be displayed after the value */
+    std::string unit;
   };
 
   /** define the processor list */
