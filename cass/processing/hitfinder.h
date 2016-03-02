@@ -207,6 +207,11 @@ protected:
  *           size in x and y of the box that should be drawn around the found
  *           peak
  * @cassttng Processor/\%name\%/{DrawPixelValue} \n
+ *           The value of the border pixels
+ * @cassttng Processor/\%name\%/{DrawInnerPixel} \n
+ *           flag to tell whether the inner pixel values should be overwritten
+ * @cassttng Processor/\%name\%/{InnerPixelValue} \n
+ *           The value of the inner pixels.
  * @cassttng Processor/\%name\%/{Radius} \n
  * @cassttng Processor/\%name\%/{IndexColumn} \n
  * @cassttng Processor/\%name\%/{DrawCircle} \n
@@ -236,10 +241,10 @@ protected:
   shared_pointer _table;
 
   /** draw flags as bitmask */
-  result_t::value_t _drawVal;
+  result_t::value_t _drawVal,_drawInnerValue;
   float _radius;
   std::pair<int,int> _boxsize;
-  bool _drawCircle,_drawBox;
+  bool _drawCircle,_drawBox,_drawInner;
 
   /** the number of the column where the global index of the pixel is */
   size_t _idxCol;

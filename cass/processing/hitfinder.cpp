@@ -423,6 +423,8 @@ void pp205::loadSettings(size_t)
   _boxsize = make_pair(s.value("BoxSizeX", 10).toUInt(),
                        s.value("BoxSizeY",10).toUInt());
   _drawVal = s.value("DrawPixelValue",16000.f).toFloat();
+  _drawInner = s.value("DrawInnerPixel",false).toBool();
+  _drawInnerValue = s.value("InnerPixelValueI",16000.f).toFloat();
   _radius = s.value("Radius",2.f).toFloat();
   _idxCol = s.value("IndexColumn").toUInt();
   _drawCircle = s.value("DrawCircle",true).toBool();
@@ -470,33 +472,53 @@ void pp205::process(const CASSEvent& evt, result_t &result)
     //box
     if (_drawBox)
     {
-      //lower row
-      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+//      //lower row
+//      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+//      {
+//        const int bRow = -_boxsize.second;
+//        const int bLocIdx(bRow*nImageCols+bCol);
+//        centerpixel[bLocIdx] = _drawVal;
+//      }
+//      //upper row
+//      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
+//      {
+//        const int bRow = _boxsize.second;
+//        const int bLocIdx(bRow*nImageCols+bCol);
+//        centerpixel[bLocIdx] = _drawVal;
+//      }
+//      //left col
+//      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+//      {
+//        const int bCol = -_boxsize.first;
+//        const int bLocIdx(bRow*nImageCols+bCol);
+//        centerpixel[bLocIdx] = _drawVal;
+//      }
+//      //right col
+//      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
+//      {
+//        const int bCol = _boxsize.first;
+//        const int bLocIdx(bRow*nImageCols+bCol);
+//        centerpixel[bLocIdx] = _drawVal;
+//      }
+
+      for (int bRow = -_boxsize.second; bRow <= _boxsize.second; ++bRow)
       {
-        const int bRow = -_boxsize.second;
-        const int bLocIdx(bRow*nImageCols+bCol);
-        centerpixel[bLocIdx] = _drawVal;
-      }
-      //upper row
-      for (int bCol=-_boxsize.first; bCol <= _boxsize.first; ++bCol)
-      {
-        const int bRow = _boxsize.second;
-        const int bLocIdx(bRow*nImageCols+bCol);
-        centerpixel[bLocIdx] = _drawVal;
-      }
-      //left col
-      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
-      {
-        const int bCol = -_boxsize.first;
-        const int bLocIdx(bRow*nImageCols+bCol);
-        centerpixel[bLocIdx] = _drawVal;
-      }
-      //right col
-      for (int bRow=-_boxsize.second; bRow <= _boxsize.second; ++bRow)
-      {
-        int bCol = _boxsize.first;
-        const int bLocIdx(bRow*nImageCols+bCol);
-        centerpixel[bLocIdx] = _drawVal;
+        for (int bCol = -_boxsize.first; bCol <= _boxsize.first; ++bCol)
+        {
+          const int bLocIdx(bRow*nImageCols+bCol);
+          const bool border = (bCol == _boxsize.first ||
+                               bCol == -_boxsize.first ||
+                               bRow == _boxsize.second ||
+                               bRow == -_boxsize.second);
+          if (border)
+          {
+            centerpixel[bLocIdx] = _drawVal;
+          }
+          else if (_drawInner)
+          {
+            centerpixel[bLocIdx] = _drawInnerValue;
+          }
+        }
       }
     }
 
