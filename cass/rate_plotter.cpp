@@ -20,6 +20,8 @@
 #include "input_base.h"
 #include "log.h"
 #include "cass_settings.h"
+#include "result.hpp"
+#include "processor_manager.h"
 
 using namespace std;
 using namespace cass;
@@ -34,7 +36,7 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
     _analyzerate(analyzerate)
 {
   CASSSettings s;
-  s.beginGroup("ProcessingStatistics");
+  s.beginGroup("ProcessingInformation");
   _showInfo = s.value("ShowInfo",true).toBool();
   _filename = s.value("Output","").toString().toStdString();
   _interval = s.value("UpdateInterval",1).toInt();
@@ -44,6 +46,17 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
   _showProcessRatio = s.value("ShowProcessRatio",true).toBool();
   _showNProcessedEvents = s.value("ShowNbrProcessedEvents",false).toBool();
   _newLine = s.value("NewLine",false).toBool();
+  int size = s.beginReadArray("ValueProcessors");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    ProcProperties proc;
+    proc.name =  s.value("Name","Unknown").toString().toStdString();
+    proc.fieldWidth =  s.value("FieldWidth",10).toInt();
+    proc.precision = s.value("Precision",7).toInt();
+    if (proc.name != "Unknown")
+      _procs.push_back(proc);
+  }
   Log::add(Log::INFO,"Status info will be written to " +
            (_filename==""?"cout":_filename));
 }
@@ -116,6 +129,35 @@ void RatePlotter::run()
       output << " | Events: "
              << std::setw(7)
              << InputBase::reference().eventcounter();
+    }
+    for (proclist_t::const_iterator it(_procs.begin()); it !=_procs.end(); ++it)
+    {
+      try
+      {
+        QWriteLocker pplock(&ProcessorManager::instance()->lock);
+        Processor::result_t::shared_pointer result
+            (ProcessorManager::reference().getProcessor(it->name).resultCopy(0));
+        if (result->dim() != 0)
+        {
+          continue;
+        }
+        else
+        {
+          output << " | " << result->name() << ": "
+                 << std::setw(it->fieldWidth)
+                 << std::fixed << std::setprecision(it->precision)
+                 << result->getValue();
+        }
+
+      }
+      catch(const InvalidResultError& error)
+      {
+        Log::add(Log::ERROR,string("Plotter: ") + error.what());
+      }
+      catch(const InvalidProcessorError& error)
+      {
+        Log::add(Log::ERROR,string("Plotter: ") + error.what());
+      }
     }
 
 //    char tmp[256];

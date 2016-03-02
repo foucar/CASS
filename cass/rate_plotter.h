@@ -11,6 +11,8 @@
 #define _RATE_PLOTTER_H_
 
 #include <vector>
+#include <list>
+#include <string>
 #include <tr1/memory>
 
 #include <QtCore/QThread>
@@ -101,6 +103,25 @@ private:
 
   /** flag to tell whether the updated info should be put into a new line */
   bool _newLine;
+
+  /** define the processor properties */
+  struct ProcProperties
+  {
+    /** the name of the processor */
+    std::string name;
+
+    /** how much space should be used for the output of the variable */
+    int fieldWidth;
+
+    /** how much digits after the decimal point should be used */
+    int precision;
+  };
+
+  /** define the processor list */
+  typedef std::list<ProcProperties> proclist_t;
+
+  /** list of value like processors that should be reported on */
+  proclist_t _procs;
 };
 }//end namespace cass
 
