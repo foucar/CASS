@@ -424,7 +424,7 @@ void pp205::loadSettings(size_t)
                        s.value("BoxSizeY",10).toUInt());
   _drawVal = s.value("DrawPixelValue",16000.f).toFloat();
   _drawInner = s.value("DrawInnerPixel",false).toBool();
-  _drawInnerValue = s.value("InnerPixelValueI",16000.f).toFloat();
+  _drawInnerValue = s.value("InnerPixelValue",16000.f).toFloat();
   _radius = s.value("Radius",2.f).toFloat();
   _idxCol = s.value("IndexColumn").toUInt();
   _drawCircle = s.value("DrawCircle",true).toBool();
