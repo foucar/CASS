@@ -113,7 +113,10 @@ public:
    *
    * @return the current progress
    */
-  double progress() {return _file.tellg()/_filesize;}
+  double progress()
+  {
+    return static_cast<double>(_file.tellg()) / static_cast<double>(_filesize);
+  }
 
   /** retrieve the number of events processed by this thread
    *
