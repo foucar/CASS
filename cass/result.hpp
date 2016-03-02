@@ -742,6 +742,7 @@ public:
     if (_axis.size() != 2)
       throw std::logic_error("Result::resetTable(): Result doesn't have dimension 2");
 #endif
+    _storage.clear();
     _axis[yAxis].nBins = 0;
     _axis[yAxis].up = -1;
   }
