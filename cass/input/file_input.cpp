@@ -192,7 +192,6 @@ void FileInput::runthis()
   /** go through the list of files and create a processor for each file and
    *  add them to the list of processors
    */
-  vector<FileProcessor::shared_pointer> _fProcs;
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
   for (;filelistIt != filelistEnd; ++filelistIt)
