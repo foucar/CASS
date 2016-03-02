@@ -82,6 +82,19 @@ RatePlotter::~RatePlotter()
   if(isRunning())
     terminate();
   wait();
+  std::streambuf * buf;
+  std::ofstream of;
+  if(_filename!="")
+  {
+    of.open(_filename.c_str());
+    buf = of.rdbuf();
+  }
+  else
+  {
+    buf = cout.rdbuf();
+  }
+  std::ostream out(buf);
+  out << endl << "Quit" << endl;
 }
 
 void RatePlotter::run()
@@ -175,6 +188,8 @@ void RatePlotter::run()
         Log::add(Log::ERROR,string("ProcessingInfo: ") + error.what());
       }
     }
+    if (_newLine)
+      output <<"\n";
 
 //    char tmp[256];
 //    snprintf(tmp, 255, "\rInput: %5.1fHz (%5.1f%cB/s) | Analyze: %5.1fHz | Processed: %5.1f%% | Events: %" PRIu64 "",
@@ -198,6 +213,6 @@ void RatePlotter::run()
     }
     std::ostream out(buf);
 
-    out << output << flush;
+    out << output.str() << flush;
   }
 }
