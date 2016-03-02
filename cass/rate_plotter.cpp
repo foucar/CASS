@@ -36,16 +36,28 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
     _analyzerate(analyzerate)
 {
   CASSSettings s;
-  s.beginGroup("ProcessingInformation");
+  stringstream output;
+  output << "ProcessingInfo: ";
+  s.beginGroup("ProcessingInfo");
   _showInfo = s.value("ShowInfo",true).toBool();
+  output << "ShowInfo '"<< std::boolalpha << _showInfo << "', ";
   _filename = s.value("Output","").toString().toStdString();
+  output << "Output to '" <<(_filename == "" ? "COUT":_filename) <<"', ";
   _interval = s.value("UpdateInterval",1).toInt();
+  output << "UpdateInterval '" << _interval << "', ";
   _showInputRate = s.value("ShowInputRate",true).toBool();
+  output << "ShowInputRate '"<< std::boolalpha << _showInputRate << "', ";
   _showInputLoad= s.value("ShowInputLoad",true).toBool();
+  output << "ShowInputLoad '"<< std::boolalpha << _showInputLoad << "', ";
   _showAnalysisRate = s.value("ShowAnalysisRate",true).toBool();
+  output << "ShowAnalysisRate '"<< std::boolalpha << _showAnalysisRate << "', ";
   _showProcessRatio = s.value("ShowProcessRatio",true).toBool();
+  output << "ShowProcessRatio '"<< std::boolalpha << _showProcessRatio << "', ";
   _showNProcessedEvents = s.value("ShowNbrProcessedEvents",false).toBool();
+  output << "ShowNbrProcessEvents '"<< std::boolalpha << _showNProcessedEvents << "', ";
   _newLine = s.value("NewLine",false).toBool();
+  output << "NewLine '"<< std::boolalpha << _newLine << "', ";
+  output << "ValueProcessors: ";
   int size = s.beginReadArray("ValueProcessors");
   for (int i = 0; i < size; ++i)
   {
@@ -55,10 +67,14 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
     proc.fieldWidth =  s.value("FieldWidth",10).toInt();
     proc.precision = s.value("Precision",7).toInt();
     if (proc.name != "Unknown")
+    {
       _procs.push_back(proc);
+      output << "Name '" << proc.name <<", "
+             << "FieldWidth '" << proc.fieldWidth << ", "
+             << "Precision '" << proc.precision << ", ";
+    }
   }
-  Log::add(Log::INFO,"Status info will be written to " +
-           (_filename==""?"cout":_filename));
+  Log::add(Log::INFO,output.str());
 }
 
 RatePlotter::~RatePlotter()
@@ -152,11 +168,11 @@ void RatePlotter::run()
       }
       catch(const InvalidResultError& error)
       {
-        Log::add(Log::ERROR,string("Plotter: ") + error.what());
+        Log::add(Log::ERROR,string("ProcessingInfo: ") + error.what());
       }
       catch(const InvalidProcessorError& error)
       {
-        Log::add(Log::ERROR,string("Plotter: ") + error.what());
+        Log::add(Log::ERROR,string("ProcessingInfo: ") + error.what());
       }
     }
 

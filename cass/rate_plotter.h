@@ -31,6 +31,34 @@ class Ratemeter;
  * @cassttng ProcessingStatistics/{ShowInfo} \n
  *           If true, it will display the requested information. If false,
  *           no output is generated. Default is true.
+ * @cassttng ProcessingStatistics/{Output} \n
+ *           Filename to which the info will be written. If no parameter is
+ *           given, output will be directed to cout.
+ * @cassttng ProcessingStatistics/{UpdateInterval} \n
+ *           The updating interval in s. Default is 1.
+ * @cassttng ProcessingStatistics/{ShowInputRate} \n
+ *           If true, it will show the input rate. Default is true.
+ * @cassttng ProcessingStatistics/{ShowInputLoad} \n
+ *           If true, it will show the input load. Default is true.
+ * @cassttng ProcessingStatistics/{ShowAnalysisRate} \n
+ *           If true, it will show the analysis rate. Default is true.
+ * @cassttng ProcessingStatistics/{ShowProcessRatio} \n
+ *           If true, it will show the processing ratio. Default is true.
+ * @cassttng ProcessingStatistics/{ShowNbrProcessedEvents} \n
+ *           If true, it will show the number of events processed. Default is
+ *           false.
+ * @cassttng ProcessingStatistics/{NewLine} \n
+ *           If true, it will show the input rate. Default is true.
+ * @cassttng ProcessingStatistics/ValueProcessors/{size} \n
+ *           the number of value like processors to be plotted.
+ * @cassttng ProcessingStatistics/ValueProcessors/\%id\%/{Name} \n
+ *           Name of the value like processor. If Unknown, then it won't be
+ *           added to the list. Default is Unknown.
+ * @cassttng ProcessingStatistics/ValueProcessors/\%id\%/{FieldWidth} \n
+ *           Width of the value field. Used in setw(). Default is 10.
+ * @cassttng ProcessingStatistics/ValueProcessors/\%id\%/{Precision} \n
+ *           Precsion after the decimal point for floating. Used in
+ *           setprecision(). Default is 7.
  *
  * @author Lutz Foucar
  */
