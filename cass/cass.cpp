@@ -1,5 +1,5 @@
 // Copyright (C) 2009,2010 Jochen Küpper
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009-2016 Lutz Foucar
 
 /**
  * @file cass.cpp file contains the main cass program
@@ -164,10 +164,6 @@ int main(int argc, char **argv)
     parser.add("-s","TCP port of the soap server ",soap_port);
 //    bool useDatagenerator(false);
 //    parser.add("-d","Use generated fake data as input",useDatagenerator);
-    bool suppressrate(false);
-    parser.add("-r","suppress the rate output",suppressrate);
-    string ratefilename;
-    parser.add("--ratefilename","filename where the rate will be written to",ratefilename);
     string outputfilename("output.ext");
     parser.add("-o","output filename passed to the Processor",outputfilename);
     string settingsfilename(settings.fileName().toStdString());
@@ -213,7 +209,7 @@ int main(int argc, char **argv)
     Ratemeter inputrate;
     Ratemeter inputload;
     Ratemeter workerrate;
-    RatePlotter plotter(inputrate,inputload,workerrate,1,ratefilename);
+    RatePlotter plotter(inputrate,inputload,workerrate);
 
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
@@ -278,8 +274,7 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.start();
 #endif
-    if(!suppressrate)
-      plotter.start();
+    plotter.start();
     InputBase::reference().start();
 
     /** periodically check if the Workers are still running, while the input
