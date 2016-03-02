@@ -70,10 +70,10 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
     if (proc.name != "Unknown")
     {
       _procs.push_back(proc);
-      output << "Name '" << proc.name <<", "
-             << "FieldWidth '" << proc.fieldWidth << ", "
-             << "Precision '" << proc.precision << ", "
-             << "Unit '" << proc.unit << ", ";
+      output << "Name '" << proc.name << "', "
+             << "FieldWidth '" << proc.fieldWidth << "', "
+             << "Precision '" << proc.precision << "', "
+             << "Unit '" << proc.unit << "', ";
     }
   }
   Log::add(Log::INFO,output.str());
