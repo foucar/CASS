@@ -465,7 +465,7 @@ void pp205::process(const CASSEvent& evt, result_t &result)
   for (size_t row=0; row < nTableRows; ++row)
   {
     /** extract the column with the global index of the peak center */
-    size_t idx(table[row*nTableCols + _idxCol]);
+    const int idx(table[row*nTableCols + _idxCol]);
     result_t::iterator centerpixel(result.begin()+idx);
 
     /** draw user requested info (extract other stuff from table) */
@@ -505,19 +505,18 @@ void pp205::process(const CASSEvent& evt, result_t &result)
       {
         for (int bCol = -_boxsize.first; bCol <= _boxsize.first; ++bCol)
         {
-          const int bLocIdx(bRow*nImageCols+bCol);
+          const int bLocIdx(idx + bRow*nImageCols+bCol);
+          if (bLocIdx >= static_cast<int>(result.size()) || bLocIdx < 0)
+            throw logic_error("pp205 '" + name()+
+                              "': Calculated index out of bounds. Check box size");
           const bool border = (bCol == _boxsize.first ||
                                bCol == -_boxsize.first ||
                                bRow == _boxsize.second ||
                                bRow == -_boxsize.second);
           if (border)
-          {
-            centerpixel[bLocIdx] = _drawVal;
-          }
+            result[bLocIdx] = _drawVal;
           else if (_drawInner)
-          {
-            centerpixel[bLocIdx] = _drawInnerValue;
-          }
+            result[bLocIdx] = _drawInnerValue;
         }
       }
     }
