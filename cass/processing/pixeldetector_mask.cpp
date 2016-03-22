@@ -381,7 +381,7 @@ void addRing(CommonData &data, CASSSettings &s)
                            + toString(data.columns) +","
                            + toString(data.rows)+")");
 
-    const size_t min_col(min(outer_center.first - outer_a,
+  const size_t min_col(min(outer_center.first - outer_a,
                            inner_center.first - inner_a));
   const size_t max_col(max(outer_center.first + outer_a,
                            inner_center.first + inner_a));
