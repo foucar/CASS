@@ -310,6 +310,7 @@ inline void unique(std::list<T>& l)
 /** fuzzy compare two floating point variables
  *
  * @tparam the type that one want to compare
+ * @return true when the two values are equal within the precision, false otherwise
  * @param first the first value for the equal comparison
  * @param second the second value for the equal comparison
  */
