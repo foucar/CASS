@@ -548,6 +548,8 @@ protected:
  *           The pixel size in m. Default is 110e-6
  * @cassttng Processor/\%name\%/{XNbrBins|XLow|XUp}\n
  *           properties of the resulting 1D histogram
+ * @cassttng Processor/\%name\%/{BadPixelValue}\n
+ *           value of the bad pixel in the image. Default is 0
  *
  * @author Lutz Foucar
  */
@@ -627,6 +629,9 @@ protected:
 
   /** the size of one pixel in m */
   double _np_m;
+
+  /** value of the bad pixels */
+  float _badPixVal;
 };
 
 

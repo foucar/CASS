@@ -599,6 +599,7 @@ void pp90::loadSettings(size_t)
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
   _np_m = s.value("PixelSize_m",110.e-6).toDouble();
+  _badPixVal = s.value("BadPixelValue",0.f).toFloat();
 
   const result_t &srcImageHist(_imagePP->result());
   GeometryInfo::conversion_t src2lab
@@ -665,7 +666,7 @@ void pp90::process(const CASSEvent &evt, result_t &result)
   size_t ImageSize(_src2labradius.size());
   const double lambda(_getWavelength(evt.id()));
   const double D(_getDetectorDistance(evt.id()));
-  if (qFuzzyIsNull(lambda) || qFuzzyIsNull(D))
+  if (fuzzyIsNull(lambda) || fuzzyIsNull(D))
     return;
   const double firstFactor(4.*3.1415/lambda);
   vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
@@ -677,7 +678,7 @@ void pp90::process(const CASSEvent &evt, result_t &result)
     const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
     const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
     get<0>(tmparr[i]) = bin;
-    if(fuzzyIsNull(srcImage[i]))
+    if(fuzzycompare(srcImage[i],_badPixVal))
     {
       get<1>(tmparr[i]) = 0;
       get<2>(tmparr[i]) = 0;
