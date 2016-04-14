@@ -179,7 +179,7 @@ void TwoDViewer::dataChanged()
         ( new cass::Result<float>
           (cass::Result<float>::axe_t(lut.nCols,lut.min.x,lut.max.x, "cols"),
            cass::Result<float>::axe_t(lut.nRows,lut.min.y,lut.max.y, "rows")));
-    labHist->name() = _origHist->name();
+    labHist->name(_origHist->name());
 
     cass::Result<float>::const_iterator srcpixel(_origHist->begin());
     cass::Result<float>::const_iterator srcImageEnd(_origHist->end()-8);
