@@ -11,7 +11,7 @@ namespace Pds {
   public:
     /*
      * Notice: New enum values should be appended to the end of the enum list, since
-     *   the old values have already been recorded in the existing xtc files. 
+     *   the old values have already been recorded in the existing xtc files.
      */
     enum Detector {
       NoDetector    = 0,
@@ -62,7 +62,11 @@ namespace Pds {
       FeeHxSpectrometer = 45,
       XrayTransportDiagnostic = 46,
       Lamp          = 47,
-      NumDetector   = 48
+      MfxEndstation = 48,
+      MfxDg1        = 49,
+      MfxDg2        = 50,
+      XrtDiag       = 51,
+      NumDetector   = 52
     };
 
     enum Device {
@@ -104,7 +108,10 @@ namespace Pds {
       Epix100a  = 35,
       EpixS     = 36,
       Gotthard  = 37,
-      NumDevice = 38
+      DualAndor = 38,
+      Wave8     = 39,
+      LeCroy    = 40,
+      NumDevice = 41
     };
 
     DetInfo() {}

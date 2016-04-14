@@ -457,12 +457,34 @@ public:
 };
 
 
+/** BldDataAnalogInputV1
+ *
+ *  Structure which contains voltage data from an analog input device.
+ */
 class BldDataAnalogInputV1
 {
 public:
   enum { TypeId = Pds::TypeId::Id_AnalogInput /**< XTC type ID value (from Pds::TypeId class) */ };
   enum { Version = 1 /**< XTC type version number */ };
   uint32_t	_numChannels;	/**< The number of active channels on the analog input device. */
+};
+
+
+/** BldDataBeamMonitor
+ *
+ * Intensity and Position Measurements
+ */
+class BldDataBeamMonitor
+{
+public:
+  enum { TypeId = Pds::TypeId::Id_BeamMonitorBldData /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 0 /**< XTC type version number */ };
+  double	_TotalIntensity;	/**< Value of Total Intensity, in J. */
+  double	_X_Position;	/**< Value of X Position, in m. */
+  double	_Y_Position;	/**< Value of Y Position, in m. */
+  double	_peakA;	/**< Peak Amplitude of Channel */
+  double	_peakT;	/**< Location of Peak Amplitude of Channel */
+  double	_Channel_Intensity[16];	/**< Value of Channel Intensity, in J. */
 };
 
 #pragma pack()

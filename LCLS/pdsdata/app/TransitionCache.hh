@@ -13,6 +13,9 @@
 #include <cstring>
 
 #include <semaphore.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace Pds {
   class TransitionCache {

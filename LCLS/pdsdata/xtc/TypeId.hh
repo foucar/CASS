@@ -108,6 +108,13 @@ namespace Pds {
       Id_GotthardConfig,
       Id_AnalogInput,
       Id_SmlData,
+      Id_Andor3dConfig,
+      Id_Andor3dFrame,
+      Id_BeamMonitorBldData,
+      Id_Generic1DConfig,
+      Id_Generic1DData,
+      Id_UsdUsbFexConfig,
+      Id_UsdUsbFexData,
       NumberOf};
     enum { VCompressed = 0x8000 };
 

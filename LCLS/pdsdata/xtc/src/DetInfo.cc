@@ -41,7 +41,7 @@ DetInfo::DetInfo(const char* sname) : Src(Level::Source)
 	  const char* sdname = ssname+len+1;
 	  devId = strtoul(sdname,&endPtr,0);
 	  if (endPtr == sdname) continue;
-	  
+
 	  _phy = ((det&0xff)<<24) | ((detId&0xff)<<16) | ((dev&0xff)<<8) |(devId&0xff);
 	  break;
 	}
@@ -58,7 +58,7 @@ DetInfo::Detector DetInfo::detector() const {return (Detector)((_phy&0xff000000)
 DetInfo::Device   DetInfo::device()   const {return (Device)((_phy&0xff00)>>8);}
 uint32_t          DetInfo::detId()    const {return (_phy&0xff0000)>>16;}
 uint32_t          DetInfo::devId()    const {return _phy&0xff;}
-    
+
 const char* DetInfo::name(Detector det){
   static const char* _detNames[] = {
     "NoDetector",
@@ -70,7 +70,8 @@ const char* DetInfo::name(Detector det){
     "CxiDg1", "CxiDg2", "CxiDg3", "CxiDg4", "CxiKb1", "CxiDs1", "CxiDs2", "CxiDsu", "CxiSc1", "CxiDsd",
     "XcsBeamline", "CxiSc2",
     "MecXuvSpectrometer","MecXrtsForw","MecXrtsBack","MecFdi","MecTimeTool","MecTargetChamber",
-    "FeeHxSpectrometer", "XrayTransportDiagnostic", "Lamp"
+    "FeeHxSpectrometer", "XrayTransportDiagnostic", "Lamp",
+    "MfxEndstation", "MfxDg1", "MfxDg2", "XrtDiag"
   };
   return (det < NumDetector ? _detNames[det] : "-Invalid-");
 }
@@ -115,6 +116,9 @@ const char* DetInfo::name(Device dev) {
     "Epix100a",
     "EpixS",
     "Gotthard",
+    "DualAndor",
+    "Wave8",
+    "LeCroy",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }
