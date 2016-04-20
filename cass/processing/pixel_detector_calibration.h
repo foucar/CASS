@@ -110,10 +110,15 @@ class CASSEvent;
  *           In case of using the moving update type, this tells how many images
  *           should be considered in the exponential moving average and standart
  *           deviation estimation.
- * @cassttng Processor/\%name\%/{UpdateBadPixAndSavePeriod} \n
+ * @cassttng Processor/\%name\%/{UpdateBadPixPeriod} \n
  *           After how many received images should the bad pixel map be updated
- *           and the data be saved to the requested file. If negative, no
- *           updates will be made. Default is -1.
+ *           If negative, no updates will be made. Default is -1.
+ * @cassttng Processor/\%name\%/{WritePeriod} \n
+ *           When automagically updating the dark, this gives the time in
+ *           seconds between two writings of the darkcalibration file. Note
+ *           that a manual call to the training will force writing even though
+ *           the time between two writes has not ellapsed.
+ *           Default is 0, which causes no auto writing
  *
  * @author Lutz Foucar
  */
@@ -136,7 +141,6 @@ public:
    *
    * @param command The command that was issued by the gui clients
    */
-
   virtual void processCommand(std::string command);
 
 protected:
@@ -296,6 +300,12 @@ private:
 
   /** the alpha value for the moving average and stdv */
   float _alpha;
+
+  /** the time_t value of the last time the calibration was written */
+  uint32_t _lastwritten;
+
+  /** the update time period in s */
+  uint32_t _updateWritePeriod;
 };
 
 

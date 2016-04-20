@@ -67,7 +67,8 @@ void pp330::loadSettings(size_t)
   _resetBadPixel = s.value("ResetBadPixels",false).toBool();
   _update = s.value("UpdateCalibration",true).toBool();
   string updateType = s.value("UpdateCalibrationType","cummulative").toString().toStdString();
-  _updatePeriod = s.value("UpdateBadPixAndSavePeriod",-1).toInt();
+  _updatePeriod = s.value("UpdateBadPixPeriod",-1).toInt();
+  _updateWritePeriod = s.value("WritePeriod",0).toUInt();
   _alpha = (2./(s.value("NbrOfImages",200).toFloat()+1.));
 
   /** set up the type of update */
@@ -119,7 +120,8 @@ void pp330::loadSettings(size_t)
            "' SNR '" + toString(_snr) +
            "' alpha '" + toString(_alpha) +
            "' updateType '" + updateType +
-           "' writeupdateperiode '" + toString(_updatePeriod) +
+           "' updatebadpixperiode '" + toString(_updatePeriod) +
+           "' updatewriteperiode '" + toString(_updateWritePeriod) +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -149,6 +151,11 @@ void pp330::loadCalibration()
              "' does not exist. Skip loading the data!");
     return;
   }
+  /** in case the previous was just a link set the info the real name and get
+   *  the creation data
+   */
+  innameInfo.setFile(QString::fromStdString(inname));
+  _lastwritten = innameInfo.created().toTime_t();
   /** read the data from the file */
   Log::add(Log::VERBOSEINFO, "pp330::loadCalibration(): '" + name() +
            "' Load Darkcal data from file '" + inname +"'");
@@ -446,11 +453,9 @@ void pp330::process(const CASSEvent &evt, result_t &result)
 
     /** update the bad pix map and the file if requested */
     if ((_counter % _updatePeriod) == 0)
-    {
       setBadPixMap();
-      if (_write)
-        writeCalibration();
-    }
+    if (_write && (_updateWritePeriod < (QDateTime::currentDateTime().toTime_t() - _lastwritten)))
+      writeCalibration();
   }
 }
 
