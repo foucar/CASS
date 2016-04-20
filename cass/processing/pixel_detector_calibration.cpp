@@ -32,7 +32,8 @@ using tr1::placeholders::_5;
 //********** offset/noise calibrations ******************
 
 pp330::pp330(const name_t &name)
-  : AccumulatingProcessor(name)
+  : AccumulatingProcessor(name),
+    _lastwritten(0)
 {
   loadSettings(0);
 }
@@ -101,6 +102,11 @@ void pp330::loadSettings(size_t)
       (result_t::shared_pointer
         (new result_t(shape.first,nbrOfOutputs*shape.second)));
   loadCalibration();
+  /** in case we want updating and no calibration was loaded (_lastwritten is
+   *  not set), we need to start training now
+   */
+  if (_update && !_lastwritten) _train = true;
+
   Log::add(Log::INFO,"processor " + name() +
            ": generates the calibration data from images contained in '" +
            _image->name() +
@@ -454,8 +460,14 @@ void pp330::process(const CASSEvent &evt, result_t &result)
     /** update the bad pix map and the file if requested */
     if ((_counter % _updatePeriod) == 0)
       setBadPixMap();
-    if (_write && (_updateWritePeriod < (QDateTime::currentDateTime().toTime_t() - _lastwritten)))
+    uint32_t curTime(QDateTime::currentDateTime().toTime_t());
+//    cout << "cur:" << curTime << ", lastwritten:"<<_lastwritten
+//         << ", diff:"<<(curTime - _lastwritten)<<endl;
+    if (_write && (_updateWritePeriod < (curTime - _lastwritten)))
+    {
       writeCalibration();
+      _lastwritten = curTime;
+    }
   }
 }
 
