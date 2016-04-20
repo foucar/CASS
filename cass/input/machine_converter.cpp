@@ -23,6 +23,7 @@
 #include "pdsdata/lusi/IpmFexConfigV2.hh"
 #include "pdsdata/control/ConfigV1.hh"
 #include "pdsdata/control/PVControl.hh"
+#include "pdsdata/psddl/usdusb.ddl.h"
 
 #include "cass_event.h"
 #include "log.h"
@@ -180,6 +181,8 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
   _pdsTypeList.push_back(Pds::TypeId::Id_ControlConfig);
   _pdsTypeList.push_back(Pds::TypeId::Id_Spectrometer);
+  _pdsTypeList.push_back(Pds::TypeId::Id_UsdUsbFexConfig);
+  _pdsTypeList.push_back(Pds::TypeId::Id_UsdUsbFexData);
 
   _epicsType2convFunc[DBR_TIME_SHORT] = &epicsValToCassVal<DBR_SHORT>;
   _epicsType2convFunc[DBR_TIME_FLOAT] = &epicsValToCassVal<DBR_FLOAT>;
