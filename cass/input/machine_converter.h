@@ -30,7 +30,7 @@ class CASSEvent;
 namespace MachineData
 {
 
-class EpicsKey;
+class XTCDataKey;
 
 /** Converter for Beamline-, Cavity-, Epics- and EVR Data
  *
@@ -89,10 +89,10 @@ private:
   static QMutex _mutex;
 
   /** define the conversion map from keys to strings */
-  typedef std::map<EpicsKey,std::string> epicsKeyMap_t;
+  typedef std::map<XTCDataKey,std::string> KeyMap_t;
 
   /** map Epics Keys to strings */
-  epicsKeyMap_t _index2name;
+  KeyMap_t _index2name;
 
   /** define the function to convert epics to cass */
   typedef std::tr1::function<void(const Pds::EpicsPvHeader&,

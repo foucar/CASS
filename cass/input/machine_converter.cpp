@@ -124,47 +124,38 @@ void epicsValToNothing(const Pds::EpicsPvHeader& /*epicsData*/,
 
 }
 
-/** Key for the epics lookup map
+/** Key for the xtc data lookup map
  *
  * Key for mapping Epics index and list to a specific name
  *
  * @author Lutz Foucar
  */
-class EpicsKey
+class XTCDataKey
 {
 public:
   /** constructor
    *
-   * @param src the info about the source of the epics list
-   * @param epicsIdx the index of the epics variable in the list
+   * @param src the info about the source of the xtc data
+   * @param index the index of the the xtc data in the list
    */
-  EpicsKey(const Pds::Src &src, int epicsIdx)
-    : _phy(src.phy()),
-      _idx(epicsIdx)
-  {}
+  XTCDataKey(const Pds::Src &src, uint32_t index)
+  {
+    _key = src.phy() << 32 | index;
+  }
 
   /** check whether this is less than other
-   *
-   * will compare for less first _log. If this is the same it will
-   * compare for less the _phys value and last the _index value. This makes sure
-   * that the Id is unique.
    *
    * @return true when this is smaller than other
    * @param other the other key that one compares this key to
    */
-  bool operator <(const EpicsKey& other) const
+  bool operator <(const XTCDataKey& other) const
   {
-    if (_phy != other._phy)
-      return _phy < other._phy;
-    return _idx < other._idx;
+    return _key < other._key;
   }
 
 private:
-  /** the phy of the src */
-  uint32_t _phy;
-
-  /** the index of the epics variable */
-  int16_t _idx;
+  /** the combined key */
+  uint64_t _key;
 
 };
 }//end namespace MachineData
@@ -383,7 +374,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     /** get the epics header and the epics id for this epics variable */
     const Pds::EpicsPvHeader& epicsData =
         *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
-    EpicsKey key(xtc->src,epicsData.iPvId);
+    XTCDataKey key(xtc->src,epicsData.iPvId);
 
     /** cntrl is a configuration type and will only be send with a configure
      *  transition
@@ -431,7 +422,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       /** now we need to find the variable name in the map, therefore we look up
        *  the name in the indexmap
        */
-      epicsKeyMap_t::const_iterator eIt(_index2name.find(key));
+      KeyMap_t::const_iterator eIt(_index2name.find(key));
       if (eIt == _index2name.end())
         Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
                  toString(epicsData.iPvId) + "' was not defined");
