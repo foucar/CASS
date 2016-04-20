@@ -139,9 +139,8 @@ public:
    * @param index the index of the the xtc data in the list
    */
   XTCDataKey(const Pds::Src &src, uint32_t index)
-  {
-    _key = src.phy() << 32 | index;
-  }
+    : _key(((static_cast<uint64_t>(src.phy())&0xffffffff)<<32) | (index&0xffffffff))
+  {}
 
   /** check whether this is less than other
    *
