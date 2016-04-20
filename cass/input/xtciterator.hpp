@@ -74,7 +74,7 @@ public:
     Log::add(Log::DEBUG4,string("XTC Compressed '") + (xtc_orig->contains.compressed() ? "true":"false") + "'");
     Log::add(Log::DEBUG4,string("XTC CompressedVersion '") + toString(xtc_orig->contains.compressed_version()) + "'");
     Log::add(Log::DEBUG4,string("XTC Damage value '") + toString(xtc_orig->damage.value()) + "'");
-    Log::add(Log::DEBUG4,string("XTC Level '") + Level::name(xtc_orig->src.level()) + toString(xtc_orig->src.level()) + "'");
+    Log::add(Log::DEBUG4,string("XTC Level '") + Level::name(xtc_orig->src.level()) + "'(" + toString(xtc_orig->src.level()) + ")");
     switch (xtc_orig->src.level())
     {
     case Level::Source :
