@@ -240,6 +240,7 @@ LCLSLibrary {
     DEPENDENCY_LIBRARIES   += opal1kdata
     DEPENDENCY_LIBRARIES   += pnccddata
     DEPENDENCY_LIBRARIES   += princetondata
+    DEPENDENCY_LIBRARIES   += psddldata
     DEPENDENCY_LIBRARIES   += pulnixdata
     DEPENDENCY_LIBRARIES   += xtcdata
     include( $${CASS_ROOT}/cass_dependencies.pri )

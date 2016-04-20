@@ -18,5 +18,6 @@ SUBDIRS        = acqiris \
                  opal1k \
                  pnCCD \
                  princeton \
+                 psddl \
                  pulnix \
                  xtc
