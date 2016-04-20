@@ -577,6 +577,75 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       break;
   }
 
+  case(Pds::TypeId::Id_UsdUsbFexConfig):
+  {
+    switch(xtc->contains.version())
+    {
+      default:
+      {
+        Log::add(Log::WARNING,"Unknown USDUBS config version '" +
+                 toString(xtc->contains.version()) + "' ignoring data");
+        break;
+      }
+
+      case(1):
+      {
+        const Pds::UsdUsb::FexConfigV1& usbcfg =
+          *reinterpret_cast<const Pds::UsdUsb::FexConfigV1*>(xtc->payload());
+        for (int i(0); i<(Pds::UsdUsb::FexConfigV1::NCHANNELS); ++i)
+        {
+          string name(Pds::DetInfo::name(reinterpret_cast<const Pds::DetInfo&>(xtc->src)));
+           name +=  ":" + toString(i) + ":";
+           name +=  usbcfg._name[i];
+          _index2name[XTCDataKey(xtc->src,i)] = name;
+          Log::add(Log::INFO,"MachineData::Converter: '" + name +
+                   "' is available in Beamline Data");
+        }
+      }
+    }
+    break;
+  }
+
+  case(Pds::TypeId::Id_UsdUsbFexData):
+  {
+    if (cassevent)
+    {
+      Device::bldMap_t& bld(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])).BeamlineData());
+      switch(xtc->contains.version())
+      {
+        default:
+        {
+          Log::add(Log::WARNING,"Unknown USDUSB data version '" +
+                   toString(xtc->contains.version()) + "' ignoring data");
+          break;
+        }
+
+        case(1):
+        {
+          const Pds::UsdUsb::FexDataV1& usbdata =
+            *reinterpret_cast<const Pds::UsdUsb::FexDataV1*>(xtc->payload());
+          for (int i(0); i<(Pds::UsdUsb::FexDataV1::Encoder_Inputs); ++i)
+          {
+            KeyMap_t::const_iterator it(_index2name.find(XTCDataKey(xtc->src,i)));
+            if (it == _index2name.end())
+            {
+              Log::add(Log::ERROR, string("MachineData::Converter: USDUSB variable from '") +
+                       Pds::DetInfo::name(reinterpret_cast<const Pds::DetInfo&>(xtc->src)) +
+                       "' with encoder '" + toString(i) + "' was not defined");
+            }
+            else
+            {
+              //cout <<it->second<<" " << usbdata._encoder_value[i]<<endl;
+              bld[it->second] = usbdata._encoder_value[i];
+            }
+          }
+          break;
+        }
+      }
+    }
+    break;
+  }
+
   default: break;
   }//end switch
 }
