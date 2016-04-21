@@ -679,6 +679,7 @@ void Converter::prepare(cass::CASSEvent *evt)
     Device::bldMap_t::const_iterator End (_store.BeamlineData().end());
     for(; it != End; ++it)
       md.BeamlineData()[it->first] = it->second;
+    md.spectrometers().clear();
   }
 }
 
