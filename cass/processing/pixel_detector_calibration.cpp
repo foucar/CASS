@@ -107,7 +107,7 @@ void pp330::loadSettings(size_t)
    *  we need to start training now
    */
   const uint32_t now(QDateTime::currentDateTime().toTime_t());
-  if (_update && (_updatePeriod <(now -!_lastwritten))) _train = true;
+  if (_update && (_updateWritePeriod <(now - _lastwritten))) _train = true;
   const string createdAt(_lastwritten ?
         QDateTime::fromTime_t(_lastwritten).toString("yyyyMMdd_HHmm").toStdString() :
         "never");
