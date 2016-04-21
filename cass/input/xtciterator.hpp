@@ -102,25 +102,28 @@ public:
             Pds::CompressedXtc::uncompress(*xtc_orig) :
             std::tr1::shared_ptr<Xtc>(xtc_orig,Destroy);
 
-      /** first check whether datagram is damaged or the xtc id is bigger than
-       *  we expect when it contains an incomplete contribution stop iterating
-       *  and return that it is not good
+      /** check if the datagram is a known xtc, if not skip this datagram and
+       *  continue with the next one.
        */
       uint32_t damage = xtc->damage.value();
       if (xtc->contains.id() >= Pds::TypeId::NumberOf)
       {
-        Log::add(Log::ERROR, toString(xtc->contains.id()) +
-                 " is an unkown xtc id. Skipping Event");
-        return Stop;
+        Log::add(Log::WARNING, toString(xtc->contains.id()) +
+                 " is an unkown xtc id.");
+        return Continue;
       }
+      /** if it is known check the damage state and only continue when its a
+       *  user defined damage value, as it will mark only a broken beamline data
+       */
       else if (damage)
       {
-        Log::add(Log::WARNING,std::string(Pds::TypeId::name(xtc->contains.id())) +
-                 " is damaged: " + toString(xtc->damage.value()) );
+//        Log::add(Log::WARNING,std::string(Pds::TypeId::name(xtc->contains.id())) +
+//                 " is damaged: " + toString(xtc->damage.value()) );
         if (damage & ( 0x1 << Pds::Damage::DroppedContribution))
         {
-          Log::add(Log::ERROR,"'"+ toString(xtc->damage.value()) +
-                   "' is dropped Contribution. Skipping Event");
+          Log::add(Log::ERROR,"'" + std::string(Pds::TypeId::name(xtc->contains.id())) +
+                   "' is damaged with '"+ toString(xtc->damage.value()) +
+                   "'(dropped Contribution). Skipping Event");
           return Stop;
         }
         else if(damage & (0x1 <<Pds::Damage::UserDefined))
@@ -129,11 +132,13 @@ public:
         }
         else
         {
-          Log::add(Log::ERROR,"'"+ toString(xtc->damage.value()) +
-                   "' is unkown Damage. Skipping Event");
+          Log::add(Log::ERROR,"'" + std::string(Pds::TypeId::name(xtc->contains.id())) +
+                   "' is damaged with '"+ toString(xtc->damage.value()) +
+                   "' (unkown Damage). Skipping Event");
           return Stop;
         }
       }
+      /** in all other cases just use the appropriate converter for the datagram */
       else
       {
         (*_converters[xtc->contains.id()])(xtc.get(),_cassevent);
