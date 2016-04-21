@@ -102,11 +102,15 @@ void pp330::loadSettings(size_t)
       (result_t::shared_pointer
         (new result_t(shape.first,nbrOfOutputs*shape.second)));
   loadCalibration();
-  /** in case we want updating and no calibration was loaded (_lastwritten is
-   *  not set), we need to start training now
+  /** in case we want updating and no calibration was loaded or the last
+   *  calibration is too outdated (now - _lastwritten > _updateWritePeriod),
+   *  we need to start training now
    */
-  if (_update && !_lastwritten) _train = true;
-
+  const uint32_t now(QDateTime::currentDateTime().toTime_t());
+  if (_update && (_updatePeriod <(now -!_lastwritten))) _train = true;
+  const string createdAt(_lastwritten ?
+        QDateTime::fromTime_t(_lastwritten).toString("yyyyMMdd_HHmm").toStdString() :
+        "never");
   Log::add(Log::INFO,"processor " + name() +
            ": generates the calibration data from images contained in '" +
            _image->name() +
@@ -119,8 +123,10 @@ void pp330::loadSettings(size_t)
            "' OffsetLowerBound '" + toString(_OffsetLowerBound) +
            "' OffsetUpperBound '" + toString(_OffsetUpperBound) +
            "' minNbrPixels '" + toString(_minNbrPixels) +
-           "' outputfilename '" + toString(_filename) +
-           "' write '" + (_write?"true":"false") +
+           "' outputfilename '" + _filename +
+           "' inputfilename '" + _infilename +
+           "'(created'" + createdAt +
+           "') write '" + (_write?"true":"false") +
            "' train '" + (_train?"true":"false") +
            "' nbrTrainImages '" + toString(_minTrainImages) +
            "' SNR '" + toString(_snr) +
@@ -208,11 +214,10 @@ void pp330::writeCalibration()
   /** check if a proper name is given otherwise autogenerate a name from the
    *  name of the processor and the current time
    */
+  const QDateTime now(QDateTime::currentDateTime());
   string outname;
   if (_filename == "NotSet")
-    outname = name() + "_" +
-              QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
-              ".cal";
+    outname = name() + "_" + now.toString("yyyyMMdd_HHmm").toStdString() + ".cal";
   else
     outname = _filename;
 
@@ -236,6 +241,9 @@ void pp330::writeCalibration()
   result_t::const_iterator stdvend(result.begin() + _stdvEndOffset);
   copy(stdvbegin,stdvend,noises.begin());
   out.write(reinterpret_cast<char*>(&noises[0]), noises.size()*sizeof(double));
+
+  /** remember when this was written */
+  _lastwritten = now.toTime_t();
 
   /** if no proper filename was given, create a link to the current file
    *  with a more general filename
@@ -460,14 +468,9 @@ void pp330::process(const CASSEvent &evt, result_t &result)
     /** update the bad pix map and the file if requested */
     if ((_counter % _updatePeriod) == 0)
       setBadPixMap();
-    uint32_t curTime(QDateTime::currentDateTime().toTime_t());
-//    cout << "cur:" << curTime << ", lastwritten:"<<_lastwritten
-//         << ", diff:"<<(curTime - _lastwritten)<<endl;
-    if (_write && (_updateWritePeriod < (curTime - _lastwritten)))
-    {
+    const uint32_t now(QDateTime::currentDateTime().toTime_t());
+    if (_write && (_updateWritePeriod < (now - _lastwritten)))
       writeCalibration();
-      _lastwritten = curTime;
-    }
   }
 }
 
