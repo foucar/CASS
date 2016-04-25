@@ -37,10 +37,15 @@ void Worker::runthis()
   {
     pausePoint();
     /** ensure that one has retrieved a valid event and that the id is non zero number*/
-    if (((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end()) &&
-         (rbItem->element->id() != 0))
+    if ((rbItem = _ringbuffer.nextToProcess(1000)) != _ringbuffer.end())
     {
-      _process(*rbItem->element);
+      /** @note we need to check the element id in here, because if it is done
+       *        in the outer if statement (as before) a valid ringbuffer element
+       *        would never be returned to the buffer, as this only happens
+       *        within the true if clause.
+       */
+      if(rbItem->element->id())
+        _process(*rbItem->element);
       _ringbuffer.doneProcessing(rbItem);
       _ratemeter.count();
     }
