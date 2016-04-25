@@ -99,6 +99,9 @@ public:
           Log::add(Log::ERROR,output);
           isGood = false;
         }
+        /** @todo count the number of skipped events and make is accessible to
+         *        rateplotter
+         */
         ++_counter;
         ids.push_back(rbItem->element->id());
       }
