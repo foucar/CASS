@@ -83,30 +83,31 @@ public:
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
       else
       {
+        /** check if id is unique, if not skip event */
+        CASSEvent::id_t id(rbItem->element->id());
+        if (find(ids.begin(), ids.end(), id) != ids.end())
+        {
+          string output("File '"+_filename+"' has duplicate id '" +
+                        toString(id) + "'");
+          if (_read->type() == "xtc")
+          {
+            uint32_t seconds(static_cast<uint32_t>((id & 0xFFFFFFFF00000000) >> 32));
+            uint32_t fiducial(static_cast<uint32_t>((id & 0x00000000FFFFFFFF) >> 8));
+            output += ("(seconds '" + toString(seconds) + "', fiducial '" +
+                       toString(fiducial) + "')");
+          }
+          Log::add(Log::ERROR,output);
+          isGood = false;
+        }
         ++_counter;
         ids.push_back(rbItem->element->id());
       }
+      /** give item back to the ringbuffer */
       rbItem->element->setFilename(_filename.c_str());
       input.newEventAdded(rbItem->element->datagrambuffer().size());
       input.ringbuffer().doneFilling(rbItem, isGood);
     }
     _file.close();
-    /** find out whether all ids are unique within the event */
-    sort(ids.begin(),ids.end());
-    vector<CASSEvent::id_t>::iterator first(ids.begin());
-    while((first = adjacent_find(first,ids.end())) != ids.end())
-    {
-      string output("File '"+_filename+"' has duplicate id '" + toString(*first)+"'");
-      if (_read->type() == "xtc")
-      {
-        uint32_t seconds(static_cast<uint32_t>((*first & 0xFFFFFFFF00000000) >> 32));
-        uint32_t fiducial(static_cast<uint32_t>((*first & 0x00000000FFFFFFFF) >> 8));
-        output += ("(seconds '" + toString(seconds) + "', fiducial '" +
-                   toString(fiducial) + "')");
-      }
-      Log::add(Log::ERROR,output);
-      ++first;
-    }
   }
 
   /** retrieve the progess within the file
