@@ -117,8 +117,8 @@ public:
        */
       else if (damage)
       {
-//        Log::add(Log::WARNING,std::string(Pds::TypeId::name(xtc->contains.id())) +
-//                 " is damaged: " + toString(xtc->damage.value()) );
+        Log::add(Log::VERBOSEINFO,std::string(Pds::TypeId::name(xtc->contains.id())) +
+                 " is damaged: " + toString(xtc->damage.value()) );
         if (damage & ( 0x1 << Pds::Damage::DroppedContribution))
         {
           Log::add(Log::ERROR,"'" + std::string(Pds::TypeId::name(xtc->contains.id())) +
