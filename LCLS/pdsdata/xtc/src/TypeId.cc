@@ -202,6 +202,7 @@ const char* TypeId::name(Type type)
     "Generic1DData",           // 100
     "UsdUsbFexConfig",         // 101
     "UsdUsbFexData",           // 102
+    "EOrbits",                 // 103
   };
    const char* p = (type < NumberOf ? _names[type] : "-Invalid-");
    if (!p) p = "-Unnamed-";
