@@ -317,7 +317,7 @@ inline void unique(std::list<T>& l)
 template <typename T>
 bool fuzzycompare(const T& first, const T& second)
 {
-  return (std::abs(first-second) < sqrt(std::numeric_limits<T>::epsilon()));
+  return (std::abs(first-second) < std::numeric_limits<T>::epsilon());
 }
 
 /** fuzzy compare a floating point number to 0
