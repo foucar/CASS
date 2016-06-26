@@ -204,6 +204,7 @@ void pp112::loadSettings(size_t)
     throw invalid_argument("pp111 '" + name() + "' histogram '" + _waveform->name() +
                            "' is not a 1D histogram");
 
+  _threshold = s.value("Threshold_V",0.1).toFloat();
   _fraction = s.value("Fraction",0.6).toFloat();
   _walk = s.value("Walk_V",0).toFloat();
   const float delay(s.value("Delay_ns",5).toFloat());

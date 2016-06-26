@@ -128,6 +128,8 @@ protected:
  *           Delay in ns used. Default is 5.
  * @cassttng Processor/\%name\%/{Fraction}\n
  *           Fraction used. Default is 0.6
+ * @cassttng Processor/\%name\%/{Threshold_V}\n
+ *           threshold in V used. Default is 0.1
  * @cassttng Processor/\%name\%/{Walk_V}\n
  *           walk in V used. Default is 0.
  *
