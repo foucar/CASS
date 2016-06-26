@@ -307,6 +307,17 @@ typedef BldDataEBeamV6 BldDataEBeam;
 
 
 
+class BldDataEOrbitsV0 {
+public:
+  enum { TypeId = Pds::TypeId::Id_EOrbits /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 0 /**< XTC type version number */ };
+  uint32_t	_nBPMS;	/**< Number of BPM in each array */
+  //double	_fBPM_X[this->_nBPMS];
+  //double	_fBPM_Y[this->_nBPMS];
+  //double	_fBPM_TMIT[this->_nBPMS];
+};
+
+
 class BldDataPhaseCavity
 {
     // PV names: UND:R02:IOC:16:BAT:FitTime1, UND:R02:IOC:16:BAT:FitTime2,

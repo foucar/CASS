@@ -577,6 +577,39 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       break;
   }
 
+
+  case(Pds::TypeId::Id_EOrbits):
+  {
+    Device &md(dynamic_cast<Device&>(*(cassevent->devices()[cass::CASSEvent::MachineData])));
+    uint32_t version(xtc->contains.version());
+    switch (version)
+    {
+    case (0):
+    {
+      const Pds::BldDataEOrbitsV0 *data
+          (reinterpret_cast<const Pds::BldDataEOrbitsV0*>(xtc->payload()));
+      /** BPM X values (mm) */
+      ptrdiff_t offset(4);
+      const double* x_first(reinterpret_cast<const double*>(reinterpret_cast<const char*>(data)+offset));
+      const double* x_last(x_first + data->_nBPMS);
+      /** BPM Y values (mm) */
+      offset = 4+(8*(data->_nBPMS));
+      const double* y_first(reinterpret_cast<const double*>(reinterpret_cast<const char*>(data)+offset));
+      const double* y_last(y_first + data->_nBPMS);
+      /** BPM TMIT values (Nel) */
+      offset = (4+(8*(data->_nBPMS)))+(8*(data->_nBPMS));
+      const double* tmit_first(reinterpret_cast<const double*>(reinterpret_cast<const char*>(data)+offset));
+      const double* tmit_last(tmit_first + data->_nBPMS);
+      break;
+    }
+    default:
+      Log::add(Log::ERROR,"Unknown EOrbits Version '" + toString(version) +
+               "'. Skipping reading of EOrbits data.");
+      break;
+    }
+      break;
+  }
+
   case(Pds::TypeId::Id_UsdUsbFexConfig):
   {
     switch(xtc->contains.version())
