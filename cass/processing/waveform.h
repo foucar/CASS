@@ -124,14 +124,14 @@ protected:
  * @cassttng Processor/\%name\%/{Waveform} \n
  *           The name of the Processor containing the waveform that should
  *           be converted. Default is 'Unknown'
- * @cassttng Processor/\%name\%/{Delay_ns}\n
- *           Delay in ns used. Default is 5.
+ * @cassttng Processor/\%name\%/{Delay}\n
+ *           Delay in units of the input x-axis is used. Default is 5.
  * @cassttng Processor/\%name\%/{Fraction}\n
  *           Fraction used. Default is 0.6
- * @cassttng Processor/\%name\%/{Threshold_V}\n
- *           threshold in V used. Default is 0.1
- * @cassttng Processor/\%name\%/{Walk_V}\n
- *           walk in V used. Default is 0.
+ * @cassttng Processor/\%name\%/{Threshold}\n
+ *           threshold in units of the y-axis. Default is 0.1
+ * @cassttng Processor/\%name\%/{Walk}\n
+ *           walk in units of the y-axis. Default is 0.
  *
  * @author Lutz Foucar
  */

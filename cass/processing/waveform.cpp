@@ -204,10 +204,10 @@ void pp112::loadSettings(size_t)
     throw invalid_argument("pp111 '" + name() + "' histogram '" + _waveform->name() +
                            "' is not a 1D histogram");
 
-  _threshold = s.value("Threshold_V",0.2).toFloat();
+  _threshold = s.value("Threshold",0.2).toFloat();
   _fraction = s.value("Fraction",0.6).toFloat();
-  _walk = s.value("Walk_V",0).toFloat();
-  const float delay(s.value("Delay_ns",5).toFloat());
+  _walk = s.value("Walk",0).toFloat();
+  const float delay(s.value("Delay",5).toFloat());
   const size_t nBins(_waveform->result().axis(result_t::xAxis).nBins);
   const float Up(_waveform->result().axis(result_t::xAxis).up);
   const float samplInter(Up/nBins);
@@ -216,9 +216,12 @@ void pp112::loadSettings(size_t)
   /** Create the result output */
   createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
 
-  Log::add(Log::INFO,"Processor '" + name() + "' is converting waveform '" +
-           _waveform->name() + "' to a CFD Trace using delay '" + toString(delay) +
-           "', Fraction '" + toString(_fraction) + "', Walk '" + toString(_walk) +
+  Log::add(Log::INFO,"Processor '" + name() + "' is finding signals in input '" +
+           _waveform->name() + "' using a CFD algorithm with user set delay '" +
+           toString(delay) + "' which corresponds to '" + toString(_delay) +
+           "' points of the input, Fraction '" + toString(_fraction) +
+           "', Walk '" + toString(_walk) +
+           "', Threshold '" + toString(_threshold) +
            "'. Condition is '" + _condition->name() + "'");
 }
 
@@ -234,6 +237,7 @@ pp112::fitparam_t pp112::linearRegression(points_t::const_iterator first,
     SumXY   += (first->first*first->second);
     SumXsq  += (first->first*first->first);
     ++nPoints;
+    ++first;
   }
   const float a1 = ((SumX*SumX) - (nPoints*SumXsq));
   return make_pair(((SumX*SumXY) - (SumY*SumXsq)) / a1,
