@@ -47,6 +47,9 @@ class Ratemeter;
  * @cassttng ProcessingStatistics/{ShowNbrProcessedEvents} \n
  *           If true, it will show the number of events processed. Default is
  *           false.
+ * @cassttng ProcessingStatistics/{ShowNbrSkippedEvents} \n
+ *           If true, it will show the number of events skipped. Default is
+ *           false.
  * @cassttng ProcessingStatistics/{NewLine} \n
  *           If true, it will show the input rate. Default is true.
  * @cassttng ProcessingStatistics/ValueProcessors/{size} \n
@@ -130,6 +133,9 @@ private:
 
   /** flag to tell whether to report on how many events have been processed */
   bool _showNProcessedEvents;
+
+  /** flag to tell whether to report on how many events have been processed */
+  bool _showNSkippedEvents;
 
   /** flag to tell whether the updated info should be put into a new line */
   bool _newLine;

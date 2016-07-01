@@ -65,6 +65,11 @@ public:
    */
   virtual uint64_t eventcounter();
 
+  /** retrieve the number of skipped events that have been input so far
+   *
+   * needs to be implemented by the individual imputs, defaults to 0 otherwise
+   */
+  virtual uint64_t skippedeventcounter();
 
   /** increment the numer of events received in the ratemeter
    *

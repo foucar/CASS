@@ -63,3 +63,8 @@ uint64_t InputBase::eventcounter()
 {
   return 0;
 }
+
+uint64_t InputBase::skippedeventcounter()
+{
+  return 0;
+}

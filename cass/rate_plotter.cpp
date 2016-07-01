@@ -55,6 +55,8 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
   output << "ShowProcessRatio '"<< std::boolalpha << _showProgress << "', ";
   _showNProcessedEvents = s.value("ShowNbrProcessedEvents",false).toBool();
   output << "ShowNbrProcessEvents '"<< std::boolalpha << _showNProcessedEvents << "', ";
+  _showNSkippedEvents = s.value("ShowNbrSkippedEvents",false).toBool();
+  output << "ShowNbrSkippedEvents '"<< std::boolalpha << _showNSkippedEvents << "', ";
   _newLine = s.value("NewLine",false).toBool();
   output << "NewLine '"<< std::boolalpha << _newLine << "', ";
   output << "ValueProcessors: ";
@@ -160,6 +162,12 @@ void RatePlotter::run()
       output << " | Events: "
              << std::setw(7)
              << InputBase::reference().eventcounter();
+    }
+    if (_showNSkippedEvents)
+    {
+      output << " | Skipped Events: "
+             << std::setw(7)
+             << InputBase::reference().skippedeventcounter();
     }
     for (proclist_t::const_iterator it(_procs.begin()); it !=_procs.end(); ++it)
     {
