@@ -70,12 +70,12 @@ public:
     convert.loadSettings();
     convert.cacheParameters(_liststart,_listend,_blNbr,_runNbr,_highTagNbr);
     /** read and convert the info for each of the tags */
-    vector<int>::const_iterator iter(_liststart);
+    _iter = _liststart;
     string output("TagListProcessor: The following tags will be processed by '" +
                   toString(this) + "' for beamline '" + toString(_blNbr) + "' (size is '" +
                   toString(distance(_liststart,_listend)) + "'):");
-    for (; iter != _listend; ++iter)
-      output += " '" + toString(*iter) + "',";
+    for (; _iter != _listend; ++_iter)
+      output += " '" + toString(*_iter) + "',";
     Log::add(Log::VERBOSEINFO,output);
 
     /** get reference to the global input, which we use to interact with the
@@ -86,8 +86,8 @@ public:
     /** iterate through the list of tags and check every iteration whether the
      *  input should quit
      */
-    iter = _liststart;
-    for(;(!input.shouldQuit()) && (iter != _listend); ++iter)
+    _iter = _liststart;
+    for(;(!input.shouldQuit()) && (_iter != _listend); ++_iter)
     {
       /** retrieve a new element from the ringbuffer, in case it is an iterator
        *  to the end of the buffer, continue to the next iterator of this list
@@ -97,14 +97,17 @@ public:
         continue;
 
       /** fill the cassevent object with the contents from the file */
-      uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*iter,*rbItem->element);
+      uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*_iter,*rbItem->element);
 
       /** in case nothing was retieved, issue a warning. Increase the counter
        *  otherwise
        */
       if (!datasize)
+      {
         Log::add(Log::WARNING,"TagListProcessor: Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
+        ++_skippedeventscounter;
+      }
       else
         ++_counter;
 
@@ -116,11 +119,28 @@ public:
     }
   }
 
+  /** retrieve the progess within the list
+   *
+   * @return the current progress
+   */
+  double progress()
+  {
+    const double fullsize(distance(_liststart,_listend));
+    const double currsize(distance(_liststart,_iter));
+    return currsize/fullsize;
+  }
+
   /** retrieve the number of events processed by this thread
    *
    *  @return the number of processed events
    */
   uint64_t nEventsProcessed() {return _counter;}
+
+  /** retrieve the number of events skipped by this thread
+   *
+   *  @return the number of skipped events
+   */
+  uint64_t nEventsSkipped() {return _skippedeventscounter;}
 
 private:
   /** iterator to the start of the list */
@@ -128,6 +148,10 @@ private:
 
   /** iterator to the end of the list */
   vector<int>::const_iterator _listend;
+
+  /** iterator to the current item being processed */
+  vector<int>::const_iterator _iter;
+
 
   /** the run number for the experiment */
   int _runNbr;
@@ -140,6 +164,9 @@ private:
 
   /** a counter to count how many events (tags) have been processed */
   uint64_t _counter;
+
+  /** a counter to count how many events (tags) have been skipped */
+  uint64_t _skippedeventscounter;
 };
 
 /** retrieve the list of tags and the associated high tag number
@@ -328,7 +355,6 @@ void SACLAOfflineInput::runthis()
      *  and process the splittet tag list in separate threads
      */
     int chunksize = taglist.size() / _chunks;
-    vector<TagListProcessor::shared_pointer> processors;
     for (int chunk(0); chunk < _chunks-1; ++chunk)
     {
       vector<int>::const_iterator chunkstart(taglist.begin() + (chunk*chunksize));
@@ -339,7 +365,7 @@ void SACLAOfflineInput::runthis()
       /** start the processor */
       processor->start();
       /** put the processor in the processor container */
-      processors.push_back(processor);
+      _procs.push_back(processor);
     }
     /** if there are tags in the list remaining, add the into the last processor */
     vector<int>::const_iterator chunkstart(taglist.begin() + ((_chunks-1)*chunksize));
@@ -348,11 +374,11 @@ void SACLAOfflineInput::runthis()
     /** start the processor */
     processor->start();
     /** put the processor in the processor container */
-    processors.push_back(processor);
+    _procs.push_back(processor);
 
     /** wait until all threads are finished and sum up the total events */
-    vector<TagListProcessor::shared_pointer>::iterator processorsIt(processors.begin());
-    vector<TagListProcessor::shared_pointer>::iterator processorsEnd(processors.end());
+    proc_t::iterator processorsIt(_procs.begin());
+    proc_t::iterator processorsEnd(_procs.end());
     for (; processorsIt != processorsEnd; ++processorsIt)
     {
       (*processorsIt)->wait();
@@ -371,4 +397,28 @@ void SACLAOfflineInput::runthis()
   Log::add(Log::VERBOSEINFO, "SACLAOfflineInput::run(): closing the input");
   Log::add(Log::INFO,"SACLAOfflineInput::run(): Analysed '" + toString(eventcounter) +
            "' events.");
+}
+
+double SACLAOfflineInput::progress()
+{
+  double progressSum(0.);
+  for (proc_t::const_iterator it(_procs.begin()); it != _procs.end(); ++it)
+    progressSum += (*it)->progress();
+  return (progressSum / _procs.size());
+}
+
+uint64_t SACLAOfflineInput::eventcounter()
+{
+  uint64_t counter(0);
+  for (proc_t::const_iterator it(_procs.begin()); it != _procs.end(); ++it)
+    counter += (*it)->nEventsProcessed();
+  return counter;
+}
+
+uint64_t SACLAOfflineInput::skippedeventcounter()
+{
+  uint64_t counter(0);
+  for (proc_t::const_iterator it(_procs.begin()); it != _procs.end(); ++it)
+    counter += (*it)->nEventsSkipped();
+  return counter;
 }

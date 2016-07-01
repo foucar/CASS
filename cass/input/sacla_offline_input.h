@@ -18,6 +18,9 @@
 
 namespace cass
 {
+/** forward declaration of the tag processor */
+class TagListProcessor;
+
 /** SACLA Offline Input for cass
  *
  * This class will be used in offline modus. I will take an string that
@@ -67,6 +70,24 @@ public:
   /** load the parameters used for the input */
   void load();
 
+  /** retrieve the progress state
+   *
+   * @return the processing progress
+   */
+  double progress();
+
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter();
+
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter();
+
 private:
   /** constructor
    *
@@ -95,6 +116,12 @@ private:
 
   /** name of the file containing all files that we need to process */
   std::string _runlistname;
+
+  /** define the processors container */
+  typedef std::vector<std::tr1::shared_ptr<TagListProcessor> > proc_t;
+
+  /** the processor container */
+  proc_t _procs;
 };
 
 }//end namespace cass
