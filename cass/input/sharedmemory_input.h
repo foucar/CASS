@@ -83,6 +83,18 @@ public:
   /** load the parameters of the FormatConverter */
   void load();
 
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter();
+
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter();
+
 private:
   /** constructor
    *
@@ -115,6 +127,12 @@ private:
    * The converter will convert the incomming data to our CASSEvent
    */
   FormatConverter &_convert;
+
+  /** a counter for the events */
+  uint64_t _eventscounter;
+
+  /** a counter for the skipped events */
+  uint64_t _skippedeventscounter;
 };
 
 }//end namespace cass

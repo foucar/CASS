@@ -46,7 +46,9 @@ SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
   : InputBase(ringbuffer,ratemeter,loadmeter,parent),
     _partitionTag(partitionTag),
     _index(index),
-    _convert(*FormatConverter::instance())
+    _convert(*FormatConverter::instance()),
+    _eventscounter(0),
+    _skippedeventscounter(0)
 {
   load();
 }
@@ -104,6 +106,9 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   /** now convert the datagram to a cassevent */
   const bool isGood = _convert(rbItem->element.get());
 
+  /** advance the counters */
+  isGood ? ++_eventscounter : ++_skippedeventscounter;
+
   /** tell the buffer that we are done, but also let it know whether it is a good event */
   _ringbuffer.doneFilling(rbItem,isGood);
 
@@ -112,4 +117,14 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
 
   /** return the quit code */
   return shouldQuit();
+}
+
+uint64_t SharedMemoryInput::eventcounter()
+{
+  return _eventscounter;
+}
+
+uint64_t SharedMemoryInput::skippedeventcounter()
+{
+  return _skippedeventscounter;
 }
