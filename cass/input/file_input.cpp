@@ -46,7 +46,8 @@ public:
   FileProcessor(const string &filename)
     : _filename(filename),
       _file(filename.c_str(), ios::binary | ios::in),
-      _counter(0)
+      _counter(0),
+      _skippedcounter(0)
   {
     /** load the right reader for the file type depending on its extension */
     _read = FileReader::instance(_filename);
@@ -79,8 +80,11 @@ public:
       /** fill the cassevent object with the contents from the file */
       bool isGood((*_read)(_file,*rbItem->element));
       if (!isGood)
+      {
+        ++_skippedcounter;
         Log::add(Log::WARNING,"FileProcessor::run(): Event with id '"+
                  toString(rbItem->element->id()) + "' is bad: skipping Event");
+      }
       else
       {
         /** check if id is unique, if not skip event */
@@ -98,12 +102,16 @@ public:
           }
           Log::add(Log::ERROR,output);
           isGood = false;
+          ++_skippedcounter;
         }
-        /** @todo count the number of skipped events and make is accessible to
-         *        rateplotter
-         */
-        ++_counter;
-        ids.push_back(rbItem->element->id());
+        else
+        {
+          /** @todo count the number of skipped events and make is accessible to
+           *        rateplotter
+           */
+          ++_counter;
+          ids.push_back(rbItem->element->id());
+        }
       }
       /** give item back to the ringbuffer */
       rbItem->element->setFilename(_filename.c_str());
@@ -130,6 +138,12 @@ public:
    */
   uint64_t nEventsProcessed() {return _counter;}
 
+  /** retrieve the number of skipped events by this thread
+   *
+   *  @return the number of skippted events
+   */
+  uint64_t nSkippedEvents() {return _skippedcounter;}
+
 private:
   /** the filename to work on */
   string _filename;
@@ -145,6 +159,9 @@ private:
 
   /** a counter for the events */
   uint64_t _counter;
+
+  /** a counter for the skipped events */
+  uint64_t _skippedcounter;
 };//end class FileProcessor
 
 }//end namespace cass
@@ -266,5 +283,13 @@ uint64_t FileInput::eventcounter()
   uint64_t counter(0);
   for (fileProcessors_t::const_iterator it(_fProcs.begin()); it != _fProcs.end(); ++it)
     counter += (*it)->nEventsProcessed();
+  return counter;
+}
+
+uint64_t FileInput::skippedeventcounter()
+{
+  uint64_t counter(0);
+  for (fileProcessors_t::const_iterator it(_fProcs.begin()); it != _fProcs.end(); ++it)
+    counter += (*it)->nSkippedEvents();
   return counter;
 }

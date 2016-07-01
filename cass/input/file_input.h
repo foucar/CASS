@@ -77,6 +77,12 @@ public:
    */
   uint64_t eventcounter();
 
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter();
+
 private:
   /** constructor
    *
