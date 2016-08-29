@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <limits>
 #include <tr1/memory>
+#include <cmath>
 #ifdef CASS_DEBUG
 #include <iostream>
 #endif
