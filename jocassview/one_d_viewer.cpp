@@ -65,7 +65,7 @@ OneDViewer::OneDViewer(QString title, QWidget *parent)
   _plot = new QwtPlot(this);
   // add a curve that should be displayed
   _curves.push_front(new PlotCurve);
-  _curves[0]->setTitle("current data");
+  _curves[0]->setTitle(title);
   OneDViewerData *data(new OneDViewerData);
   _curves[0]->setData(data);
   QPen pen;
@@ -298,7 +298,7 @@ void OneDViewer::on_legend_right_clicked(QPoint pos)
   act->setParent(curveWidget);
   act = menu.addAction(tr("Line Width"),this,SLOT(change_curve_width()));
   act->setParent(curveWidget);
-  if(curve->title() != QwtText("current data"))
+  if(curve->title() != windowTitle())
   {
     act = menu.addSeparator();
     act = menu.addAction(tr("Delete"),this,SLOT(remove_curve()));
