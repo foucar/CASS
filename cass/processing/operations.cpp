@@ -864,15 +864,72 @@ void pp51::loadSettings(size_t)
                            "': Xup '" + toString(userrange.second) +
                            "' is higher than the highest possible value '" +
                            toString(xaxis.up) + "'");
+  _baseline = bind(&pp51::constantBaseline,this,_1);
+  string output("Processor '" + name() +
+                "' will create integral of 1D results in Processor '" + input.name() +
+                "' from '" + toString(userrange.first) +  "(" + toString(_range.first) +
+                ")' to '" + toString(userrange.second) + "(" + toString(_range.second) +
+                ")'.");
+
+  if (s.value("BaselineXLow","None").toString() != "None")
+  {
+    pair<float,float> baselineuserrange(make_pair(s.value("BaselineXLow",-1e6).toFloat(),
+                                                  s.value("BaselineXUp", 1e6).toFloat()));
+    if (baselineuserrange.first >= baselineuserrange.second)
+      throw invalid_argument("pp51::loadSettings: '"+name()+"' BaselineXLow '" +
+                             toString(baselineuserrange.first) +
+                             "' is bigger or equal to BaselineXUp '" +
+                             toString(baselineuserrange.second) + "'");
+    _baselineRange.first  = xaxis.bin(baselineuserrange.first);
+    _baselineRange.second = xaxis.bin(baselineuserrange.second);
+    if (_baselineRange.first == _baselineRange.second)
+      throw invalid_argument("pp51::loadSettings: '" + name() +
+                             "': BaselineXLow '" + toString(baselineuserrange.first) +
+                             "' is giving the the same column as BaselineXUp '" +
+                             toString(baselineuserrange.second) + "'");
+    if (_baselineRange.first < 0)
+      throw invalid_argument("pp51::loadSettings: '" + name() +
+                             "': BaselineXLow '" + toString(baselineuserrange.first) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xaxis.low) + "'");
+    if (static_cast<int>(xaxis.nBins) < _baselineRange.first)
+      throw invalid_argument("pp51::loadSettings: '" + name() +
+                             "': BaselineXLow '" + toString(baselineuserrange.first) +
+                             "' is higher than the highest possible value '" +
+                             toString(xaxis.up) + "'");
+    if (_baselineRange.second < 0)
+      throw invalid_argument("pp51::loadSettings: '" + name() +
+                             "': BaselineXup '" + toString(baselineuserrange.second) +
+                             "' is smaller than the lowest possible value '" +
+                             toString(xaxis.low) + "'");
+    if (static_cast<int>(xaxis.nBins) < _baselineRange.second)
+      throw invalid_argument("pp51::loadSettings: '" + name() +
+                             "': BaselineXup '" + toString(baselineuserrange.second) +
+                             "' is higher than the highest possible value '" +
+                             toString(xaxis.up) + "'");
+    _baseline = bind(&pp51::baselineFromInput,this,_1);
+    output += (". It will use range from '" + toString(baselineuserrange.first) +
+               "(" + toString(_baselineRange.first) + ")' to '" +
+               toString(baselineuserrange.second) + "(" +
+               toString(_baselineRange.second) + ")' to determine the baseline.");
+  }
+  else
+  {
+    output += (". It will use a constant baseline of 0");
+  }
 
 
   createHistList(result_t::shared_pointer(new result_t()));
 
-  Log::add(Log::INFO, "Processor '" + name() +
-      "' will create integral of 1D results in Processor '" + input.name() +
-      "' from '" + toString(userrange.first) +  "(" + toString(_range.first) +
-      ")' to '" + toString(userrange.second) + "(" + toString(_range.second) +
-      ")'. Condition is '" + _condition->name() + "'");
+  output += (" Condition is '" + _condition->name() + "'");
+  Log::add(Log::INFO,output);
+}
+
+float pp51::baselineFromInput(const result_t &input)
+{
+  result_t::const_iterator begin(input.begin()+_baselineRange.first);
+  result_t::const_iterator   end(input.begin()+_baselineRange.second);
+  return accumulate(begin,end, 0.f);
 }
 
 void pp51::process(const CASSEvent& evt, result_t &result)
@@ -882,7 +939,9 @@ void pp51::process(const CASSEvent& evt, result_t &result)
 
   result_t::const_iterator begin(input.begin()+_range.first);
   result_t::const_iterator   end(input.begin()+_range.second);
-  result.setValue(accumulate(begin, end, 0.f));
+  const float nPoints(distance(begin,end));
+
+  result.setValue(accumulate(begin, end, -1.0f * nPoints*_baseline(input)));
 }
 
 

@@ -626,6 +626,11 @@ private:
  * @cassttng Processor/\%name\%/{XLow|XUp} \n
  *           Upper and lower bound of the area to integrate. The endpoints are
  *           defined like \f$ [XLow,Xup[ \f$. Default is -1e6 ... 1e6
+ * @cassttng Processor/\%name\%/{BaselineXLow|BaselineXUp} \n
+ *           Upper and lower bound of the area that determines the baseline for
+ *           the integration. If these values are not set, then a baseline of 0
+ *           is taken. The endpoints are
+ *           defined like \f$ [XLow,Xup[ \f$. Default is -1e6 ... 1e6
  *
  * @author Lutz Foucar
  */
@@ -647,6 +652,26 @@ private:
 
   /** range we want to have the integral over in result bins */
   std::pair<int,int> _range;
+
+  /** range we want to have the baseline for the integral over in result bins */
+  std::pair<int,int> _baselineRange;
+
+  /** get the baseline for the integration
+   *
+   * @return the baseline value
+   * @param input the input trace from which the baseline will be determined
+   */
+  float baselineFromInput(const result_t &input);
+
+  /** get constant baseline
+   *
+   * @return the constant baseline value
+   * @param input unused
+   */
+  float constantBaseline(const result_t &input) {return 0.f;}
+
+  /** the function that will return the baseline */
+  std::tr1::function<float(const result_t&)> _baseline;
 };
 
 
