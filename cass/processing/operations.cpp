@@ -929,7 +929,9 @@ float pp51::baselineFromInput(const result_t &input)
 {
   result_t::const_iterator begin(input.begin()+_baselineRange.first);
   result_t::const_iterator   end(input.begin()+_baselineRange.second);
-  return accumulate(begin,end, 0.f);
+  const float sum(accumulate(begin,end, 0.f));
+  const float nPoints(distance(begin,end));
+  return (sum/nPoints);
 }
 
 void pp51::process(const CASSEvent& evt, result_t &result)
