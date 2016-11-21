@@ -73,10 +73,11 @@ namespace Pds {
                 XppAin01         = 59,
                 XcsAin01         = 60,
                 AmoAin01         = 61,
-                XcsBeamMon01     = 62,
+                MfxBeamMon01     = 62,
                 EOrbits          = 63,
                 MfxDg1Pim        = 64,
                 MfxDg2Pim        = 65,
+                SxrAin01         = 66,
                 NumberOf };
 
     BldInfo() {}

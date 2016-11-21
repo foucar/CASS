@@ -498,6 +498,57 @@ public:
   double	_Channel_Intensity[16];	/**< Value of Channel Intensity, in J. */
 };
 
+/** @class BldDataBeamMonitorV1
+
+  Intensity and Position Measurements
+*/
+class BldDataBeamMonitorV1 {
+public:
+  enum { TypeId = Pds::TypeId::Id_BeamMonitorBldData /**< XTC type ID value (from Pds::TypeId class) */ };
+  enum { Version = 1 /**< XTC type version number */ };
+  enum { NCHANNELS = 16 };
+  ///** Value of Total Intensity, in J. */
+  //double TotalIntensity() const { return _TotalIntensity; }
+  ///** Value of X Position, in m. */
+  //double X_Position() const { return _X_Position; }
+  ///** Value of Y Position, in m. */
+  //double Y_Position() const { return _Y_Position; }
+  ///** Peak Amplitude of Channel
+  // * Note: this overloaded method accepts shared pointer argument which must point to an object containing
+  // * this instance, the returned ndarray object can be used even after this instance disappears.
+  // */
+  //template <typename T>
+  //ndarray<const double, 1> peakA(const boost::shared_ptr<T>& owner) const {
+  //  const double* data = &_peakA[0];
+  //  return make_ndarray(boost::shared_ptr<const double>(owner, data), NCHANNELS);
+  //}
+  ///** Peak Amplitude of Channel
+  // * Note: this method returns ndarray instance which does not control lifetime
+  // * of the data, do not use returned ndarray after this instance disappears.
+  // */
+  //ndarray<const double, 1> peakA() const { return make_ndarray(&_peakA[0], NCHANNELS); }
+  ///** Location of Peak Amplitude of Channel
+  // * Note: this overloaded method accepts shared pointer argument which must point to an object containing
+  // * this instance, the returned ndarray object can be used even after this instance disappears.
+  // */
+  //template <typename T>
+  //ndarray<const uint16_t, 1> peakT(const boost::shared_ptr<T>& owner) const {
+  //  const uint16_t* data = &_peakT[0];
+  //  return make_ndarray(boost::shared_ptr<const uint16_t>(owner, data), NCHANNELS);
+  //}
+  ///** Location of Peak Amplitude of Channel
+  // * Note: this method returns ndarray instance which does not control lifetime
+  // * of the data, do not use returned ndarray after this instance disappears.
+  // */
+  //ndarray<const uint16_t, 1> peakT() const { return make_ndarray(&_peakT[0], NCHANNELS); }
+  static uint32_t _sizeof() { return (((((24+(8*(NCHANNELS)))+(2*(NCHANNELS)))+4)-1)/4)*4; }
+  double	_TotalIntensity;	/**< Value of Total Intensity, in J. */
+  double	_X_Position;	/**< Value of X Position, in m. */
+  double	_Y_Position;	/**< Value of Y Position, in m. */
+  double	_peakA[NCHANNELS];	/**< Peak Amplitude of Channel */
+  uint16_t	_peakT[NCHANNELS];	/**< Location of Peak Amplitude of Channel */
+};
+
 #pragma pack()
 }
 #endif

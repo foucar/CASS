@@ -116,6 +116,8 @@ namespace Pds {
       Id_UsdUsbFexConfig,
       Id_UsdUsbFexData,
       Id_EOrbits,
+      Id_SharedUsdUsb,
+      Id_ControlsCameraConfig,
       NumberOf};
     enum { VCompressed = 0x8000 };
 
