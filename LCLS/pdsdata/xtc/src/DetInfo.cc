@@ -41,7 +41,7 @@ DetInfo::DetInfo(const char* sname) : Src(Level::Source)
 	  const char* sdname = ssname+len+1;
 	  devId = strtoul(sdname,&endPtr,0);
 	  if (endPtr == sdname) continue;
-
+	  
 	  _phy = ((det&0xff)<<24) | ((detId&0xff)<<16) | ((dev&0xff)<<8) |(devId&0xff);
 	  break;
 	}
@@ -58,7 +58,7 @@ DetInfo::Detector DetInfo::detector() const {return (Detector)((_phy&0xff000000)
 DetInfo::Device   DetInfo::device()   const {return (Device)((_phy&0xff00)>>8);}
 uint32_t          DetInfo::detId()    const {return (_phy&0xff0000)>>16;}
 uint32_t          DetInfo::devId()    const {return _phy&0xff;}
-
+    
 const char* DetInfo::name(Detector det){
   static const char* _detNames[] = {
     "NoDetector",
@@ -119,6 +119,7 @@ const char* DetInfo::name(Device dev) {
     "DualAndor",
     "Wave8",
     "LeCroy",
+    "ControlsCamera",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }
