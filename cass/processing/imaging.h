@@ -41,20 +41,16 @@ class CASSSettings;
  * @cassttng Processor/\%name\%/Mask/\%index\%/{Type}\n
  *           Name of the mask element. Default is "Unknown", which let the code
  *           ignore that element. Possible values are:
- *           - "square": a square region of the mask:w
- *
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
- *           The center of the circle. Default is 500|500.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{Radius}\n
- *           The radius of the circle. Default is 2.
+ *           - "square": a square region of the mask. See cass::pp240::square
+ *                       for details.
  *           - "circle" or "circ": a circular region of the mask. See
- *                                 cass::pixeldetector::addCircle
+ *                                 cass::pp240::circle for details
  *           - "ellipse": a ellipsodial region of the mask. See
- *                       cass::pixeldetector::addEllipse for details
- *           - "triangle": a square region of the mask. See
- *                       cass::pixeldetector::addTriangle for details
+ *                        cass::pp240::ellipse for details
+ *           - "triangle": a triangular region of the mask. See
+ *                         cass::pp240::triangle for details
  *           - "ring": a ring with inner and outer part composed by ellipsoids.
- *                     See cass::pixeldetector::addRing for details
+ *                     See cass::pp240::ring for details
  *
  * @author Stephan Kassemeyer
  * @author Lutz Foucar
@@ -92,10 +88,13 @@ private:
    * goes through the sqare that conatins the cirlce and checks whether the index
    * is covered by the circle. If so the mask at that index will be set to false.
    *
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{CenterX|CenterY}\n
    *           The center of the circle. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{Radius}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Radius}\n
    *           The radius of the circle. Default is 2.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Value}\n
+   *           The value that will be set to all the pixels within the mask.
+   *           Default is 1
    *
    * @param data the container containing the mask where the element should be added
    * @param s the settings element to read the mask element parameters from
@@ -109,12 +108,15 @@ private:
    *
    * sets all pixels covered by the square to 0.
    *
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerLeftY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{LowerLeftX|LowerLeftY}\n
    *           The lower left pixel of the square element. The indizes given are
-   *.          included in the square. Default is 0|0.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{UpperRightX|UpperRightY}\n
+   *           included in the square. Default is 0|0.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{UpperRightX|UpperRightY}\n
    *           The upper right pixel of the square element. The indizes given are
-   *.          included in the square. Default is 1023|1023.
+   *           included in the square. Default is 1023|1023.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Value}\n
+   *           The value that will be set to all the pixels within the mask.
+   *           Default is 1
    *
    * @param data the container containing the mask where the element should be added
    * @param s the settings element to read the mask element parameters from
@@ -129,12 +131,15 @@ private:
    * adds an ellipsodial to the mask. Will iterate trhough the sqare that contains
    * the ellipse and checks which pixels should be masked.
    *
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{CenterX|CenterY}\n
    *           The central point of the ellipse. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{SemiAxisX|SemiAxisY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{SemiAxisX|SemiAxisY}\n
    *           The semi axis along x and y of the ellipse. By definition the
    *           longer one defines the major axis and the smaller on the minor axis.
    *           Default is 5|4.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Value}\n
+   *           The value that will be set to all the pixels within the mask.
+   *           Default is 1
    *
    * @param data the container containing the mask where the element should be added
    * @param s the settings element to read the mask element parameters from
@@ -150,18 +155,21 @@ private:
    * by the out but not by the inner will be masked. The two ellipsoids can have
    * different centers and axis. Therefore the ring can take any shape.
    *
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{InnerCenterX|InnerCenterY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{InnerCenterX|InnerCenterY}\n
    *           The central point of the inner ellipse. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{InnerSemiAxisX|InnerSemiAxisY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{InnerSemiAxisX|InnerSemiAxisY}\n
    *           The semi axis along x and y of the inner ellipse. By definition the
    *           longer one defines the major axis and the smaller on the minor axis.
    *           Default is 5|4.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{OuterCenterX|OuterCenterY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{OuterCenterX|OuterCenterY}\n
    *           The central point of the outer ellipse. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{OuterSemiAxisX|OuterSemiAxisY}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{OuterSemiAxisX|OuterSemiAxisY}\n
    *           The semi axis along x and y of the outer ellipse. By definition the
    *           longer one defines the major axis and the smaller on the minor axis.
    *           Default is 20|20.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Value}\n
+   *           The value that will be set to all the pixels within the mask.
+   *           Default is 1
    *
    * @author Lutz Foucar
    */
@@ -187,12 +195,15 @@ private:
    * With this we know that \f$ \vec{P} \f$ lies within the triangluar when
    * \f[ 0 \leq \lambda_i \leq 1 \f]
    *
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointA_X|PointA_Y}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{PointA_X|PointA_Y}\n
    *           The triangles first point. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointB_X|PointB_Y}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{PointB_X|PointB_Y}\n
    *           The triangles first point. Default is 500|500.
-   * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointC_X|PointC_Y}\n
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{PointC_X|PointC_Y}\n
    *           The triangles first point. Default is 500|500.
+   * @cassttng Processor/\%name\%/Mask/\%index\%/{Value}\n
+   *           The value that will be set to all the pixels within the mask.
+   *           Default is 1
    *
    * @param data the container containing the mask where the element should be added
    * @param s the settings element to read the mask element parameters from
