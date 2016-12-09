@@ -258,6 +258,7 @@ LCLSLibrary {
     SOURCES                += ./input/machine_converter.cpp
     HEADERS                += ./input/machine_converter.h
     HEADERS                += ./input/xtciterator.hpp
+    HEADERS                += ./input/lcls_key.hpp
     is_offline {
         SOURCES            += ./input/xtc_reader.cpp
         HEADERS            += ./input/xtc_reader.h

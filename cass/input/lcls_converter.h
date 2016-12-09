@@ -23,13 +23,12 @@
 namespace cass
 {
 class CASSEvent;
-
-namespace pixeldetector
-{
 namespace lclsid
 {
 class Key;
 }
+namespace pixeldetector
+{
 
 /** Converter for pnCCD, CsPad and commercial CCD Data.
  *
