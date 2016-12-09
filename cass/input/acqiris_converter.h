@@ -21,12 +21,35 @@
 
 namespace cass
 {
+namespace lclsid
+{
+class Key;
+}
 namespace ACQIRIS
 {
 /** Acqiris Converter
  *
  * this class takes a xtc of type Id_AcqWaveform or Id_AcqConfig and
  * extracts the acqiris channels for all instruments
+ *
+ * @cassttng Converter/LCLSAcqirisDevices/Detector/{size} \n
+ *           Number of user defined detectors to be pulled out of the xtc
+ * @cassttng Converter/LCLSPixelDetectors/Detector/\%id\%/{TypeName} \n
+ *           The type of the detector. Only the following types are supported:
+ *          - Id_AcqConfig : config for Acqiris device
+ *          - Id_AcqWaveform : data of the Acqiris device
+ * @cassttng Converter/LCLSAcqirisDevices/\%id\%/{DetectorName} \n
+ *           Name of the detector. Default is invalid
+ * @cassttng Converter/LCLSAcqirisDevices/\%id\%/{DetectorID} \n
+ *           the id of the detector. Default is 0.
+ * @cassttng Converter/LCLSAcqirisDevices/\%id\%/{DeviceName} \n
+ *           Name of the detector device
+ * @cassttng Converter/LCLSAcqirisDevices/\%id\%/{DeviceID} \n
+ *           Id of the detector device
+ * @cassttng Converter/LCLSAcqirisDevices/\%id\%/{CASSID} \n
+ *           the Id the Acqiris should get in the CASSEvent. One needs this
+ *           number for further processing. Note that the config and the data
+ *           part must have the same CASSID.
  *
  * @author Lutz Foucar
  */
@@ -40,6 +63,12 @@ public:
   void operator()(const Pds::Xtc*, CASSEvent*);
 
 private:
+  /** define the map for lcls key to cass id */
+  typedef std::map<lclsid::Key,Device::instruments_t::key_type> idmap_t;
+
+  /** define the store of the config information */
+  typedef std::map<Device::instruments_t::key_type,size_t> configStore_t;
+
   /** constructor
    *
    * sets up the pds type ids it is responsible for
@@ -58,12 +87,15 @@ private:
   /** singleton locker for mutithreaded requests */
   static QMutex _mutex;
 
+  /** map lcls id to cass id */
+  idmap_t _LCLSToCASSId;
+
   /** Number of Channels for a device
    *
    * the number of channels for the device is only send with a configure
    * transition we store them in a map for each instrument
    */
-  std::map<Device::instruments_t::key_type,size_t> _numberOfChannels;
+  configStore_t _configStore;
 };
 }//end namespace acqiris
 }//end namespace cass

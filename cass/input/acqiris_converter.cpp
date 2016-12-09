@@ -12,6 +12,8 @@
 #include "acqiris_converter.h"
 #include "cass_event.h"
 #include "log.h"
+#include "cass_settings.h"
+#include "lcls_key.hpp"
 
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
@@ -23,6 +25,8 @@
 using namespace cass;
 using namespace ACQIRIS;
 using namespace std;
+using namespace Pds;
+using namespace lclsid;
 
 // =================define static members =================
 ConversionBackend::shared_pointer Converter::_instance;
@@ -41,123 +45,197 @@ ConversionBackend::shared_pointer Converter::instance()
 
 Converter::Converter()
 {
-  _pdsTypeList.push_back(Pds::TypeId::Id_AcqConfig);
-  _pdsTypeList.push_back(Pds::TypeId::Id_AcqWaveform);
+  _pdsTypeList.push_back(TypeId::Id_AcqConfig);
+  _pdsTypeList.push_back(TypeId::Id_AcqWaveform);
+
+  CASSSettings s;
+  s.beginGroup("Converter");
+
+  int size = s.beginReadArray("LCLSAcqirisDevices");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    string type(s.value("TypeName","Invalid").toString().toStdString());
+    TypeId::Type typeID(TypeId::NumberOf);
+    for (int i(0); i < TypeId::NumberOf; ++i)
+      if (TypeId::name(static_cast<TypeId::Type>(i)) ==  type)
+      {
+        typeID = static_cast<TypeId::Type>(i);
+        break;
+      }
+
+    uint32_t detID(s.value("DetectorID",0).toUInt());
+    string detname(s.value("DetectorName","Invalid").toString().toStdString());
+    DetInfo::Detector detnameID(DetInfo::NumDetector);
+    for (int i(0); i < DetInfo::NumDetector; ++i)
+      if (DetInfo::name(static_cast<DetInfo::Detector>(i)) ==  detname)
+      {
+        detnameID = static_cast<DetInfo::Detector>(i);
+        break;
+      }
+
+    uint32_t devID(s.value("DeviceID",0).toUInt());
+    string devname(s.value("DeviceName","Invalid").toString().toStdString());
+    DetInfo::Device devnameID(DetInfo::NumDevice);
+    for (int i(0); i < DetInfo::NumDevice; ++i)
+      if (DetInfo::name(static_cast<DetInfo::Device>(i)) ==  devname)
+      {
+        devnameID = static_cast<DetInfo::Device>(i);
+        break;
+      }
+
+    /** skip if the either name has not been set or not correctly set */
+    if (typeID == TypeId::NumberOf ||
+        detnameID == DetInfo::NumDetector ||
+        devnameID == DetInfo::NumDevice)
+      continue;
+
+    Key key(typeID, detnameID, detID, devnameID, devID);
+    _LCLSToCASSId[key] = s.value("CASSID",0).toInt();
+  }
+  s.endArray();
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
-  //check whether xtc is a configuration or a event//
+  /** skip if there is no corresponding cass key for that xtc */
+  idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
+  idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
+  if (lclsmapIt == _LCLSToCASSId.end())
+  {
+    Log::add(Log::DEBUG0, string("Acqiris::Converter::operator(): There is no corresponding cass key for : '") +
+             TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+             "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+             "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+             "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+             "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+             ")");
+    return;
+  }
+  const idmap_t::mapped_type &casskey(lclsmapIt->second);
+
+  /** check whether xtc is a configuration or a event **/
   switch (xtc->contains.id())
   {
-    //if it is a configuration then check for which Acqiris
+
   case (Pds::TypeId::Id_AcqConfig) :
+  {
+    /** use the right version to extract the info */
+    unsigned version = xtc->contains.version();
+    switch (version)
     {
-      //extract the detectorinfo//
-      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      //we need to make sure that only instruments we know of are present//
-      assert(static_cast<int>(info.detector()) == static_cast<int>(Camp1) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp2) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp3) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp4) ||
-             static_cast<int>(info.detector()) == static_cast<int>(XPP));
-      //retrieve a reference to the nbr of Channels for this instrument//
-      size_t &nbrChannels = _numberOfChannels[info.detector()];
-      //make sure the number is smaller than 20, which is the maximum nbr of channels//
-      assert(nbrChannels <= 20);
-      unsigned version = xtc->contains.version();
-      switch (version)
+    case 1:
+    {
+      /** get the config **/
+      const Pds::Acqiris::ConfigV1 &config =
+          *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
+      //extract how many channels are in the acqiris device//
+      _configStore[casskey] = config.nbrChannels();
+      Log::add(Log::INFO, string("AcqirisConverter: Instrument ") +
+               TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+               "); SampleInterval '" + toString(config.horiz().sampInterval()) +
+               "' NbrSamples '" + toString(config.horiz().nbrSamples()) +
+               "' NbrSegments '" + toString(config.horiz().nbrSegments()) +
+               "' DelayTime '" + toString(config.horiz().delayTime()) +
+               "' TrigCoupling '" + toString(config.trig().coupling()) +
+               "' TrigInput '" + toString(config.trig().input()) +
+               "' TrigSlope '" + toString(config.trig().slope()) +
+               "' TrigLevel '" + toString(config.trig().level()) +
+               "' NbrChannels '" + toString(config.nbrChannels()) +
+               "'");
+      for (size_t i(0); i<_configStore[casskey]; ++i)
       {
-        //if it is the right configuration then initialize the storedevent with the configuration//
-      case 1:
-        {
-          //get the config//
-          const Pds::Acqiris::ConfigV1 &config =
-              *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
-          //extract how many channels are in the acqiris device//
-          nbrChannels = config.nbrChannels();
-          Log::add(Log::VERBOSEINFO, "AcqirisConverter::ConfigXtc: Instrument " +
-              toString(info.detector()) + " has " + toString(config.nbrChannels()) +
-              " Channels");
-        }
-        break;
-      default:
-        throw runtime_error("Unsupported acqiris configuration version '" +
-                            toString(version) + "'");
-        break;
+        Log::add(Log::INFO, string("AcqirisConverter: Instrument ") +
+                 TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+                 "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+                 "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+                 "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+                 "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+                 "); Channel '" + toString(i) +
+                 "': Gain '" + toString(config.vert(i).slope()) +
+                 "' Offset '" + toString(config.vert(i).offset()) +
+                 "' FullScale '" + toString(config.vert(i).fullScale()) +
+                 "' Bandwidth '" + toString(config.vert(i).bandwidth()) +
+                 "' Coupling '" + toString(config.vert(i).coupling()) +
+                 "'");
       }
+      break;
+    }
+    default:
+      throw runtime_error("Unsupported acqiris configuration version '" +
+                          toString(version) + "'");
+      break;
     }
     break;
+  }
 
-
-    //if it is a event then extract all information from the event//
-  case (Pds::TypeId::Id_AcqWaveform):
+  /** if it is a event then extract all information from the event **/
+  case (TypeId::Id_AcqWaveform):
+  {
+    /** extract the datadescriptor (waveform etc) from the xtc **/
+    const Acqiris::DataDescV1 *datadesc =
+        reinterpret_cast<const Acqiris::DataDescV1*>(xtc->payload());
+    /** retrieve reference to the right acqiris instrument **/
+    Device &dev(dynamic_cast<Device&>(*(evt->devices()[CASSEvent::Acqiris])));
+    Instrument &instr(dev.instruments()[casskey]);
+    /** retrieve a reference to the channel container of the instrument **/
+    Instrument::channels_t &channels(instr.channels());
+    /** resize the channel vector to how many channels are in the device **/
+    const size_t nChans(_configStore[casskey]);
+    channels.resize(nChans);
+    /** copy the channel values from the datadescriptor **/
+    for (size_t i(0); i < nChans; ++i)
     {
-      //extract the detectorinfo//
-      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      //we need to make sure that only instruments we know of are present//
-      assert(static_cast<int>(info.detector()) == static_cast<int>(Camp1) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp2) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp3) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp4) ||
-             static_cast<int>(info.detector()) == static_cast<int>(XPP));
-      //retrieve  the nbr of Channels for this instrument//
-      const size_t nbrChannels = _numberOfChannels[info.detector()];
-      //make sure the number is smaller than 20
-      assert(nbrChannels <= 20);
-      //extract the datadescriptor (waveform etc) from the xtc//
-      const Pds::Acqiris::DataDescV1 *datadesc =
-          reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
-      //retrieve a pointer to the right acqiris instrument//
-      Device &dev =
-          dynamic_cast<Device&>(*(evt->devices()[CASSEvent::Acqiris]));
-      //retrieve a reference to the right instrument//
-      Instrument & instr = dev.instruments()[info.detector()];
-      //retrieve a reference to the channel container of the instrument//
-      Instrument::channels_t &channels = instr.channels();
-      //resize the channel vector to how many channels are in the device//
-      channels.resize(nbrChannels);
-      //initialize the channel values from the datadescriptor//
-      for (Instrument::channels_t::iterator it=channels.begin();
-          it != channels.end();
-          ++it)
-      {
-        //retrieve a reference instead of a pointer//
-        const Pds::Acqiris::DataDescV1 &dd = *datadesc;
-        //retrieve a reference to the channel we are working on//
-        Channel &chan         = *it;
-        //extract the infos from the datadesc//
-        chan.channelNbr()     = 99;
-        chan.horpos()         = dd.timestamp(0).horPos();
-        chan.offset()         = dd.offset();
-        chan.gain()           = dd.gain();
-        chan.sampleInterval() = dd.sampleInterval();
-        //extract waveform from the datadescriptor//
-        const short* waveform = dd.waveform();
-        //we need to shift the pointer so that it looks at the first real point of the waveform//
-        waveform += dd.indexFirstPoint();
-        //retrieve a reference to our waveform//
-        Channel::waveform_t &mywaveform = chan.waveform();
-        //resize our waveform vector to hold all the entries of the waveform//
-        mywaveform.resize(dd.nbrSamplesInSeg());
-//        std::cout <<"AcqirisConverter: "
-//            <<"gain:"<<dd.gain()<<" "
-//            <<"nbrSamples:"<<dd.nbrSamplesInSeg()<<" "
-//            <<"idxFiPoint:"<<dd.indexFirstPoint()<< " "
-//            <<"offset:"<<dd.offset()<< " "
-//            <<"sampInter:"<<dd.sampleInterval()<< " "
-//            <<std::endl;
-//        printf("*** %e %d %d %e %e\n",dd.gain(),dd.nbrSamplesInSeg(),dd.indexFirstPoint(),dd.offset(),dd.sampleInterval());
-        //copy the datapoints of the waveform//
-        //we have to swap the byte order for some reason that still has to be determined//
-        for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
-          mywaveform[iWave] = (waveform[iWave]&0x00ff<<8) | (waveform[iWave]&0xff00>>8);
+      /** get a reference instead of a pointer for easier writing **/
+      const Acqiris::DataDescV1 &dd(*datadesc);
+      /** retrieve a reference to the channel we are working on **/
+      Channel &chan(channels[i]);
+      /** extract the infos from the datadesc **/
+      chan.channelNbr()     = i;
+      chan.horpos()         = dd.timestamp(0).horPos();
+      chan.offset()         = dd.offset();
+      chan.gain()           = dd.gain();
+      chan.sampleInterval() = dd.sampleInterval();
+      /** get pointer to waveform in the datadescriptor **/
+      const short* wf = dd.waveform();
+      /** need to shift the pointer so that it looks at the first real point of
+       *  the waveform
+       */
+      wf += dd.indexFirstPoint();
+      /** retrieve a reference to waveform within the cassevent channel **/
+      Channel::waveform_t &waveform = chan.waveform();
+      /** resize cassevent waveform container to the correct size **/
+      const size_t nSamples(dd.nbrSamplesInSeg());
+      waveform.resize(nSamples);
+      //Log::add(Log::DEBUG4, string("AcqirisConverter: Instrument ") +
+      //         TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+      //         "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+      //         "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+      //         "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+      //         "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+      //         "); Channel '" + toString(i) +
+      //         "': Gain '" + toString(dd.gain()) +
+      //         "' Offset '" + toString(dd.offset()) +
+      //         "' idxFirstPoint '" + toString(dd.indexFirstPoint()) +
+      //         "' SampleInterval '" + toString(dd.sampleInterval()) +
+      //         "' NbrSamplesInSeg '" + toString(nSamples) +
+      //         "'");
+      /** copy the datapoints of the waveform
+       *  the byte order has to be swapped for some reason that still has
+       *  to be determined
+       */
+      for (size_t iWave=0;iWave<nSamples;++iWave)
+        waveform[iWave] = (wf[iWave]&0x00ff<<8) | (wf[iWave]&0xff00>>8);
 
-        //change to the next Channel//
-        datadesc = datadesc->nextChannel();
-      }
+      /** iterate to next channel */
+      datadesc = datadesc->nextChannel();
     }
     break;
+  }
   default:
     throw logic_error(string("ACQIRIS::Converter(): xtc type '") +
                       Pds::TypeId::name(xtc->contains.id()) +
