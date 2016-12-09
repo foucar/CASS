@@ -85,7 +85,7 @@ void pp110::process(const CASSEvent &evt, result_t &result)
   if (result.shape().first != waveform.size())
   {
     throw invalid_argument("processor '" + name() +
-                           "' incomming waveforms NbrSamples '" + toString(waveform.size()) +
+                           "' incoming waveforms NbrSamples '" + toString(waveform.size()) +
                            "'. User set NbrSamples '" +
                            toString(result.shape().first) +
                            "'");
@@ -111,7 +111,7 @@ void pp110::process(const CASSEvent &evt, result_t &result)
   if (!(fuzzycompare(channel.sampleInterval(),_sampleInterval)))
   {
     throw invalid_argument("processor '" + name() +
-                           "' incomming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
+                           "' incoming waveforms SampleInterval '" + toString(channel.sampleInterval()) +
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
   transform(waveform.begin(), waveform.end(), result.begin(),
