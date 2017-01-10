@@ -99,6 +99,7 @@ Download hdf5 library from here
     http://www.hdfgroup.org/ftp/HDF5/current/src/
 
 to compile and install do the following:
+
     LDFLAGS="-Wl,-rpath,/path/to/zlib/lib" \
     ./configure --prefix=/somewhere --enable-threadsafe --with-pthread=/usr
     make
