@@ -19,6 +19,11 @@ to compile and install
     make
     make install
 
+in case you're using a custom version of gcc, then you need to provide the lb
+path to that installation during the configure step like follows
+
+    ./configure -prefix somewhere -opensource -confirm-license -R /path/to/gcc/lib
+
 
 ## gSOAP (version 2.7.x and above) {#gsoap}
 Download gSOAP from
@@ -106,9 +111,15 @@ to compile and install do the following:
     make check
     make install
 
+
 where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
+Use this command as the LDFLAGS part if you want to use a custom gcc
+
+    LDFLAGS="-Wl,-rpath,/path/to/zlib/lib,-rpath,/path/to/gcc/lib" \
+
+the rest of the lines above are the same.
 
 
 ## VIGRA (version 1.7.0 and above) {#vigra}
