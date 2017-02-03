@@ -45,7 +45,7 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
   output << "ShowInfo '"<< std::boolalpha << _showInfo << "', ";
   _showTime = s.value("ShowTime",false).toBool();
   output << "ShowTime '"<< std::boolalpha << _showTime << "', ";
-  _timeformat = s.value("TimeFormatString","dd-MMM-yy_HH:mm:ss").toBool();
+  _timeformat = s.value("TimeFormatString","dd-MMM-yy_HH:mm:ss ").toString().toStdString();
   output << "Timeformat-string '" << _timeformat <<"', ";
   _filename = s.value("Output","").toString().toStdString();
   output << "Output to '" <<(_filename == "" ? "COUT":_filename) <<"', ";
