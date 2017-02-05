@@ -23,6 +23,7 @@ using namespace std;
 using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
+using tr1::placeholders::_3;
 
 namespace cass
 {
@@ -602,27 +603,42 @@ void pp90::loadSettings(size_t)
   _badPixVal = s.value("BadPixelValue",0.f).toFloat();
 
   const result_t &srcImageHist(_imagePP->result());
-  GeometryInfo::conversion_t src2lab
-      (GeometryInfo::generateConversionMap
+  _pixPositions_m = (GeometryInfo::generateConversionMap
        (_filename, srcImageHist.size(), srcImageHist.shape().first,
        _convertCheetahToCASSLayout));
-  _src2labradius.resize(src2lab.size());
-  for (size_t i=0; i < src2lab.size(); ++i)
-    _src2labradius[i] = sqrt(src2lab[i].x * src2lab[i].x + src2lab[i].y * src2lab[i].y);
+  for (size_t i(0); i< _pixPositions_m.size(); ++i)
+  {
+    _pixPositions_m[i].x *= _np_m;
+    _pixPositions_m[i].y *= _np_m;
+  }
+  /** setup the method to be used */
+  string method(s.value("Output","Q").toString().toStdString());
+  if (method == "Q")
+    _getBin = bind(&pp90::Q,this,_1,_2,_3);
+  else if (method == "Resolution")
+    _getBin = bind(&pp90::R,this,_1,_2,_3);
+  else if (method == "Radius")
+    _getBin = bind(&pp90::Rad,this,_1,_2,_3);
+  else
+    throw invalid_argument("pp90::loadSettings() " + name() +
+                           ": requested output type '" + method + "' unknown.");
+
 
   /** create the output histogram the storage where to put the normfactors*/
   createHistList(set1DHist(name()));
+  _axis = result().axis(result_t::xAxis);
 
   Log::add(Log::INFO,"Processor '" +  name() + "' will generate Q average from Histogram in " +
            "Processor '" +  _imagePP->name() +
            ". Geometry Filename '" + _filename + "'"
-           ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ". Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?
+           ", Convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
+           ", Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?
                                               toString(_wavelength) : ("from PP " + _wavelengthPP->name())) +
-           "' Detector Distance in m '" + (s.value("DetectorDistance_m").canConvert<double>() ?
+           "', Detector Distance in m '" + (s.value("DetectorDistance_m").canConvert<double>() ?
                                               toString(_detdist) : ("from PP " + _detdistPP->name())) +
-           "' Pixel Size in um '" + toString(_np_m) +
-           ". Condition is '" + _condition->name() + "'");
+           "', Pixel Size in um '" + toString(_np_m) +
+           "', Output '" + method +
+           "'. Condition is '" + _condition->name() + "'");
 }
 
 double pp90::wlFromProcessor(const CASSEvent::id_t& id)
@@ -639,6 +655,69 @@ double pp90::ddFromProcessor(const CASSEvent::id_t& id)
   return detdist.getValue();
 }
 
+pp90::temp_t pp90::Q(const CASSEvent::id_t&id, const result_t::value_t &pixval,
+                     const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+    return tmp;
+  // get wavelength and deteector distance
+  const double lambda_A(_getWavelength(id));
+  const double D(_getDetectorDistance(id));
+  // return when either of them is bad
+  if (fuzzyIsNull(lambda_A) || fuzzyIsNull(D))
+    return tmp;
+  // calculate the q value from the position, wavlength and distance
+  const result_t::value_t pixrad_m(sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  const result_t::value_t Q(4.*3.1415/lambda_A * sin(0.5*atan(pixrad_m/D)));
+  // get the corresponding bin and set the output parameters
+  tmp.bin = histogramming::bin(_axis,Q);
+  tmp.fill = 1;
+  tmp.weight = pixval;
+  return tmp;
+}
+
+pp90::temp_t pp90::R(const CASSEvent::id_t& id, const result_t::value_t &pixval,
+                     const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+    return tmp;
+  // get wavelength and deteector distance
+  const double lambda_A(_getWavelength(id));
+  const double D(_getDetectorDistance(id));
+  // return when either of them is bad
+  if (fuzzyIsNull(lambda_A) || fuzzyIsNull(D))
+    return tmp;
+  // calculate the crystallograher q-value from the position, wavlength and distance
+  const result_t::value_t pixrad_m(sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  const result_t::value_t Q(2./lambda_A * sin(0.5*atan(pixrad_m/D)));
+  // from the q-val calculate the resolution
+  const result_t::value_t R(1./Q);
+  // get the corresponding bin and set the output parameters
+  tmp.bin = histogramming::bin(_axis,R);
+  tmp.fill = 1;
+  tmp.weight = pixval;
+  return tmp;
+  return tmp;
+}
+
+pp90::temp_t pp90::Rad(const CASSEvent::id_t&, const result_t::value_t &pixval,
+                       const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+    return tmp;
+  tmp.bin = histogramming::bin(_axis,sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  tmp.fill = 1;
+  tmp.weight = pixval;
+  return tmp;
+  return tmp;
+}
+
 struct savedivides : std::binary_function<double,double,double>
 {
   double operator()(const double x, const double y)const
@@ -652,50 +731,73 @@ struct savedivides : std::binary_function<double,double,double>
 
 void pp90::process(const CASSEvent &evt, result_t &result)
 {
-  using tr1::tuple;
-  using tr1::get;
+//  using tr1::tuple;
+//  using tr1::get;
 
   /** Get the input histogram and its memory */
   const result_t &srcImage(_imagePP->result(evt.id()));
   QReadLocker lock(&(srcImage.lock));
 
-  /** iterate through the src image and put its pixels at the correct position
-   *  in the vector containing the radial average only when they are not masked
+  /** iterate through the src image and determine the pixels bin in the
+   *  result only when they are not masked
    */
-  normfactors_t normfactors(result.size(),0);
-  size_t ImageSize(_src2labradius.size());
-  const double lambda(_getWavelength(evt.id()));
-  const double D(_getDetectorDistance(evt.id()));
-  if (fuzzyIsNull(lambda) || fuzzyIsNull(D))
-    return;
-  const double firstFactor(4.*3.1415/lambda);
-  vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
-#ifdef _OPENMP
-#pragma omp for
-#endif
-  for (size_t i=0; i<ImageSize; ++i)
-  {
-    const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
-    const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
-    get<0>(tmparr[i]) = bin;
-    if(fuzzycompare(srcImage[i],_badPixVal))
-    {
-      get<1>(tmparr[i]) = 0;
-      get<2>(tmparr[i]) = 0;
-    }
-    else
-    {
-      get<1>(tmparr[i]) = srcImage[i];
-      get<2>(tmparr[i]) = 1;
-    }
-  }
+  const size_t imageSize(srcImage.datasize());
+  tempArray_t temparr(srcImage.datasize());
+  transform(srcImage.begin(),srcImage.begin()+imageSize,
+            _pixPositions_m.begin(),
+            temparr.begin(),
+            bind(_getBin,evt.id(),_1,_2));
 
-  for (size_t i(0); i<ImageSize; ++i)
+  /** now put the weights into the correct bins and create the nomralization
+   *  factors
+   */
+  normfactors_t normfactors(result.datasize(),0);
+  for (size_t i(0); i<imageSize; ++i)
   {
-    result[get<0>(tmparr[i])] += get<1>(tmparr[i]);
-    normfactors[get<0>(tmparr[i])] += get<2>(tmparr[i]);
+    result[temparr[i].bin] += temparr[i].weight;
+    normfactors[temparr[i].bin] += temparr[i].fill;
   }
 
   /** normalize by the number of fills for each bin */
-  transform(result.begin(),result.end(),normfactors.begin(),result.begin(),savedivides());
+  transform(result.begin(),result.begin()+result.datasize(),
+            normfactors.begin(),
+            result.begin(),
+            savedivides());
+
+//  normfactors_t normfactors(result.size(),0);
+//  const double lambda(_getWavelength(evt.id()));
+//  const double D(_getDetectorDistance(evt.id()));
+//  if (fuzzyIsNull(lambda) || fuzzyIsNull(D))
+//    return;
+//  const double firstFactor(4.*3.1415/lambda);
+//  vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
+//
+//#ifdef _OPENMP
+//#pragma omp for
+//#endif
+//  for (size_t i=0; i<ImageSize; ++i)
+//  {
+//    const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
+//    const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
+//    get<0>(tmparr[i]) = bin;
+//    if(fuzzycompare(srcImage[i],_badPixVal))
+//    {
+//      get<1>(tmparr[i]) = 0;
+//      get<2>(tmparr[i]) = 0;
+//    }
+//    else
+//    {
+//      get<1>(tmparr[i]) = srcImage[i];
+//      get<2>(tmparr[i]) = 1;
+//    }
+//  }
+//
+//  for (size_t i(0); i<ImageSize; ++i)
+//  {
+//    result[get<0>(tmparr[i])] += get<1>(tmparr[i]);
+//    normfactors[get<0>(tmparr[i])] += get<2>(tmparr[i]);
+//  }
+//
+//  /** normalize by the number of fills for each bin */
+//  transform(result.begin(),result.end(),normfactors.begin(),result.begin(),savedivides());
 }
