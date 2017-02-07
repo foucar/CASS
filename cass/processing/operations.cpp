@@ -1394,6 +1394,10 @@ void pp61::loadSettings(size_t)
                            ": requested Averaging type '" +
                            averageType.toStdString() + "' unknown.");
   createHistList(_pHist->result().clone());
+  /** initialize the result to be zero, otherwise the cumulatinve averaging
+   *  won't produce correct results
+   */
+  _result->clear();
   Log::add(Log::INFO,"processor '" + name() +
       "' averages result from Processor '" +  _pHist->name() +
       "' alpha for the averaging '" + toString(_alpha) +
