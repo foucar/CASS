@@ -1052,12 +1052,29 @@ protected:
                                   result_t::value_t aveOld,
                                   result_t::value_t scale);
 
+  /** retrieve the cumulative scale for the current datum */
+  result_t::value_t cumulativeScale()
+  {
+    return 1./(static_cast<result_t::value_t>(_nbrEventsAccumulated));
+  }
+
+  /** retrieve the moving average scale after the initialization of the "first"
+   *  point
+   */
+  result_t::value_t movingScale() {return _alpha;}
+
+  /** retrieve the moving average scale during the initialization */
+  result_t::value_t movingInitializationScale();
+
 protected:
   /** alpha for the running average */
   result_t::value_t _alpha;
 
   /** function that will do the averagin */
   std::tr1::function<result_t::value_t(result_t::value_t,result_t::value_t,result_t::value_t)> _func;
+
+  /** function that will return the scale that should be used for the average */
+  std::tr1::function<result_t::value_t()> _scale;
 
   /** processor containing result to average */
   shared_pointer _pHist;

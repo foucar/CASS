@@ -1379,11 +1379,32 @@ void pp61::loadSettings(size_t)
   s.beginGroup(QString::fromStdString(name()));
   setupGeneral();
   unsigned average = s.value("NbrOfAverages", 1).toUInt();
+  if (average)
+  {
+    _alpha =  2./static_cast<float>(average+1.);
+    _scale = bind(&pp61::movingInitializationScale,this);
+  }
+  else
+  {
+    _scale = bind(&pp61::cumulativeScale,this);
+    _alpha = 0.;
+  }
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _pHist = setupDependency("InputName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
+  /** @NOTE:
+   *  In case we're running a moving average (_alpha is non-zero), we need to
+   *  initialize the the first value of the moving average. Here we initialize
+   *  it with the mean of the first datapoints, meaning we'll check if the
+   *  _alpha calculated for the cumulative averaging is still larger than the
+   *  _alpha for the moving averge. If its smaller than the _alpha of the
+   *  cumulative average it means that the current datum will not have as much
+   *  weight. Therefore from this point onward, we should use the _alpha of the
+   *  moving averge to start "forgetting" older values by putting comparatively
+   *  more weight on the newer datums.
+   */
   QString averageType(s.value("AveragingType","Normal").toString());
   if (averageType == "Normal")
     _func = bind(&pp61::average,this,_1,_2,_3);
@@ -1394,8 +1415,8 @@ void pp61::loadSettings(size_t)
                            ": requested Averaging type '" +
                            averageType.toStdString() + "' unknown.");
   createHistList(_pHist->result().clone());
-  /** initialize the result to be zero, otherwise the cumulatinve averaging
-   *  won't produce correct results
+  /** @NOTE: initialize the result to be zero, otherwise the cumulatinve
+   *  averaging won't produce correct results
    */
   _result->clear();
   Log::add(Log::INFO,"processor '" + name() +
@@ -1418,17 +1439,32 @@ Processor::result_t::value_t pp61::squareAverage(result_t::value_t val,
   return aveOld + scale*(val*val - aveOld);
 }
 
+Processor::result_t::value_t pp61::movingInitializationScale()
+{
+  result_t::value_t scale(cumulativeScale());
+  /** when the first value of the moving avererage has been initialized (see
+   *  comment above), we can then procede by using the moving average's _alpha
+   */
+  if (scale < _alpha)
+  {
+    _scale = bind(&pp61::movingScale,this);
+    scale = _alpha;
+  }
+  return scale;
+}
+
 void pp61::process(const CASSEvent& evt, result_t &result)
 {
   const result_t& one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
+  /** @NOTE: the nbr of accumulated events needs to be increased BEFORE
+   *         calculating the scale because the cumulative scale expect the scale
+   *         to be \f$\frac{1}{n+1}\f$
+   */
   ++_nbrEventsAccumulated;
-  const result_t::value_t scale((1./_nbrEventsAccumulated < _alpha) ?
-                                  _alpha :
-                                  1./_nbrEventsAccumulated);
   transform(one.begin(), one.begin()+one.datasize(),
-            result.begin(), result.begin(), bind(_func,_1,_2,scale));
+            result.begin(), result.begin(), bind(_func,_1,_2,_scale()));
 }
 
 
