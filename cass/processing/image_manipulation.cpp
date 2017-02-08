@@ -576,13 +576,12 @@ void pp90::loadSettings(size_t)
   _np_m = s.value("PixelSize_m",110.e-6).toDouble();
   _badPixVal = s.value("BadPixelValue",0.f).toFloat();
 
-  string output("Processor '" +  name() + "' will generate requested average " +
-                "from result in Processor '" +  _imagePP->name() +
+  string output("Processor '" +  name() + "' will generate an average " +
+                "using Output '" + method +
                 ". Geometry Filename '" + _filename + "'" +
                 ", Convert from cheetah to cass '" +
                 (_convertCheetahToCASSLayout?"true":"false") +
-                "', Pixel Size in um '" + toString(_np_m) +
-                "', Output '" + method + "'");
+                "', Pixel Size in um '" + toString(_np_m));
 
   if (method != "Radius")
   {
@@ -631,6 +630,9 @@ void pp90::loadSettings(size_t)
                           ("from PP " + _detdistPP->name()) + "'");
   }
   if (!(_imagePP && ret)) return;
+
+  output += (". The operation will be done on output from Processor '" +
+             _imagePP->name() + "'");
 
   /** setup the pixel position map */
   const result_t &srcImageHist(_imagePP->result());
