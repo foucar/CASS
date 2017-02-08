@@ -583,7 +583,7 @@ protected:
   /** define the table row of a single output */
   struct temp_t
   {
-    temp_t(): weight(0), fill(0),bin(0){};
+    temp_t(): weight(0), fill(0),bin(0){}
     result_t::value_t weight;
     result_t::value_t fill;
     size_t bin;
