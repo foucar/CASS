@@ -559,58 +559,6 @@ void pp90::loadSettings(size_t)
   setupGeneral();
   _imagePP = setupDependency("ImageName");
   bool ret (setupCondition());
-  /** use fixed value for wavelength if value can be converted to double,
-   *  otherwise use the wavelength from the processor
-   */
-  bool isDouble(false);
-  QString wlkey("Wavelength_A");
-  QString wlparam(s.value(wlkey,"1").toString());
-  double wlval(wlparam.toDouble(&isDouble));
-  if (isDouble)
-  {
-    _wavelength = wlval;
-    _getWavelength = bind(&pp90::wlFromConstant,this,_1);
-  }
-  else
-  {
-    _wavelengthPP = setupDependency(wlkey.toStdString());
-    ret = _wavelengthPP && ret;
-    _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
-  }
-  /** use fixed value for detector distance if value can be converted to double,
-   *  otherwise use the detector distance from the processor
-   */
-  isDouble = false;
-  QString ddkey("DetectorDistance_m");
-  QString ddparam(s.value(ddkey,"60e-2").toString());
-  double ddval(ddparam.toDouble(&isDouble));
-  if (isDouble)
-  {
-    _detdist = ddval;
-    _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
-  }
-  else
-  {
-    _detdistPP = setupDependency(ddkey.toStdString());
-    ret = _detdistPP && ret;
-    _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
-  }
-  if (!(_imagePP && ret)) return;
-
-  _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
-  _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
-  _np_m = s.value("PixelSize_m",110.e-6).toDouble();
-  _badPixVal = s.value("BadPixelValue",0.f).toFloat();
-
-  const result_t &srcImageHist(_imagePP->result());
-  _pixPositions_m = (GeometryInfo::generateConversionMap
-       (_filename, srcImageHist.size(), srcImageHist.shape().first,
-       _convertCheetahToCASSLayout));
-  for (size_t i(0); i< _pixPositions_m.size(); ++i)
-  {
-    _pixPositions_m[i].x *= _np_m;
-    _pixPositions_m[i].y *= _np_m;
-  }
   /** setup the method to be used */
   string method(s.value("Output","Q").toString().toStdString());
   if (method == "Q")
@@ -623,22 +571,84 @@ void pp90::loadSettings(size_t)
     throw invalid_argument("pp90::loadSettings() " + name() +
                            ": requested output type '" + method + "' unknown.");
 
+  _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
+  _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
+  _np_m = s.value("PixelSize_m",110.e-6).toDouble();
+  _badPixVal = s.value("BadPixelValue",0.f).toFloat();
+
+  string output("Processor '" +  name() + "' will generate requested average " +
+                "from result in Processor '" +  _imagePP->name() +
+                ". Geometry Filename '" + _filename + "'" +
+                ", Convert from cheetah to cass '" +
+                (_convertCheetahToCASSLayout?"true":"false") +
+                "', Pixel Size in um '" + toString(_np_m) +
+                "', Output '" + method + "'");
+
+  if (method != "Radius")
+  {
+    /** use fixed value for wavelength if value can be converted to double,
+     *  otherwise use the wavelength from the processor
+     */
+    bool isDouble(false);
+    QString wlkey("Wavelength_A");
+    QString wlparam(s.value(wlkey,"1").toString());
+    double wlval(wlparam.toDouble(&isDouble));
+    if (isDouble)
+    {
+      _wavelength = wlval;
+      _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+    }
+    else
+    {
+      _wavelengthPP = setupDependency(wlkey.toStdString());
+      ret = _wavelengthPP && ret;
+      _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
+    }
+    output += (", Wavelength in Angstroem '" +
+               (isDouble ? toString(_wavelength) :
+                           ("from PP " + _wavelengthPP->name())) + "'");
+
+    /** use fixed value for detector distance if value can be converted to double,
+     *  otherwise use the detector distance from the processor
+     */
+    isDouble = false;
+    QString ddkey("DetectorDistance_m");
+    QString ddparam(s.value(ddkey,"60e-2").toString());
+    double ddval(ddparam.toDouble(&isDouble));
+    if (isDouble)
+    {
+      _detdist = ddval;
+      _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+    }
+    else
+    {
+      _detdistPP = setupDependency(ddkey.toStdString());
+      ret = _detdistPP && ret;
+      _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
+    }
+    output += (", Detector Distance in m '" +
+               isDouble ? toString(_detdist) :
+                          ("from PP " + _detdistPP->name()) + "'");
+  }
+  if (!(_imagePP && ret)) return;
+
+  /** setup the pixel position map */
+  const result_t &srcImageHist(_imagePP->result());
+  _pixPositions_m = (GeometryInfo::generateConversionMap
+       (_filename, srcImageHist.size(), srcImageHist.shape().first,
+       _convertCheetahToCASSLayout));
+  for (size_t i(0); i< _pixPositions_m.size(); ++i)
+  {
+    _pixPositions_m[i].x *= _np_m;
+    _pixPositions_m[i].y *= _np_m;
+  }
 
   /** create the output histogram the storage where to put the normfactors*/
   createHistList(set1DHist(name()));
   _axis = result().axis(result_t::xAxis);
 
-  Log::add(Log::INFO,"Processor '" +  name() + "' will generate Q average from Histogram in " +
-           "Processor '" +  _imagePP->name() +
-           ". Geometry Filename '" + _filename + "'"
-           ", Convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ", Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?
-                                              toString(_wavelength) : ("from PP " + _wavelengthPP->name())) +
-           "', Detector Distance in m '" + (s.value("DetectorDistance_m").canConvert<double>() ?
-                                              toString(_detdist) : ("from PP " + _detdistPP->name())) +
-           "', Pixel Size in um '" + toString(_np_m) +
-           "', Output '" + method +
-           "'. Condition is '" + _condition->name() + "'");
+  output += (". Condition is '" + _condition->name() + "'");
+  Log::add(Log::INFO,output);
 }
 
 double pp90::wlFromProcessor(const CASSEvent::id_t& id)
