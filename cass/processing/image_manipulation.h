@@ -555,8 +555,8 @@ protected:
  *           Default is "Q". Possible values are:
  *           - "Q": the q-averge in the defintion of q that SAXS people are
  *                  using. See pp90::Q for details.
- *           - "R": the radial average in resultion values as defined by the
- *                  crystallographers. See pp90::R for details.
+ *           - "Resolution": the radial average in resultion values as defined
+ *                           by the crystallographers. See pp90::R for details.
  *           - "Radius": the radial average in radii, where the Pixelsize_m
  *                       parameter is used to determine the radius. If one wants
  *                       to have the radius in pixel units, one just has to set
