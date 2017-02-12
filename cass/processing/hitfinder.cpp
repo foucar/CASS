@@ -783,16 +783,23 @@ void pp208::loadSettings(size_t)
   if (!(_imagePP && ret))
     return;
 
-  /** check if the input processors are value like */
+  /** check if the input processors have the correct type */
+  if (_imagePP->result().dim() != 2)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': input processor '" + _imagePP->name() +
+                           "' is not a 2d result");
   if (wlIsDouble && _wavelengthPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
-                           "': wavelength processor is not a 0d result");
+                           "': wavelength processor '" + wlparam.toStdString() +
+                           "' is not a 0d result");
   if (ddIsDouble && _detdistPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
-                           "': detector distance processor is not a 0d result");
+                           "': detector distance processor '" + ddparam.toStdString() +
+                           "' is not a 0d result");
   if (threshIsDouble && _threshPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
-                           "': threshold processor is not a 0d result");
+                           "': threshold processor '" + threshparam.toStdString()+
+                           "' is not a 0d result");
 
   /** generate the lookuptable for the radia, if no geom file is provided,
    *  set the radia to 0
