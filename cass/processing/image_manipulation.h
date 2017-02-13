@@ -583,7 +583,7 @@ protected:
   /** define the table row of a single output */
   struct temp_t
   {
-    temp_t(): weight(0), fill(0),bin(0){}
+    temp_t(): weight(0), fill(0), bin(0) {}
     result_t::value_t weight;
     result_t::value_t fill;
     size_t bin;
@@ -627,10 +627,12 @@ protected:
    * of the pixel and \f$d\f$ the detector distance.
    *
    * @return the struct that tell the bin, value, fill combination
+   * @param lambda the wavelength
+   * @param D the detector distance
    * @param pixval the value of the pixel
    * @param pixpos the position of the pixel in m
    */
-  temp_t Q(const CASSEvent::id_t& id, const result_t::value_t& pixval,
+  temp_t Q(const double lambda, const double D, const result_t::value_t& pixval,
            const GeometryInfo::pos_t& pixpos);
 
   /** get the bin when the resolution value of the pixel is asked
@@ -643,20 +645,25 @@ protected:
    * of the pixel and \f$d\f$ the detector distance.
    *
    * @return the struct that tell the bin, value, fill combination
+   * @param lambda the wavelength
+   * @param D the detector distance
    * @param pixval the value of the pixel
    * @param pixpos the position of the pixel in m
    */
-  temp_t R(const CASSEvent::id_t& id, const result_t::value_t& pixval,
+  temp_t R(const double lambda, const double D, const result_t::value_t& pixval,
            const GeometryInfo::pos_t& pixpos);
 
   /** get the bin when the radius of the pixel is asked
    *
    *
    * @return the struct that tell the bin, value, fill combination
+   * @param lambda unused
+   * @param D unused
    * @param pixval the value of the pixel
    * @param pixpos the position of the pixel in m
    */
-  temp_t Rad(const CASSEvent::id_t& id, const result_t::value_t& pixval,
+  temp_t Rad(const double lambda, const double D,
+             const result_t::value_t& pixval,
              const GeometryInfo::pos_t& pixpos);
 
 protected:
@@ -700,7 +707,7 @@ protected:
   float _badPixVal;
 
   /** function to map the pixel to  histogram bin, value and fill flag */
-  std::tr1::function<temp_t(const CASSEvent::id_t&,const result_t::value_t&,
+  std::tr1::function<temp_t(const double,const double,const result_t::value_t&,
                             const GeometryInfo::pos_t&)> _getBin;
 
   /** the axis of the result */
