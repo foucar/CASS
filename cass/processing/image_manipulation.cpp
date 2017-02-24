@@ -661,11 +661,13 @@ void pp90::loadSettings(size_t)
              _imagePP->name() + "'");
 
   /** setup the pixel position map */
-  const result_t &srcImageHist(_imagePP->result());
+  const result_t &srcImage(_imagePP->result());
   _pixPositions_m = (GeometryInfo::generateConversionMap
-       (_filename, srcImageHist.size(), srcImageHist.shape().first,
-       _convertCheetahToCASSLayout));
-  for (size_t i(0); i< _pixPositions_m.size(); ++i)
+                     (_filename,
+                      srcImage.size(),
+                      srcImage.shape().first,
+                      _convertCheetahToCASSLayout));
+  for (size_t i(0); i < _pixPositions_m.size(); ++i)
   {
     _pixPositions_m[i].x *= _np_m;
     _pixPositions_m[i].y *= _np_m;
