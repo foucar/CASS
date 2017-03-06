@@ -41,9 +41,9 @@ void write(const std::string &filename, std::vector<float>::const_iterator data,
   /** cbf parameters: */
   int IOBUFSIZ = 4096;
   char MARKBYTE[4] = {static_cast<char>(0x0C),
-                      static_cast<char>(0x01A),
-                      static_cast<char>(0x004),
-                      static_cast<char>(0x0D5)};
+                      static_cast<char>(0x1A),
+                      static_cast<char>(0x04),
+                      static_cast<char>(0xD5)};
 
   /** create the cbf file */
   std::ofstream cbf_file;
