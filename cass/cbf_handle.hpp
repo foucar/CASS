@@ -166,10 +166,13 @@ void write(const std::string &filename, std::vector<float>::const_iterator data,
       cbf_file << fourbytes[ii];
   }
 
-  /** terminate image data part and pad last record of file with zeros:*/
-  cbf_file << "--CIF-BINARY-FORMAT-SECTION----";
-  cbf_file << ";";
+  /** terminate image data part with the MIME footer */
+  cbf_file << "" << "\r\n";
+  cbf_file << "--CIF-BINARY-FORMAT-SECTION----" << "\r\n";
+  cbf_file << ";" << "\r\n";
+  cbf_file << "" << "\r\n";
 
+  /** and pad last record of file with zeros: */
   char zerobyte;
   zerobyte = 0;
   for (int ii=0; ii<IOBUFSIZ; ++ii)
