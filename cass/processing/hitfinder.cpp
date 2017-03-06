@@ -687,7 +687,6 @@ void pp208::loadSettings(size_t)
 
   _section = make_pair(s.value("SectionSizeX", 1024).toUInt(),
                        s.value("SectionSizeY",512).toUInt());
-  _threshold = s.value("Threshold",0).toFloat();
   _minSnr = s.value("MinSignalToNoiseRatio",4).toFloat();
   _minRatio = s.value("MinRatio",3).toFloat();
 
@@ -727,11 +726,11 @@ void pp208::loadSettings(size_t)
   /** use fixed value for wavelength if value can be converted to double,
    *  otherwise use the wavelength from the processor
    */
-  bool isDouble(false);
+  bool wlIsDouble(false);
   QString wlkey("Wavelength_A");
   QString wlparam(s.value(wlkey,"1").toString());
-  double wlval(wlparam.toDouble(&isDouble));
-  if (isDouble)
+  double wlval(wlparam.toDouble(&wlIsDouble));
+  if (wlIsDouble)
   {
     _wavelength = wlval;
     _getLambda = bind(&pp208::lambdaFromConstant,this,_1);
@@ -745,11 +744,11 @@ void pp208::loadSettings(size_t)
   /** use fixed value for detector distance if value can be converted to double,
    *  otherwise use the detector distance from the processor
    */
-  isDouble = false;
+  bool ddIsDouble(false);
   QString ddkey("DetectorDistance_m");
   QString ddparam(s.value(ddkey,"60e-2").toString());
-  double ddval(ddparam.toDouble(&isDouble));
-  if (isDouble)
+  double ddval(ddparam.toDouble(&ddIsDouble));
+  if (ddIsDouble)
   {
     _detdist = ddval;
     _getDistance = bind(&pp208::distanceFromConstant,this,_1);
@@ -760,11 +759,47 @@ void pp208::loadSettings(size_t)
     ret = _detdistPP && ret;
     _getDistance = bind(&pp208::distanceFromProcessor,this,_1);
   }
+  /** use fixed value for threshold if value can be converted to double,
+   *  otherwise use the detector distance from the processor
+   */
+  bool threshIsDouble(false);
+  QString threshkey("Threshold");
+  QString threshparam(s.value(threshkey,"0").toString());
+  const double threshval(threshparam.toDouble(&threshIsDouble));
+  if (threshIsDouble)
+  {
+    _threshold = threshval;
+    _thresh = bind(&pp208::thresholdFromConstant,this,_1);
+  }
+  else
+  {
+    _threshPP = setupDependency(threshkey.toStdString());
+    ret = _threshPP && ret;
+    _thresh = bind(&pp208::thresholdFromProcessor,this,_1);
+  }
 
   _imagePP = setupDependency("ImageName");
 
   if (!(_imagePP && ret))
     return;
+
+  /** check if the input processors have the correct type */
+  if (_imagePP->result().dim() != 2)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': input processor '" + _imagePP->name() +
+                           "' is not a 2d result");
+  if (wlIsDouble && _wavelengthPP->result().dim() != 0)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': wavelength processor '" + wlparam.toStdString() +
+                           "' is not a 0d result");
+  if (ddIsDouble && _detdistPP->result().dim() != 0)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': detector distance processor '" + ddparam.toStdString() +
+                           "' is not a 0d result");
+  if (threshIsDouble && _threshPP->result().dim() != 0)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': threshold processor '" + threshparam.toStdString()+
+                           "' is not a 0d result");
 
   /** generate the lookuptable for the radia, if no geom file is provided,
    *  set the radia to 0
@@ -813,7 +848,7 @@ void pp208::loadSettings(size_t)
   string output("Processor '" + name() + "' finds bragg peaks." +
                 "'. Boxsize '" + toString(_box.first)+"x"+ toString(_box.second)+
                 "'. SectionSize '" + toString(_section.first)+"x"+ toString(_section.second)+
-                "'. Threshold '" + toString(_threshold) +
+                "'. Threshold '" + threshparam.toStdString() +
                 "'. MinSignalToNoiseRatio '" + toString(_minSnr) +
                 "'. MinPixels '" + toString(_minNbrPixels) +
                 "'. MinFraction '" + toString(_minRatio) +
@@ -839,6 +874,18 @@ double pp208::distanceFromProcessor(const CASSEvent::id_t& id)
   const result_t &detdist(_detdistPP->result(id));
   QReadLocker lock(&detdist.lock);
   return detdist.getValue();
+}
+
+pp208::pixelval_t pp208::thresholdFromProcessor(const CASSEvent::id_t& id)
+{
+  const result_t &thresh(_threshPP->result(id));
+  QReadLocker lock(&thresh.lock);
+  return thresh.getValue();
+}
+
+pp208::pixelval_t pp208::thresholdFromConstant(const CASSEvent::id_t&)
+{
+  return _threshold;
 }
 
 int pp208::getBoxStatistics(result_t::const_iterator pixel,
@@ -938,6 +985,7 @@ void pp208::process(const CASSEvent & evt, result_t &result)
    *  now, to be able to retrieve the column and row that the current pixel
    *  corresponsed to.
    */
+  const pixelval_t thresh(_thresh(evt.id()));
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
   result_t::const_iterator pixel(image.begin());
   result_t::const_iterator ImageEnd(image.end());
@@ -953,7 +1001,7 @@ void pp208::process(const CASSEvent & evt, result_t &result)
     /** check if pixel is above the threshold, otherwise continue with the next
      *  pixel
      */
-    if (*pixel < _threshold)
+    if (*pixel < thresh)
       continue;
 
     /** check if pixel is highest within box. If so, check if there are enough

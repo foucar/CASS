@@ -550,6 +550,17 @@ protected:
  *           properties of the resulting 1D histogram
  * @cassttng Processor/\%name\%/{BadPixelValue}\n
  *           value of the bad pixel in the image. Default is 0
+ * @cassttng Processor/\%name\%/{Output}\n
+ *           One can choose the type of radial average that one wants to have.
+ *           Default is "Q". Possible values are:
+ *           - "Q": the q-averge in the defintion of q that SAXS people are
+ *                  using. See pp90::Q for details.
+ *           - "Resolution": the radial average in resultion values as defined
+ *                           by the crystallographers. See pp90::R for details.
+ *           - "Radius": the radial average in radii, where the Pixelsize_m
+ *                       parameter is used to determine the radius. If one wants
+ *                       to have the radius in pixel units, one just has to set
+ *                       the PixelSize_m parameter to 1.
  *
  * @author Lutz Foucar
  */
@@ -567,6 +578,19 @@ public:
    * @param unused this parameter is not used
    */
   virtual void loadSettings(size_t unused);
+
+protected:
+  /** define the table row of a single output */
+  struct temp_t
+  {
+    temp_t(): weight(0), fill(0), bin(0) {}
+    result_t::value_t weight;
+    result_t::value_t fill;
+    size_t bin;
+  };
+
+  /** define the matrix */
+  typedef std::vector<temp_t> tempArray_t;
 
 protected:
   /** retrieve the constant wavelength
@@ -593,12 +617,61 @@ protected:
    */
   double ddFromProcessor(const CASSEvent::id_t& id);
 
+  /** get the bin when the q-value of the pixel is asked
+   *
+   * the q-value will be calculated using formula
+   * \f[
+   * Q = \frac{4\pi}{\lambda} \sin\left(\frac{1}{2}\arctan\left(\frac{r}{d}\right)\right)
+   * \f]
+   * with \f$\lambda\f$ being the wavelength in \f$\AA\f$, \f$r\f$ the radius
+   * of the pixel and \f$d\f$ the detector distance.
+   *
+   * @return the struct that tell the bin, value, fill combination
+   * @param lambda the wavelength
+   * @param D the detector distance
+   * @param pixval the value of the pixel
+   * @param pixpos the position of the pixel in m
+   */
+  temp_t Q(const double lambda, const double D, const result_t::value_t& pixval,
+           const GeometryInfo::pos_t& pixpos);
+
+  /** get the bin when the resolution value of the pixel is asked
+   *
+   * the resultion will be calculated as follows
+   * \f[
+   * R = \frac{1}{\frac{2}{\lambda}\sin\left(\frac{1}{2}\arctan\left(\frac{r}{d}\right)\right)}
+   * \f]
+   * with \f$\lambda\f$ being the wavelength in \f$\AA\f$, \f$r\f$ the radius
+   * of the pixel and \f$d\f$ the detector distance.
+   *
+   * @return the struct that tell the bin, value, fill combination
+   * @param lambda the wavelength
+   * @param D the detector distance
+   * @param pixval the value of the pixel
+   * @param pixpos the position of the pixel in m
+   */
+  temp_t R(const double lambda, const double D, const result_t::value_t& pixval,
+           const GeometryInfo::pos_t& pixpos);
+
+  /** get the bin when the radius of the pixel is asked
+   *
+   *
+   * @return the struct that tell the bin, value, fill combination
+   * @param lambda unused
+   * @param D unused
+   * @param pixval the value of the pixel
+   * @param pixpos the position of the pixel in m
+   */
+  temp_t Rad(const double lambda, const double D,
+             const result_t::value_t& pixval,
+             const GeometryInfo::pos_t& pixpos);
+
 protected:
   /** pp containing 2d histogram */
   shared_pointer _imagePP;
 
   /** define the normalization factors */
-  typedef std::vector<float> normfactors_t;
+  typedef std::vector<result_t::value_t> normfactors_t;
 
   /** flag whether to convert the positions in the src from cheetah to cass layout */
   bool _convertCheetahToCASSLayout;
@@ -606,8 +679,8 @@ protected:
   /** filename of the geometry file */
   std::string _filename;
 
-  /** the conversion table from raw to lab */
-  std::vector<double> _src2labradius;
+  /** the pixel positions */
+  GeometryInfo::conversion_t _pixPositions_m;
 
   /** the wavelength in case its fixed */
   double _wavelength;
@@ -632,6 +705,13 @@ protected:
 
   /** value of the bad pixels */
   float _badPixVal;
+
+  /** function to map the pixel to  histogram bin, value and fill flag */
+  std::tr1::function<temp_t(const double,const double,const result_t::value_t&,
+                            const GeometryInfo::pos_t&)> _getBin;
+
+  /** the axis of the result */
+  result_t::axe_t _axis;
 };
 
 

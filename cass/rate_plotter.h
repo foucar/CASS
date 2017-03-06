@@ -36,6 +36,12 @@ class Ratemeter;
  *           given, output will be directed to cout.
  * @cassttng ProcessingStatistics/{UpdateInterval} \n
  *           The updating interval in s. Default is 1.
+ * @cassttng ProcessingStatistics/{ShowTime} \n
+ *           Show the current time before plotting any other information.
+ *           Default is false.
+ * @cassttng ProcessingStatistics/{TimeFormatString} \n
+ *           The format string in which the time will be plotted. Default is
+ *           "dd-MMM-yy_HH:mm:ss".
  * @cassttng ProcessingStatistics/{ShowInputRate} \n
  *           If true, it will show the input rate. Default is true.
  * @cassttng ProcessingStatistics/{ShowInputLoad} \n
@@ -139,6 +145,12 @@ private:
 
   /** flag to tell whether the updated info should be put into a new line */
   bool _newLine;
+
+  /** flag to tell whether to display the time when the output was written */
+  bool _showTime;
+
+  /** string to tell how to format the time output */
+  std::string _timeformat;
 
   /** define the processor properties */
   struct ProcProperties

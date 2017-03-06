@@ -23,6 +23,9 @@ using namespace std;
 using tr1::bind;
 using tr1::placeholders::_1;
 using tr1::placeholders::_2;
+using tr1::placeholders::_3;
+using tr1::placeholders::_4;
+using tr1::placeholders::_5;
 
 namespace cass
 {
@@ -558,71 +561,124 @@ void pp90::loadSettings(size_t)
   setupGeneral();
   _imagePP = setupDependency("ImageName");
   bool ret (setupCondition());
-  /** use fixed value for wavelength if value can be converted to double,
-   *  otherwise use the wavelength from the processor
-   */
-  bool isDouble(false);
-  QString wlkey("Wavelength_A");
-  QString wlparam(s.value(wlkey,"1").toString());
-  double wlval(wlparam.toDouble(&isDouble));
-  if (isDouble)
-  {
-    _wavelength = wlval;
-    _getWavelength = bind(&pp90::wlFromConstant,this,_1);
-  }
+  /** setup the method to be used */
+  string method(s.value("Output","Q").toString().toStdString());
+  if (method == "Q")
+    _getBin = bind(&pp90::Q,this,_1,_2,_3,_4);
+  else if (method == "Resolution")
+    _getBin = bind(&pp90::R,this,_1,_2,_3,_4);
+  else if (method == "Radius")
+    _getBin = bind(&pp90::Rad,this,_1,_2,_3,_4);
   else
-  {
-    _wavelengthPP = setupDependency(wlkey.toStdString());
-    ret = _wavelengthPP && ret;
-    _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
-  }
-  /** use fixed value for detector distance if value can be converted to double,
-   *  otherwise use the detector distance from the processor
-   */
-  isDouble = false;
-  QString ddkey("DetectorDistance_m");
-  QString ddparam(s.value(ddkey,"60e-2").toString());
-  double ddval(ddparam.toDouble(&isDouble));
-  if (isDouble)
-  {
-    _detdist = ddval;
-    _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
-  }
-  else
-  {
-    _detdistPP = setupDependency(ddkey.toStdString());
-    ret = _detdistPP && ret;
-    _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
-  }
-  if (!(_imagePP && ret)) return;
+    throw invalid_argument("pp90::loadSettings() " + name() +
+                           ": requested output type '" + method + "' unknown.");
 
   _filename = s.value("GeometryFilename","cspad.geom").toString().toStdString();
   _convertCheetahToCASSLayout = s.value("ConvertCheetahToCASSLayout",true).toBool();
   _np_m = s.value("PixelSize_m",110.e-6).toDouble();
   _badPixVal = s.value("BadPixelValue",0.f).toFloat();
 
-  const result_t &srcImageHist(_imagePP->result());
-  GeometryInfo::conversion_t src2lab
-      (GeometryInfo::generateConversionMap
-       (_filename, srcImageHist.size(), srcImageHist.shape().first,
-       _convertCheetahToCASSLayout));
-  _src2labradius.resize(src2lab.size());
-  for (size_t i=0; i < src2lab.size(); ++i)
-    _src2labradius[i] = sqrt(src2lab[i].x * src2lab[i].x + src2lab[i].y * src2lab[i].y);
+  string output("Processor '" +  name() + "' will generate an average " +
+                "using Output '" + method +
+                ". Geometry Filename '" + _filename + "'" +
+                ", Convert from cheetah to cass '" +
+                (_convertCheetahToCASSLayout?"true":"false") +
+                "', Pixel Size in um '" + toString(_np_m));
+
+  if (method != "Radius")
+  {
+    /** use fixed value for wavelength if value can be converted to double,
+     *  otherwise use the wavelength from the processor
+     */
+    bool wlIsDouble(false);
+    QString wlkey("Wavelength_A");
+    QString wlparam(s.value(wlkey,"1").toString());
+    double wlval(wlparam.toDouble(&wlIsDouble));
+    if (wlIsDouble)
+    {
+      _wavelength = wlval;
+      _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+    }
+    else
+    {
+      _wavelengthPP = setupDependency(wlkey.toStdString());
+      ret = _wavelengthPP && ret;
+      _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
+    }
+    output += (", Wavelength in Angstroem '" + wlparam.toStdString() + "'");
+
+    /** use fixed value for detector distance if value can be converted to double,
+     *  otherwise use the detector distance from the processor
+     */
+    bool ddIsDouble(false);
+    QString ddkey("DetectorDistance_m");
+    QString ddparam(s.value(ddkey,"60e-2").toString());
+    double ddval(ddparam.toDouble(&ddIsDouble));
+    if (ddIsDouble)
+    {
+      _detdist = ddval;
+      _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+    }
+    else
+    {
+      _detdistPP = setupDependency(ddkey.toStdString());
+      ret = _detdistPP && ret;
+      _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
+    }
+    output += (", Detector Distance in m '" + ddparam.toStdString() + "'");
+  }
+  /** if the method is radius, assign dummy entries (but non-zero) to the
+   *  wavelength and detector distance
+   */
+  else
+  {
+    _wavelength = 1;
+    _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+    _detdist = 1;
+    _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+  }
+
+  if (!(_imagePP && ret)) return;
+
+  /** check if the input processors have the correct type */
+  if (_imagePP->result().dim() != 2)
+    throw invalid_argument("pp208:loadSettings '" +name() +
+                           "': input image '" + _imagePP->name() +
+                           "' is not a 2d result");
+  if (method != "Radius")
+  {
+    if (_wavelengthPP && _wavelengthPP->result().dim() != 0)
+      throw invalid_argument("pp208:loadSettings '" +name() +
+                             "': wavelength processor '" + _wavelengthPP->name() +
+                             "' is not a 0d result");
+    if (_detdistPP && _detdistPP->result().dim() != 0)
+      throw invalid_argument("pp208:loadSettings '" +name() +
+                             "': detector distance processor '" + _detdistPP->name() +
+                             "' is not a 0d result");
+  }
+
+  output += (". The operation will be done on output from Processor '" +
+             _imagePP->name() + "'");
+
+  /** setup the pixel position map */
+  const result_t &srcImage(_imagePP->result());
+  _pixPositions_m = (GeometryInfo::generateConversionMap
+                     (_filename,
+                      srcImage.size(),
+                      srcImage.shape().first,
+                      _convertCheetahToCASSLayout));
+  for (size_t i(0); i < _pixPositions_m.size(); ++i)
+  {
+    _pixPositions_m[i].x *= _np_m;
+    _pixPositions_m[i].y *= _np_m;
+  }
 
   /** create the output histogram the storage where to put the normfactors*/
   createHistList(set1DHist(name()));
+  _axis = result().axis(result_t::xAxis);
 
-  Log::add(Log::INFO,"Processor '" +  name() + "' will generate Q average from Histogram in " +
-           "Processor '" +  _imagePP->name() +
-           ". Geometry Filename '" + _filename + "'"
-           ". convert from cheetah to cass '" + (_convertCheetahToCASSLayout?"true":"false") + "'"
-           ". Wavelength in Angstroem '" + (s.value("Wavelength_A").canConvert<double>() ?
-                                              toString(_wavelength) : ("from PP " + _wavelengthPP->name())) +
-           "' Detector Distance in m '" + (s.value("DetectorDistance_m").canConvert<double>() ?
-                                              toString(_detdist) : ("from PP " + _detdistPP->name())) +
-           "' Pixel Size in um '" + toString(_np_m) +
-           ". Condition is '" + _condition->name() + "'");
+  output += (". Condition is '" + _condition->name() + "'");
+  Log::add(Log::INFO,output);
 }
 
 double pp90::wlFromProcessor(const CASSEvent::id_t& id)
@@ -639,6 +695,76 @@ double pp90::ddFromProcessor(const CASSEvent::id_t& id)
   return detdist.getValue();
 }
 
+pp90::temp_t pp90::Q(const double lambda, const double D,
+                     const result_t::value_t &pixval,
+                     const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  // calculate the q value from the position, wavlength and distance
+  const result_t::value_t pixrad_m(sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  const result_t::value_t Q(4.*3.1415/lambda * sin(0.5*atan(pixrad_m/D)));
+  // get the corresponding bin and set the output parameters
+  tmp.bin = histogramming::bin(_axis,Q);
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+  {
+    tmp.fill = 0;
+    tmp.weight = 0;
+  }
+  else
+  {
+    tmp.fill = 1;
+    tmp.weight = pixval;
+  }
+  return tmp;
+}
+
+pp90::temp_t pp90::R(const double lambda, const double D,
+                     const result_t::value_t &pixval,
+                     const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  // calculate the crystallograher q-value from the position, wavlength and distance
+  const result_t::value_t pixrad_m(sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  const result_t::value_t Q(2./lambda * sin(0.5*atan(pixrad_m/D)));
+  // from the q-val calculate the resolution
+  const result_t::value_t R(1./Q);
+  // get the corresponding bin and set the output parameters
+  tmp.bin = histogramming::bin(_axis,R);
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+  {
+    tmp.fill = 0;
+    tmp.weight = 0;
+  }
+  else
+  {
+    tmp.fill = 1;
+    tmp.weight = pixval;
+  }
+  return tmp;
+}
+
+pp90::temp_t pp90::Rad(const double, const double,
+                       const result_t::value_t &pixval,
+                       const GeometryInfo::pos_t &pixpos)
+{
+  temp_t tmp;
+  tmp.bin = histogramming::bin(_axis,sqrt(pixpos.x*pixpos.x + pixpos.y*pixpos.y));
+  // return when the pixel is marked to be a bad pixel
+  if(fuzzycompare(pixval,_badPixVal))
+  {
+    tmp.fill = 0;
+    tmp.weight = 0;
+  }
+  else
+  {
+    tmp.fill = 1;
+    tmp.weight = pixval;
+  }
+  return tmp;
+}
+
 struct savedivides : std::binary_function<double,double,double>
 {
   double operator()(const double x, const double y)const
@@ -652,50 +778,76 @@ struct savedivides : std::binary_function<double,double,double>
 
 void pp90::process(const CASSEvent &evt, result_t &result)
 {
-  using tr1::tuple;
-  using tr1::get;
-
   /** Get the input histogram and its memory */
   const result_t &srcImage(_imagePP->result(evt.id()));
   QReadLocker lock(&(srcImage.lock));
 
-  /** iterate through the src image and put its pixels at the correct position
-   *  in the vector containing the radial average only when they are not masked
-   */
-  normfactors_t normfactors(result.size(),0);
-  size_t ImageSize(_src2labradius.size());
+  /** get the wavelenth and detector distance and return if they are bad */
   const double lambda(_getWavelength(evt.id()));
   const double D(_getDetectorDistance(evt.id()));
   if (fuzzyIsNull(lambda) || fuzzyIsNull(D))
     return;
-  const double firstFactor(4.*3.1415/lambda);
-  vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
-#ifdef _OPENMP
-#pragma omp for
-#endif
-  for (size_t i=0; i<ImageSize; ++i)
-  {
-    const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
-    const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
-    get<0>(tmparr[i]) = bin;
-    if(fuzzycompare(srcImage[i],_badPixVal))
-    {
-      get<1>(tmparr[i]) = 0;
-      get<2>(tmparr[i]) = 0;
-    }
-    else
-    {
-      get<1>(tmparr[i]) = srcImage[i];
-      get<2>(tmparr[i]) = 1;
-    }
-  }
 
-  for (size_t i(0); i<ImageSize; ++i)
+  /** iterate through the src image and determine the pixels bin in the
+   *  result only when they are not masked
+   */
+  const size_t imageSize(srcImage.datasize());
+  tempArray_t temparr(srcImage.datasize());
+  transform(srcImage.begin(),srcImage.begin()+imageSize,
+            _pixPositions_m.begin(),
+            temparr.begin(),
+            bind(_getBin,lambda,D,_1,_2));
+
+  /** now put the weights into the correct bins and create the nomralization
+   *  factors
+   */
+  normfactors_t normfactors(result.datasize(),0);
+  for (size_t i(0); i<imageSize; ++i)
   {
-    result[get<0>(tmparr[i])] += get<1>(tmparr[i]);
-    normfactors[get<0>(tmparr[i])] += get<2>(tmparr[i]);
+    result[temparr[i].bin] += temparr[i].weight;
+    normfactors[temparr[i].bin] += temparr[i].fill;
   }
 
   /** normalize by the number of fills for each bin */
-  transform(result.begin(),result.end(),normfactors.begin(),result.begin(),savedivides());
+  transform(result.begin(),result.begin()+result.datasize(),
+            normfactors.begin(),
+            result.begin(),
+            savedivides());
+
+//  normfactors_t normfactors(result.size(),0);
+//  const double lambda(_getWavelength(evt.id()));
+//  const double D(_getDetectorDistance(evt.id()));
+//  if (fuzzyIsNull(lambda) || fuzzyIsNull(D))
+//    return;
+//  const double firstFactor(4.*3.1415/lambda);
+//  vector<tuple<size_t,float,int> >  tmparr(_src2labradius.size());
+//
+//#ifdef _OPENMP
+//#pragma omp for
+//#endif
+//  for (size_t i=0; i<ImageSize; ++i)
+//  {
+//    const double Q(firstFactor * sin(0.5*atan(_src2labradius[i]*_np_m/D)));
+//    const size_t bin(histogramming::bin(result.axis(result_t::xAxis),Q));
+//    get<0>(tmparr[i]) = bin;
+//    if(fuzzycompare(srcImage[i],_badPixVal))
+//    {
+//      get<1>(tmparr[i]) = 0;
+//      get<2>(tmparr[i]) = 0;
+//    }
+//    else
+//    {
+//      get<1>(tmparr[i]) = srcImage[i];
+//      get<2>(tmparr[i]) = 1;
+//    }
+//  }
+//
+//  for (size_t i(0); i<ImageSize; ++i)
+//  {
+//    result[get<0>(tmparr[i])] += get<1>(tmparr[i]);
+//    normfactors[get<0>(tmparr[i])] += get<2>(tmparr[i]);
+//  }
+//
+//  /** normalize by the number of fills for each bin */
+//  transform(result.begin(),result.end(),normfactors.begin(),result.begin(),savedivides());
 }

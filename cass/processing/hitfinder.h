@@ -493,6 +493,18 @@ protected:
    */
   double distanceFromProcessor(const CASSEvent::id_t& id);
 
+  /** retrieve the threshold from the processor
+   *
+   * @param id the id of the event to get the detector distance from
+   */
+  pixelval_t thresholdFromProcessor(const CASSEvent::id_t& id);
+
+  /** retrieve the threshold constant
+   *
+   * @param id the id of the event to get the detector distance from
+   */
+  pixelval_t thresholdFromConstant(const CASSEvent::id_t& id);
+
 protected:
   /** the size of the box within which the peak should lie */
   shape_t _box;
@@ -502,9 +514,6 @@ protected:
 
   /** size of the incomming image */
   shape_t _imageShape;
-
-  /** pixel threshold to be exceeded */
-  pixelval_t _threshold;
 
   /** minimum Signal to Noise Ratio thats is needed for a pixel to be an outlier */
   stat_t::value_type _minSnr;
@@ -538,6 +547,15 @@ protected:
 
   /** function that gets the detectordistance */
   std::tr1::function<double(const CASSEvent::id_t&)> _getDistance;
+
+  /** pixel threshold to be exceeded */
+  pixelval_t _threshold;
+
+  /** pp containing threshold in case its not fixed */
+  shared_pointer _threshPP;
+
+  /** function that gets the detectordistance */
+  std::tr1::function<pixelval_t(const CASSEvent::id_t&)> _thresh;
 
 };
 

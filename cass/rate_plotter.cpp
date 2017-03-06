@@ -1,4 +1,4 @@
-//Copyright (C) 2010,2013,2016 Lutz Foucar
+//Copyright (C) 2010,2013,2016,2017 Lutz Foucar
 
 /**
  * @file rate_plotter.cpp file contains declaration of class to plot the rate
@@ -8,6 +8,8 @@
  */
 
 #define __STDC_FORMAT_MACROS
+
+#include <QtCore/QDateTime>
 
 #include <iostream>
 #include <sstream>
@@ -41,6 +43,10 @@ RatePlotter::RatePlotter(Ratemeter &inputrate,
   s.beginGroup("ProcessingInfo");
   _showInfo = s.value("ShowInfo",true).toBool();
   output << "ShowInfo '"<< std::boolalpha << _showInfo << "', ";
+  _showTime = s.value("ShowTime",false).toBool();
+  output << "ShowTime '"<< std::boolalpha << _showTime << "', ";
+  _timeformat = s.value("TimeFormatString","dd-MMM-yy_HH:mm:ss ").toString().toStdString();
+  output << "Timeformat-string '" << _timeformat <<"', ";
   _filename = s.value("Output","").toString().toStdString();
   output << "Output to '" <<(_filename == "" ? "COUT":_filename) <<"', ";
   _interval = s.value("UpdateInterval",1).toInt();
@@ -112,6 +118,8 @@ void RatePlotter::run()
     stringstream output;
     if (!_newLine)
       output <<"\r";
+    if (_showTime)
+      output << QDateTime::currentDateTime().toString(QString::fromStdString(_timeformat)).toStdString();
     if (_showInputRate)
     {
       output << "Input: " << std::setw(5) << std::fixed << std::setprecision(1)

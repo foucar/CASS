@@ -294,7 +294,8 @@ public:
    * @param name the name of the processor
    */
   AccumulatingProcessor(const name_t &name)
-    : Processor(name)
+    : Processor(name),
+      _nbrEventsAccumulated(0)
   {}
 
   /** virtual destructor */
