@@ -88,7 +88,7 @@ void write(const std::string &filename, std::vector<float>::const_iterator data,
   cbf_file << "Content-Type: application/octet-stream;" << "\r\n";
   cbf_file << "     conversions=\"x-CBF_BYTE_OFFSET\"" << "\r\n";
   cbf_file << "Content-Transfer-Encoding: BINARY" << "\r\n";
-  cbf_file << "X-Binary-Size:" << nbytes << "\r\n";
+  cbf_file << "X-Binary-Size: " << nbytes << "\r\n";
   cbf_file << "X-Binary-ID: 1" << "\r\n";
   cbf_file << "X-Binary-Element-Type: \"signed 32-bit integer\"" << "\r\n";
   cbf_file << "X-Binary-Element-Byte-Order: LITTLE_ENDIAN" << "\r\n";
