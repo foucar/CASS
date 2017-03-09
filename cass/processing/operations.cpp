@@ -492,6 +492,68 @@ void pp13::process(const CASSEvent& evt, result_t &result)
 
 
 
+// ***  pp14 ?: operator
+
+pp14::pp14(const name_t &name)
+  : Processor(name)
+{
+  loadSettings(0);
+}
+
+void pp14::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("Processor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+
+  _one = setupDependency("InputOne");
+  _two = setupDependency("InputTwo");
+
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) )
+    return;
+
+  const result_t &one(_one->result());
+  const result_t &two(_two->result());
+  if (one.dim() != two.dim())
+    throw invalid_argument("pp14::loadSettings() "+name()+": First '" +
+                           _one->name() + "' with dimension '" +
+                           toString(one.dim()) + "' and Second '" +
+                           _two->name() + "' with dimension '" +
+                           toString(two.dim()) +
+                           "' don't have the same dimension");
+
+  createHistList(_one->result().clone());
+
+  Log::add(Log::INFO,"Processor '" + name() + "' returns '" +
+           _one->name() + "' when condition input is true and '" +
+           _two->name() + "' otherwise. Condition is "+ _condition->name());
+}
+
+void pp14::processEvent(const CASSEvent& evt)
+{
+  CachedList::iter_type pointer(_resultList.newItem(evt.id()));
+  result_t &result(*(pointer->second));
+  QWriteLocker lock(&(result.lock));
+  result.id(evt.id());
+
+  if (_condition->result(evt.id()).isTrue())
+    result.assign(_one->result(evt.id()));
+  else
+    result.assign(_two->result(evt.id()));
+
+  _resultList.latest(pointer);
+}
+
+
+
+
+
+
+
+
+
 // ********** processor 15: Check if value has changed ************
 
 pp15::pp15(const name_t &name)

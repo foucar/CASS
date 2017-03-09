@@ -308,6 +308,9 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case Identity:
     processor = Processor::shared_pointer(new pp13(key));
     break;
+  case TernaryOperator:
+    processor = Processor::shared_pointer(new pp14(key));
+    break;
   case CheckChange:
     processor = Processor::shared_pointer(new pp15(key));
     break;

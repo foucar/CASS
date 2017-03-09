@@ -47,6 +47,7 @@ the Class description for information about what parameters are user settable.
 00001: Operation on 2 Result
 00002: Operation on Result with value or 0D Result
 00004: Apply boolean NOT to 0D Result
+00014: Ternary Operation (output InputOne when condition is true, InputTwo otherwise)
 
 00009: Check whether Result is in a range
 00012: Constant Value
@@ -281,6 +282,7 @@ public:
     ConstantFalse=11,
     ConstantValue=12,
     Identity=13,
+    TernaryOperator=14,
 
     CheckChange=15,
 

@@ -370,6 +370,54 @@ protected:
 
 
 
+
+
+/** clear result
+ *
+ * @PPList "14": ?: operator
+ *
+ * Will return input one when condition input is true and input two otherwise
+ *
+ * @see Processor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng Processor/\%name\%/{InputOne} \n
+ *           either Name of the input or constant that should be returned when
+ *           condition is true. Needs to have the same dimension as InputTwo.
+ *           Default is 0.
+ * @cassttng Processor/\%name\%/{InputOne} \n
+ *           either Name of the input or constant that should be returned when
+ *           condition is false. Needs to have the same dimension as InputOne.
+ *           Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp14 : public Processor
+{
+public:
+  /** constructor */
+  pp14(const name_t &name);
+
+  /** overwrite process event */
+  virtual void processEvent(const CASSEvent&);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** processor containing input when true result */
+  shared_pointer _one;
+
+  /** processor containing input when false result */
+  shared_pointer _two;
+};
+
+
+
+
+
+
+
 /** Check whether value has changed.
  *
  * @PPList "15": Check whether value of 0d result has changed
