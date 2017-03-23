@@ -1927,6 +1927,7 @@ protected:
  *           - mean: Mean value of values of all bins
  *           - stdv: Standart deviation of values of all bins
  *           - variance: Variance of values of all bins
+ *           - median: Median value of all bins
  *
  * @author Lutz Foucar
  */
@@ -1943,14 +1944,39 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+
+  /** retrieve the statistics value from the cummulative statistics calculator
+   *
+   *  @return the statistical value
+   *  @param res The result from which the statistical value should
+   *             be calculated.
+   */
+  result_t::value_t cummulativeStatistics(const result_t & res);
+
+  /** retrieve the statistics value from the median statistics calculator
+   *
+   *  @return the statistical value
+   *  @param res The result from which the statistical value should
+   *             be calculated.
+   */
+  result_t::value_t medianCalc(const result_t & res);
+
+
+protected:
   /** processor containing input result */
   shared_pointer _pHist;
 
-  /** define the type of statistics used */
-  typedef CummulativeStatisticsCalculator<result_t::value_t> stat_t;
+  /** define the type of cummulative statistics used */
+  typedef CummulativeStatisticsCalculator<result_t::value_t> cumstat_t;
+
+  /** define the median calculator used */
+  typedef MedianCalculator<result_t::value_t> med_t;
 
   /** the type of function used to retrive the wanted element */
-  std::tr1::function<stat_t::value_type(const stat_t&)> _val;
+  std::tr1::function<cumstat_t::value_type(const cumstat_t&)> _val;
+
+  /** function to retrieve the statistics type */
+  std::tr1::function<result_t::value_t(const result_t&)> _value;
 };
 
 

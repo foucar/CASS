@@ -2590,22 +2590,52 @@ void pp82::loadSettings(size_t)
 
   string functype(s.value("Statistics","sum").toString().toStdString());
   if (functype == "sum")
-    _val = &stat_t::sum;
+  {
+    _val = &cumstat_t::sum;
+    _value = bind(&pp82::cummulativeStatistics,this,_1);
+  }
   else if (functype == "mean")
-    _val = &stat_t::mean;
+  {
+    _val = &cumstat_t::mean;
+    _value = bind(&pp82::cummulativeStatistics,this,_1);
+  }
   else if (functype == "stdv")
-    _val = &stat_t::stdv;
+  {
+    _val = &cumstat_t::stdv;
+    _value = bind(&pp82::cummulativeStatistics,this,_1);
+  }
   else if (functype == "variance")
-    _val = &stat_t::variance;
+  {
+    _val = &cumstat_t::variance;
+    _value = bind(&pp82::cummulativeStatistics,this,_1);
+  }
+  else if (functype == "median")
+  {
+    _value = bind(&pp82::medianCalc,this,_1);
+  }
   else
-    throw invalid_argument("pp71::loadSettings(): RetrieveType '" + functype +
+    throw invalid_argument("pp82::loadSettings(): Statistics type '" + functype +
                            "' unknown.");
 
   createHistList(result_t::shared_pointer(new result_t()));
 
   Log::add(Log::INFO,"Processor '" + name() +
-           "' returns the mean of all bins in '" + _pHist->name() +
+           "' returns the '" + functype + "' of all bins in '" + _pHist->name() +
            "' .Condition on processor '" + _condition->name() + "'");
+}
+
+pp82::result_t::value_t pp82::cummulativeStatistics(const result_t &res)
+{
+  cumstat_t stat;
+  stat.addDistribution(res.begin(),res.begin()+res.datasize());
+  return _val(stat);
+}
+
+pp82::result_t::value_t pp82::medianCalc(const result_t &res)
+{
+  med_t stat;
+  stat.addDistribution(res.begin(),res.begin()+res.datasize());
+  return stat.median();
 }
 
 void pp82::process(const CASSEvent& evt, result_t &result)
@@ -2613,9 +2643,7 @@ void pp82::process(const CASSEvent& evt, result_t &result)
   const result_t &one(_pHist->result(evt.id()));
   QReadLocker lock(&one.lock);
 
-  stat_t stat;
-  stat.addDistribution(one.begin(),one.begin()+one.datasize());
-  result.setValue(_val(stat));
+  result.setValue(_value(one));
 }
 
 
