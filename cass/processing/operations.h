@@ -382,13 +382,11 @@ protected:
  *      settings.
  *
  * @cassttng Processor/\%name\%/{InputOne} \n
- *           either Name of the input or constant that should be returned when
- *           condition is true. Needs to have the same dimension as InputTwo.
- *           Default is 0.
- * @cassttng Processor/\%name\%/{InputOne} \n
- *           either Name of the input or constant that should be returned when
- *           condition is false. Needs to have the same dimension as InputOne.
- *           Default is 0.
+ *           Name of the result that should be returned when condition is true.
+ *           Needs to have the same dimension as InputTwo.
+ * @cassttng Processor/\%name\%/{InputTwo} \n
+ *           Name of the result that should be returned when condition is false.
+ *           Needs to have the same dimension as InputOne.
  *
  * @author Lutz Foucar
  */
