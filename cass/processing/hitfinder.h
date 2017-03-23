@@ -353,7 +353,8 @@ protected:
  *           that are part of the distribution than outliers of the distribution.
  *           Default is 3.
  * @cassttng Processor/\%name\%/{Threshold} \n
- *           Threshold of pixel in adu to be exeeded. Default is 0.
+ *           Threshold of pixel in adu to be exeeded. Can also be the name of a
+ *           Processor that contains the Threshold value.
  * @cassttng Processor/\%name\%/{MinSignalToNoiseRatio} \n
  *           Signal to noise ratio of a pixel. Value needs to be exceeded in
  *           order for the pixel to be part of a bragg peak. Default is 4.
@@ -373,11 +374,11 @@ protected:
  *           Set this true if the geom file is for a cheetah layout of the data,
  *           but the image in ImageName is the image in CASS layout.
  * @cassttng Processor/\%name\%/{Wavelength_A} \n
- *           The wavelength in Angstroem. Can also be the name of a PP that
- *           contains the Wavelength. Default is 1.
+ *           The wavelength in Angstroem. Can also be the name of a Processor
+ *           that contains the Wavelength. Default is 1.
  * @cassttng Processor/\%name\%/{DetectorDistance_m} \n
- *           The detector distance in m. Can also be the name of a PP that
- *           contains the detector distance. Default is 60e-2.
+ *           The detector distance in m. Can also be the name of a Processor
+ *           that contains the detector distance. Default is 60e-2.
  * @cassttng Processor/\%name\%/{PixelSize_m} \n
  *           The pixel size in m. Default is 109.92-6
  *
