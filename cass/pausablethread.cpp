@@ -88,7 +88,7 @@ void PausableThread::waitUntilPaused()
     throw runtime_error("PausableThread::waitUntilPaused(): Threat is not told to be paused");
   if(_status == paused)
     return;
-    _waitUntilPausedCondition.wait(&mutex);
+  _waitUntilPausedCondition.wait(&mutex);
 }
 
 void PausableThread::resume()
