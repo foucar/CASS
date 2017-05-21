@@ -788,15 +788,15 @@ void pp208::loadSettings(size_t)
     throw invalid_argument("pp208:loadSettings '" +name() +
                            "': input processor '" + _imagePP->name() +
                            "' is not a 2d result");
-  if (wlIsDouble && _wavelengthPP->result().dim() != 0)
+  if (!wlIsDouble && _wavelengthPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
                            "': wavelength processor '" + wlparam.toStdString() +
                            "' is not a 0d result");
-  if (ddIsDouble && _detdistPP->result().dim() != 0)
+  if (!ddIsDouble && _detdistPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
                            "': detector distance processor '" + ddparam.toStdString() +
                            "' is not a 0d result");
-  if (threshIsDouble && _threshPP->result().dim() != 0)
+  if (!threshIsDouble && _threshPP->result().dim() != 0)
     throw invalid_argument("pp208:loadSettings '" +name() +
                            "': threshold processor '" + threshparam.toStdString()+
                            "' is not a 0d result");
