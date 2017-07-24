@@ -66,7 +66,8 @@ namespace Pds {
       MfxDg1        = 49,
       MfxDg2        = 50,
       XrtDiag       = 51,
-      NumDetector   = 52
+      DetLab        = 52,
+      NumDetector   = 53
     };
 
     enum Device {
@@ -112,7 +113,10 @@ namespace Pds {
       Wave8     = 39,
       LeCroy    = 40,
       ControlsCamera = 41,
-      NumDevice = 42
+      Archon    = 42,
+      Jungfrau  = 43,
+      Zyla      = 44,
+      NumDevice = 45
     };
 
     DetInfo() {}

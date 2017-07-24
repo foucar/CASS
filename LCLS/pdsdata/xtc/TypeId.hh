@@ -118,6 +118,12 @@ namespace Pds {
       Id_EOrbits,
       Id_SharedUsdUsb,
       Id_ControlsCameraConfig,
+      Id_ArchonConfig,
+      Id_JungfrauConfig,
+      Id_JungfrauElement,
+      Id_QuadAdcConfig,
+      Id_ZylaConfig,
+      Id_ZylaFrame,
       NumberOf};
     enum { VCompressed = 0x8000 };
 
