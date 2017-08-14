@@ -88,9 +88,18 @@ public:
   /** @returns a reference, so that one can edit the channels*/
   channels_t &channels()  {return _channels;}
 
+  /** @returns the event id */
+  uint64_t id()const {return _eventID;}
+
+  /** @returns reference to the eventid */
+  uint64_t &id() {return _eventID;}
+
 private:
   /** Container for all Channels */
   channels_t _channels;
+
+  /** the eventid that this detector belongs to (can be used for crosschecks */
+  uint64_t _eventID;
 };
 
 

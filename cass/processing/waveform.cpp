@@ -68,14 +68,24 @@ void pp110::loadSettings(size_t)
 
 void pp110::process(const CASSEvent &evt, result_t &result)
 {
+  CASSEvent::devices_t::const_iterator devIt(evt.devices().find(CASSEvent::Acqiris));
+  if (devIt == evt.devices().end())
+    throw logic_error("pp110::process() '" + name() +
+                        "': Device 'Acqiris' doesn't exist in CASSEvent'");
   const Device &dev
-      (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::Acqiris)->second)));
+      (dynamic_cast<const Device&>(*(devIt->second)));
   Device::instruments_t::const_iterator instrIt (dev.instruments().find(_instrument));
   if (dev.instruments().end() == instrIt)
-    throw logic_error("pp110::process() '" + name() +
+    throw InvalidData("pp110::process() '" + name() +
                         "': Data doesn't contain Instrument '"+toString(_instrument)
                         + "'");
   const Instrument &instr(instrIt->second);
+  if (instr.id() != evt.id())
+    throw InvalidData("pp110::process() '" + name() + "': The dataId '" +
+                      toString(instr.id()) + "' of Acqiris Instrument '" +
+                      toString(_instrument) +
+                      "' is inconsistent with the eventId '" +
+                      toString(evt.id()) + "'");
   if (instr.channels().size() <= _channel)
     throw runtime_error("pp110::process() '" + name() + "': Instrument '"+
                         toString(_instrument) + "' doesn't contain channel '" +

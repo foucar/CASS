@@ -79,6 +79,7 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
   lmaHeader::Event evtHead;
   file >> evtHead;
   evt.id() = evtHead.id;
+  instr.id() = evt.id();
 
   for (size_t i=0; i<channels.size();++i)
   {

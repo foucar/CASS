@@ -38,6 +38,7 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
   stream >> evtHead;
   nBytesRead += sizeof(AGATRemoteHeader::Event);
   evt.id() = evtHead.id;
+  instr.id() = evt.id();
   /** resize the channel container to fit the right number of channels */
   instr.channels().resize(evtHead.nbrChannels);
   /** for each channel */

@@ -314,6 +314,7 @@ void HDF5FileInput::runthis()
                                      toString(h5handle.dimension(dkey)) + "'");
             }
             copy(array.begin(),array.end(),waveform.begin());
+            instr.id() = evt.id();
           }
 
 

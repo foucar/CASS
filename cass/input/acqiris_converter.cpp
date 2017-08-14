@@ -182,6 +182,8 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     /** retrieve reference to the right acqiris instrument **/
     Device &dev(dynamic_cast<Device&>(*(evt->devices()[CASSEvent::Acqiris])));
     Instrument &instr(dev.instruments()[casskey]);
+    /** write the event id of the data to the instrument */
+    instr.id() = evt->id();
     /** retrieve a reference to the channel container of the instrument **/
     Instrument::channels_t &channels(instr.channels());
     /** resize the channel vector to how many channels are in the device **/
