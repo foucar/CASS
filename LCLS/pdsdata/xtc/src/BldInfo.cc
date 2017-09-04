@@ -102,12 +102,24 @@ const char* BldInfo::name(const BldInfo& src){
     "MfxDg1_Pim",
     "MfxDg2_Pim",
     "SXR-AIN-01",
-    "HX2-BEAMMON-01",
+    "HX2-SB1-BMMON",
     "XRT-USB-ENCODER-01",
     "XPP-USB-ENCODER-01",
     "XPP-USB-ENCODER-02",
     "XCS-USB-ENCODER-01",
-    "CXI-USB-ENCODER-01"
+    "CXI-USB-ENCODER-01",
+    "XCS-SND-DIO",
+    "MFX-USR-DIO",
+    "XPP-SB2-BMMON",
+    "XPP-SB3-BMMON",
+    "HFX-DG2-BMMON",
+    "XCS-SB1-BMMON",
+    "XCS-SB2-BMMON",
+    "CXI-DG2-BMMON",
+    "CXI-DG3-BMMON",
+    "MFX-DG1-BMMON",
+    "MFX-DG2-BMMON",
+    "MFX-AIN-01"
   };
   return (src.type() < NumberOf ? _typeNames[src.type()] : "-Invalid-");
 }
