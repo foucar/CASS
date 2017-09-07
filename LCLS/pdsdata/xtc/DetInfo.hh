@@ -116,7 +116,8 @@ namespace Pds {
       Archon    = 42,
       Jungfrau  = 43,
       Zyla      = 44,
-      NumDevice = 45
+      Epix10ka  = 45,
+      NumDevice = 46
     };
 
     DetInfo() {}

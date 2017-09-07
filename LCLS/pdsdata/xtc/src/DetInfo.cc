@@ -123,6 +123,7 @@ const char* DetInfo::name(Device dev) {
     "Archon",
     "Jungfrau",
     "Zyla",
+    "Epix10ka",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

@@ -92,6 +92,7 @@ bool     TypeId::is_configuration() const
       Id_JungfrauConfig,
       Id_QuadAdcConfig,
       Id_ZylaConfig,
+      Id_Epix10kaConfig,
     };
   const unsigned nconfigtypes = sizeof(_configuration_types)/sizeof(Type);
   Type t = id();
@@ -216,6 +217,7 @@ const char* TypeId::name(Type type)
     "QuadAdcConfig",           // 109
     "ZylaConfig",              // 110
     "ZylaFrame",               // 111
+    "Epix10kaConfig",          // 112
   };
    const char* p = (type < NumberOf ? _names[type] : "-Invalid-");
    if (!p) p = "-Unnamed-";
