@@ -11,6 +11,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
+#include <numeric>
+#include <algorithm>
+
 #include "pixel_detector_calibration.h"
 
 #include "cass_settings.h"
@@ -27,6 +30,7 @@ using tr1::placeholders::_2;
 using tr1::placeholders::_3;
 using tr1::placeholders::_4;
 using tr1::placeholders::_5;
+
 
 
 //********** offset/noise calibrations ******************
@@ -125,7 +129,7 @@ void pp330::loadSettings(size_t)
            "' minNbrPixels '" + toString(_minNbrPixels) +
            "' outputfilename '" + _filename +
            "' inputfilename '" + _infilename +
-           "'(created'" + createdAt +
+           "'(created '" + createdAt +
            "') write '" + (_write?"true":"false") +
            "' train '" + (_train?"true":"false") +
            "' nbrTrainImages '" + toString(_minTrainImages) +
@@ -887,5 +891,216 @@ void pp333::process(const CASSEvent &evt, result_t &result)
     result_t::iterator startPart_Res(resultIt + part*_width);
     result_t::iterator endPart_Res(startPart_Res + _width);
     fill(startPart_Res, endPart_Res, commonmodeLevel);
+  }
+}
+
+
+
+
+
+
+
+
+//********** common mode background calculation using histogram **************
+
+pp334::pp334(const name_t &name)
+  : Processor(name)
+{
+  loadSettings(0);
+}
+
+void pp334::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("Processor");
+  s.beginGroup(QString::fromStdString(name()));
+  _image = setupDependency("Image");
+  _width = s.value("Width",30).toFloat();
+  _maxDist = s.value("MaxDistance",5).toFloat();
+  _checks = s.value("EnableChecks",false).toBool();
+  setupGeneral();
+  bool ret (setupCondition());
+  if (!(_image && ret))
+    return;
+
+  result_t::shared_pointer result(_image->result().clone());
+  if (_checks)
+  {
+    result_t::storage_t rows(32*result->shape().first);
+    result->appendRows(rows);
+  }
+  createHistList(result);
+  Log::add(Log::INFO,"processor " + name() +
+           ": generates the common mode background level of  '" +
+           _image->name() + "' using either histogram or unbonded pixels"+
+           "'. Condition is '" + _condition->name() + "'");
+}
+
+void pp334::process(const CASSEvent &evt, result_t &result)
+{
+  const result_t &image(_image->result(evt.id()));
+  QReadLocker lock(&image.lock);
+
+  /** define a few things for the hisogram and asics */
+  const uint32_t nAsics(32);
+  const uint32_t nAsicsPerRow(2);
+  const uint32_t nColsAsic(194);
+  const uint32_t nRowsAsic(185);
+  const uint32_t nColsInput(nAsicsPerRow*nColsAsic);
+  const float low(-60);
+  const float up(100);
+  const int32_t nBins(up-low);
+
+  /** create list of histograms */
+  typedef vector<double> hists_t;
+  hists_t hists(nAsics*nBins,0);
+
+  /** iterate through image */
+  for (int i(0); i < static_cast<int>(image.datasize()); ++i)
+  {
+    /** get the pixel value */
+    const result_t::value_t pixelval(image[i]);
+    /** skip pixel if it is masked */
+    if (fuzzyIsNull(pixelval))
+      continue;
+    /** find out in which row of the image we're */
+    const uint16_t row(i/nColsInput);
+    /** find out where we're on the row */
+    const uint16_t colInRow(i%nColsInput);
+    /** find out on which asic of the chip we're */
+    const uint8_t asicOnChip(colInRow/nColsAsic);
+    /** find out which chip we're on */
+    const uint8_t chip(row/nRowsAsic);
+    /** calc which asic we're on */
+    const uint8_t asic(nAsicsPerRow*chip + asicOnChip);
+    /** determine the bin in which the pixels values will fall */
+    const int32_t bin(static_cast<int32_t>(nBins*pixelval - low / (up - low)));
+    /** check if the bin is out of bounds, if so skip it */
+    if ((bin < 0) || (nBins <= bin))
+      continue;
+    /** add the pixel to the histogram */
+    hists[(asic*nBins) + bin] += 1;
+  }
+
+  /** determine the center of mass of the first peak in each histogram */
+  hists_t histsCMVals(nAsics,0);
+  for (uint32_t asic(0); asic<nAsics; ++asic)
+  {
+    hists_t::const_iterator histStart(hists.begin()+(asic*nBins));
+    hists_t::const_iterator histEnd(histStart+nBins);
+    hists_t::const_iterator pToMax(max_element(histStart,histEnd));
+    int bin(distance(histStart,pToMax));
+    if (((bin-_width) < 0) || ((bin+_width+1) > nBins))
+    {
+      histsCMVals[asic] = 1e6;
+      continue;
+    }
+
+    hists_t::const_iterator peakBegin(pToMax-_width);
+    hists_t::const_iterator peakEnd(pToMax+_width+1);
+    hists_t bins;
+    bins.reserve(_width*2+1);
+    for (int i(bin-_width); i<bin+_width+1;++i)
+      bins.push_back(i);
+    hists_t weights;
+    weights.reserve(_width*2+1);
+    transform(peakBegin,peakEnd,bins.begin(),back_inserter(weights),
+              multiplies<double>());
+    histsCMVals[asic] = accumulate(weights.begin(),weights.end(),0.) /
+                        accumulate(peakBegin,peakEnd,0.);
+  }
+
+
+  /** go through unbonded pixels of each asic of image and calculate the mean */
+  hists_t unbondedPixCMVals(nAsics,0);
+  const int sizeBetweenAsics(nColsAsic);
+  const int sizeBetweenUnbondedPixels(3696);
+  const int sizeBetweenChips(1566);
+  const int nUBP(19);
+  const int nChips(16);
+
+  result_t::const_iterator pointer(image.begin());
+  for (int chip=0; chip<nChips; ++chip)
+  {
+    int asic(2*chip);
+    for (int up=0; up<nUBP-1; ++up)
+    {
+      //cout <<"UBP'"<<up<< "', Asic'" << asic << "'(" << pointer<< ")"<<endl;
+      unbondedPixCMVals[asic] += *pointer;
+      pointer += sizeBetweenAsics;
+      //cout <<"UBP'"<<up<< "', Asic'" << asic+1 << "'(" << pointer<< ")"<<endl;
+      pointer += sizeBetweenUnbondedPixels;
+      unbondedPixCMVals[asic+1] += *pointer;
+    }
+    //cout <<"UBP'"<<18<< "', Asic'" << asic << "'(" << pointer<< ")"<<endl;
+    unbondedPixCMVals[asic] += *pointer;
+    pointer += sizeBetweenAsics;
+    //cout <<"UBP'"<<18<< "', Asic'" << asic+1 << "'(" << pointer<< ")"<<endl;
+    unbondedPixCMVals[asic+1] += *pointer;
+    pointer += sizeBetweenChips;
+  }
+
+  for (uint32_t asic(0); asic < nAsics; ++asic)
+  {
+    unbondedPixCMVals[asic] /= static_cast<float>(nUBP);
+  }
+
+
+  /** check if the maximum of the histogram is close to the mean of the unbonded
+   *  pixels, if so than the common mode is the value determined by the
+   *  histogram, otherwise its the mean value of the unbonded pixels
+   */
+  hists_t CMVals(nAsics,0);
+  for (uint32_t asic(0); asic < nAsics; ++asic)
+  {
+     CMVals[asic] = (fabs(unbondedPixCMVals[asic]-histsCMVals[asic]) < _maxDist) ?
+           histsCMVals[asic] : unbondedPixCMVals[asic];
+  }
+
+  /** set the pixels of the result to the determined common mode value */
+  /** iterate through image */
+  for (int i(0); i < static_cast<int>(image.datasize()); ++i)
+  {
+    /** get the pixel value of the original image*/
+    const result_t::value_t pixelval(image[i]);
+    /** skip pixel if it is masked */
+    if (fuzzyIsNull(pixelval))
+      continue;
+    /** find out in which row of the image we're */
+    const uint16_t row(i/nColsInput);
+    /** find out where we're on the row */
+    const uint16_t colInRow(i%nColsInput);
+    /** find out on which asic of the chip we're */
+    const uint8_t asicOnChip(colInRow/nColsAsic);
+    /** find out which chip we're on */
+    const uint8_t chip(row/nRowsAsic);
+    /** calc which asic we're on */
+    const uint8_t asic(nAsicsPerRow*chip + asicOnChip);
+    /** set the common mode value of the pixel */
+    result[i] = CMVals[asic];
+  }
+
+  /** if the checks are enabled add them to the end of the result */
+  if (_checks)
+  {
+    for (uint32_t asic(0); asic < nAsics; ++asic)
+    {
+      /** set the pos of the output line */
+      result_t::storage_t::iterator res(result.begin() +
+                                        image.datasize() +
+                                        asic*image.shape().first);
+      /** add the histogram */
+      hists_t::const_iterator histStart(hists.begin()+(asic*nBins));
+      hists_t::const_iterator histEnd(histStart+nBins);
+      res = copy(histStart,histEnd,res);
+      /** add the hist cm value */
+      *res = histsCMVals[asic];
+      ++res;
+      /** add the unbonded pixel cm value */
+      *res = unbondedPixCMVals[asic];
+      ++res;
+      /** add the used cm value */
+      *res = CMVals[asic];
+    }
   }
 }

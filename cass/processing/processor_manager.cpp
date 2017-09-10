@@ -601,6 +601,9 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case commonmodecalc:
     processor = Processor::shared_pointer(new pp333(key));
     break;
+  case commonmodecalcCsPad:
+    processor = Processor::shared_pointer(new pp334(key));
+    break;
   case tof2energy:
     processor = Processor::shared_pointer(new pp400(key));
     break;

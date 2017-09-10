@@ -179,6 +179,7 @@ the Class description for information about what parameters are user settable.
 00331: Generate Gain Calibration from images
 00332: Generate Hot Pixel Map from images
 00333: Generate common mode Background level
+00334: Generate common mode Background level for CsPAD
 
 00241: fix distorted offset of pnCCD frames
 00242: same as 105, but one can put a user defined value at the masked pixels
@@ -445,6 +446,7 @@ public:
     gaincalibration=331,
     hotpixmap=332,
     commonmodecalc=333,
+    commonmodecalcCsPad=334,
 
     tof2energy=400,
     calcVariance=401,

@@ -541,7 +541,7 @@ private:
 
 /** pixel detector common mode background calculation
  *
- * @PPList "333": pixel detector hot pixel detection
+ * @PPList "333": pixel detector common mode background calculation
  *
  * @see Processor for a list of all commonly available cass.ini
  *      settings.
@@ -608,6 +608,60 @@ private:
   /** the function that calculates the commond mode level */
   std::tr1::function<float(result_t::const_iterator,
                            result_t::const_iterator)> _calcCommonmode;
+};
+
+
+
+
+
+
+
+/** pixel detector common mode background calculation
+ *
+ * @PPList "334": pixel detector common mode calc using histograms
+ *
+ * @see Processor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng Processor/\%name\%/{Image} \n
+ *           the image of the pixel detector
+ * @cassttng Processor/\%name\%/{Width} \n
+ *           when using the histogram option this is the width of the 0 photons
+ *           peak that the CsPAD typically has. Default is 30
+ * @cassttng Processor/\%name\%/{MaxDistance} \n
+ *           How much should the histogram value differ at the most from the
+ *           unbonded pixel value, before the value of the unbonded pixel is
+ *           taken. Default is 5
+ * @cassttng Processor/\%name\%/{EnableChecks} \n
+ *           Switch that allows to enable checks by outputting the histograms,
+ *           and the found maxima. Default is false.
+ *
+ * @author Lutz Foucar
+ */
+class pp334 : public Processor
+{
+public:
+  /** constructor. */
+  pp334(const name_t&);
+
+  /** overwrite default behaviour don't do anything */
+  virtual void process(const CASSEvent&, result_t&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+private:
+  /** the image to create the hotpixel map from */
+  shared_pointer _image;
+
+  /** the number of times a pixel is high before masking it as hot pixel */
+  float _width;
+
+  /** the maximum distance between the value of the unbonded pxiels and the hist */
+  float _maxDist;
+
+  /** enable output that allow to check the parameters */
+  bool _checks;
 };
 
 }//end namespace cass
