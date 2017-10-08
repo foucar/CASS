@@ -1,5 +1,5 @@
 // Copyright (C) 2009,2010 Jochen Küpper
-// Copyright (C) 2009-2016 Lutz Foucar
+// Copyright (C) 2009-2017 Lutz Foucar
 
 /**
  * @file cass.cpp file contains the main cass program
@@ -50,6 +50,9 @@
 #ifdef OFFLINE
 #include "hdf5_file_input.h"
 #endif
+#endif
+#ifdef ZEROMQ
+#include "zmq_input.h"
 #endif
 
 
@@ -172,6 +175,10 @@ int main(int argc, char **argv)
     bool sacladata(false);
     parser.add("--sacla","Enable SACLA Input",sacladata);
 #endif
+#ifdef ZEROMQ
+    bool zmq(false);
+    parser.add("--zmq","Enable the ZeroMQ Input",zmq);
+#endif
     bool showUsage(false);
     parser.add("-h","show this help",showUsage);
     bool showVersion(false);
@@ -233,6 +240,10 @@ int main(int argc, char **argv)
     else if (hdf5file)
       HDF5FileInput::instance(filelistname,ringbuffer,inputrate, inputload,quitwhendone);
 #endif
+#ifdef ZEROMQ
+    else if (zmq)
+     ZMQInput::instance(ringbuffer, inputrate, inputload, quitwhendone);
+#endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 #else
@@ -243,6 +254,10 @@ int main(int argc, char **argv)
 #ifdef SACLADATA
     else if (sacladata)
       SACLAOnlineInput::instance(ringbuffer,inputrate,inputload);
+#endif
+#ifdef ZEROMQ
+    else if (zmq)
+     ZMQInput::instance(ringbuffer, inputrate, inputload);
 #endif
 #ifdef LCLSLIBRARY
     else

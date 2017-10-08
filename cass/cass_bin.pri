@@ -271,6 +271,14 @@ LCLSLibrary {
     }
 }
 
+# extra stuff for ZMQ input
+ZMQ {
+    LIBS               += -lzmq
+    DEFINES            += ZEROMQ
+    SOURCES            += ./input/zmq_input.cpp
+    HEADERS            += ./input/zmq_input.h
+}
+
 # Extra stuff for http Server
 httpServer {
     LIBS               += -lmicrohttpd
