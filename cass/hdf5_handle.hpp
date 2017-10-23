@@ -413,7 +413,6 @@ public:
                    const std::string& valname)
   {
     using namespace std;
-    hsize_t dims[2];
 
     /** turn off error output */
     H5Eset_auto(H5E_DEFAULT,0,0);
@@ -426,8 +425,16 @@ public:
     if (dataspace_id < 0)
       throw logic_error("readMatrix(): Could not open the dataspace");
 
-    int ndims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    const int ndims(H5Sget_simple_extent_ndims(dataspace_id));
     if (ndims < 0)
+      throw logic_error("readMatrix(): Could not read the the number of dimensions");
+    if (ndims != 2)
+      throw logic_error("readMatrix(): The dataset doesn't have the 2 dimensions");
+
+    hsize_t dims[ndims];
+
+    int retNdims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    if (retNdims != ndims)
       throw logic_error("readMatrix(): Could not read the dimensions");
 
     shape.first = dims[1];
