@@ -404,7 +404,7 @@ public:
    * data before copying the data into the vector.
    *
    * @tparam type The type that should be written
-   * @param matrix the matrix to be written
+   * @param matrix the matrix to be read
    * @param shape the shape of the matrix
    * @param valname the name of the value
    */
@@ -446,6 +446,63 @@ public:
                           &matrix.front()));
     if (status < 0 )
       throw logic_error("readMatrix: Something went wrong reading matrix data");
+
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+  }
+
+  /** read a multidimensional dataset with a given name into a linearized array
+   *
+   * reads a multidimensional dataset from the h5 file. The dimensions of the
+   * dataset will be returned as it is stored in the hdf5 file in the shape
+   * parameter and the vector will be resized to fit the data before copying
+   * the data into the vector.
+   *
+   * @tparam type The type that should be written
+   * @param data the multidimensional data that will be read
+   * @param shape the shape of the matrix
+   * @param valname the name of the value
+   */
+  template<typename type>
+  void readMultiDim(std::vector<type> &data, std::vector<size_t> &shape,
+                    const std::string& valname)
+  {
+    using namespace std;
+
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw DatasetError("readMultiDim(): Could not open Dataset '"+ valname +"'");
+
+    hid_t dataspace_id(H5Dget_space (dataset_id));
+    if (dataspace_id < 0)
+      throw logic_error("readMultiDim(): Could not open the dataspace");
+
+    const int ndims(H5Sget_simple_extent_ndims(dataspace_id));
+    if (ndims < 0)
+      throw logic_error("readMultiDim(): Could not read the the number of dimensions");
+
+    hsize_t dims[ndims];
+
+    int retNdims(H5Sget_simple_extent_dims (dataspace_id, dims, NULL));
+    if (retNdims != ndims)
+      throw logic_error("readMultiDim(): Could not read the dimensions");
+
+    size_t completesize(0);
+    for (int i(0); i<ndims; ++i)
+    {
+      completesize += dims[i];
+      shape.push_back(dims[i]);
+    }
+
+    data.resize(completesize,0);
+
+    herr_t status(H5Dread(dataset_id, H5Type<type>(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                          &data.front()));
+    if (status < 0)
+      throw logic_error("readMultiDim: Something went wrong reading matrix data");
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
