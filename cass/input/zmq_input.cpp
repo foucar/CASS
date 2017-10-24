@@ -69,7 +69,6 @@ bool iterate(msgpack::object &obj, int depth,
       (m.find("type") != m.end()) && (m["type"].type == msgpack::type::STR) &&
       (m.find("shape") != m.end()) && (m["shape"].type == msgpack::type::ARRAY) )
   {
-    cout <<m["type"].as<string>() << " HUHU" << endl;
     m["shape"].convert(shape);
     if (m["type"].as<string>() == "<f4")
     {
@@ -143,9 +142,10 @@ void ZMQInput::runthis()
       msgpack::unpack(objH,static_cast<const char*>(mess.data()),mess.size(),off);
       msgpack::object obj(objH.get());
 
+      detData.clear();
       success=iterate(obj,0,detData,detDataShape,detKey);
     }
-    if (!success)
+    if (!success || (detData.empty()))
       continue;
 
     /** we got detector data from the whole train, so we have to extract the
