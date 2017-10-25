@@ -193,6 +193,43 @@ where "somewhere" is the place that you want to install the libraries to be
 installed to (ie. /usr/local)
 
 
+## zeromq (for XFEL Interface) {#zeromq}
+Download the sources from
+
+    http://zeromq.org/area:download
+
+to compile and install do
+
+    ./configure --prefix=/somewhere
+    make
+    make install
+
+Where somwhere is the place that you want to install the libraries to be
+installed to (ie. /usr/local).
+The additionally required c++ bindings need to be downloaded them from the git
+repository at
+
+    https://github.com/zeromq/cppzmq
+
+and copy the header files to the include dir of the zeromq installation
+
+    cp -r include/ /somewhere/.
+
+where "somewhere" is the location of the zeromq include directory
+
+
+## msgpack (for XFEL Interface) {#msgpack}
+Download the c/c++ version of msgpack from the git repository
+
+    https://github.com/msgpack/msgpack-c
+
+just install the headers by copying them
+
+    cp -r include/ /somewhere/.
+
+where the above `/somewhere/.` is the location where to install the headers
+
+
 ## SACLA offline and online libraries {#sacla}
 You can find the SACLA libraries at the HPC at SACLA. You need to have a sacla
 account in order to get access to the SACLA HPC.
@@ -201,7 +238,8 @@ account in order to get access to the SACLA HPC.
 ## Achims resort routine  {#achimresorter}
 Please contact [Achim Czasch](mailto:czasch@roentdek.com) to get the latest
 version of the resort routine.
-Be adviced that the CASS interface might have to be adapted to the latest version.
+Be adviced that the CASS interface might have to be adapted to the latest
+version.
 
 
 Needed Environment Variables  {#env}
