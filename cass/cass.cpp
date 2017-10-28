@@ -49,6 +49,7 @@
 #ifdef HDF5
 #ifdef OFFLINE
 #include "hdf5_file_input.h"
+#include "xfel_hdf5_file_input.h"
 #endif
 #endif
 #ifdef ZEROMQ
@@ -150,6 +151,8 @@ int main(int argc, char **argv)
 #ifdef HDF5
     bool hdf5file(false);
     parser.add("--hdf5","use the special hdf5 file parser",hdf5file);
+    bool xfelhdf5file(false);
+    parser.add("--xfelhdf5","use the xfel hdf5 file parser",xfelhdf5file);
 #endif
 #else
     bool tcp(false);
@@ -239,6 +242,8 @@ int main(int argc, char **argv)
 #ifdef HDF5
     else if (hdf5file)
       HDF5FileInput::instance(filelistname,ringbuffer,inputrate, inputload,quitwhendone);
+    else if (xfelhdf5file)
+      XFELHDF5FileInput::instance(filelistname,ringbuffer,inputrate, inputload,quitwhendone);
 #endif
 #ifdef ZEROMQ
     else if (zmq)

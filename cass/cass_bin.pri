@@ -299,6 +299,8 @@ hdf5 {
     is_offline {
         HEADERS        += ./input/hdf5_file_input.h
         SOURCES        += ./input/hdf5_file_input.cpp
+        HEADERS        += ./input/xfel_hdf5_file_input.h
+        SOURCES        += ./input/xfel_hdf5_file_input.cpp
     }
 }
 
