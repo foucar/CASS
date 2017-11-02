@@ -803,6 +803,67 @@ public:
     return value;
   }
 
+  /** retrieve the filename of the file associated with the handler
+   *
+   * @return the name of the file
+   */
+  std::string filename() const
+  {
+    using namespace std;
+    if (!_fileid)
+      return "";
+    /** determine the size of the filename (which is the return value of the
+     *  query function
+     */
+    int namesize(H5Fget_name(_fileid,NULL,0));
+    if (namesize < 0)
+      throw logic_error("filename(): Error when retrieving the size of the name");
+    /** allocate a vector of chars to hold the filanme */
+    vector<char> fn(namesize+1,' ');
+    /** and retrieve the filename */
+    herr_t status(H5Fget_name(_fileid,&fn[0],fn.size()));
+    if (status < 0)
+      throw logic_error("filename(): Error when retrieving the filename");
+    /** use the iterator constructor of string to convert the vector of chars to
+     *  string
+     */
+    return string(fn.begin(),fn.end());
+  }
+
+  /** get the shape of a dataset with a given name
+   *
+   * retrieve the dataset with the given name, then the dataspace for the
+   * dataset. The order will be that the first will be the slowest dimension,
+   * then the second slowest and so on, then the last value will be the fastest
+   * dimension.
+   *
+   * @return the shape of the dataset
+   * @param valname the name of the dataset
+   */
+  shape_t shape(const std::string &valname) const
+  {
+    using namespace std;
+    hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw DatasetError("shape(): Could not open Dataset '"+ valname +"'");
+
+    hid_t dataspace_id(H5Dget_space (dataset_id));
+    if(H5Sget_simple_extent_type(dataspace_id) != H5S_SIMPLE)
+      throw DatasetError("shape():  Dataset '"+ valname + "' is not of type " +
+                         "H5S_SIMPLE and therefore doesn't have a shape");
+
+    const int ndims(H5Sget_simple_extent_ndims(dataspace_id));
+    if (ndims < 0)
+      throw logic_error("shape(): Could not read the the number of dimensions");
+
+    hsize_t dims[ndims];
+
+    int retNdims(H5Sget_simple_extent_dims(dataspace_id, dims, NULL));
+    if (retNdims != ndims)
+      throw logic_error("shape(): Could not read the shape");
+
+    return shape_t(&dims[0],&dims[0] + ndims);
+  }
 
   /** get the dimension of a value with a given name
    *
