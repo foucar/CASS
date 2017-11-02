@@ -180,8 +180,20 @@ public:
    */
   ~Handler()
   {
-    H5Fflush(_fileid,H5F_SCOPE_LOCAL);
-    H5Fclose(_fileid);
+    close();
+  }
+
+  /** close the file used by this handler
+   *
+   */
+  void close()
+  {
+    using namespace std;
+    if (_fileid)
+    {
+      H5Fflush(_fileid,H5F_SCOPE_LOCAL);
+      H5Fclose(_fileid);
+    }
   }
 
   /** open a file
