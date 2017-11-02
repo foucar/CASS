@@ -43,43 +43,55 @@ ZMQInput::ZMQInput(RingBuffer<CASSEvent> &ringbuffer,
     _quitWhenDone(quitwhendone)
 {}
 
-struct myvisitor : msgpack::v2::null_visitor
-{
-  bool visit_str(const char *str, uint32_t size)
-  {
-    cout << string(str,size) << endl;
-    return true;
-  }
-};
+//struct myvisitor : msgpack::v2::null_visitor
+//{
+//  bool visit_str(const char *str, uint32_t size)
+//  {
+//    cout << string(str,size) << endl;
+//    return true;
+//  }
+//};
 
-typedef map<string,msgpack::object> m_t;
+/** read the string like payload of an msgpack object into an vector of floats
+ *
+ * @tparam type the type of data wrapped in the msgpack object as string
+ * @param out reference to the vector where the data will be written to
+ * @param obj the msgpack object who's payload will be written to the out vector
+ *
+ * @author Lutz Foucar
+ */
+template <typename type>
+void readNDArrayDataAsString(std::vector<float>& out, const msgpack::object &obj)
+{
+  const type *d(reinterpret_cast<const type*>(obj.via.str.ptr));
+  size_t payloadsize(obj.via.str.size);
+  out.assign(d,d+payloadsize/sizeof(type));
+}
+
+/** read the binary payload of an msgpack object into an vector of floats
+ *
+ * @tparam type the type of data wrapped in the msgpack object as string
+ * @param out reference to the vector where the data will be written to
+ * @param obj the msgpack object who's payload will be written to the out vector
+ *
+ * @author Lutz Foucar
+ */
+template <typename type>
+void readNDArrayDataAsBinary(std::vector<float>& out, const msgpack::object &obj)
+{
+  const type *d(reinterpret_cast<const type*>(obj.via.bin.ptr));
+  size_t payloadsize(obj.via.bin.size);
+  out.assign(d,d+payloadsize/sizeof(type));
+}
+
 bool iterate(msgpack::object &obj, int depth,
              vector<float>&data, vector<int>&shape,
              const string& searchKey, string acckey="")
 {
-  //cout << acckey << " " <<searchKey<< " " <<(acckey == searchKey)<< endl;
+  typedef map<string,msgpack::object> m_t;
   m_t m(obj.as<m_t>());
-  /** when we've got down to the point where we see detector data,
-   *  check if it is really the detector data
-   */
-  if ((searchKey == acckey) &&
-      (m.find("nd") != m.end()) && (m["nd"].type == msgpack::type::BOOLEAN) &&
-      (m["nd"].as<bool>()) &&
-      (m.find("data") != m.end()) && (m["data"].type == msgpack::type::STR) &&
-      (m.find("type") != m.end()) && (m["type"].type == msgpack::type::STR) &&
-      (m.find("shape") != m.end()) && (m["shape"].type == msgpack::type::ARRAY) )
-  {
-    m["shape"].convert(shape);
-    if (m["type"].as<string>() == "<f4")
-    {
-      size_t cssize(m["data"].via.str.size);
-      const float *d(reinterpret_cast<const float*>(m["data"].via.str.ptr));
-      data.assign(d,d+cssize/4);
-    }
-    return true;
-  }
 
-  /** just go through the msgpack object and iterate down to the nested maps */
+  /** just go through the msgpack object and */
   for (m_t::iterator it(m.begin()); it!= m.end();++it)
   {
     string flattenkey(acckey);
@@ -87,7 +99,57 @@ bool iterate(msgpack::object &obj, int depth,
     if(!flattenkey.empty())
       flattenkey.append("$");
     flattenkey.append(it->first);
-    if (it->second.type == msgpack::type::MAP)
+    /** check if we're interested in the data */
+    if ((searchKey == flattenkey))
+    {
+      /** check if its ndarray data */
+      if (it->second.type == msgpack::type::MAP)
+      {
+        m_t mp(it->second.as<m_t>());
+        if ((mp.find("nd") != m.end()) &&
+            (mp["nd"].type == msgpack::type::BOOLEAN) &&
+            (mp["nd"].as<bool>()) &&
+            (mp.find("data") != m.end()) &&
+            (mp.find("type") != m.end()) &&
+            (mp["type"].type == msgpack::type::STR) &&
+            (mp.find("shape") != m.end()) &&
+            (mp["shape"].type == msgpack::type::ARRAY))
+        {
+          mp["shape"].convert(shape);
+
+          if (mp["type"].as<string>() == "<f4")
+          {
+            if (mp["data"].type == msgpack::type::STR)
+            {
+              readNDArrayDataAsString<float>(data,mp["data"]);
+            }
+            else if (m["data"].type == msgpack::type::BIN)
+            {
+              readNDArrayDataAsBinary<float>(data,mp["data"]);
+            }
+          }
+          else if (mp["type"].as<string>() == "<f8")
+          {
+            if (mp["data"].type == msgpack::type::STR)
+            {
+              readNDArrayDataAsString<double>(data,mp["data"]);
+            }
+            else if (mp["data"].type == msgpack::type::BIN)
+            {
+              readNDArrayDataAsBinary<double>(data,mp["data"]);
+            }
+          }
+        }
+      }
+      /** check if its an array */
+      /** check if its a single data value */
+
+    }
+
+    /** if we are not interested in the data then just check to see if its
+     *  another map that we should iterate into
+     */
+    else if (it->second.type == msgpack::type::MAP)
     {
       iterate(it->second,depth+1,data,shape,searchKey,flattenkey);
     }
