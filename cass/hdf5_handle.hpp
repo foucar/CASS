@@ -531,7 +531,7 @@ public:
    * @param valname the name of the value
    */
   template<typename type>
-  void readMultiDim(std::vector<type> &data, std::vector<size_t> &shape,
+  void readMultiDim(std::vector<type> &data, shape_t &shape,
                     const std::string& valname)
   {
     using namespace std;
