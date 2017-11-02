@@ -13,6 +13,7 @@
 #include <typeinfo>
 #include <utility>
 #include <iostream>
+#include <sstream>
 
 #include <hdf5.h>
 
@@ -573,6 +574,82 @@ public:
 
     H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
+  }
+
+
+  /** partially read a multidimensional dataset with a given name into a
+   *  linearized array
+   *
+   * reads a part of a multidimensional dataset from the h5 file.
+   *
+   * @tparam type The type that should be read
+   * @param data pointer to the space where the data will be written to.
+   * @param part the part that should be read
+   * @param valname the name of the value
+   */
+  template<typename type>
+  void readPartialMultiDim(typename std::vector<type>::iterator data,
+                           const partiality_t &part,
+                           const std::string& valname)
+  {
+    using namespace std;
+
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    hid_t dataset_id(H5Dopen (_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+      throw DatasetError("readPartialMultiDim(): Could not open Dataset '" +
+                         valname + "' in file '" + filename() + "'");
+
+    hid_t dataspace_id(H5Dget_space(dataset_id));
+    if (dataspace_id < 0)
+      throw logic_error("readPartialMultiDim(): Could not open the dataspace");
+
+    const int ndims(H5Sget_simple_extent_ndims(dataspace_id));
+    if (ndims < 0)
+      throw logic_error(string("readPartialMultiDim(): Could not read the ") +
+                               "number of dimensions");
+
+    hsize_t dims[ndims];
+    int retNdims(H5Sget_simple_extent_dims(dataspace_id, dims, NULL));
+    if (retNdims != ndims)
+      throw logic_error("readPartialMultiDim(): Could not read the dimensions");
+
+    /** do some error checking (check if provided params are suitable */
+    if (ndims != static_cast<int>(part.dims.size()))
+    {
+      stringstream ss;
+      ss <<"readPartialMultiDim(): The provided size of the dimensions " <<
+           part.dims.size() << "' does not match the dataset dimension size '" <<
+           ndims << "'";
+      throw DatasetError(ss.str());
+    }
+
+    /** set up the memory and the hypserlab for the partial read*/
+    hid_t memspace_id(H5Screate_simple(part.dims.size(), &(part.dims.front()),
+                                       NULL));
+    if (dataset_id < 0)
+      throw logic_error("readPartialMultiDim(): Could not open the memspace.");
+
+    herr_t status(H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET,
+                                      &(part.offset.front()),
+                                      &(part.stride.front()),
+                                      &(part.count.front()),
+                                      &(part.block.front())));
+    if (status < 0)
+      throw logic_error(string("readPartialMultiDim: Something went wrong ") +
+                        "creating the hyperslab");
+
+    /** read the partial data directly into the provided dataspace */
+    status = H5Dread(dataset_id, H5Type<type>(), memspace_id, dataspace_id,
+                     H5P_DEFAULT, &(*data));
+    if (status < 0)
+      throw logic_error("readPartialMultiDim: Something went wrong reading partial data");
+
+    H5Sclose(memspace_id);
+    H5Sclose(dataspace_id);
+    H5Dclose(dataset_id);
   }
 
   /** write a string dataset
