@@ -206,6 +206,11 @@ public:
    */
   void open(const std::string &filename, const std::string & mode="w")
   {
+    if (_fileid)
+      throw std::logic_error("hdf5::Handler::open(): File '" + filename +
+                             "'. Hander is already responsible for '" +
+                             this->filename() + "'");
+
     if (mode == "w")
     {
       _fileid = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
