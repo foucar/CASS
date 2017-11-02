@@ -213,7 +213,7 @@ repository at
 
 and copy the header files to the include dir of the zeromq installation
 
-    cp -r include/ /somewhere/.
+    cp *.hpp /somewhere/.
 
 where "somewhere" is the location of the zeromq include directory
 
