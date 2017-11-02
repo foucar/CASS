@@ -557,10 +557,10 @@ public:
     if (retNdims != ndims)
       throw logic_error("readMultiDim(): Could not read the dimensions");
 
-    size_t completesize(0);
+    size_t completesize(1);
     for (int i(0); i<ndims; ++i)
     {
-      completesize += dims[i];
+      completesize *= dims[i];
       shape.push_back(dims[i]);
     }
 
