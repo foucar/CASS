@@ -13,6 +13,7 @@
 
 #include "data_viewer.h"
 #include "result.hpp"
+#include "geom_parser.h"
 
 class QwtPlot;
 class QwtLinearColorMap;
@@ -121,6 +122,12 @@ private:
 
   /** the geom file to convert data to lab frame */
   QString _geomFile;
+
+  /** the geom file to convert data to lab frame */
+  bool _lutPresent;
+
+  /** the geom file to convert data to lab frame */
+  cass::GeometryInfo::lookupTable_t _lut;
 
   /** the original histogram */
   cass::Result<float>::shared_pointer _origHist;

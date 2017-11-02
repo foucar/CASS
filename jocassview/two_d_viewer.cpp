@@ -43,7 +43,6 @@
 #include "logcolor_map.h"
 #include "data.h"
 #include "file_handler.h"
-#include "geom_parser.h"
 
 using namespace jocassview;
 using namespace cass;
@@ -125,6 +124,9 @@ TwoDViewer::TwoDViewer(QString title, QWidget *parent)
   // set the original flag
   _isOriginalData = true;
 
+  // set the lookuptable flag
+  _lutPresent = false;
+
   settings.endGroup();
 }
 
@@ -168,23 +170,26 @@ void TwoDViewer::dataChanged()
   /** check if the user wants to convert cheetah layout to lab frame */
   if (!_geomFile.isEmpty())
   {
-    /** generate the lookup table from the geomfile */
-    GeometryInfo::lookupTable_t lut =
-        GeometryInfo::generateLookupTable(_geomFile.toStdString(),
-                                          _origHist->size(),
-                                          _origHist->shape().first,
-                                          false);
+    /** create lookup table from the geom file if its not created yet */
+    if (!_lutPresent)
+    {
+      _lut = GeometryInfo::generateLookupTable(_geomFile.toStdString(),
+                                               _origHist->size(),
+                                               _origHist->shape().first,
+                                               false);
+      _lutPresent = true;
+    }
 
     cass::Result<float>::shared_pointer labHist
         ( new cass::Result<float>
-          (cass::Result<float>::axe_t(lut.nCols,lut.min.x,lut.max.x, "cols"),
-           cass::Result<float>::axe_t(lut.nRows,lut.min.y,lut.max.y, "rows")));
+          (cass::Result<float>::axe_t(_lut.nCols,_lut.min.x,_lut.max.x, "cols"),
+           cass::Result<float>::axe_t(_lut.nRows,_lut.min.y,_lut.max.y, "rows")));
     labHist->name(_origHist->name());
 
     cass::Result<float>::const_iterator srcpixel(_origHist->begin());
     cass::Result<float>::const_iterator srcImageEnd(_origHist->end()-8);
 
-    std::vector<size_t>::const_iterator idx(lut.lut.begin());
+    std::vector<size_t>::const_iterator idx(_lut.lut.begin());
 
     for (; srcpixel != srcImageEnd; ++srcpixel, ++idx)
       (*labHist)[*idx] = *srcpixel;
@@ -296,7 +301,10 @@ void TwoDViewer::on_load_geomfile_triggered()
   QString filename = QFileDialog::getOpenFileName(this, tr("Load Geom File"),
                                                   QDir::currentPath(), filter);
   if (!filename.isEmpty() && QFileInfo(filename).exists())
+  {
     _geomFile = filename;
+    _lutPresent = false;
+  }
 
   bool ok(false);
   wavelength_A =
