@@ -38,6 +38,51 @@ public:
   virtual ~DatasetError() throw() {}
 };
 
+/** define the shape type */
+typedef std::vector<hsize_t> shape_t;
+
+/** define the list of dataset names */
+typedef std::list<std::string> dsetList_t;
+
+/** define the partiality parameter container */
+typedef struct
+{
+  /** the dimensions of the partial dataset */
+  std::vector<hsize_t> dims;
+
+  /** the offset of the partial data within the original data
+   *
+   * The offset or start array specifies the offset of the starting element of
+   * the specified hyperslab.
+   */
+  std::vector<hsize_t> offset;
+
+  /** the stride
+   *
+   * The stride array allows you to sample elements along a dimension. For
+   * example, a stride of one (or NULL) will select every element along a
+   *  dimension, a stride of two will select every other element, and a
+   * stride of three will select an element after every two elements.
+   */
+  std::vector<hsize_t> stride;
+
+  /** the count
+   *
+   * The count array determines how many blocks to select from the dataspace
+   * in each dimension. If the block size for a dimension is one then the count
+   * is the number of elements along that dimension.
+   */
+  std::vector<hsize_t> count;
+
+  /** the block
+   *
+   * The block array determines the size of the element block selected from a
+   *  dataspace. If the block size is one or NULL then the block size is a
+   * single element in that dimension.
+   */
+  std::vector<hsize_t> block;
+
+} partiality_t;
 
 /** traits for matching a build in type with the corresponding h5 type
  *
