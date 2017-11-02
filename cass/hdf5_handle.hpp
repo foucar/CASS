@@ -956,14 +956,17 @@ public:
    *
    * @return list of strings that point to valid datasets
    */
-  std::list<std::string> datasets() const
+  dsetList_t datasets() const
   {
     using namespace std;
-    list<string> dsetlist;
-    hid_t status(H5Ovisit(_fileid,H5_INDEX_NAME,H5_ITER_NATIVE,
-                          dataset_iterator_func,&dsetlist));
-    if (status < 0)
-      throw logic_error("datasets(): Error when iterating through the h5 file");
+    dsetList_t dsetlist;
+    if (_fileid)
+    {
+      hid_t status(H5Ovisit(_fileid,H5_INDEX_NAME,H5_ITER_NATIVE,
+                            dataset_iterator_func,&dsetlist));
+      if (status < 0)
+        throw logic_error("datasets(): Error when iterating through the h5 file");
+    }
 
     return dsetlist;
   }
@@ -972,10 +975,10 @@ public:
    *
    * @return list of strings that point to groups
    */
-  std::list<std::string> rootGroups() const
+  dsetList_t rootGroups() const
   {
     using namespace std;
-    list<string> grouplist;
+    dsetList_t grouplist;
     hid_t status(H5Literate(_fileid,H5_INDEX_NAME,H5_ITER_INC,NULL,
                             group_iterator_func,&grouplist));
     if (status < 0)
