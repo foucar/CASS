@@ -153,11 +153,15 @@ herr_t group_iterator_func(hid_t loc_id, const char * name,
  */
 class Handler
 {
+private:
+  /** prevent copy construction */
+   Handler(const Handler& /*other*/) : _fileid(0) {}
+
 public:
   /** default constructor
    *
    */
-  Handler() {}
+  Handler() : _fileid(0) {}
 
   /** constructor opening the file
    *
@@ -165,6 +169,7 @@ public:
    * @param filename the name of the file to open
    */
   Handler(const std::string &filename, const std::string & mode="w")
+    : _fileid(0)
   {
     open(filename,mode);
   }
