@@ -115,28 +115,50 @@ bool iterate(msgpack::object &obj, int depth,
             (mp.find("shape") != m.end()) &&
             (mp["shape"].type == msgpack::type::ARRAY))
         {
+          /** if it is then extract the shape and the data according to the
+           *  type of the data an how it is packed
+           */
           mp["shape"].convert(shape);
-
-          if (mp["type"].as<string>() == "<f4")
+          if (mp["data"].type == msgpack::type::STR)
           {
-            if (mp["data"].type == msgpack::type::STR)
+            if (mp["type"].as<string>() == "<f4")
             {
               readNDArrayDataAsString<float>(data,mp["data"]);
             }
-            else if (m["data"].type == msgpack::type::BIN)
-            {
-              readNDArrayDataAsBinary<float>(data,mp["data"]);
-            }
-          }
-          else if (mp["type"].as<string>() == "<f8")
-          {
-            if (mp["data"].type == msgpack::type::STR)
+            else if (mp["type"].as<string>() == "<f8")
             {
               readNDArrayDataAsString<double>(data,mp["data"]);
             }
-            else if (mp["data"].type == msgpack::type::BIN)
+            else if (mp["type"].as<string>() == "<u2")
+            {
+              readNDArrayDataAsString<uint16_t>(data,mp["data"]);
+            }
+            else
+            {
+              Log::add(Log::WARNING,"ZMQInput::ParseMSGPACKObject: '" + flattenkey +
+                       "': The type '' of the string type ndarray data is not" +
+                       " supported.");
+            }
+          }
+          else if (m["data"].type == msgpack::type::BIN)
+          {
+            if (mp["type"].as<string>() == "<f4")
+            {
+              readNDArrayDataAsBinary<float>(data,mp["data"]);
+            }
+            else if (mp["type"].as<string>() == "<f8")
             {
               readNDArrayDataAsBinary<double>(data,mp["data"]);
+            }
+            else if (mp["type"].as<string>() == "<u2")
+            {
+              readNDArrayDataAsBinary<uint16_t>(data,mp["data"]);
+            }
+            else
+            {
+              Log::add(Log::WARNING,"ZMQInput::ParseMSGPACKObject: '" + flattenkey +
+                       "': The type '' of the binary type ndarray data is not " +
+                       "supported.");
             }
           }
         }
