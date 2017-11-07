@@ -116,6 +116,25 @@ public:
   /** load the parameters used for the multifile input */
   void load();
 
+  /** retrieve the averaged progress state of all file processors
+   *
+   * @return the processing progress
+   */
+  double progress() {return static_cast<double>(_counter) /
+                            static_cast<double>(_totalevents);}
+
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter() {return _counter;}
+
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter() {return _scounter;}
+
 public:
   /** parameters needed to retrieve the Acqiris data */
   struct AcqirisParams
@@ -173,6 +192,14 @@ private:
   /** name of the file containing all files that we need to process */
   std::string _filelistname;
 
+  /** the counter for all events */
+  uint64_t _counter;
+
+  /** the counter for all events */
+  uint64_t _scounter;
+
+  /** the total # of events to be handled */
+  uint64_t _totalevents;
 };
 
 }//end namespace cass
