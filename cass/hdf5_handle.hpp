@@ -99,13 +99,19 @@ template <typename T> inline hid_t H5Type()
 /** trait implementation for float */
 template <> inline hid_t H5Type<float>() {return H5T_NATIVE_FLOAT;}
 
-/** trait implementation for float */
+/** trait implementation for double */
 template <> inline hid_t H5Type<double>() {return H5T_NATIVE_DOUBLE;}
 
-/** trait implementation for float */
+/** trait implementation for int */
 template <> inline hid_t H5Type<int>() {return H5T_NATIVE_INT;}
 
-/** trait implementation for float */
+/** trait implementation for unsigned 64 bit int */
+template <> inline hid_t H5Type<uint64_t>() {return H5T_NATIVE_UINT64;}
+
+/** trait implementation for unsigned 8 bit int */
+template <> inline hid_t H5Type<uint8_t>() {return H5T_NATIVE_UINT8;}
+
+/** trait implementation for char */
 template <> inline hid_t H5Type<char>() {return H5T_NATIVE_CHAR;}
 
 /** function to gather all datasets of the h5 file
