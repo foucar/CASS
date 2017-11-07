@@ -78,7 +78,7 @@ typedef struct
   /** the block
    *
    * The block array determines the size of the element block selected from a
-   *  dataspace. If the block size is one or NULL then the block size is a
+   * dataspace. If the block size is one or NULL then the block size is a
    * single element in that dimension.
    */
   std::vector<hsize_t> block;
