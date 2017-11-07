@@ -72,10 +72,25 @@ struct AGIPDTile
   /** the data */
   std::vector<float> data;
 
-  /** name of the dataset in the hdf5 file */
-  std::string dsetName;
+  /** the data */
+  std::vector<uint8_t> mask;
 
-  /** the dataseize of the tile */
+  /** name of the data dataset in the hdf5 file */
+  std::string dataDsetName;
+
+  /** name of the mask dataset in the hdf5 file */
+  std::string maskDsetName;
+
+  /** name of the mask dataset in the hdf5 file */
+  std::string gainDsetName;
+
+  /** name of the train id dataset in the hdf5 file */
+  std::string trainIdDsetName;
+
+  /** name of the pulse id dataset in the hdf5 file */
+  std::string pulseIdDsetName;
+
+  /** the datasize of the data tile */
   size_t size;
 
   /** the number of columns of the tile */
@@ -94,9 +109,9 @@ struct AGIPDTile
  * @param frame iterator to the frame where the tile data should be written to.
  * @param imageNbr which image within the file should be retrieved
  */
-void copyTileToFrame(const AGIPDTile& tile,
-                     pixeldetector::Detector::frame_t::iterator frame,
-                     int imageNbr)
+void copyDataTileToFrame(const AGIPDTile& tile,
+                         pixeldetector::Detector::frame_t::iterator frame,
+                         int imageNbr)
 {
   /** get iterator to the start of the tile within the frame */
   pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
@@ -118,7 +133,102 @@ void copyTileToFrame(const AGIPDTile& tile,
   part.stride.resize(part.dims.size(),1);
 
   /** now read the current images tile into the frame */
-  tile.fh->readPartialMultiDim<float>(tileInFrame,part,tile.dsetName);
+  tile.fh->readPartialMultiDim<float>(tileInFrame,part,tile.dataDsetName);
+}
+
+
+/** get the tile from the hdf5 file and copy it to the correct position in the
+ *  frame
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to the tile to be copied
+ * @param frame iterator to the frame where the tile data should be written to.
+ * @param imageNbr which image within the file should be retrieved
+ */
+void copyGainTileToFrame(const AGIPDTile& tile,
+                         pixeldetector::Detector::frame_t::iterator frame,
+                         int imageNbr)
+{
+  /** get iterator to the start of the tile within the frame */
+  pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
+  /** create the partiality parameters for retrieving only the current images'
+   *  tile from the dataset
+   */
+  hdf5::partiality_t part;
+  part.dims.push_back(1);
+  part.dims.push_back(tile.nRows);
+  part.dims.push_back(tile.nCols);
+
+  part.offset.resize(part.dims.size(),0);
+  part.offset[0] = imageNbr;
+
+  part.count.assign(part.dims.begin(),part.dims.end());
+  part.block.resize(part.dims.size(),1);
+  part.stride.resize(part.dims.size(),1);
+
+  /** now read the current images tile into the frame */
+  tile.fh->readPartialMultiDim<float>(tileInFrame,part,tile.gainDsetName);
+}
+
+
+/** get the mask tile from the hdf5 file and copy it to the correct
+ *  position in the frame
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to the tile to be copied
+ * @param frame iterator to the frame where the tile data should be written to.
+ * @param imageNbr which image within the file should be retrieved
+ */
+void copyTileToMask(const AGIPDTile& tile,
+                    pixeldetector::Detector::frame_t::iterator frame,
+                    int imageNbr)
+{
+  /** get iterator to the start of the tile within the frame */
+  pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
+  /** create the partiality parameters for retrieving only the current images'
+   *  tile from the dataset
+   */
+  hdf5::partiality_t part;
+  part.dims.push_back(1);
+  part.dims.push_back(tile.nRows);
+  part.dims.push_back(tile.nCols);
+  part.dims.push_back(3);
+
+  part.offset.resize(part.dims.size(),0);
+  part.offset[0] = imageNbr;
+
+  part.count.assign(part.dims.begin(),part.dims.end());
+  part.block.resize(part.dims.size(),1);
+  part.stride.resize(part.dims.size(),1);
+
+  /** read the data into a temporary space, since its 3 times bigger than the
+   *  detector image, due to the fact that the masks for all 3 gain stages are
+   *  in separate dimensions
+   */
+  vector<uint8_t> mask(tile.size*3,0);
+  tile.fh->readPartialMultiDim<uint8_t>(mask.begin(),part,tile.maskDsetName);
+  vector<uint8_t>::const_iterator maskIt(mask.begin());
+
+  /** read the gain into the memory */
+  vector<uint8_t> gain(tile.size,4);
+  part.dims.erase(part.dims.end()-1);
+  part.offset.erase(part.offset.end()-1);
+  part.count.erase(part.count.end()-1);
+  part.block.erase(part.block.end()-1);
+  part.stride.erase(part.stride.end()-1);
+  tile.fh->readPartialMultiDim<uint8_t>(gain.begin(),part,tile.gainDsetName);
+  vector<uint8_t>::const_iterator gainIt(gain.begin());
+  /** now read the current mask tile into the frame, load the correct mask value
+   *  for the gain that the pixel is in
+   */
+  for (size_t i(0); i<(tile.size); ++i)
+  {
+    *tileInFrame += maskIt[*gainIt];
+    advance(maskIt,3);
+    advance(tileInFrame,1);
+  }
 }
 
 }//end namespace cass
@@ -141,7 +251,10 @@ XFELHDF5FileInput::XFELHDF5FileInput(string filelistname,
                                      QObject *parent)
   : InputBase(ringbuffer,ratemeter,loadmeter,parent),
     _quitWhenDone(quitWhenDone),
-    _filelistname(filelistname)
+    _filelistname(filelistname),
+    _counter(0),
+    _scounter(0),
+    _totalevents(0)
 {
   Log::add(Log::VERBOSEINFO, "HDF5FileInput::HDF5FileInput: constructed");
 }
@@ -155,19 +268,41 @@ void XFELHDF5FileInput::runthis()
   /** load the settings from the ini file */
   CASSSettings s;
   s.beginGroup("XFELHDF5FileInput");
-  int CASSID(s.value("CASSID",30).toInt());
+  s.beginGroup("AGIPD");
 
   /** list of datasetnames of the individual tiles */
   typedef map<int,string> machineVals_t;
-  machineVals_t tilenames;
-  int size = s.beginReadArray("AGIPDTiles");
+  machineVals_t datatilenames;
+  int DataCASSID(s.value("DataCASSID",30).toInt());
+  int size = s.beginReadArray("DataTiles");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    tilenames[i] = s.value("HDF5Key","Invalid").toString().toStdString();
+    datatilenames[i] = s.value("HDF5Key","Invalid").toString().toStdString();
   }
-  s.endArray();
-  s.endGroup();
+  s.endArray(); // DataTiles
+  int MaskCASSID(s.value("MaskCASSID",31).toInt());
+  size = s.beginReadArray("MaskTiles");
+  machineVals_t masktilenames;
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    masktilenames[i] = s.value("HDF5Key","Invalid").toString().toStdString();
+  }
+  s.endArray(); // MaskTiles
+  int GainCASSID(s.value("GainCASSID",32).toInt());
+  size = s.beginReadArray("GainTiles");
+  machineVals_t gaintilenames;
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    gaintilenames[i] = s.value("HDF5Key","Invalid").toString().toStdString();
+  }
+  s.endArray(); // GainTiles
+  string trainIdKey(s.value("TrainId_HDF5Key","Invalid").toString().toStdString());
+  string pulseIdKey(s.value("PulseId_HDF5Key","Invalid").toString().toStdString());
+  s.endGroup(); // AGPID
+  s.endGroup(); // XFEHDF5FileInput
 
   _status = lmf::PausableThread::running;
   Tokenizer tokenize;
@@ -209,14 +344,16 @@ void XFELHDF5FileInput::runthis()
       /** open the file and add the handle for the file to the tile */
       tile.fh = AGIPDTile::h5handle_t(new hdf5::Handler(filepath,"r"));
       /** defer the datasetname from the id */
-      tile.dsetName = tilenames[tile.id];
+      tile.dataDsetName = datatilenames[tile.id];
+      /** defer the datasetname from the id */
+      tile.maskDsetName = masktilenames[tile.id];
+      /** defer the datasetname from the id */
+      tile.gainDsetName = gaintilenames[tile.id];
       /** now add the tile to the fileset */
       fs.push_back(tile);
     }
   }
   /** now go through all set of files */
-  id_t eventID(0);
-  uint64_t eventcounter(0);
   for (size_t i(0); (!shouldQuit()) && (i<filesetlist.size());++i)
   {
     fileset_t& fileset(filesetlist[i]);
@@ -225,10 +362,11 @@ void XFELHDF5FileInput::runthis()
      *  files). The first dimension is the number of images, so we iterate over
      *  this number
      */
-    const hdf5::shape_t shape(fileset[0].fh->shape(fileset[0].dsetName));
+    const hdf5::shape_t shape(fileset[0].fh->shape(fileset[0].dataDsetName));
     const size_t nCols(shape[shape.size()-1]);
     const size_t nRows(shape[shape.size()-2]);
     const size_t nTiles(fileset.size());
+    _totalevents = shape[0];
     fileset_t::iterator fsit(fileset.begin());
     while(fsit < fileset.end())
     {
@@ -238,7 +376,18 @@ void XFELHDF5FileInput::runthis()
       ++fsit;
     }
 
-    for (size_t i(0); (!shouldQuit()) && (i < shape[0]); i+=2)
+    /** get all the trainids and the pulseids from the first datafile, they
+     *  later used to compile a unique eventid
+     */
+    vector<uint64_t> trainIds;
+    size_t length;
+    fileset[0].fh->readArray(trainIds,length,trainIdKey);
+
+    vector<uint64_t> pulseIds;
+    fileset[0].fh->readArray(pulseIds,length,pulseIdKey);
+
+    //for (size_t i(0); (!shouldQuit()) && (i < shape[0]); i+=2)
+    for (size_t i(0); (!shouldQuit()) && (i < shape[0]);++i)
     {
       /** flag that tell whether the data is good */
       bool isGood(true);
@@ -251,7 +400,9 @@ void XFELHDF5FileInput::runthis()
       if (rbItem == _ringbuffer.end())
         continue;
       CASSEvent& evt(*rbItem->element);
-      evt.id() = eventID++;
+
+      /** create the event id from the trainid and the pulseid */
+      evt.id() = (trainIds[i] & 0x0000FFFFFFFFFFFF) + ((pulseIds[i] & 0x000000000000FFFF) << 48);
 
       /** get reference to all devices of the CASSEvent and an iterator*/
       CASSEvent::devices_t &devices(evt.devices());
@@ -262,20 +413,45 @@ void XFELHDF5FileInput::runthis()
         throw runtime_error("xfelhdf5fileinput: CASSEvent does not contains a pixeldetector device");
       pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
       /** retrieve the right detector from the cassevent and reset it*/
-      pixeldetector::Detector &det(pixdev.dets()[CASSID]);
-      pixeldetector::Detector::frame_t &frame(det.frame());
-      frame.clear();
-      frame.resize(nRows*nCols*nTiles);
+      pixeldetector::Detector &data(pixdev.dets()[DataCASSID]);
+      pixeldetector::Detector::frame_t &dataframe(data.frame());
+      dataframe.clear();
+      dataframe.resize(nRows*nCols*nTiles);
       /** copy the det data to the frame */
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToFrame,_1,frame.begin(),i));
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
+                                                       dataframe.begin(),i));
       /** set the detector parameters and add the event id */
-      det.columns() = nCols;
-      det.rows() = nRows*nTiles;
-      det.id() = evt.id();
+      data.columns() = nCols;
+      data.rows() = nRows*nTiles;
+      data.id() = evt.id();
+      /** retrieve the right detector from the cassevent and reset it*/
+      pixeldetector::Detector &gain(pixdev.dets()[GainCASSID]);
+      pixeldetector::Detector::frame_t &gainframe(gain.frame());
+      gainframe.clear();
+      gainframe.resize(nRows*nCols*nTiles);
+      /** copy the det data to the frame */
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
+                                                       gainframe.begin(),i));
+      /** set the detector parameters and add the event id */
+      gain.columns() = nCols;
+      gain.rows() = nRows*nTiles;
+      gain.id() = evt.id();
+      /** retrieve the right detector to hold the mask from the cassevent and reset it*/
+      pixeldetector::Detector &mask(pixdev.dets()[MaskCASSID]);
+      pixeldetector::Detector::frame_t &maskframe(mask.frame());
+      maskframe.clear();
+      maskframe.resize(nRows*nCols*nTiles);
+      /** copy the det data to the frame */
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
+                                                       maskframe.begin(),i));
+      /** set the detector parameters and add the event id */
+      mask.columns() = nCols;
+      mask.rows() = nRows*nTiles;
+      mask.id() = evt.id();
 
       /** tell the ringbuffer that we're done with the event */
       newEventAdded(0);
-      ++eventcounter;
+      ++_counter;
       _ringbuffer.doneFilling(rbItem, isGood);
     }
   }
@@ -289,5 +465,6 @@ void XFELHDF5FileInput::runthis()
       this->sleep(1);
   Log::add(Log::VERBOSEINFO, "XFELHDF5FileInput::run(): closing the input");
   Log::add(Log::INFO,"XFELHDF5FileInput::run(): Extracted '" +
-           toString(eventcounter) + "' events.");
+           toString(eventcounter()) + "' events.");
 }
+
