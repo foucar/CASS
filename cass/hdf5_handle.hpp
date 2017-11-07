@@ -626,9 +626,10 @@ public:
     if (ndims != static_cast<int>(part.dims.size()))
     {
       stringstream ss;
-      ss <<"readPartialMultiDim(): The provided size of the dimensions " <<
+      ss <<"readPartialMultiDim(): The provided size of the dimensions '" <<
            part.dims.size() << "' does not match the dataset dimension size '" <<
-           ndims << "'";
+           ndims << "' for dataset '" << valname <<"' within '" <<
+           filename() <<"'";
       throw DatasetError(ss.str());
     }
 
