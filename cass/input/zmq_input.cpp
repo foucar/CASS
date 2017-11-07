@@ -40,8 +40,28 @@ ZMQInput::ZMQInput(RingBuffer<CASSEvent> &ringbuffer,
                    bool quitwhendone,
                    QObject *parent)
   : InputBase(ringbuffer,ratemeter,loadmeter,parent),
-    _quitWhenDone(quitwhendone)
+    _quitWhenDone(quitwhendone),
+    _counter(0),
+    _scounter(0)
 {}
+
+struct Info
+{
+  Info():CASSID(0) {}
+  void clear()
+  {
+    data.clear();
+    shape.clear();
+  }
+
+  std::string CASSValueName;
+  std::string CASSDeviceType;
+  int CASSID;
+  std::vector<float> data;
+  std::vector<int> shape;
+};
+
+typedef std::map<std::string,Info> extractmap_t;
 
 //struct myvisitor : msgpack::v2::null_visitor
 //{
@@ -84,9 +104,8 @@ void readNDArrayDataAsBinary(std::vector<float>& out, const msgpack::object &obj
   out.assign(d,d+payloadsize/sizeof(type));
 }
 
-bool iterate(msgpack::object &obj, int depth,
-             vector<float>&data, vector<int>&shape,
-             const string& searchKey, string acckey="")
+bool iterate(const msgpack::object &obj, int depth,
+             extractmap_t& emap, string acckey="")
 {
   typedef map<string,msgpack::object> m_t;
   m_t m(obj.as<m_t>());
@@ -94,14 +113,19 @@ bool iterate(msgpack::object &obj, int depth,
   /** just go through the msgpack object and */
   for (m_t::iterator it(m.begin()); it!= m.end();++it)
   {
+//    for (extractmap_t::const_iterator eit(emap.begin()); eit != emap.end(); ++eit)
+//       cout << eit->first << " " << eit->second.shape.size()<<endl;
     string flattenkey(acckey);
     /** separate the keys of the nested dictionaries by a '$' character */
     if(!flattenkey.empty())
       flattenkey.append("$");
     flattenkey.append(it->first);
     /** check if we're interested in the data */
-    if ((searchKey == flattenkey))
+    if ((emap.find(flattenkey) != emap.end()))
     {
+      //cout << flattenkey <<" found it!!!"<<endl;
+      /** get a reference to the info that will now attempt to fill. */
+      Info &info(emap[flattenkey]);
       /** check if its ndarray data */
       if (it->second.type == msgpack::type::MAP)
       {
@@ -118,20 +142,21 @@ bool iterate(msgpack::object &obj, int depth,
           /** if it is then extract the shape and the data according to the
            *  type of the data an how it is packed
            */
-          mp["shape"].convert(shape);
+          mp["shape"].convert(info.shape);
+          //cout << "FDLJSLDFJLADSFJLDKSKFJLDSKJFLKSDJ   "<<info.shape.size()<<endl;
           if (mp["data"].type == msgpack::type::STR)
           {
             if (mp["type"].as<string>() == "<f4")
             {
-              readNDArrayDataAsString<float>(data,mp["data"]);
+              readNDArrayDataAsString<float>(info.data,mp["data"]);
             }
             else if (mp["type"].as<string>() == "<f8")
             {
-              readNDArrayDataAsString<double>(data,mp["data"]);
+              readNDArrayDataAsString<double>(info.data,mp["data"]);
             }
             else if (mp["type"].as<string>() == "<u2")
             {
-              readNDArrayDataAsString<uint16_t>(data,mp["data"]);
+              readNDArrayDataAsString<uint16_t>(info.data,mp["data"]);
             }
             else
             {
@@ -144,15 +169,15 @@ bool iterate(msgpack::object &obj, int depth,
           {
             if (mp["type"].as<string>() == "<f4")
             {
-              readNDArrayDataAsBinary<float>(data,mp["data"]);
+              readNDArrayDataAsBinary<float>(info.data,mp["data"]);
             }
             else if (mp["type"].as<string>() == "<f8")
             {
-              readNDArrayDataAsBinary<double>(data,mp["data"]);
+              readNDArrayDataAsBinary<double>(info.data,mp["data"]);
             }
             else if (mp["type"].as<string>() == "<u2")
             {
-              readNDArrayDataAsBinary<uint16_t>(data,mp["data"]);
+              readNDArrayDataAsBinary<uint16_t>(info.data,mp["data"]);
             }
             else
             {
@@ -162,18 +187,33 @@ bool iterate(msgpack::object &obj, int depth,
             }
           }
         }
-      }
-      /** check if its an array */
-      /** check if its a single data value */
+      } // end parsing the ndarray type data
 
-    }
+      /** check if its an array */
+      if (it->second.type == msgpack::type::ARRAY)
+      {
+        it->second.convert(info.data);
+      }
+
+      /** check if its a single data value */
+      if (it->second.type == msgpack::type::BOOLEAN ||
+          it->second.type == msgpack::type::FLOAT32 ||
+          it->second.type == msgpack::type::FLOAT64 ||
+          it->second.type == msgpack::type::POSITIVE_INTEGER ||
+          it->second.type == msgpack::type::NEGATIVE_INTEGER)
+      {
+        info.data.resize(1);
+        it->second.convert(info.data.front());
+      }
+
+    }//end info found in extraction map
 
     /** if we are not interested in the data then just check to see if its
      *  another map that we should iterate into
      */
     else if (it->second.type == msgpack::type::MAP)
     {
-      iterate(it->second,depth+1,data,shape,searchKey,flattenkey);
+      iterate(it->second,depth+1,emap,flattenkey);
     }
   }
 
@@ -188,25 +228,53 @@ void ZMQInput::runthis()
   s.beginGroup("ZMQInput");
   string functiontype(s.value("DataType","agat").toString().toStdString());
   string serverAddress(s.value("ServerAddress","tcp://53.104.0.52:10000").toString().toStdString());
-  string detKey(s.value("DetectorKey","").toString().toStdString());
-  int CASSID(s.value("CASSID",30).toInt());
-  s.endGroup();
+
+  extractmap_t emap;
+  int size = s.beginReadArray("DataFields");
+  for (int i = 0; i < size; ++i)
+  {
+    s.setArrayIndex(i);
+    string key(s.value("Name","BAD").toString().toStdString());
+    if (key == "BAD")
+      continue;
+    int cassid = (s.value("CASSID",-1).toInt());
+    if (cassid < 0)
+      continue;
+    string dev(s.value("DeviceType","PixelDetector").toString().toLower().toStdString());
+    if (!(dev == "pixeldetector"))
+    {
+      Log::add(Log::INFO,"ZMQInput: DeviceType '" + dev + "' of DataField '" +
+               key + "' is unkown");
+      continue;
+    }
+    string valname(s.value("CASSValueName","Unused").toString().toStdString());
+    emap[key].CASSID = cassid;
+    emap[key].CASSDeviceType = dev;
+    emap[key].CASSValueName = valname;
+  }
+  s.endArray();//DataFields
+  s.endGroup();//ZMQInput
 
   /** connect to the zmq socket */
   zmq::context_t context (1);
   zmq::socket_t sock (context, ZMQ_SUB);
   sock.connect(serverAddress);
   sock.setsockopt(ZMQ_SUBSCRIBE, "",0);
-  cout << serverAddress << endl;
-  cout << detKey << endl;
+  Log::add(Log::INFO,"ZMQInput: Connecting to '" + serverAddress + "'");
+  string output = "ZMQInput: Trying to retrieve:";
+  for (extractmap_t::const_iterator eit(emap.begin()); eit != emap.end(); ++eit)
+  {
+    output += " DataField '" + eit->first + "'";
+    output += " (";
+    output += "CASSID '" + toString(eit->second.CASSID) + "'";
+    output += "; DeviceType '" + eit->second.CASSDeviceType + "'";
+    output += "; ValueName '" + eit->second.CASSValueName + "'";
+    output += ");";
+  }
+  Log::add(Log::INFO,output);
 
   /** run until the thread is told to quit */
   Log::add(Log::DEBUG0,"ZMQInput::run(): starting loop");
-
-  /** the data to be retrieved */
-  vector<float> detData;
-  vector<int> detDataShape;
-  uint64_t id(0);
 
   while(!shouldQuit())
   {
@@ -226,26 +294,37 @@ void ZMQInput::runthis()
       msgpack::unpack(objH,static_cast<const char*>(mess.data()),mess.size(),off);
       msgpack::object obj(objH.get());
 
-      detData.clear();
-      success=iterate(obj,0,detData,detDataShape,detKey);
+      /** clear the info container */
+      extractmap_t::iterator emIter(emap.begin());
+      extractmap_t::const_iterator emIterEnd(emap.end());
+      for (; emIter != emIterEnd; ++emIter)
+        emIter->second.clear();
+      success=iterate(obj,0,emap);
     }
-    if (!success || (detData.empty()))
+    if (!success)
       continue;
 
     /** we got detector data from the whole train, so we have to extract the
      *  data bunch by bunch and add that to the ringbuffer
      */
-    const uint32_t nCols(detDataShape[3]);
-    const uint32_t nRows(detDataShape[2]);
-    const uint32_t nTiles(detDataShape[1]);
-    //const uint32_t nBunches(detDataShape[0]);
-    //cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<endl;
-    vector<float>::iterator detBegin(detData.begin());
-    while(detBegin != detData.end())
+    extractmap_t::const_iterator emapIt(emap.begin());
+    while (emapIt != emap.end() || emapIt->second.shape.size() == 4)
+      ++emapIt;
+    if (emapIt == emap.end())
     {
-      /** generate and set variable to keep the size of the retrieved data */
-      uint64_t datasize(nCols*nRows*nTiles*4);
-
+      cout << "can't find the number of bunches of this train" << endl;
+      continue;
+    }
+    const Info& ifo(emapIt->second);
+    const uint32_t nCols(ifo.shape[3]);
+    const uint32_t nRows(ifo.shape[2]);
+    const uint32_t nTiles(ifo.shape[1]);
+    const uint32_t nBunches(ifo.shape[0]);
+    //cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<endl;
+    /** how many pixels has a detector */
+    const size_t nPixels(nCols*nRows*nTiles);
+    for (size_t i(0); i< nBunches; ++i)
+    {
       /** retrieve a new element from the ringbuffer, continue with next iteration
        *  in case the retrieved element is the iterator to the last element of the
        *  buffer.
@@ -254,32 +333,46 @@ void ZMQInput::runthis()
       if (rbItem == _ringbuffer.end())
         continue;
       CASSEvent &evt(*rbItem->element);
+      evt.id() = _counter;
 
       /** get reference to all devices of the CASSEvent and an iterator*/
       CASSEvent::devices_t &devices(evt.devices());
       CASSEvent::devices_t::iterator devIt;
-      /** retrieve the pixel detector part of the cassevent */
-      devIt = devices.find(CASSEvent::PixelDetectors);
-      if(devIt == devices.end())
-        throw runtime_error("ZMQInput: CASSEvent does not contains a pixeldetector device");
-      pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
-      /** retrieve the right detector from the cassevent and reset it*/
-      pixeldetector::Detector &det(pixdev.dets()[CASSID]);
-      det.frame().clear();
-      /** copy the det data to the frame */
-      det.frame().assign(detBegin,detBegin+(nCols*nRows*nTiles));
-      //cout << *detBegin << " "<<det.frame()[0]<< " "<< id<<endl;
-      det.columns() = nCols;
-      det.rows() = nRows*nTiles;
-      det.id() = ++id;
-      evt.id() = id;
-      /** now advance the iterator to the next image in the train */
-      detBegin += (nCols*nRows*nTiles);
+      /** go through the list of requested infos an put them in to the event */
+      extractmap_t::const_iterator eIt(emap.begin());
+      extractmap_t::const_iterator eEnd(emap.end());
+      for (; eIt != eEnd; ++eIt)
+      {
+        if (eIt->second.CASSDeviceType == "pixeldetector")
+        {
+          /** retrieve the pixel detector part of the cassevent */
+          devIt = devices.find(CASSEvent::PixelDetectors);
+          if(devIt == devices.end())
+            throw runtime_error("ZMQInput: CASSEvent does not contains a pixeldetector device");
+          pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
+          /** retrieve the right detector from the cassevent and reset it*/
+          pixeldetector::Detector &det(pixdev.dets()[eIt->second.CASSID]);
+          det.frame().clear();
+          /** get iterator to the corresponding data and advance it to the right
+         *  pulse within the train
+         */
+          pixeldetector::Detector::frame_t::const_iterator detBegin(eIt->second.data.begin());
+          advance(detBegin,i*nPixels);
+          /** copy the det data to the frame */
+          det.frame().assign(detBegin,detBegin+(nPixels));
+          det.columns() = nCols;
+          det.rows() = nRows*nTiles;
+          det.id() = _counter;
+          /** now advance the iterator to the next image in the train */
+          detBegin += (nCols*nRows*nTiles);
+        }
+      }
 
       /** tell the ringbuffer that we're done with the event */
-      newEventAdded(datasize);
-      _ringbuffer.doneFilling(rbItem, datasize);
+      ++_counter;
+      _ringbuffer.doneFilling(rbItem, 1);
     }
+    newEventAdded(mess.size());
   }
   Log::add(Log::INFO,"ZMQInput::run(): Quitting loop");
 }
