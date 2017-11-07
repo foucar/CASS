@@ -60,6 +60,18 @@ public:
   /** do not load anything */
   void load() {}
 
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter() {return _counter;}
+
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter() {return _scounter;}
+
 private:
   /** constructor
    *
@@ -86,6 +98,11 @@ private:
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
 
+  /** the counter for all events */
+  uint64_t _counter;
+
+  /** the counter for all events */
+  uint64_t _scounter;
 };
 
 }//end namespace cass
