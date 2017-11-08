@@ -316,8 +316,10 @@ void ZMQInput::runthis()
      *  data bunch by bunch and add that to the ringbuffer
      */
     extractmap_t::const_iterator emapIt(emap.begin());
-    while (emapIt != emap.end() || emapIt->second.shape.size() == 4)
-      ++emapIt;
+//cout << emapIt->second.shape.size() <<endl;
+    for(;emapIt != emap.end(); ++emapIt)
+      if (emapIt->second.shape.size() == 4)
+        break;
     if (emapIt == emap.end())
     {
       cout << "can't find the number of bunches of this train" << endl;
