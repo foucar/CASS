@@ -352,20 +352,22 @@ void ZMQInput::runthis()
           /** check if the requested data was sent */
           if (eIt->second.data.empty())
           {
-            Log::add(Log::WARNING,"ZMQInput: There is no data for datafield '" + eIt->first + "'");
+            Log::add(Log::WARNING,string("ZMQInput: There is no data for ") +
+                                         "datafield '" + eIt->first + "'");
             continue;
           }
           /** retrieve the pixel detector part of the cassevent */
           devIt = devices.find(CASSEvent::PixelDetectors);
           if(devIt == devices.end())
-            throw runtime_error("ZMQInput: CASSEvent does not contains a pixeldetector device");
+            throw runtime_error(string("ZMQInput: CASSEvent does not ") +
+                                       "contain a pixeldetector device");
           pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
           /** retrieve the right detector from the cassevent and reset it*/
           pixeldetector::Detector &det(pixdev.dets()[eIt->second.CASSID]);
           det.frame().clear();
           /** get iterator to the corresponding data and advance it to the right
-	   *  pulse within the train
-	   */
+           *  pulse within the train
+           */
           pixeldetector::Detector::frame_t::const_iterator detBegin(eIt->second.data.begin());
           advance(detBegin,i*nPixels);
           /** copy the det data to the frame */
