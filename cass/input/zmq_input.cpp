@@ -148,6 +148,10 @@ bool iterate(const msgpack::object &obj, int depth,
             {
               readNDArrayDataAsString<double>(info.data,mp["data"]);
             }
+            else if (mp["type"].as<string>() == "<u8")
+            {
+              readNDArrayDataAsString<uint64_t>(info.data,mp["data"]);
+            }
             else if (mp["type"].as<string>() == "<u2")
             {
               readNDArrayDataAsString<uint16_t>(info.data,mp["data"]);
@@ -159,8 +163,9 @@ bool iterate(const msgpack::object &obj, int depth,
             else
             {
               Log::add(Log::WARNING,"ZMQInput::ParseMSGPACKObject: '" + flattenkey +
-                       "': The type '' of the string type ndarray data is not" +
-                       " supported.");
+                       "': The type '" + (mp["type"].as<string>()) +
+                       "' of the string type ndarray data is not " +
+                       "supported.");
             }
           }
           else if (m["data"].type == msgpack::type::BIN)
@@ -173,6 +178,10 @@ bool iterate(const msgpack::object &obj, int depth,
             {
               readNDArrayDataAsBinary<double>(info.data,mp["data"]);
             }
+            else if (mp["type"].as<string>() == "<u8")
+            {
+              readNDArrayDataAsBinary<uint64_t>(info.data,mp["data"]);
+            }
             else if (mp["type"].as<string>() == "<u2")
             {
               readNDArrayDataAsBinary<uint16_t>(info.data,mp["data"]);
@@ -184,7 +193,8 @@ bool iterate(const msgpack::object &obj, int depth,
             else
             {
               Log::add(Log::WARNING,"ZMQInput::ParseMSGPACKObject: '" + flattenkey +
-                       "': The type '' of the binary type ndarray data is not " +
+                       "': The type '" + (mp["type"].as<string>()) +
+                       "' of the binary type ndarray data is not " +
                        "supported.");
             }
           }
