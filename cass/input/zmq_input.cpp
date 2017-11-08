@@ -18,6 +18,7 @@
 
 #include "acqiris_device.hpp"
 #include "pixeldetector.hpp"
+#include "machine_device.hpp"
 
 using namespace cass;
 using namespace std;
@@ -54,6 +55,7 @@ struct Info
     shape.clear();
   }
 
+  bool isPerTrain;
   std::string CASSValueName;
   std::string CASSDeviceType;
   int CASSID;
@@ -238,20 +240,22 @@ void ZMQInput::runthis()
     string key(s.value("Name","BAD").toString().toStdString());
     if (key == "BAD")
       continue;
-    int cassid = (s.value("CASSID",-1).toInt());
+    int cassid = (s.value("CASSID",0).toInt());
     if (cassid < 0)
       continue;
     string dev(s.value("DeviceType","PixelDetector").toString().toLower().toStdString());
-    if (!(dev == "pixeldetector"))
+    if ((dev != "pixeldetector") && (dev != "machinedata"))
     {
       Log::add(Log::INFO,"ZMQInput: DeviceType '" + dev + "' of DataField '" +
                key + "' is unkown");
       continue;
     }
-    string valname(s.value("CASSValueName","Unused").toString().toStdString());
+    const string valname(s.value("CASSValueName","Unused").toString().toStdString());
+    const bool perTrain(s.value("IsPerTrain",false).toBool());
     emap[key].CASSID = cassid;
     emap[key].CASSDeviceType = dev;
     emap[key].CASSValueName = valname;
+    emap[key].isPerTrain = perTrain;
   }
   s.endArray();//DataFields
   s.endGroup();//ZMQInput
@@ -375,8 +379,19 @@ void ZMQInput::runthis()
           det.columns() = nCols;
           det.rows() = nRows*nTiles;
           det.id() = _counter;
-          /** now advance the iterator to the next image in the train */
-          detBegin += (nCols*nRows*nTiles);
+        }
+        else if (eIt->second.CASSDeviceType == "machinedata")
+        {
+          /** retrieve the pixel detector part of the cassevent */
+          devIt = devices.find(CASSEvent::MachineData);
+          if(devIt == devices.end())
+            throw runtime_error(string("ZMQInput: CASSEvent does not ") +
+                                       "contain a pixeldetector device");
+          MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
+          if (eIt->second.isPerTrain)
+            md.BeamlineData()[eIt->second.CASSValueName] = eIt->second.data[0];
+          else
+            md.BeamlineData()[eIt->second.CASSValueName] = eIt->second.data[i];
         }
       }
 
