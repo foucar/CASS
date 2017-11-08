@@ -63,14 +63,6 @@ struct Info
 
 typedef std::map<std::string,Info> extractmap_t;
 
-//struct myvisitor : msgpack::v2::null_visitor
-//{
-//  bool visit_str(const char *str, uint32_t size)
-//  {
-//    cout << string(str,size) << endl;
-//    return true;
-//  }
-//};
 
 /** read the string like payload of an msgpack object into an vector of floats
  *
