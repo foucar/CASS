@@ -355,6 +355,12 @@ void ZMQInput::runthis()
       {
         if (eIt->second.CASSDeviceType == "pixeldetector")
         {
+          /** check if the requested data was sent */
+          if (eIt->second.data.empty())
+          {
+            Log::add(Log::WARNING,"ZMQInput: There is no data for datafield '" + eIt->first + "'");
+            continue;
+          }
           /** retrieve the pixel detector part of the cassevent */
           devIt = devices.find(CASSEvent::PixelDetectors);
           if(devIt == devices.end())
