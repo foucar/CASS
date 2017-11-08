@@ -299,6 +299,7 @@ void XFELHDF5FileInput::runthis()
     gaintilenames[i] = s.value("HDF5Key","Invalid").toString().toStdString();
   }
   s.endArray(); // GainTiles
+  string cellIdKey(s.value("CellId_HDF5Key","Invalid").toString().toStdString());
   string trainIdKey(s.value("TrainId_HDF5Key","Invalid").toString().toStdString());
   string pulseIdKey(s.value("PulseId_HDF5Key","Invalid").toString().toStdString());
   s.endGroup(); // AGPID
@@ -386,6 +387,9 @@ void XFELHDF5FileInput::runthis()
     vector<uint64_t> pulseIds;
     fileset[0].fh->readArray(pulseIds,length,pulseIdKey);
 
+    vector<uint16_t> cellIds;
+    fileset[0].fh->readArray(cellIds,length,cellIdKey);
+
     //for (size_t i(0); (!shouldQuit()) && (i < shape[0]); i+=2)
     for (size_t i(0); (!shouldQuit()) && (i < shape[0]);++i)
     {
@@ -402,7 +406,8 @@ void XFELHDF5FileInput::runthis()
       CASSEvent& evt(*rbItem->element);
 
       /** create the event id from the trainid and the pulseid */
-      evt.id() = (trainIds[i] & 0x0000FFFFFFFFFFFF) + ((pulseIds[i] & 0x000000000000FFFF) << 48);
+      evt.id() = ((trainIds[i] & 0x0000FFFFFFFFFFFF)<< 16) +
+                 ((pulseIds[i] & 0x000000000000FFFF));
 
       /** get reference to all devices of the CASSEvent and an iterator*/
       CASSEvent::devices_t &devices(evt.devices());
@@ -410,7 +415,8 @@ void XFELHDF5FileInput::runthis()
       /** retrieve the pixel detector part of the cassevent */
       devIt = devices.find(CASSEvent::PixelDetectors);
       if(devIt == devices.end())
-        throw runtime_error("xfelhdf5fileinput: CASSEvent does not contains a pixeldetector device");
+        throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
+                                   " contain a pixeldetector device");
       pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
       /** retrieve the right detector from the cassevent and reset it*/
       pixeldetector::Detector &data(pixdev.dets()[DataCASSID]);
@@ -448,6 +454,16 @@ void XFELHDF5FileInput::runthis()
       mask.columns() = nCols;
       mask.rows() = nRows*nTiles;
       mask.id() = evt.id();
+
+      /** retrieve the machine detector part of the cassevent */
+      devIt = devices.find(CASSEvent::MachineData);
+      if(devIt == devices.end())
+        throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
+                                   " contain a machinedata device");
+      MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
+      md.BeamlineData()["CellId"] = cellIds[i];
+      md.BeamlineData()["PulseId"] = pulseIds[i];
+      md.BeamlineData()["TrainId"] = trainIds[i];
 
       /** tell the ringbuffer that we're done with the event */
       newEventAdded(0);
