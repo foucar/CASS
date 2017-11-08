@@ -135,7 +135,7 @@ bool iterate(const msgpack::object &obj, int depth,
            *  type of the data an how it is packed
            */
           mp["shape"].convert(info.shape);
-          //cout << "FDLJSLDFJLADSFJLDKSKFJLDSKJFLKSDJ   "<<info.shape.size()<<endl;
+          //cout <<flattenkey<< " "<<info.shape.size()<<endl;
           if (mp["data"].type == msgpack::type::STR)
           {
             if (mp["type"].as<string>() == "<f4")
@@ -186,6 +186,7 @@ bool iterate(const msgpack::object &obj, int depth,
                        "supported.");
             }
           }
+          //cout << flattenkey << " " << info.data.size() <<endl;
         }
       } // end parsing the ndarray type data
 
@@ -308,7 +309,7 @@ void ZMQInput::runthis()
      *  data bunch by bunch and add that to the ringbuffer
      */
     extractmap_t::const_iterator emapIt(emap.begin());
-//cout << emapIt->second.shape.size() <<endl;
+    //cout << emapIt->second.shape.size() <<endl;
     for(;emapIt != emap.end(); ++emapIt)
       if (emapIt->second.shape.size() == 4)
         break;
@@ -322,7 +323,8 @@ void ZMQInput::runthis()
     const uint32_t nRows(ifo.shape[2]);
     const uint32_t nTiles(ifo.shape[1]);
     const uint32_t nBunches(ifo.shape[0]);
-    //cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<" nBunches"<<nBunches<<endl;
+//    cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<
+//            " nBunches"<<nBunches<<endl;
     /** how many pixels has a detector */
     const size_t nPixels(nCols*nRows*nTiles);
     for (size_t i(0); i< nBunches; ++i)
