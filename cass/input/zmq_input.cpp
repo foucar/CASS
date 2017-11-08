@@ -158,6 +158,10 @@ bool iterate(const msgpack::object &obj, int depth,
             {
               readNDArrayDataAsString<uint16_t>(info.data,mp["data"]);
             }
+            else if (mp["type"].as<string>() == "|u1")
+            {
+              readNDArrayDataAsString<uint8_t>(info.data,mp["data"]);
+            }
             else
             {
               Log::add(Log::WARNING,"ZMQInput::ParseMSGPACKObject: '" + flattenkey +
@@ -178,6 +182,10 @@ bool iterate(const msgpack::object &obj, int depth,
             else if (mp["type"].as<string>() == "<u2")
             {
               readNDArrayDataAsBinary<uint16_t>(info.data,mp["data"]);
+            }
+            else if (mp["type"].as<string>() == "|u1")
+            {
+              readNDArrayDataAsBinary<uint8_t>(info.data,mp["data"]);
             }
             else
             {
