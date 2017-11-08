@@ -370,8 +370,8 @@ void ZMQInput::runthis()
           pixeldetector::Detector &det(pixdev.dets()[eIt->second.CASSID]);
           det.frame().clear();
           /** get iterator to the corresponding data and advance it to the right
-         *  pulse within the train
-         */
+	   *  pulse within the train
+	   */
           pixeldetector::Detector::frame_t::const_iterator detBegin(eIt->second.data.begin());
           advance(detBegin,i*nPixels);
           /** copy the det data to the frame */
