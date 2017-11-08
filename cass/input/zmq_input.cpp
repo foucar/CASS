@@ -330,7 +330,7 @@ void ZMQInput::runthis()
     const uint32_t nRows(ifo.shape[2]);
     const uint32_t nTiles(ifo.shape[1]);
     const uint32_t nBunches(ifo.shape[0]);
-    //cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<endl;
+    //cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<" nBunches"<<nBunches<<endl;
     /** how many pixels has a detector */
     const size_t nPixels(nCols*nRows*nTiles);
     for (size_t i(0); i< nBunches; ++i)
