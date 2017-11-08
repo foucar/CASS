@@ -109,6 +109,9 @@ template <> inline hid_t H5Type<int>() {return H5T_NATIVE_INT;}
 template <> inline hid_t H5Type<uint64_t>() {return H5T_NATIVE_UINT64;}
 
 /** trait implementation for unsigned 16 bit int */
+template <> inline hid_t H5Type<uint32_t>() {return H5T_NATIVE_UINT32;}
+
+/** trait implementation for unsigned 16 bit int */
 template <> inline hid_t H5Type<uint16_t>() {return H5T_NATIVE_UINT16;}
 
 /** trait implementation for unsigned 8 bit int */
