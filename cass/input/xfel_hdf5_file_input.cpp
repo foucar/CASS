@@ -476,14 +476,7 @@ void XFELHDF5FileInput::runthis()
       ++fsit;
     }
     /** pre cache the data */
-    //for_each(fileset.begin(),fileset.end(),preCacheData);
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif
-    for (size_t i = 0; i<fileset.size(); ++i)
-    {
-      preCacheData(fileset[i]);
-    }
+    for_each(fileset.begin(),fileset.end(),preCacheData);
 
     /** get all the trainids and the pulseids from the first datafile, they
      *  later used to compile a unique eventid
@@ -534,15 +527,8 @@ void XFELHDF5FileInput::runthis()
       /** copy the det data to the frame */
 //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
 //                                                       dataframe.begin(),i));
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
-//                                                       dataframe.begin(),i));
-#ifdef _OPENMP
-      #pragma omp parallel for
-#endif
-      for (size_t ii = 0; ii<fileset.size(); ++ii)
-      {
-        copyCorImageFromCacheToFrame(fileset[i],dataframe.begin(),i);
-      }
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
+                                                       dataframe.begin(),i));
       /** set the detector parameters and add the event id */
       data.columns() = nCols;
       data.rows() = nRows*nTiles;
@@ -555,15 +541,8 @@ void XFELHDF5FileInput::runthis()
       /** copy the det data to the frame */
 //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
 //                                                       gainframe.begin(),i));
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
-//                                                       gainframe.begin(),i));
-#ifdef _OPENMP
-      #pragma omp parallel for
-#endif
-      for (size_t ii = 0; ii<fileset.size(); ++ii)
-      {
-        copyGainFromCacheToFrame(fileset[i],gainframe.begin(),i);
-      }
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
+                                                       gainframe.begin(),i));
       /** set the detector parameters and add the event id */
       gain.columns() = nCols;
       gain.rows() = nRows*nTiles;
@@ -576,15 +555,8 @@ void XFELHDF5FileInput::runthis()
       /** copy the det data to the frame */
 //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
 //                                                       maskframe.begin(),i));
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
-//                                                       maskframe.begin(),i));
-#ifdef _OPENMP
-      #pragma omp parallel for
-#endif
-      for (size_t ii = 0; ii<fileset.size(); ++ii)
-      {
-        copyMaskFromCacheToFrame(fileset[i],maskframe.begin(),i);
-      }
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
+                                                       maskframe.begin(),i));
       /** set the detector parameters and add the event id */
       mask.columns() = nCols;
       mask.rows() = nRows*nTiles;
