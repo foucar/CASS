@@ -166,8 +166,8 @@ void copyCorImageFromCacheToFrame(const AGIPDTile& tile,
   /** get iterators to start and end of requested image from the cache */
   AGIPDTile::corImage_t::const_iterator tileBegin(tile.corImage.begin());
   advance(tileBegin,tile.size*imageNbr);
-  AGIPDTile::corImage_t::const_iterator tileEnd(tile.corImage.begin());
-  advance(tileBegin,tile.size*(imageNbr+1));
+  AGIPDTile::corImage_t::const_iterator tileEnd(tileBegin);
+  advance(tileEnd,tile.size);
   /** now read the current images tile into the frame */
   copy(tileBegin,tileEnd,tileInFrame);
 }
@@ -226,8 +226,8 @@ void copyGainFromCacheToFrame(const AGIPDTile& tile,
   /** get iterators to start and end of requested image from the cache */
   AGIPDTile::gain_t::const_iterator tileBegin(tile.gain.begin());
   advance(tileBegin,tile.size*imageNbr);
-  AGIPDTile::gain_t::const_iterator tileEnd(tile.gain.begin());
-  advance(tileBegin,tile.size*(imageNbr+1));
+  AGIPDTile::gain_t::const_iterator tileEnd(tileBegin);
+  advance(tileEnd,tile.size);
   /** now read the current images tile into the frame */
   copy(tileBegin,tileEnd,tileInFrame);
 }
