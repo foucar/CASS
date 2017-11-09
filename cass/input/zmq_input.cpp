@@ -370,6 +370,11 @@ void ZMQInput::runthis()
         }
         if (eIt->second.CASSDeviceType == "pixeldetector")
         {
+          string outp = eIt->first + " [";
+          for (size_t ii(0); ii < eIt->second.shape.size(); ++ii)
+            outp += toString(eIt->second.shape[ii]) + ",";
+          outp.replace(outp.size()-1,1,"]");
+          Log::add(Log::DEBUG0,outp);
           /** retrieve the pixel detector part of the cassevent */
           devIt = devices.find(CASSEvent::PixelDetectors);
           if(devIt == devices.end())
