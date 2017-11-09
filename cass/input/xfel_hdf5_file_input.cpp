@@ -33,33 +33,24 @@ using namespace cass;
 
 namespace cass
 {
-/** A machine vale
- *
- * allow the user to have a CASSName next to the hdf5 key as the key might be
- * unreadable. Also allow the index in case the value is contained in it
- *
- * @author Lutz Foucar
- */
-struct machineVal
-{
-  /** the hdf5 file key */
-  string h5key;
-
-  /** the name of the key within the cass event */
-  string cassname;
-
-  /** in case the machinval in question is contained within an array this is
-   *  the inxed of the array where the machine value iswritten to
-   */
-  int idx;
-};
-
 /** a tile
  *
  * @author Lutz Foucar
  */
 struct AGIPDTile
 {
+  /** define the type of the raw image */
+  typedef vector<uint16_t> rawImage_t;
+
+  /** define the type of the raw image */
+  typedef vector<float> corImage_t;
+
+  /** define the type of the mask data */
+  typedef vector<uint8_t> mask_t;
+
+  /** define the type of the gain data */
+  typedef vector<uint8_t> gain_t;
+
   /** id of the tile */
   uint32_t id;
 
@@ -69,11 +60,17 @@ struct AGIPDTile
   /** handler to the file containing the tile data */
   h5handle_t fh;
 
-  /** the data */
-  std::vector<float> data;
+  /** container for the corrrected image data */
+  corImage_t corImage;
 
-  /** the data */
-  std::vector<uint8_t> mask;
+  /** container for the raw image data */
+  rawImage_t rawImage;
+
+  /** container for the mask data */
+  mask_t mask;
+
+  /** container for the gains settings data */
+  gain_t gain;
 
   /** name of the data dataset in the hdf5 file */
   std::string dataDsetName;
@@ -99,6 +96,21 @@ struct AGIPDTile
   /** the number of rows of the tile */
   size_t nRows;
 };
+
+/** pre-cache all the data by reading it into the corresponding memory locations
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to tile that should be precached
+ */
+void preCacheData(AGIPDTile& tile)
+{
+  /** now read the current images tile into the frame */
+  hdf5::shape_t shape;
+  tile.fh->readMultiDim<AGIPDTile::corImage_t::value_type>(tile.corImage,shape,tile.dataDsetName);
+  tile.fh->readMultiDim<AGIPDTile::mask_t::value_type>(tile.mask,shape,tile.maskDsetName);
+  tile.fh->readMultiDim<AGIPDTile::gain_t::value_type>(tile.gain,shape,tile.gainDsetName);
+}
 
 /** get the tile from the hdf5 file and copy it to the correct position in the
  *  frame
@@ -136,6 +148,30 @@ void copyDataTileToFrame(const AGIPDTile& tile,
   tile.fh->readPartialMultiDim<float>(tileInFrame,part,tile.dataDsetName);
 }
 
+/** get the tile from the cached data and copy it to the correct position in the
+ *  frame
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to the tile to be copied
+ * @param frame iterator to the frame where the tile data should be written to.
+ * @param imageNbr which image within the file should be retrieved
+ */
+void copyCorImageFromCacheToFrame(const AGIPDTile& tile,
+                                  pixeldetector::Detector::frame_t::iterator frame,
+                                  int imageNbr)
+{
+  /** get iterator to the start of the tile within the frame */
+  pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
+  /** get iterators to start and end of requested image from the cache */
+  AGIPDTile::corImage_t::const_iterator tileBegin(tile.corImage.begin());
+  advance(tileBegin,tile.size*imageNbr);
+  AGIPDTile::corImage_t::const_iterator tileEnd(tile.corImage.begin());
+  advance(tileBegin,tile.size*(imageNbr+1));
+  /** now read the current images tile into the frame */
+  copy(tileBegin,tileEnd,tileInFrame);
+}
+
 
 /** get the tile from the hdf5 file and copy it to the correct position in the
  *  frame
@@ -171,6 +207,30 @@ void copyGainTileToFrame(const AGIPDTile& tile,
   tile.fh->readPartialMultiDim<float>(tileInFrame,part,tile.gainDsetName);
 }
 
+
+/** get the gain from the cached data and copy it to the correct position in the
+ *  frame
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to the tile to be copied
+ * @param frame iterator to the frame where the tile data should be written to.
+ * @param imageNbr which image within the file should be retrieved
+ */
+void copyGainFromCacheToFrame(const AGIPDTile& tile,
+                              pixeldetector::Detector::frame_t::iterator frame,
+                              int imageNbr)
+{
+  /** get iterator to the start of the tile within the frame */
+  pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
+  /** get iterators to start and end of requested image from the cache */
+  AGIPDTile::gain_t::const_iterator tileBegin(tile.gain.begin());
+  advance(tileBegin,tile.size*imageNbr);
+  AGIPDTile::gain_t::const_iterator tileEnd(tile.gain.begin());
+  advance(tileBegin,tile.size*(imageNbr+1));
+  /** now read the current images tile into the frame */
+  copy(tileBegin,tileEnd,tileInFrame);
+}
 
 /** get the mask tile from the hdf5 file and copy it to the correct
  *  position in the frame
@@ -227,6 +287,41 @@ void copyTileToMask(const AGIPDTile& tile,
   {
     *tileInFrame += maskIt[*gainIt];
     advance(maskIt,3);
+    advance(gainIt,1);
+    advance(tileInFrame,1);
+  }
+}
+
+/** get the mask from the cached data and copy it to the correct position in the
+ *  frame but only that mask from the gain that the pixel is in
+ *
+ * @author Lutz Foucar
+ *
+ * @param tile reference to the tile to be copied
+ * @param frame iterator to the frame where the tile data should be written to.
+ * @param imageNbr which image within the file should be retrieved
+ */
+void copyMaskFromCacheToFrame(const AGIPDTile& tile,
+                              pixeldetector::Detector::frame_t::iterator frame,
+                              int imageNbr)
+{
+  /** get iterator to the start of the tile within the frame */
+  pixeldetector::Detector::frame_t::iterator tileInFrame(frame+tile.id*tile.size);
+
+  /** get iterators to start of requested image from the cache */
+  AGIPDTile::gain_t::const_iterator gainIt(tile.gain.begin());
+  advance(gainIt,tile.size*imageNbr);
+  /** get iterator to the start of the masks */
+  AGIPDTile::mask_t::const_iterator maskIt(tile.mask.begin());
+  advance(maskIt,tile.size*imageNbr*3);
+  /** now read the current mask tile into the frame, load the correct mask value
+   *  for the gain that the pixel is in
+   */
+  for (size_t i(0); i<(tile.size); ++i)
+  {
+    *tileInFrame += maskIt[*gainIt];
+    advance(maskIt,3);
+    advance(gainIt,1);
     advance(tileInFrame,1);
   }
 }
@@ -376,6 +471,8 @@ void XFELHDF5FileInput::runthis()
       fsit->size = (nCols*nRows);
       ++fsit;
     }
+    /** pre cache the data */
+    for_each(fileset.begin(),fileset.end(),preCacheData);
 
     /** get all the trainids and the pulseids from the first datafile, they
      *  later used to compile a unique eventid
@@ -424,7 +521,9 @@ void XFELHDF5FileInput::runthis()
       dataframe.clear();
       dataframe.resize(nRows*nCols*nTiles);
       /** copy the det data to the frame */
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
+//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
+//                                                       dataframe.begin(),i));
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
                                                        dataframe.begin(),i));
       /** set the detector parameters and add the event id */
       data.columns() = nCols;
@@ -436,7 +535,9 @@ void XFELHDF5FileInput::runthis()
       gainframe.clear();
       gainframe.resize(nRows*nCols*nTiles);
       /** copy the det data to the frame */
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
+//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
+//                                                       gainframe.begin(),i));
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
                                                        gainframe.begin(),i));
       /** set the detector parameters and add the event id */
       gain.columns() = nCols;
@@ -448,7 +549,9 @@ void XFELHDF5FileInput::runthis()
       maskframe.clear();
       maskframe.resize(nRows*nCols*nTiles);
       /** copy the det data to the frame */
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
+//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
+//                                                       maskframe.begin(),i));
+      for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
                                                        maskframe.begin(),i));
       /** set the detector parameters and add the event id */
       mask.columns() = nCols;
