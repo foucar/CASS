@@ -270,3 +270,77 @@ void pp79::process(const CASSEvent& evt, result_t &result)
 
 
 
+
+
+
+
+
+// *** pp 500 retrieve a specific value of result and add to new column ***
+
+pp500::pp500(const name_t &name)
+  : Processor(name)
+{
+  loadSettings(0);
+}
+
+void pp500::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("Processor");
+  s.beginGroup(QString::fromStdString(name()));
+  setupGeneral();
+  _table = setupDependency("TableName");
+  _inResult = setupDependency("InputName");
+  bool ret (setupCondition());
+  if (!(ret && _table && _inResult))
+    return;
+  _colIdx = s.value("IndexColumn",0).toUInt();
+
+  size_t tableSize(_table->result().shape().first);
+  if (_colIdx >= tableSize)
+    throw runtime_error("pp500::loadSettings(): '" + name() + "' The requested " +
+                        "column index '" + toString(_colIdx) + " 'exeeds the " +
+                        "maximum possible index value '" + toString(tableSize) + "'");
+
+  createHistList(result_t::shared_pointer(new result_t(tableSize+1,0)));
+
+  Log::add(Log::INFO,"Processor '" + name() +
+           "' retrieves the value of '" + _table->result().name() +
+           "' that correponds to point in column '" + toString(_colIdx) +
+           "' from table '" + _table->name() + "'. Condition on processor '" +
+           _condition->name() + "'");
+}
+
+void pp500::process(const CASSEvent& evt, result_t &result)
+{
+  const result_t& table(_table->result(evt.id()));
+  QReadLocker lock1(&table.lock);
+  const result_t& inres(_inResult->result(evt.id()));
+  QReadLocker lock2(&inres.lock);
+
+  /** reset the output table */
+  result.resetTable();
+  /** create a table row */
+  result_t::storage_t newRow;
+  /** go through all rows of the input table */
+  const size_t nTableRows(table.shape().first);
+  const size_t nTableCols(table.shape().second);
+  for (size_t iRow(0); iRow < nTableRows; ++iRow)
+  {
+    /** get the beginning and end of the row of the input table */
+    result_t::const_iterator rowStart(table.begin());
+    advance(rowStart,iRow*nTableCols);
+    result_t::const_iterator rowEnd(rowStart);
+    advance(rowEnd,nTableCols);
+    /** get the index that one should retrieve from the input result */
+    const size_t idx(rowStart[_colIdx]);
+    /** retrieve the value from the input result */
+    const result_t::value_t value(inres[idx]);
+    /** create a new row of the result from the input table */
+    newRow.assign(rowStart,rowEnd);
+    /** add the retrieved value in the last column */
+    newRow.push_back(value);
+    /** add the row to the output table */
+    result.appendRows(newRow);
+  }
+}

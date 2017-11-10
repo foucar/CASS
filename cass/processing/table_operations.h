@@ -243,5 +243,53 @@ protected:
 
 
 
+
+
+
+
+/** add a new column where the contents are taken from another results based on
+ *  the index provided in this table
+ *
+ * @PPList "500": add new table column to table
+ *
+ * @see Processor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng Processor/\%name\%/{TableName} \n
+ *           name of processor that contains the table like histogram
+ *           subset from. Default is "".
+ * @cassttng Processor/\%name\%/{IndexColumn} \n
+ *           The index of the column in the table that provides which point of
+ *           the input result will be put into the new column
+ *           Default is "0".
+ *
+ * @author Lutz Foucar
+ */
+class pp500 : public Processor
+{
+public:
+  /** constructor */
+  pp500(const name_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&, result_t&);
+
+  /** load the settings of the pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing input table */
+  shared_pointer _table;
+
+  /** pp containing input table */
+  shared_pointer _inResult;
+
+  /** index of the column with the x-values that needs to be extracted */
+  size_t _colIdx;
+};
+
+
+
+
 }//end namespace cass
 #endif

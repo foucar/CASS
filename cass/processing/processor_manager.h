@@ -86,6 +86,7 @@ the Class description for information about what parameters are user settable.
 00073: Returns a subset of a table based on a condition on a chossable column
 00074: Returns a specific value of a specific row of a table
 00079: 2D Result from 2 Columns of a table with optional weight column
+00500: Add a new column with content of another inputs index which is in table
 
 00075: Clear a Result
 00076: Quit CASS when Condition is met
@@ -460,6 +461,8 @@ public:
     calcCovarianceMap=410,
     calcCorrection=412,
     EventNumber=420,
+
+    AddColumnToTable=500,
 
     PnccdHDF5=1000,
     HDF5Converter=1001,

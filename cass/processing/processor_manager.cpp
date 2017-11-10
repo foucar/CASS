@@ -628,6 +628,9 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case calcCorrection:
     processor = Processor::shared_pointer(new pp412(key));
     break;
+  case AddColumnToTable:
+    processor = Processor::shared_pointer(new pp500(key));
+    break;
 #ifdef HDF5
   case HDF52dConverter:
     processor = Processor::shared_pointer(new pp1002(key));
