@@ -46,20 +46,51 @@ ZMQInput::ZMQInput(RingBuffer<CASSEvent> &ringbuffer,
     _scounter(0)
 {}
 
+/** define a structure that holds information about how to parse and extract
+ *  the info contained in a msgpack object.
+ *
+ * @tparam type the type of data wrapped in the msgpack object as string
+ * @param out reference to the vector where the data will be written to
+ * @param obj the msgpack object who's payload will be written to the out vector
+ *
+ * @author Lutz Foucar
+ */
 struct Info
 {
-  Info():CASSID(0) {}
+  /** clear the info's data from the msgpack */
   void clear()
   {
     data.clear();
     shape.clear();
   }
 
+  /** flag that tell whether data is per bunch or per train */
   bool isPerTrain;
+
+  /** the value name within the beamlinedata of the CASSEvent */
   std::string CASSValueName;
+
+  /** what type of data within the CASSEvent does this data belong to */
   std::string CASSDeviceType;
+
+  /** in case there multiple devices available, this will tell which device
+   *  in the list of devices this data should belong to
+   */
   int CASSID;
+
+  /** the number of pixels of one image within the data */
+  size_t nPixels;
+
+  /** the number of columns of one image within the data */
+  size_t nCols;
+
+  /** the number of rows of one image within the data */
+  size_t nRows;
+
+  /** the parsed data */
   std::vector<float> data;
+
+  /** in case its multidimensional data, this contains the shape of the data */
   std::vector<int> shape;
 };
 
@@ -240,35 +271,48 @@ void ZMQInput::runthis()
   CASSSettings s;
   s.beginGroup("ZMQInput");
   string functiontype(s.value("DataType","agat").toString().toStdString());
+  /** info specific to the zeromq server */
   string serverAddress(s.value("ServerAddress","tcp://53.104.0.52:10000").toString().toStdString());
+  s.endGroup(); //ZMQInput
 
+  s.beginGroup("XFELMSGPACK");
+  /** things needed to iterate through the xfel data */
+  const size_t nBunches(s.value("NbrBunchesInTrain",72).toUInt());
+  const size_t bunchOffset(s.value("BunchOffsetInTrain",4).toUInt());
+  const size_t bunchStride(s.value("BunchStrideInTrain",4).toUInt());
+
+  /** things needed to parse the msgpack data */
   extractmap_t emap;
   int size = s.beginReadArray("DataFields");
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
+    /** get the name within the msgpack that should be extracted */
     string key(s.value("Name","BAD").toString().toStdString());
     if (key == "BAD")
       continue;
-    int cassid = (s.value("CASSID",0).toInt());
-    if (cassid < 0)
-      continue;
-    string dev(s.value("DeviceType","PixelDetector").toString().toLower().toStdString());
-    if ((dev != "pixeldetector") && (dev != "machinedata"))
+    /** check what kind of data this will be, skip if type of data is unkown */
+    string dev(s.value("CASSDeviceType","Unkown").toString().toLower().toStdString());
+    if ((dev != "pixeldetector") &&
+        (dev != "machinedata"))
     {
       Log::add(Log::INFO,"ZMQInput: DeviceType '" + dev + "' of DataField '" +
                key + "' is unkown");
       continue;
     }
-    const string valname(s.value("CASSValueName","Unused").toString().toStdString());
-    const bool perTrain(s.value("IsPerTrain",false).toBool());
-    emap[key].CASSID = cassid;
     emap[key].CASSDeviceType = dev;
-    emap[key].CASSValueName = valname;
-    emap[key].isPerTrain = perTrain;
+    /** extract additional info that one needs to add the parsed info to the
+     *  CASSEvent
+     */
+    emap[key].CASSID = s.value("CASSID",0).toInt();
+    emap[key].CASSValueName = s.value("CASSValueName","Unused").toString().toStdString();
+    emap[key].isPerTrain = s.value("IsPerTrain",false).toBool();
+    emap[key].nCols = s.value("nCols",0).toUInt();
+    emap[key].nRows = s.value("nRows",0).toUInt();
+    emap[key].nPixels = emap[key].nRows * emap[key].nCols;
   }
   s.endArray();//DataFields
-  s.endGroup();//ZMQInput
+  s.endGroup();//XFELMSGPACK
 
   /** connect to the zmq socket */
   zmq::context_t context (1);
@@ -279,11 +323,16 @@ void ZMQInput::runthis()
   string output = "ZMQInput: Trying to retrieve:";
   for (extractmap_t::const_iterator eit(emap.begin()); eit != emap.end(); ++eit)
   {
+    const Info& ifo(eit->second);
     output += " DataField '" + eit->first + "'";
     output += " (";
-    output += "CASSID '" + toString(eit->second.CASSID) + "'";
-    output += "; DeviceType '" + eit->second.CASSDeviceType + "'";
-    output += "; ValueName '" + eit->second.CASSValueName + "'";
+    output += "DeviceType '" + ifo.CASSDeviceType + "'";
+    output += "; CASSID '" + toString(ifo.CASSID) + "'";
+    output += "; ValueName '" + ifo.CASSValueName + "'";
+    output += "; IsPerTrain '" + string(ifo.isPerTrain?"True":"false") + "'";
+    output += "; nCols '" + toString(ifo.nCols) + "'";
+    output += "; nRows '" + toString(ifo.nRows) + "'";
+    output += "; nPixels '" + toString(ifo.nPixels) + "'";
     output += ");";
   }
   Log::add(Log::INFO,output);
@@ -319,29 +368,8 @@ void ZMQInput::runthis()
     if (!success)
       continue;
 
-    /** we got detector data from the whole train, so we have to extract the
-     *  data bunch by bunch and add that to the ringbuffer
-     */
-    extractmap_t::const_iterator emapIt(emap.begin());
-    //cout << emapIt->second.shape.size() <<endl;
-    for(;emapIt != emap.end(); ++emapIt)
-      if (emapIt->second.shape.size() == 4)
-        break;
-    if (emapIt == emap.end())
-    {
-      cout << "can't find the number of bunches of this train" << endl;
-      continue;
-    }
-    const Info& ifo(emapIt->second);
-    const uint32_t nCols(ifo.shape[3]);
-    const uint32_t nRows(ifo.shape[2]);
-    const uint32_t nTiles(ifo.shape[1]);
-    const uint32_t nBunches(ifo.shape[0]);
-//    cout << "ncols:"<<nCols <<" nRows:"<<nRows<< " nTiles"<<nTiles<<
-//            " nBunches"<<nBunches<<endl;
     /** how many pixels has a detector */
-    const size_t nPixels(nCols*nRows*nTiles);
-    for (size_t i(0); i< nBunches; ++i)
+    for (size_t iBunch(bunchOffset); iBunch< nBunches; iBunch += bunchStride)
     {
       /** retrieve a new element from the ringbuffer, continue with next iteration
        *  in case the retrieved element is the iterator to the last element of the
@@ -361,18 +389,20 @@ void ZMQInput::runthis()
       extractmap_t::const_iterator eEnd(emap.end());
       for (; eIt != eEnd; ++eIt)
       {
+        const Info& ifo(eIt->second);
         /** check if the requested data was sent */
-        if (eIt->second.data.empty())
+        if (ifo.data.empty())
         {
           Log::add(Log::WARNING,string("ZMQInput: There is no data for ") +
                    "datafield '" + eIt->first + "'");
           continue;
         }
-        if (eIt->second.CASSDeviceType == "pixeldetector")
+        if (ifo.CASSDeviceType == "pixeldetector")
         {
+          /** output the shape of the pixeldetector */
           string outp = eIt->first + " [";
-          for (size_t ii(0); ii < eIt->second.shape.size(); ++ii)
-            outp += toString(eIt->second.shape[ii]) + ",";
+          for (size_t ii(0); ii < ifo.shape.size(); ++ii)
+            outp += toString(ifo.shape[ii]) + ",";
           outp.replace(outp.size()-1,1,"]");
           Log::add(Log::DEBUG0,outp);
           /** retrieve the pixel detector part of the cassevent */
@@ -380,22 +410,25 @@ void ZMQInput::runthis()
           if(devIt == devices.end())
             throw runtime_error(string("ZMQInput: CASSEvent does not ") +
                                        "contain a pixeldetector device");
-          pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
+          pixeldetector::Device &pixdev(dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
           /** retrieve the right detector from the cassevent and reset it*/
-          pixeldetector::Detector &det(pixdev.dets()[eIt->second.CASSID]);
+          pixeldetector::Detector &det(pixdev.dets()[ifo.CASSID]);
           det.frame().clear();
-          /** get iterator to the corresponding data and advance it to the right
-           *  pulse within the train
+          /** get iterators to the corresponding data and advance it to the
+           *  right bunch within the train
            */
-          pixeldetector::Detector::frame_t::const_iterator detBegin(eIt->second.data.begin());
-          advance(detBegin,i*nPixels);
+          pixeldetector::Detector::frame_t::const_iterator detBegin(ifo.data.begin());
+          advance(detBegin,iBunch*ifo.nPixels);
+          pixeldetector::Detector::frame_t::const_iterator detEnd(detBegin);
+          advance(detEnd,ifo.nPixels);
           /** copy the det data to the frame */
-          det.frame().assign(detBegin,detBegin+(nPixels));
-          det.columns() = nCols;
-          det.rows() = nRows*nTiles;
+          det.frame().assign(detBegin,detEnd);
+          /** set the additional info of the detector */
+          det.columns() = ifo.nCols;
+          det.rows() = ifo.nRows;
           det.id() = _counter;
         }
-        else if (eIt->second.CASSDeviceType == "machinedata")
+        else if (ifo.CASSDeviceType == "machinedata")
         {
           /** retrieve the pixel detector part of the cassevent */
           devIt = devices.find(CASSEvent::MachineData);
@@ -403,10 +436,10 @@ void ZMQInput::runthis()
             throw runtime_error(string("ZMQInput: CASSEvent does not ") +
                                        "contain a pixeldetector device");
           MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
-          if (eIt->second.isPerTrain)
-            md.BeamlineData()[eIt->second.CASSValueName] = eIt->second.data[0];
+          if (ifo.isPerTrain)
+            md.BeamlineData()[ifo.CASSValueName] = ifo.data[0];
           else
-            md.BeamlineData()[eIt->second.CASSValueName] = eIt->second.data[i];
+            md.BeamlineData()[ifo.CASSValueName] = ifo.data[iBunch];
         }
       }
 
