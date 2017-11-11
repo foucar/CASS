@@ -716,8 +716,14 @@ void JoCASSViewer::createViewerForType(QMap<QString,DataViewer*>::iterator view,
 
 void JoCASSViewer::moveEvent(QMoveEvent *event)
 {
+  QMainWindow::moveEvent(event);
   QSettings settings;
-  settings.setValue("MainWindowPosition",event->pos());
+  settings.setValue("MainWindowPosition",frameGeometry().topLeft());
+//  qDebug() << "Main pos "<<event->pos() << "; geom " << geometry()
+//           <<"; framegeom "<<frameGeometry()
+//           <<"; framegeom.left "<<frameGeometry().topLeft()
+//           <<"; framegeom.right "<<frameGeometry().topRight()
+//           <<"; framegeom.size "<<frameGeometry().size();
 }
 
 void JoCASSViewer::resizeEvent(QResizeEvent *event)

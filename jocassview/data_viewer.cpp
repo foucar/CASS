@@ -72,9 +72,10 @@ void DataViewer::closeEvent(QCloseEvent *event)
 
 void DataViewer::moveEvent(QMoveEvent *event)
 {
+  QMainWindow::moveEvent(event);
   QSettings settings;
   settings.beginGroup(windowTitle());
-  settings.setValue("WindowPosition",event->pos());
+  settings.setValue("WindowPosition",frameGeometry().topLeft());
   settings.endGroup();
 }
 
