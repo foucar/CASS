@@ -238,7 +238,9 @@ void JoCASSViewer::autoSave() const
   if (_viewers.isEmpty())
     return;
   /** generate the general automatic filename */
-  QString fileNameBase(QDir::currentPath() + "/" + QDateTime::currentDateTime().toString() + "_");
+  QString fileNameBase(QDir::currentPath() + "/" +
+                       QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss") +
+                       "_");
 
   /** save all open windows data to a single container file */
   saveFile(QString(fileNameBase + "autoSave.h5"),displayedItems());
