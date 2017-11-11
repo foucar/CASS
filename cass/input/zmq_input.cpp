@@ -369,7 +369,7 @@ void ZMQInput::runthis()
       continue;
 
     /** how many pixels has a detector */
-    for (size_t iBunch(bunchOffset); iBunch< nBunches; iBunch += bunchStride)
+    for (size_t iBunch(bunchOffset); iBunch < nBunches; iBunch += bunchStride)
     {
       /** retrieve a new element from the ringbuffer, continue with next iteration
        *  in case the retrieved element is the iterator to the last element of the
