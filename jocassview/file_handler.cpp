@@ -54,9 +54,7 @@ QString FileHandler::getBaseName(const QString &filename)
 
 bool FileHandler::isContainerFile(const QString &filename)
 {
- QFileInfo fileInfo(filename);
-  if (! fileInfo.exists())
-    return false;
+  QFileInfo fileInfo(filename);
 
   bool retval(false);
   if (fileInfo.suffix().toUpper() == QString("h5").toUpper() ||
@@ -74,14 +72,7 @@ void FileHandler::saveData(const QString &filename, result_t::shared_pointer dat
 
   FileHandler instance;
 
-  if (fileInfo.suffix().toUpper() == QString("png").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("tiff").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("jpg").toUpper() ||
-      fileInfo.suffix().toUpper() == QString("bmp").toUpper() )
-  {
-    //instance.saveImage(filename,dynamic_cast<cass::Histogram2DFloat*>(data)->qimage());
-  }
-  else if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
+  if (fileInfo.suffix().toUpper() == QString("hst").toUpper())
   {
     instance.saveDataToHist(filename,data);
   }
@@ -150,7 +141,7 @@ DataSource::result_t::shared_pointer FileHandler::result(const QString &key, qui
 QStringList FileHandler::resultNames()
 {
   QStringList items;
-  if (isContainerFile(_filename))
+  if (isContainerFile(_filename) && QFileInfo::exists(_filename))
   {
 #ifdef HDF5
     try
