@@ -492,90 +492,94 @@ void XFELHDF5FileInput::runthis()
     fileset[0].fh->readArray(cellIds,length,cellIdKey);
 
     //for (size_t i(0); (!shouldQuit()) && (i < shape[0]); i+=2)
-    for (size_t i(0); (!shouldQuit()) && (i < shape[0]);++i)
+    //for (size_t i(0); (!shouldQuit()) && (i < shape[0]);++i)
+    for (size_t iTrain(0); (!shouldQuit()) && (iTrain < 250);iTrain+=4)
     {
-      /** flag that tell whether the data is good */
-      bool isGood(true);
-      /** retrieve a new element from the ringbuffer. If one didn't get a
+      for (size_t iBunch(4); (!shouldQuit()) && (iBunch < 33);iBunch+=4)
+      {
+        /** flag that tell whether the data is good */
+        bool isGood(true);
+        /** retrieve a new element from the ringbuffer. If one didn't get a
        *  an element (when the end iterator of the buffer is returned).
        *  Continue to the next iteration, where it is checked if the thread
        *  should quit.
        */
-      rbItem_t rbItem(getNextFillable());
-      if (rbItem == _ringbuffer.end())
-        continue;
-      CASSEvent& evt(*rbItem->element);
+        rbItem_t rbItem(getNextFillable());
+        if (rbItem == _ringbuffer.end())
+          continue;
+        CASSEvent& evt(*rbItem->element);
 
-      /** create the event id from the trainid and the pulseid */
-      evt.id() = ((trainIds[i] & 0x0000FFFFFFFFFFFF)<< 16) +
-                 ((pulseIds[i] & 0x000000000000FFFF));
+        /** create the event id from the trainid and the pulseid */
+        evt.id() = ((trainIds[i] & 0x0000FFFFFFFFFFFF)<< 16) +
+            ((pulseIds[i] & 0x000000000000FFFF));
 
-      /** get reference to all devices of the CASSEvent and an iterator*/
-      CASSEvent::devices_t &devices(evt.devices());
-      CASSEvent::devices_t::iterator devIt;
-      /** retrieve the pixel detector part of the cassevent */
-      devIt = devices.find(CASSEvent::PixelDetectors);
-      if(devIt == devices.end())
-        throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
-                                   " contain a pixeldetector device");
-      pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
-      /** retrieve the right detector from the cassevent and reset it*/
-      pixeldetector::Detector &data(pixdev.dets()[DataCASSID]);
-      pixeldetector::Detector::frame_t &dataframe(data.frame());
-      dataframe.clear();
-      dataframe.resize(nRows*nCols*nTiles);
-      /** copy the det data to the frame */
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
-//                                                       dataframe.begin(),i));
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
-                                                       dataframe.begin(),i));
-      /** set the detector parameters and add the event id */
-      data.columns() = nCols;
-      data.rows() = nRows*nTiles;
-      data.id() = evt.id();
-      /** retrieve the right detector from the cassevent and reset it*/
-      pixeldetector::Detector &gain(pixdev.dets()[GainCASSID]);
-      pixeldetector::Detector::frame_t &gainframe(gain.frame());
-      gainframe.clear();
-      gainframe.resize(nRows*nCols*nTiles);
-      /** copy the det data to the frame */
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
-//                                                       gainframe.begin(),i));
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
-                                                       gainframe.begin(),i));
-      /** set the detector parameters and add the event id */
-      gain.columns() = nCols;
-      gain.rows() = nRows*nTiles;
-      gain.id() = evt.id();
-      /** retrieve the right detector to hold the mask from the cassevent and reset it*/
-      pixeldetector::Detector &mask(pixdev.dets()[MaskCASSID]);
-      pixeldetector::Detector::frame_t &maskframe(mask.frame());
-      maskframe.clear();
-      maskframe.resize(nRows*nCols*nTiles);
-      /** copy the det data to the frame */
-//      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
-//                                                       maskframe.begin(),i));
-      for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
-                                                       maskframe.begin(),i));
-      /** set the detector parameters and add the event id */
-      mask.columns() = nCols;
-      mask.rows() = nRows*nTiles;
-      mask.id() = evt.id();
+        /** get reference to all devices of the CASSEvent and an iterator*/
+        CASSEvent::devices_t &devices(evt.devices());
+        CASSEvent::devices_t::iterator devIt;
+        /** retrieve the pixel detector part of the cassevent */
+        devIt = devices.find(CASSEvent::PixelDetectors);
+        if(devIt == devices.end())
+          throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
+                              " contain a pixeldetector device");
+        pixeldetector::Device &pixdev (dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
+        /** retrieve the right detector from the cassevent and reset it*/
+        pixeldetector::Detector &data(pixdev.dets()[DataCASSID]);
+        pixeldetector::Detector::frame_t &dataframe(data.frame());
+        dataframe.clear();
+        dataframe.resize(nRows*nCols*nTiles);
+        /** copy the det data to the frame */
+        //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
+        //                                                       dataframe.begin(),i));
+        for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
+                                                         dataframe.begin(),i));
+        /** set the detector parameters and add the event id */
+        data.columns() = nCols;
+        data.rows() = nRows*nTiles;
+        data.id() = evt.id();
+        /** retrieve the right detector from the cassevent and reset it*/
+        pixeldetector::Detector &gain(pixdev.dets()[GainCASSID]);
+        pixeldetector::Detector::frame_t &gainframe(gain.frame());
+        gainframe.clear();
+        gainframe.resize(nRows*nCols*nTiles);
+        /** copy the det data to the frame */
+        //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
+        //                                                       gainframe.begin(),i));
+        for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
+                                                         gainframe.begin(),i));
+        /** set the detector parameters and add the event id */
+        gain.columns() = nCols;
+        gain.rows() = nRows*nTiles;
+        gain.id() = evt.id();
+        /** retrieve the right detector to hold the mask from the cassevent and reset it*/
+        pixeldetector::Detector &mask(pixdev.dets()[MaskCASSID]);
+        pixeldetector::Detector::frame_t &maskframe(mask.frame());
+        maskframe.clear();
+        maskframe.resize(nRows*nCols*nTiles);
+        /** copy the det data to the frame */
+        //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
+        //                                                       maskframe.begin(),i));
+        for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
+                                                         maskframe.begin(),i));
+        /** set the detector parameters and add the event id */
+        mask.columns() = nCols;
+        mask.rows() = nRows*nTiles;
+        mask.id() = evt.id();
 
-      /** retrieve the machine detector part of the cassevent */
-      devIt = devices.find(CASSEvent::MachineData);
-      if(devIt == devices.end())
-        throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
-                                   " contain a machinedata device");
-      MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
-      md.BeamlineData()["CellId"] = cellIds[i];
-      md.BeamlineData()["PulseId"] = pulseIds[i];
-      md.BeamlineData()["TrainId"] = trainIds[i];
+        /** retrieve the machine detector part of the cassevent */
+        devIt = devices.find(CASSEvent::MachineData);
+        if(devIt == devices.end())
+          throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
+                              " contain a machinedata device");
+        MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
+        md.BeamlineData()["CellId"] = cellIds[i];
+        md.BeamlineData()["PulseId"] = pulseIds[i];
+        md.BeamlineData()["TrainId"] = trainIds[i];
 
-      /** tell the ringbuffer that we're done with the event */
-      newEventAdded(0);
-      ++_counter;
-      _ringbuffer.doneFilling(rbItem, isGood);
+        /** tell the ringbuffer that we're done with the event */
+        newEventAdded(0);
+        ++_counter;
+        _ringbuffer.doneFilling(rbItem, isGood);
+      }
     }
   }
 
