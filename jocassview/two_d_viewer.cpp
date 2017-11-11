@@ -151,7 +151,24 @@ void TwoDViewer::saveData(const QString &filename)
 {
   if (data().isEmpty())
     return;
-  FileHandler::saveData(filename,data().front()->result());
+  /** print a png of the whole widget if requested and the file doesn't exist */
+  QFileInfo fileInfo(filename);
+  if (fileInfo.suffix().toUpper() == QString("png").toUpper())
+  {
+    if (!fileInfo.exists())
+    {
+      QPixmap pix(this->grab());
+      if (fileInfo.suffix().toUpper() == QString("png").toUpper())
+      {
+        pix.save(filename, "PNG");
+      }
+    }
+  }
+  else
+  {
+    /** let the file handler handle the other formats */
+    FileHandler::saveData(filename,data().front()->result());
+  }
 }
 
 void TwoDViewer::dataChanged()
