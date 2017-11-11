@@ -66,13 +66,23 @@ public slots:
   void openFile(QString filename=QString(), QString key=QString());
 
 private slots:
+  /** save the data displayed by all windows as png images
+   *
+   * call autoSave with parameter onlyPNG as true
+   *
+   * @sa autoSave();
+   */
+  void autoSaveImages() const;
+
   /** save the data displayed by all windows in the possible files
    *
    * generate the correct filenames and call saveFile() to save the data.
    *
    * @sa saveFile();
+   *
+   * @param onlyPNG flag that allows to only save png files fo the open viewer
    */
-  void autoSave() const;
+  void autoSave(bool onlyPNG=false) const;
 
   /** save a data from specific viewer or all viewers to the given filename
    *

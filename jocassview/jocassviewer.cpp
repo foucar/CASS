@@ -79,6 +79,8 @@ JoCASSViewer::JoCASSViewer(QWidget *parent, Qt::WindowFlags flags)
                    SLOT(openFile()),QKeySequence(QKeySequence::Open))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addAction(QIcon::fromTheme("document-save"),tr("Save"),this,
                    SLOT(autoSave()),QKeySequence(tr("F10")))->setShortcutContext(Qt::ApplicationShortcut);
+  fmenu->addAction(QIcon::fromTheme("document-save"),tr("Save Images"),this,
+                   SLOT(autoSaveImages()),QKeySequence(tr("F9")))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addAction(QIcon::fromTheme("document-save-as"),tr("Save as..."),this,
                    SLOT(saveFile()),QKeySequence(QKeySequence::SaveAs))->setShortcutContext(Qt::ApplicationShortcut);
   fmenu->addAction(QIcon::fromTheme("document-print"),tr("Print"),this,
@@ -233,7 +235,12 @@ void JoCASSViewer::openFile(QString filename, QString key)
     setDisplayedItem(key,true);
 }
 
-void JoCASSViewer::autoSave() const
+void JoCASSViewer::autoSaveImages() const
+{
+  autoSave(true);
+}
+
+void JoCASSViewer::autoSave(bool onlyPNG) const
 {
   if (_viewers.isEmpty())
     return;
@@ -242,8 +249,9 @@ void JoCASSViewer::autoSave() const
                        QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss") +
                        "_");
 
-  /** save all open windows data to a single container file */
-  saveFile(QString(fileNameBase + "autoSave.h5"),displayedItems());
+  /** save all open windows data to a single container file, if not only png */
+  if (!onlyPNG)
+    saveFile(QString(fileNameBase + "autoSave.h5"),displayedItems());
 
   /** save the individual viewers to their specific savable file types
    *  (exclude the container files type
@@ -253,7 +261,13 @@ void JoCASSViewer::autoSave() const
   {
     if (view.value())
     {
+
       QStringList filetypes(view.value()->dataFileSuffixes());
+      /** if only png files should be saved, check if view can be saved as png
+       *  remove all other options from the file list
+       */
+      if (onlyPNG)
+        filetypes = filetypes.filter("png",Qt::CaseInsensitive);
       QStringList::const_iterator cIt;
       for (cIt = filetypes.constBegin(); cIt != filetypes.constEnd(); ++cIt)
       {
