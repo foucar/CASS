@@ -174,15 +174,32 @@ QString OneDViewer::type() const
 
 void OneDViewer::saveData(const QString &filename)
 {
-  QList<Data*> dataList(data());
-  QList<Data*>::iterator dataIt(dataList.begin());
-  while (dataIt != dataList.end())
+  /** when the filename indicates that it should be saved as png, do so */
+  QFileInfo fileInfo(filename);
+  if (fileInfo.suffix().toUpper() == QString("png").toUpper())
   {
-    QString fname(filename);
-    if(!FileHandler::isContainerFile(filename))
-      fname.insert(fname.lastIndexOf("."),"_" + QString::fromStdString((*dataIt)->result()->name()));
-    FileHandler::saveData(filename,(*dataIt)->result());
-    ++dataIt;
+    if (!fileInfo.exists())
+    {
+      QPixmap pix(this->grab());
+      if (fileInfo.suffix().toUpper() == QString("png").toUpper())
+      {
+        pix.save(filename, "PNG");
+      }
+    }
+  }
+  /** otherwise store the data individually as data files */
+  else
+  {
+    QList<Data*> dataList(data());
+    QList<Data*>::iterator dataIt(dataList.begin());
+    while (dataIt != dataList.end())
+    {
+      QString fname(filename);
+      if(!FileHandler::isContainerFile(filename))
+        fname.insert(fname.lastIndexOf("."),"_" + QString::fromStdString((*dataIt)->result()->name()));
+      FileHandler::saveData(filename,(*dataIt)->result());
+      ++dataIt;
+    }
   }
 }
 
@@ -194,7 +211,7 @@ void OneDViewer::dataChanged()
 QStringList OneDViewer::dataFileSuffixes() const
 {
   QStringList list;
-  list << "h5"<<"hst"<<"csv";
+  list <<"h5"<<"hst"<<"csv"<<"png";
   return list;
 }
 
