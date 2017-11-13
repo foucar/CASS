@@ -401,6 +401,11 @@ void XFELHDF5FileInput::runthis()
   string cellIdKey(s.value("CellId_HDF5Key","Invalid").toString().toStdString());
   string trainIdKey(s.value("TrainId_HDF5Key","Invalid").toString().toStdString());
   string pulseIdKey(s.value("PulseId_HDF5Key","Invalid").toString().toStdString());
+  size_t nTrains(s.value("NbfOfTrainsInFile",0).toUInt());
+  size_t nImages(s.value("NbfOfInterestingImages",0).toUInt());
+  size_t nImagesInTrainTotal(s.value("NbfOfImagesInTrain",0).toUInt());
+  size_t imageStride(s.value("ImageStride",0).toUInt());
+  size_t imageOffset(s.value("ImageOffset",0).toUInt());
   s.endGroup(); // AGPID
   s.endGroup(); // XFEHDF5FileInput
 
@@ -491,12 +496,12 @@ void XFELHDF5FileInput::runthis()
     vector<uint16_t> cellIds;
     fileset[0].fh->readArray(cellIds,length,cellIdKey);
 
-    //for (size_t i(0); (!shouldQuit()) && (i < shape[0]); i+=2)
-    //for (size_t i(0); (!shouldQuit()) && (i < shape[0]);++i)
-    for (size_t iTrain(0); (!shouldQuit()) && (iTrain < 250);iTrain+=4)
+    for (size_t iTrain(0); (!shouldQuit()) && (iTrain < nTrains);++iTrain)
     {
-      for (size_t iBunch(4); (!shouldQuit()) && (iBunch < 33);iBunch+=4)
+      for (size_t iImage(0); (!shouldQuit()) && (iImage < nImages);++iImage)
       {
+        /** calculate the which Event in the file should be retrieved */
+        size_t iImageInFile(iTrain*nImagesInTrainTotal + iImage*imageStride + imageOffset);
         /** flag that tell whether the data is good */
         bool isGood(true);
         /** retrieve a new element from the ringbuffer. If one didn't get a
@@ -510,8 +515,8 @@ void XFELHDF5FileInput::runthis()
         CASSEvent& evt(*rbItem->element);
 
         /** create the event id from the trainid and the pulseid */
-        evt.id() = ((trainIds[i] & 0x0000FFFFFFFFFFFF)<< 16) +
-            ((pulseIds[i] & 0x000000000000FFFF));
+        evt.id() = ((trainIds[iImageInFile] & 0x0000FFFFFFFFFFFF)<< 16) +
+            ((pulseIds[iImageInFile] & 0x000000000000FFFF));
 
         /** get reference to all devices of the CASSEvent and an iterator*/
         CASSEvent::devices_t &devices(evt.devices());
@@ -529,9 +534,9 @@ void XFELHDF5FileInput::runthis()
         dataframe.resize(nRows*nCols*nTiles);
         /** copy the det data to the frame */
         //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyDataTileToFrame,_1,
-        //                                                       dataframe.begin(),i));
+        //                                                       dataframe.begin(),iImageInFile));
         for_each(fileset.begin(),fileset.end(),tr1::bind(copyCorImageFromCacheToFrame,_1,
-                                                         dataframe.begin(),i));
+                                                         dataframe.begin(),iImageInFile));
         /** set the detector parameters and add the event id */
         data.columns() = nCols;
         data.rows() = nRows*nTiles;
@@ -543,9 +548,9 @@ void XFELHDF5FileInput::runthis()
         gainframe.resize(nRows*nCols*nTiles);
         /** copy the det data to the frame */
         //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainTileToFrame,_1,
-        //                                                       gainframe.begin(),i));
+        //                                                       gainframe.begin(),iImageInFile));
         for_each(fileset.begin(),fileset.end(),tr1::bind(copyGainFromCacheToFrame,_1,
-                                                         gainframe.begin(),i));
+                                                         gainframe.begin(),iImageInFile));
         /** set the detector parameters and add the event id */
         gain.columns() = nCols;
         gain.rows() = nRows*nTiles;
@@ -557,9 +562,9 @@ void XFELHDF5FileInput::runthis()
         maskframe.resize(nRows*nCols*nTiles);
         /** copy the det data to the frame */
         //      for_each(fileset.begin(),fileset.end(),tr1::bind(copyTileToMask,_1,
-        //                                                       maskframe.begin(),i));
+        //                                                       maskframe.begin(),iImageInFile));
         for_each(fileset.begin(),fileset.end(),tr1::bind(copyMaskFromCacheToFrame,_1,
-                                                         maskframe.begin(),i));
+                                                         maskframe.begin(),iImageInFile));
         /** set the detector parameters and add the event id */
         mask.columns() = nCols;
         mask.rows() = nRows*nTiles;
@@ -571,9 +576,9 @@ void XFELHDF5FileInput::runthis()
           throw runtime_error(string("xfelhdf5fileinput: CASSEvent does not") +
                               " contain a machinedata device");
         MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
-        md.BeamlineData()["CellId"] = cellIds[i];
-        md.BeamlineData()["PulseId"] = pulseIds[i];
-        md.BeamlineData()["TrainId"] = trainIds[i];
+        md.BeamlineData()["CellId"] = cellIds[iImageInFile];
+        md.BeamlineData()["PulseId"] = pulseIds[iImageInFile];
+        md.BeamlineData()["TrainId"] = trainIds[iImageInFile];
 
         /** tell the ringbuffer that we're done with the event */
         newEventAdded(0);
