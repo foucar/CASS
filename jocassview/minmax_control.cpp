@@ -71,7 +71,7 @@ MinMaxControl::MinMaxControl(QString title, QToolBar *parent)
   layout->addWidget(_auto);
 
   // generate a validator to ensure that only numbers are entered in the input
-  QDoubleValidator *doubleValidator(new QDoubleValidator(-2e12,2e12,3,this));
+  QDoubleValidator *doubleValidator(new QDoubleValidator(-2e12,2e12,6,this));
 
   // generate the min input
 //  QLabel *minlabel(new QLabel(tr("Min"),this));
