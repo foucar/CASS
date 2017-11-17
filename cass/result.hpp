@@ -802,7 +802,7 @@ public:
 
   /** return the shape of the result
    *
-   * in case it is a value the constant 0,0 will be returned. In case it is a
+   * in case it is a value the constant 1,1 will be returned. In case it is a
    * 1d result the second parameter is 0, and the full shape in case it is a
    * 2d result will be returned.
    *
@@ -820,6 +820,40 @@ public:
       break;
     case 2:
       return std::make_pair(axis(xAxis).nBins,axis(yAxis).nBins);
+      break;
+    default:
+      throw std::logic_error("Result::shape(): Result doesn't have dimension 2");
+    }
+  }
+
+  /** return the shape of the result as numpy / hdf5 shape
+   *
+   * the convention is that the first dimension of the shape is the slowest
+   * changing dimesnsion in the linearized array, and the second ist the one
+   * faster changeing axis ... The last will be the fastest changing dimension
+   * of the linearized array. Thus in case the result is a value a 1 dim shape
+   * with 1 entry will be returned. For array like results a 1 dim shape with
+   * the length of the array will be returned and for matrix or table like
+   * results a 2 dim with the y axis as 0 and x-axis as the last dimension of
+   * the shape will be returned
+   *
+   * @return the numpy / hdf5 like shape of the result
+   */
+  std::vector<size_t> np_shape() const
+  {
+    switch (_axis.size())
+    {
+    case 0:
+      return std::vector<size_t>(1,1);
+      break;
+    case 1:
+      return std::vector<size_t>(1,axis(xAxis).nBins);
+      break;
+    case 2:
+      std::vector<size_t> s(2);
+      s[0] = axis(yAxis).nBins;
+      s[1] = axis(xAxis).nBins;
+      return std::make_pair(axis(yAxis).nBins);
       break;
     default:
       throw std::logic_error("Result::shape(): Result doesn't have dimension 2");
