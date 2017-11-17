@@ -531,6 +531,161 @@ public:
     H5Sclose(dataspace_id);
   }
 
+  /** create/append data to a multidimensional dataset
+   *
+   * The name can contain the group that the value should be written to
+   *
+   * @tparam type The type that should be written
+   * @param data the matrix to be written
+   * @param shape the shape of the matrix (first is cols, second is rows)
+   * @param valname the name of the value
+   * @param compressLevel the compression level of the matrix
+   */
+  template<typename type>
+  void appendData(const std::vector<type> &data, shape_t shape,
+                  const std::string& valname, int compressLevel=2)
+  {
+    using namespace  std;
+
+//    for (size_t i(0); i<shape.size();++i)
+//      cout << "shape["<<i<<"] = "<<shape[i]<<endl;
+    /** turn off error output */
+    H5Eset_auto(H5E_DEFAULT,0,0);
+
+    /** ensure that the goup where the data will be appended to exists */
+    ensureGroupExists(valname);
+
+    /** get the dataset  and check if the dataset exists*/
+    hid_t dataset_id(H5Dopen(_fileid, valname.c_str(), H5P_DEFAULT));
+    if (dataset_id < 0)
+    {
+      /** the dataset seems to not exist, so create it */
+
+      /** create the file dataspace, where the first dim is unlimited */
+      vector<hsize_t> dims(shape);
+      dims.insert(dims.begin(),0);
+//      for (size_t i(0); i<dims.size();++i)
+//        cout << "dims["<<i<<"] = "<<dims[i]<<endl;
+      vector<hsize_t> maxdims(shape);
+      maxdims.insert(maxdims.begin(),H5S_UNLIMITED);
+//      for (size_t i(0); i<maxdims.size();++i)
+//        cout << "max_dims["<<i<<"] = "<<maxdims[i]<<endl;
+      hid_t dataspace_id(H5Screate_simple(dims.size(), &(dims.front()),
+                                          &(maxdims.front())));
+      if (dataspace_id < 0)
+        throw logic_error("appenddata(): Could not open the dataspace");
+
+      /** create the property list to be chunked */
+      hid_t property_id(H5Pcreate(H5P_DATASET_CREATE));
+      if (property_id < 0)
+        throw logic_error("appenddata(): Could not create property list");
+      herr_t status(H5Pset_layout(property_id, H5D_CHUNKED));
+      if (status < 0)
+        throw logic_error("appenddata(): Could not set the chuncked layout");
+      vector<hsize_t> chunk_dims(dims);
+      chunk_dims[0] = 1;
+//      for (size_t i(0); i<chunk_dims.size();++i)
+//        cout << "chuck_dim["<<i<<"] = "<<chunk_dims[i]<<endl;
+      status = H5Pset_chunk(property_id, chunk_dims.size(), &(chunk_dims.front()));
+      if (status < 0)
+        throw logic_error("appenddata(): Could not define the chunck size");
+      status = H5Pset_deflate(property_id, compressLevel);
+      if (status < 0)
+        throw logic_error("appenddata(): Could not define the compression level");
+
+      /** create the dataset */
+      dataset_id = H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
+                             dataspace_id, H5P_DEFAULT, property_id, H5P_DEFAULT);
+      if (dataset_id < 0)
+        throw logic_error("appenddata(): Could not create the dataset '"
+                           + valname + "'");
+
+      /** close the resources */
+      H5Pclose(property_id);
+      H5Sclose(dataspace_id);
+    }
+
+    /** get the filespace of the dataset to extract the current dimensions */
+    hid_t dataspace_id(H5Dget_space(dataset_id));
+    if (dataspace_id < 0)
+      throw logic_error("appenddata(): Could not open the dataspace");
+
+    /** get the nbr of dimensions and the dimensions of the dataset */
+    const hssize_t ndims(H5Sget_simple_extent_ndims(dataspace_id));
+    if (ndims < 0)
+      throw logic_error("appenddata(): Could not read the the number of dimensions");
+    if (static_cast<size_t>(ndims) != shape.size()+1)
+      throw logic_error("appenddata(): The number of dimensions do not fit");
+    vector<hsize_t> dims(ndims);
+    int retNdims(H5Sget_simple_extent_dims(dataspace_id, &dims.front(), NULL));
+    if (retNdims != ndims)
+      throw logic_error("appenddata(): Could not read the dimensions");
+//    for (size_t i(0); i<dims.size();++i)
+//      cout << "dims["<<i<<"] = "<<dims[i]<<endl;
+
+    /** release the old dataspace of the dataset, later we get the new extended
+     *  filespace of the dataset
+     */
+    H5Sclose(dataspace_id);
+
+    /** check if the dimensions fit the to be appended datas dimensions */
+    for (size_t i(0);i<shape.size(); ++i)
+      if (dims[i+1] != shape[i])
+        throw logic_error("appenddata(): The dimensions are not equal");
+
+    /** create space in memory for the new data of the dataset */
+    hsize_t origsize(dims[0]);
+    dims[0] = 1;
+//    for (size_t i(0); i<dims.size();++i)
+//      cout << "dims["<<i<<"] = "<<dims[i]<<endl;
+    hid_t memspace_id(H5Screate_simple(ndims, &dims.front(), NULL));
+    if (memspace_id < 0)
+      throw runtime_error("appendData(): Could not open the dataspace");
+
+    /** extent the dataset so that it can incldue the newly added data */
+    dims[0] = origsize + 1;
+//    for (size_t i(0); i<dims.size();++i)
+//      cout << "dims["<<i<<"] = "<<dims[i]<<endl;
+    herr_t status(H5Dset_extent(dataset_id, &dims.front()));
+    if (status < 0)
+      throw runtime_error("appendData(): Could not extent the dataset");
+
+    /** get the filespace of the extended dataset */
+    dataspace_id = H5Dget_space(dataset_id);
+    if (dataspace_id < 0)
+      throw logic_error("appenddata(): Could not open the extended dataspace");
+
+    /** create hyperslab on the file dataspace where the data will be written
+     *  to later on
+     */
+    vector<hsize_t> offset(ndims,0);
+    offset[0] = origsize;
+//    for (size_t i(0); i<offset.size();++i)
+//      cout << "offset["<<i<<"] = "<<offset[i]<<endl;
+    vector<hsize_t> count(dims);
+    count[0] = 1;
+//    for (size_t i(0); i<count.size();++i)
+//      cout << "count["<<i<<"] = "<<count[i]<<endl;
+    status = H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET,
+                                 &(offset.front()), NULL,
+                                 &(count.front()), NULL);
+    if (status < 0)
+      throw runtime_error("appenddata(): Could define hyperslab");
+
+    status = H5Dwrite(dataset_id, H5Type<type>(), memspace_id, dataspace_id,
+                      H5P_DEFAULT, &(data.front()));
+    if (status < 0)
+    {
+      stringstream ss;
+      ss <<  "appenddata(): Could not write data " <<status;
+      throw runtime_error(ss.str());
+    }
+
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+    H5Sclose(memspace_id);
+  }
+
   /** read a multidimensional dataset with a given name into a linearized array
    *
    * reads a multidimensional dataset from the h5 file. The dimensions of the
