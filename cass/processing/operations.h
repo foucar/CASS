@@ -714,7 +714,7 @@ private:
    * @return the constant baseline value
    * @param input unused
    */
-  float constantBaseline(const result_t &input) {return 0.f;}
+  float constantBaseline(const result_t &/*input*/) {return 0.f;}
 
   /** the function that will return the baseline */
   std::tr1::function<float(const result_t&)> _baseline;
