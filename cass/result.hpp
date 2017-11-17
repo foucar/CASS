@@ -850,11 +850,13 @@ public:
       return std::vector<size_t>(1,axis(xAxis).nBins);
       break;
     case 2:
+    {
       std::vector<size_t> s(2);
       s[0] = axis(yAxis).nBins;
       s[1] = axis(xAxis).nBins;
-      return std::make_pair(axis(yAxis).nBins);
+      return s;
       break;
+    }
     default:
       throw std::logic_error("Result::shape(): Result doesn't have dimension 2");
     }
