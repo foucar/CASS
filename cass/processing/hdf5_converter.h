@@ -90,13 +90,13 @@ public:
      * @param _name the name of the value in the file
      * @param _groupname the group where the data will be written to
      * @param _options the options for writing
-     * @param _pp the processor holding the data to be written
+     * @param _proc the processor holding the data to be written
      */
     entry_t(const std::string &_name,
             const std::string &_groupname,
             const uint32_t _options,
-            shared_pointer _pp)
-      : name(_name), groupname(_groupname), options(_options),pp(_pp)
+            shared_pointer _proc)
+      : name(_name), groupname(_groupname), options(_options),proc(_proc)
     {}
 
     /** name of the value in the file */
@@ -109,7 +109,7 @@ public:
     uint32_t options;
 
     /** processor holding the data to be written */
-    shared_pointer pp;
+    shared_pointer proc;
   };
 
   /** constructor */
@@ -154,10 +154,10 @@ protected:
   std::string _basefilename;
 
   /** container with all pps that contain the histograms to dump to hdf5 */
-  std::list<entry_t> _ppList;
+  std::list<entry_t> _procList;
 
   /** container for all pps that should be written when program quits */
-  std::list<entry_t> _ppSummaryList;
+  std::list<entry_t> _procSummaryList;
 
   /** the number of files in each subdir */
   int _maxFilePerSubDir;

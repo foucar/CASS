@@ -127,13 +127,13 @@ public:
     const uint32_t &options(entry.options);
     const string &gname(entry.groupname);
     const string &name(entry.name);
-    Processor &pp(*entry.pp);
+    Processor &proc(*entry.proc);
 
     /** create the requested dataset name */
     const string dataName(_baseGroupname + "/" + gname + "/" + name);
 
     /** retrieve data from pp and write it to the h5 file */
-    const Processor::result_t &data(pp.result(_id));
+    const Processor::result_t &data(proc.result(_id));
     QReadLocker lock(&data.lock);
     switch (data.dim())
     {
@@ -217,14 +217,14 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    string ppname(s.value("Name","Unknown").toString().toStdString());
-    if (ppname == "Unknown")
+    string procname(s.value("Name","Unknown").toString().toStdString());
+    if (procname == "Unknown")
       continue;
-    shared_pointer pp(setupDependency("",ppname));
-    allDepsAreThere = pp && allDepsAreThere;
+    shared_pointer proc(setupDependency("",procname));
+    allDepsAreThere = proc && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
-    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
-    _ppList.push_back(entry_t(name,groupname,compresslevel,pp));
+    string name = proc ? s.value("ValName",QString::fromStdString(proc->name())).toString().toStdString() : "";
+    _procList.push_back(entry_t(name,groupname,compresslevel,proc));
   }
   s.endArray();
 
@@ -232,22 +232,22 @@ void pp1002::loadSettings(size_t)
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
-    string ppname(s.value("Name","Unknown").toString().toStdString());
-    if (ppname == "Unknown")
+    string procname(s.value("Name","Unknown").toString().toStdString());
+    if (procname == "Unknown")
       continue;
-    shared_pointer pp(setupDependency("",ppname));
-    allDepsAreThere = pp && allDepsAreThere;
+    shared_pointer proc(setupDependency("",procname));
+    allDepsAreThere = proc && allDepsAreThere;
     string groupname(s.value("GroupName","/").toString().toStdString());
-    string name = pp ? s.value("ValName",QString::fromStdString(pp->name())).toString().toStdString() : "";
-    _ppSummaryList.push_back(entry_t(name,groupname,compresslevel,pp));
+    string name = proc ? s.value("ValName",QString::fromStdString(proc->name())).toString().toStdString() : "";
+    _procSummaryList.push_back(entry_t(name,groupname,compresslevel,proc));
   }
   s.endArray();
 
   bool ret (setupCondition());
   if (!(ret && allDepsAreThere))
   {
-    _ppList.clear();
-    _ppSummaryList.clear();
+    _procList.clear();
+    _procSummaryList.clear();
     return;
   }
 
@@ -283,9 +283,9 @@ void pp1002::loadSettings(size_t)
 
   _hide = true;
   string output("Processor '" + name() + "' will write histogram ");
-  for (list<entry_t>::const_iterator it(_ppList.begin());
-       it != _ppList.end(); ++it)
-    output += ("'" + it->pp->name() + "' to Group '" + it->groupname +
+  for (list<entry_t>::const_iterator it(_procList.begin());
+       it != _procList.end(); ++it)
+    output += ("'" + it->proc->name() + "' to Group '" + it->groupname +
                "' with dataname '" + it->name +"',");
   output += (" of a hdf5 file with '" + _basefilename +
              "' as basename. 2D File will " + (compresslevel ? "" : "NOT") +
@@ -305,7 +305,7 @@ const Processor::result_t &pp1002::result(const CASSEvent::id_t)
 void pp1002::aboutToQuit()
 {
   /** check if something to be written */
-  if (_ppSummaryList.empty())
+  if (_procSummaryList.empty())
     return;
 
   QMutexLocker locker(&_lock);
@@ -327,8 +327,8 @@ void pp1002::writeSummaryToSingleFile()
    *       entries are written sequentially and for_each can potentially use
    *       omp to parallelize the execution.
    */
-  list<entry_t>::const_iterator it(_ppSummaryList.begin());
-  list<entry_t>::const_iterator last(_ppSummaryList.end());
+  list<entry_t>::const_iterator it(_procSummaryList.begin());
+  list<entry_t>::const_iterator last(_procSummaryList.end());
   while(it != last)
     writeEntry(*it++);
 }
@@ -345,8 +345,8 @@ void pp1002::writeSummaryToMultipleEventsFile()
    *       omp to parallelize the execution.
    */
   hdf5::WriteEntry &writeEntry(*_entryWriter);
-  list<entry_t>::const_iterator it(_ppSummaryList.begin());
-  list<entry_t>::const_iterator last(_ppSummaryList.end());
+  list<entry_t>::const_iterator it(_procSummaryList.begin());
+  list<entry_t>::const_iterator last(_procSummaryList.end());
   while(it != last)
     writeEntry(*it++);
 }
@@ -354,7 +354,7 @@ void pp1002::writeSummaryToMultipleEventsFile()
 void pp1002::processEvent(const CASSEvent &evt)
 {
   /** check if there is something to be written or if it should be written */
-  if (_ppList.empty() || !_condition->result(evt.id()).isTrue())
+  if (_procList.empty() || !_condition->result(evt.id()).isTrue())
     return;
 
   QMutexLocker locker(&_lock);
@@ -382,8 +382,8 @@ void pp1002::writeEventToSingleFile(const CASSEvent &evt)
    *       entries are written sequentially and for_each can potentially use
    *       omp to parallelize the execution.
    */
-  list<entry_t>::const_iterator it(_ppList.begin());
-  list<entry_t>::const_iterator last(_ppList.end());
+  list<entry_t>::const_iterator it(_procList.begin());
+  list<entry_t>::const_iterator last(_procList.end());
   while(it != last)
     writeEntry(*it++);
 }
@@ -410,8 +410,8 @@ void pp1002::writeEventToMultipleEventsFile(const CASSEvent &evt)
    *       omp to parallelize the execution.
    */
   hdf5::WriteEntry &writeEntry(*_entryWriter);
-  list<entry_t>::const_iterator it(_ppList.begin());
-  list<entry_t>::const_iterator last(_ppList.end());
+  list<entry_t>::const_iterator it(_procList.begin());
+  list<entry_t>::const_iterator last(_procList.end());
   while(it != last)
     writeEntry(*it++);
 }
