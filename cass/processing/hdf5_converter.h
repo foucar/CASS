@@ -41,6 +41,14 @@ class WriteEntry;
  * @cassttng Processor/\%name\%/{WriteMultipleEventsInOneFile} \n
  *           Flag to tell whether to write multiple events to the same file
  *           (true) or each event into a single file (false). Default is false.
+ * @cassttng Processor/\%name\%/{WriteToSingleDatasets} \n
+ *           In case one writes multiple events into the same file, this flag
+ *           allows to tell, that the data will be written into a single dataset.
+ *           The dataset will have an additional dimension in the slowest axis
+ *           that holds the data of all the events. In addition to that a
+ *           dataset is written that lists all the eventids of the events that
+ *           are written.
+ *           Default is false.
  * @cassttng Processor/\%name\%/{MaximumNbrFilesPerDir} \n
  *           In case of single files per event, distribute the files over
  *           subdirectories where each subdir contains this amount of files.
@@ -140,6 +148,14 @@ protected:
    */
   void writeEventToMultipleEventsFile(const CASSEvent &evt);
 
+  /** function to write the events to a file that contains multiple events
+   *
+   * append the static size results to a single dataset with one more dimension
+   *
+   * @param evt The event containg the data to write
+   */
+  void appendEventToMultipleEventsFile(const CASSEvent &evt);
+
   /** function to write the summary to a single file */
   void writeSummaryToSingleFile();
 
@@ -165,8 +181,11 @@ protected:
   /** counter to count how many files have been written */
   int _filecounter;
 
+  /** define pointer to the entry writer */
+  typedef std::tr1::shared_ptr<hdf5::WriteEntry> entryWriter_t;
+
   /** the entry writer */
-  std::tr1::shared_ptr<hdf5::WriteEntry>_entryWriter;
+  entryWriter_t _entryWriter;
 
   /** the maximum file size of the single file */
   size_t _maxFileSize;

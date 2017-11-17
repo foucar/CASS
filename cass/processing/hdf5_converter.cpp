@@ -25,7 +25,9 @@
 using namespace cass;
 using namespace std;
 using tr1::bind;
+using tr1::function;
 using tr1::placeholders::_1;
+using tr1::placeholders::_2;
 
 namespace cass
 {
@@ -104,7 +106,7 @@ public:
    *
    * @param id the current event id
    */
-  void setEventID(const CASSEvent::id_t id)
+  virtual void setEventID(const CASSEvent::id_t id)
   {
     _id = id;
   }
@@ -122,7 +124,7 @@ public:
    *
    * @param entry The entry to put into the h5 file
    */
-  void operator()(const pp1002::entry_t& entry)
+  virtual void operator()(const pp1002::entry_t& entry)
   {
     const uint32_t &options(entry.options);
     const string &gname(entry.groupname);
@@ -168,7 +170,7 @@ public:
     }
   }
 
-private:
+protected:
   /** the file handle of the h5 file */
   ::hdf5::Handler _fh;
 
@@ -178,6 +180,123 @@ private:
   /** the base group name */
   string _baseGroupname;
 };
+
+
+/** append an entity to a dataset in h5 file
+ *
+ * @author Lutz Foucar
+ */
+class AppendEntry : public WriteEntry
+{
+public:
+  /** constructor
+   *
+   * create the hdf5 file with the name and the handles to the specific data
+   * storage. Add a dataset that describes the cass version with which the file
+   * was generated
+   *
+   * @param filename the name of the h5 file
+   * @param id the id of the event to get the data for
+   */
+  AppendEntry(const string& filename, const CASSEvent::id_t id=0)
+    : WriteEntry(filename,id)
+  {
+    _writeAttributes = bind(&AppendEntry::writeAttib,this,_1,_2);
+  }
+
+  /** write an entry to h5 file using the functions defined above
+   *
+   * @param entry The entry to put into the h5 file
+   */
+  virtual void operator()(const pp1002::entry_t& entry)
+  {
+    const uint32_t &options(entry.options);
+    const string &gname(entry.groupname);
+    const string &name(entry.name);
+    Processor &proc(*entry.proc);
+
+    /** create the requested dataset name */
+    const string dataName("/" + gname + "/" + name);
+
+    /** retrieve data from pp and write it to the h5 file */
+    const Processor::result_t &data(proc.result(_id));
+    QReadLocker lock(&data.lock);
+    vector<size_t> shape(data.np_shape());
+    ::hdf5::shape_t theShape(shape.begin(),shape.end());
+    _fh.appendData(data.storage(),theShape,dataName,options);
+    _writeAttributes(data,dataName);
+  }
+
+  /** add the event id to the event id dataset
+   *
+   * in addition switch the attribute writer to nothing
+   *
+   * @param id the new eventid
+   */
+  virtual void setEventID(CASSEvent::id_t id)
+  {
+    if (id)
+    {
+      if (_id)
+        _writeAttributes = bind(&AppendEntry::writeNothing,this,_1,_2);
+      ::hdf5::shape_t shape(1,1);
+      vector<CASSEvent::id_t> evtid(1,_id);
+      _fh.appendData(evtid,shape,"eventIds");
+    }
+    _id = id;
+  }
+
+protected:
+  /** write the attributes to the dataset
+   *
+   * @param data reference to the data
+   * @param dsetName the name of the dataset that the attributes should be
+   *                 written to
+   */
+  void writeAttib(const Processor::result_t &data, const string &dsetName)
+  {
+    switch (data.dim())
+    {
+    case 1:
+    {
+      const Processor::result_t::axe_t &xaxis(data.axis(Processor::result_t::xAxis));
+      _fh.writeScalarAttribute(xaxis.low, "xLow", dsetName);
+      _fh.writeScalarAttribute(xaxis.up, "xUp", dsetName);
+      break;
+    }
+    case 2:
+    {
+      const Processor::result_t::axe_t &xaxis(data.axis(Processor::result_t::xAxis));
+      const Processor::result_t::axe_t &yaxis(data.axis(Processor::result_t::yAxis));
+      _fh.writeScalarAttribute(xaxis.low, "xLow", dsetName);
+      _fh.writeScalarAttribute(xaxis.up, "xUp", dsetName);
+      _fh.writeScalarAttribute(yaxis.low, "yLow", dsetName);
+      _fh.writeScalarAttribute(yaxis.up, "yUp", dsetName);
+      break;
+    }
+    default:
+      throw runtime_error("WriteEntry::operator(): data dimension '" +
+                          toString(data.dim()) + "' not known");
+      break;
+    }
+  }
+
+  /** write nothing
+   *
+   * @param unused unused reference
+   * @param unused not used name
+   */
+  void writeNothing(const Processor::result_t& /* unused */,
+                    const string& /* unused */)
+  {
+
+  }
+
+private:
+  /** function to write the results axis attributes just once to the dataset */
+  function <void(const Processor::result_t&,const string&)> _writeAttributes;
+};
+
 
 }//end namespace hdf5
 }//end namespace cass
@@ -266,12 +385,23 @@ void pp1002::loadSettings(size_t)
   /** set up which kind of file should be written */
   /** set up the dir or the filename, depending on the case */
   bool multipleevents(s.value("WriteMultipleEventsInOneFile",false).toBool());
+  bool singleDataset(s.value("WriteToSingleDatasets",false).toBool());
   if (multipleevents)
   {
-    _writeEvent = bind(&pp1002::writeEventToMultipleEventsFile,this,_1);
-    _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
-    _basefilename = AlphaCounter::intializeFile(_basefilename);
-    _entryWriter = tr1::shared_ptr<hdf5::WriteEntry>(new hdf5::WriteEntry(_basefilename));
+    if (singleDataset)
+    {
+      _writeEvent = bind(&pp1002::appendEventToMultipleEventsFile,this,_1);
+      _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
+      _basefilename = AlphaCounter::intializeFile(_basefilename);
+      _entryWriter = entryWriter_t(new hdf5::AppendEntry(_basefilename));
+    }
+    else
+    {
+      _writeEvent = bind(&pp1002::writeEventToMultipleEventsFile,this,_1);
+      _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
+      _basefilename = AlphaCounter::intializeFile(_basefilename);
+      _entryWriter = entryWriter_t(new hdf5::WriteEntry(_basefilename));
+    }
   }
   else
   {
@@ -288,10 +418,12 @@ void pp1002::loadSettings(size_t)
     output += ("'" + it->proc->name() + "' to Group '" + it->groupname +
                "' with dataname '" + it->name +"',");
   output += (" of a hdf5 file with '" + _basefilename +
-             "' as basename. 2D File will " + (compresslevel ? "" : "NOT") +
-             " be compressed. Files will " + (_maxFilePerSubDir != -1 ? "" : "NOT") +
+             "' as basename. 2D File will" + (compresslevel ? "" : " NOT") +
+             " be compressed. Files will" + (_maxFilePerSubDir != -1 ? "" : " NOT") +
              " be distributed. Events will"+ (multipleevents ? " NOT" : "") +
-             " be written to single files. Maximum file size '" +
+             " be written to single files. In which case the data of the" +
+             " individual processors will" + (singleDataset ? "" : " NOT") +
+             " be put into a single dataset. Maximum file size is '" +
              toString(_maxFileSize) + "' bytes. Condition is '" +
              _condition->name() + "'");
   Log::add(Log::INFO,output);
@@ -396,7 +528,7 @@ void pp1002::writeEventToMultipleEventsFile(const CASSEvent &evt)
   if (_entryWriter->currentFileSize() > _maxFileSize)
   {
     _basefilename = AlphaCounter::increaseFileCounter(_basefilename);
-    _entryWriter = tr1::shared_ptr<hdf5::WriteEntry>(new hdf5::WriteEntry(_basefilename));
+    _entryWriter = entryWriter_t(new hdf5::WriteEntry(_basefilename));
   }
 
   /** tell the writer which id to use and the corresponding base group */
@@ -414,6 +546,32 @@ void pp1002::writeEventToMultipleEventsFile(const CASSEvent &evt)
   list<entry_t>::const_iterator last(_procList.end());
   while(it != last)
     writeEntry(*it++);
+}
+
+void pp1002::appendEventToMultipleEventsFile(const CASSEvent &evt)
+{
+  /** check the current file size, create a new file with increase ending,
+   *  if too big
+   */
+  if (_entryWriter->currentFileSize() > _maxFileSize)
+  {
+    _basefilename = AlphaCounter::increaseFileCounter(_basefilename);
+    _entryWriter = entryWriter_t(new hdf5::AppendEntry(_basefilename));
+  }
+
+  /** tell the writer which id to use and the corresponding base group */
+  _entryWriter->setEventID(evt.id());
+
+  /** write all entries to file using the writer
+   *
+   * @note we can't use for_each here, since we need to ensure that the
+   *       entries are written sequentially and for_each can potentially use
+   *       omp to parallelize the execution.
+   */
+  list<entry_t>::const_iterator it(_procList.begin());
+  list<entry_t>::const_iterator last(_procList.end());
+  while(it != last)
+    (*_entryWriter)(*it++);
 }
 
 
