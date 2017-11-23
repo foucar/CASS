@@ -9,7 +9,7 @@
 #ifndef _SACLACONVERTER_
 #define _SACLACONVERTER_
 
-#include <SaclaDataAccessUserAPI.h>
+#include <DataAccessUserAPI.h>
 
 #include "cass.h"
 #include "pixeldetector.hpp"
@@ -151,7 +151,6 @@ public:
         posz_um(0),
         angle_deg(0),
         gain(0),
-        type(Sacla_DATA_TYPE_INVALID),
         bytes_retrieved(0),
         normalize(false),
         relativeGain(1)
@@ -186,9 +185,6 @@ public:
 
     /** the absolute gain of the tile */
     float gain;
-
-    /** the data type of the data of the tile */
-    Sacla_DetDataType type;
 
     /** the number of bytes retrieved for this tile */
     size_t bytes_retrieved;
