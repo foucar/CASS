@@ -15,7 +15,7 @@
 
 #include <QtCore/QFileInfo>
 
-#include <SaclaDataAccessUserAPI.h>
+#include <DataAccessUserAPI.h>
 
 #include "sacla_offline_input.h"
 
@@ -183,7 +183,7 @@ bool getCompleteTagList(vector<int> &taglist, int &highTagNbr, int blNbr, int ru
 {
   /** get the lowest and highest tag number for the run */
   int funcstatus,startTagNbr,endTagNbr = 0;
-  funcstatus = ReadStartTagNumber(highTagNbr,startTagNbr,blNbr,runNbr);
+  funcstatus = sy_read_start_tagnumber(&highTagNbr,&startTagNbr,blNbr,runNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"getCompleteTagList: could not retrieve start tag of run '" +
@@ -191,7 +191,7 @@ bool getCompleteTagList(vector<int> &taglist, int &highTagNbr, int blNbr, int ru
              "' Errorcode is '" + toString(funcstatus) + "'");
     return false;
   }
-  funcstatus = ReadEndTagNumber(highTagNbr,endTagNbr,blNbr,runNbr);
+  funcstatus = sy_read_end_tagnumber(&highTagNbr,&endTagNbr,blNbr,runNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"getCompleteTagList: could not retrieve end tag of run '" +
@@ -200,19 +200,64 @@ bool getCompleteTagList(vector<int> &taglist, int &highTagNbr, int blNbr, int ru
     return false;
   }
 
-  /** get the tag list */
+  /** get the tag list
+   *
+   * @Note one has to create a SALCA strucht that allows to retrieve arrays
+   *       One has to kind of allocate and destroy these structs, which is
+   *       completely not exception safe...
+   */
   Log::add(Log::VERBOSEINFO,"getCompleteTagList: get Taglist for tags between '" +
-           toString(startTagNbr) + "' and '" + toString(endTagNbr) + "' with highTag '" +
-           toString(highTagNbr)+ "' for run '" + toString(runNbr) + "' at beamline '" +
-           toString(blNbr) + "'");
-  funcstatus = ReadTagListInRange(&taglist,highTagNbr,startTagNbr,endTagNbr);
+           toString(startTagNbr) + "' and '" + toString(endTagNbr) +
+           "' with highTag '" + toString(highTagNbr)+ "' for run '" +
+           toString(runNbr) + "' at beamline '" + toString(blNbr) + "'");
+  struct da_int_array *tagListBuffer=NULL;
+  funcstatus = da_alloc_int_array(&tagListBuffer,0,NULL);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("getCompleteTagList: could not allocate the ") +
+             "sacla int array struct. Errorcode is '" +
+             toString(funcstatus) + "'");
+    da_destroy_int_array(&tagListBuffer);
+    return false;
+  }
+  funcstatus = sy_read_taglist(tagListBuffer,blNbr,highTagNbr,startTagNbr,endTagNbr);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"getCompleteTagList: could not retrieve taglist of run '" +
              toString(runNbr) + "' at beamline '" + toString(blNbr) +
              "'Errorcode is '" + toString(funcstatus) + "'");
+    da_destroy_int_array(&tagListBuffer);
     return false;
   }
+  /** get size of taglist */
+  int tagListSize = -1;
+  funcstatus = da_getsize_int_array(&tagListSize, tagListBuffer);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("getCompleteTagList: could not get the size of ") +
+             "sacla int array struct. Errorcode is '" +
+             toString(funcstatus) + "'");
+    da_destroy_int_array(&tagListBuffer);
+    return false;
+  }
+  /** copy the data to the vector */
+  taglist.clear();
+  for (size_t i(0); i < static_cast<size_t>(tagListSize); ++i)
+  {
+    int buffer(0);
+    da_getint_int_array(&buffer,tagListBuffer,i);
+    taglist.push_back(buffer);
+  }
+  /** dealloc the array */
+  funcstatus = da_destroy_int_array(&tagListBuffer);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("getCompleteTagList: error destroying the ") +
+             "sacla int array struct. Errorcode is '" + toString(funcstatus) +
+             "'");
+    return false;
+  }
+
   return true;
 }
 }//end namespace cass
