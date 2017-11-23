@@ -339,14 +339,15 @@ void SACLAOfflineInput::runthis()
 
     /** check if the runstatus is set to 'run ended' and thus the
      *  data is available to read */
-    int runstatus(0);
+    int runstatus(-1);
     int funcstatus(0);
-    funcstatus = ReadRunStatus(runstatus,blNbr,runNbr);
+    funcstatus = sy_read_runstatus(&runstatus,blNbr,runNbr);
     if (funcstatus)
     {
-      Log::add(Log::ERROR,"SACLAOfflineInput: could not retrieve run status of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) +
-               "'. Errorcode is '" + toString(funcstatus) + "'");
+      Log::add(Log::ERROR,string("SACLAOfflineInput: could not retrieve ") +
+               "run status of run '" + toString(runNbr) + "' at beamline '" +
+               toString(blNbr) + "'. Errorcode is '" + toString(funcstatus) +
+               "'");
       continue;
     }
     if (runstatus != 0)
