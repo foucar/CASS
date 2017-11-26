@@ -51,7 +51,7 @@ struct DetectorTile
   {
     int funcstatus(0);
     /** get the socketID of the requested detector */
-    funcstatus = ol_connect(name.c_str(), &_sockID);
+    funcstatus = ol_connect(&_sockID, name.c_str());
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not retrieve socket id of '" +
                           name + "' ErrorCode is '" + toString(funcstatus) +
@@ -59,7 +59,7 @@ struct DetectorTile
 
     /** get the size of the data and the needed worksize */
     int datasize = 0, worksize = 0;
-    funcstatus = ol_getDataSize(_sockID, &datasize, &worksize);
+    funcstatus = ol_get_data_size(&datasize, &worksize, _sockID);
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not retrieve datasize'" +
                           name + "' ErrorCode is '" + toString(funcstatus) +
@@ -71,13 +71,18 @@ struct DetectorTile
     retrieveData();
 
     /** read the width and height of the detector */
-    funcstatus = ol_readDetSize(&_databuffer.front(), &xsize, &ysize);
+    funcstatus = ol_read_det_xsize(&xsize, &(_databuffer.front()), 0);
     if (funcstatus < 0)
-      throw runtime_error("DetectorTile: could not extract shape of tile '" +
+      throw runtime_error("DetectorTile: could not extract xsize of tile '" +
+                          name + "' ErrorCode is '" + toString(funcstatus) + "'");
+
+    funcstatus = ol_read_det_ysize(&ysize, &_databuffer.front(), 0);
+    if (funcstatus < 0)
+      throw runtime_error("DetectorTile: could not extract ysize of tile '" +
                           name + "' ErrorCode is '" + toString(funcstatus) + "'");
 
     /** read the gain of the detector tile */
-    funcstatus = ol_readAbsGain(&_databuffer.front(), &gain);
+    funcstatus = ol_read_abs_gain(&gain, &_databuffer.front(), 0);
     if (funcstatus < 0)
       throw runtime_error("DetectorTile: could not extract gain of tile '" +
                           name + "' ErrorCode is '" + toString(funcstatus) +
@@ -96,13 +101,17 @@ struct DetectorTile
    * @return the funcstatus when it says outdated tag or no error
    * @param tag the tag that the data should be read for
    */
-  void retrieveData(int tag=-1)
+  void retrieveData(int tag=OL_NEWESTTAGDATA)
   {
     int outputTag(0);
-    int funcstatus = ol_collectDetData(_sockID, tag, &_databuffer.front(),
-                                       _databuffer.size(), &_workbuffer.front(),
-                                       _workbuffer.size(), &outputTag);
-    if (funcstatus == -10000)
+    int funcstatus = ol_collect_det_data(&_databuffer.front(),
+                                         &_workbuffer.front(),
+                                         &outputTag,
+                                         _sockID,
+                                         tag,
+                                         _databuffer.size(),
+                                         _workbuffer.size());
+    if (funcstatus == OL_ERR_TAGDATAGONE)
       throw TagOutdated("DetectorTile: tile '" + name + "': tag '" + toString(tag) +
                          "' on socket '" + toString(_sockID) +
                          "' isn't available anymore");
@@ -131,7 +140,7 @@ struct DetectorTile
 
     /** retrieve pointer to the tile data from the databuffer */
     float *data_org(0);
-    int funcstatus = ol_readDetData(&_databuffer.front(), &data_org);
+    int funcstatus = ol_read_det_data(&data_org, &_databuffer.front(), 0);
     if (funcstatus < 0 || !data_org)
     {
       Log::add(Log::ERROR,"SACLAOnlineInput: could not extract data of detector '" +
@@ -159,7 +168,7 @@ struct DetectorTile
   int tag()
   {
     int tag(0);
-    int funcstatus = ol_readTagNum(&_databuffer.front(), &tag);
+    int funcstatus = ol_read_tag_num(&tag, &_databuffer.front(), 0);
     if (funcstatus < 0)
       Log::add(Log::ERROR,"DetectorTile::latestTag could not extract the tag from '" +
                name + "' ErrorCode is '" + toString(funcstatus) + "'");
@@ -173,7 +182,7 @@ struct DetectorTile
   int runNumber()
   {
     int run(0);
-    int funcstatus = ol_readRunNum(&_databuffer.front(), &run);
+    int funcstatus = ol_read_run_num(&run, &_databuffer.front(), 0);
     if (funcstatus < 0)
       Log::add(Log::ERROR,"DetectorTile::latestRun could not extract the run from '" +
                name + "' ErrorCode is '" + toString(funcstatus) + "'");
@@ -203,14 +212,6 @@ struct DetectorTile
 
   /** the relative gain to normalize for */
   float relativeGain;
-
-//  int datasize_bytes;
-//  float pixsize_um;
-//  float posx_um;
-//  float posy_um;
-//  float posz_um;
-//  float angle_deg;
-//  Sacla_DetDataType type;
 
 private:
   /** the socket ID to connect to the online API */
@@ -359,96 +360,96 @@ struct OctalDetector
 }; // end struct octal detector
 
 
-/** a Machine value
- *
- * @author Lutz Foucar
- */
-struct MachineValue
-{
-  /** constructor
-   *
-   * retrieve the hightag with the offline version of the API  using the
-   * provided runnumber
-   *
-   * @param name The name of this Machine Value
-   * @param runNbr The run number with which we can retrieve the high tag
-   * @param blNbr The beamline number used to retrieve the right high tag number
-   */
-  MachineValue(const string &name, int runNbr, int blNbr)
-    : cassname(name),
-      name(name),
-      _highTagNbr(0)
-  {
-    int funcstatus,startTagNbr = 0;
-    funcstatus = ReadStartTagNumber(_highTagNbr,startTagNbr,blNbr,runNbr);
-    if (funcstatus)
-      Log::add(Log::ERROR,"MachineValue: could not retrieve hight tag of run '" +
-               toString(runNbr) + "' at beamline '" + toString(blNbr) +
-               "' Errorcode is '" + toString(funcstatus) + "'");
-  }
-
-  /** copy the data corresponding data to the machine device
-   *
-   * The machine data can only be retrieved using the offline api
-   *
-   * @return the size of the data that has been copied
-   * @param md reference to the machine data devices
-   * @param tag the tag for which the data should be retrieved
-   */
-  uint64_t copyData(MachineData::Device &md, int tag)
-  {
-    /** retrieve the machinevalue and check if it was retrieved ok */
-    vector<string> machineValueStringList;
-    vector<int> tagList(1,tag);
-    int funcstatus = ReadSyncDataList(&machineValueStringList,
-                                      const_cast<char*>(name.c_str()),
-                                      _highTagNbr,tagList);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"MachineValue::copyData could not extract machine values of '" +
-               name + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    if (machineValueStringList.size() != tagList.size())
-    {
-      Log::add(Log::ERROR,"MachineValue:copyData '" +
-               name + "' did not return the right size");
-      return 0;
-    }
-
-    /** check if retrieved value can be converted to double, and if so add it
-     *  to the machine data, otherwise issue an error and continue
-     *  @note the retrieved values might contain the unit of the value in the
-     *        string, therefore one has to remove all characters from the string
-     */
-    QString machineValueQString(QString::fromStdString(machineValueStringList.back()));
-    machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
-    bool isDouble(false);
-    double machineValue(machineValueQString.toDouble(&isDouble));
-    if (isDouble)
-      md.BeamlineData()[cassname] = machineValue;
-    else
-    {
-      Log::add(Log::ERROR,"MachineValue::copyData '" + name + "' for tag '" +
-               toString(tag) + "': String '" + machineValueStringList.back() +
-               "' which is altered to '" + machineValueQString.toStdString() +
-               "' to remove units, cannot be converted to double");
-      return 0;
-    }
-    return sizeof(double);
-  }
-
-  /** the name of the machine value within the cassevent */
-  string cassname;
-
-  /** the name of the Machine value */
-  string name;
-
-private:
-  /** the high tag number */
-  int _highTagNbr;
-
-};//end struct MachineValue
+///** a Machine value
+// *
+// * @author Lutz Foucar
+// */
+//struct MachineValue
+//{
+//  /** constructor
+//   *
+//   * retrieve the hightag with the offline version of the API  using the
+//   * provided runnumber
+//   *
+//   * @param name The name of this Machine Value
+//   * @param runNbr The run number with which we can retrieve the high tag
+//   * @param blNbr The beamline number used to retrieve the right high tag number
+//   */
+//  MachineValue(const string &name, int runNbr, int blNbr)
+//    : cassname(name),
+//      name(name),
+//      _highTagNbr(0)
+//  {
+//    int funcstatus,startTagNbr = 0;
+//    funcstatus = ReadStartTagNumber(_highTagNbr,startTagNbr,blNbr,runNbr);
+//    if (funcstatus)
+//      Log::add(Log::ERROR,"MachineValue: could not retrieve hight tag of run '" +
+//               toString(runNbr) + "' at beamline '" + toString(blNbr) +
+//               "' Errorcode is '" + toString(funcstatus) + "'");
+//  }
+//
+//  /** copy the data corresponding data to the machine device
+//   *
+//   * The machine data can only be retrieved using the offline api
+//   *
+//   * @return the size of the data that has been copied
+//   * @param md reference to the machine data devices
+//   * @param tag the tag for which the data should be retrieved
+//   */
+//  uint64_t copyData(MachineData::Device &md, int tag)
+//  {
+//    /** retrieve the machinevalue and check if it was retrieved ok */
+//    vector<string> machineValueStringList;
+//    vector<int> tagList(1,tag);
+//    int funcstatus = ReadSyncDataList(&machineValueStringList,
+//                                      const_cast<char*>(name.c_str()),
+//                                      _highTagNbr,tagList);
+//    if (funcstatus)
+//    {
+//      Log::add(Log::ERROR,"MachineValue::copyData could not extract machine values of '" +
+//               name + "' ErrorCode is '" + toString(funcstatus) + "'");
+//      return 0;
+//    }
+//    if (machineValueStringList.size() != tagList.size())
+//    {
+//      Log::add(Log::ERROR,"MachineValue:copyData '" +
+//               name + "' did not return the right size");
+//      return 0;
+//    }
+//
+//    /** check if retrieved value can be converted to double, and if so add it
+//     *  to the machine data, otherwise issue an error and continue
+//     *  @note the retrieved values might contain the unit of the value in the
+//     *        string, therefore one has to remove all characters from the string
+//     */
+//    QString machineValueQString(QString::fromStdString(machineValueStringList.back()));
+//    machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
+//    bool isDouble(false);
+//    double machineValue(machineValueQString.toDouble(&isDouble));
+//    if (isDouble)
+//      md.BeamlineData()[cassname] = machineValue;
+//    else
+//    {
+//      Log::add(Log::ERROR,"MachineValue::copyData '" + name + "' for tag '" +
+//               toString(tag) + "': String '" + machineValueStringList.back() +
+//               "' which is altered to '" + machineValueQString.toStdString() +
+//               "' to remove units, cannot be converted to double");
+//      return 0;
+//    }
+//    return sizeof(double);
+//  }
+//
+//  /** the name of the machine value within the cassevent */
+//  string cassname;
+//
+//  /** the name of the Machine value */
+//  string name;
+//
+//private:
+//  /** the high tag number */
+//  int _highTagNbr;
+//
+//};//end struct MachineValue
 
 } //end namespace cass
 
@@ -553,34 +554,34 @@ void SACLAOnlineInput::runthis()
            toString(BeamlineNbr) + "'");
 
 
-  /** load the requested database values */
-  size = s.beginReadArray("DatabaseValues");
-  vector<MachineValue> machineValues;
-  for (int i = 0; i < size; ++i)
-  {
-    s.setArrayIndex(i);
-    string machineValName(s.value("ValueName","Invalid").toString().toStdString());
-    string cassValName(s.value("CASSName","Invalid").toString().toStdString());
-    /** skip if the value name has not been set and not at least one octal detector exitst
-     *  @note the octal detector is needed in order to get the run number with
-     *        which one can get the high tag number, needed to retrieve the
-     *        machine data. Since the machine data needs to be retrieved using
-     *        the offline api.
-     */
-    if (machineValName == "Invalid")
-      continue;
-    /** add the machine value */
-    machineValues.push_back(MachineValue(machineValName,
-                                         octalDetectors.back().runNumber(),
-                                         BeamlineNbr));
-    /** if the cass name is set then overwrite it withing the machinevalue */
-    if (cassValName != "Invalid")
-      machineValues.back().cassname = cassValName;
-    Log::add(Log::INFO, "SACLAOnlineInput: Setting up Database value '" +
-             machineValues.back().name + "' with CASSName '" +
-             machineValues.back().cassname + "'");
-  }
-  s.endArray();
+//  /** load the requested database values */
+//  size = s.beginReadArray("DatabaseValues");
+//  vector<MachineValue> machineValues;
+//  for (int i = 0; i < size; ++i)
+//  {
+//    s.setArrayIndex(i);
+//    string machineValName(s.value("ValueName","Invalid").toString().toStdString());
+//    string cassValName(s.value("CASSName","Invalid").toString().toStdString());
+//    /** skip if the value name has not been set and not at least one octal detector exitst
+//     *  @note the octal detector is needed in order to get the run number with
+//     *        which one can get the high tag number, needed to retrieve the
+//     *        machine data. Since the machine data needs to be retrieved using
+//     *        the offline api.
+//     */
+//    if (machineValName == "Invalid")
+//      continue;
+//    /** add the machine value */
+//    machineValues.push_back(MachineValue(machineValName,
+//                                         octalDetectors.back().runNumber(),
+//                                         BeamlineNbr));
+//    /** if the cass name is set then overwrite it withing the machinevalue */
+//    if (cassValName != "Invalid")
+//      machineValues.back().cassname = cassValName;
+//    Log::add(Log::INFO, "SACLAOnlineInput: Setting up Database value '" +
+//             machineValues.back().name + "' with CASSName '" +
+//             machineValues.back().cassname + "'");
+//  }
+//  s.endArray();
 
   s.endGroup();
 
@@ -641,21 +642,21 @@ void SACLAOnlineInput::runthis()
         }
 
 
-        /** get refrence to the machine device of the CASSEvent */
-        CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
-        if (mdIt == devices.end())
-          throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
-        MachineData::Device &md(dynamic_cast<MachineData::Device&>(*(mdIt->second)));
-
-        /** retrieve requested machinedata, copy it to the CASSEvent and add
-         *  the size in bytes to the total size retrieved
-         */
-        vector<MachineValue>::iterator machIter(machineValues.begin());
-        vector<MachineValue>::iterator machEnd(machineValues.end());
-        for(; machIter != machEnd; ++machIter)
-        {
-          datasize += machIter->copyData(md,latestTag);
-        }
+//        /** get refrence to the machine device of the CASSEvent */
+//        CASSEvent::devices_t::iterator mdIt (devices.find(CASSEvent::MachineData));
+//        if (mdIt == devices.end())
+//          throw runtime_error("SACLAOnlineInput():The CASSEvent does not contain a Machine Data Device");
+//        MachineData::Device &md(dynamic_cast<MachineData::Device&>(*(mdIt->second)));
+//
+//        /** retrieve requested machinedata, copy it to the CASSEvent and add
+//         *  the size in bytes to the total size retrieved
+//         */
+//        vector<MachineValue>::iterator machIter(machineValues.begin());
+//        vector<MachineValue>::iterator machEnd(machineValues.end());
+//        for(; machIter != machEnd; ++machIter)
+//        {
+//          datasize += machIter->copyData(md,latestTag);
+//        }
 
 
         /** remember the latest tag, but reset it every user given event,
