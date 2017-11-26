@@ -145,7 +145,8 @@ public:
         xsize(0),
         ysize(0),
         datasize_bytes(0),
-        pixsize_um(0),
+        pixsizex_um(0),
+        pixsizey_um(0),
         posx_um(0),
         posy_um(0),
         posz_um(0),
@@ -153,23 +154,28 @@ public:
         gain(0),
         bytes_retrieved(0),
         normalize(false),
-        relativeGain(1)
+        relativeGain(1),
+        sreader(NULL),
+        readBuf(NULL)
     {}
 
     /** the name of the tile */
     std::string name;
 
     /** the number of columns of the tile */
-    int xsize;
+    uint32_t xsize;
 
     /** the number of rows of the tile */
-    int ysize;
+    uint32_t ysize;
 
     /** the size of the frame in bytes */
     int datasize_bytes;
 
-    /** the size of a pixel in um */
-    float pixsize_um;
+    /** the x size of a pixel in um */
+    float pixsizex_um;
+
+    /** the y size of a pixel in um */
+    float pixsizey_um;
 
     /** the position in x in lab space of the tile in um */
     float posx_um;
@@ -201,6 +207,12 @@ public:
      *  normalized to
      */
     float relativeGain;
+
+    /** a astream reader object for the tile */
+    char * sreader;
+
+    /** a read buffer object for the tile */
+    char * readBuf;
   };
 
   /** detector consists of tiles */

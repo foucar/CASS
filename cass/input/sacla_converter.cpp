@@ -92,12 +92,46 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
                     int blNbr, int highTagNbr, int tagNbr)
 {
   int funcstatus(0);
-  /** the number of columns */
-  funcstatus = ReadXSizeOfDetData(tileParams.xsize,tileParams.name.c_str(),
-                                  blNbr, runNbr, highTagNbr, tagNbr);
+  /** create stream reader object */
+  int r[] = {runNbr};
+  funcstatus = st_create_streader(&(tileParams.sreader),
+                                  tileParams.name.c_str(), blNbr, 1,r);
   if (funcstatus)
   {
-    Log::add(Log::ERROR,"cacheDetParams: width of '" +
+    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
+             "reader object for tile '" + tileParams.name + "' on beamline '" +
+             toString(blNbr) + "' with run '" + toString(runNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_streader(&(tileParams.sreader));
+    return false;
+  }
+  funcstatus = st_create_stbuf(&(tileParams.readBuf),tileParams.sreader);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
+             "reader object for tile '" + tileParams.name + "' on beamline '" +
+             toString(blNbr) + "' with run '" + toString(runNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    return false;
+  }
+  /** collect the detector tile data */
+  unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
+  funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+
+  /** the number of columns */
+  funcstatus = st_read_det_xsize(&(tileParams.xsize),tileParams.readBuf,0);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParams: error reading width of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
@@ -107,11 +141,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
              "' has xsize '" + toString(tileParams.xsize) + "'");
 
   /** the number of rows */
-  funcstatus = ReadYSizeOfDetData(tileParams.ysize,tileParams.name.c_str(),
-                                  blNbr, runNbr, highTagNbr, tagNbr);
+  funcstatus = st_read_det_ysize(&(tileParams.ysize),tileParams.readBuf,0);
   if (funcstatus)
   {
-    Log::add(Log::ERROR,"cacheDetParams: height of '" +
+    Log::add(Log::ERROR,"cacheDetParams: error reading height of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
@@ -120,47 +153,31 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
              "' has ysize '" + toString(tileParams.ysize) + "'");
 
-  /** the size of the data of the tile in bytes */
-  funcstatus = ReadSizeOfDetData(tileParams.datasize_bytes,tileParams.name.c_str(),
-                                 blNbr, runNbr, highTagNbr, tagNbr);
+  /** the x-size of the pixels of the tile */
+  funcstatus = mp_read_pixelsizex(&(tileParams.pixsizex_um),tileParams.readBuf);
   if (funcstatus)
   {
-    Log::add(Log::ERROR,"cacheDetParams: datasize of '" +
+    Log::add(Log::ERROR,"cacheDetParamss: error reading x pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
   else
     Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
-             "' has datasize '" + toString(tileParams.datasize_bytes) + "' bytes");
+             "' has x pixelsize '" + toString(tileParams.pixsizex_um) + "' um");
+  /** the y-size of the pixels of the tile */
+  funcstatus = mp_read_pixelsizey(&(tileParams.pixsizey_um),tileParams.readBuf);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"cacheDetParamss: error reading y pixelsize of '" +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  else
+    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
+             "' has y-pixelsize '" + toString(tileParams.pixsizey_um) + "' um");
 
-  /** the size of the pixels of the tile */
-  funcstatus = ReadPixelSize(tileParams.pixsize_um,tileParams.name.c_str(),
-                             blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"cacheDetParamss: pixelsize of '" +
-             tileParams.name + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return false;
-  }
-  else
-    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
-             "' has pixelsize '" + toString(tileParams.pixsize_um) + "' um");
-
-  /** the data type of the tile */
-  funcstatus = ReadDetDataType(tileParams.type,tileParams.name.c_str(),
-                               blNbr, runNbr, highTagNbr, tagNbr);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"cacheDetParams: datatype of '" +
-             tileParams.name + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return false;
-  }
-  else
-    Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
-             "' has data type '" + toString(tileParams.type) + "'");
 
   return true;
 }
@@ -335,8 +352,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       /** retrieve the additonal information of the tiles of an octal detector */
       int funcstatus(0);
       /** the position in x in the lab space in um */
-      funcstatus = ReadDetPosX(tileParams.posx_um,tileParams.name.c_str(),
-                               blNbr, runNbr, highTagNbr, *first);
+      funcstatus = mp_read_posx(&(tileParams.posx_um), tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameters: pos X of '" +
@@ -350,8 +366,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' um");
 
       /** the position in y in the lab space in um */
-      funcstatus = ReadDetPosY(tileParams.posy_um,tileParams.name.c_str(),
-                               blNbr, runNbr, highTagNbr, *first);
+      funcstatus = mp_read_posx(&(tileParams.posy_um), tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameters: pos Y of '" +
@@ -365,8 +380,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' um");
 
       /** the position in z in the lab space in um */
-      funcstatus = ReadDetPosZ(tileParams.posz_um,tileParams.name.c_str(),
-                               blNbr, runNbr, highTagNbr, *first);
+      funcstatus = mp_read_posx(&(tileParams.posz_um), tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameter: pos Z of '" +
@@ -380,8 +394,8 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' um");
 
       /** the angle in degrees in the lab space */
-      funcstatus = ReadDetRotationAngle(tileParams.angle_deg,tileParams.name.c_str(),
-                                        blNbr, runNbr, highTagNbr, *first);
+      funcstatus = mp_read_rotationangle(&(tileParams.angle_deg),
+                                         tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameter: angle of '" +
@@ -395,8 +409,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' degrees");
 
       /** the gain of the detector tile */
-      funcstatus = ReadAbsGain(tileParams.gain,tileParams.name.c_str(),
-                               blNbr, runNbr, highTagNbr, *first);
+      funcstatus = mp_read_absgain(&(tileParams.posz_um), tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameter: absolute gain of '" +
@@ -536,23 +549,11 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     tile.start = det.frame().begin();
     md.BeamlineData()[tile.name+"_Width"] = det.columns();
     md.BeamlineData()[tile.name+"_Height"] = det.rows();
-    md.BeamlineData()[tile.name+"_PixSize_um"] = tile.pixsize_um;
+    md.BeamlineData()[tile.name+"_PixSizeX_um"] = tile.pixsizex_um;
+    md.BeamlineData()[tile.name+"_PixSizeY_um"] = tile.pixsizey_um;
 
     /** retrieve the data with the right type */
-    switch(tile.type)
-    {
-      case Sacla_DATA_TYPE_UNSIGNED_SHORT:
-        retrieveTileData<uint16_t>(tile, runNbr, blNbr, highTagNbr, tagNbr);
-        break;
-      case Sacla_DATA_TYPE_FLOAT:
-        retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
-        break;
-      case Sacla_DATA_TYPE_INVALID:
-      default:
-        Log::add(Log::ERROR,"SACLAConverter: Data type of pixel detector '" +
-                 tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
-        break;
-    }
+    retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
 
     /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
@@ -593,7 +594,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
       detTileParams &tile(octdet.tiles[i]);
       md.BeamlineData()[tile.name+"_Width"]      = tile.xsize;
       md.BeamlineData()[tile.name+"_Height"]     = tile.ysize;
-      md.BeamlineData()[tile.name+"_PixSize_um"] = tile.pixsize_um;
+      md.BeamlineData()[tile.name+"_PixSizeX_um"]= tile.pixsizex_um;
+      md.BeamlineData()[tile.name+"_PixSizeY_um"]= tile.pixsizey_um;
       md.BeamlineData()[tile.name+"_PosX_um"]    = tile.posx_um;
       md.BeamlineData()[tile.name+"_PosY_um"]    = tile.posy_um;
       md.BeamlineData()[tile.name+"_PosZ_um"]    = tile.posz_um;
@@ -613,20 +615,12 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     {
       detTileParams &tile(octdet.tiles[i]);
       /** retrieve the data with the right type */
-      switch(tile.type)
-      {
-        case Sacla_DATA_TYPE_FLOAT:
-          retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
-          break;
-        case Sacla_DATA_TYPE_INVALID:
-        default:
+      retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
 #ifdef _OPENMP
           #pragma omp critical
 #endif
-          Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
-                   tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
-          break;
-      }
+      Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
+               tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
     }
 
     /** gather the size retrieved of all the tiles */
