@@ -42,6 +42,48 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
                       const int runNbr, const int blNbr,
                       const int highTagNbr, const int tagNbr)
 {
+  int funcstatus(0);
+  /** create stream reader object */
+  /** @NOTE shoudl be done just once somehwere */
+//  int r[] = {runNbr};
+//  funcstatus = st_create_streader(&(tileParams.sreader),
+//                                  tileParams.name.c_str(), blNbr, 1,r);
+//  if (funcstatus)
+//  {
+//    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
+//             "reader object for tile '" + tileParams.name + "' on beamline '" +
+//             toString(blNbr) + "' with run '" + toString(runNbr) +
+//             "' ErrorCode is '" + toString(funcstatus) + "'");
+//    st_destroy_streader(&(tileParams.sreader));
+//    return false;
+//  }
+//  funcstatus = st_create_stbuf(&(tileParams.readBuf),tileParams.sreader);
+//  if (funcstatus)
+//  {
+//    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
+//             "reader object for tile '" + tileParams.name + "' on beamline '" +
+//             toString(blNbr) + "' with run '" + toString(runNbr) +
+//             "' ErrorCode is '" + toString(funcstatus) + "'");
+//    st_destroy_stbuf(&(tileParams.readBuf));
+//    st_destroy_streader(&(tileParams.sreader));
+//    return false;
+//  }
+
+  /** collect the detector tile data */
+  unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
+  funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
+             tileParams.name + "' for tag '" + toString(tagNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
+    return;
+  }
+
   /** determine the size of the data */
   const size_t size(tileParams.xsize * tileParams.ysize);
 
@@ -49,9 +91,7 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
    * retrieve the detector data
    */
   vector<T> buffer(size);
-  int funcstatus(0);
-  funcstatus = ReadDetData(&buffer.front(),tileParams.name.c_str(),
-                           blNbr, runNbr, highTagNbr, tagNbr);
+  funcstatus = st_read_det_data(&buffer.front(), tileParams.readBuf,0);
   if (funcstatus)
   {
     Log::add(Log::ERROR,"retrievePixelDet: could not retrieve data of '" +
