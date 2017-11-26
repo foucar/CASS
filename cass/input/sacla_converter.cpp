@@ -124,6 +124,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
     return false;
   }
 
@@ -134,6 +138,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: error reading width of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -147,6 +155,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: error reading height of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -160,6 +172,10 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParamss: error reading x pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -172,13 +188,21 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParamss: error reading y pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
+    st_destroy_stbuf(&(tileParams.readBuf));
+    st_destroy_streader(&(tileParams.sreader));
+    tileParams.readBuf = NULL;
+    tileParams.sreader = NULL;
     return false;
   }
   else
     Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
              "' has y-pixelsize '" + toString(tileParams.pixsizey_um) + "' um");
 
-
+  /** destroy the buffers */
+  st_destroy_stbuf(&(tileParams.readBuf));
+  st_destroy_streader(&(tileParams.sreader));
+  tileParams.readBuf = NULL;
+  tileParams.sreader = NULL;
   return true;
 }
 
@@ -481,28 +505,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
   {
     int funcstatus(0);
     double fbuf(0);
-    /** electron energy */
-    funcstatus = ReadConfigOfElectronEnergy(fbuf, blNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve electron energy for tag'" +
-               toString(tagNbr) + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()["Acc_electronEnergy_eV"] = fbuf;
-
-    /** k-params */
-    funcstatus = ReadConfigOfKPars(fbuf, blNbr, highTagNbr, tagNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve k params for tag '" +
-               toString(tagNbr) + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()["Acc_KParams"] = fbuf;
-
     /** the set photon energy */
-    funcstatus = ReadConfigOfPhotonEnergy(fbuf, blNbr, highTagNbr, tagNbr);
+    funcstatus = sy_read_config_photonenergy(&fbuf, blNbr, runNbr);
     if (funcstatus)
     {
       Log::add(Log::ERROR,"retrieve Octal: could not retrieve set photon energy for tag '" +
