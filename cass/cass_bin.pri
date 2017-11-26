@@ -349,7 +349,7 @@ SACLA {
         SOURCES        += ./input/sacla_online_input.cpp
         HEADERS        += ./input/sacla_online_input.h
     }
-    LIBS               += $$SACLA_OFFLINE_LIBDIR/libSaclaDataAccessUserAPI.a
+    LIBS               += $$SACLA_OFFLINE_LIBDIR/libDataAccessUserAPI.a
     LIBS               += -lmysqlclient
 #    LIBS               += -lirc
 #    LIBS               += -limf
