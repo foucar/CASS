@@ -351,6 +351,7 @@ SACLA {
     }
     LIBS               += $$SACLA_OFFLINE_LIBDIR/libDataAccessUserAPI.a
     LIBS               += -lmysqlclient
+    LIBS               += -lldap
 #    LIBS               += -lirc
 #    LIBS               += -limf
     DEFINES            += SACLADATA
