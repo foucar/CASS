@@ -122,6 +122,15 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 #QMAKE_LIBDIR   *= /path/to/mysqlclient/lib
 #QMAKE_RPATHDIR *= /path/to/mysqlclient/lib
 
+# Uncomment the following if you want the ZeroMQ input available
+#CONFIG         *= ZMQ
+#QMAKE_INCDIR   *= /path/to/zero_mq/include
+#QMAKE_LIBDIR   *= /path/to/zero_mq/lib
+#QMAKE_RPATHDIR *= /path/to/zero_mq/lib
+
+# Uncomment the following if you want to use msgpack to parse data sent via the zmq
+#CONFIG         *= MSGPACK
+#QMAKE_INCDIR   *= /path/to/mspack/include
 
 # Uncomment the following to enable profiling with gprof
 #QMAKE_CXXFLAGS  += -pg
