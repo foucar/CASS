@@ -276,23 +276,32 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   for (; machineValsIter != machineValsEnd; ++machineValsIter)
   {
     MachineValue & mv(*machineValsIter);
-    vector<string> machineValueStringList;
-    funcstatus = ReadSyncDataList(&machineValueStringList,
-                                  const_cast<char*>(mv.databaseName.c_str()),
-                                  highTagNbr,tagList);
+    /** create the sacla string buffer to retrieve the data */
+    struct da_string_array *machineValueStringList = NULL;
+    da_alloc_string_array(&machineValueStringList);
+    /** retrive the data */
+    funcstatus = sy_read_syncdatalist(machineValueStringList,
+                                      mv.databaseName.c_str(),
+                                      highTagNbr,
+                                      tagList.size(),
+                                      &(tagList.front()));
     if (funcstatus)
     {
       Log::add(Log::ERROR,"SACLAConverter::cacheParameters could not cache values of '" +
                mv.databaseName + "' ErrorCode is '" + toString(funcstatus) + "'");
+      da_destroy_string_array(&machineValueStringList);
       continue;
     }
-    /** check if as many parameters as tags given have been returned. In case
+    /**  check if as many parameters as tags given have been returned. In case
      *  this number is different, something bad happened
      */
-    if (machineValueStringList.size() != tagList.size())
+    int machineValueStringListSize = 0;
+    da_getsize_string_array(&machineValueStringListSize, machineValueStringList);
+    if (machineValueStringListSize != static_cast<int>(tagList.size()))
     {
       Log::add(Log::ERROR,"SACLAConverter:cacheParameters caching '" +
                mv.databaseName + "' did not return the right size");
+      da_destroy_string_array(&machineValueStringList);
       continue;
     }
     /** convert the retrieved database values into double numbers
@@ -300,8 +309,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
      */
     vector<int>::const_iterator tag(tagList.begin());
     vector<int>::const_iterator tagListEnd(tagList.end());
-    vector<string>::const_iterator machine(machineValueStringList.begin());
-    for (; tag != tagListEnd; ++tag, ++machine)
+    for (size_t i(0); tag != tagListEnd; ++tag, ++i)
     {
       /** check if retrieved value can be converted to double, and if so add it
        *  to the machine data, otherwise issue an error and add a 0 into the
@@ -309,7 +317,11 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
        *  @note the retrieved values might contain the unit of the value in the
        *        string, therefore one has to remove all characters from the string
        */
-      QString machineValueQString(QString::fromStdString(*machine));
+      char * machineValueString(NULL);
+      da_getstring_string_array(&machineValueString,
+                                machineValueStringList,
+                                i);
+      QString machineValueQString(machineValueString);
       machineValueQString.remove(QRegExp("V|C|pulse|a\\.u\\."));
       bool isDouble(false);
       double machineValue(machineValueQString.toDouble(&isDouble));
@@ -319,12 +331,16 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameters '" +
                  mv.databaseName + "' for tag '" + toString(*tag) +
-                 "': String '" + *machine + "' which is altered to '" +
+                 "': String '" + machineValueString + "' which is altered to '" +
                  machineValueQString.toStdString() +
-                 "' to remove units, cannot be converted to double. Setting it to 0");
+                 "' to remove units, cannot be converted to double. " +
+                 "Setting it to 0");
         mv.values[*tag] = 0.;
       }
+      free(machineValueString);
     }
+    /** destroy the sacla string list */
+    da_destroy_string_array(&machineValueStringList);
   }
 
   /** for all pixel dets, which consist of only 1 tile, retrieve the
