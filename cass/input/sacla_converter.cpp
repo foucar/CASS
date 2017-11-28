@@ -27,48 +27,15 @@ using namespace std;
  * retrieve the tile data of a detector and either normalize or copy it directly
  * to the right position within the frame
  *
- * @tparam T the type of the detector data
- *
  * @param tileParams parameters of the tile of the frame
- * @param runNbr the run number of the experiment
- * @param blNbr the Beamline number of the experiment
- * @param highTagNbr the high tag number for the experiment
  * @param tagNbr the tag number that is associated with the requested data
  *
  * @author Lutz Foucar
  */
-template <typename T>
 void retrieveTileData(SACLAConverter::detTileParams &tileParams,
-                      const int runNbr, const int blNbr,
-                      const int highTagNbr, const int tagNbr)
+                      const int tagNbr)
 {
   int funcstatus(0);
-  /** create stream reader object */
-  /** @NOTE shoudl be done just once somehwere */
-//  int r[] = {runNbr};
-//  funcstatus = st_create_streader(&(tileParams.sreader),
-//                                  tileParams.name.c_str(), blNbr, 1,r);
-//  if (funcstatus)
-//  {
-//    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
-//             "reader object for tile '" + tileParams.name + "' on beamline '" +
-//             toString(blNbr) + "' with run '" + toString(runNbr) +
-//             "' ErrorCode is '" + toString(funcstatus) + "'");
-//    st_destroy_streader(&(tileParams.sreader));
-//    return false;
-//  }
-//  funcstatus = st_create_stbuf(&(tileParams.readBuf),tileParams.sreader);
-//  if (funcstatus)
-//  {
-//    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
-//             "reader object for tile '" + tileParams.name + "' on beamline '" +
-//             toString(blNbr) + "' with run '" + toString(runNbr) +
-//             "' ErrorCode is '" + toString(funcstatus) + "'");
-//    st_destroy_stbuf(&(tileParams.readBuf));
-//    st_destroy_streader(&(tileParams.sreader));
-//    return false;
-//  }
-
   /** collect the detector tile data */
   unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
   funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
@@ -77,10 +44,6 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
     Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
     return;
   }
 
@@ -90,7 +53,7 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
   /** prepare the buffer where the data should be loaded to and
    * retrieve the detector data
    */
-  vector<T> buffer(size);
+  vector<float> buffer(size);
   funcstatus = st_read_det_data(&buffer.front(), tileParams.readBuf,0);
   if (funcstatus)
   {
@@ -123,39 +86,15 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
  * @param tileParams the tile whos parameters should be cached.
  * @param runNbr the tile whos parameters should be cached.
  * @param blNbr the tile whos parameters should be cached.
- * @param highTagNbr the tile whos parameters should be cached.
  * @param tagNbr the tile whos parameters should be cached.
  *
  * @author Lutz Foucar
  */
 bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
-                    int blNbr, int highTagNbr, int tagNbr)
+                    int blNbr, int tagNbr)
 {
+  tileParams.init(runNbr,blNbr);
   int funcstatus(0);
-  /** create stream reader object */
-  int r[] = {runNbr};
-  funcstatus = st_create_streader(&(tileParams.sreader),
-                                  tileParams.name.c_str(), blNbr, 1,r);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
-             "reader object for tile '" + tileParams.name + "' on beamline '" +
-             toString(blNbr) + "' with run '" + toString(runNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_streader(&(tileParams.sreader));
-    return false;
-  }
-  funcstatus = st_create_stbuf(&(tileParams.readBuf),tileParams.sreader);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,string("cacheDetParams: couldn't create stream ") +
-             "reader object for tile '" + tileParams.name + "' on beamline '" +
-             toString(blNbr) + "' with run '" + toString(runNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    return false;
-  }
   /** collect the detector tile data */
   unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
   funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
@@ -238,16 +177,45 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
              "' has y-pixelsize '" + toString(tileParams.pixsizey_um) + "' um");
 
-  /** destroy the buffers */
-  st_destroy_stbuf(&(tileParams.readBuf));
-  st_destroy_streader(&(tileParams.sreader));
-  tileParams.readBuf = NULL;
-  tileParams.sreader = NULL;
   return true;
 }
 
 SACLAConverter::SACLAConverter()
 {}
+
+SACLAConverter::detTileParams::~detTileParams()
+{
+  /** destroy the buffers */
+  st_destroy_stbuf(&readBuf);
+  st_destroy_streader(&sreader);
+  readBuf = NULL;
+  sreader = NULL;
+}
+
+bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
+{
+  int funcstatus(0);
+  /** create stream reader object */
+  int r[] = {runNbr};
+  funcstatus = st_create_streader(&sreader, name.c_str(), blNbr, 1,r);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("dettile::init: couldn't create stream ") +
+             "reader object for tile '" + name + "' on beamline '" +
+             toString(blNbr) + "' with run '" + toString(runNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  funcstatus = st_create_stbuf(&readBuf,sreader);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("dettile::init: couldn't create stream ") +
+             "reader object for tile '" + name + "' on beamline '" +
+             toString(blNbr) + "' with run '" + toString(runNbr) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+}
 
 void SACLAConverter::loadSettings()
 {
@@ -351,8 +319,9 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                                       &(tagList.front()));
     if (funcstatus)
     {
-      Log::add(Log::ERROR,"SACLAConverter::cacheParameters could not cache values of '" +
-               mv.databaseName + "' ErrorCode is '" + toString(funcstatus) + "'");
+      Log::add(Log::ERROR,string("SACLAConverter::cacheParameters could not ") +
+               "cache values of '" + mv.databaseName + "' ErrorCode is '"
+               + toString(funcstatus) + "'");
       da_destroy_string_array(&machineValueStringList);
       continue;
     }
@@ -413,7 +382,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   pixDets_t::iterator pixelDetsIter(_pixelDetectors.begin());
   pixDets_t::const_iterator pixelDetsEnd(_pixelDetectors.end());
   for (; pixelDetsIter != pixelDetsEnd; ++pixelDetsIter)
-    if (cacheTileParams(pixelDetsIter->tiles[0],runNbr,blNbr,highTagNbr,*first))
+    if (cacheTileParams(pixelDetsIter->tiles[0],runNbr,blNbr,*first))
       pixelDetsIter->notLoaded = false;
 
   /** for all octal dets retrieve the non changing parameters from the first
@@ -425,7 +394,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   {
     for (size_t i(0); i< octalDetsIter->tiles.size(); ++i)
     {
-      if (cacheTileParams(octalDetsIter->tiles[i], runNbr, blNbr, highTagNbr, *first))
+      if (cacheTileParams(octalDetsIter->tiles[i], runNbr, blNbr, *first))
         octalDetsIter->notLoaded = false;
       detTileParams &tileParams(octalDetsIter->tiles[i]);
 
@@ -489,7 +458,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  "' degrees");
 
       /** the gain of the detector tile */
-      funcstatus = mp_read_absgain(&(tileParams.posz_um), tileParams.readBuf);
+      funcstatus = mp_read_absgain(&(tileParams.gain), tileParams.readBuf);
       if (funcstatus)
       {
         Log::add(Log::ERROR,"SACLAConverter::cacheParameter: absolute gain of '" +
@@ -613,7 +582,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     md.BeamlineData()[tile.name+"_PixSizeY_um"] = tile.pixsizey_um;
 
     /** retrieve the data with the right type */
-    retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
+    retrieveTileData(tile, tagNbr);
 
     /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
@@ -675,7 +644,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     {
       detTileParams &tile(octdet.tiles[i]);
       /** retrieve the data with the right type */
-      retrieveTileData<float>(tile, runNbr, blNbr, highTagNbr, tagNbr);
+      retrieveTileData(tile, tagNbr);
 #ifdef _OPENMP
           #pragma omp critical
 #endif

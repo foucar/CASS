@@ -159,6 +159,19 @@ public:
         readBuf(NULL)
     {}
 
+    /** destruct the tile parameter */
+    ~detTileParams();
+
+    /** init the tile reader
+     *
+     * @return status of the initialization
+     * @param runNbr the runnumber to intialize the stream reader with
+     * @param blNbr the beamline number to initialize the stream reader with
+     */
+    bool init(int runNbr, int blNbr);
+
+    /** cache the the cachable data */
+
     /** the name of the tile */
     std::string name;
 
