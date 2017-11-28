@@ -144,6 +144,7 @@ public:
       : name(""),
         xsize(0),
         ysize(0),
+        nPixels(0),
         datasize_bytes(0),
         pixsizex_um(0),
         pixsizey_um(0),
@@ -170,7 +171,11 @@ public:
      */
     bool init(int runNbr, int blNbr);
 
-    /** cache the the cachable data */
+    /** retrieve data from streamer into buffer
+     *
+     * @param tag the tag for which the data should be read
+     */
+    bool readFromStreamer(int tag);
 
     /** the name of the tile */
     std::string name;
@@ -180,6 +185,9 @@ public:
 
     /** the number of rows of the tile */
     uint32_t ysize;
+
+    /** the number of pixles of this tile */
+    uint32_t nPixels;
 
     /** the size of the frame in bytes */
     int datasize_bytes;
@@ -237,7 +245,8 @@ public:
         CASSID(-1),
         notLoaded(true),
         nCols(0),
-        nRows(0)
+        nRows(0),
+        nPixels(0)
     {}
 
     /** vector containing the tiles of this detector */
@@ -259,6 +268,9 @@ public:
 
     /** the total nbr of rows of the det */
     size_t nRows;
+
+    /** the total nbr of pixels of the det */
+    size_t nPixels;
   };
 
   /** define the pixel detectors container type */

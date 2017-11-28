@@ -93,23 +93,13 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
 bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
                     int blNbr, int tagNbr)
 {
+  /** initialize the stream reader and the buffer */
   tileParams.init(runNbr,blNbr);
-  int funcstatus(0);
-  /** collect the detector tile data */
-  unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
-  funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
-             tileParams.name + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
-    return false;
-  }
 
+  /** collect the detector tile data */
+  tileParams.readFromStreamer(tagNbr);
+
+  int funcstatus(0);
   /** the number of columns */
   funcstatus = st_read_det_xsize(&(tileParams.xsize),tileParams.readBuf,0);
   if (funcstatus)
@@ -117,10 +107,6 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: error reading width of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -134,10 +120,6 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParams: error reading height of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -151,10 +133,6 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParamss: error reading x pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
     return false;
   }
   else
@@ -167,15 +145,14 @@ bool cacheTileParams(SACLAConverter::detTileParams &tileParams, int runNbr,
     Log::add(Log::ERROR,"cacheDetParamss: error reading y pixelsize of '" +
              tileParams.name + "' for tag '" + toString(tagNbr) +
              "' ErrorCode is '" + toString(funcstatus) + "'");
-    st_destroy_stbuf(&(tileParams.readBuf));
-    st_destroy_streader(&(tileParams.sreader));
-    tileParams.readBuf = NULL;
-    tileParams.sreader = NULL;
     return false;
   }
   else
     Log::add(Log::INFO,"cacheDetParams: Tile '" + tileParams.name +
              "' has y-pixelsize '" + toString(tileParams.pixsizey_um) + "' um");
+
+  /** calc the total number of pixels form the x and y size */
+  tileParams.nPixels = tileParams.xsize * tileParams.ysize;
 
   return true;
 }
@@ -217,6 +194,20 @@ bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
   }
 }
 
+bool SACLAConverter::detTileParams::readFromStreamer(int tag)
+{
+  int funcstatus(0);
+  /** collect the detector tile data */
+  unsigned int tmpTag[] = {static_cast<unsigned int>(tag)};
+  funcstatus = st_collect_data(readBuf,sreader,tmpTag);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,string("readFromStreamer: could not collect ") +
+             "data for '" + name + "' for tag '" + toString(tag) +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+}
 void SACLAConverter::loadSettings()
 {
   CASSSettings s;
@@ -239,7 +230,6 @@ void SACLAConverter::loadSettings()
     _octalDetectors.push_back(pixDets_t::value_type());
     _octalDetectors.back().CASSID = s.value("CASSID",0).toInt();
     _octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
-    _octalDetectors.back().notLoaded = true;
     _octalDetectors.back().tiles.resize(8);
     Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add octal detector with CASSID '") +
              toString(_octalDetectors.back().CASSID) + "'");
@@ -259,8 +249,6 @@ void SACLAConverter::loadSettings()
       continue;
     _pixelDetectors.push_back(pixDets_t::value_type());
     _pixelDetectors.back().CASSID = s.value("CASSID",0).toInt();
-    _pixelDetectors.back().normalize = false;
-    _pixelDetectors.back().notLoaded = true;
     _pixelDetectors.back().tiles.resize(1);
     _pixelDetectors.back().tiles[0].name = detID;
     Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add detector with CASSID '") +
@@ -494,7 +482,6 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     /** get the total size of the detector */
     for (size_t j = 1; j<octdet.tiles.size(); ++j)
     {
-
       detTileParams &tile(octdet.tiles[j]);
       octdet.nCols = tile.xsize;
       octdet.nRows +=  tile.ysize;
@@ -610,18 +597,10 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     /** retrieve the right detector from the cassevent and reset it */
     pixeldetector::Detector &det(dev.dets()[octdet.CASSID]);
     det.frame().clear();
-    det.columns() = 0;
-    det.rows() =  0;
+    det.columns() = octdet.nCols;
+    det.rows() =  octdet.nRows;
     det.id() = event.id();
-
-    /** make the frame big enough to hold the whole detector data */
-    for (size_t i = 0; i<octdet.tiles.size(); ++i)
-    {
-      const detTileParams &tile(octdet.tiles[i]);
-      det.frame().resize(det.frame().size() + tile.xsize*tile.ysize);
-      det.columns() = tile.xsize;
-      det.rows() +=  tile.ysize;
-    }
+    det.frame().resize(octdet.nPixels);
 
     /** get the parameters of the tiles and remember where to put the tile
      *  within the frame
@@ -641,8 +620,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
       md.BeamlineData()[tile.name+"_AbsGain"]    = tile.gain;
 
       tile.start = (det.frame().begin() + currentsize);
-      const size_t npixels(tile.xsize*tile.ysize);
-      currentsize += npixels;
+      currentsize += tile.nPixels;
     }
 
     /** retrive the data of the tiles */
