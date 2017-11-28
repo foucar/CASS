@@ -144,6 +144,8 @@ GSOAP_BIN       = /path/to/gSoap/bin/soapcpp2
 
 # additional compiler / linker flags
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
+#QMAKE_CXXFLAGS_RELEASE += -fPIC
+#QMAKE_CXXFLAGS_RELEASE += -std=gnu++98
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
-QMAKE_LFLAGS +=
+#QMAKE_LFLAGS += -no-pie
 QMAKE_STRIP  =
