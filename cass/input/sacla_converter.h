@@ -221,7 +221,7 @@ public:
      */
     float relativeGain;
 
-    /** a astream reader object for the tile */
+    /** a stream reader object for the tile */
     char * sreader;
 
     /** a read buffer object for the tile */
@@ -231,6 +231,15 @@ public:
   /** detector consists of tiles */
   struct detParams
   {
+    /** intitalize to default values */
+    detParams()
+      : normalize(false),
+        CASSID(-1),
+        notLoaded(true),
+        nCols(0),
+        nRows(0)
+    {}
+
     /** vector containing the tiles of this detector */
     std::vector<detTileParams> tiles;
 
@@ -244,6 +253,12 @@ public:
 
     /** flag to tell whether the non-changeing data of this tile has been loaded */
     bool notLoaded;
+
+    /** the total nbr of colums of the det */
+    size_t nCols;
+
+    /** the total nbr of rows of the det */
+    size_t nRows;
   };
 
   /** define the pixel detectors container type */

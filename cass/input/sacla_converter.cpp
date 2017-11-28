@@ -392,6 +392,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
   pixDets_t::const_iterator octalDetsEnd(_octalDetectors.end());
   for (; octalDetsIter != octalDetsEnd; ++octalDetsIter)
   {
+    pixDets_t::value_type &octdet(*octalDetsIter);
     for (size_t i(0); i< octalDetsIter->tiles.size(); ++i)
     {
       if (cacheTileParams(octalDetsIter->tiles[i], runNbr, blNbr, *first))
@@ -489,6 +490,14 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  tile.name + "' will be normalized with relative gain of '" +
                  toString(tile.relativeGain) + "'");
       }
+    }
+    /** get the total size of the detector */
+    for (size_t j = 1; j<octdet.tiles.size(); ++j)
+    {
+
+      detTileParams &tile(octdet.tiles[j]);
+      octdet.nCols = tile.xsize;
+      octdet.nRows +=  tile.ysize;
     }
   }
 }
