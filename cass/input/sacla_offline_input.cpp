@@ -59,8 +59,7 @@ public:
       _blNbr(blNbr),
       _highTagNbr(highTagNbr),
       _counter(0)
-  {
-  }
+  { }
 
   /** process the tags on the list */
   void runthis()
@@ -72,8 +71,9 @@ public:
     /** read and convert the info for each of the tags */
     _iter = _liststart;
     string output("TagListProcessor: The following tags will be processed by '" +
-                  toString(this) + "' for beamline '" + toString(_blNbr) + "' (size is '" +
-                  toString(distance(_liststart,_listend)) + "'):");
+                  toString(this) + "' for beamline '" + toString(_blNbr) +
+                  "' (size is '" + toString(distance(_liststart,_listend)) +
+                  "'):");
     for (; _iter != _listend; ++_iter)
       output += " '" + toString(*_iter) + "',";
     Log::add(Log::VERBOSEINFO,output);
