@@ -37,23 +37,12 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
 {
   int funcstatus(0);
   /** collect the detector tile data */
-  unsigned int tmpTag[] = {static_cast<unsigned int>(tagNbr)};
-  funcstatus = st_collect_data(tileParams.readBuf,tileParams.sreader,tmpTag);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,string("cacheDetParams: could not collect data for '") +
-             tileParams.name + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    return;
-  }
-
-  /** determine the size of the data */
-  const size_t size(tileParams.xsize * tileParams.ysize);
+  tileParams.readFromStreamer(tagNbr);
 
   /** prepare the buffer where the data should be loaded to and
    * retrieve the detector data
    */
-  vector<float> buffer(size);
+  vector<float> buffer(tileParams.nPixels);
   funcstatus = st_read_det_data(&buffer.front(), tileParams.readBuf,0);
   if (funcstatus)
   {
@@ -73,7 +62,7 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
     copy(buffer.begin(), buffer.end(), tileParams.start);
 
   /** set the datasize of the retrieved data */
-  tileParams.bytes_retrieved = size * sizeof(uint16_t);
+  tileParams.bytes_retrieved = tileParams.nPixels * sizeof(uint16_t);
 }
 
 
@@ -192,6 +181,7 @@ bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  return true;
 }
 
 bool SACLAConverter::detTileParams::readFromStreamer(int tag)
@@ -207,7 +197,32 @@ bool SACLAConverter::detTileParams::readFromStreamer(int tag)
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
+  return true;
 }
+
+void SACLAConverter::detTileParams::copyTo(pixeldetector::Detector::frame_t::iterator pos)
+{
+  int funcstatus(0);
+  /** prepare the buffer where the data should be loaded to and retrieve the
+   *  detector data from the reader buffer
+   */
+  vector<float> buffer(nPixels);
+  funcstatus = st_read_det_data(&buffer.front(), readBuf, 0);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"dettile::copyTo: could not retrieve data of '" + name +
+             "' ErrorCode is '" + toString(funcstatus) + "'");
+    bytes_retrieved = 0.;
+  }
+
+  /** use transform to copy the data */
+  transform(buffer.begin(), buffer.end(), pos,
+            bind1st(multiplies<float>(),relativeGain));
+
+  /** set the datasize of the retrieved data */
+  bytes_retrieved = nPixels * sizeof(uint16_t);
+}
+
 void SACLAConverter::loadSettings()
 {
   CASSSettings s;

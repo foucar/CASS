@@ -177,6 +177,15 @@ public:
      */
     bool readFromStreamer(int tag);
 
+    /** copy data to frame
+     *
+     * retrieve the data from the buffer and normalize it directly
+     * to the right position within the frame
+     *
+     * @param pos iterator to the frame in the cassevent
+     */
+    void copyTo(pixeldetector::Detector::frame_t::iterator pos);
+
     /** the name of the tile */
     std::string name;
 
