@@ -173,13 +173,30 @@ public:
     /** retrieve data from streamer into buffer
      *
      * @param tag the tag for which the data should be read
+     *
+     * @NOTE one has to intialize the streamer using @see init
+     *       prior to calling this function
      */
     bool readFromStreamer(int tag);
+
+    /** cache the non-changing data
+     *
+     * @NOTE one has to intialize the streamer using @see init and then
+     *       retrieve data into the readbuffer using @see readFromStreamer
+     *       prior to calling this function
+     *
+     * @return true when caching worked, false when error occured
+     */
+    bool cache();
 
     /** copy data to frame
      *
      * retrieve the data from the buffer and normalize it directly
      * to the right position within the frame
+     *
+     * @NOTE one has to intialize the streamer using @see init and then
+     *       retrieve data into the readbuffer using @see readFromStreamer
+     *       prior to calling this function
      *
      * @param pos iterator to the frame in the cassevent
      */

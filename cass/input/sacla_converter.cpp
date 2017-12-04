@@ -167,6 +167,61 @@ bool SACLAConverter::detTileParams::readFromStreamer(int tag)
   return true;
 }
 
+bool SACLAConverter::detTileParams::cache()
+{
+  int funcstatus(0);
+  /** the number of columns */
+  funcstatus = st_read_det_xsize(&xsize, readBuf, 0);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"detTileParams::cache: error reading xsize of '" +
+             name + "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  else
+    Log::add(Log::INFO,"detTileParams::cache: Tile '" + name +
+             "' has xsize '" + toString(xsize) + "'");
+
+  /** the number of rows */
+  funcstatus = st_read_det_ysize(&ysize, readBuf, 0);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"detTileParams::cache: error reading ysize of '" +
+             name + "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  else
+    Log::add(Log::INFO,"detTileParams::cache: Tile '" + name +
+             "' has ysize '" + toString(ysize) + "'");
+
+  /** the x-size of the pixels of the tile */
+  funcstatus = mp_read_pixelsizex(&pixsizex_um, readBuf);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"detTileParams::cache: error reading x pixelsize of '" +
+             name + "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  else
+    Log::add(Log::INFO,"detTileParams::cache: Tile '" + name +
+             "' has x pixelsize '" + toString(pixsizex_um) + "' um");
+  /** the y-size of the pixels of the tile */
+  funcstatus = mp_read_pixelsizey(&pixsizey_um,readBuf);
+  if (funcstatus)
+  {
+    Log::add(Log::ERROR,"detTileParams::cache: error reading y pixelsize of '" +
+             name + "' ErrorCode is '" + toString(funcstatus) + "'");
+    return false;
+  }
+  else
+    Log::add(Log::INFO,"detTileParams::cache: Tile '" + name +
+             "' has y-pixelsize '" + toString(pixsizey_um) + "' um");
+
+  /** calc the total number of pixels form the x and y size */
+  nPixels = xsize * ysize;
+  return true;
+}
+
 void SACLAConverter::detTileParams::copyTo(pixeldetector::Detector::frame_t::iterator pos)
 {
   int funcstatus(0);
