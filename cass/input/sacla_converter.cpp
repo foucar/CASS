@@ -492,13 +492,14 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  toString(tileParams.gain) + "'");
 
     }
+
     /** if the tiles of the octal detector should be normalized, calculate the
      *  relative gain of the individual tiles with respect to the first tile
      *  and store the relative gains within the tile
      */
     if (octalDetsIter->normalize)
     {
-      detTileParams firstTile(octalDetsIter->tiles[0]);
+      detTileParams &firstTile(octalDetsIter->tiles[0]);
       firstTile.normalize = false;
       for (size_t j = 1; j<octalDetsIter->tiles.size(); ++j)
       {
