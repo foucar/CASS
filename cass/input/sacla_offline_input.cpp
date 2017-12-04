@@ -99,7 +99,7 @@ public:
         continue;
 
       /** fill the cassevent object with the contents from the file */
-      uint64_t datasize = convert(_runNbr,_blNbr,_highTagNbr,*_iter,*rbItem->element);
+      uint64_t datasize = convert(_highTagNbr,*_iter,*rbItem->element);
 
       /** in case nothing was retieved, issue a warning. Increase the counter
        *  otherwise
