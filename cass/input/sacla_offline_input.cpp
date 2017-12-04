@@ -127,8 +127,8 @@ public:
    */
   double progress()
   {
-    const double fullsize(distance(_liststart,_listend));
     const double currsize(distance(_liststart,_iter));
+    const double fullsize(distance(_liststart,_listend));
     return currsize/fullsize;
   }
 
