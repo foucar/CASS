@@ -291,9 +291,6 @@ private:
 
   /** the list of requested octal detectors */
   pixDets_t _octalDetectors;
-
-  /** flag to tell whether to retrieve the accelerator data */
-  bool _retrieveAcceleratorData;
 };
 }//end namespace cass
 #endif

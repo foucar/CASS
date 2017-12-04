@@ -228,11 +228,6 @@ void SACLAConverter::loadSettings()
   CASSSettings s;
   s.beginGroup("SACLAConverter");
 
-  /** set the flag to retrieve the accelerator data */
-  _retrieveAcceleratorData = s.value("RetrieveAcceleratorData",true).toBool();
-  Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Will ") +
-           (_retrieveAcceleratorData?"":"not ") + "retrieve the accelerator data");
-
   /** set the requested octal detectors */
   int size = s.beginReadArray("OctalPixelDetectors");
   for (int i = 0; i < size; ++i)
@@ -494,6 +489,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
                  toString(tile.relativeGain) + "'");
       }
     }
+
     /** get the total size of the detector */
     for (size_t j = 1; j<octdet.tiles.size(); ++j)
     {
@@ -508,34 +504,23 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
                                     const int highTagNbr, const int tagNbr,
                                     CASSEvent& event)
 {
+
   /** set the event id from the highTag and Tag number */
   event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
   uint64_t datasize(0);
 
+  /** get reference to the devices of the cassevent */
+  CASSEvent::devices_t &devices(event.devices());
+  CASSEvent::devices_t::iterator devIt;
+
   /** check if the event contains the machine data container, if so get a
    *  reference to it. Otherwise throw an error.
    */
-  if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
-    throw runtime_error("SACLAConverter():The CASSEvent does not contain a Machine Data Device");
-  Device &md(dynamic_cast<Device&>(*(event.devices()[CASSEvent::MachineData])));
-
-
-  /** if requested retrieve the accelarator parameters */
-  if (_retrieveAcceleratorData)
-  {
-    int funcstatus(0);
-    double fbuf(0);
-    /** the set photon energy */
-    funcstatus = sy_read_config_photonenergy(&fbuf, blNbr, runNbr);
-    if (funcstatus)
-    {
-      Log::add(Log::ERROR,"retrieve Octal: could not retrieve set photon energy for tag '" +
-               toString(tagNbr) + "' ErrorCode is '" + toString(funcstatus) + "'");
-      return 0;
-    }
-    md.BeamlineData()["Acc_PhotonEnergy"] = fbuf;
-  }
-
+  devIt = devices.find(CASSEvent::MachineData);
+  if (devIt == devices.end())
+    throw runtime_error(string("SACLAConverter():The CASSEvent does ") +
+                        "not contain a Machine Data Device");
+  MachineData::Device &md(dynamic_cast<MachineData::Device&>(*(devIt->second)));
 
   /** go through all requested machine data events and retrieve the corresponding
    *  values for the tag
