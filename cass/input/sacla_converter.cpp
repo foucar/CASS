@@ -535,7 +535,9 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
 {
 
   /** set the event id from the highTag and Tag number */
-  event.id() = (static_cast<uint64_t>(highTagNbr)<<32) + tagNbr;
+  CASSEvent::id_t eId(highTagNbr);
+  eId = (eId << 32) + tagNbr;
+  event.id() = eId;
   uint64_t datasize(0);
 
   /** get reference to the devices of the cassevent */
