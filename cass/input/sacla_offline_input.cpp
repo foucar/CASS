@@ -227,7 +227,7 @@ bool getCompleteTagList(vector<int> &taglist, int &highTagNbr, int blNbr, int ru
   {
     Log::add(Log::ERROR,"getCompleteTagList: could not retrieve taglist of run '" +
              toString(runNbr) + "' at beamline '" + toString(blNbr) +
-             "'Errorcode is '" + toString(funcstatus) + "'");
+             "'. Errorcode is '" + toString(funcstatus) + "'");
     da_destroy_int_array(&tagListBuffer);
     return false;
   }
