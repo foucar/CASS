@@ -85,8 +85,8 @@ public:
      */
     InputBase::shared_pointer::element_type& input(InputBase::reference());
 
-    /** iterate through the list of tags and check every iteration whether the
-     *  input should quit
+    /** reset the iterator to the start of the list and then iterate through
+     *  the list of tags and check every iteration whether the input should quit
      */
     _iter = _liststart;
     for(;(!input.shouldQuit()) && (_iter != _listend); ++_iter)
