@@ -515,10 +515,8 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     md.BeamlineData()[tile.name + "_PixSizeY_um"] = tile.pixsizey_um;
 
     /** retrieve the data with the right type */
-    //retrieveTileData(tile, tagNbr);
     tile.readFromStreamer(tagNbr);
     tile.copyTo(det.frame().begin());
-
 
     /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
@@ -567,7 +565,6 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     {
       detTileParams &tile(octdet.tiles[i]);
       /** retrieve the data with the right type */
-      //retrieveTileData(tile, tagNbr);
       tile.readFromStreamer(tagNbr);
       tile.copyTo(det.frame().begin() + i*tile.nPixels);
     }
