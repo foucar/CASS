@@ -509,7 +509,6 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     det.id() = event.id();
 
     /** get information about the tile and the position with the frame */
-    tile.start = det.frame().begin();
     md.BeamlineData()[tile.name + "_Width"]       = det.columns();
     md.BeamlineData()[tile.name + "_Height"]      = det.rows();
     md.BeamlineData()[tile.name + "_PixSizeX_um"] = tile.pixsizex_um;
@@ -544,10 +543,7 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     det.id()      = event.id();
     det.frame().resize(octdet.nPixels);
 
-    /** get the parameters of the tiles and remember where to put the tile
-     *  within the frame
-     */
-    size_t currentsize(0);
+    /** copty the parameters of the tiles to the beamline data */
     for (size_t i = 0; i<octdet.tiles.size(); ++i)
     {
       detTileParams &tile(octdet.tiles[i]);
@@ -560,9 +556,7 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
       md.BeamlineData()[tile.name+"_PosZ_um"]    = tile.posz_um;
       md.BeamlineData()[tile.name+"_Angle_deg"]  = tile.angle_deg;
       md.BeamlineData()[tile.name+"_AbsGain"]    = tile.gain;
-
-      tile.start = (det.frame().begin() + currentsize);
-      currentsize += tile.nPixels;
+      md.BeamlineData()[tile.name+"_RelGain"]    = tile.relativeGain;
     }
 
     /** retrive the data of the tiles */
