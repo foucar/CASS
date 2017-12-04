@@ -164,20 +164,24 @@ public:
 
     /** init the tile reader
      *
+     * @throws SaclaPixDetError when SACLA USER API function returned an error
+     *
      * @return status of the initialization
      * @param runNbr the runnumber to intialize the stream reader with
      * @param blNbr the beamline number to initialize the stream reader with
      */
-    bool init(int runNbr, int blNbr);
+    void init(int runNbr, int blNbr);
 
     /** retrieve data from streamer into buffer
      *
-     * @param tag the tag for which the data should be read
-     *
      * @NOTE one has to intialize the streamer using @see init
      *       prior to calling this function
+     *
+     * @throws SaclaPixDetError when SACLA USER API function returned an error
+     *
+     * @param tag the tag for which the data should be read
      */
-    bool readFromStreamer(int tag);
+    void readFromStreamer(int tag);
 
     /** cache the non-changing data
      *
@@ -185,9 +189,11 @@ public:
      *       retrieve data into the readbuffer using @see readFromStreamer
      *       prior to calling this function
      *
+     * @throws SaclaPixDetError when SACLA USER API function returned an error
+     *
      * @return true when caching worked, false when error occured
      */
-    bool cache();
+    void cache();
 
     /** copy data to frame
      *
@@ -197,6 +203,8 @@ public:
      * @NOTE one has to intialize the streamer using @see init and then
      *       retrieve data into the readbuffer using @see readFromStreamer
      *       prior to calling this function
+     *
+     * @throws SaclaPixDetError when SACLA USER API function returned an error
      *
      * @param pos iterator to the frame in the cassevent
      */
