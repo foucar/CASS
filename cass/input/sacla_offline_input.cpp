@@ -55,10 +55,12 @@ public:
                    int runNbr, int blNbr, int highTagNbr)
     : _liststart(liststart),
       _listend(listend),
+      _iter(liststart),
       _runNbr(runNbr),
       _blNbr(blNbr),
       _highTagNbr(highTagNbr),
-      _counter(0)
+      _counter(0),
+      _skippedeventscounter(0)
   { }
 
   /** process the tags on the list */
