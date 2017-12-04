@@ -158,8 +158,6 @@ SACLAConverter::detTileParams::~detTileParams()
 //  string sout(name+ " destroying streamer " + toString(size_t(sreader)));
 //  cout << sout <<endl;
   st_destroy_streader(&sreader);
-  readBuf = NULL;
-  sreader = NULL;
 }
 
 bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
