@@ -188,6 +188,31 @@ private:
   bool _wasThrown;
 };
 
+
+/** Exception thrown when there is an error with a SACLA Pixel Detector
+ *
+ * In case there is some error with a SACLA pixel detector this should be thrown
+ */
+class SaclaPixDetError : public std::runtime_error
+{
+public:
+  /** explicit constructor
+   *
+   * @param message the error message
+   */
+  explicit SaclaPixDetError(const std::string & message, bool thrown=true)
+    : std::runtime_error(message),
+      _wasThrown(thrown)
+  {}
+
+  virtual ~SaclaPixDetError() throw() {}
+
+  operator bool()const {return _wasThrown;}
+
+private:
+  bool _wasThrown;
+};
+
 }//end namespace cass
 
 #endif
