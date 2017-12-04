@@ -40,7 +40,7 @@ void retrieveTileData(SACLAConverter::detTileParams &tileParams,
   tileParams.readFromStreamer(tagNbr);
 
   /** prepare the buffer where the data should be loaded to and
-   * retrieve the detector data
+   *  retrieve the detector data
    */
   vector<float> buffer(tileParams.nPixels);
   funcstatus = st_read_det_data(&buffer.front(), tileParams.readBuf,0);
@@ -163,7 +163,7 @@ bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
   int funcstatus(0);
   /** create stream reader object */
   int r[] = {runNbr};
-  funcstatus = st_create_streader(&sreader, name.c_str(), blNbr, 1,r);
+  funcstatus = st_create_streader(&sreader, name.c_str(), blNbr, 1, r);
   if (funcstatus)
   {
     Log::add(Log::ERROR,string("dettile::init: couldn't create stream ") +
@@ -172,7 +172,7 @@ bool SACLAConverter::detTileParams::init(int runNbr, int blNbr)
              "' ErrorCode is '" + toString(funcstatus) + "'");
     return false;
   }
-  funcstatus = st_create_stbuf(&readBuf,sreader);
+  funcstatus = st_create_stbuf(&readBuf, sreader);
   if (funcstatus)
   {
     Log::add(Log::ERROR,string("dettile::init: couldn't create stream ") +
@@ -241,7 +241,8 @@ void SACLAConverter::loadSettings()
     _octalDetectors.back().CASSID = s.value("CASSID",0).toInt();
     _octalDetectors.back().normalize = s.value("NormalizeToAbsGain",true).toBool();
     _octalDetectors.back().tiles.resize(8);
-    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add octal detector with CASSID '") +
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add ") +
+             "octal detector with CASSID '" +
              toString(_octalDetectors.back().CASSID) + "'");
     for (size_t i(0); i<_octalDetectors.back().tiles.size(); ++i)
       _octalDetectors.back().tiles[i].name = (detID + "-" + toString(i+1));
@@ -261,12 +262,13 @@ void SACLAConverter::loadSettings()
     _pixelDetectors.back().CASSID = s.value("CASSID",0).toInt();
     _pixelDetectors.back().tiles.resize(1);
     _pixelDetectors.back().tiles[0].name = detID;
-    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add detector with CASSID '") +
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add ") +
+             "detector with CASSID '" +
              toString(_pixelDetectors.back().CASSID) + "'");
   }
   s.endArray();
 
-  /** set the requested octal detectors */
+  /** set the requested database values */
   size = s.beginReadArray("DatabaseValues");
   for (int i = 0; i < size; ++i)
   {
@@ -281,7 +283,8 @@ void SACLAConverter::loadSettings()
     _machineVals.push_back(machineVals_t::value_type());
     _machineVals.back().databaseName = machineValName;
     _machineVals.back().cassName = s.value("CASSName",QString::fromStdString(machineValName)).toString().toStdString();
-    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add database value '") +
+    Log::add(Log::INFO,string("SACLAConverter::loadSettings(): Add ") +
+             "database value '" +
              _machineVals.back().databaseName + "' with CASSName '" +
              _machineVals.back().cassName + "'");
   }
@@ -323,7 +326,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       da_destroy_string_array(&machineValueStringList);
       continue;
     }
-    /**  check if as many parameters as tags given have been returned. In case
+    /** check if as many parameters as tags given have been returned. In case
      *  this number is different, something bad happened
      */
     int machineValueStringListSize = 0;
@@ -453,16 +456,18 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       }
       else
         Log::add(Log::INFO,"SACLAConverter::cacheParameters: Tile '" +
-                 tileParams.name + "' has angle '" + toString(tileParams.angle_deg) +
+                 tileParams.name + "' has angle '" +
+                 toString(tileParams.angle_deg) +
                  "' degrees");
 
       /** the gain of the detector tile */
       funcstatus = mp_read_absgain(&(tileParams.gain), tileParams.readBuf);
       if (funcstatus)
       {
-        Log::add(Log::ERROR,"SACLAConverter::cacheParameter: absolute gain of '" +
-                 tileParams.name + "' for tag '" + toString(*first) +
-                 "' ErrorCode is '" + toString(funcstatus) + "'");
+        Log::add(Log::ERROR,string("SACLAConverter::cacheParameter: ") +
+                 "absolute gain of '" + tileParams.name + "' for tag '" +
+                 toString(*first) + "' ErrorCode is '" +
+                 toString(funcstatus) + "'");
         octalDetsIter->notLoaded = true;
       }
       else
@@ -498,6 +503,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       octdet.nRows +=  tile.ysize;
     }
   }
+
 }
 
 uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
@@ -544,12 +550,11 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     datasize += sizeof(double);
   }
 
-
   /** retrieve the container for pixel detectors */
-  CASSEvent::devices_t &devices(event.devices());
-  CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+  devIt = devices.find(CASSEvent::PixelDetectors);
   if(devIt == devices.end())
-    throw runtime_error("SACLAConverter: CASSEvent does not contains a pixeldetector device");
+    throw runtime_error(string("SACLAConverter: CASSEvent does not ") +
+                        "contain a pixeldetector device");
   pixeldetector::Device &dev(dynamic_cast<pixeldetector::Device&>(*(devIt->second)));
 
   /** read the requested pixel detector data */
@@ -572,10 +577,10 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
 
     /** get information about the tile and the position with the frame */
     tile.start = det.frame().begin();
-    md.BeamlineData()[tile.name+"_Width"] = det.columns();
-    md.BeamlineData()[tile.name+"_Height"] = det.rows();
-    md.BeamlineData()[tile.name+"_PixSizeX_um"] = tile.pixsizex_um;
-    md.BeamlineData()[tile.name+"_PixSizeY_um"] = tile.pixsizey_um;
+    md.BeamlineData()[tile.name + "_Width"]       = det.columns();
+    md.BeamlineData()[tile.name + "_Height"]      = det.rows();
+    md.BeamlineData()[tile.name + "_PixSizeX_um"] = tile.pixsizex_um;
+    md.BeamlineData()[tile.name + "_PixSizeY_um"] = tile.pixsizey_um;
 
     /** retrieve the data with the right type */
     retrieveTileData(tile, tagNbr);
@@ -583,6 +588,7 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
   }
+
 
   /** read the requested octal detectors */
   pixDets_t::iterator octalDetsIter(_octalDetectors.begin());
@@ -598,8 +604,8 @@ uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
     pixeldetector::Detector &det(dev.dets()[octdet.CASSID]);
     det.frame().clear();
     det.columns() = octdet.nCols;
-    det.rows() =  octdet.nRows;
-    det.id() = event.id();
+    det.rows()    = octdet.nRows;
+    det.id()      = event.id();
     det.frame().resize(octdet.nPixels);
 
     /** get the parameters of the tiles and remember where to put the tile
