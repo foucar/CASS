@@ -22,49 +22,6 @@ using namespace cass;
 using namespace MachineData;
 using namespace std;
 
-/** retrieve the tile data from a detector
- *
- * retrieve the tile data of a detector and either normalize or copy it directly
- * to the right position within the frame
- *
- * @param tileParams parameters of the tile of the frame
- * @param tagNbr the tag number that is associated with the requested data
- *
- * @author Lutz Foucar
- */
-void retrieveTileData(SACLAConverter::detTileParams &tileParams,
-                      const int tagNbr)
-{
-  int funcstatus(0);
-  /** collect the detector tile data */
-  tileParams.readFromStreamer(tagNbr);
-
-  /** prepare the buffer where the data should be loaded to and
-   *  retrieve the detector data
-   */
-  vector<float> buffer(tileParams.nPixels);
-  funcstatus = st_read_det_data(&buffer.front(), tileParams.readBuf,0);
-  if (funcstatus)
-  {
-    Log::add(Log::ERROR,"retrievePixelDet: could not retrieve data of '" +
-             tileParams.name + "' for tag '" + toString(tagNbr) +
-             "' ErrorCode is '" + toString(funcstatus) + "'");
-    tileParams.bytes_retrieved = 0.;
-  }
-
-  /** if tile should be normalized, use transform to copy the data, otherwise
-   *  just copy the tile data to the frame
-   */
-  if (tileParams.normalize)
-    transform(buffer.begin(), buffer.end(), tileParams.start,
-              bind1st(multiplies<float>(),tileParams.relativeGain));
-  else
-    copy(buffer.begin(), buffer.end(), tileParams.start);
-
-  /** set the datasize of the retrieved data */
-  tileParams.bytes_retrieved = tileParams.nPixels * sizeof(uint16_t);
-}
-
 
 /** cache the non-changing parameters of a tile
  *
@@ -608,7 +565,10 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     md.BeamlineData()[tile.name + "_PixSizeY_um"] = tile.pixsizey_um;
 
     /** retrieve the data with the right type */
-    retrieveTileData(tile, tagNbr);
+    //retrieveTileData(tile, tagNbr);
+    tile.readFromStreamer(tagNbr);
+    tile.copyTo(det.frame().begin());
+
 
     /** notice how much data has been retrieved */
     datasize += tile.bytes_retrieved;
@@ -662,12 +622,9 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
     {
       detTileParams &tile(octdet.tiles[i]);
       /** retrieve the data with the right type */
-      retrieveTileData(tile, tagNbr);
-#ifdef _OPENMP
-          #pragma omp critical
-#endif
-      Log::add(Log::ERROR,"SACLAConverter: Data type of octal detector '" +
-               tile.name + "' for tag '" + toString(tagNbr) + "' is unkown");
+      //retrieveTileData(tile, tagNbr);
+      tile.readFromStreamer(tagNbr);
+      tile.copyTo(det.frame().begin() + i*tile.nPixels);
     }
 
     /** gather the size retrieved of all the tiles */
