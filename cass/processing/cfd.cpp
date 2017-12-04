@@ -46,7 +46,7 @@ void getcfd(const Channel& c, const CFDParameters &param, SignalProducer::signal
 {
   using namespace cass::ACQIRIS;
   //make sure that we are the right one for the waveform_t//
-  assert(typeid(waveform_t::value_type) == typeid(T));
+  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
 
   //now extract information from the Channel
   const double sampleInterval = c.sampleInterval()*1e9;    //convert the s to ns

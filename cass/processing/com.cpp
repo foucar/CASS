@@ -48,7 +48,7 @@ template <typename T>
 void getcom(const Channel& c, const CoMParameters &param, SignalProducer::signals_t& sig)
 {
   //make sure that we are the right one for the waveform_t//
-  assert(typeid(waveform_t::value_type) == typeid(T));
+  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
   //extract infos from channel//
   const Channel::waveform_t &Data (c.waveform());
   const int32_t vOffset (static_cast<int32_t>(c.offset() / c.gain()));    //mV -> ADC Bytes
