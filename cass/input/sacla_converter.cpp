@@ -152,7 +152,11 @@ SACLAConverter::SACLAConverter()
 SACLAConverter::detTileParams::~detTileParams()
 {
   /** destroy the buffers */
+//  string bout(name+ " destroying buffer " + toString(size_t(readBuf)));
+//  cout << bout <<endl;
   st_destroy_stbuf(&readBuf);
+//  string sout(name+ " destroying streamer " + toString(size_t(sreader)));
+//  cout << sout <<endl;
   st_destroy_streader(&sreader);
   readBuf = NULL;
   sreader = NULL;
@@ -189,7 +193,16 @@ bool SACLAConverter::detTileParams::readFromStreamer(int tag)
   int funcstatus(0);
   /** collect the detector tile data */
   unsigned int tmpTag[] = {static_cast<unsigned int>(tag)};
+//  string out("collect data for '" + name + "' for tag '" + toString(tag) +
+//             "', readBuf '" + toString(size_t(readBuf)) +
+//             "', sreader '" + toString(size_t(sreader)) + "'");
+//  cout << out <<endl;
   funcstatus = st_collect_data(readBuf,sreader,tmpTag);
+
+//  string aout("done collect data for '" + name + "' for tag '" + toString(tag) +
+//             "', readBuf '" + toString(size_t(readBuf)) +
+//             "', sreader '" + toString(size_t(sreader)) + "'");
+//  cout << aout <<endl;
   if (funcstatus)
   {
     Log::add(Log::ERROR,string("readFromStreamer: could not collect ") +
@@ -375,6 +388,11 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     }
     /** destroy the sacla string list */
     da_destroy_string_array(&machineValueStringList);
+    /** output which database value has been cached */
+    Log::add(Log::INFO,string("SACLAConverter::cacheParameters: ") +
+             "cached values of database '" + mv.databaseName +
+             "' into the CASS beamline value '" +
+             mv.cassName + "'");
   }
 
   /** for all pixel dets, which consist of only 1 tile, retrieve the
@@ -502,6 +520,12 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
       octdet.nCols = tile.xsize;
       octdet.nRows +=  tile.ysize;
     }
+    octdet.nPixels = octdet.nCols * octdet.nRows;
+    Log::add(Log::INFO,string("SACLAConverter::cacheParameters: octal det ") +
+             "has a shape of nCols '" + toString(octdet.nCols) + "', nRows '" +
+             toString(octdet.nRows) + "', thus nPixels '" +
+             toString(octdet.nPixels) + "'");
+
   }
 
 }
