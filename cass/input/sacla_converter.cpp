@@ -513,7 +513,7 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
     }
 
     /** get the total size of the detector */
-    for (size_t j = 1; j<octdet.tiles.size(); ++j)
+    for (size_t j = 0; j<octdet.tiles.size(); ++j)
     {
       detTileParams &tile(octdet.tiles[j]);
       octdet.nCols = tile.xsize;
