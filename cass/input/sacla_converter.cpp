@@ -506,8 +506,8 @@ void SACLAConverter::cacheParameters(vector<int>::const_iterator first,
 
 }
 
-uint64_t SACLAConverter::operator()(const int runNbr, const int blNbr,
-                                    const int highTagNbr, const int tagNbr,
+uint64_t SACLAConverter::operator()(const int highTagNbr,
+                                    const int tagNbr,
                                     CASSEvent& event)
 {
 

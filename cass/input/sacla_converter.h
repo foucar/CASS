@@ -80,14 +80,13 @@ public:
   /** read data from SaclaDataAccessUserAPI
    *
    * @return size of the filled data in bytes
-   * @param runNbr the run number
-   * @param blNbr the beamline number
    * @param highTagNbr first part of the tag
    * @param tagNbr the acutal Tag
    * @param event the CASSEvent where the data will be put into
    */
-  uint64_t operator()(const int runNbr, const int blNbr, const int highTagNbr,
-                      const int tagNbr, CASSEvent& event);
+  uint64_t operator()(const int highTagNbr,
+                      const int tagNbr,
+                      CASSEvent& event);
 
   /** load the settings of the reader */
   void loadSettings();
