@@ -19,7 +19,6 @@
 #include "log.h"
 
 using namespace cass;
-using namespace MachineData;
 using namespace std;
 
 
