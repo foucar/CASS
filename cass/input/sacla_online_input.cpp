@@ -9,6 +9,10 @@
 #include <iostream>
 #include <tr1/functional>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "sacla_online_input.h"
 
 #include <OnlineUserAPI.h>
@@ -315,11 +319,14 @@ struct OctalDetector
 //    for_each(tiles.begin(), tiles.end(), bind(&DetectorTile::copyData,_1,tag));
 #ifdef _OPENMP
     TagOutdated error("",false);
-    #pragma omp parallel for shared(error)
+    #pragma omp parallel for shared(error) num_threads(tiles.size())
 #endif
     for (size_t i = 0; i < tiles.size(); ++i)
     {
 #ifdef _OPENMP
+//      string out("loop is running with " + toString(omp_get_num_threads()) +
+//                 " threads");
+//      cout << out <<endl;
       try
       {
 #endif
@@ -530,7 +537,6 @@ void SACLAOnlineInput::runthis()
                                         det.tiles[tile.normalizeID].name + ")'" +
                                         " with relative gain '" +
                                         toString(tile.relativeGain)) +
-               "'. Tile Gain '" + toString(tile.gain) +
                "'; Tile shape '" + toString(tile.xsize) + "x" + toString(tile.ysize) +
                "'; Tile Gain '" + toString(tile.gain) + "'");
     }
@@ -587,6 +593,10 @@ void SACLAOnlineInput::runthis()
 
   s.endGroup();
 
+#ifdef _OPENMP
+  Log::add(Log::INFO, "SACLAOnlineInput: Running with up to '" +
+           toString(omp_get_max_threads()) + "' input threads");
+#endif
   /** run until the thread is told to quit */
   Log::add(Log::DEBUG0,"SACLAOnlineInput::run(): starting loop");
   int lastTag(0);

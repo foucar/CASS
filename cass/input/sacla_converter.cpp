@@ -10,6 +10,10 @@
 
 #include <QtCore/QRegExp>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "sacla_converter.h"
 
 #include "cass_event.h"
@@ -24,7 +28,12 @@ using namespace std;
 
 
 SACLAConverter::SACLAConverter()
-{}
+{
+#ifdef _OPENMP
+  Log::add(Log::INFO, "SACLAConverter: Running with up to '" +
+           toString(omp_get_max_threads()) + "' input threads");
+#endif
+}
 
 SACLAConverter::detTileParams::~detTileParams()
 {
@@ -558,7 +567,7 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
 
     /** retrive the data of the tiles */
 #ifdef _OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(octdet.tiles.size())
 #endif
     for (size_t i = 0; i<octdet.tiles.size(); ++i)
     {
