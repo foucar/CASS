@@ -15,29 +15,23 @@ namespace cass
 {
 /** Exception thrown when accessing invalid histogram
  *
+ * adapted by Lutz Foucar 2017
+ *
  * @author Jochen Küpper
  */
 class InvalidResultError : public std::out_of_range
 {
 public:
   explicit InvalidResultError(const std::string &name, uint64_t id)
-    : std::out_of_range("no result with requested event id exists"),
-      _id(id),
-      _name(name)
-  {}
-
-  virtual const char* what() const throw()
+    : std::out_of_range("")
   {
     std::ostringstream msg;
-    msg << "event with id (" << _id << ") is not in cache for "<<_name;
-    return msg.str().c_str();
+    msg << "result of processor '"<< name << "' for event id '" << id
+        << "' is not available";
+    static_cast<std::out_of_range&>(*this) = std::out_of_range(msg.str());
   }
 
   virtual ~InvalidResultError() throw(){}
-
-protected:
-  uint64_t _id;
-  std::string _name;
 };
 
 
@@ -49,20 +43,10 @@ class InvalidProcessorError : public std::out_of_range
 {
 public:
   explicit InvalidProcessorError(const std::string &key)
-    : std::out_of_range("Invalid processor requested!"), _key(key)
+    : std::out_of_range("Invalid processor '" + key + "' requested!")
   {}
 
-  virtual const char* what() const throw()
-  {
-    std::ostringstream msg;
-    msg << "Invalid processor " << _key << " requested!";
-    return msg.str().c_str();
-  }
-
   virtual ~InvalidProcessorError() throw(){}
-
-protected:
-  std::string _key;
 };
 
 /** Exception thrown when there is a problem with deserializing QDataStreams
