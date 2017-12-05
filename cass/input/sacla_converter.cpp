@@ -57,12 +57,11 @@ void SACLAConverter::detTileParams::init(int runNbr, int blNbr)
                            "' ErrorCode is '" + toString(funcstatus) + "'");
 }
 
-void SACLAConverter::detTileParams::readFromStreamer(int tag)
+void SACLAConverter::detTileParams::readFromStreamer(unsigned int tag)
 {
   int funcstatus(0);
   /** collect the detector tile data */
-  unsigned int tmpTag[] = {static_cast<unsigned int>(tag)};
-  funcstatus = st_collect_data(readBuf,sreader,tmpTag);
+  funcstatus = st_collect_data(readBuf,sreader,&tag);
   if (funcstatus)
     throw SaclaPixDetError(string("readFromStreamer: could not collect ") +
                            "data for '" + name + "' for tag '" + toString(tag) +

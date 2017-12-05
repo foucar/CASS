@@ -181,7 +181,7 @@ public:
      *
      * @param tag the tag for which the data should be read
      */
-    void readFromStreamer(int tag);
+    void readFromStreamer(unsigned int tag);
 
     /** cache the non-changing data
      *
