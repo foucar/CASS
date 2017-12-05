@@ -101,6 +101,18 @@ public:
   /** do not load anything after it is started */
   void load() {}
 
+  /** retrieve the number of processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t eventcounter() {return _evtCounter;}
+
+  /** retrieve the number of skipped processed events
+   *
+   * @return number of processed events
+   */
+  uint64_t skippedeventcounter() {return _skippedEvtCounter;}
+
 private:
   /** constructor
    *
@@ -116,6 +128,11 @@ private:
                     Ratemeter &ratemeter, Ratemeter &loadmeter,
                     QObject *parent=0);
 
+   /** a counter for the events so far */
+   uint64_t _evtCounter;
+
+   /** a counter for the skipped events so far */
+   uint64_t _skippedEvtCounter;
 };
 
 }//end namespace cass

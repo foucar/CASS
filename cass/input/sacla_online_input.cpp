@@ -470,7 +470,9 @@ SACLAOnlineInput::SACLAOnlineInput(RingBuffer<CASSEvent> &ringbuffer,
                                    Ratemeter &ratemeter,
                                    Ratemeter &loadmeter,
                                    QObject *parent)
-  : InputBase(ringbuffer,ratemeter,loadmeter,parent)
+  : InputBase(ringbuffer,ratemeter,loadmeter,parent),
+    _evtCounter(0),
+    _skippedEvtCounter(0)
 {
   Log::add(Log::VERBOSEINFO, "SACLAOnlineInput:: constructed");
 }
@@ -687,11 +689,15 @@ void SACLAOnlineInput::runthis()
      *  valuable information (datasize is non zero)
      */
     if (!datasize)
+    {
       Log::add(Log::WARNING,"SACLAOnlineInput: Event with id '"+
                toString(rbItem->element->id()) + "' is bad: skipping Event");
+      ++_skippedEvtCounter;
+    }
+    else
+      ++_evtCounter;
     newEventAdded(datasize);
     _ringbuffer.doneFilling(rbItem, datasize);
   }
   Log::add(Log::DEBUG0,"SACLAOnlineInput::run(): quitting loop");
 }
-
