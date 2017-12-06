@@ -565,7 +565,15 @@ uint64_t SACLAConverter::operator()(const int highTagNbr,
       md.BeamlineData()[tile.name+"_RelGain"]    = tile.relativeGain;
     }
 
-    /** retrive the data of the tiles */
+    /** retrive the data of the tiles
+     *  Using openmp to parallelize the retrieval of the detector data. The
+     *  'pragma omp parallel for' statement says that the for loop should be
+     *  parallelized. Within the loop all the declared variables are local to
+     *  the thread and not shared. The 'num_threads' parameter allows to define
+     *  how many threads should be used. Since the octal detector has 8 tiles,
+     *  we only need 8 threads and not all that are available (which will be
+     *  used if nothing is declared).
+     */
 #ifdef _OPENMP
     #pragma omp parallel for num_threads(octdet.tiles.size())
 #endif

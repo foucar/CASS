@@ -306,8 +306,8 @@ struct OctalDetector
     }
 
     /** copy the data in the tile to the frame
-     *  @note need to use open mp to parallelize since, the tiles vector is too small
-     *        to be parallelized automatically by __gnu_parallelize
+     *  @note need to use openmp to parallelize since, the tiles vector is too
+     *        small to be parallelized automatically by __gnu_parallelize
      *  @note when compiling with openmp one needs to take special care with the
      *        exceptions. They need to be catched within the thread they have been
      *        thrown. To work around this a global exception exists that will be
@@ -315,6 +315,14 @@ struct OctalDetector
      *        threads it will be checked if the global exeption has been set and
      *        if so, it will be thrown in the main thread. To be catched at a
      *        convenient time.
+     *  @note All variables that are declared within the
+     *        'pragma omp parallel for' statement are local to the specific
+     *        thread, therefore one has to use the 'shared(error)' statement
+     *        to tell openmp that 'error' is global to all threads. The
+     *        'pragma omp critical' defines a section that will only be executed
+     *        by one thread at a time. Since its the part that where the
+     *        exception will be handled it should only be exectued by the
+     *        thread that is throwing the exception.
      */
 //    for_each(tiles.begin(), tiles.end(), bind(&DetectorTile::copyData,_1,tag));
 #ifdef _OPENMP
