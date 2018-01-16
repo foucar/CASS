@@ -942,7 +942,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
   QReadLocker lock(&image.lock);
 
   /** define a few things for the hisogram and asics */
-  const uint32_t nAsics(32);
+  const uint32_t nAsics(64);
   const uint32_t nAsicsPerRow(2);
   const uint32_t nColsAsic(194);
   const uint32_t nRowsAsic(185);
