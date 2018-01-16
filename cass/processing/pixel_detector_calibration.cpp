@@ -998,6 +998,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
 
     hists_t::const_iterator peakBegin(pToMax-_width);
     hists_t::const_iterator peakEnd(pToMax+_width+1);
+    const double integral(accumulate(peakBegin,peakEnd,0.));
     hists_t bins;
     bins.reserve(_width*2+1);
     for (int i(bin-_width); i<bin+_width+1;++i)
@@ -1006,10 +1007,11 @@ void pp334::process(const CASSEvent &evt, result_t &result)
     weights.reserve(_width*2+1);
     transform(peakBegin,peakEnd,bins.begin(),back_inserter(weights),
               multiplies<double>());
-    histsCMVals[asic] = accumulate(weights.begin(),weights.end(),0.) /
-                        accumulate(peakBegin,peakEnd,0.);
-  }
+    const double weight(accumulate(weights.begin(),weights.end(),0.));
+    const double com(weight/integral);
 
+    histsCMVals[asic] = com;
+  }
 
   /** go through unbonded pixels of each asic of image and calculate the mean */
   hists_t unbondedPixCMVals(nAsics,0);
