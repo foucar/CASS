@@ -926,7 +926,7 @@ void pp334::loadSettings(size_t)
   result_t::shared_pointer result(_image->result().clone());
   if (_checks)
   {
-    result_t::storage_t rows(32*result->shape().first);
+    result_t::storage_t rows(64*result->shape().first);
     result->appendRows(rows);
   }
   createHistList(result);
