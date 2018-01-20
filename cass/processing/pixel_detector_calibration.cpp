@@ -974,7 +974,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
     /** calc which asic we're on */
     const uint8_t asic(nAsicsPerRow*chip + asicOnChip);
     /** determine the bin in which the pixels values will fall */
-    const int32_t bin(static_cast<int32_t>(nBins*pixelval - low / (up - low)));
+    const int32_t bin(static_cast<int32_t>(nBins*(pixelval-low)/(up-low)));
     /** check if the bin is out of bounds, if so skip it */
     if ((bin < 0) || (nBins <= bin))
       continue;
