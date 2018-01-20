@@ -961,7 +961,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
     /** get the pixel value */
     const result_t::value_t pixelval(image[i]);
     /** skip pixel if it is masked */
-    if (fuzzyIsNull(pixelval))
+    if (std::abs(pixelval) < std::numeric_limits<result_t::value_t>::epsilon())
       continue;
     /** find out in which row of the image we're */
     const uint16_t row(i/nColsInput);
