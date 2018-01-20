@@ -1002,7 +1002,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
     hists_t bins;
     bins.reserve(_width*2+1);
     for (int i(bin-_width); i<bin+_width+1;++i)
-      bins.push_back(i);
+      bins.push_back(low + (i*(up-low)/nBins));
     hists_t weights;
     weights.reserve(_width*2+1);
     transform(peakBegin,peakEnd,bins.begin(),back_inserter(weights),
