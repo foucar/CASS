@@ -1019,7 +1019,7 @@ void pp334::process(const CASSEvent &evt, result_t &result)
   const int sizeBetweenUnbondedPixels(3696);
   const int sizeBetweenChips(1566);
   const int nUBP(19);
-  const int nChips(16);
+  const int nChips(32);
 
   result_t::const_iterator pointer(image.begin());
   for (int chip=0; chip<nChips; ++chip)
