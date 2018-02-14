@@ -96,6 +96,7 @@ namespace Pds {
                 MfxDg1BeamMon    = 82,
                 MfxDg2BeamMon    = 83,
                 MfxAin01         = 84,
+                MecAin01         = 85,
                 NumberOf };
 
     BldInfo() {}
