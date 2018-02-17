@@ -119,7 +119,8 @@ const char* BldInfo::name(const BldInfo& src){
     "CXI-DG3-BMMON",
     "MFX-DG1-BMMON",
     "MFX-DG2-BMMON",
-    "MFX-AIN-01"
+    "MFX-AIN-01",
+    "MEC-AIN-01"
   };
   return (src.type() < NumberOf ? _typeNames[src.type()] : "-Invalid-");
 }
