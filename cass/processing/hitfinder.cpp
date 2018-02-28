@@ -507,8 +507,24 @@ void pp205::process(const CASSEvent& evt, result_t &result)
         {
           const int bLocIdx(idx + bRow*nImageCols+bCol);
           if (bLocIdx >= static_cast<int>(result.size()) || bLocIdx < 0)
-            throw logic_error("pp205 '" + name()+
-                              "': Calculated index out of bounds. Check box size");
+          {
+            string tableRow;
+            for (size_t i(0); i<nTableCols; ++i)
+                tableRow += toString(i) + "'" +
+                            toString(table[row*nTableCols + i])
+                            +"', ";
+            throw logic_error("pp205 '" + name() +
+                              "': Calculated index out of bounds: " +
+                              "nTableRows'" + toString(nTableRows) + "', " +
+                              "tableRow'" + toString(row) + "', " +
+                              "tableRowContent'" + tableRow + "', " +
+                              "bRow'" + toString(bRow) + "', " +
+                              "bCol'" + toString(bCol) + "', " +
+                              "size'" + toString(result.size()) + "', " +
+                              "idx'" + toString(idx) + "', " +
+                              "nImageCols'" + toString(nImageCols) + "', " +
+                              "localIdx'" + toString(bLocIdx) + "'");
+          }
           const bool border = (bCol == _boxsize.first ||
                                bCol == -_boxsize.first ||
                                bRow == _boxsize.second ||
