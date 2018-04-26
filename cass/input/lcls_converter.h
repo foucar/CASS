@@ -192,7 +192,7 @@ private:
   /** map that will map the LCLS key to the CASS key */
   typedef std::map<lclsid::Key, int32_t>  idmap_t;
 
-  /** pair the version of the config with a shared pointer of the config */
+  /** pair the typeid of the config with a shared pointer of the config */
   typedef std::pair<uint32_t, std::vector<uint8_t> > config_t;
 
   /** map containing the detector id together with its configuration */

@@ -398,7 +398,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     if (xtc->contains.id() == Pds::TypeId::Id_Epix10kaConfig && 1 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: EpixS Config version" +
                           toString(xtc->contains.version()) + "is not supported");
-    _configStore[casskey] = make_pair(xtc->contains.version(),extractPayload(xtc));
+    _configStore[casskey] = make_pair(xtc->contains.value(),extractPayload(xtc));
   }
     break;
 
