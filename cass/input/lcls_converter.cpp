@@ -289,6 +289,12 @@ Converter::Converter()
   _pdsTypeList.push_back(TypeId::Id_CspadConfig);
   _pdsTypeList.push_back(TypeId::Id_CspadElement);
   _pdsTypeList.push_back(TypeId::Id_Cspad2x2Element);
+  _pdsTypeList.push_back(TypeId::Id_EpixConfig);
+  _pdsTypeList.push_back(TypeId::Id_Epix10kConfig);
+  _pdsTypeList.push_back(TypeId::Id_Epix100aConfig);
+  _pdsTypeList.push_back(TypeId::Id_EpixSConfig);
+  _pdsTypeList.push_back(TypeId::Id_Epix10kaConfig);
+  _pdsTypeList.push_back(TypeId::Id_EpixElement);
 
 
   CASSSettings s;
