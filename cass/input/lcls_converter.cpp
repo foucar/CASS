@@ -28,6 +28,7 @@
 #include "pdsdata/cspad2x2/ConfigV1.hh"
 #include "pdsdata/cspad2x2/ConfigV2.hh"
 #include "pdsdata/cspad2x2/ElementHeader.hh"
+#include "pdsdata/psddl/epix.ddl.h"
 
 #include "lcls_converter.h"
 
@@ -138,6 +139,16 @@ void copyAdditionalPnccdInfo(const Pds::PNCCD::ConfigV2& cfg, Detector &det,
     Log::add(Log::ERROR,"pnCCDConverter::DataXTC: camaxMagic:" + toString(det.camaxMagic()));
     Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegRows:" + toString(rowsOfSegment));
     Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegCols:" + toString(columnsOfSegment));
+  }
+  else
+  {
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: rows:" + toString(det.rows()));
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: cols:" + toString(det.columns()));
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: info:" + det.info());
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: tfileName:" + det.timingFilename());
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: camaxMagic:" + toString(det.camaxMagic()));
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: SegRows:" + toString(rowsOfSegment));
+    Log::add(Log::INFO,"pnCCDConverter::DataXTC: SegCols:" + toString(columnsOfSegment));
   }
 }
 
