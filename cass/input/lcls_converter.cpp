@@ -252,6 +252,31 @@ void copyCsPadFrame(const Pds::Xtc* xtc, const ConfigType& cfg, Detector& det)
 }
 
 
+
+/** copy the epix frame to the detector
+ *
+ * @tparam ConfigType the type of configuration
+ * @param element the epix element that contains the raw data
+ * @param cfg the configuration that tells what is where in the configuration
+ * @param det the place where the frame data should be copied to
+ *
+ * @author Lutz Foucar
+ */
+template <typename ConfigType>
+void copyEpixFrame(const Pds::Epix::ElementV3& element, const ConfigType& cfg, Detector& det)
+{
+  //Get the frame from the element
+  det.columns() = cfg.numberOfColumns();
+  det.rows() = cfg.numberOfReadableRows();
+  const char* pData(reinterpret_cast<const char*>(&element)+32);
+  const uint16_t* data(reinterpret_cast<const uint16_t*>(pData));
+  // copy the data to the detector frame
+  const size_t framesize(det.columns()*det.rows());
+  det.frame().resize(framesize);
+  copy(data, data+framesize, det.frame().begin());
+}
+
+
 }//end namepsace pixeldetector
 }//end namespace cass
 
@@ -403,15 +428,103 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     break;
 
 
+  case (Pds::TypeId::Id_EpixElement) :
+  {
+    /** get the epix element from the xtc */
+    if (xtc->contains.version() != 3)
+    {
+      Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): ") +
+                                  "Version '" + toString(xtc->contains.version()) +
+                                  "' of EpixElement is not yet supported");
+      break;
+    }
+    const Pds::Epix::ElementV3& element
+        (reinterpret_cast<const Pds::Epix::ElementV3&>(*(xtc->payload())));
+
+    /** get the corrsponding config for the epix element */
+    configStore_t::const_iterator storeIt(_configStore.find(casskey));
+    if(storeIt == _configStore.end())
+    {
+      Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): No configuration to read the data of '") +
+               TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+               ")");
+      break;
+    }
+    const config_t config(storeIt->second);
+    const TypeId& configId(reinterpret_cast<const TypeId&>(config.first));
+    if (configId.value() != config.first)
+      throw logic_error("we've to implment the conversion from value to typeid differntly");
+    Detector &det(retrieveDet(*evt,casskey));
+    det.id() = evt->id();
+    /** @todo need to implement all configurtion types of the epix data type */
+    switch (configId.id())
+    {
+    case (TypeId::Id_EpixConfig):
+    {
+      const Pds::Epix::ConfigV1 &cfg
+          (reinterpret_cast<const Pds::Epix::ConfigV1&>(config.second.front()));
+      //copyEpixFrame(element,cfg,det);
+    }
+    break;
+
+    case (TypeId::Id_Epix100aConfig):
+    {
+      switch (configId.version())
+      {
+      case 1:
+      {
+        const Pds::Epix::Config100aV1 &cfg
+            (reinterpret_cast<const Pds::Epix::Config100aV1&>(config.second.front()));
+        copyEpixFrame(element,cfg,det);
+      }
+      break;
+
+      case 2:
+      {
+        const Pds::Epix::Config100aV2 &cfg
+            (reinterpret_cast<const Pds::Epix::Config100aV2&>(config.second.front()));
+        copyEpixFrame(element,cfg,det);
+      }
+      break;
+
+      default:
+        throw runtime_error("LCLSConverter: Unknown epix100aconfig version '" +
+                            toString(configId.version()) + "'");
+      }
+    }
+    break;
+
+
+    default:
+      throw runtime_error("LCLSConverter: Unknown epix configuration typeid '" +
+                          toString(configId.id()) + "'");
+    }
+  }
+    break;
+
   case (Pds::TypeId::Id_pnCCDframe) :
   {
     configStore_t::const_iterator storeIt(_configStore.find(casskey));
     if(storeIt == _configStore.end())
+    {
+      Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): No configuration to read the data of '") +
+               TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+               ")");
       break;
+    }
     const config_t config(storeIt->second);
+    const TypeId& configId(reinterpret_cast<const TypeId&>(config.first));
     Detector &det(retrieveDet(*evt,casskey));
     det.id() = evt->id();
-    switch (config.first)
+    switch (configId.version())
     {
     case 1:
     {
@@ -441,11 +554,21 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     /** get the configuration for this element and return when there is no config */
     configStore_t::const_iterator storeIt(_configStore.find(casskey));
     if(storeIt == _configStore.end())
+    {
+      Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): No configuration to read the data of '") +
+               TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+               "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+               "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+               ")");
       break;
+    }
     const config_t config(storeIt->second);
+    const TypeId& configId(reinterpret_cast<const TypeId&>(config.first));
     Detector &det(retrieveDet(*evt,casskey));
     det.id() = evt->id();
-    switch (config.first)
+    switch (configId.version())
     {
     case 1:
     {
