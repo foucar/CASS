@@ -23,16 +23,16 @@ namespace Epix {
 class AsicConfigV1 {
 public:
 //  AsicConfigV1(uint8_t arg__monostPulser, uint8_t arg__dummyTest, uint8_t arg__dummyMask, uint16_t arg__pulser, uint8_t arg__pbit, uint8_t arg__atest, uint8_t arg__test, uint8_t arg__sabTest, uint8_t arg__hrTest, uint8_t arg__digMon1, uint8_t arg__digMon2, uint8_t arg__pulserDac, uint8_t arg__Dm1En, uint8_t arg__Dm2En, uint8_t arg__slvdSBit, uint8_t arg__VRefDac, uint8_t arg__TpsTComp, uint8_t arg__TpsMux, uint8_t arg__RoMonost, uint8_t arg__TpsGr, uint8_t arg__S2dGr, uint8_t arg__PpOcbS2d, uint8_t arg__Ocb, uint8_t arg__Monost, uint8_t arg__FastppEnable, uint8_t arg__Preamp, uint8_t arg__PixelCb, uint8_t arg__S2dTComp, uint8_t arg__FilterDac, uint8_t arg__TC, uint8_t arg__S2d, uint8_t arg__S2dDacBias, uint8_t arg__TpsTcDac, uint8_t arg__TpsDac, uint8_t arg__S2dTcDac, uint8_t arg__S2dDac, uint8_t arg__TestBe, uint8_t arg__IsEn, uint8_t arg__DelExec, uint8_t arg__DelCckReg, uint16_t arg__RowStartAddr, uint16_t arg__RowStopAddr, uint8_t arg__ColStartAddr, uint8_t arg__ColStopAddr, uint16_t arg__chipID);
-//  AsicConfigV1() {}
-//  AsicConfigV1(const AsicConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  AsicConfigV1& operator=(const AsicConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  AsicConfigV1() {}
+  AsicConfigV1(const AsicConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  AsicConfigV1& operator=(const AsicConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint8_t monostPulser() const { return uint8_t(this->_reg1 & 0x7); }
   uint8_t dummyTest() const { return uint8_t(this->_reg2 & 0x1); }
   uint8_t dummyMask() const { return uint8_t((this->_reg2>>1) & 0x1); }
@@ -120,16 +120,16 @@ public:
 //    : _numberOfAsicsPerRow(numberOfAsicsPerRow), _numberOfAsicsPerColumn(numberOfAsicsPerColumn), _numberOfRowsPerAsic(numberOfRowsPerAsic), _numberOfPixelsPerAsicRow(numberOfPixelsPerAsicRow)
 //  {
 //  }
-//  ConfigV1() {}
-//  ConfigV1(const ConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  ConfigV1& operator=(const ConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  ConfigV1() {}
+  ConfigV1(const ConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  ConfigV1& operator=(const ConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint32_t version() const { return _version; }
   uint32_t runTrigDelay() const { return _runTrigDelay; }
   uint32_t daqTrigDelay() const { return _daqTrigDelay; }
@@ -178,8 +178,8 @@ public:
   const Epix::AsicConfigV1* memptr = (const Epix::AsicConfigV1*)(((const char*)this)+offset);
   size_t memsize = memptr->_sizeof();
   return *(const Epix::AsicConfigV1*)((const char*)memptr + (i0)*memsize); }
-  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
-    this instance, the returned ndarray object can be used even after this instance disappears. */
+//  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
+//    this instance, the returned ndarray object can be used even after this instance disappears. */
 //  template <typename T>
 //  ndarray<const uint32_t, 3> asicPixelTestArray(const boost::shared_ptr<T>& owner) const {
 //    ptrdiff_t offset=112+(84*(this->numberOfAsicsPerRow()*this->numberOfAsicsPerColumn()));
@@ -258,16 +258,16 @@ private:
 class Asic10kConfigV1 {
 public:
 //  Asic10kConfigV1(uint8_t arg__CompTH_DAC, uint8_t arg__CompEn_0, uint8_t arg__PulserSync, uint8_t arg__dummyTest, uint8_t arg__dummyMask, uint8_t arg__dummyG, uint8_t arg__dummyGA, uint16_t arg__dummyUpper12bits, uint16_t arg__pulser, uint8_t arg__pbit, uint8_t arg__atest, uint8_t arg__test, uint8_t arg__sabTest, uint8_t arg__hrTest, uint8_t arg__PulserR, uint8_t arg__digMon1, uint8_t arg__digMon2, uint8_t arg__pulserDac, uint8_t arg__monostPulser, uint8_t arg__CompEn_1, uint8_t arg__CompEn_2, uint8_t arg__Dm1En, uint8_t arg__Dm2En, uint8_t arg__emph_bd, uint8_t arg__emph_bc, uint8_t arg__VRefDac, uint8_t arg__VrefLow, uint8_t arg__TpsTComp, uint8_t arg__TpsMux, uint8_t arg__RoMonost, uint8_t arg__TpsGr, uint8_t arg__S2dGr, uint8_t arg__PpOcbS2d, uint8_t arg__Ocb, uint8_t arg__Monost, uint8_t arg__FastppEnable, uint8_t arg__Preamp, uint8_t arg__PixelCb, uint8_t arg__Vld1_b, uint8_t arg__S2dTComp, uint8_t arg__FilterDac, uint8_t arg__testVDTransmitter, uint8_t arg__TC, uint8_t arg__S2d, uint8_t arg__S2dDacBias, uint8_t arg__TpsTcDac, uint8_t arg__TpsDac, uint8_t arg__S2dTcDac, uint8_t arg__S2dDac, uint8_t arg__TestBe, uint8_t arg__IsEn, uint8_t arg__DelExec, uint8_t arg__DelCckReg, uint8_t arg__RO_rst_en, uint8_t arg__slvdSBit, uint8_t arg__FELmode, uint8_t arg__CompEnOn, uint16_t arg__RowStartAddr, uint16_t arg__RowStopAddr, uint8_t arg__ColStartAddr, uint8_t arg__ColStopAddr, uint16_t arg__chipID);
-//  Asic10kConfigV1() {}
-//  Asic10kConfigV1(const Asic10kConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  Asic10kConfigV1& operator=(const Asic10kConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  Asic10kConfigV1() {}
+  Asic10kConfigV1(const Asic10kConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  Asic10kConfigV1& operator=(const Asic10kConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint8_t CompTH_DAC() const { return uint8_t(this->_reg1 & 0x3f); }
   uint8_t CompEn_0() const { return uint8_t((this->_reg1>>6) & 0x1); }
   uint8_t PulserSync() const { return uint8_t((this->_reg1>>7) & 0x1); }
@@ -372,16 +372,16 @@ public:
 //    : _lastRowExclusions(lastRowExclusions), _numberOfAsicsPerRow(numberOfAsicsPerRow), _numberOfAsicsPerColumn(numberOfAsicsPerColumn), _numberOfRowsPerAsic(numberOfRowsPerAsic), _numberOfPixelsPerAsicRow(numberOfPixelsPerAsicRow)
 //  {
 //  }
-//  Config10KV1() {}
-//  Config10KV1(const Config10KV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  Config10KV1& operator=(const Config10KV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  Config10KV1() {}
+  Config10KV1(const Config10KV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  Config10KV1& operator=(const Config10KV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint32_t version() const { return _version; }
   uint32_t runTrigDelay() const { return _runTrigDelay; }
   uint32_t daqTrigDelay() const { return _daqTrigDelay; }
@@ -450,8 +450,8 @@ public:
   const Epix::Asic10kConfigV1* memptr = (const Epix::Asic10kConfigV1*)(((const char*)this)+offset);
   size_t memsize = memptr->_sizeof();
   return *(const Epix::Asic10kConfigV1*)((const char*)memptr + (i0)*memsize); }
-  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
-    this instance, the returned ndarray object can be used even after this instance disappears. */
+//  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
+//    this instance, the returned ndarray object can be used even after this instance disappears. */
 //  template <typename T>
 //  ndarray<const uint16_t, 3> asicPixelConfigArray(const boost::shared_ptr<T>& owner) const {
 //    ptrdiff_t offset=136+(84*(this->numberOfAsicsPerRow()*this->numberOfAsicsPerColumn()));
@@ -522,16 +522,16 @@ private:
 class Asic100aConfigV1 {
 public:
 //  Asic100aConfigV1(uint8_t arg__pulserVsPixelOnDelay, uint8_t arg__pulserSync, uint8_t arg__dummyTest, uint8_t arg__dummyMask, uint16_t arg__testPulserLevel, uint8_t arg__pulserCounterDirection, uint8_t arg__automaticTestModeEnable, uint8_t arg__testMode, uint8_t arg__testModeWithDarkFrame, uint8_t arg__highResolutionModeTest, uint8_t arg__pulserReset, uint8_t arg__digitalMonitorMux1, uint8_t arg__digitalMonitorMux2, uint8_t arg__testPulserCurrent, uint8_t arg__testPointSystemOutputDynamicRange, uint8_t arg__digitalMonitor1Enable, uint8_t arg__digitalMonitor2Enable, uint8_t arg__LVDS_ImpedenceMatchingEnable, uint8_t arg__VRefBaseLineDac, uint8_t arg__extraRowsLowReferenceValue, uint8_t arg__testPointSystemTemperatureCompensationEnable, uint8_t arg__testPointSytemInputSelect, uint8_t arg__programmableReadoutDelay, uint8_t arg__outputDriverOutputDynamicRange0, uint8_t arg__outputDriverOutputDynamicRange1, uint8_t arg__balconyEnable, uint8_t arg__balconyDriverCurrent, uint8_t arg__fastPowerPulsingSpeed, uint8_t arg__fastPowerPulsingEnable, uint8_t arg__preamplifierCurrent, uint8_t arg__pixelOutputBufferCurrent, uint8_t arg__pixelBufferAndPreamplifierDrivingCapabilities, uint8_t arg__outputDriverTemperatureCompensationEnable, uint8_t arg__pixelFilterLevel, uint8_t arg__bandGapReferenceTemperatureCompensationBits, uint8_t arg__outputDriverDrivingCapabilitiesAndStability, uint8_t arg__outputDriverDacReferenceBias, uint8_t arg__testPointSystemTemperatureCompensationGain, uint8_t arg__testPointSystemInputCommonMode, uint8_t arg__outputDriverTemperatureCompensationGain0, uint8_t arg__outputDriverInputCommonMode0, uint8_t arg__testBackEnd, uint8_t arg__interleavedReadOutEnable, uint8_t arg_EXEC_DelayEnable, uint8_t arg__CCK_RegDelayEnable, uint8_t arg__syncPinEnable, uint16_t arg__RowStartAddr, uint16_t arg__RowStopAddr, uint8_t arg__ColumnStartAddr, uint8_t arg__ColumnStopAddr, uint16_t arg__chipID, uint8_t arg__outputDriverOutputDynamicRange2, uint8_t arg__outputDriverOutputDynamicRange3, uint8_t arg__outputDriverTemperatureCompensationGain1, uint8_t arg__outputDriverInputCommonMode1, uint8_t arg__outputDriverTemperatureCompensationGain2, uint8_t arg__outputDriverInputCommonMode2, uint8_t arg__outputDriverTemperatureCompensationGain3, uint8_t arg__outputDriverInputCommonMode3);
-//  Asic100aConfigV1() {}
-//  Asic100aConfigV1(const Asic100aConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  Asic100aConfigV1& operator=(const Asic100aConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  Asic100aConfigV1() {}
+  Asic100aConfigV1(const Asic100aConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  Asic100aConfigV1& operator=(const Asic100aConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint8_t pulserVsPixelOnDelay() const { return uint8_t(this->_reg1 & 0x7); }
   uint8_t pulserSync() const { return uint8_t((this->_reg1>>7) & 0x1); }
   uint8_t dummyTest() const { return uint8_t(this->_reg2 & 0x1); }
@@ -638,15 +638,15 @@ public:
 //  {
 //  }
   Config100aV1() {}
-//  Config100aV1(const Config100aV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  Config100aV1& operator=(const Config100aV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  Config100aV1(const Config100aV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  Config100aV1& operator=(const Config100aV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint32_t version() const { return _version; }
   uint32_t runTrigDelay() const { return _runTrigDelay; }
   uint32_t daqTrigDelay() const { return _daqTrigDelay; }
@@ -712,8 +712,8 @@ public:
   const Epix::Asic100aConfigV1* memptr = (const Epix::Asic100aConfigV1*)(((const char*)this)+offset);
   size_t memsize = memptr->_sizeof();
   return *(const Epix::Asic100aConfigV1*)((const char*)memptr + (i0)*memsize); }
-  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
-    this instance, the returned ndarray object can be used even after this instance disappears. */
+//  /**     Note: this overloaded method accepts shared pointer argument which must point to an object containing
+//    this instance, the returned ndarray object can be used even after this instance disappears. */
 //  template <typename T>
 //  ndarray<const uint16_t, 2> asicPixelConfigArray(const boost::shared_ptr<T>& owner) const {
 //    ptrdiff_t offset=144+(100*(this->numberOfAsicsPerRow()*this->numberOfAsicsPerColumn()));
@@ -817,15 +817,15 @@ public:
 //  {
 //  }
   Config100aV2() {}
-//  Config100aV2(const Config100aV2& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  Config100aV2& operator=(const Config100aV2& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  Config100aV2(const Config100aV2& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  Config100aV2& operator=(const Config100aV2& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint32_t version() const { return _version; }
   uint32_t usePgpEvr() const { return _usePgpEvr; }
   uint32_t evrRunCode() const { return _evrRunCode; }
@@ -1012,15 +1012,15 @@ class AsicSConfigV1 {
 public:
 //  AsicSConfigV1(uint8_t arg__pulserSync, uint8_t arg__dummyTest, uint8_t arg__dummyMask, uint16_t arg__testPulserLevel, uint8_t arg__pulserCounterDirection, uint8_t arg__automaticTestModeEnable, uint8_t arg__testMode, uint8_t arg__testModeWithDarkFrame, uint8_t arg__highResolutionModeTest, uint8_t arg__pulserReset, uint8_t arg__digitalMonitorMux1, uint8_t arg__digitalMonitorMux2, uint8_t arg__testPulserCurrent, uint8_t arg__pulserVsPixelOnDelay, uint8_t arg__digitalMonitor1Enable, uint8_t arg__digitalMonitor2Enable, uint8_t arg__inputLeakageCompensation, uint8_t arg__inputLeakageCompensationEnable, uint8_t arg__VRefBaseLineDac, uint8_t arg__extraRowsLowReferenceValue, uint8_t arg__testPointSystemTemperatureCompensationEnable, uint8_t arg__testPointSytemInputSelect, uint8_t arg__programmableReadoutDelay, uint8_t arg__testPointSystemOutputDynamicRange, uint8_t arg__outputDriverOutputDynamicRange, uint8_t arg__balconyEnable, uint8_t arg__balconyDriverCurrent, uint8_t arg__fastPowerPulsingSpeed, uint8_t arg__fastPowerPulsingEnable, uint8_t arg__preamplifierCurrent, uint8_t arg__pixelOutputBufferCurrent, uint8_t arg__pixelBufferAndPreamplifierDrivingCapabilities, uint8_t arg__outputDriverTemperatureCompensationEnable, uint8_t arg__pixelFilterLevel, uint8_t arg__bandGapReferenceTemperatureCompensationBits, uint8_t arg__outputDriverDrivingCapabilitiesAndStability, uint8_t arg__outputDriverDacReferenceBias, uint8_t arg__testPointSystemTemperatureCompensationGain, uint8_t arg__testPointSystemInputCommonMode, uint8_t arg__outputDriverTemperatureCompensationGain, uint8_t arg__outputDriverInputCommonMode, uint8_t arg__testBackEnd, uint8_t arg__interleavedReadOutEnable, uint8_t arg_EXEC_DelayEnable, uint8_t arg__CCK_RegDelayEnable, uint8_t arg__syncPinEnable, uint8_t arg__LVDS_ImpedenceMatchingEnable, uint16_t arg__RowStartAddr, uint16_t arg__RowStopAddr, uint8_t arg__ColumnStartAddr, uint8_t arg__ColumnStopAddr, uint16_t arg__chipID);
   AsicSConfigV1() {}
-//  AsicSConfigV1(const AsicSConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  AsicSConfigV1& operator=(const AsicSConfigV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  AsicSConfigV1(const AsicSConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  AsicSConfigV1& operator=(const AsicSConfigV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint8_t pulserSync() const { return uint8_t((this->_reg1>>7) & 0x1); }
   uint8_t dummyTest() const { return uint8_t(this->_reg2 & 0x1); }
   uint8_t dummyMask() const { return uint8_t((this->_reg2>>1) & 0x1); }
@@ -1116,15 +1116,15 @@ public:
 //  {
 //  }
   ConfigSV1() {}
-//  ConfigSV1(const ConfigSV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//  }
-//  ConfigSV1& operator=(const ConfigSV1& other) {
-//    const char* src = reinterpret_cast<const char*>(&other);
-//    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
-//    return *this;
-//  }
+  ConfigSV1(const ConfigSV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+  }
+  ConfigSV1& operator=(const ConfigSV1& other) {
+    const char* src = reinterpret_cast<const char*>(&other);
+    std::copy(src, src+other._sizeof(), reinterpret_cast<char*>(this));
+    return *this;
+  }
   uint32_t version() const { return _version; }
   uint32_t runTrigDelay() const { return _runTrigDelay; }
   uint32_t daqTrigDelay() const { return _daqTrigDelay; }
