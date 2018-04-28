@@ -621,17 +621,61 @@ void pp40::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Processor");
   s.beginGroup(QString::fromStdString(name()));
-  _threshold = s.value("Threshold", 0.0).toFloat();
   _one = setupDependency("InputName");
+  _userVal = s.value("UserVal",0.f).toFloat();
   setupGeneral();
   bool ret (setupCondition());
+  QString valuekey("Threshold");
+  QString valueparam(s.value(valuekey,1).toString());
+  bool IsFloatValue(false);
+  result_t::value_t val(valueparam.toFloat(&IsFloatValue));
+  if (!IsFloatValue)
+  {
+    _threshPP = setupDependency(valuekey.toStdString());
+    ret = _threshPP && ret;
+    _applyThresh = bind(&pp40::applyIdxwiseThreshold,this,_1,_2,_3);
+  }
+  else
+  {
+    _applyThresh = bind(&pp40::applyConstantThreshold,this,_1,_2,_3);
+    _threshold = val;
+  }
   if (!(_one && ret))
     return;
   createHistList(_one->result().clone());
   Log::add(Log::INFO,"Processor '" + name() +
-           "' will threshold Histogram in Processor '" + _one->name() +
-           "' above '" + toString(_threshold) +
-           "'. Condition is '" + _condition->name() + "'");
+           "' will threshold Result in Processor '" + _one->name() +
+           (IsFloatValue ? ("' above '" + toString(_threshold)) :
+           ("' indexwise with threshold values defined in '" + _threshPP->name())) +
+           "'. In case the value is below the threshold it will be set to  '" +
+           toString(_userVal) + "'. Condition is '" + _condition->name() + "'");
+}
+
+Processor::result_t::value_t pp40::threshold(const result_t::value_t& value,
+                                             const result_t::value_t& thresh)
+{
+  return ((thresh < value) ? value : _userVal);
+}
+
+void pp40::applyConstantThreshold(const result_t &in,
+                                  result_t &out,
+                                  const CASSEvent::id_t & /*id*/)
+{
+  transform(in.begin(), in.begin() + in.datasize(),
+            out.begin(),
+            bind(&pp40::threshold,this,_1,_threshold));
+}
+
+void pp40::applyIdxwiseThreshold(const result_t &in,
+                                 result_t &out,
+                                 const CASSEvent::id_t &id)
+{
+  const result_t &thresh(_threshPP->result(id));
+  QReadLocker lock(&thresh.lock);
+  transform(in.begin(), in.begin() + in.datasize(),
+            thresh.begin(),
+            out.begin(),
+            bind(&pp40::threshold,this,_1,_2));
 }
 
 void pp40::process(const CASSEvent& evt, result_t &result)
@@ -639,9 +683,11 @@ void pp40::process(const CASSEvent& evt, result_t &result)
   const result_t &one(_one->result(evt.id()));
   QReadLocker lock(&one.lock);
 
+  _applyThresh(one, result, evt.id());
+
   /** only threshold the area containing data */
-  transform(one.begin(), one.begin()+one.datasize(), result.begin(),
-            bind2nd(threshold(), _threshold));
+//  transform(one.begin(), one.begin()+one.datasize(), result.begin(),
+//            bind2nd(threshold(), _threshold));
 }
 
 

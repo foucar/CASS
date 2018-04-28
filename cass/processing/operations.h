@@ -471,9 +471,14 @@ protected:
  * @cassttng Processor/\%name\%/{InputName} \n
  *           processor name with result that should be thresholded. Default is 0.
  * @cassttng Processor/\%name\%/{Threshold} \n
- *           Factor with which threshold value. Default is 0.
+ *           Either an result or a constant value with which the input result
+ *           will be thresholded.
+ * @cassttng Processor/\%name\%/{UserVal} \n
+ *           The value that will be set when the input value is below the
+ *           threshold. Default is 0.
  *
  * @author Thomas White
+ * @author Lutz Foucar
  */
 class pp40 : public Processor
 {
@@ -488,8 +493,46 @@ public:
   virtual void loadSettings(size_t);
 
 protected:
+  /** the funtion that applies the threshold to the input */
+  std::tr1::function<void(const result_t&, result_t&,
+                          const CASSEvent::id_t&)> _applyThresh;
+
+  /** the thresholding function
+   *
+   * will check whether the input is bigger than the threshold and return the
+   * input if so, otherwise it will retrun the user value.
+   *
+   * @param value the value to check for
+   * @param thresh the threshold for the value
+   */
+  result_t::value_t threshold(const result_t::value_t &value,
+                              const result_t::value_t &thres);
+  /** apply a constant threshold
+   *
+   * @param in the input result that should be thresholded
+   * @param out the result where the thresholded values will be written to
+   * @param id the event id of the current event
+   */
+  void applyConstantThreshold(const result_t &in, result_t &out,
+                              const CASSEvent::id_t &id);
+
+  /** apply a indexwise threshold
+   *
+   * @param in the input result that should be thresholded
+   * @param out the result where the thresholded values will be written to
+   * @param id the event id of the current event
+   */
+  void applyIdxwiseThreshold(const result_t &in, result_t &out,
+                             const CASSEvent::id_t &id);
+
+  /** pp containing the indexwise threshold */
+  shared_pointer _threshPP;
+
   /** pp containing input result */
   shared_pointer _one;
+
+  /** the user value that will be set when the threshold is applied */
+  result_t::value_t _userVal;
 
   /** the threshold */
   result_t::value_t _threshold;
