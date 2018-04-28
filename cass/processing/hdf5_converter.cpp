@@ -216,7 +216,7 @@ public:
     Processor &proc(*entry.proc);
 
     /** create the requested dataset name */
-    const string dataName("/" + gname + "/" + name);
+    const string dataName(_baseGroupname + "/" + gname + "/" + name);
 
     /** retrieve data from pp and write it to the h5 file */
     const Processor::result_t &data(proc.result(_id));
@@ -257,6 +257,10 @@ protected:
   {
     switch (data.dim())
     {
+    case 0:
+    {
+      break;
+    }
     case 1:
     {
       const Processor::result_t::axe_t &xaxis(data.axis(Processor::result_t::xAxis));
@@ -275,7 +279,7 @@ protected:
       break;
     }
     default:
-      throw runtime_error("WriteEntry::operator(): data dimension '" +
+      throw runtime_error("AppendEntry::writeAttrib(): data dimension '" +
                           toString(data.dim()) + "' not known");
       break;
     }
