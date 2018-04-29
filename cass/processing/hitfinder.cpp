@@ -1225,8 +1225,8 @@ void pp209::process(const CASSEvent & evt, result_t &result)
    */
   vector<bool>::iterator checkedPixel(checkedPixels.begin());
   result_t::const_iterator pixel(image.begin());
-  result_t::const_iterator ImageEnd(image.end());
-  result_t::const_iterator thresh(thresholds.end());
+  result_t::const_iterator ImageEnd(image.begin() + image.datasize());
+  result_t::const_iterator thresh(thresholds.begin());
   index_t idx(0);
   for (;pixel != ImageEnd; ++pixel, ++idx, ++checkedPixel, ++thresh)
   {
@@ -1243,7 +1243,7 @@ void pp209::process(const CASSEvent & evt, result_t &result)
      *  by the user provided factor, this allows to check the pixels using
      *  a noise map.
      */
-    if (*pixel < (_factor * *thresh))
+    if (*pixel < (_factor * (*thresh)))
       continue;
 
     /** from the pixel look around and see which pixels are also above the
