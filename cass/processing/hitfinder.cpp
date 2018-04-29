@@ -1144,3 +1144,217 @@ void pp208::process(const CASSEvent & evt, result_t &result)
 
 
 
+//******************** processor 209: cluster pixels ************
+
+
+pp209::pp209(const name_t &name)
+  : Processor(name)
+{
+  loadSettings(0);
+}
+
+void pp209::loadSettings(size_t)
+{
+  CASSSettings s;
+
+  s.beginGroup("Processor");
+  s.beginGroup(QString::fromStdString(name()));
+
+  _factor = s.value("Factor",1).toFloat();
+  setupGeneral();
+  bool ret (setupCondition());
+  _imagePP = setupDependency("ImageName");
+  ret = _imagePP && ret;
+  _threshPP = setupDependency("Threshold");
+  ret = _threshPP && ret;
+
+  if (!ret)
+    return;
+
+  /** check if the input processors have the correct type */
+  if (_imagePP->result().dim() != 2)
+    throw invalid_argument("pp209:loadSettings '" +name() +
+                           "': image processor '" + _imagePP->name() +
+                           "' doesn't contain a 2d result");
+  if (_threshPP->result().dim() != 2)
+    throw invalid_argument("pp209:loadSettings '" +name() +
+                           "': threshold processor '" + _imagePP->name() +
+                           "' doesn't contain a 2d result");
+
+  /** set up the neighbouroffset list */
+  const result_t &srcImageHist(_imagePP->result());
+  _imageShape = srcImageHist.shape();
+  _neighbourOffsets.clear();
+  _neighbourOffsets.push_back(+_imageShape.first+0);     //up
+  _neighbourOffsets.push_back(-1);                       //left
+  _neighbourOffsets.push_back(+1);                       //right
+
+  /** Create the result output */
+  createHistList(result_t::shared_pointer(new result_t(nbrOf,0)));
+
+  /** log what the user was requesting */
+  string output("Processor '" + name() + "' clusters pixels above threshold in '" +
+                _imagePP->name() +
+                "'. Threshold '" + _threshPP->name() +
+                "'. Factor '" + toString(_factor) +
+                "'. Condition is '" + _condition->name() + "'");
+  Log::add(Log::INFO,output);
+}
+
+void pp209::process(const CASSEvent & evt, result_t &result)
+{
+  const result_t &image(_imagePP->result(evt.id()));
+  QReadLocker imageLock(&image.lock);
+
+  const result_t &thresholds(_threshPP->result(evt.id()));
+  QReadLocker threshLock(&image.lock);
+
+  /** clear the resulting table to fill it with the values of this image */
+  result.resetTable();
+
+  /** get a table row that we can later add to the table */
+  table_t peak(nbrOf,0);
+
+  /** set up a mask that we can see which pixels have been treated */
+  vector<bool> checkedPixels(image.size(),false);
+
+  /** get iterators for the mask and the image with which we can iterate through
+   *  the image, also rember which linearized index we are working on right
+   *  now, to be able to retrieve the column and row that the current pixel
+   *  corresponsed to.
+   */
+  vector<bool>::iterator checkedPixel(checkedPixels.begin());
+  result_t::const_iterator pixel(image.begin());
+  result_t::const_iterator ImageEnd(image.end());
+  result_t::const_iterator thresh(thresholds.end());
+  index_t idx(0);
+  for (;pixel != ImageEnd; ++pixel, ++idx, ++checkedPixel, ++thresh)
+  {
+    /** check if pixel should be treated, when it has been treated before
+     *  continue with the next pixel
+     */
+    if (*checkedPixel)
+      continue;
+
+    /** if it wasn't checked, then its checked now */
+    *checkedPixel = true;
+
+    /** check if pixel is above the pixelwise threshold, which is increased
+     *  by the user provided factor, this allows to check the pixels using
+     *  a noise map.
+     */
+    if (*pixel < (_factor * *thresh))
+      continue;
+
+    /** from the pixel look around and see which pixels are also above the
+     *  threshold. If a neighbour is found, mask it such that one does
+     *  not use it twice.
+     *
+     *  Create a list that should contain the indizes of the pixels that are
+     *  part of the peak. Go through that list and check for each found
+     *  neighbour whether it also has a neighbour. If so add it to the list, but
+     *  only if its above the threshold
+     */
+    vector<index_t> pixIdxs;
+    pixIdxs.push_back(idx);
+    for (size_t pix(0); pix < pixIdxs.size(); ++pix)
+    {
+      const index_t pixpos(pixIdxs[pix]);
+      neighbourList_t::const_iterator ngbrOffset(_neighbourOffsets.begin());
+      neighbourList_t::const_iterator neighboursEnd(_neighbourOffsets.end());
+      while(ngbrOffset != neighboursEnd)
+      {
+        const index_t ngbrIdx(pixpos + *ngbrOffset++);
+        const index_t ngbrCol(ngbrIdx % _imageShape.first);
+        const index_t ngbrRow(ngbrIdx / _imageShape.first);
+        /** check if the neighbour is within the image shape */
+        if ( ngbrCol < 0 ||                  // neighbour is to the left of image
+             ngbrCol >= _imageShape.first || // neighbour is to the right of image
+             ngbrRow < 0 ||                  // neighbour is below the image
+             ngbrRow >= _imageShape.second)  // neighbour is above the image
+          continue;
+        /** check if neighbour was already treated */
+        if (checkedPixels[ngbrIdx])
+          continue;
+        /** when the checks have passed it will be treated */
+        checkedPixels[ngbrIdx] = true;
+        /** check whether its above the threshold, if so add it to the pixellist */
+        if ((_factor * thresholds[ngbrIdx])< image[ngbrIdx])
+          pixIdxs.push_back(ngbrIdx);
+      }
+    }
+
+    /** now that we found all the pixels that are connected to the starting
+     *  pixel, go through all pixels in the list and centroid them.
+     */
+    pixelval_t integral(0);
+    pixelval_t weightCol(0);
+    pixelval_t weightRow(0);
+    pixelval_t maxPixVal(0);
+    index_t maxPixIdx(0);
+    index_t maxPixCol(0);
+    index_t maxPixRow(0);
+    index_t minCol(0);
+    index_t maxCol(_imageShape.first);
+    index_t minRow(0);
+    index_t maxRow(_imageShape.second);
+    vector<index_t>::const_iterator pixIdx(pixIdxs.begin());
+    vector<index_t>::const_iterator pixIdxEnd(pixIdxs.end());
+    for (; pixIdx != pixIdxEnd; ++pixIdx)
+    {
+      /** get the pixel parameters */
+      const index_t pixCol(*pixIdx % _imageShape.first);
+      const index_t pixRow(*pixIdx / _imageShape.first);
+      const pixelval_t pixVal(image[*pixIdx]);
+
+      /** calculate the peak properties */
+      integral += pixVal;
+      weightCol += (pixVal * static_cast<pixelval_t>(pixCol));
+      weightRow += (pixVal * static_cast<pixelval_t>(pixRow));
+
+      /** find the maximum pixel */
+      if (maxPixVal < pixVal)
+      {
+        maxPixVal = pixVal;
+        maxPixIdx = *pixIdx;
+        maxPixCol = pixCol;
+        maxPixRow = pixRow;
+      }
+
+      /** find min and max col and row */
+      if (maxCol < pixCol)
+        maxCol = pixCol;
+      if (pixCol < minCol)
+        minCol = pixCol;
+      if (maxRow < pixRow)
+        maxRow = pixRow;
+      if (pixRow < minRow)
+        minRow = pixRow;
+    }
+
+    /** set the peak's properties and add peak to the list of found peaks */
+    peak[Integral] = integral;
+    peak[CentroidColumn] = weightCol / integral;
+    peak[CentroidRow] = weightRow / integral;
+    peak[MaxADU] = maxPixVal;
+    peak[Index] = maxPixIdx;
+    peak[Column] = maxPixCol;
+    peak[Row] = maxPixRow;
+    peak[MaxColumn] = maxCol;
+    peak[MinColumn] = minCol;
+    peak[ColumnSize] = maxCol - minCol;
+    peak[MaxRow] = maxRow;
+    peak[MinRow] = minRow;
+    peak[RowSize] = maxRow - minRow;
+    peak[NbrOfPixels] = pixIdxs.size();
+
+    result.appendRows(peak);
+  }
+
+  /** tell that only the result of one event (image) is present in the table */
+}
+
+
+
+
+

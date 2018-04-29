@@ -561,6 +561,98 @@ protected:
 };
 
 
+
+
+
+
+
+
+/** find connected pixels, coalesce them and store them in a list
+ *
+ * @PPList "209": cluster connected pixels and store them in list
+ *
+ *
+ * @see Processor for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng Processor/\%name\%/{ImageName} \n
+ *           the processor name that contain the 2d histogram. Default
+ *           is "Unknown".
+ * @cassttng Processor/\%name\%/{Threshold} \n
+ *           name of the processor that contains the pixelwise thresholds. Must
+ *           be the same dimension as the image.
+ * @cassttng Processor/\%name\%/{Factor} \n
+ *           Factor to multiply the pixelwise threshold with, so that one can
+ *           use a noise map as a threshold. Default is 1.
+ *
+ * @author Lutz Foucar
+ */
+class pp209 : public Processor
+{
+public:
+  /** constructor */
+  pp209(const name_t &name);
+
+  /** process event */
+  virtual void process(const CASSEvent&, result_t&);
+
+  /** load the settings of this pp */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** definition of the table */
+  typedef result_t::storage_t table_t;
+
+  /** define the type of the pixel in image */
+  typedef result_t::storage_t::value_type pixelval_t;
+
+  /** define the index in the image */
+  typedef int64_t index_t;
+
+  /** define the shape of the image */
+  typedef std::pair<index_t,index_t> shape_t;
+
+  /** define the list of neighbours */
+  typedef std::vector<index_t> neighbourList_t;
+
+  /** enum describing the contents of the resulting table */
+  enum ColumnNames
+  {
+    Integral                  =  0,
+    CentroidColumn            =  1,
+    CentroidRow               =  2,
+    MaxADU                    =  3,
+    Index                     =  4,
+    Column                    =  5,
+    Row                       =  6,
+    MaxColumn                 =  7,
+    MinColumn                 =  8,
+    ColumnSize                =  9,
+    MaxRow                    = 10,
+    MinRow                    = 11,
+    RowSize                   = 12,
+    NbrOfPixels               = 13,
+    nbrOf
+  };
+
+protected:
+  /** processor containing the image */
+  shared_pointer _imagePP;
+
+  /** processor containing the threshold for each pixel of the image */
+  shared_pointer _threshPP;
+
+  /** size of the incomming image */
+  shape_t _imageShape;
+
+  /** the list of offsets to next neighbours */
+  neighbourList_t _neighbourOffsets;
+
+  /** the factor that the pixelwise threshold is multuplied with */
+  pixelval_t _factor;
+};
+
+
 }//end namespace cass
 
 #endif

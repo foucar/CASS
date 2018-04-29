@@ -532,6 +532,9 @@ Processor::shared_pointer ProcessorManager::create(const key_t &key)
   case BraggPeakSNRWOOutliers:
     processor = Processor::shared_pointer(new pp208(key));
     break;
+  case ClusterPixelsAboveThreshold:
+    processor = Processor::shared_pointer(new pp209(key));
+    break;
   case PIPICO:
     processor = Processor::shared_pointer(new pp220(key));
     break;

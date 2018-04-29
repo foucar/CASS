@@ -164,6 +164,7 @@ the Class description for information about what parameters are user settable.
 00203: Local image background using median box
 00204: Find Bragg peaks in image using signal to noise ratio
 00208: Find Bragg peaks in image using signal to noise ratio without outliers
+00209: Cluster connected pixels which are above a threshold in an image
 00205: Display Peaks found in an image
 00206: Find Pixels that might belong to a bragg peak by looking above threshold
 
@@ -418,6 +419,7 @@ public:
     BraggPeakThreshold=206,
     ImageFromTable=207,
     BraggPeakSNRWOOutliers=208,
+    ClusterPixelsAboveThreshold=209,
 
     AdvancedPhotonFinderDump=212,
 
