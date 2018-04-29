@@ -1171,19 +1171,38 @@ void pp209::loadSettings(size_t)
   if (!ret)
     return;
 
+  /** get references to the input results */
+  const result_t &srcImageHist(_imagePP->result());
+  const result_t &srcThreshHist(_threshPP->result());
+
+  /** get the shape of the input results */
+  _imageShape = srcImageHist.shape();
+  shape_t threshShape = srcThreshHist.shape();
+
+
   /** check if the input processors have the correct type */
-  if (_imagePP->result().dim() != 2)
+  if (srcImageHist.dim() != 2)
     throw invalid_argument("pp209:loadSettings '" +name() +
                            "': image processor '" + _imagePP->name() +
                            "' doesn't contain a 2d result");
-  if (_threshPP->result().dim() != 2)
+  if (srcThreshHist.dim() != 2)
     throw invalid_argument("pp209:loadSettings '" +name() +
-                           "': threshold processor '" + _imagePP->name() +
+                           "': threshold processor '" + _threshPP->name() +
                            "' doesn't contain a 2d result");
+  if (_imageShape.first != threshShape.first)
+    throw invalid_argument("pp209:loadSettings '" +name() +
+                           "': threshold processor '" + _threshPP->name() +
+                           "' x-size '" + toString(threshShape.first) +
+                           "' while image processor '" + _imagePP->name() +
+                           "' has x-size '" + toString(_imageShape.first));
+  if (_imageShape.second != threshShape.second)
+    throw invalid_argument("pp209:loadSettings '" +name() +
+                           "': threshold processor '" + _threshPP->name() +
+                           "' y-size '" + toString(threshShape.second) +
+                           "' while image processor '" + _imagePP->name() +
+                           "' has y-size '" + toString(_imageShape.second));
 
   /** set up the neighbouroffset list */
-  const result_t &srcImageHist(_imagePP->result());
-  _imageShape = srcImageHist.shape();
   _neighbourOffsets.clear();
   _neighbourOffsets.push_back(+_imageShape.first+0);     //up
   _neighbourOffsets.push_back(-1);                       //left
