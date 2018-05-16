@@ -453,7 +453,10 @@ public:
     {
       // Create dataset creation property list, set the gzip compression filter
       // and chunck size
-      hsize_t chunk[2] = {shape.second,shape.first};
+      // in case one of the dimensions is 0, then set it to 1
+      hsize_t slowestDim(shape.second?shape.second:1);
+      hsize_t fastestDim(shape.first?shape.first:1);
+      hsize_t chunk[2] = {slowestDim,fastestDim};
       hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
       herr_t stat(H5Pset_deflate (dcpl, compressLevel));
       if (stat < 0)
