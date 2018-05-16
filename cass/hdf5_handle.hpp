@@ -455,8 +455,14 @@ public:
       // and chunck size
       hsize_t chunk[2] = {shape.second,shape.first};
       hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
-      H5Pset_deflate (dcpl, compressLevel);
-      H5Pset_chunk (dcpl, 2, chunk);
+      herr_t stat(H5Pset_deflate (dcpl, compressLevel));
+      if (stat < 0)
+        throw runtime_error("writeMatrix(): Couldn't set the compressionlevel for '"
+                            + valname + "'");
+      stat = H5Pset_chunk (dcpl, 2, chunk);
+      if (stat < 0)
+        throw runtime_error("writeMatrix(): Couldn't set the chunk for '"
+                            + valname + "'");
       dataset_id = H5Dcreate(_fileid, valname.c_str(), H5Type<type>(),
                              dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT);
     }
