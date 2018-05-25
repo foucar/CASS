@@ -402,6 +402,37 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     if (xtc->contains.id() == Pds::TypeId::Id_pnCCDconfig && 2 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: pnCCD Config version" +
                           toString(xtc->contains.version()) + "is not supported");
+    else
+    {
+      switch (xtc->contains.version())
+      {
+      case 2:
+      {
+        const Pds::PNCCD::ConfigV2 &cfg
+            (reinterpret_cast<const Pds::PNCCD::ConfigV2&>(*(xtc->payload())));
+        string out(string("pixeldetector::Converter::operator(): ")
+         + TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id())
+         + "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
+         + "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId())
+         + "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
+         + "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId())
+         + "): CASSID '"+toString(casskey)+"'"
+         + "', rows'" + toString(cfg.numRows())
+         + "', cols'" + toString(cfg.numChannels())
+         + "', info'" + cfg.info()
+         + "', tfileName'" + cfg.timingFName()
+         + "', camaxMagic'" + toString(cfg.camexMagic())
+         + "', SegRows'" + toString(cfg.numSubmoduleRows())
+         + "', SegCols'" + toString(cfg.numSubmoduleChannels())
+         + "'");
+        Log::add(Log::INFO,out);
+      }
+      break;
+
+      default:
+      break;
+      }
+    }
     if (xtc->contains.id() == Pds::TypeId::Id_CspadConfig && 5 < xtc->contains.version())
       throw runtime_error("pixeldetector::Converter::operator: csPad Config version" +
                           toString(xtc->contains.version()) + "is not supported");
