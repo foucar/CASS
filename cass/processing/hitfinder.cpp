@@ -749,13 +749,13 @@ void pp208::loadSettings(size_t)
   if (wlIsDouble)
   {
     _wavelength = wlval;
-    _getLambda = bind(&pp208::lambdaFromConstant,this,_1);
+    _getLambda = std::tr1::bind(&pp208::lambdaFromConstant,this,_1);
   }
   else
   {
     _wavelengthPP = setupDependency(wlkey.toStdString());
     ret = _wavelengthPP && ret;
-    _getLambda = bind(&pp208::lambdaFromProcessor,this,_1);
+    _getLambda = std::tr1::bind(&pp208::lambdaFromProcessor,this,_1);
   }
   /** use fixed value for detector distance if value can be converted to double,
    *  otherwise use the detector distance from the processor
@@ -767,13 +767,13 @@ void pp208::loadSettings(size_t)
   if (ddIsDouble)
   {
     _detdist = ddval;
-    _getDistance = bind(&pp208::distanceFromConstant,this,_1);
+    _getDistance = std::tr1::bind(&pp208::distanceFromConstant,this,_1);
   }
   else
   {
     _detdistPP = setupDependency(ddkey.toStdString());
     ret = _detdistPP && ret;
-    _getDistance = bind(&pp208::distanceFromProcessor,this,_1);
+    _getDistance = std::tr1::bind(&pp208::distanceFromProcessor,this,_1);
   }
   /** use fixed value for threshold if value can be converted to double,
    *  otherwise use the detector distance from the processor
@@ -785,13 +785,13 @@ void pp208::loadSettings(size_t)
   if (threshIsDouble)
   {
     _threshold = threshval;
-    _thresh = bind(&pp208::thresholdFromConstant,this,_1);
+    _thresh = std::tr1::bind(&pp208::thresholdFromConstant,this,_1);
   }
   else
   {
     _threshPP = setupDependency(threshkey.toStdString());
     ret = _threshPP && ret;
-    _thresh = bind(&pp208::thresholdFromProcessor,this,_1);
+    _thresh = std::tr1::bind(&pp208::thresholdFromProcessor,this,_1);
   }
 
   _imagePP = setupDependency("ImageName");

@@ -511,7 +511,7 @@ void addTriangle(CommonData &data, CASSSettings &s)
 
 void createCASSMask(CommonData &data, CASSSettings &s)
 {
-  map<string,function<void(CommonData&, CASSSettings&)> > functions;
+  map<string,std::tr1::function<void(CommonData&, CASSSettings&)> > functions;
   functions["circle"] = &addCircle;
   functions["circ"] = &addCircle;
   functions["square"] = &addSquare;

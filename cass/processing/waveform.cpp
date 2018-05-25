@@ -125,8 +125,8 @@ void pp110::process(const CASSEvent &evt, result_t &result)
                            "'. User set SampleInterval '" + toString(_sampleInterval) + "'");
   }
   transform(waveform.begin(), waveform.end(), result.begin(),
-            bind(minus<float>(),
-                 bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
+            std::tr1::bind(minus<float>(),
+                 std::tr1::bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
 }
 
 

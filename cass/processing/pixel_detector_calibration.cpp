@@ -78,9 +78,9 @@ void pp330::loadSettings(size_t)
 
   /** set up the type of update */
   if (updateType == "cummulative")
-    _updateStatistics = bind(&pp330::cummulativeUpdate,this,_1,_2,_3,_4,_5);
+    _updateStatistics = std::tr1::bind(&pp330::cummulativeUpdate,this,_1,_2,_3,_4,_5);
   else if (updateType == "moving")
-    _updateStatistics = bind(&pp330::movingUpdate,this,_1,_2,_3,_4,_5);
+    _updateStatistics = std::tr1::bind(&pp330::movingUpdate,this,_1,_2,_3,_4,_5);
   else
     throw invalid_argument("pp330::loadSettings(): '" + name() +"' updateType '" +
                            updateType + "' is unknown.");
@@ -836,9 +836,9 @@ void pp333::loadSettings(size_t)
   _snr = s.value("SNR",4).toFloat();
   string calctype(s.value("CalculationType","mean").toString().toStdString());
   if(calctype == "mean")
-    _calcCommonmode = bind(&pp333::meanCalc,this,_1,_2);
+    _calcCommonmode = std::tr1::bind(&pp333::meanCalc,this,_1,_2);
   else if(calctype == "median")
-    _calcCommonmode = bind(&pp333::medianCalc,this,_1,_2);
+    _calcCommonmode = std::tr1::bind(&pp333::medianCalc,this,_1,_2);
   else
     throw invalid_argument("pp333::loadSettings() '" + name() +
                            "': Calculation type '" + calctype + "' is unkown.");

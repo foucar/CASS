@@ -48,7 +48,7 @@ void DetectorHelper::releaseDetector(const id_type &id)
 DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 {
   for (size_t i=0; i<NbrOfWorkers+2;++i)
-    _detectorList.push_back(make_pair(0,new AdvancedDetector(detname)));
+    _detectorList.push_back(make_pair(0,AdvDet_sptr(new AdvancedDetector(detname))));
   _lastEntry = _detectorList.begin();
   Log::add(Log::VERBOSEINFO,string("DetectorHelper::constructor: we are ")+
            "we are responsible for pixel det '" + detname + "'");
@@ -57,8 +57,8 @@ DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 DetectorHelper::iter_type DetectorHelper::findId(const id_type &id)
 {
   return (find_if(_detectorList.begin(), _detectorList.end(),
-                  bind(equal_to<id_type>(),id,
-                       bind<id_type>(&KeyDetPair_t::first,_1))));
+                  std::tr1::bind(equal_to<id_type>(),id,
+                       std::tr1::bind<id_type>(&KeyDetPair_t::first,_1))));
 }
 
 void DetectorHelper::release(const id_type &id)

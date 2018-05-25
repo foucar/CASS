@@ -34,7 +34,7 @@ void OnlineFixedCreator::controlCalibration(const string &)
 {
   Log::add(Log::INFO,"OnlineFixedCreator::controlCalibration(): Start collecting '" +
            toString(_nbrFrames) + "' frames for calibration");
-  _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
+  _createMap = std::tr1::bind(&OnlineFixedCreator::buildAndCalc,this,_1);
 }
 
 void OnlineFixedCreator::buildAndCalc(const Frame& frame)
@@ -121,7 +121,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
     if(_writeMaps)
       _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
-    _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreator::doNothing,this,_1);
     _specialstorage.clear();
     _framecounter = 0;
     Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Done creating maps: it took " +
@@ -141,10 +141,10 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
   {
     Log::add(Log::INFO,"OnlineFixedCreator::loadSettings(): Start collecting '" +
              toString(_nbrFrames) +"' frames for calibration");
-    _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreator::buildAndCalc,this,_1);
   }
   else
-    _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreator::doNothing,this,_1);
   _multiplier = s.value("Multiplier",4).toFloat();
   s.endGroup();
 }
@@ -155,7 +155,7 @@ void OnlineFixedCreatorCommonMode::controlCalibration(const string &)
 {
   Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::controlCalibration(): Start collecting '" +
            toString(_nbrFrames) + "' frames for calibration");
-  _createMap = bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
+  _createMap = std::tr1::bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
 }
 
 void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
@@ -267,7 +267,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
     if(_writeMaps)
       _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
-    _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
     _storage.clear();
     _framecounter = 0;
     Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::buildAndCalc(): Done creating maps: it took " +
@@ -287,10 +287,10 @@ void OnlineFixedCreatorCommonMode::loadSettings(CASSSettings &s)
   {
     Log::add(Log::INFO,"OnlineFixedCreatorTest::loadSettings(): Start collecting '" +
              toString(_nbrFrames) +"' frames for calibration");
-    _createMap = bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
   }
   else
-    _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
+    _createMap = std::tr1::bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
   _multiplier = s.value("Multiplier",4).toFloat();
   string commonmodetype (s.value("CommonModeCalculationType","simpleMean").toString().toStdString());
   _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);

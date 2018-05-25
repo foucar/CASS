@@ -150,13 +150,13 @@ int CASSsoapService::readini(size_t what, bool *success)
  */
 int CASSsoapService::getPostprocessorIds(bool *success)
 {
-  static QQueue< shared_ptr<string> > queue;
+  static QQueue< std::tr1::shared_ptr<string> > queue;
   QReadLocker lock(&ProcessorManager::reference().lock);
   tr1::shared_ptr<IdList> keys(ProcessorManager::reference().keys());
-  shared_ptr<Serializer> ser(new Serializer);
+  std::tr1::shared_ptr<Serializer> ser(new Serializer);
   keys->serialize(*ser);
   soap_set_dime(this);
-  shared_ptr<string> datstr(new string(ser->buffer()));
+  std::tr1::shared_ptr<string> datstr(new string(ser->buffer()));
   int result = soap_set_dime_attachment(this, (char*) datstr->data(),datstr->size(), "application/processorList", "0", 0, NULL);
   string output("CASSsoapService::getPostprocessorIds: Sending the following names:");
   for (Processor::names_t::const_iterator it(keys->getList().begin());
@@ -198,7 +198,7 @@ int CASSsoapService::writeini(size_t /*what*/, bool */*success*/)
  * lock the processors handler processor list and retrieve the
  * requested processor from it. Tell it to clear its histogram list.
  */
-int CASSsoapService::clearHistogram(ProcessorManager::key_t type, bool *success)
+int CASSsoapService::clearHistogram(const ProcessorManager::key_t &type, bool *success)
 {
   Log::add(Log::VERBOSEINFO,"CASSsoapService::clearHistogram(type=" + type + ")");
   QWriteLocker pplock(&ProcessorManager::instance()->lock);
@@ -219,7 +219,7 @@ int CASSsoapService::clearHistogram(ProcessorManager::key_t type, bool *success)
  *
  * will tell the map creators of all defined pixeldetectors to start calibrating
  */
-int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
+int CASSsoapService::controlDarkcal(const string &controlCommand, bool *success)
 {
   try
   {
@@ -245,7 +245,7 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
  * lock the processor handler list then retrieve the requested processor
  * and pass the string to process to it.
  */
-int CASSsoapService::receiveCommand(ProcessorManager::key_t type, string command, bool *success)
+int CASSsoapService::receiveCommand(const ProcessorManager::key_t &type, const string &command, bool *success)
 {
   Log::add(Log::VERBOSEINFO,"CASSsoapService::receiveCommand: command '" +
            command + "' is for processor " + type );
@@ -291,9 +291,9 @@ int CASSsoapService::getEvent(size_t /*eventID*/, unsigned /*t1*/, unsigned /*t2
  * also after the scope of this function is left since it might be transferred
  * after this funtion returned.
  */
-int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId, bool *success)
+int CASSsoapService::getHistogram(const ProcessorManager::key_t& type, ULONG64 eventId, bool *success)
 {
-  static QQueue<shared_ptr<pair<size_t, string> > > queue;
+  static QQueue<std::tr1::shared_ptr<pair<size_t, string> > > queue;
   QWriteLocker pplock(&ProcessorManager::instance()->lock);
   try
   {
@@ -303,7 +303,7 @@ int CASSsoapService::getHistogram(ProcessorManager::key_t type, ULONG64 eventId,
     Serializer serializer(0);
     const size_t dim(result->dim());
     serializer << *result;
-    shared_ptr<pair<size_t, string> >data(
+    std::tr1::shared_ptr<pair<size_t, string> >data(
           new pair<size_t, string>(make_pair(dim,serializer.buffer())));
     // MIME type
     string mimetype;

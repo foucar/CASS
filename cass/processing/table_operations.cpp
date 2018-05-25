@@ -226,10 +226,10 @@ void pp79::loadSettings(size_t)
                         "weight column index '" + toString(_weightcolIdx) + " 'exeeds the " +
                         "maximum possible index value '" + toString(maxIdx) + "'");
   if (_weightcolIdx < 0)
-    _getWeight = bind(&pp79::constantWeight, this, tr1::placeholders::_1);
+    _getWeight = std::tr1::bind(&pp79::constantWeight, this, tr1::placeholders::_1);
   else
   {
-    _getWeight = bind(&pp79::weightFromTable, this, tr1::placeholders::_1);
+    _getWeight = std::tr1::bind(&pp79::weightFromTable, this, tr1::placeholders::_1);
   }
 
   createHistList(set2DHist(name()));

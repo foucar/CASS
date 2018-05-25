@@ -191,7 +191,7 @@ void MovingMaps::controlCalibration(const string &/*unused*/)
   Log::add(Log::INFO,"MovingMaps::controlCalibration(): start training by collecting '" +
            toString(_trainingsize) + "' Frames");
   _framecounter = 0;
-  _createMap = bind(&MovingMaps::train,this,_1);
+  _createMap = std::tr1::bind(&MovingMaps::train,this,_1);
 }
 
 void MovingMaps::train(const Frame &frame)
@@ -247,7 +247,7 @@ void MovingMaps::train(const Frame &frame)
     }
     _commondata->saveOffsetNoiseMaps();
     _commondata->createCorMap();
-    _createMap = bind(&MovingMaps::updateMaps,this,_1);
+    _createMap = std::tr1::bind(&MovingMaps::updateMaps,this,_1);
     Log::add(Log::INFO,"MovingMaps::train(): Done training.");
   }
 }
@@ -289,10 +289,10 @@ void MovingMaps::loadSettings(CASSSettings &s)
   {
     Log::add(Log::INFO,"MovingMaps::loadSettings(): Start collecting '" +
              toString(_trainingsize) + "' Frames for training.");
-    _createMap = bind(&MovingMaps::train,this,_1);
+    _createMap = std::tr1::bind(&MovingMaps::train,this,_1);
   }
   else
-    _createMap = bind(&MovingMaps::updateMaps,this,_1);
+    _createMap = std::tr1::bind(&MovingMaps::updateMaps,this,_1);
   _frameSave = s.value("AutoSaveSize",1e6).toUInt();
   size_t average(s.value("NbrOfAverages", 50).toUInt());
   _alpha =  2./static_cast<float>(average+1.);

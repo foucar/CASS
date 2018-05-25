@@ -67,9 +67,9 @@ void GainCalibration::generateCalibration(const Frame &frame)
   vector<statistics_t> statcpy(_statistics);
   const size_t medianPos(0.5*statcpy.size());
   nth_element(statcpy.begin(),statcpy.begin() + medianPos, statcpy.end(),
-              bind(less<statistics_t::first_type>(),
-                   bind<statistics_t::first_type>(&statistics_t::first,_1),
-                   bind<statistics_t::first_type>(&statistics_t::first,_2)));
+              std::tr1::bind(less<statistics_t::first_type>(),
+                   std::tr1::bind<statistics_t::first_type>(&statistics_t::first,_1),
+                   std::tr1::bind<statistics_t::first_type>(&statistics_t::first,_2)));
   if (statcpy[medianPos].first < _minMedianCounts || _counter == _nFrames)
     return;
 
@@ -105,7 +105,7 @@ void GainCalibration::generateCalibration(const Frame &frame)
   if (_writeFile)
     _commondata->saveGainMap();
   fill(_statistics.begin(),_statistics.end(),make_pair(0,0.));
-  _createMap = bind(&GainCalibration::doNothing,this,_1);
+  _createMap = std::tr1::bind(&GainCalibration::doNothing,this,_1);
 }
 
 void GainCalibration::loadSettings(CASSSettings &s)
@@ -121,9 +121,9 @@ void GainCalibration::loadSettings(CASSSettings &s)
   _counter = 0;
   _nFrames = s.value("NbrFrames",-1).toInt();
   if (s.value("StartInstantly",false).toBool())
-    _createMap = bind(&GainCalibration::generateCalibration,this,_1);
+    _createMap = std::tr1::bind(&GainCalibration::generateCalibration,this,_1);
   else
-    _createMap = bind(&GainCalibration::doNothing,this,_1);
+    _createMap = std::tr1::bind(&GainCalibration::doNothing,this,_1);
   string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());
   _commonModeCalculator = commonmode::CalculatorBase::instance(commonmodetype);
   _commonModeCalculator->loadSettings(s);
@@ -135,6 +135,6 @@ void GainCalibration::controlCalibration(const string &/*unused*/)
 {
   Log::add(Log::INFO,"GainCalibration::controlCalibration(): start collecting statistics for gain calibration'");
   _counter=0;
-  _createMap = bind(&GainCalibration::generateCalibration,this,_1);
+  _createMap = std::tr1::bind(&GainCalibration::generateCalibration,this,_1);
 }
 

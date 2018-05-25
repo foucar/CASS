@@ -18,8 +18,8 @@
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
-using placeholders::_1;
-using placeholders::_2;
+using std::tr1::placeholders::_1;
+using std::tr1::placeholders::_2;
 
 namespace cass
 {
@@ -131,12 +131,12 @@ void pp240::loadSettings(size_t)
            toString(s.value("sizeX", 1024).toInt()) + "x" +
            toString(s.value("sizeY", 1024).toInt()) + "'");
   // now add masks elements to it
-  map<string,function<void(result_t&, CASSSettings&)> > functions;
-  functions["circle"] = bind(&pp240::circle,this,_1,_2);
-  functions["square"] = bind(&pp240::square,this,_1,_2);
-  functions["triangle"] = bind(&pp240::triangle,this,_1,_2);
-  functions["ellipse"] = bind(&pp240::ellipse,this,_1,_2);
-  functions["ring"] = bind(&pp240::ring,this,_1,_2);
+  map<string,std::tr1::function<void(result_t&, CASSSettings&)> > functions;
+  functions["circle"] = std::tr1::bind(&pp240::circle,this,_1,_2);
+  functions["square"] = std::tr1::bind(&pp240::square,this,_1,_2);
+  functions["triangle"] = std::tr1::bind(&pp240::triangle,this,_1,_2);
+  functions["ellipse"] = std::tr1::bind(&pp240::ellipse,this,_1,_2);
+  functions["ring"] = std::tr1::bind(&pp240::ring,this,_1,_2);
   int size = s.beginReadArray("Mask");
   for (int i = 0; i < size; ++i)
   {

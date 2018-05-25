@@ -22,7 +22,7 @@ using namespace cass;
 using namespace std;
 using namespace tr1;
 
-shared_ptr<Log> Log::_instance;
+std::tr1::shared_ptr<Log> Log::_instance;
 QMutex Log::_lock;
 Log::Level Log::_loggingLevel=Log::INFO;
 const char* Log::_level2string[] =

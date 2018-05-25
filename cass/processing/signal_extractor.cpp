@@ -18,25 +18,25 @@
 using namespace cass::ACQIRIS;
 using namespace std;
 using namespace std::tr1;
-shared_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
+std::tr1::shared_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
 {
-  shared_ptr<SignalExtractor> sigextr;
+  std::tr1::shared_ptr<SignalExtractor> sigextr;
   switch(type)
   {
   case com8:
-    sigextr = shared_ptr<SignalExtractor>(new CoM8Bit());
+    sigextr = std::tr1::shared_ptr<SignalExtractor>(new CoM8Bit());
     break;
   case com16:
-    sigextr = shared_ptr<SignalExtractor>(new CoM16Bit());
+    sigextr = std::tr1::shared_ptr<SignalExtractor>(new CoM16Bit());
     break;
   case cfd8:
-    sigextr = shared_ptr<SignalExtractor>(new CFD8Bit());
+    sigextr = std::tr1::shared_ptr<SignalExtractor>(new CFD8Bit());
     break;
   case cfd16:
-    sigextr = shared_ptr<SignalExtractor>(new CFD16Bit());
+    sigextr = std::tr1::shared_ptr<SignalExtractor>(new CFD16Bit());
     break;
   case tdcextractor:
-    sigextr = shared_ptr<SignalExtractor>(new ACQIRISTDC::TDCExtractor());
+    sigextr = std::tr1::shared_ptr<SignalExtractor>(new ACQIRISTDC::TDCExtractor());
     break;
   default:
     throw invalid_argument("SignalExtractor::instance: SignalExtractor type '" +

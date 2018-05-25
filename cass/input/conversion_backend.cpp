@@ -27,7 +27,7 @@ using namespace cass;
 
 ConversionBackend::shared_pointer ConversionBackend::instance(const string &type)
 {
-  shared_ptr<ConversionBackend> converter;
+  std::tr1::shared_ptr<ConversionBackend> converter;
   if("Acqiris" == type)
     converter = ACQIRIS::Converter::instance();
   else if("AcqirisTDC" == type)

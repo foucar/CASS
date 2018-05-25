@@ -220,23 +220,23 @@ private:
 
 tr1::shared_ptr<IsParticleHit> IsParticleHit::instance(const ConditionType &type)
 {
-  shared_ptr<IsParticleHit> cond;
+  std::tr1::shared_ptr<IsParticleHit> cond;
   switch(type)
   {
   case tofcond:
-    cond = shared_ptr<IsParticleHit>(new TofCond);
+    cond = std::tr1::shared_ptr<IsParticleHit>(new TofCond);
     break;
   case radcond:
-    cond = shared_ptr<IsParticleHit>(new RadCond);
+    cond = std::tr1::shared_ptr<IsParticleHit>(new RadCond);
     break;
   case rectcond:
-    cond = shared_ptr<IsParticleHit>(new RectCond);
+    cond = std::tr1::shared_ptr<IsParticleHit>(new RectCond);
     break;
   case tofrectcond:
-    cond = shared_ptr<IsParticleHit>(new CombineConditions<TofCond,RectCond>());
+    cond = std::tr1::shared_ptr<IsParticleHit>(new CombineConditions<TofCond,RectCond>());
     break;
   case tofradcond:
-    cond = shared_ptr<IsParticleHit>(new CombineConditions<TofCond,RadCond>());
+    cond = std::tr1::shared_ptr<IsParticleHit>(new CombineConditions<TofCond,RadCond>());
     break;
   default:
     throw invalid_argument("IsParticleHit::instance: Condition type '" +

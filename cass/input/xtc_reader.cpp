@@ -47,7 +47,7 @@ void XtcReader::loadSettings()
 
 void XtcReader::readHeaderInfo(std::ifstream &file)
 {
-  shared_ptr<CASSEvent> event(new CASSEvent);
+  std::tr1::shared_ptr<CASSEvent> event(new CASSEvent);
   CASSEvent::buffer_t& buf(event->datagrambuffer());
   while(1)
   {

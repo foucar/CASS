@@ -50,7 +50,7 @@ void pp312::loadSettings(size_t)
   if (dim == 1)
   {
     _Nx = _hist->result().shape().first;
-    _func = bind(&pp312::fft1d,this,_1,_2);
+    _func = std::tr1::bind(&pp312::fft1d,this,_1,_2);
     _fft_tmp_padding = (_Nx&1) ? 1 : 2;
     vector<double> fft_tmp;
     fft_tmp.resize(_Nx+_fft_tmp_padding);
@@ -61,7 +61,7 @@ void pp312::loadSettings(size_t)
   {
     _Nx = _hist->result().shape().first;
     _Ny = _hist->result().shape().second;
-    _func = bind(&pp312::fft2d,this,_1,_2);
+    _func = std::tr1::bind(&pp312::fft2d,this,_1,_2);
     _fft_tmp_padding = (_Nx&1) ? 1 : 2;
     vector<double> fft_tmp;
     fft_tmp.resize(_Ny*(_Nx+_fft_tmp_padding));

@@ -70,8 +70,8 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
 HelperAcqirisDetectors::iter_type HelperAcqirisDetectors::findId(const id_type &id)
 {
   return (find_if(_detectorList.begin(), _detectorList.end(),
-                  bind(equal_to<id_type>(),id,
-                       bind<id_type>(&KeyDetPair_t::first,_1))));
+                  std::tr1::bind(equal_to<id_type>(),id,
+                       std::tr1::bind<id_type>(&KeyDetPair_t::first,_1))));
 }
 
 void HelperAcqirisDetectors::release(const id_type &id)

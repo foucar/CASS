@@ -201,7 +201,7 @@ public:
   AppendEntry(const string& filename, const CASSEvent::id_t id=0)
     : WriteEntry(filename,id)
   {
-    _writeAttributes = bind(&AppendEntry::writeAttib,this,_1,_2);
+    _writeAttributes = std::tr1::bind(&AppendEntry::writeAttib,this,_1,_2);
   }
 
   /** write an entry to h5 file using the functions defined above
@@ -238,7 +238,7 @@ public:
     if (id)
     {
       if (_id)
-        _writeAttributes = bind(&AppendEntry::writeNothing,this,_1,_2);
+        _writeAttributes = std::tr1::bind(&AppendEntry::writeNothing,this,_1,_2);
       ::hdf5::shape_t shape(1,1);
       vector<CASSEvent::id_t> evtid(1,_id);
       _fh.appendData(evtid,shape,"eventIds");
@@ -298,7 +298,7 @@ protected:
 
 private:
   /** function to write the results axis attributes just once to the dataset */
-  function <void(const Processor::result_t&,const string&)> _writeAttributes;
+  std::tr1::function <void(const Processor::result_t&,const string&)> _writeAttributes;
 };
 
 
@@ -394,23 +394,23 @@ void pp1002::loadSettings(size_t)
   {
     if (singleDataset)
     {
-      _writeEvent = bind(&pp1002::appendEventToMultipleEventsFile,this,_1);
-      _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
+      _writeEvent = std::tr1::bind(&pp1002::appendEventToMultipleEventsFile,this,_1);
+      _writeSummary = std::tr1::bind(&pp1002::writeSummaryToMultipleEventsFile,this);
       _basefilename = AlphaCounter::intializeFile(_basefilename);
       _entryWriter = entryWriter_t(new hdf5::AppendEntry(_basefilename));
     }
     else
     {
-      _writeEvent = bind(&pp1002::writeEventToMultipleEventsFile,this,_1);
-      _writeSummary = bind(&pp1002::writeSummaryToMultipleEventsFile,this);
+      _writeEvent = std::tr1::bind(&pp1002::writeEventToMultipleEventsFile,this,_1);
+      _writeSummary = std::tr1::bind(&pp1002::writeSummaryToMultipleEventsFile,this);
       _basefilename = AlphaCounter::intializeFile(_basefilename);
       _entryWriter = entryWriter_t(new hdf5::WriteEntry(_basefilename));
     }
   }
   else
   {
-    _writeEvent = bind(&pp1002::writeEventToSingleFile,this,_1);
-    _writeSummary = bind(&pp1002::writeSummaryToSingleFile,this);
+    _writeEvent = std::tr1::bind(&pp1002::writeEventToSingleFile,this,_1);
+    _writeSummary = std::tr1::bind(&pp1002::writeSummaryToSingleFile,this);
     if(_maxFilePerSubDir != -1)
       _basefilename = AlphaCounter::intializeDir(_basefilename);
   }

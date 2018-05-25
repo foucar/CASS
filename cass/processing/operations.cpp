@@ -197,11 +197,11 @@ void pp2::loadSettings(size_t)
   {
     _valuePP = setupDependency(valuekey.toStdString());
     ret = _valuePP && ret;
-    _retrieveValue = bind(&pp2::valueFromPP,this,_1);
+    _retrieveValue = std::tr1::bind(&pp2::valueFromPP,this,_1);
   }
   else
   {
-    _retrieveValue = bind(&pp2::valueFromConst,this,_1);
+    _retrieveValue = std::tr1::bind(&pp2::valueFromConst,this,_1);
     _value = val;
   }
   if (!(_hist && ret))
@@ -242,9 +242,9 @@ void pp2::loadSettings(size_t)
 
   string valuePos(s.value("ValuePos","first").toString().toStdString());
   if (valuePos == "first")
-    _setParamPos = bind(&pp2::ValAtFirst,this,_1);
+    _setParamPos = std::tr1::bind(&pp2::ValAtFirst,this,_1);
   else if (valuePos == "second")
-    _setParamPos = bind(&pp2::ValAtSecond,this,_1);
+    _setParamPos = std::tr1::bind(&pp2::ValAtSecond,this,_1);
   else
     throw invalid_argument("pp2::loadSettings() '" + name() +
                            "': value position '" + valuePos + "' is unkown.");
@@ -259,12 +259,12 @@ void pp2::loadSettings(size_t)
 
 pp2::unaryoperation_t pp2::ValAtFirst(float val)
 {
-  return bind(_op,val,_1);
+  return std::tr1::bind(_op,val,_1);
 }
 
 pp2::unaryoperation_t pp2::ValAtSecond(float val)
 {
-  return bind(_op,_1,val);
+  return std::tr1::bind(_op,_1,val);
 }
 
 float pp2::valueFromConst(const CASSEvent::id_t&)
@@ -633,11 +633,11 @@ void pp40::loadSettings(size_t)
   {
     _threshPP = setupDependency(valuekey.toStdString());
     ret = _threshPP && ret;
-    _applyThresh = bind(&pp40::applyIdxwiseThreshold,this,_1,_2,_3);
+    _applyThresh = std::tr1::bind(&pp40::applyIdxwiseThreshold,this,_1,_2,_3);
   }
   else
   {
-    _applyThresh = bind(&pp40::applyConstantThreshold,this,_1,_2,_3);
+    _applyThresh = std::tr1::bind(&pp40::applyConstantThreshold,this,_1,_2,_3);
     _threshold = val;
   }
   if (!(_one && ret))
@@ -663,7 +663,7 @@ void pp40::applyConstantThreshold(const result_t &in,
 {
   transform(in.begin(), in.begin() + in.datasize(),
             out.begin(),
-            bind(&pp40::threshold,this,_1,_threshold));
+            std::tr1::bind(&pp40::threshold,this,_1,_threshold));
 }
 
 void pp40::applyIdxwiseThreshold(const result_t &in,
@@ -675,7 +675,7 @@ void pp40::applyIdxwiseThreshold(const result_t &in,
   transform(in.begin(), in.begin() + in.datasize(),
             thresh.begin(),
             out.begin(),
-            bind(&pp40::threshold,this,_1,_2));
+            std::tr1::bind(&pp40::threshold,this,_1,_2));
 }
 
 void pp40::process(const CASSEvent& evt, result_t &result)
@@ -748,7 +748,7 @@ void pp41::process(const CASSEvent& evt, result_t &result)
 
   /** only check the data area of the input */
   transform(input.begin(), input.begin()+input.datasize(), thresh.begin(),
-            result.begin(), bind(&pp41::checkrange,this,_1,_2));
+            result.begin(), std::tr1::bind(&pp41::checkrange,this,_1,_2));
 }
 
 
@@ -828,7 +828,7 @@ void pp50::loadSettings(size_t)
                              "': Up '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
                              toString(yAxis.up) + "'");
-    _project = bind(&pp50::projectToX,this,_1,_2);
+    _project = std::tr1::bind(&pp50::projectToX,this,_1,_2);
     createHistList(result_t::shared_pointer(new result_t(xAxis)));
   }
   else if (axis == "yAxis")
@@ -861,7 +861,7 @@ void pp50::loadSettings(size_t)
                              "': Up '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
                              toString(xAxis.up) + "'");
-    _project = bind(&pp50::projectToY,this,_1,_2);
+    _project = std::tr1::bind(&pp50::projectToY,this,_1,_2);
     createHistList(result_t::shared_pointer(new result_t(yAxis)));
   }
   else
@@ -972,7 +972,7 @@ void pp51::loadSettings(size_t)
                            "': Xup '" + toString(userrange.second) +
                            "' is higher than the highest possible value '" +
                            toString(xaxis.up) + "'");
-  _baseline = bind(&pp51::constantBaseline,this,_1);
+  _baseline = std::tr1::bind(&pp51::constantBaseline,this,_1);
   string output("Processor '" + name() +
                 "' will create integral of 1D results in Processor '" + input.name() +
                 "' from '" + toString(userrange.first) +  "(" + toString(_range.first) +
@@ -1015,7 +1015,7 @@ void pp51::loadSettings(size_t)
                              "': BaselineXup '" + toString(baselineuserrange.second) +
                              "' is higher than the highest possible value '" +
                              toString(xaxis.up) + "'");
-    _baseline = bind(&pp51::baselineFromInput,this,_1);
+    _baseline = std::tr1::bind(&pp51::baselineFromInput,this,_1);
     output += (". It will use range from '" + toString(baselineuserrange.first) +
                "(" + toString(_baselineRange.first) + ")' to '" +
                toString(baselineuserrange.second) + "(" +
@@ -1185,7 +1185,7 @@ void pp57::loadSettings(size_t)
                              "': Up '" + toString(userRange.second) +
                              "' is higher than the highest possible value '" +
                              toString(yAxis.up) + "'");
-    _project = bind(&pp57::projectToX,this,_1,_2,_3);
+    _project = std::tr1::bind(&pp57::projectToX,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(xAxis)));
   }
   else if (axis == "yAxis")
@@ -1218,7 +1218,7 @@ void pp57::loadSettings(size_t)
                              "' is higher than the highest possible value '" +
                              toString(xAxis.up) + "'");
     _Yrange = make_pair(0,yAxis.nBins);
-    _project = bind(&pp57::projectToY,this,_1,_2,_3);
+    _project = std::tr1::bind(&pp57::projectToY,this,_1,_2,_3);
     createHistList(result_t::shared_pointer(new result_t(yAxis)));
   }
   else
@@ -1330,17 +1330,17 @@ void pp60::loadSettings(size_t)
   bool ConstantFromProc(_weightProc && _weightProc->result().dim() == 0);
 
   if (isFloat && CountsPerBin)
-    _histogram = bind(&pp60::histogramAndBinCountWithConstant,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramAndBinCountWithConstant,this,_1,_2,_3,_4);
   if (isFloat && !CountsPerBin)
-    _histogram = bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramWithConstant,this,_1,_2,_3,_4);
   if (!isFloat && CountsPerBin && !ConstantFromProc)
-    _histogram = bind(&pp60::histogramAndBinCountWithWeights,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramAndBinCountWithWeights,this,_1,_2,_3,_4);
   if (!isFloat && !CountsPerBin && !ConstantFromProc)
-    _histogram = bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramWithWeights,this,_1,_2,_3,_4);
   if (!isFloat && CountsPerBin && ConstantFromProc)
-    _histogram = bind(&pp60::histogramAndBinCountWithWeightFrom0D,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramAndBinCountWithWeightFrom0D,this,_1,_2,_3,_4);
   if (!isFloat && !CountsPerBin && ConstantFromProc)
-    _histogram = bind(&pp60::histogramWithWeightFrom0D,this,_1,_2,_3,_4);
+    _histogram = std::tr1::bind(&pp60::histogramWithWeightFrom0D,this,_1,_2,_3,_4);
 
   if (CountsPerBin)
   {
@@ -1490,11 +1490,11 @@ void pp61::loadSettings(size_t)
   if (average)
   {
     _alpha =  2./static_cast<float>(average+1.);
-    _scale = bind(&pp61::movingInitializationScale,this);
+    _scale = std::tr1::bind(&pp61::movingInitializationScale,this);
   }
   else
   {
-    _scale = bind(&pp61::cumulativeScale,this);
+    _scale = std::tr1::bind(&pp61::cumulativeScale,this);
     _alpha = 0.;
   }
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
@@ -1515,9 +1515,9 @@ void pp61::loadSettings(size_t)
    */
   QString averageType(s.value("AveragingType","Normal").toString());
   if (averageType == "Normal")
-    _func = bind(&pp61::average,this,_1,_2,_3);
+    _func = std::tr1::bind(&pp61::average,this,_1,_2,_3);
   else if (averageType == "Square")
-    _func = bind(&pp61::squareAverage,this,_1,_2,_3);
+    _func = std::tr1::bind(&pp61::squareAverage,this,_1,_2,_3);
   else
     throw invalid_argument("pp61::loadSettings() " + name() +
                            ": requested Averaging type '" +
@@ -1555,7 +1555,7 @@ Processor::result_t::value_t pp61::movingInitializationScale()
    */
   if (scale < _alpha)
   {
-    _scale = bind(&pp61::movingScale,this);
+    _scale = std::tr1::bind(&pp61::movingScale,this);
     scale = _alpha;
   }
   return scale;
@@ -1572,7 +1572,7 @@ void pp61::process(const CASSEvent& evt, result_t &result)
    */
   ++_nbrEventsAccumulated;
   transform(one.begin(), one.begin()+one.datasize(),
-            result.begin(), result.begin(), bind(_func,_1,_2,_scale()));
+            result.begin(), result.begin(), std::tr1::bind(_func,_1,_2,_scale()));
 }
 
 
@@ -1859,17 +1859,17 @@ void pp65::loadSettings(size_t)
   bool ConstantFromProc(_weightInput && _weightInput->result().dim() == 0);
 
   if (isFloat && CountsPerBin)
-    _histogram = bind(&pp65::histogramAndBinCountWithConstant,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramAndBinCountWithConstant,this,_1,_2,_3,_4,_5);
   if (isFloat && !CountsPerBin)
-    _histogram = bind(&pp65::histogramWithConstant,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramWithConstant,this,_1,_2,_3,_4,_5);
   if (!isFloat && CountsPerBin && !ConstantFromProc)
-    _histogram = bind(&pp65::histogramAndBinCountWithWeights,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramAndBinCountWithWeights,this,_1,_2,_3,_4,_5);
   if (!isFloat && !CountsPerBin && !ConstantFromProc)
-    _histogram = bind(&pp65::histogramWithWeights,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramWithWeights,this,_1,_2,_3,_4,_5);
   if (!isFloat && CountsPerBin && ConstantFromProc)
-    _histogram = bind(&pp65::histogramAndBinCountWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramAndBinCountWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
   if (!isFloat && !CountsPerBin && ConstantFromProc)
-    _histogram = bind(&pp65::histogramWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
+    _histogram = std::tr1::bind(&pp65::histogramWithWeightFrom0DInput,this,_1,_2,_3,_4,_5);
 
   if (CountsPerBin)
   {
@@ -2638,26 +2638,26 @@ void pp82::loadSettings(size_t)
   if (functype == "sum")
   {
     _val = &cumstat_t::sum;
-    _value = bind(&pp82::cummulativeStatistics,this,_1);
+    _value = std::tr1::bind(&pp82::cummulativeStatistics,this,_1);
   }
   else if (functype == "mean")
   {
     _val = &cumstat_t::mean;
-    _value = bind(&pp82::cummulativeStatistics,this,_1);
+    _value = std::tr1::bind(&pp82::cummulativeStatistics,this,_1);
   }
   else if (functype == "stdv")
   {
     _val = &cumstat_t::stdv;
-    _value = bind(&pp82::cummulativeStatistics,this,_1);
+    _value = std::tr1::bind(&pp82::cummulativeStatistics,this,_1);
   }
   else if (functype == "variance")
   {
     _val = &cumstat_t::variance;
-    _value = bind(&pp82::cummulativeStatistics,this,_1);
+    _value = std::tr1::bind(&pp82::cummulativeStatistics,this,_1);
   }
   else if (functype == "median")
   {
-    _value = bind(&pp82::medianCalc,this,_1);
+    _value = std::tr1::bind(&pp82::medianCalc,this,_1);
   }
   else
     throw invalid_argument("pp82::loadSettings(): Statistics type '" + functype +
@@ -3203,7 +3203,7 @@ void pp89::loadSettings(size_t)
     //  float dt = 1.0/SAMPLE_RATE;
     //  float alpha = dt/(RC+dt);
     _alpha = dt/(RC+dt);
-    _func = bind(&pp89::lowPass,this,_1,_2);
+    _func = std::tr1::bind(&pp89::lowPass,this,_1,_2);
   }
   else if (filtertype == "HighPass")
   {
@@ -3211,7 +3211,7 @@ void pp89::loadSettings(size_t)
     //  float dt = 1.0/SAMPLE_RATE;
     //  float alpha = RC/(RC + dt);
     _alpha = RC/(RC+dt);
-    _func = bind(&pp89::highPass,this,_1,_2);
+    _func = std::tr1::bind(&pp89::highPass,this,_1,_2);
   }
   else
     throw invalid_argument("pp89 '" + name() + "' FilterType '" +

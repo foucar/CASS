@@ -21,9 +21,9 @@ using namespace cass::ACQIRIS;
 using namespace std;
 using namespace std::tr1;
 
-shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
+std::tr1::shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
 {
-  shared_ptr<DetectorAnalyzerBackend> detanal;
+  std::tr1::shared_ptr<DetectorAnalyzerBackend> detanal;
   switch(type)
   {
   case DelaylineSimple:

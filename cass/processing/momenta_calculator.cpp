@@ -468,20 +468,20 @@ std::tr1::shared_ptr<MomentumCalculator>  MomentumCalculator::instance(const Mom
 {
   using namespace std::tr1;
   using namespace std;
-  shared_ptr<MomentumCalculator> momcalc;
+  std::tr1::shared_ptr<MomentumCalculator> momcalc;
   switch (type)
   {
   case PxPyWBField:
-    momcalc = shared_ptr<MomentumCalculator>(new PxPyCalculatorWithBField);
+    momcalc = std::tr1::shared_ptr<MomentumCalculator>(new PxPyCalculatorWithBField);
     break;
   case PxPyWOBField:
-    momcalc = shared_ptr<MomentumCalculator>(new PxPyCalculatorWithoutBField);
+    momcalc = std::tr1::shared_ptr<MomentumCalculator>(new PxPyCalculatorWithoutBField);
     break;
   case PzOneRegion:
-    momcalc = shared_ptr<MomentumCalculator>(new PzCalculatorDirectOneRegion);
+    momcalc = std::tr1::shared_ptr<MomentumCalculator>(new PzCalculatorDirectOneRegion);
     break;
   case PzMultipleRegions:
-    momcalc = shared_ptr<MomentumCalculator>(new PzCalculatorMulitpleRegions);
+    momcalc = std::tr1::shared_ptr<MomentumCalculator>(new PzCalculatorMulitpleRegions);
     break;
   default:
     throw invalid_argument("MomentumCalculator::instance(): Momentum calculator type '" +

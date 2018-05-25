@@ -564,11 +564,11 @@ void pp90::loadSettings(size_t)
   /** setup the method to be used */
   string method(s.value("Output","Q").toString().toStdString());
   if (method == "Q")
-    _getBin = bind(&pp90::Q,this,_1,_2,_3,_4);
+    _getBin = std::tr1::bind(&pp90::Q,this,_1,_2,_3,_4);
   else if (method == "Resolution")
-    _getBin = bind(&pp90::R,this,_1,_2,_3,_4);
+    _getBin = std::tr1::bind(&pp90::R,this,_1,_2,_3,_4);
   else if (method == "Radius")
-    _getBin = bind(&pp90::Rad,this,_1,_2,_3,_4);
+    _getBin = std::tr1::bind(&pp90::Rad,this,_1,_2,_3,_4);
   else
     throw invalid_argument("pp90::loadSettings() " + name() +
                            ": requested output type '" + method + "' unknown.");
@@ -597,13 +597,13 @@ void pp90::loadSettings(size_t)
     if (wlIsDouble)
     {
       _wavelength = wlval;
-      _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+      _getWavelength = std::tr1::bind(&pp90::wlFromConstant,this,_1);
     }
     else
     {
       _wavelengthPP = setupDependency(wlkey.toStdString());
       ret = _wavelengthPP && ret;
-      _getWavelength = bind(&pp90::wlFromProcessor,this,_1);
+      _getWavelength = std::tr1::bind(&pp90::wlFromProcessor,this,_1);
     }
     output += (", Wavelength in Angstroem '" + wlparam.toStdString() + "'");
 
@@ -617,13 +617,13 @@ void pp90::loadSettings(size_t)
     if (ddIsDouble)
     {
       _detdist = ddval;
-      _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+      _getDetectorDistance = std::tr1::bind(&pp90::ddFromConstant,this,_1);
     }
     else
     {
       _detdistPP = setupDependency(ddkey.toStdString());
       ret = _detdistPP && ret;
-      _getDetectorDistance = bind(&pp90::ddFromProcessor,this,_1);
+      _getDetectorDistance = std::tr1::bind(&pp90::ddFromProcessor,this,_1);
     }
     output += (", Detector Distance in m '" + ddparam.toStdString() + "'");
   }
@@ -633,9 +633,9 @@ void pp90::loadSettings(size_t)
   else
   {
     _wavelength = 1;
-    _getWavelength = bind(&pp90::wlFromConstant,this,_1);
+    _getWavelength = std::tr1::bind(&pp90::wlFromConstant,this,_1);
     _detdist = 1;
-    _getDetectorDistance = bind(&pp90::ddFromConstant,this,_1);
+    _getDetectorDistance = std::tr1::bind(&pp90::ddFromConstant,this,_1);
   }
 
   if (!(_imagePP && ret)) return;
@@ -796,7 +796,7 @@ void pp90::process(const CASSEvent &evt, result_t &result)
   transform(srcImage.begin(),srcImage.begin()+imageSize,
             _pixPositions_m.begin(),
             temparr.begin(),
-            bind(_getBin,lambda,D,_1,_2));
+            std::tr1::bind(_getBin,lambda,D,_1,_2));
 
   /** now put the weights into the correct bins and create the nomralization
    *  factors

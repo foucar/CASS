@@ -31,7 +31,7 @@ void TxtParser::runthis()
   FileReader& read(*_readerpointerpair.first);
   read.readHeaderInfo(file);
 
-  shared_ptr<CASSEvent> event(new CASSEvent);
+  std::tr1::shared_ptr<CASSEvent> event(new CASSEvent);
   streampos eventstartpos;
   while((!InputBase::reference().shouldQuit()) && (file.tellg()<filesize))
   {

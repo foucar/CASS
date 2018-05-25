@@ -183,9 +183,9 @@ private:
     using std::tr1::placeholders::_1;
 
     return find_if(_list.begin(), _list.end(),
-                   bind(equal_to<id_type>(),id,
-                        bind<const id_type&>(&item_info::id,
-                             bind<const item_info&>(&entry_type::first,_1))));
+                   std::tr1::bind(equal_to<id_type>(),id,
+                        std::tr1::bind<const id_type&>(&item_info::id,
+                            std::tr1::bind<const item_info&>(&entry_type::first,_1))));
   }
 
 private:
