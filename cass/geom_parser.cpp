@@ -247,41 +247,41 @@ GeometryInfo::lookupTable_t GeometryInfo::generateLookupTable(const std::string 
 
   /** get the minimum and maximum position in lab x and y */
   lookupTable.min.x = min_element(src2lab.begin(),src2lab.end(),
-                                  bind(less<pos_t::x_t>(),
-                                       bind<pos_t::x_t>(&pos_t::x,_1),
-                                       bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                                  std::tr1::bind(less<pos_t::x_t>(),
+                                       std::tr1::bind<pos_t::x_t>(&pos_t::x,_1),
+                                       std::tr1::bind<pos_t::x_t>(&pos_t::x,_2)))->x;
   lookupTable.min.y = min_element(src2lab.begin(),src2lab.end(),
-                                  bind(less<pos_t::y_t>(),
-                                       bind<pos_t::y_t>(&pos_t::y,_1),
-                                       bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+                                  std::tr1::bind(less<pos_t::y_t>(),
+                                       std::tr1::bind<pos_t::y_t>(&pos_t::y,_1),
+                                       std::tr1::bind<pos_t::y_t>(&pos_t::y,_2)))->y;
   lookupTable.max.x = max_element(src2lab.begin(),src2lab.end(),
-                                  bind(less<pos_t::x_t>(),
-                                       bind<pos_t::x_t>(&pos_t::x,_1),
-                                       bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                                  std::tr1::bind(less<pos_t::x_t>(),
+                                       std::tr1::bind<pos_t::x_t>(&pos_t::x,_1),
+                                       std::tr1::bind<pos_t::x_t>(&pos_t::x,_2)))->x;
   lookupTable.max.y = max_element(src2lab.begin(),src2lab.end(),
-                                  bind(less<pos_t::y_t>(),
-                                       bind<pos_t::y_t>(&pos_t::y,_1),
-                                       bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+                                  std::tr1::bind(less<pos_t::y_t>(),
+                                       std::tr1::bind<pos_t::y_t>(&pos_t::y,_1),
+                                       std::tr1::bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
   /** move all values, such that they start at 0
    *  \f$ pos.x -= min_x \f$
    *  \f$ pos.y -= min_y \f$
    */
   transform(src2lab.begin(),src2lab.end(),src2lab.begin(),
-            bind(minus,_1,lookupTable.min));
+            std::tr1::bind(minus,_1,lookupTable.min));
 
   /** get the new maximum value of the shifted lab, which corresponds to the
    *  number of pixels that are required in the dest image, since all lab
    *  values are in pixel coordinates.
    */
   const double max_x = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::x_t>(),
-                                        bind<pos_t::x_t>(&pos_t::x,_1),
-                                        bind<pos_t::x_t>(&pos_t::x,_2)))->x;
+                                   std::tr1::bind(less<pos_t::x_t>(),
+                                        std::tr1::bind<pos_t::x_t>(&pos_t::x,_1),
+                                        std::tr1::bind<pos_t::x_t>(&pos_t::x,_2)))->x;
   const double max_y = max_element(src2lab.begin(),src2lab.end(),
-                                   bind(less<pos_t::y_t>(),
-                                        bind<pos_t::y_t>(&pos_t::y,_1),
-                                        bind<pos_t::y_t>(&pos_t::y,_2)))->y;
+                                   std::tr1::bind(less<pos_t::y_t>(),
+                                        std::tr1::bind<pos_t::y_t>(&pos_t::y,_1),
+                                        std::tr1::bind<pos_t::y_t>(&pos_t::y,_2)))->y;
 
   /** determine the dimensions of the destination image */
   lookupTable.nCols = static_cast<int>(max_x + 0.5)+1;
@@ -292,7 +292,7 @@ GeometryInfo::lookupTable_t GeometryInfo::generateLookupTable(const std::string 
    *  \f$ _lookuptable = round(src2lab.x) + round(src2lab.y)*nDestCols \f$
    */
   transform(src2lab.begin(),src2lab.end(),lookupTable.lut.begin(),
-            bind(&linearizeComponents,_1,lookupTable.nCols));
+            std::tr1::bind(&linearizeComponents,_1,lookupTable.nCols));
 
   /** check if the boundaries are ok, @throw out of range if not. */
   if(lookupTable.nCols*lookupTable.nRows <= *max_element(lookupTable.lut.begin(),lookupTable.lut.end()))

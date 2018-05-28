@@ -39,8 +39,8 @@ void ROOTFileHelper::close(TFile *rootfile)
   QMutexLocker lock(&_mutex);
   rootfiles_t::iterator iFile(
       find_if(_rootfiles.begin(),_rootfiles.end(),
-              bind<bool>(equal_to<TFile*>(),rootfile,
-                         bind<TFile*>(&rootfiles_t::value_type::second,_1))));
+              std::tr1::bind<bool>(equal_to<TFile*>(),rootfile,
+                         std::tr1::bind<TFile*>(&rootfiles_t::value_type::second,_1))));
   if (iFile != _rootfiles.end())
   {
     rootfile->SaveSelf();
