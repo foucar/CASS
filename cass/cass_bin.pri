@@ -279,6 +279,14 @@ ZMQ {
     HEADERS            += ./input/zmq_input.h
 }
 
+# extra stuff for XFEL library
+XFELLIBRARY {
+    LIBS               += -lzmq
+    DEFINES            += XFELLIBRARY
+    SOURCES            += ./input/xfel_online_input.cpp
+    HEADERS            += ./input/xfel_online_input.h
+}
+
 # Extra stuff for http Server
 httpServer {
     LIBS               += -lmicrohttpd

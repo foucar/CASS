@@ -55,6 +55,9 @@
 #ifdef ZEROMQ
 #include "zmq_input.h"
 #endif
+#ifdef XFELLIBRARY
+#include "xfel_online_input.h"
+#endif
 
 
 using namespace std;
@@ -182,6 +185,10 @@ int main(int argc, char **argv)
     bool zmq(false);
     parser.add("--zmq","Enable the ZeroMQ Input",zmq);
 #endif
+#ifdef XFELLIBRARY
+    bool xfelonlineinput(false);
+    parser.add("--xfelonline","Enable the XFEL-Online Input",xfelonlineinput);
+#endif
     bool showUsage(false);
     parser.add("-h","show this help",showUsage);
     bool showVersion(false);
@@ -248,6 +255,10 @@ int main(int argc, char **argv)
 #ifdef ZEROMQ
     else if (zmq)
      ZMQInput::instance(ringbuffer, inputrate, inputload, quitwhendone);
+#endif
+#ifdef XFELLIBRARY
+    else if (xfelonlineinput)
+     XFELOnlineInput::instance(ringbuffer, inputrate, inputload, quitwhendone);
 #endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
