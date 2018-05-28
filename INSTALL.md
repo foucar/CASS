@@ -25,7 +25,7 @@ path to that installation during the configure step like follows
     ./configure -prefix somewhere -opensource -confirm-license -R /path/to/gcc/lib
 
 
-## gSOAP (version 2.7.x and above) {#gsoap}
+## gSOAP (version 2.8.50 and above) {#gsoap}
 Download gSOAP from
 
     http://sourceforge.net/projects/gsoap2/files/
