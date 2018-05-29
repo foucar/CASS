@@ -119,8 +119,8 @@ void XFELOnlineInput::runthis()
       pixeldetector::Detector &det(pixdev.dets()[det_CASSID]);
       det.frame().clear();
       det.frame().resize(sizeofOneDet);
-      det.columns() = nCASSRows;
-      det.rows() = nCols;
+      det.columns() = nCols;
+      det.rows() = nCASSRows;
       det.id() = _counter;
 
       /** get pointer to the xfel detector data and advance it to the right
