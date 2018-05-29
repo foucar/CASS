@@ -256,10 +256,6 @@ int main(int argc, char **argv)
     else if (zmq)
      ZMQInput::instance(ringbuffer, inputrate, inputload, quitwhendone);
 #endif
-#ifdef XFELLIBRARY
-    else if (xfelonlineinput)
-     XFELOnlineInput::instance(ringbuffer, inputrate, inputload, quitwhendone);
-#endif
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, inputload, quitwhendone);
 #else
@@ -274,6 +270,10 @@ int main(int argc, char **argv)
 #ifdef ZEROMQ
     else if (zmq)
      ZMQInput::instance(ringbuffer, inputrate, inputload);
+#endif
+#ifdef XFELLIBRARY
+    else if (xfelonlineinput)
+     XFELOnlineInput::instance(ringbuffer, inputrate, inputload);
 #endif
 #ifdef LCLSLIBRARY
     else
