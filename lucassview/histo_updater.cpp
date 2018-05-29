@@ -332,7 +332,7 @@ namespace lucassview
               for (size_t iX(0); iX<xaxis.nBins;++iX)
               {
                 const double histvalue((*result)[iX + iY*xaxis.nBins]);
-                const float value = (isnan(histvalue)) ?
+                const float value = (std::tr1::isnan(histvalue)) ?
                               0. : (*result)[iX + iY*xaxis.nBins];
                 roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),value);
               }
@@ -371,7 +371,7 @@ namespace lucassview
             for (size_t iX(0); iX<xaxis.nBins;++iX)
             {
               const double histvalue((*result)[iX]);
-              const float value = (isnan(histvalue)) ? 0. : (*result)[iX];
+              const float value = (std::tr1::isnan(histvalue)) ? 0. : (*result)[iX];
               roothist->SetBinContent(roothist->GetBin(iX+1),value);
             }
             /** copy over / underflow */
@@ -390,7 +390,7 @@ namespace lucassview
               roothist = new TH1F(key.c_str(),key.c_str(),1,0,1);
             }
             const double histvalue(result->getValue());
-            const float value = (isnan(histvalue)) ? 0. : histvalue;
+            const float value = (std::tr1::isnan(histvalue)) ? 0. : histvalue;
             roothist->SetBinContent(1,value);
 //            roothist->SetEntries(result->nbrOfFills());
           }
