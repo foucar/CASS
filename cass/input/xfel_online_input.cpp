@@ -67,8 +67,12 @@ void XFELOnlineInput::runthis()
   /** connect to the xfel client */
   client.connect(serverAddress);
 
+  /** write the data structure that is sent by the server to the log */
+  Log::add(Log::INFO,"XFELOnlineInput::run(): available data from the server:\n"+
+                     client.showNext());
+
   /** run until the thread is told to quit */
-  Log::add(Log::DEBUG0,"XFELOnlineInput::run(): starting loop");
+  Log::add(Log::INFO,"XFELOnlineInput::run(): starting loop");
 
   while(!shouldQuit())
   {
@@ -84,7 +88,7 @@ void XFELOnlineInput::runthis()
     /** get the shape of the detector (encodes the pulses in the train and the
      *  and the shape itself
      */
-    const vector<int> det_shape(data.array[imageDataPath].shape());
+    const vector<unsigned int> det_shape(data.array[imageDataPath].shape());
     const int nPulses(det_shape[0]);
     const uint16_t nModules(det_shape[1]);
     const uint16_t nRowsInModule(det_shape[2]);
