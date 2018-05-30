@@ -24,11 +24,15 @@ namespace cass
  * This class is a thread that connects to a XFEL Server and retrieves the data
  * from it.
  *
- * @cassttng ZMQInput/{Server}\n
+ * @cassttng XFELOnlineInput/{ServerAddress}\n
  *           The name or ip address of the machine that the server is running on.
- *           Default is "localhost"
- * @cassttng ZMQInput/{PathToImage}\n
- *           path to the image data within the transferred data.
+ *           Default is "tcp://localhost:1234"
+ * @cassttng XFELOnlineInput/{PathToNbrPulsesInTrain}\n
+ *           The path to the field that tell how many pulses are in the pulse
+ *           train that was transferred. Default is "header.pulseCount"
+ * @cassttng XFELOnlineInput/{PathToImage}\n
+ *           path to the image data within the transferred data. Default is
+ *           "image.data"
  *
  * @author Lutz Foucar
  */

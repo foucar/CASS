@@ -54,9 +54,12 @@ void XFELOnlineInput::runthis()
   CASSSettings s;
   s.beginGroup("XFELOnlineInput");
   /** info specific to the xfel data server */
-  string serverAddress(s.value("ServerAddress","tcp://53.104.0.52:10000").toString().toStdString());
-  /** info where the data is within the transferred data */
-  string imageDataPath(s.value("PathToImage","data.data").toString().toStdString());
+  string serverAddress(s.value("ServerAddress","tcp://localhost:1234").toString().toStdString());
+  /** info where the nbrPulses is within the transferred data */
+  string nPulsesPath(s.value("PathToNbrPulsesInTrain","header.pulseCount").toString().toStdString());
+
+  /** info where the image data is within the transferred data */
+  string imageDataPath(s.value("PathToImage","image.data").toString().toStdString());
   /** the id that the data should have within the cass-event */
   int det_CASSID(s.value("CASSID",30).toInt());
   s.endGroup(); //XFELOnlineInput
@@ -82,22 +85,34 @@ void XFELOnlineInput::runthis()
     /** now retrive new data from the socket */
     karabo_bridge::kb_data data(client.next());
 
+    /** get the info about the number of pulses in the train */
+    const uint64_t nPulses(data[nPulsesPath].as<uint64_t>());
+
     /** get the detector data */
-    vector<uint16_t> det_data = data.array[imageDataPath].as<uint16_t>();
+    vector<uint16_t> det_data(data.array[imageDataPath].as<uint16_t>());
 
     /** get the shape of the detector (encodes the pulses in the train and the
-     *  and the shape itself
+     *  and the shape itself)
      */
     const vector<unsigned int> det_shape(data.array[imageDataPath].shape());
-    const int nPulses(det_shape[0]);
-    const uint16_t nModules(det_shape[1]);
-    const uint16_t nRowsInModule(det_shape[2]);
-    const uint16_t nCASSRows(nModules*nRowsInModule);
-    const uint16_t nCols(det_shape[3]);
+    const size_t nPulsesFromImage(det_shape[0]);
+    const size_t nModules(det_shape[1]);
+    const size_t nRowsInModule(det_shape[2]);
+    const size_t nCASSRows(nModules*nRowsInModule);
+    const size_t nCols(det_shape[3]);
     const size_t sizeofOneDet(nModules*nRowsInModule*nCols);
 
+    /** check if the data is consistent */
+    if (nPulses != nPulsesFromImage)
+    {
+      Log::add(Log::ERROR,string("The number of pulses within the header '") +
+                          toString(nPulses) + "' and the detector data '" +
+                          toString(nPulsesFromImage) + "' mismatch. "+
+                          "Skipping train.");
+    }
+
     /** go through all pulses in the train */
-    for(int pulseID(0); pulseID < nPulses; ++pulseID)
+    for(size_t pulseID(0); pulseID < nPulses; ++pulseID)
     {
       /** retrieve a new element from the ringbuffer, continue with next iteration
        *  in case the retrieved element is the iterator to the last element of the
@@ -140,7 +155,7 @@ void XFELOnlineInput::runthis()
       ++_counter;
       _ringbuffer.doneFilling(rbItem, 1);
     }// done going through all pulses in the train
-    newEventAdded(0);
+    newEventAdded(data.size());
   }
   Log::add(Log::INFO,"XFELOnlineInput::run(): Quitting loop");
 }
