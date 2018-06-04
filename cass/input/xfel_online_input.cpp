@@ -89,7 +89,16 @@ void XFELOnlineInput::runthis()
     const uint64_t nPulses(data[nPulsesPath].as<uint64_t>());
 
     /** get the detector data */
-    vector<uint16_t> det_data(data.array[imageDataPath].as<uint16_t>());
+    pixeldetector::Detector::frame_t det_data;
+    if (data.array[imageDataPath].dtype() == "uint16")
+    {
+      vector<uint16_t> tmp(data.array[imageDataPath].as<uint16_t>());
+      det_data.assign(tmp.begin(),tmp.end());
+    }
+    else if (data.array[imageDataPath].dtype() == "float32")
+    {
+      det_data = std::move(data.array[imageDataPath].as<float>());
+    }
 
     /** get the shape of the detector (encodes the pulses in the train and the
      *  and the shape itself)
@@ -137,19 +146,14 @@ void XFELOnlineInput::runthis()
       /** retrieve the right detector from the cassevent and reset it*/
       pixeldetector::Detector &det(pixdev.dets()[det_CASSID]);
       det.frame().clear();
-      det.frame().resize(sizeofOneDet);
       det.columns() = nCols;
       det.rows() = nCASSRows;
       det.id() = _counter;
 
-      /** get pointer to the xfel detector data and advance it to the right
-       *  pulse within the train
-       */
-      vector<uint16_t>::const_iterator detIt(det_data.begin());
-      advance(detIt,pulseID*sizeofOneDet);
-
-     /** copy the data from the xfel input to the cassevent */
-     copy(detIt,detIt+sizeofOneDet,det.frame().begin());
+      /** copy the data of the pulse from the xfel input to the cassevent */
+      auto offsetToBegin(pulseID * sizeofOneDet);
+      auto offsetToEnd((pulseID+1) * sizeofOneDet);
+      det.frame().assign(det_data.begin()+offsetToBegin,det_data.begin()+offsetToEnd);
 
       /** tell the ringbuffer that we're done with the event */
       ++_counter;
