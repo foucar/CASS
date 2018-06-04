@@ -17,7 +17,11 @@ class FrameV2
 {
 public:
   static const int    Version = 2;
+#if __cplusplus == 201103L
   static constexpr float  TemperatureNotDefined = -9999;
+#else
+  static const float  TemperatureNotDefined = -9999;
+#endif
 
   FrameV2( uint32_t  iShotIdStart, float fReadoutTime );
 
