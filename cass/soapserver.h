@@ -26,10 +26,10 @@ int ns__readini(size_t what, bool *success);
 int ns__writeini(size_t what, bool *success);
 
 // tell server to clear a given histogram
-int ns__clearHistogram(std::string type, bool *success);
+int ns__clearHistogram(const std::string &type, bool *success);
 
 // tell server to process a command in given processor
-int ns__receiveCommand(std::string type, std::string command, bool *success);
+int ns__receiveCommand(const std::string &type, const std::string &command, bool *success);
 
 // get list of active processor-ids
 int ns__getPostprocessorIds(bool *success);
@@ -38,11 +38,11 @@ int ns__getPostprocessorIds(bool *success);
 int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 
 // get result from server
-int ns__getHistogram(std::string type, ULONG64 eventId, bool *success);
+int ns__getHistogram(const std::string &type, ULONG64 eventId, bool *success);
 
 // get list of results from server
 int ns__getResults(bool sameEventId, bool *success);
 
 // control darkcal calibration
-int ns__controlDarkcal(std::string controlCommand, bool *success);
+int ns__controlDarkcal(const std::string &controlCommand, bool *success);
 
