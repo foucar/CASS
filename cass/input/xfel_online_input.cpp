@@ -58,6 +58,8 @@ void XFELOnlineInput::runthis()
   /** info where the nbrPulses is within the transferred data */
   string nPulsesPath(s.value("PathToNbrPulsesInTrain","header.pulseCount").toString().toStdString());
 
+  /** info about the source of the data of interest */
+  string source(s.value("source","SPB_DET_AGIPD1M-1/DET/detector-1").toString().toStdString());
   /** info where the image data is within the transferred data */
   string imageDataPath(s.value("PathToImage","image.data").toString().toStdString());
   /** the id that the data should have within the cass-event */
@@ -83,27 +85,27 @@ void XFELOnlineInput::runthis()
     pausePoint();
 
     /** now retrive new data from the socket */
-    karabo_bridge::kb_data data(client.next());
+    auto data(client.next());
 
     /** get the info about the number of pulses in the train */
-    const uint64_t nPulses(data[nPulsesPath].as<uint64_t>());
+    auto nPulses(data[source][nPulsesPath].as<uint64_t>());
 
     /** get the detector data */
     pixeldetector::Detector::frame_t det_data;
-    if (data.array[imageDataPath].dtype() == "uint16")
+    if (data[source].array[imageDataPath].dtype() == "uint16")
     {
-      vector<uint16_t> tmp(data.array[imageDataPath].as<uint16_t>());
+      auto tmp(data[source].array[imageDataPath].as<uint16_t>());
       det_data.assign(tmp.begin(),tmp.end());
     }
-    else if (data.array[imageDataPath].dtype() == "float32")
+    else if (data[source].array[imageDataPath].dtype() == "float32")
     {
-      det_data = std::move(data.array[imageDataPath].as<float>());
+      det_data = std::move(data[source].array[imageDataPath].as<float>());
     }
 
     /** get the shape of the detector (encodes the pulses in the train and the
      *  and the shape itself)
      */
-    const vector<unsigned int> det_shape(data.array[imageDataPath].shape());
+    const vector<unsigned int> det_shape(data[source].array[imageDataPath].shape());
     const size_t nPulsesFromImage(det_shape[0]);
     const size_t nModules(det_shape[1]);
     const size_t nRowsInModule(det_shape[2]);
