@@ -96,30 +96,85 @@ void XFELOnlineInput::runthis()
     auto data(client.next());
 
     /** get the info about the number of pulses in the train */
-    auto nPulses(data[source][nPulsesPath].as<uint64_t>());
+    //auto nPulses(data[source][nPulsesPath].as<vector<uint64_t> >());
+    //auto nPulsesShape(data[source][nPulsesPath].get().via.array.size);
+    size_t nPulses(64);
+
+    /** get the shape of the detector (encodes the pulses in the train and the
+     *  and the shape itself)
+     *
+     *  should be in the shape of nPulses,nModules,512,128 but is most likely in the
+     *  shape of nModules,128,512,nPulses so one needs to transpose the axis.
+     */
+    const auto det_shape(data[source].array[imageDataPath].shape());
+    const bool dataNeedsPermutation(det_shape[3] != 128);
+    size_t nPulsesFromImage;
+    size_t nModules;
+    size_t nRowsInModule;
+    size_t nCols;
+    if (dataNeedsPermutation)
+    {
+      // if in nModules,128,512,nPulses
+      nPulsesFromImage = (det_shape[3]);
+      nModules = (det_shape[0]);
+      nRowsInModule = (det_shape[2]);
+      nCols = (det_shape[1]);
+    }
+    else
+    {
+      // if in nPulses,nModules,512,128
+      nPulsesFromImage = (det_shape[0]);
+      nModules = (det_shape[1]);
+      nRowsInModule = (det_shape[2]);
+      nCols = (det_shape[3]);
+    }
+    const size_t sizeofOneDet(nModules*nRowsInModule*nCols);
+    const size_t nCASSRows(nModules*nRowsInModule);
 
     /** get the detector data */
     pixeldetector::Detector::frame_t det_data;
-    if (data[source].array[imageDataPath].dtype() == "uint16")
+    if (data[source].array[imageDataPath].dtype() == "uint16_t")
     {
-      auto tmp(data[source].array[imageDataPath].as<uint16_t>());
+      const auto tmp(data[source].array[imageDataPath].as<uint16_t>());
       det_data.assign(tmp.begin(),tmp.end());
     }
     else if (data[source].array[imageDataPath].dtype() == "float32")
     {
-      det_data = std::move(data[source].array[imageDataPath].as<float>());
+      //auto tmp(data[source].array[imageDataPath].as<float>());
+      //det_data.assign(tmp.begin(),tmp.end());
+      const auto ptr(data[source].array[imageDataPath].data<float>());
+      const auto nElements(data[source].array[imageDataPath].size());
+      if (dataNeedsPermutation)
+      {
+        // permute the axis of the original data to go with the exspected layout
+        det_data.resize(nElements);
+        for (size_t iModule(0); iModule < nModules ; ++iModule)
+        {
+          for (size_t iColumn(0); iColumn < nCols ; ++iColumn)
+          {
+            for (size_t iRow(0); iRow < nRowsInModule ; ++iRow)
+            {
+              for (size_t iPulse(0); iPulse < nPulsesFromImage; ++iPulse)
+              {
+                auto origIDX(iPulse +
+                             iRow*nPulses +
+                             iColumn*nPulsesFromImage*nRowsInModule +
+                             iModule*nPulsesFromImage*nRowsInModule*nCols);
+                auto goodIDX(iRow +
+                             iColumn*nRowsInModule +
+                             iModule*nRowsInModule*nCols +
+                             iPulse*nRowsInModule*nCols*nModules);
+                det_data[goodIDX] = ptr[origIDX];
+              }
+            }
+          }
+        }
+      }
+      else
+      {
+        det_data.assign(ptr,ptr+nElements);
+      }
     }
-
-    /** get the shape of the detector (encodes the pulses in the train and the
-     *  and the shape itself)
-     */
-    const vector<unsigned int> det_shape(data[source].array[imageDataPath].shape());
-    const size_t nPulsesFromImage(det_shape[0]);
-    const size_t nModules(det_shape[1]);
-    const size_t nRowsInModule(det_shape[2]);
-    const size_t nCASSRows(nModules*nRowsInModule);
-    const size_t nCols(det_shape[3]);
-    const size_t sizeofOneDet(nModules*nRowsInModule*nCols);
 
     /** check if the data is consistent */
     if (nPulses != nPulsesFromImage)
