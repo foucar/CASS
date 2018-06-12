@@ -188,6 +188,14 @@ void XFELOnlineInput::runthis()
     /** go through all pulses in the train */
     for(size_t pulseID(0); pulseID < nPulses; ++pulseID)
     {
+      /** skip some known bad pulses */
+      if ((pulseID == 0) ||
+          (pulseID == 32) ||
+          (pulseID == 61) ||
+          (pulseID == 62) ||
+          (pulseID == 63))
+        continue;
+
       /** retrieve a new element from the ringbuffer, continue with next iteration
        *  in case the retrieved element is the iterator to the last element of the
        *  buffer.
