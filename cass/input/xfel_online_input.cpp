@@ -69,8 +69,16 @@ void XFELOnlineInput::runthis()
   /** create a karabo client that allows to connect to online karabo */
   karabo_bridge::Client client;
 
+  /** write the data structure that is sent by the server to the log */
+  Log::add(Log::INFO,"XFELOnlineInput::run(): trying to connect to server at '"+
+                     serverAddress + "'");
+
   /** connect to the xfel client */
   client.connect(serverAddress);
+
+  /** write the data structure that is sent by the server to the log */
+  Log::add(Log::INFO,"XFELOnlineInput::run(): connected to server at '"+
+                     serverAddress + "'. Now waiting for data.");
 
   /** write the data structure that is sent by the server to the log */
   Log::add(Log::INFO,"XFELOnlineInput::run(): available data from the server:\n"+
