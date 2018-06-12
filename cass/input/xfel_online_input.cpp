@@ -59,7 +59,7 @@ void XFELOnlineInput::runthis()
   string nPulsesPath(s.value("PathToNbrPulsesInTrain","header.pulseCount").toString().toStdString());
 
   /** info about the source of the data of interest */
-  string source(s.value("source","SPB_DET_AGIPD1M-1/DET/detector-1").toString().toStdString());
+  string source(s.value("Source","SPB_DET_AGIPD1M-1/DET/detector-1").toString().toStdString());
   /** info where the image data is within the transferred data */
   string imageDataPath(s.value("PathToImage","image.data").toString().toStdString());
   /** the id that the data should have within the cass-event */
