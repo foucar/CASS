@@ -232,7 +232,9 @@ void XFELOnlineInput::runthis()
       ++_counter;
       _ringbuffer.doneFilling(rbItem, 1);
     }// done going through all pulses in the train
-    newEventAdded(data.size());
+    size_t datasize(0);
+    for (auto& d : data) datasize += d.second.size();
+    newEventAdded(datasize);
   }
   Log::add(Log::INFO,"XFELOnlineInput::run(): Quitting loop");
 }
