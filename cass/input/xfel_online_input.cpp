@@ -237,6 +237,16 @@ void XFELOnlineInput::runthis()
       auto offsetToBegin(pulseID * sizeofOneDet);
       auto offsetToEnd((pulseID+1) * sizeofOneDet);
       det.frame().assign(det_data.begin()+offsetToBegin,det_data.begin()+offsetToEnd);
+      /** ensure that all values in the frame are numbers */
+      for (auto &pixel : det.frame()) if (!isfinite(pixel)) pixel = 0;
+
+      /** retrieve the machine detector part of the cassevent */
+      devIt = devices.find(CASSEvent::MachineData);
+      if(devIt == devices.end())
+        throw runtime_error(string("XFELOnlineInput: CASSEvent does not") +
+                                   " contain a machinedata device");
+      MachineData::Device &md (dynamic_cast<MachineData::Device&>(*(devIt->second)));
+      md.BeamlineData()["PulseId"] = pulseID;
 
       /** tell the ringbuffer that we're done with the event */
       ++_counter;
