@@ -190,6 +190,16 @@ void XFELOnlineInput::runthis()
     {
       /** skip some known bad pulses */
       if ((pulseID == 0) ||
+          (pulseID == 1) ||
+          (pulseID == 2) ||
+          (pulseID == 3) ||
+          (pulseID == 4) ||
+          (pulseID == 5) ||
+          (pulseID == 6) ||
+          (pulseID == 7) ||
+          (pulseID == 8) ||
+          (pulseID == 9) ||
+          (pulseID == 10) ||
           (pulseID == 32) ||
           (pulseID == 61) ||
           (pulseID == 62) ||
