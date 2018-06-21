@@ -133,17 +133,17 @@ void XFELOnlineInput::runthis()
 
     /** get the detector data */
     pixeldetector::Detector::frame_t det_data;
+    const auto nElements(data[source].array[imageDataPath].size());
     if (data[source].array[imageDataPath].dtype() == "uint16_t")
     {
-      const auto tmp(data[source].array[imageDataPath].as<uint16_t>());
-      det_data.assign(tmp.begin(),tmp.end());
+      const auto ptr(data[source].array[imageDataPath].data<uint16_t>());
+      det_data.assign(ptr,ptr+nElements);
     }
     else if (data[source].array[imageDataPath].dtype() == "float32")
     {
       //auto tmp(data[source].array[imageDataPath].as<float>());
       //det_data.assign(tmp.begin(),tmp.end());
       const auto ptr(data[source].array[imageDataPath].data<float>());
-      const auto nElements(data[source].array[imageDataPath].size());
       if (dataNeedsPermutation)
       {
         // permute the axis of the original data to go with the exspected layout
@@ -253,7 +253,7 @@ void XFELOnlineInput::runthis()
       _ringbuffer.doneFilling(rbItem, 1);
     }// done going through all pulses in the train
     size_t datasize(0);
-    for (auto& d : data) datasize += d.second.size();
+    for (auto& d : data) datasize += d.second.bytesReceived();
     newEventAdded(datasize);
   }
   Log::add(Log::INFO,"XFELOnlineInput::run(): Quitting loop");
